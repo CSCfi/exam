@@ -236,16 +236,14 @@ public class CalendarController extends BaseController {
                 if (externalReference != null) {
                     return externalReservationHandler
                         .removeReservation(oldReservation, user, "")
-                        .thenCompose(
-                            result -> {
-                                // Refetch enrolment
-                                ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());
-                                if (updatedEnrolment == null) {
-                                    return wrapAsPromise(notFound());
-                                }
-                                return makeNewReservation(updatedEnrolment, reservation, user);
+                        .thenCompose(result -> {
+                            // Refetch enrolment
+                            ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());
+                            if (updatedEnrolment == null) {
+                                return wrapAsPromise(notFound());
                             }
-                        );
+                            return makeNewReservation(updatedEnrolment, reservation, user);
+                        });
                 } else {
                     enrolment.setReservation(null);
                     enrolment.update();

@@ -232,13 +232,11 @@ public class SettingsController extends BaseController {
         ObjectNode roles = Json.newObject();
         configReader
             .getRoleMapping()
-            .forEach(
-                (k, v) -> {
-                    ArrayNode role = Json.newArray();
-                    v.forEach(role::add);
-                    roles.set(k.getName(), role);
-                }
-            );
+            .forEach((k, v) -> {
+                ArrayNode role = Json.newArray();
+                v.forEach(role::add);
+                roles.set(k.getName(), role);
+            });
         node.set("roles", roles);
 
         GeneralSettings eula = getOrCreateSettings("eula", null, null);

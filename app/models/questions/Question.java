@@ -303,42 +303,39 @@ public class Question extends OwnedModel implements AttachmentContainer {
         return (
             StreamSupport
                 .stream(options.spliterator(), false)
-                .filter(
-                    n -> {
-                        MultipleChoiceOption.ClaimChoiceOptionType type = SanitizingHelper
-                            .parseEnum("claimChoiceType", n, MultipleChoiceOption.ClaimChoiceOptionType.class)
-                            .orElse(null);
-                        double defaultScore = n.get("defaultScore").asDouble();
-                        String option = n.get("option").asText();
+                .filter(n -> {
+                    MultipleChoiceOption.ClaimChoiceOptionType type = SanitizingHelper
+                        .parseEnum("claimChoiceType", n, MultipleChoiceOption.ClaimChoiceOptionType.class)
+                        .orElse(null);
+                    double defaultScore = n.get("defaultScore").asDouble();
+                    String option = n.get("option").asText();
 
-                        if (type == null) {
-                            return false;
-                        }
-
-                        return (
-                            (
-                                type == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption &&
-                                defaultScore > 0 &&
-                                !option.isEmpty()
-                            ) ||
-                            (
-                                type == MultipleChoiceOption.ClaimChoiceOptionType.IncorrectOption &&
-                                defaultScore <= 0 &&
-                                !option.isEmpty()
-                            ) ||
-                            (
-                                type == MultipleChoiceOption.ClaimChoiceOptionType.SkipOption &&
-                                defaultScore == 0 &&
-                                !option.isEmpty()
-                            )
-                        );
+                    if (type == null) {
+                        return false;
                     }
-                )
-                .map(
-                    n ->
-                        SanitizingHelper
-                            .parseEnum("claimChoiceType", n, MultipleChoiceOption.ClaimChoiceOptionType.class)
-                            .orElse(null)
+
+                    return (
+                        (
+                            type == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption &&
+                            defaultScore > 0 &&
+                            !option.isEmpty()
+                        ) ||
+                        (
+                            type == MultipleChoiceOption.ClaimChoiceOptionType.IncorrectOption &&
+                            defaultScore <= 0 &&
+                            !option.isEmpty()
+                        ) ||
+                        (
+                            type == MultipleChoiceOption.ClaimChoiceOptionType.SkipOption &&
+                            defaultScore == 0 &&
+                            !option.isEmpty()
+                        )
+                    );
+                })
+                .map(n ->
+                    SanitizingHelper
+                        .parseEnum("claimChoiceType", n, MultipleChoiceOption.ClaimChoiceOptionType.class)
+                        .orElse(null)
                 )
                 .filter(Objects::nonNull)
                 .distinct()

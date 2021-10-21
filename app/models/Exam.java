@@ -865,17 +865,15 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         examSections
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
-            .forEach(
-                esq -> {
-                    esq.setDerivedMaxScore();
-                    // Also set min scores, if question is claim choice question
-                    Optional<Question.Type> type = Optional.ofNullable(esq.getQuestion()).map(Question::getType);
-                    if (type.isPresent() && type.get() == Question.Type.ClaimChoiceQuestion) {
-                        esq.setDerivedMinScore();
-                    }
-                    esq.getOptions().forEach(o -> o.setScore(null));
+            .forEach(esq -> {
+                esq.setDerivedMaxScore();
+                // Also set min scores, if question is claim choice question
+                Optional<Question.Type> type = Optional.ofNullable(esq.getQuestion()).map(Question::getType);
+                if (type.isPresent() && type.get() == Question.Type.ClaimChoiceQuestion) {
+                    esq.setDerivedMinScore();
                 }
-            );
+                esq.getOptions().forEach(o -> o.setScore(null));
+            });
     }
 
     @Override

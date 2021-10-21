@@ -67,22 +67,20 @@ export class ExamStatisticsComponent implements OnInit {
     totalExams = () => this.exams.reduce((a, b) => a + b.participations, 0);
 
     listExams = () =>
-        this.http
-            .get<ExamInfo[]>('/app/reports/exams', { params: this.queryParams })
-            .subscribe((resp) => {
-                if (!resp) {
-                    return;
-                }
-                this.exams = resp.sort((a, b) => {
-                    if (a.participations > b.participations) return -1;
-                    else if (a.participations < b.participations) return 1;
+        this.http.get<ExamInfo[]>('/app/reports/exams', { params: this.queryParams }).subscribe((resp) => {
+            if (!resp) {
+                return;
+            }
+            this.exams = resp.sort((a, b) => {
+                if (a.participations > b.participations) return -1;
+                else if (a.participations < b.participations) return 1;
 
-                    if (a.name > b.name) return 1;
-                    else if (a.name < b.name) return -1;
+                if (a.name > b.name) return 1;
+                else if (a.name < b.name) return -1;
 
-                    return 0;
-                });
+                return 0;
             });
+        });
 
     getRank = (index: number, items: ExamInfo[]) => {
         const prev = Math.max(0, index - 1);

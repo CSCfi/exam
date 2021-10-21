@@ -322,25 +322,20 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
         defaultWorkingHours
             .stream()
             .filter(dwh -> dwh.getWeekday().equalsIgnoreCase(day))
-            .forEach(
-                dwh -> {
-                    DateTime midnight = date.toDateTimeAtStartOfDay();
-                    DateTime start = midnight.withMillisOfDay(
-                        DateTimeUtils.resolveStartWorkingHourMillis(
-                            new DateTime(dwh.getStartTime()),
-                            dwh.getTimezoneOffset()
-                        )
-                    );
-                    DateTime end = midnight.withMillisOfDay(
-                        DateTimeUtils.resolveEndWorkingHourMillis(
-                            new DateTime(dwh.getEndTime()),
-                            dwh.getTimezoneOffset()
-                        )
-                    );
-                    Interval interval = new Interval(start, end);
-                    hours.add(new OpeningHours(interval, dwh.getTimezoneOffset()));
-                }
-            );
+            .forEach(dwh -> {
+                DateTime midnight = date.toDateTimeAtStartOfDay();
+                DateTime start = midnight.withMillisOfDay(
+                    DateTimeUtils.resolveStartWorkingHourMillis(
+                        new DateTime(dwh.getStartTime()),
+                        dwh.getTimezoneOffset()
+                    )
+                );
+                DateTime end = midnight.withMillisOfDay(
+                    DateTimeUtils.resolveEndWorkingHourMillis(new DateTime(dwh.getEndTime()), dwh.getTimezoneOffset())
+                );
+                Interval interval = new Interval(start, end);
+                hours.add(new OpeningHours(interval, dwh.getTimezoneOffset()));
+            });
         return hours;
     }
 

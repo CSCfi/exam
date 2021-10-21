@@ -29,7 +29,7 @@ import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDia
 import { WindowRef } from '../../utility/window/window.service';
 
 import type { Observable } from 'rxjs';
-import type { Exam, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
+import type { Exam, ExamSectionQuestion, Feedback, ExamLanguage } from '../../exam/exam.model';
 import type { ReviewedExam } from '../../enrolment/enrolment.model';
 import type { StateDeclaration } from '@uirouter/core';
 
@@ -58,16 +58,17 @@ export class AssessmentService {
         private Exam: ExamService,
     ) {}
 
-    saveFeedback$ = (exam: Exam, silent = false): Observable<void> => {
+    saveFeedback$ = (exam: Exam, silent = false): Observable<Feedback> => {
         const data = {
             id: exam.examFeedback?.id,
             comment: exam.examFeedback?.comment,
         };
-        return this.http.put<void>(`/app/review/${exam.id}/comment`, data).pipe(
-            tap(() => {
+        return this.http.put<Feedback>(`/app/review/${exam.id}/comment`, data).pipe(
+            tap((comment) => {
                 if (!silent) {
                     toast.info(this.translate.instant('sitnet_comment_updated'));
                 }
+                Object.assign(exam.examFeedback, { id: comment.id });
             }),
         );
     };
@@ -75,12 +76,12 @@ export class AssessmentService {
     isReadOnly = (exam: Exam) => ['GRADED_LOGGED', 'ARCHIVED', 'ABORTED', 'REJECTED'].indexOf(exam?.state) > -1;
     isGraded = (exam: Exam) => exam?.state === 'GRADED';
 
-    pickExamLanguage = (exam: Exam): { code: string } => {
+    pickExamLanguage = (exam: Exam): ExamLanguage => {
         const lang = exam.answerLanguage;
         if (lang) {
-            return { code: lang };
+            return { code: lang, name: '' };
         } else if (exam.examLanguages.length === 1) {
-            return { code: exam.examLanguages[0].code };
+            return exam.examLanguages[0];
         }
         throw Error('No Exam Language to pick!');
     };

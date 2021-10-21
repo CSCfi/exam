@@ -78,12 +78,10 @@ public class ReservationAPIController extends BaseController {
         List<Reservation> reservations = el
             .findSet()
             .stream()
-            .peek(
-                r -> {
-                    r.setStartAt(DateTimeUtils.normalize(r.getStartAt(), r));
-                    r.setEndAt(DateTimeUtils.normalize(r.getEndAt(), r));
-                }
-            )
+            .peek(r -> {
+                r.setStartAt(DateTimeUtils.normalize(r.getStartAt(), r));
+                r.setEndAt(DateTimeUtils.normalize(r.getEndAt(), r));
+            })
             .sorted(Comparator.comparing(Reservation::getStartAt))
             .collect(Collectors.toList());
 
@@ -116,13 +114,11 @@ public class ReservationAPIController extends BaseController {
             room
                 .getCalendarExceptionEvents()
                 .stream()
-                .filter(
-                    ee -> {
-                        LocalDate start = new LocalDate(ee.getStartDate()).withDayOfMonth(1);
-                        LocalDate end = new LocalDate(ee.getEndDate()).dayOfMonth().withMaximumValue();
-                        return !start.isAfter(searchDate) && !end.isBefore(searchDate);
-                    }
-                )
+                .filter(ee -> {
+                    LocalDate start = new LocalDate(ee.getStartDate()).withDayOfMonth(1);
+                    LocalDate end = new LocalDate(ee.getEndDate()).dayOfMonth().withMaximumValue();
+                    return !start.isAfter(searchDate) && !end.isBefore(searchDate);
+                })
                 .collect(Collectors.toList())
         );
         return ok(room, pp);

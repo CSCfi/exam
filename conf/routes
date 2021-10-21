@@ -384,6 +384,8 @@ GET           /integration/iop/attachment/exam/:id/statement           controlle
 POST          /integration/iop/export                                  controllers.iop.transfer.impl.DataTransferController.exportData(request: Request)
 + nocsrf
 POST          /integration/iop/import                                  controllers.iop.transfer.impl.DataTransferController.importData(request: Request)
++ nocsrf
+POST          /integration/iop/import/attachment/question/:id          controllers.iop.transfer.impl.DataTransferController.importQuestionAttachment(id: Long, request: Request)
 
 ################# Time interface ######################
 GET           /app/time/:hash                                          controllers.TimeController.getRemainingExamTime(hash: String, request: Request)

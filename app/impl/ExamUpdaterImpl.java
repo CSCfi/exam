@@ -171,15 +171,13 @@ public class ExamUpdaterImpl implements ExamUpdater {
         answerLanguage.ifPresent(exam::setAnswerLanguage);
         instruction.ifPresent(exam::setInstruction);
         enrollInstruction.ifPresent(exam::setEnrollInstruction);
-        examType.ifPresent(
-            type -> {
-                ExamType eType = Ebean.find(ExamType.class).where().eq("type", type).findOne();
+        examType.ifPresent(type -> {
+            ExamType eType = Ebean.find(ExamType.class).where().eq("type", type).findOne();
 
-                if (eType != null) {
-                    exam.setExamType(eType);
-                }
+            if (eType != null) {
+                exam.setExamType(eType);
             }
-        );
+        });
         exam.setTrialCount(trialCount);
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
@@ -272,14 +270,12 @@ public class ExamUpdaterImpl implements ExamUpdater {
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
-            .forEach(
-                esq -> {
-                    ClozeTestAnswer answer = new ClozeTestAnswer();
-                    answer.setQuestion(esq);
-                    esq.setClozeTestAnswer(answer);
-                    questionsToHide.add(esq.getQuestion());
-                }
-            );
+            .forEach(esq -> {
+                ClozeTestAnswer answer = new ClozeTestAnswer();
+                answer.setQuestion(esq);
+                esq.setClozeTestAnswer(answer);
+                questionsToHide.add(esq.getQuestion());
+            });
         questionsToHide.forEach(q -> q.setQuestion(null));
         exam.getExamSections().stream().filter(ExamSection::isLotteryOn).forEach(ExamSection::shuffleQuestions);
         exam.setDerivedMaxScores();
@@ -314,12 +310,10 @@ public class ExamUpdaterImpl implements ExamUpdater {
             .entrySet()
             .stream()
             .filter(entry -> !handledEvaluations.contains(entry.getKey()))
-            .forEach(
-                entry -> {
-                    entry.getValue().delete();
-                    config.getGradeEvaluations().remove(entry.getValue());
-                }
-            );
+            .forEach(entry -> {
+                entry.getValue().delete();
+                config.getGradeEvaluations().remove(entry.getValue());
+            });
     }
 
     private boolean hasFutureReservations(Exam exam) {
@@ -379,13 +373,11 @@ public class ExamUpdaterImpl implements ExamUpdater {
             .stream()
             .map(ExamEnrolment::getPreEnrolledUserEmail)
             .filter(Objects::nonNull)
-            .map(
-                email -> {
-                    User user = new User();
-                    user.setEmail(email);
-                    return user;
-                }
-            )
+            .map(email -> {
+                User user = new User();
+                user.setEmail(email);
+                return user;
+            })
             .collect(Collectors.toSet());
         Set<User> receivers = Stream.concat(enrolments.stream(), preEnrolments.stream()).collect(Collectors.toSet());
         actorSystem

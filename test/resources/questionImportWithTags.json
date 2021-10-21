@@ -1,0 +1,65 @@
+{
+  "type": "QUESTION",
+  "orgRef": "thisissomeorgref",
+  "ids": [
+    1,
+    1
+  ],
+  "path": "/integration/iop/import",
+  "owner": "teacher@funet.fi",
+  "questions": [
+    {
+      "id": 1,
+      "created": "2014-04-01T12:30:05.123Z",
+      "creator": {
+        "id": 2
+      },
+      "modified": null,
+      "modifier": null,
+      "type": "EssayQuestion",
+      "question": "<u>Kerro toiseen maailmansotaan johtaneista syistä.</u> **import",
+      "shared": false,
+      "state": null,
+      "defaultEvaluationCriteria": null,
+      "defaultEvaluationType": null,
+      "defaultAnswerInstructions": null,
+      "defaultMaxScore": 4.0,
+      "defaultExpectedWordCount": null,
+      "parent": null,
+      "options": [],
+      "tags": [
+        {
+          "id": 1,
+          "created": "2015-10-26T11:02:07.076Z",
+          "creator":
+          {
+            "id": 2
+          },
+          "modified": "2015-10-26T11:02:07.076Z",
+          "modifier":
+            {
+              "id": 2
+            },
+          "name": "kissa",
+          "objectVersion": 1
+        },
+        {
+          "id": 1,
+          "created": "2015-10-26T11:02:07.076Z",
+          "creator":
+          {
+            "id": 2
+          },
+          "modified": "2015-10-26T11:02:07.076Z",
+          "modifier":
+          {
+            "id": 2
+          },
+          "name": "koira",
+          "objectVersion": 1
+        }
+      ],
+      "objectVersion": 2
+    }
+  ]
+}

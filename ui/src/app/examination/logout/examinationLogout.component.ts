@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 
 import { WindowRef } from '../../utility/window/window.service';
 import { ExaminationStatusService } from '../examinationStatus.service';
@@ -43,6 +43,7 @@ export class ExaminationLogoutComponent {
     constructor(
         private http: HttpClient,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private Window: WindowRef,
         private ExaminationStatus: ExaminationStatusService,
     ) {}
@@ -54,15 +55,16 @@ export class ExaminationLogoutComponent {
         }, 8000);
 
     ngOnInit() {
-        this.reasonPhrase = this.state.params.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
-        this.quitLinkEnabled = this.state.params.quitLinkEnabled === 'true';
+        this.reasonPhrase = this.routing.params.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
+        this.quitLinkEnabled = this.routing.params.quitLinkEnabled === 'true';
 
         if (this.quitLinkEnabled) {
             this.http.get<{ quitLink: string }>('/app/settings/examinationQuitLink').subscribe(
                 (resp) => (this.quitLink = resp.quitLink),
                 () =>
-                    // Fetching quit link failed for some reason, just log out
-                    () => this.logout(),
+                    // Fetching quit link failed for some reason, just log out. Nothing we can do
+                    () =>
+                        this.logout(),
             );
         } else {
             this.logout();

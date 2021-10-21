@@ -42,16 +42,14 @@ public class ExamOwnerController extends BaseController {
         exam
             .getExamOwners()
             .stream()
-            .map(
-                u -> {
-                    ObjectNode o = Json.newObject();
-                    o.put("firstName", u.getFirstName());
-                    o.put("id", u.getId());
-                    o.put("lastName", u.getLastName());
-                    o.put("email", u.getEmail());
-                    return o;
-                }
-            )
+            .map(u -> {
+                ObjectNode o = Json.newObject();
+                o.put("firstName", u.getFirstName());
+                o.put("id", u.getId());
+                o.put("lastName", u.getLastName());
+                o.put("email", u.getEmail());
+                return o;
+            })
             .forEach(node::add);
         return ok(Json.toJson(node));
     }

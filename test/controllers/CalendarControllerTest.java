@@ -80,7 +80,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
     @Test
     @RunAsStudent
-    public void testConcurentCreateReservation() throws Exception {
+    public void testConcurrentCreateReservation() throws Exception {
         exam.setExecutionType(Ebean.find(ExamExecutionType.class, 2));
         exam.getExamOwners().add(Ebean.find(User.class, 4));
         exam.save();
@@ -93,25 +93,22 @@ public class CalendarControllerTest extends IntegrationTestCase {
         IntStream
             .range(0, callCount)
             .parallel()
-            .forEach(
-                i ->
-                    new Thread(
-                        () -> {
-                            final Result result = request(
-                                Helpers.POST,
-                                "/app/calendar/reservation",
-                                Json
-                                    .newObject()
-                                    .put("roomId", room.getId())
-                                    .put("examId", exam.getId())
-                                    .put("start", ISODateTimeFormat.dateTime().print(start))
-                                    .put("end", ISODateTimeFormat.dateTime().print(end))
-                            );
-                            status.add(result.status());
-                            waiter.resume();
-                        }
-                    )
-                        .start()
+            .forEach(i ->
+                new Thread(() -> {
+                    final Result result = request(
+                        Helpers.POST,
+                        "/app/calendar/reservation",
+                        Json
+                            .newObject()
+                            .put("roomId", room.getId())
+                            .put("examId", exam.getId())
+                            .put("start", ISODateTimeFormat.dateTime().print(start))
+                            .put("end", ISODateTimeFormat.dateTime().print(end))
+                    );
+                    status.add(result.status());
+                    waiter.resume();
+                })
+                    .start()
             );
         waiter.await(MAIL_TIMEOUT + 1000, callCount);
         assertThat(status).containsOnly(200);

@@ -13,6 +13,12 @@ export class OrderByPipe implements PipeTransform {
     compare<T>(reverse: boolean, a: T, b: T, path: string): number {
         const f1 = get(a, path);
         const f2 = get(b, path);
+        if (typeof f1 === 'number' && typeof f2 === 'string') {
+            return reverse ? -1 : 1;
+        }
+        if (typeof f1 === 'string' && typeof f2 === 'number') {
+            return reverse ? 1 : -1;
+        }
         if (f1 < f2 && reverse === false) {
             return -1;
         }

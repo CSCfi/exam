@@ -100,7 +100,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     public PathProperties getAssessmentPath() {
         String path =
             "(*, user(id, firstName, lastName, email, eppn, userIdentifier)" +
-            "exam(id, name, state, instruction, hash, duration, executionType(id, type), " +
+            "exam(id, name, state, instruction, hash, implementation, duration, executionType(id, type), " +
             "examLanguages(code), attachment(id, externalId, fileName)" +
             "autoEvaluationConfig(*, gradeEvaluations(*, grade(*)))" +
             "creditType(*), examType(*), executionType(*)" +
@@ -154,12 +154,10 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         return request
             .post(Ebean.json().toJson(participation, getAssessmentPath()))
             .thenApplyAsync(onSuccess)
-            .exceptionally(
-                t -> {
-                    logger.error("Could not send assessment to xm! [id=" + participation.getId() + "]", t);
-                    return false;
-                }
-            );
+            .exceptionally(t -> {
+                logger.error("Could not send assessment to xm! [id=" + participation.getId() + "]", t);
+                return false;
+            });
     }
 
     @Override

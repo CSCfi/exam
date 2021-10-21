@@ -16,6 +16,7 @@ import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
+import { ExamTabService } from '../../../exam/editor/examTabs.service';
 import { QuestionReviewService } from '../questionReview.service';
 
 import type { QuestionReview } from '../../review.model';
@@ -29,13 +30,18 @@ export class QuestionReviewsComponent {
     selectedReviews: number[] = [];
     selectionToggle = false;
 
-    constructor(private state: StateService, private QuestionReview: QuestionReviewService) {}
+    constructor(
+        private state: StateService,
+        private QuestionReview: QuestionReviewService,
+        private Tabs: ExamTabService,
+    ) {}
 
     ngOnInit() {
         this.QuestionReview.getReviews$(this.examId).subscribe(
             (resp) => (this.reviews = resp),
             (err) => toast.error(err),
         );
+        this.Tabs.notifyTabChange(5);
     }
 
     onReviewSelection = (event: { id: number; selected: boolean }) => {

@@ -121,95 +121,88 @@ public class ExaminationController extends BaseController {
                 CompletionStage<Optional<Exam>> getClone = examinationRepository.getPossibleClone(hash, user, ce, pp);
                 return getPrototype.thenComposeAsync(
                     optionalPrototype ->
-                        getClone.thenComposeAsync(
-                            possibleClone -> {
-                                if (optionalPrototype.isEmpty() && possibleClone.isEmpty()) {
-                                    return wrapAsPromise(notFound());
-                                }
-                                if (possibleClone.isEmpty()) {
-                                    // Exam not started yet, create new exam for student
-                                    Exam prototype = optionalPrototype.get();
-                                    CompletionStage<Optional<ExamEnrolment>> findEnrolment = examinationRepository.findEnrolment(
-                                        user,
-                                        prototype,
-                                        ce
-                                    );
-                                    return findEnrolment.thenComposeAsync(
-                                        optionalEnrolment -> {
-                                            if (optionalEnrolment.isEmpty()) {
-                                                return wrapAsPromise(forbidden());
-                                            }
-                                            ExamEnrolment enrolment = optionalEnrolment.get();
-                                            CompletionStage<Optional<Result>> getEnrolmentError = getEnrolmentError(
-                                                enrolment,
-                                                request
-                                            );
-                                            return getEnrolmentError.thenComposeAsync(
-                                                error -> {
-                                                    if (error.isPresent()) {
-                                                        return wrapAsPromise(error.get());
-                                                    }
-                                                    CompletionStage<Optional<Exam>> createExam = examinationRepository.createExam(
-                                                        prototype,
-                                                        user,
-                                                        enrolment
-                                                    );
-                                                    return createExam.thenApplyAsync(
-                                                        oe -> {
-                                                            if (oe.isEmpty()) {
-                                                                return internalServerError();
-                                                            }
-                                                            Exam newExam = oe.get();
-                                                            if (enrolment.getCollaborativeExam() != null) {
-                                                                try {
-                                                                    externalAttachmentLoader
-                                                                        .fetchExternalAttachmentsAsLocal(newExam)
-                                                                        .get();
-                                                                } catch (InterruptedException | ExecutionException e) {
-                                                                    logger.error(
-                                                                        "Could not fetch external attachments!",
-                                                                        e
-                                                                    );
-                                                                }
-                                                            }
-                                                            newExam.setCloned(true);
-                                                            newExam.setDerivedMaxScores();
-                                                            processClozeTestQuestions(newExam);
-                                                            return ok(newExam, getPath(false));
-                                                        },
-                                                        httpExecutionContext.current()
-                                                    );
-                                                },
-                                                httpExecutionContext.current()
-                                            );
-                                        },
-                                        httpExecutionContext.current()
-                                    );
-                                } else {
-                                    // Exam started already
-                                    CompletionStage<Optional<Result>> getEnrolmentError = getEnrolmentError(
-                                        hash,
-                                        request
-                                    );
-                                    return getEnrolmentError.thenApplyAsync(
-                                        err -> {
-                                            if (err.isPresent()) {
-                                                return err.get();
-                                            }
-                                            Exam clone = possibleClone.get();
-                                            // sanity check
-                                            if (clone.getState() != Exam.State.STUDENT_STARTED) {
-                                                return forbidden();
-                                            }
-                                            clone.setCloned(false);
-                                            clone.setDerivedMaxScores();
-                                            processClozeTestQuestions(clone);
-                                            return ok(clone, getPath(false));
-                                        }
-                                    );
-                                }
+                        getClone.thenComposeAsync(possibleClone -> {
+                            if (optionalPrototype.isEmpty() && possibleClone.isEmpty()) {
+                                return wrapAsPromise(notFound());
                             }
-                        ),
+                            if (possibleClone.isEmpty()) {
+                                // Exam not started yet, create new exam for student
+                                Exam prototype = optionalPrototype.get();
+                                CompletionStage<Optional<ExamEnrolment>> findEnrolment = examinationRepository.findEnrolment(
+                                    user,
+                                    prototype,
+                                    ce
+                                );
+                                return findEnrolment.thenComposeAsync(
+                                    optionalEnrolment -> {
+                                        if (optionalEnrolment.isEmpty()) {
+                                            return wrapAsPromise(forbidden());
+                                        }
+                                        ExamEnrolment enrolment = optionalEnrolment.get();
+                                        CompletionStage<Optional<Result>> getEnrolmentError = getEnrolmentError(
+                                            enrolment,
+                                            request
+                                        );
+                                        return getEnrolmentError.thenComposeAsync(
+                                            error -> {
+                                                if (error.isPresent()) {
+                                                    return wrapAsPromise(error.get());
+                                                }
+                                                CompletionStage<Optional<Exam>> createExam = examinationRepository.createExam(
+                                                    prototype,
+                                                    user,
+                                                    enrolment
+                                                );
+                                                return createExam.thenApplyAsync(
+                                                    oe -> {
+                                                        if (oe.isEmpty()) {
+                                                            return internalServerError();
+                                                        }
+                                                        Exam newExam = oe.get();
+                                                        if (enrolment.getCollaborativeExam() != null) {
+                                                            try {
+                                                                externalAttachmentLoader
+                                                                    .fetchExternalAttachmentsAsLocal(newExam)
+                                                                    .get();
+                                                            } catch (InterruptedException | ExecutionException e) {
+                                                                logger.error(
+                                                                    "Could not fetch external attachments!",
+                                                                    e
+                                                                );
+                                                            }
+                                                        }
+                                                        newExam.setCloned(true);
+                                                        newExam.setDerivedMaxScores();
+                                                        processClozeTestQuestions(newExam);
+                                                        return ok(newExam, getPath(false));
+                                                    },
+                                                    httpExecutionContext.current()
+                                                );
+                                            },
+                                            httpExecutionContext.current()
+                                        );
+                                    },
+                                    httpExecutionContext.current()
+                                );
+                            } else {
+                                // Exam started already
+                                CompletionStage<Optional<Result>> getEnrolmentError = getEnrolmentError(hash, request);
+                                return getEnrolmentError.thenApplyAsync(err -> {
+                                    if (err.isPresent()) {
+                                        return err.get();
+                                    }
+                                    Exam clone = possibleClone.get();
+                                    // sanity check
+                                    if (clone.getState() != Exam.State.STUDENT_STARTED) {
+                                        return forbidden();
+                                    }
+                                    clone.setCloned(false);
+                                    clone.setDerivedMaxScores();
+                                    processClozeTestQuestions(clone);
+                                    return ok(clone, getPath(false));
+                                });
+                            }
+                        }),
                     httpExecutionContext.current()
                 );
             },
@@ -222,46 +215,43 @@ public class ExaminationController extends BaseController {
     @Transactional
     public CompletionStage<Result> turnExam(String hash, Http.Request request) {
         return getEnrolmentError(hash, request)
-            .thenApplyAsync(
-                oe ->
-                    oe.orElseGet(
-                        () -> {
-                            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                            Exam exam = Ebean
-                                .find(Exam.class)
-                                .fetch("examSections.sectionQuestions.question")
-                                .where()
-                                .eq("creator", user)
-                                .eq("hash", hash)
-                                .findOne();
-                            if (exam == null) {
-                                return notFound("sitnet_error_exam_not_found");
-                            }
-                            Optional<ExamParticipation> oep = findParticipation(exam, user);
-                            Http.Session session = request.session().removing("ongoingExamHash");
-                            if (oep.isPresent()) {
-                                ExamParticipation ep = oep.get();
-                                setDurations(ep);
+            .thenApplyAsync(oe ->
+                oe.orElseGet(() -> {
+                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                    Exam exam = Ebean
+                        .find(Exam.class)
+                        .fetch("examSections.sectionQuestions.question")
+                        .where()
+                        .eq("creator", user)
+                        .eq("hash", hash)
+                        .findOne();
+                    if (exam == null) {
+                        return notFound("sitnet_error_exam_not_found");
+                    }
+                    Optional<ExamParticipation> oep = findParticipation(exam, user);
+                    Http.Session session = request.session().removing("ongoingExamHash");
+                    if (oep.isPresent()) {
+                        ExamParticipation ep = oep.get();
+                        setDurations(ep);
 
-                                GeneralSettings settings = SettingsController.getOrCreateSettings(
-                                    "review_deadline",
-                                    null,
-                                    "14"
-                                );
-                                int deadlineDays = Integer.parseInt(settings.getValue());
-                                DateTime deadline = ep.getEnded().plusDays(deadlineDays);
-                                ep.setDeadline(deadline);
-                                ep.save();
-                                exam.setState(Exam.State.REVIEW);
-                                exam.update();
-                                if (exam.isPrivate()) {
-                                    notifyTeachers(exam);
-                                }
-                                autoEvaluationHandler.autoEvaluate(exam);
-                            }
-                            return ok().withSession(session);
+                        GeneralSettings settings = SettingsController.getOrCreateSettings(
+                            "review_deadline",
+                            null,
+                            "14"
+                        );
+                        int deadlineDays = Integer.parseInt(settings.getValue());
+                        DateTime deadline = ep.getEnded().plusDays(deadlineDays);
+                        ep.setDeadline(deadline);
+                        ep.save();
+                        exam.setState(Exam.State.REVIEW);
+                        exam.update();
+                        if (exam.isPrivate()) {
+                            notifyTeachers(exam);
                         }
-                    )
+                        autoEvaluationHandler.autoEvaluate(exam);
+                    }
+                    return ok().withSession(session);
+                })
             );
     }
 
@@ -270,31 +260,28 @@ public class ExaminationController extends BaseController {
     @Transactional
     public CompletionStage<Result> abortExam(String hash, Http.Request request) {
         return getEnrolmentError(hash, request)
-            .thenApplyAsync(
-                oe ->
-                    oe.orElseGet(
-                        () -> {
-                            User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                            Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findOne();
-                            if (exam == null) {
-                                return notFound("sitnet_error_exam_not_found");
-                            }
-                            Optional<ExamParticipation> oep = findParticipation(exam, user);
-                            Http.Session session = request.session().removing("ongoingExamHash");
-                            if (oep.isPresent()) {
-                                setDurations(oep.get());
-                                oep.get().save();
-                                exam.setState(Exam.State.ABORTED);
-                                exam.update();
-                                if (exam.isPrivate()) {
-                                    notifyTeachers(exam);
-                                }
-                                return ok().withSession(session);
-                            } else {
-                                return forbidden().withSession(session);
-                            }
+            .thenApplyAsync(oe ->
+                oe.orElseGet(() -> {
+                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                    Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findOne();
+                    if (exam == null) {
+                        return notFound("sitnet_error_exam_not_found");
+                    }
+                    Optional<ExamParticipation> oep = findParticipation(exam, user);
+                    Http.Session session = request.session().removing("ongoingExamHash");
+                    if (oep.isPresent()) {
+                        setDurations(oep.get());
+                        oep.get().save();
+                        exam.setState(Exam.State.ABORTED);
+                        exam.update();
+                        if (exam.isPrivate()) {
+                            notifyTeachers(exam);
                         }
-                    )
+                        return ok().withSession(session);
+                    } else {
+                        return forbidden().withSession(session);
+                    }
+                })
             );
     }
 
@@ -303,29 +290,26 @@ public class ExaminationController extends BaseController {
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> answerEssay(String hash, Long questionId, Http.Request request) {
         return getEnrolmentError(hash, request)
-            .thenApplyAsync(
-                oe ->
-                    oe.orElseGet(
-                        () -> {
-                            String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
-                            Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
-                            ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, questionId);
-                            if (question == null) {
-                                return forbidden();
-                            }
-                            EssayAnswer answer = question.getEssayAnswer();
-                            if (answer == null) {
-                                answer = new EssayAnswer();
-                            } else if (objectVersion.isPresent()) {
-                                answer.setObjectVersion(objectVersion.get());
-                            }
-                            answer.setAnswer(essayAnswer);
-                            answer.save();
-                            question.setEssayAnswer(answer);
-                            question.save();
-                            return ok(answer);
-                        }
-                    )
+            .thenApplyAsync(oe ->
+                oe.orElseGet(() -> {
+                    String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
+                    Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
+                    ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, questionId);
+                    if (question == null) {
+                        return forbidden();
+                    }
+                    EssayAnswer answer = question.getEssayAnswer();
+                    if (answer == null) {
+                        answer = new EssayAnswer();
+                    } else if (objectVersion.isPresent()) {
+                        answer.setObjectVersion(objectVersion.get());
+                    }
+                    answer.setAnswer(essayAnswer);
+                    answer.save();
+                    question.setEssayAnswer(answer);
+                    question.save();
+                    return ok(answer);
+                })
             );
     }
 
@@ -333,30 +317,25 @@ public class ExaminationController extends BaseController {
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> answerMultiChoice(String hash, Long qid, Http.Request request) {
         return getEnrolmentError(hash, request)
-            .thenApplyAsync(
-                oe ->
-                    oe.orElseGet(
-                        () -> {
-                            ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
-                            List<Long> optionIds = StreamSupport
-                                .stream(node.spliterator(), false)
-                                .map(JsonNode::asLong)
-                                .collect(Collectors.toList());
-                            ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, qid);
-                            if (question == null) {
-                                return forbidden();
-                            }
-                            question
-                                .getOptions()
-                                .forEach(
-                                    o -> {
-                                        o.setAnswered(optionIds.contains(o.getId()));
-                                        o.update();
-                                    }
-                                );
-                            return ok();
-                        }
-                    )
+            .thenApplyAsync(oe ->
+                oe.orElseGet(() -> {
+                    ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
+                    List<Long> optionIds = StreamSupport
+                        .stream(node.spliterator(), false)
+                        .map(JsonNode::asLong)
+                        .collect(Collectors.toList());
+                    ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, qid);
+                    if (question == null) {
+                        return forbidden();
+                    }
+                    question
+                        .getOptions()
+                        .forEach(o -> {
+                            o.setAnswered(optionIds.contains(o.getId()));
+                            o.update();
+                        });
+                    return ok();
+                })
             );
     }
 
@@ -365,26 +344,23 @@ public class ExaminationController extends BaseController {
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> answerClozeTest(String hash, Long questionId, Http.Request request) {
         return getEnrolmentError(hash, request)
-            .thenApplyAsync(
-                oe ->
-                    oe.orElseGet(
-                        () -> {
-                            ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
-                            if (esq == null) {
-                                return forbidden();
-                            }
-                            ClozeTestAnswer answer = esq.getClozeTestAnswer();
-                            if (answer == null) {
-                                answer = new ClozeTestAnswer();
-                            } else {
-                                long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
-                                answer.setObjectVersion(objectVersion);
-                            }
-                            answer.setAnswer(request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
-                            answer.save();
-                            return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
-                        }
-                    )
+            .thenApplyAsync(oe ->
+                oe.orElseGet(() -> {
+                    ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
+                    if (esq == null) {
+                        return forbidden();
+                    }
+                    ClozeTestAnswer answer = esq.getClozeTestAnswer();
+                    if (answer == null) {
+                        answer = new ClozeTestAnswer();
+                    } else {
+                        long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
+                        answer.setObjectVersion(objectVersion);
+                    }
+                    answer.setAnswer(request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
+                    answer.save();
+                    return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
+                })
             );
     }
 
@@ -482,18 +458,16 @@ public class ExaminationController extends BaseController {
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
-            .forEach(
-                esq -> {
-                    ClozeTestAnswer answer = esq.getClozeTestAnswer();
-                    if (answer == null) {
-                        answer = new ClozeTestAnswer();
-                    }
-                    answer.setQuestion(esq);
-                    esq.setClozeTestAnswer(answer);
-                    esq.update();
-                    questionsToHide.add(esq.getQuestion());
+            .forEach(esq -> {
+                ClozeTestAnswer answer = esq.getClozeTestAnswer();
+                if (answer == null) {
+                    answer = new ClozeTestAnswer();
                 }
-            );
+                answer.setQuestion(esq);
+                esq.setClozeTestAnswer(answer);
+                esq.update();
+                questionsToHide.add(esq.getQuestion());
+            });
         questionsToHide.forEach(q -> q.setQuestion(null));
     }
 

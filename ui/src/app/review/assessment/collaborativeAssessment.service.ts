@@ -57,15 +57,13 @@ export class CollaborativeAssesmentService {
     ): Observable<ExamParticipation> => {
         if (participation.exam.state === 'GRADED_LOGGED') {
             const url = `/integration/iop/reviews/${examId}/${examRef}/info`;
-            return this.http
-                .put<{ rev: string }>(url, { assessmentInfo: participation.exam.assessmentInfo })
-                .pipe(
-                    tap(() => toast.info(this.translate.instant('sitnet_saved'))),
-                    map((data) => {
-                        participation._rev = data.rev;
-                        return participation;
-                    }),
-                );
+            return this.http.put<{ rev: string }>(url, { assessmentInfo: participation.exam.assessmentInfo }).pipe(
+                tap(() => toast.info(this.translate.instant('sitnet_saved'))),
+                map((data) => {
+                    participation._rev = data.rev;
+                    return participation;
+                }),
+            );
         }
         return of(participation);
     };

@@ -3,3 +3,5 @@ resolvers += "Typesafe repository" at "https://repo.typesafe.com/typesafe/releas
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.8")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-play-ebean" % "6.0.0")
+
+// addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")

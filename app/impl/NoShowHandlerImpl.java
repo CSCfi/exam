@@ -87,28 +87,25 @@ public class NoShowHandlerImpl implements NoShowHandler {
 
         Stream<Reservation> externals = noShows
             .stream()
-            .filter(
-                ns ->
-                    ns.getExternalRef() != null &&
-                    (
-                        ns.getUser() == null ||
-                        ns.getEnrolment() == null ||
-                        ns.getEnrolment().getExternalExam() == null ||
-                        ns.getEnrolment().getExternalExam().getStarted() == null
-                    )
+            .filter(ns ->
+                ns.getExternalRef() != null &&
+                (
+                    ns.getUser() == null ||
+                    ns.getEnrolment() == null ||
+                    ns.getEnrolment().getExternalExam() == null ||
+                    ns.getEnrolment().getExternalExam().getStarted() == null
+                )
             );
-        externals.forEach(
-            r -> {
-                // Send to XM for further processing
-                // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed
-                // no-shows and sending them one by one over network would be inefficient. However, this is not very likely.
-                try {
-                    send(r);
-                } catch (IOException e) {
-                    logger.error("Failed in sending assessment back", e);
-                }
+        externals.forEach(r -> {
+            // Send to XM for further processing
+            // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed
+            // no-shows and sending them one by one over network would be inefficient. However, this is not very likely.
+            try {
+                send(r);
+            } catch (IOException e) {
+                logger.error("Failed in sending assessment back", e);
             }
-        );
+        });
     }
 
     @Override
@@ -136,12 +133,10 @@ public class NoShowHandlerImpl implements NoShowHandler {
             // Notify teachers
             Stream
                 .concat(exam.getExamOwners().stream(), exam.getExamInspections().stream().map(ExamInspection::getUser))
-                .forEach(
-                    teacher -> {
-                        composer.composeNoShowMessage(teacher, enrolment.getUser(), exam);
-                        logger.info("Email sent to {}", teacher.getEmail());
-                    }
-                );
+                .forEach(teacher -> {
+                    composer.composeNoShowMessage(teacher, enrolment.getUser(), exam);
+                    logger.info("Email sent to {}", teacher.getEmail());
+                });
         }
     }
 }

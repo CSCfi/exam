@@ -67,32 +67,28 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
             .getExamSections()
             .stream()
             .flatMap(examSection -> examSection.getSectionQuestions().stream())
-            .map(
-                sectionQuestion -> {
-                    if (
-                        sectionQuestion.getEssayAnswer() != null &&
-                        sectionQuestion.getEssayAnswer().getAttachment() != null
-                    ) {
-                        futures.add(
-                            createFromExternalAttachment(
-                                sectionQuestion.getEssayAnswer().getAttachment(),
-                                "question",
-                                sectionQuestion.getId().toString(),
-                                "answer",
-                                sectionQuestion.getEssayAnswer().getId().toString()
-                            )
-                        );
-                    }
-                    return sectionQuestion.getQuestion();
+            .map(sectionQuestion -> {
+                if (
+                    sectionQuestion.getEssayAnswer() != null && sectionQuestion.getEssayAnswer().getAttachment() != null
+                ) {
+                    futures.add(
+                        createFromExternalAttachment(
+                            sectionQuestion.getEssayAnswer().getAttachment(),
+                            "question",
+                            sectionQuestion.getId().toString(),
+                            "answer",
+                            sectionQuestion.getEssayAnswer().getId().toString()
+                        )
+                    );
                 }
-            )
+                return sectionQuestion.getQuestion();
+            })
             .filter(question -> question.getAttachment() != null)
             .distinct()
-            .forEach(
-                question ->
-                    futures.add(
-                        createFromExternalAttachment(question.getAttachment(), "question", question.getId().toString())
-                    )
+            .forEach(question ->
+                futures.add(
+                    createFromExternalAttachment(question.getAttachment(), "question", question.getId().toString())
+                )
             );
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
@@ -106,59 +102,53 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
         try {
             attachmentUrl = parseUrl("/api/attachments/");
         } catch (MalformedURLException e) {
-            return CompletableFuture.supplyAsync(
-                () -> {
-                    throw new RuntimeException(e);
-                }
-            );
+            return CompletableFuture.supplyAsync(() -> {
+                throw new RuntimeException(e);
+            });
         }
         final WSRequest request = wsClient.url(attachmentUrl.toString());
         return request
             .post("")
-            .thenAcceptAsync(
-                response -> {
-                    final JsonNode json = response.asJson();
-                    final String externalId = json.get("id").asText();
-                    attachment.setExternalId(externalId);
-                    File file = new File(attachment.getFilePath());
-                    if (!file.exists()) {
-                        logger.warn(
-                            "Could not find file {} for attachment id {}.",
-                            file.getAbsoluteFile(),
-                            attachment.getId()
-                        );
-                        return;
-                    }
-                    final WSRequest updateRequest;
-                    try {
-                        updateRequest =
-                            wsClient.url(parseUrl("/api/attachments/%s", attachment.getExternalId()).toString());
-                    } catch (MalformedURLException e) {
-                        logger.error("Invalid URL!", e);
-                        return;
-                    }
-                    final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.toPath());
-                    final Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart = new Http.MultipartFormData.FilePart<>(
-                        "file",
-                        attachment.getFileName(),
-                        attachment.getMimeType(),
-                        source
+            .thenAcceptAsync(response -> {
+                final JsonNode json = response.asJson();
+                final String externalId = json.get("id").asText();
+                attachment.setExternalId(externalId);
+                File file = new File(attachment.getFilePath());
+                if (!file.exists()) {
+                    logger.warn(
+                        "Could not find file {} for attachment id {}.",
+                        file.getAbsoluteFile(),
+                        attachment.getId()
                     );
-                    Http.MultipartFormData.DataPart dp = new Http.MultipartFormData.DataPart("key", "value");
-
-                    updateRequest
-                        .put(Source.from(Arrays.asList(filePart, dp)))
-                        .thenAccept(
-                            wsResponse -> {
-                                if (wsResponse.getStatus() != Http.Status.OK) {
-                                    logger.warn("File upload {} failed!", file.getAbsoluteFile());
-                                    return;
-                                }
-                                logger.info("Uploaded file {} for external exam.", file.getAbsoluteFile());
-                            }
-                        );
+                    return;
                 }
-            )
+                final WSRequest updateRequest;
+                try {
+                    updateRequest =
+                        wsClient.url(parseUrl("/api/attachments/%s", attachment.getExternalId()).toString());
+                } catch (MalformedURLException e) {
+                    logger.error("Invalid URL!", e);
+                    return;
+                }
+                final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.toPath());
+                final Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart = new Http.MultipartFormData.FilePart<>(
+                    "file",
+                    attachment.getFileName(),
+                    attachment.getMimeType(),
+                    source
+                );
+                Http.MultipartFormData.DataPart dp = new Http.MultipartFormData.DataPart("key", "value");
+
+                updateRequest
+                    .put(Source.from(Arrays.asList(filePart, dp)))
+                    .thenAccept(wsResponse -> {
+                        if (wsResponse.getStatus() != Http.Status.OK) {
+                            logger.warn("File upload {} failed!", file.getAbsoluteFile());
+                            return;
+                        }
+                        logger.info("Uploaded file {} for external exam.", file.getAbsoluteFile());
+                    });
+            })
             .toCompletableFuture();
     }
 
@@ -173,59 +163,51 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
             .getExamSections()
             .stream()
             .flatMap(s -> s.getSectionQuestions().stream())
-            .flatMap(
-                sq -> {
-                    List<Attachment> attachments = new ArrayList<>();
-                    if (sq.getEssayAnswer() != null && sq.getEssayAnswer().getAttachment() != null) {
-                        attachments.add(sq.getEssayAnswer().getAttachment());
-                    }
-                    if (sq.getQuestion().getAttachment() != null) {
-                        attachments.add(sq.getQuestion().getAttachment());
-                    }
-                    return attachments.stream();
+            .flatMap(sq -> {
+                List<Attachment> attachments = new ArrayList<>();
+                if (sq.getEssayAnswer() != null && sq.getEssayAnswer().getAttachment() != null) {
+                    attachments.add(sq.getEssayAnswer().getAttachment());
                 }
-            )
+                if (sq.getQuestion().getAttachment() != null) {
+                    attachments.add(sq.getQuestion().getAttachment());
+                }
+                return attachments.stream();
+            })
             .forEach(a -> futures.add(createExternalAttachment(a)));
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
 
     private CompletableFuture<Void> createFromExternalAttachment(Attachment attachment, String... pathParams) {
-        return CompletableFuture.runAsync(
-            () -> {
-                if (StringUtils.isEmpty(attachment.getExternalId())) {
-                    logger.error("Could not find external ID for an attachment");
-                    return;
-                }
-                final URL attachmentUrl;
-                try {
-                    attachmentUrl = parseUrl("/api/attachments/%s/download", attachment.getExternalId());
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException("Invalid URL!", e);
-                }
-                final WSRequest request = wsClient.url(attachmentUrl.toString());
-                request
-                    .stream()
-                    .thenAccept(
-                        response -> {
-                            final String filePath = fileHandler.createFilePath(pathParams);
-                            response
-                                .getBodyAsSource()
-                                .runWith(FileIO.toPath(Paths.get(filePath)), Materializer.createMaterializer(actor))
-                                .thenAccept(
-                                    ioResult -> {
-                                        attachment.setFilePath(filePath);
-                                        attachment.save();
-                                        logger.info(
-                                            "Saved attachment {} locally as # {}",
-                                            attachment.getExternalId(),
-                                            attachment.getId()
-                                        );
-                                    }
-                                );
-                        }
-                    );
+        return CompletableFuture.runAsync(() -> {
+            if (StringUtils.isEmpty(attachment.getExternalId())) {
+                logger.error("Could not find external ID for an attachment");
+                return;
             }
-        );
+            final URL attachmentUrl;
+            try {
+                attachmentUrl = parseUrl("/api/attachments/%s/download", attachment.getExternalId());
+            } catch (MalformedURLException e) {
+                throw new RuntimeException("Invalid URL!", e);
+            }
+            final WSRequest request = wsClient.url(attachmentUrl.toString());
+            request
+                .stream()
+                .thenAccept(response -> {
+                    final String filePath = fileHandler.createFilePath(pathParams);
+                    response
+                        .getBodyAsSource()
+                        .runWith(FileIO.toPath(Paths.get(filePath)), Materializer.createMaterializer(actor))
+                        .thenAccept(ioResult -> {
+                            attachment.setFilePath(filePath);
+                            attachment.save();
+                            logger.info(
+                                "Saved attachment {} locally as # {}",
+                                attachment.getExternalId(),
+                                attachment.getId()
+                            );
+                        });
+                });
+        });
     }
 
     private static URL parseUrl(String format, Object... args) throws MalformedURLException {

@@ -53,12 +53,10 @@ public class AccessibilityController extends BaseController {
             .where()
             .in("accessibilities", accessibility)
             .findList()
-            .forEach(
-                er -> {
-                    er.getAccessibilities().remove(accessibility);
-                    er.update();
-                }
-            );
+            .forEach(er -> {
+                er.getAccessibilities().remove(accessibility);
+                er.update();
+            });
         accessibility.delete();
         return ok();
     }

@@ -90,28 +90,26 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
     public void setQuestion(ExamSectionQuestion esq) {
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
-        blanks.forEach(
-            b -> {
-                boolean isNumeric = isNumeric(b);
-                Iterator<Attribute> it = b.attributes().iterator();
-                while (it.hasNext()) {
-                    Attribute a = it.next();
-                    if (!a.getKey().equals("id")) {
-                        it.remove();
-                    }
-                }
-                b.tagName("input");
-                b.text("");
-                b.attr("aria-label", "cloze test question");
-                b.attr("type", isNumeric ? "number" : "text");
-                b.attr("class", "cloze-input");
-                if (isNumeric) {
-                    b.attr("step", "any");
-                    // Should allow for using both comma and period as decimal separator
-                    b.attr("lang", "en-150");
+        blanks.forEach(b -> {
+            boolean isNumeric = isNumeric(b);
+            Iterator<Attribute> it = b.attributes().iterator();
+            while (it.hasNext()) {
+                Attribute a = it.next();
+                if (!a.getKey().equals("id")) {
+                    it.remove();
                 }
             }
-        );
+            b.tagName("input");
+            b.text("");
+            b.attr("aria-label", "cloze test question");
+            b.attr("type", isNumeric ? "number" : "text");
+            b.attr("class", "cloze-input");
+            if (isNumeric) {
+                b.attr("step", "any");
+                // Should allow for using both comma and period as decimal separator
+                b.attr("lang", "en-150");
+            }
+        });
         this.question = doc.body().children().toString();
     }
 
@@ -119,30 +117,28 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         Map<String, String> answers = asMap(new Gson());
         Elements blanks = doc.select(CLOZE_SELECTOR);
         score = new Score();
-        blanks.forEach(
-            b -> {
-                boolean isNumeric = isNumeric(b);
-                String answer = answers.getOrDefault(b.attr("id"), "");
-                boolean isCorrectAnswer = isCorrectAnswer(b, answer);
-                String precision = b.attr("precision");
-                if (isCorrectAnswer) {
-                    score.correctAnswers++;
-                } else {
-                    score.incorrectAnswers++;
-                }
-                Iterator<Attribute> it = b.attributes().iterator();
-                while (it.hasNext()) {
-                    it.next();
-                    it.remove();
-                }
-                b.text("");
-                b.append(answer.isBlank() ? String.format("<em>%s</em>", blankAnswerText) : answer);
-                b.attr("class", isCorrectAnswer ? "cloze-correct" : "cloze-incorrect");
-                if (isNumeric) {
-                    b.after("<span class=\"cloze-precision\">[&plusmn;" + precision + "]</span>");
-                }
+        blanks.forEach(b -> {
+            boolean isNumeric = isNumeric(b);
+            String answer = answers.getOrDefault(b.attr("id"), "");
+            boolean isCorrectAnswer = isCorrectAnswer(b, answer);
+            String precision = b.attr("precision");
+            if (isCorrectAnswer) {
+                score.correctAnswers++;
+            } else {
+                score.incorrectAnswers++;
             }
-        );
+            Iterator<Attribute> it = b.attributes().iterator();
+            while (it.hasNext()) {
+                it.next();
+                it.remove();
+            }
+            b.text("");
+            b.append(answer.isBlank() ? String.format("<em>%s</em>", blankAnswerText) : answer);
+            b.attr("class", isCorrectAnswer ? "cloze-correct" : "cloze-incorrect");
+            if (isNumeric) {
+                b.after("<span class=\"cloze-precision\">[&plusmn;" + precision + "]</span>");
+            }
+        });
         this.question = doc.body().children().toString();
     }
 
@@ -166,17 +162,15 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         Elements blanks = doc.select(CLOZE_SELECTOR);
         Score score = new Score();
-        blanks.forEach(
-            b -> {
-                String answer = answers.getOrDefault(b.attr("id"), "");
-                boolean isCorrectAnswer = isCorrectAnswer(b, answer);
-                if (isCorrectAnswer) {
-                    score.correctAnswers++;
-                } else {
-                    score.incorrectAnswers++;
-                }
+        blanks.forEach(b -> {
+            String answer = answers.getOrDefault(b.attr("id"), "");
+            boolean isCorrectAnswer = isCorrectAnswer(b, answer);
+            if (isCorrectAnswer) {
+                score.correctAnswers++;
+            } else {
+                score.incorrectAnswers++;
             }
-        );
+        });
         return score;
     }
 

@@ -250,15 +250,13 @@ public class ExamController extends BaseController {
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH) {
             exam
                 .getExaminationEventConfigurations()
-                .forEach(
-                    eec -> {
-                        String plainTextPwd = byodConfigHandler.getPlaintextPassword(
-                            eec.getEncryptedSettingsPassword(),
-                            eec.getSettingsPasswordSalt()
-                        );
-                        eec.setSettingsPassword(plainTextPwd);
-                    }
-                );
+                .forEach(eec -> {
+                    String plainTextPwd = byodConfigHandler.getPlaintextPassword(
+                        eec.getEncryptedSettingsPassword(),
+                        eec.getSettingsPasswordSalt()
+                    );
+                    eec.setSettingsPassword(plainTextPwd);
+                });
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(Role.Name.ADMIN)) {
@@ -352,11 +350,10 @@ public class ExamController extends BaseController {
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             return examUpdater
                 .updateTemporalFieldsAndValidate(exam, user, request)
-                .orElseGet(
-                    () ->
-                        examUpdater
-                            .updateStateAndValidate(exam, user, request)
-                            .orElseGet(() -> handleExamUpdate(exam, user, request))
+                .orElseGet(() ->
+                    examUpdater
+                        .updateStateAndValidate(exam, user, request)
+                        .orElseGet(() -> handleExamUpdate(exam, user, request))
                 );
         } else {
             return forbidden("sitnet_error_access_forbidden");
@@ -415,12 +412,10 @@ public class ExamController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return examUpdater
             .updateLanguage(exam, code, user)
-            .orElseGet(
-                () -> {
-                    exam.update();
-                    return ok();
-                }
-            );
+            .orElseGet(() -> {
+                exam.update();
+                return ok();
+            });
     }
 
     @Authenticated

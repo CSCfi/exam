@@ -187,13 +187,13 @@ export class CalendarComponent implements OnInit {
 
     cancel = () => this.state.go('dashboard');
 
-    createReservation($event: { start: Date; end: Date; room: ExamRoom; accessibilites: Accessibility[] }) {
+    createReservation($event: { start: Date; end: Date; room: ExamRoom; accessibilities: Accessibility[] }) {
         this.reservation = {
             room: $event.room,
             time: moment($event.start).format('DD.MM.YYYY HH:mm') + ' - ' + moment($event.end).format('HH:mm'),
             start: moment($event.start),
             end: moment($event.end),
-            accessibilities: $event.accessibilites,
+            accessibilities: $event.accessibilities,
         };
     }
 

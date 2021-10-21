@@ -57,16 +57,14 @@ public class CollaborativeStudentActionController extends CollaborationControlle
         final WSRequest wsRequest = wsClient.url(url.get().toString() + user.getEppn());
         return wsRequest
             .get()
-            .thenComposeAsync(
-                response -> {
-                    if (response.getStatus() != Http.Status.OK) {
-                        return wrapAsPromise(Results.status(response.getStatus()));
-                    }
-                    final JsonNode root = response.asJson();
-                    calculateScores(root);
-                    return wrapAsPromise(ok(root));
+            .thenComposeAsync(response -> {
+                if (response.getStatus() != Http.Status.OK) {
+                    return wrapAsPromise(Results.status(response.getStatus()));
                 }
-            );
+                final JsonNode root = response.asJson();
+                calculateScores(root);
+                return wrapAsPromise(ok(root));
+            });
     }
 
     Optional<URL> parseUrl() {

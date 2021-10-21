@@ -113,24 +113,20 @@ type AvailableSlot = Slot & { availableMachines: number };
                     </button>
                     <ul class="student-select-room" ngbDropdownMenu aria-labelledby="dropDownMenu1">
                         <li
-                            ngbDropdownItem
                             *ngFor="let room of rooms"
                             [hidden]="room.filtered"
                             role="presentation"
-                            [ngClass]="room.outOfService ? 'disabled' : ''"
                             (click)="selectRoom(room)"
                             tabindex="0"
                             (ngEnter)="selectRoom(room)"
+                            ngbPopover="{{ getDescription(room) }}"
+                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            container="body"
+                            triggers="mouseenter:mouseleave"
                         >
-                            <a
-                                role="menuitem"
-                                ngbPopover="{{ getDescription(room) }}"
-                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                container="body"
-                                triggers="mouseenter:mouseleave"
-                            >
-                                {{ room.name | slice: 0:30 }}</a
-                            >
+                            <div ngbDropdownItem [disabled]="room.outOfService" role="menuitem">
+                                <a> {{ room.name | slice: 0:30 }}</a>
+                            </div>
                         </li>
                     </ul>
                 </div>
@@ -213,7 +209,7 @@ export class SlotPickerComponent {
             start: $event.start,
             end: $event.end as Date,
             room: this.selectedRoom as ExamRoom,
-            accessibilities: [], // todo
+            accessibilities: this.accessibilities.filter((i) => i.filtered),
         });
 
     private getTitle(slot: AvailableSlot): string {

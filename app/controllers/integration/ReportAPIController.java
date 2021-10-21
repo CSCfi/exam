@@ -73,21 +73,18 @@ public class ReportAPIController extends BaseController {
         /* Set software lists to child exams */
         participations
             .stream()
-            .filter(
-                participation ->
-                    participation.getExam() != null &&
-                    participation.getExam().getParent() != null &&
-                    softwaresByExam.containsKey(participation.getExam().getParent().getId())
+            .filter(participation ->
+                participation.getExam() != null &&
+                participation.getExam().getParent() != null &&
+                softwaresByExam.containsKey(participation.getExam().getParent().getId())
             )
-            .forEach(
-                participation -> {
-                    Long parentId = participation.getExam().getParent().getId();
-                    List<Software> softwares = softwaresByExam.get(parentId);
-                    if (softwares != null || !softwares.isEmpty()) {
-                        participation.getExam().setSoftwareInfo(softwares);
-                    }
+            .forEach(participation -> {
+                Long parentId = participation.getExam().getParent().getId();
+                List<Software> softwares = softwaresByExam.get(parentId);
+                if (softwares != null || !softwares.isEmpty()) {
+                    participation.getExam().setSoftwareInfo(softwares);
                 }
-            );
+            });
 
         return ok(participations, pp);
     }

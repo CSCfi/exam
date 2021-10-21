@@ -99,36 +99,31 @@ public class EnrolmentRepository {
             .endJunction()
             .findList()
             .stream()
-            .filter(
-                ee ->
-                    ee.getExaminationEventConfiguration() == null ||
-                    ee.getExaminationEventConfiguration().getExaminationEvent().getStart().isAfter((DateTime.now()))
+            .filter(ee ->
+                ee.getExaminationEventConfiguration() == null ||
+                ee.getExaminationEventConfiguration().getExaminationEvent().getStart().isAfter((DateTime.now()))
             )
             .collect(Collectors.toList());
-        enrolments.forEach(
-            ee -> {
-                Exam exam = ee.getExam();
-                if (exam != null && exam.getExamSections().stream().noneMatch(ExamSection::isOptional)) {
-                    // Hide section info if no optional sections exist
-                    exam.getExamSections().clear();
-                }
+        enrolments.forEach(ee -> {
+            Exam exam = ee.getExam();
+            if (exam != null && exam.getExamSections().stream().noneMatch(ExamSection::isOptional)) {
+                // Hide section info if no optional sections exist
+                exam.getExamSections().clear();
             }
-        );
+        });
         return enrolments
             .stream()
-            .filter(
-                ee -> {
-                    Exam exam = ee.getExam();
-                    if (exam != null && exam.getExamActiveEndDate() != null) {
-                        return (
-                            exam.getExamActiveEndDate().isAfterNow() &&
-                            exam.hasState(Exam.State.PUBLISHED, Exam.State.STUDENT_STARTED)
-                        );
-                    }
-                    CollaborativeExam ce = ee.getCollaborativeExam();
-                    return ce != null && ce.getExamActiveEndDate().isAfterNow();
+            .filter(ee -> {
+                Exam exam = ee.getExam();
+                if (exam != null && exam.getExamActiveEndDate() != null) {
+                    return (
+                        exam.getExamActiveEndDate().isAfterNow() &&
+                        exam.hasState(Exam.State.PUBLISHED, Exam.State.STUDENT_STARTED)
+                    );
                 }
-            )
+                CollaborativeExam ce = ee.getCollaborativeExam();
+                return ce != null && ce.getExamActiveEndDate().isAfterNow();
+            })
             .collect(Collectors.toList());
     }
 

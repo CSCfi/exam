@@ -17,6 +17,10 @@ import com.typesafe.config.ConfigFactory;
 import helpers.AttachmentServlet;
 import helpers.RemoteServerHelper;
 import io.ebean.Ebean;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,10 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import javax.mail.internet.MimeMessage;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import models.AutoEvaluationConfig;
 import models.Exam;
 import models.ExamEnrolment;
@@ -477,14 +477,12 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         exam
             .getGradeScale()
             .getGrades()
-            .forEach(
-                g -> {
-                    GradeEvaluation ge = new GradeEvaluation();
-                    ge.setGrade(g);
-                    ge.setPercentage(20 * Integer.parseInt(g.getName()));
-                    config.getGradeEvaluations().add(ge);
-                }
-            );
+            .forEach(g -> {
+                GradeEvaluation ge = new GradeEvaluation();
+                ge.setGrade(g);
+                ge.setPercentage(20 * Integer.parseInt(g.getName()));
+                config.getGradeEvaluations().add(ge);
+            });
         config.setExam(exam);
         config.save();
     }

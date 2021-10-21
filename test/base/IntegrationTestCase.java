@@ -42,7 +42,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.representer.Representer;
 import play.Application;
 import play.libs.Json;
 import play.mvc.Http;
@@ -73,9 +76,9 @@ public class IntegrationTestCase {
         HAKA_HEADERS.put("employeeNumber", "12345");
         HAKA_HEADERS.put(
             "schacPersonalUniqueCode",
-            "urn:schac:personalUniqueCode:int:studentID:org3.org:33333;" +
-            "urn:schac:personalUniqueCode:int:studentID:org2.org:22222;" +
-            "urn:schac:personalUniqueCode:int:studentID:org1.org:11111"
+            "urn:schac:personalUniqueCode:int:peppiID:org3.org:33333;" +
+            "urn:schac:personalUniqueCode:int:sisuID:org2.org:22222;" +
+            "urn:schac:personalUniqueCode:int:oodiID:org1.org:11111"
         );
         HAKA_HEADERS.put("homeOrganisation", "oulu.fi");
         HAKA_HEADERS.put("Csrf-Token", "nocheck");
@@ -255,29 +258,25 @@ public class IntegrationTestCase {
             .getExamInspections()
             .stream()
             .map(ExamInspection::getUser)
-            .forEach(
-                u -> {
-                    u.setLanguage(Ebean.find(Language.class, "en"));
-                    u.update();
-                }
-            );
+            .forEach(u -> {
+                u.setLanguage(Ebean.find(Language.class, "en"));
+                u.update();
+            });
         exam
             .getExamSections()
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() != Question.Type.EssayQuestion)
             .filter(esq -> esq.getQuestion().getType() != Question.Type.ClozeTestQuestion)
-            .forEach(
-                esq -> {
-                    for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
-                        ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
-                        esqo.setOption(o);
-                        esqo.setScore(o.getDefaultScore());
-                        esq.getOptions().add(esqo);
-                    }
-                    esq.save();
+            .forEach(esq -> {
+                for (MultipleChoiceOption o : esq.getQuestion().getOptions()) {
+                    ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+                    esqo.setOption(o);
+                    esqo.setScore(o.getDefaultScore());
+                    esq.getOptions().add(esqo);
                 }
-            );
+                esq.save();
+            });
     }
 
     private void assertPaths(JsonNode node, boolean shouldExist, String... paths) {
@@ -312,7 +311,9 @@ public class IntegrationTestCase {
             return;
         }
         if (userCount == 0) {
-            Yaml yaml = new Yaml(new JodaPropertyConstructor());
+            LoaderOptions options = new LoaderOptions();
+            options.setMaxAliasesForCollections(400);
+            Yaml yaml = new Yaml(new JodaPropertyConstructor(), new Representer(), new DumperOptions(), options);
             InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
             Map<String, List<Object>> all = yaml.load(is);
             is.close();

@@ -15,7 +15,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import type { ExamLanguage } from '../../exam/exam.model';
+import type { Observable } from 'rxjs';
+
+import type { Exam, ExamLanguage } from '../../exam/exam.model';
 
 export interface IsoLang {
     name: string;
@@ -43,22 +45,10 @@ export class LanguageService {
         return lang.name;
     };
 
-    getLanguageNativeName = (code: string) => {
-        const key = code.slice(0, 2);
-        const lang = this.isoLangs[key];
-        return lang.nativeName;
+    getLanguageNativeName = (code: string, exam: Exam) => {
+        const lang = exam.examLanguages.find((el) => el.code === code);
+        return lang ? lang.name : '';
     };
 
-    getExamLanguages(): Promise<ExamLanguage[]> {
-        return new Promise((resolve, reject) => {
-            this.http.get<ExamLanguage[]>('/app/languages').subscribe(
-                (resp) => {
-                    resolve(resp);
-                },
-                (err) => reject(err),
-            );
-        });
-    }
-
-    getLanguages = () => Object.keys(this.isoLangs).map((k) => this.isoLangs[k]);
+    getExamLanguages$ = (): Observable<ExamLanguage[]> => this.http.get<ExamLanguage[]>('/app/languages');
 }

@@ -203,13 +203,11 @@ public class ExamMachineController extends BaseController {
     public Result addSoftware(String name, Http.Request request) {
         Software software = bindForm(Software.class, request);
         return checkSoftwareName(name)
-            .orElseGet(
-                () -> {
-                    software.setName(name);
-                    software.save();
-                    return ok(software);
-                }
-            );
+            .orElseGet(() -> {
+                software.setName(name);
+                software.save();
+                return ok(software);
+            });
     }
 
     @Restrict(@Group({ "ADMIN" }))
@@ -219,13 +217,11 @@ public class ExamMachineController extends BaseController {
             return notFound();
         }
         return checkSoftwareName(name)
-            .orElseGet(
-                () -> {
-                    software.setName(name);
-                    software.update();
-                    return ok(software);
-                }
-            );
+            .orElseGet(() -> {
+                software.setName(name);
+                software.update();
+                return ok(software);
+            });
     }
 
     @Restrict(@Group({ "ADMIN" }))

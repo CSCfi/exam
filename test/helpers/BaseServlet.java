@@ -16,7 +16,7 @@
 
 package helpers;
 
-import javax.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServlet;
 import net.jodah.concurrentunit.Waiter;
 
 public class BaseServlet extends HttpServlet {

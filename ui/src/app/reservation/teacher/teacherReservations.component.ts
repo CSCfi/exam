@@ -14,7 +14,7 @@
  */
 import { Component } from '@angular/core';
 
-import { ReservationComponentBase } from '../reservation.baseComponent';
+import { ReservationComponentBase } from '../reservation.base.component';
 
 @Component({
     selector: 'teacher-reservations',

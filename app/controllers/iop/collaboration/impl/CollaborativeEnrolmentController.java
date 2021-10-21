@@ -58,25 +58,23 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         WSRequest request = wsClient.url(url.get().toString());
         Function<WSResponse, Result> onSuccess = response ->
             findExamsToProcess(response)
-                .map(
-                    items -> {
-                        List<Exam> exams = items
-                            .entrySet()
-                            .stream()
-                            .map(e -> e.getKey().getExam(e.getValue()))
-                            .filter(this::isEnrollable)
-                            .collect(Collectors.toList());
+                .map(items -> {
+                    List<Exam> exams = items
+                        .entrySet()
+                        .stream()
+                        .map(e -> e.getKey().getExam(e.getValue()))
+                        .filter(this::isEnrollable)
+                        .collect(Collectors.toList());
 
-                        return ok(
-                            exams,
-                            PathProperties.parse(
-                                "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
-                                "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
-                                "enrollInstruction, implementation, examinationEventConfigurations)"
-                            )
-                        );
-                    }
-                )
+                    return ok(
+                        exams,
+                        PathProperties.parse(
+                            "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
+                            "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
+                            "enrollInstruction, implementation, examinationEventConfigurations)"
+                        )
+                    );
+                })
                 .getOrElseGet(Function.identity());
         return request.get().thenApplyAsync(onSuccess);
     }
@@ -95,25 +93,23 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         WSRequest request = wsClient.url(url.get().toString());
         Function<WSResponse, Result> onSuccess = response ->
             findExamsToProcess(response)
-                .map(
-                    items -> {
-                        List<Exam> exams = items
-                            .entrySet()
-                            .stream()
-                            .map(e -> e.getKey().getExam(e.getValue()))
-                            .filter(this::isEnrollable)
-                            .collect(Collectors.toList());
+                .map(items -> {
+                    List<Exam> exams = items
+                        .entrySet()
+                        .stream()
+                        .map(e -> e.getKey().getExam(e.getValue()))
+                        .filter(this::isEnrollable)
+                        .collect(Collectors.toList());
 
-                        return ok(
-                            exams,
-                            PathProperties.parse(
-                                "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
-                                "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
-                                "enrollInstruction, implementation, examinationEventConfigurations)"
-                            )
-                        );
-                    }
-                )
+                    return ok(
+                        exams,
+                        PathProperties.parse(
+                            "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
+                            "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
+                            "enrollInstruction, implementation, examinationEventConfigurations)"
+                        )
+                    );
+                })
                 .getOrElseGet(Function.identity());
         return request.get().thenApplyAsync(onSuccess);
     }
@@ -127,30 +123,27 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return downloadExam(ce)
-            .thenApplyAsync(
-                result ->
-                    checkExam(result.orElse(null), user)
-                        .map(
-                            e -> {
-                                DateTime now = DateTimeUtils.adjustDST(new DateTime());
-                                List<ExamEnrolment> enrolments = Ebean
-                                    .find(ExamEnrolment.class)
-                                    .where()
-                                    .eq("user", user)
-                                    .eq("collaborativeExam.id", id)
-                                    .disjunction()
-                                    .gt("reservation.endAt", now.toDate())
-                                    .isNull("reservation")
-                                    .endJunction()
-                                    .or()
-                                    .isNull("exam")
-                                    .eq("exam.state", Exam.State.STUDENT_STARTED)
-                                    .endOr()
-                                    .findList();
-                                return ok(enrolments);
-                            }
-                        )
-                        .getOrElseGet(Function.identity())
+            .thenApplyAsync(result ->
+                checkExam(result.orElse(null), user)
+                    .map(e -> {
+                        DateTime now = DateTimeUtils.adjustDST(new DateTime());
+                        List<ExamEnrolment> enrolments = Ebean
+                            .find(ExamEnrolment.class)
+                            .where()
+                            .eq("user", user)
+                            .eq("collaborativeExam.id", id)
+                            .disjunction()
+                            .gt("reservation.endAt", now.toDate())
+                            .isNull("reservation")
+                            .endJunction()
+                            .or()
+                            .isNull("exam")
+                            .eq("exam.state", Exam.State.STUDENT_STARTED)
+                            .endOr()
+                            .findList();
+                        return ok(enrolments);
+                    })
+                    .getOrElseGet(Function.identity())
             );
     }
 
@@ -164,9 +157,10 @@ public class CollaborativeEnrolmentController extends CollaborationController {
     }
 
     private Optional<Result> handleFutureReservations(List<ExamEnrolment> enrolments, User user, CollaborativeExam ce) {
+        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
         List<ExamEnrolment> enrolmentsWithFutureReservations = enrolments
             .stream()
-            .filter(ee -> ee.getReservation().toInterval().isAfterNow())
+            .filter(ee -> ee.getReservation().toInterval().isAfter(now))
             .collect(Collectors.toList());
         if (enrolmentsWithFutureReservations.size() > 1) {
             logger.error(
@@ -174,7 +168,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                 user,
                 ce.getId()
             );
-            return Optional.of(internalServerError()); // Lets fail right here
+            return Optional.of(internalServerError()); // Let's fail right here
         }
         // reservation in the future, replace it
         if (!enrolmentsWithFutureReservations.isEmpty()) {
@@ -213,13 +207,11 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                 return forbidden("sitnet_reservation_in_effect");
             }
             return handleFutureReservations(enrolments, user, ce)
-                .orElseGet(
-                    () -> {
-                        ExamEnrolment newEnrolment = makeEnrolment(ce, user);
-                        Ebean.commitTransaction();
-                        return ok(newEnrolment);
-                    }
-                );
+                .orElseGet(() -> {
+                    ExamEnrolment newEnrolment = makeEnrolment(ce, user);
+                    Ebean.commitTransaction();
+                    return ok(newEnrolment);
+                });
         } finally {
             // End transaction to release lock.
             Ebean.endTransaction();
@@ -235,20 +227,18 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return downloadExam(ce)
-            .thenApplyAsync(
-                result -> {
-                    if (result.isEmpty()) {
-                        return notFound("sitnet_error_exam_not_found");
-                    }
-                    Exam exam = result.get();
-                    if (!isEnrollable(exam)) {
-                        return notFound("sitnet_error_exam_not_found");
-                    }
-                    if (isAllowedToParticipate(exam, user)) {
-                        return doCreateEnrolment(ce, user);
-                    }
-                    return forbidden();
+            .thenApplyAsync(result -> {
+                if (result.isEmpty()) {
+                    return notFound("sitnet_error_exam_not_found");
                 }
-            );
+                Exam exam = result.get();
+                if (!isEnrollable(exam)) {
+                    return notFound("sitnet_error_exam_not_found");
+                }
+                if (isAllowedToParticipate(exam, user)) {
+                    return doCreateEnrolment(ce, user);
+                }
+                return forbidden();
+            });
     }
 }

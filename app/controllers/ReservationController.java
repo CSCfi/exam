@@ -58,7 +58,6 @@ import play.mvc.Result;
 import sanitizers.Attrs;
 import security.Authenticated;
 import system.interceptors.Anonymous;
-import util.datetime.DateTimeUtils;
 
 public class ReservationController extends BaseController {
 
@@ -291,9 +290,7 @@ public class ReservationController extends BaseController {
         }
 
         if (start.isPresent()) {
-            DateTime startDate = DateTimeUtils.withTimeAtStartOfDayConsideringTz(
-                DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser())
-            );
+            DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
             query = query.ge("examinationEventConfiguration.examinationEvent.start", startDate.toDate());
         }
 
@@ -331,22 +328,18 @@ public class ReservationController extends BaseController {
             .orderBy("examinationEventConfiguration.examinationEvent.start")
             .findList()
             .stream()
-            .filter(
-                ee -> {
-                    if (end.isEmpty()) {
-                        return true;
-                    }
-                    DateTime endDate = DateTimeUtils.withTimeAtEndOfDayConsideringTz(
-                        DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser())
-                    );
-                    DateTime eventEnd = ee
-                        .getExaminationEventConfiguration()
-                        .getExaminationEvent()
-                        .getStart()
-                        .plusMinutes(ee.getExam().getDuration());
-                    return eventEnd.isBefore(endDate);
+            .filter(ee -> {
+                if (end.isEmpty()) {
+                    return true;
                 }
-            )
+                DateTime endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser());
+                DateTime eventEnd = ee
+                    .getExaminationEventConfiguration()
+                    .getExaminationEvent()
+                    .getStart()
+                    .plusMinutes(ee.getExam().getDuration());
+                return eventEnd.isBefore(endDate);
+            })
             .collect(Collectors.toList());
 
         final Result result = ok(enrolments);
@@ -475,11 +468,10 @@ public class ReservationController extends BaseController {
 
         final Set<Long> anonIds = reservations
             .stream()
-            .filter(
-                r ->
-                    r.getEnrolment() != null &&
-                    r.getEnrolment().getExam() != null &&
-                    r.getEnrolment().getExam().isAnonymous()
+            .filter(r ->
+                r.getEnrolment() != null &&
+                r.getEnrolment().getExam() != null &&
+                r.getEnrolment().getExam().isAnonymous()
             )
             .map(GeneratedIdentityModel::getId)
             .collect(Collectors.toSet());

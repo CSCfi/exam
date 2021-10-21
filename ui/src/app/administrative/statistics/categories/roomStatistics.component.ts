@@ -72,18 +72,16 @@ export class RoomStatisticsComponent {
     constructor(private http: HttpClient) {}
 
     listParticipations = () => {
-        this.http
-            .get<Participations>('/app/reports/participations', { params: this.queryParams })
-            .subscribe((resp) => {
-                this.participations = resp;
-                if (Object.values(this.participations).flat().length > 0) {
-                    this.rooms = Object.keys(this.participations);
-                    this.groupByMonths();
-                } else {
-                    this.rooms = [];
-                    this.months = [];
-                }
-            });
+        this.http.get<Participations>('/app/reports/participations', { params: this.queryParams }).subscribe((resp) => {
+            this.participations = resp;
+            if (Object.values(this.participations).flat().length > 0) {
+                this.rooms = Object.keys(this.participations);
+                this.groupByMonths();
+            } else {
+                this.rooms = [];
+                this.months = [];
+            }
+        });
     };
 
     totalParticipations = (month: Date, room: string) => {
