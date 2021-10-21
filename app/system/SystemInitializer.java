@@ -196,13 +196,11 @@ class SystemInitializer {
 
         scheduleWeeklyReport();
 
-        lifecycle.addStopHook(
-            () -> {
-                logger.info("running shutdown hooks");
-                cancelTasks();
-                return CompletableFuture.completedFuture(Optional.empty());
-            }
-        );
+        lifecycle.addStopHook(() -> {
+            logger.info("running shutdown hooks");
+            cancelTasks();
+            return CompletableFuture.completedFuture(Optional.empty());
+        });
     }
 
     private int secondsUntilNextMondayRun() {
@@ -259,15 +257,13 @@ class SystemInitializer {
                             .where()
                             .eq("roles.name", "TEACHER")
                             .findList();
-                        teachers.forEach(
-                            t -> {
-                                try {
-                                    composer.composeWeeklySummary(t);
-                                } catch (RuntimeException e) {
-                                    logger.error("Failed to send email for {}", t.getEmail());
-                                }
+                        teachers.forEach(t -> {
+                            try {
+                                composer.composeWeeklySummary(t);
+                            } catch (RuntimeException e) {
+                                logger.error("Failed to send email for {}", t.getEmail());
                             }
-                        );
+                        });
                         // Reschedule
                         scheduleWeeklyReport();
                     },

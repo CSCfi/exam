@@ -41,19 +41,17 @@ public class AnonymousJsonAction extends JsonFilterAction<Anonymous> {
     public CompletionStage<Result> call(Http.Request request) {
         return delegate
             .call(request)
-            .thenCompose(
-                result -> {
-                    if (result.header(ANONYMOUS_HEADER).isPresent()) {
-                        final String key = configuration.contextParamKey();
-                        Optional<Set<Long>> ids = request.attrs().getOptional(TypedKey.create(key));
-                        return filterJsonResponse(
-                            result,
-                            ids.orElse(Collections.emptySet()),
-                            configuration.filteredProperties()
-                        );
-                    }
-                    return CompletableFuture.completedFuture(result);
+            .thenCompose(result -> {
+                if (result.header(ANONYMOUS_HEADER).isPresent()) {
+                    final String key = configuration.contextParamKey();
+                    Optional<Set<Long>> ids = request.attrs().getOptional(TypedKey.create(key));
+                    return filterJsonResponse(
+                        result,
+                        ids.orElse(Collections.emptySet()),
+                        configuration.filteredProperties()
+                    );
                 }
-            );
+                return CompletableFuture.completedFuture(result);
+            });
     }
 }

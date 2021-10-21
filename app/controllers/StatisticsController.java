@@ -314,8 +314,8 @@ public class StatisticsController extends BaseController {
             data[3] = ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getCreated()));
             data[4] = ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getGradedTime()));
             data[5] =
-                parse(
-                    () -> String.format("%s %s", e.getGradedByUser().getFirstName(), e.getGradedByUser().getLastName())
+                parse(() ->
+                    String.format("%s %s", e.getGradedByUser().getFirstName(), e.getGradedByUser().getLastName())
                 );
 
             data[6] = e.getCourse().getCredits() == null ? "" : Double.toString(e.getCourse().getCredits()); // custom credits?

@@ -297,19 +297,17 @@ public class StudentActionsController extends CollaborationController {
         if (enrolment.getCollaborativeExam() != null) {
             // Collaborative exam, we need to download
             return downloadExam(enrolment.getCollaborativeExam())
-                .thenComposeAsync(
-                    result -> {
-                        if (result.isPresent()) {
-                            // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
-                            // Works in this particular use case
-                            Exam exam = result.get();
-                            enrolment.setExam(exam);
-                            return wrapAsPromise(ok(enrolment, pp));
-                        } else {
-                            return wrapAsPromise(notFound());
-                        }
+                .thenComposeAsync(result -> {
+                    if (result.isPresent()) {
+                        // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+                        // Works in this particular use case
+                        Exam exam = result.get();
+                        enrolment.setExam(exam);
+                        return wrapAsPromise(ok(enrolment, pp));
+                    } else {
+                        return wrapAsPromise(notFound());
                     }
-                );
+                });
         }
         if (enrolment.getExternalExam() != null) {
             // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
@@ -393,15 +391,13 @@ public class StudentActionsController extends CollaborationController {
         }
         return externalCourseHandler
             .getPermittedCourses(request.attrs().get(Attrs.AUTHENTICATED_USER))
-            .thenApplyAsync(
-                codes -> {
-                    if (codes.isEmpty()) {
-                        return ok(Json.toJson(Collections.<Exam>emptyList()));
-                    } else {
-                        return listExams(filter.orElse(null), codes);
-                    }
+            .thenApplyAsync(codes -> {
+                if (codes.isEmpty()) {
+                    return ok(Json.toJson(Collections.<Exam>emptyList()));
+                } else {
+                    return listExams(filter.orElse(null), codes);
                 }
-            )
+            })
             .exceptionally(throwable -> internalServerError(throwable.getMessage()));
     }
 
@@ -438,14 +434,13 @@ public class StudentActionsController extends CollaborationController {
             .orderBy("course.code")
             .findList()
             .stream()
-            .filter(
-                e ->
-                    e.getImplementation() == Exam.Implementation.AQUARIUM ||
-                    e
-                        .getExaminationEventConfigurations()
-                        .stream()
-                        .map(ExaminationEventConfiguration::getExaminationEvent)
-                        .anyMatch(ee -> ee.getStart().isAfter(DateTime.now()))
+            .filter(e ->
+                e.getImplementation() == Exam.Implementation.AQUARIUM ||
+                e
+                    .getExaminationEventConfigurations()
+                    .stream()
+                    .map(ExaminationEventConfiguration::getExaminationEvent)
+                    .anyMatch(ee -> ee.getStart().isAfter(DateTime.now()))
             )
             .collect(Collectors.toList());
         return ok(exams);

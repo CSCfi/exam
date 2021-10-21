@@ -90,12 +90,11 @@ public class AvailabilityController extends BaseController {
             List<Interval> slotsForDate = room
                 .getWorkingHoursForDate(window)
                 .stream()
-                .map(
-                    oh ->
-                        new Interval(
-                            oh.getHours().getStart().minusMillis(oh.getTimezoneOffset()),
-                            oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset())
-                        )
+                .map(oh ->
+                    new Interval(
+                        oh.getHours().getStart().minusMillis(oh.getTimezoneOffset()),
+                        oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset())
+                    )
                 )
                 .map(this::round)
                 .flatMap(i -> toOneHourChunks(i).stream())

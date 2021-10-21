@@ -132,13 +132,11 @@ public class QuestionReviewController extends BaseController {
         List<String> results = questionMap
             .entrySet()
             .stream()
-            .map(
-                e -> {
-                    Question key = e.getKey();
-                    String evaluationCriteria = evaluationCriteriaMap.get(key);
-                    return new QuestionEntry(e.getKey(), e.getValue(), evaluationCriteria).toJson();
-                }
-            )
+            .map(e -> {
+                Question key = e.getKey();
+                String evaluationCriteria = evaluationCriteriaMap.get(key);
+                return new QuestionEntry(e.getKey(), e.getValue(), evaluationCriteria).toJson();
+            })
             .collect(Collectors.toList());
 
         String json = String.format("[%s]", String.join(", ", results));

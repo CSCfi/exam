@@ -328,20 +328,18 @@ public class ReservationController extends BaseController {
             .orderBy("examinationEventConfiguration.examinationEvent.start")
             .findList()
             .stream()
-            .filter(
-                ee -> {
-                    if (end.isEmpty()) {
-                        return true;
-                    }
-                    DateTime endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser());
-                    DateTime eventEnd = ee
-                        .getExaminationEventConfiguration()
-                        .getExaminationEvent()
-                        .getStart()
-                        .plusMinutes(ee.getExam().getDuration());
-                    return eventEnd.isBefore(endDate);
+            .filter(ee -> {
+                if (end.isEmpty()) {
+                    return true;
                 }
-            )
+                DateTime endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser());
+                DateTime eventEnd = ee
+                    .getExaminationEventConfiguration()
+                    .getExaminationEvent()
+                    .getStart()
+                    .plusMinutes(ee.getExam().getDuration());
+                return eventEnd.isBefore(endDate);
+            })
             .collect(Collectors.toList());
 
         final Result result = ok(enrolments);
@@ -470,11 +468,10 @@ public class ReservationController extends BaseController {
 
         final Set<Long> anonIds = reservations
             .stream()
-            .filter(
-                r ->
-                    r.getEnrolment() != null &&
-                    r.getEnrolment().getExam() != null &&
-                    r.getEnrolment().getExam().isAnonymous()
+            .filter(r ->
+                r.getEnrolment() != null &&
+                r.getEnrolment().getExam() != null &&
+                r.getEnrolment().getExam().isAnonymous()
             )
             .map(GeneratedIdentityModel::getId)
             .collect(Collectors.toSet());

@@ -256,15 +256,13 @@ public class QuestionController extends BaseController implements SectionQuestio
         JsonNode body = request.body().asJson();
         return question
             .getValidationResult(body)
-            .orElseGet(
-                () -> {
-                    if (question.getType() != Question.Type.EssayQuestion) {
-                        processOptions(question, user, (ArrayNode) body.get("options"));
-                    }
-                    question.save();
-                    return ok(question);
+            .orElseGet(() -> {
+                if (question.getType() != Question.Type.EssayQuestion) {
+                    processOptions(question, user, (ArrayNode) body.get("options"));
                 }
-            );
+                question.save();
+                return ok(question);
+            });
     }
 
     @BodyParser.Of(BodyParser.Json.class)
@@ -291,15 +289,13 @@ public class QuestionController extends BaseController implements SectionQuestio
         JsonNode body = request.body().asJson();
         return question
             .getValidationResult(body)
-            .orElseGet(
-                () -> {
-                    if (updatedQuestion.getType() != Question.Type.EssayQuestion) {
-                        processOptions(updatedQuestion, user, (ArrayNode) body.get("options"));
-                    }
-                    updatedQuestion.update();
-                    return ok(updatedQuestion);
+            .orElseGet(() -> {
+                if (updatedQuestion.getType() != Question.Type.EssayQuestion) {
+                    processOptions(updatedQuestion, user, (ArrayNode) body.get("options"));
                 }
-            );
+                updatedQuestion.update();
+                return ok(updatedQuestion);
+            });
     }
 
     @Authenticated
@@ -320,23 +316,19 @@ public class QuestionController extends BaseController implements SectionQuestio
             question
                 .getExamSectionQuestions()
                 .stream()
-                .anyMatch(
-                    esq -> {
-                        Exam exam = esq.getExamSection().getExam();
-                        return (exam.getState() == Exam.State.PUBLISHED && exam.getExamActiveEndDate().isAfterNow());
-                    }
-                )
+                .anyMatch(esq -> {
+                    Exam exam = esq.getExamSection().getExam();
+                    return (exam.getState() == Exam.State.PUBLISHED && exam.getExamActiveEndDate().isAfterNow());
+                })
         ) {
             return forbidden();
         }
         question
             .getChildren()
-            .forEach(
-                c -> {
-                    c.setParent(null);
-                    c.update();
-                }
-            );
+            .forEach(c -> {
+                c.setParent(null);
+                c.update();
+            });
         question.getExamSectionQuestions().forEach((Model::delete));
         try {
             question.delete();
@@ -362,12 +354,10 @@ public class QuestionController extends BaseController implements SectionQuestio
         // Updates
         StreamSupport
             .stream(node.spliterator(), false)
-            .filter(
-                o -> {
-                    Optional<Long> id = SanitizingHelper.parse("id", o, Long.class);
-                    return id.isPresent() && persistedIds.contains(id.get());
-                }
-            )
+            .filter(o -> {
+                Optional<Long> id = SanitizingHelper.parse("id", o, Long.class);
+                return id.isPresent() && persistedIds.contains(id.get());
+            })
             .forEach(o -> updateOption(o, OptionUpdateOptions.HANDLE_DEFAULTS));
         // Removals
         question.getOptions().stream().filter(o -> !providedIds.contains(o.getId())).forEach(this::deleteOption);
@@ -446,8 +436,8 @@ public class QuestionController extends BaseController implements SectionQuestio
             .idIn(ids)
             .findList()
             .stream()
-            .filter(
-                q -> q.getType() != Question.Type.ClaimChoiceQuestion && q.getType() != Question.Type.ClozeTestQuestion
+            .filter(q ->
+                q.getType() != Question.Type.ClaimChoiceQuestion && q.getType() != Question.Type.ClozeTestQuestion
             )
             .collect(Collectors.toList());
         String document = xmlConverter.convert(CollectionConverters.asScala(questions).toSeq());

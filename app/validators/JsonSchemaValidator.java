@@ -61,8 +61,8 @@ class JsonSchemaValidator extends Action<JsonValidator> {
 
     private boolean isValid(JsonNode input) throws Exception {
         Set<ValidationMessage> errors = getSchema().validate(input);
-        errors.forEach(
-            e -> logger.error("JSON validation error: schema={}, err={}", configuration.schema(), e.getMessage())
+        errors.forEach(e ->
+            logger.error("JSON validation error: schema={}, err={}", configuration.schema(), e.getMessage())
         );
         return errors.isEmpty();
     }

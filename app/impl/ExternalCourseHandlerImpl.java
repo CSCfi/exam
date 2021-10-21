@@ -118,10 +118,9 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             .orderBy("code")
             .findSet()
             .stream()
-            .filter(
-                c ->
-                    c.getStartDate() == null ||
-                    configReader.getCourseValidityDate(new DateTime(c.getStartDate())).isBeforeNow()
+            .filter(c ->
+                c.getStartDate() == null ||
+                configReader.getCourseValidityDate(new DateTime(c.getStartDate())).isBeforeNow()
             )
             .collect(Collectors.toSet());
     }
@@ -135,15 +134,13 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         // Finally return all matches (local & remote)
         URL url = parseUrl(user.getOrganisation(), code);
         return downloadCourses(url)
-            .thenApplyAsync(
-                remotes -> {
-                    remotes.forEach(this::saveOrUpdate);
-                    Supplier<TreeSet<Course>> supplier = () -> new TreeSet<>(Comparator.comparing(Course::getCode));
-                    return Stream
-                        .concat(getLocalCourses(code).stream(), remotes.stream())
-                        .collect(Collectors.toCollection(supplier));
-                }
-            );
+            .thenApplyAsync(remotes -> {
+                remotes.forEach(this::saveOrUpdate);
+                Supplier<TreeSet<Course>> supplier = () -> new TreeSet<>(Comparator.comparing(Course::getCode));
+                return Stream
+                    .concat(getLocalCourses(code).stream(), remotes.stream())
+                    .collect(Collectors.toCollection(supplier));
+            });
     }
 
     @Override
@@ -228,12 +225,10 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         return request
             .get()
             .thenApplyAsync(onSuccess)
-            .exceptionally(
-                t -> {
-                    logger.error("Connection error occurred", t);
-                    return Collections.emptyList();
-                }
-            );
+            .exceptionally(t -> {
+                logger.error("Connection error occurred", t);
+                return Collections.emptyList();
+            });
     }
 
     private static URL parseUrl(Organisation organisation, String courseCode) throws MalformedURLException {
@@ -291,19 +286,17 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             .stream(node.get("grades").spliterator(), false)
             .filter(n -> n.has("description"));
         Set<Grade> grades = gradesNode
-            .map(
-                n -> {
-                    Grade grade = new Grade();
-                    grade.setName(n.get("description").asText());
-                    grade.setGradeScale(gs);
-                    // Dumb JSON API gives us boolean values as strings
-                    boolean marksRejection =
-                        n.get("isFailed") != null && Boolean.parseBoolean(n.get("isFailed").asText("false"));
-                    grade.setMarksRejection(marksRejection);
-                    grade.save();
-                    return grade;
-                }
-            )
+            .map(n -> {
+                Grade grade = new Grade();
+                grade.setName(n.get("description").asText());
+                grade.setGradeScale(gs);
+                // Dumb JSON API gives us boolean values as strings
+                boolean marksRejection =
+                    n.get("isFailed") != null && Boolean.parseBoolean(n.get("isFailed").asText("false"));
+                grade.setMarksRejection(marksRejection);
+                grade.save();
+                return grade;
+            })
             .collect(Collectors.toSet());
         gs.setGrades(grades);
         return Optional.of(gs);
@@ -324,25 +317,21 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             }
             Stream<GradeScale> externals = scales
                 .stream()
-                .filter(
-                    s -> {
-                        String type = s.get("type").asText();
-                        Optional<GradeScale.Type> gst = GradeScale.Type.get(type);
-                        return gst.isPresent() && gst.get() == GradeScale.Type.OTHER;
-                    }
-                )
+                .filter(s -> {
+                    String type = s.get("type").asText();
+                    Optional<GradeScale.Type> gst = GradeScale.Type.get(type);
+                    return gst.isPresent() && gst.get() == GradeScale.Type.OTHER;
+                })
                 .filter(n -> n.has("code") && n.has("name"))
                 .map(this::importScale)
                 .flatMap(Optional::stream);
             Stream<GradeScale> locals = scales
                 .stream()
-                .filter(
-                    s -> {
-                        String type = s.get("type").asText();
-                        Optional<GradeScale.Type> gst = GradeScale.Type.get(type);
-                        return gst.isPresent() && gst.get() != GradeScale.Type.OTHER;
-                    }
-                )
+                .filter(s -> {
+                    String type = s.get("type").asText();
+                    Optional<GradeScale.Type> gst = GradeScale.Type.get(type);
+                    return gst.isPresent() && gst.get() != GradeScale.Type.OTHER;
+                })
                 .map(n -> Ebean.find(GradeScale.class, n.get("type").asText()));
             return Stream.concat(externals, locals).collect(Collectors.toList());
         }

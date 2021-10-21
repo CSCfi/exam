@@ -195,17 +195,15 @@ public class ReviewController extends BaseController {
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
-            .forEach(
-                esq -> {
-                    if (esq.getClozeTestAnswer() == null) {
-                        ClozeTestAnswer cta = new ClozeTestAnswer();
-                        cta.save();
-                        esq.setClozeTestAnswer(cta);
-                        esq.update();
-                    }
-                    esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText);
+            .forEach(esq -> {
+                if (esq.getClozeTestAnswer() == null) {
+                    ClozeTestAnswer cta = new ClozeTestAnswer();
+                    cta.save();
+                    esq.setClozeTestAnswer(cta);
+                    esq.update();
                 }
-            );
+                esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText);
+            });
         return writeAnonymousResult(request, ok(examParticipation), exam.isAnonymous());
     }
 
@@ -254,20 +252,18 @@ public class ReviewController extends BaseController {
         Set<Long> anonIds = new HashSet<>();
         Set<ExamParticipation> participations = exams
             .stream()
-            .map(
-                e -> {
-                    e.setMaxScore();
-                    e.setApprovedAnswerCount();
-                    e.setRejectedAnswerCount();
-                    e.setTotalScore();
-                    ExamParticipation ep = e.getExamParticipation();
-                    ep.setExam(e);
-                    if (e.isAnonymous()) {
-                        anonIds.add(ep.getId());
-                    }
-                    return ep;
+            .map(e -> {
+                e.setMaxScore();
+                e.setApprovedAnswerCount();
+                e.setRejectedAnswerCount();
+                e.setTotalScore();
+                ExamParticipation ep = e.getExamParticipation();
+                ep.setExam(e);
+                if (e.isAnonymous()) {
+                    anonIds.add(ep.getId());
                 }
-            )
+                return ep;
+            })
             .collect(Collectors.toSet());
 
         final Result result = ok(participations);

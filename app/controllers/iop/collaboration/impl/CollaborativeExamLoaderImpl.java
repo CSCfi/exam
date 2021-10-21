@@ -154,12 +154,10 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         return request
             .post(Ebean.json().toJson(participation, getAssessmentPath()))
             .thenApplyAsync(onSuccess)
-            .exceptionally(
-                t -> {
-                    logger.error("Could not send assessment to xm! [id=" + participation.getId() + "]", t);
-                    return false;
-                }
-            );
+            .exceptionally(t -> {
+                logger.error("Could not send assessment to xm! [id=" + participation.getId() + "]", t);
+                return false;
+            });
     }
 
     @Override

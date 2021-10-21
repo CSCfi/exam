@@ -80,24 +80,22 @@ export class ExamSearchComponent implements OnInit {
     search = (txt: string) => this.filterChanged.next(txt);
 
     private doSearch = () =>
-        this.http
-            .get<EnrolmentInfo[]>('/app/student/exams', { params: { filter: this.filter.text } })
-            .subscribe(
-                (exams) => {
-                    exams.forEach((exam) => {
-                        if (!exam.examLanguages) {
-                            console.warn('No languages for exam #' + exam.id);
-                            exam.examLanguages = [];
-                        }
-                        exam.languages = exam.examLanguages.map((lang) => lang.name);
-                    });
-                    this.exams = exams;
-                    this.checkEnrolment();
-                },
-                (err) => {
-                    toast.error(err.data);
-                },
-            );
+        this.http.get<EnrolmentInfo[]>('/app/student/exams', { params: { filter: this.filter.text } }).subscribe(
+            (exams) => {
+                exams.forEach((exam) => {
+                    if (!exam.examLanguages) {
+                        console.warn('No languages for exam #' + exam.id);
+                        exam.examLanguages = [];
+                    }
+                    exam.languages = exam.examLanguages.map((lang) => lang.name);
+                });
+                this.exams = exams;
+                this.checkEnrolment();
+            },
+            (err) => {
+                toast.error(err.data);
+            },
+        );
 
     private checkEnrolment = () => {
         this.exams.forEach((exam) => {

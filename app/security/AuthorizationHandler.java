@@ -57,12 +57,10 @@ class AuthorizationHandler implements DeadboltHandler {
         session.get("role").ifPresent(r -> user.setRoles(List.of(Role.withName(session.get("role").get()))));
         session
             .get("permissions")
-            .ifPresent(
-                p -> {
-                    Optional<Permission> permission = Permission.withValue(p);
-                    permission.ifPresent(value -> user.setPermissions(List.of(value)));
-                }
-            );
+            .ifPresent(p -> {
+                Optional<Permission> permission = Permission.withValue(p);
+                permission.ifPresent(value -> user.setPermissions(List.of(value)));
+            });
         return CompletableFuture.completedFuture(Optional.of(user));
     }
 

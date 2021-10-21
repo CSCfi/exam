@@ -62,7 +62,10 @@ const config = {
     plugins: [
         new ForkTsCheckerWebpackPlugin({ eslint: { files: './src/**/*.ts'} }),
         new CleanWebpackPlugin(),
-        new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+        new webpack.IgnorePlugin({
+            resourceRegExp: /^\.\/locale$/,
+            contextRegExp: /moment$/,
+          }),
         new BundleAnalyzerPlugin({ analyzerMode: 'static', openAnalyzer: false }),
     ],
     resolve: {

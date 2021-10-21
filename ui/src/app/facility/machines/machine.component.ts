@@ -49,7 +49,7 @@ export class MachineComponent implements OnInit {
             (machine) => {
                 this.machine = machine;
                 this.machines.getSoftware().subscribe((data) => {
-                    this.software = (data as unknown) as SoftwareWithClass[];
+                    this.software = data as unknown as SoftwareWithClass[];
                     this.software.forEach((s) => {
                         s.class =
                             this.machine.softwareInfo

@@ -269,10 +269,9 @@ public class EnrolmentController extends BaseController {
                 .endOr()
                 .findList()
                 .stream()
-                .filter(
-                    ee ->
-                        (ee.getUser() != null && ee.getUser().equals(user)) ||
-                        (ee.getPreEnrolledUserEmail() != null && ee.getPreEnrolledUserEmail().equals(user.getEmail()))
+                .filter(ee ->
+                    (ee.getUser() != null && ee.getUser().equals(user)) ||
+                    (ee.getPreEnrolledUserEmail() != null && ee.getPreEnrolledUserEmail().equals(user.getEmail()))
                 )
                 .collect(Collectors.toList());
 
@@ -280,10 +279,8 @@ public class EnrolmentController extends BaseController {
             if (
                 enrolments
                     .stream()
-                    .anyMatch(
-                        e ->
-                            e.getExam().getImplementation() == Exam.Implementation.AQUARIUM &&
-                            e.getReservation() == null
+                    .anyMatch(e ->
+                        e.getExam().getImplementation() == Exam.Implementation.AQUARIUM && e.getReservation() == null
                     )
             ) {
                 return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));
@@ -292,10 +289,9 @@ public class EnrolmentController extends BaseController {
             if (
                 enrolments
                     .stream()
-                    .anyMatch(
-                        e ->
-                            e.getExam().getImplementation() != Exam.Implementation.AQUARIUM &&
-                            e.getExaminationEventConfiguration() == null
+                    .anyMatch(e ->
+                        e.getExam().getImplementation() != Exam.Implementation.AQUARIUM &&
+                        e.getExaminationEventConfiguration() == null
                     )
             ) {
                 return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));
@@ -313,14 +309,13 @@ public class EnrolmentController extends BaseController {
             if (
                 enrolments
                     .stream()
-                    .anyMatch(
-                        e ->
-                            e.getExaminationEventConfiguration() != null &&
-                            e
-                                .getExaminationEventConfiguration()
-                                .getExaminationEvent()
-                                .toInterval(e.getExam())
-                                .contains(DateTimeUtils.adjustDST(DateTime.now()))
+                    .anyMatch(e ->
+                        e.getExaminationEventConfiguration() != null &&
+                        e
+                            .getExaminationEventConfiguration()
+                            .getExaminationEvent()
+                            .toInterval(e.getExam())
+                            .contains(DateTimeUtils.adjustDST(DateTime.now()))
                     )
             ) {
                 return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
@@ -343,20 +338,17 @@ public class EnrolmentController extends BaseController {
                 Reservation reservation = enrolment.getReservation();
                 return externalReservationHandler
                     .removeReservation(reservation, user, "")
-                    .thenApplyAsync(
-                        result -> {
-                            enrolment.delete();
-                            ExamEnrolment newEnrolment = makeEnrolment(exam, user);
-                            return ok(newEnrolment);
-                        }
-                    );
+                    .thenApplyAsync(result -> {
+                        enrolment.delete();
+                        ExamEnrolment newEnrolment = makeEnrolment(exam, user);
+                        return ok(newEnrolment);
+                    });
             }
             List<ExamEnrolment> enrolmentsWithFutureExaminationEvents = enrolments
                 .stream()
-                .filter(
-                    e ->
-                        e.getExaminationEventConfiguration() != null &&
-                        e.getExaminationEventConfiguration().getExaminationEvent().toInterval(e.getExam()).isAfterNow()
+                .filter(e ->
+                    e.getExaminationEventConfiguration() != null &&
+                    e.getExaminationEventConfiguration().getExaminationEvent().toInterval(e.getExam()).isAfterNow()
                 )
                 .collect(Collectors.toList());
             if (enrolmentsWithFutureExaminationEvents.size() > 1) {
@@ -464,27 +456,25 @@ public class EnrolmentController extends BaseController {
 
         final User sender = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return doCreateEnrolment(eid, executionType, user)
-            .thenApplyAsync(
-                result -> {
-                    if (exam.getState() != Exam.State.PUBLISHED) {
-                        return result;
-                    }
-                    if (result.status() != Http.Status.OK) {
-                        return result;
-                    }
-                    actor
-                        .scheduler()
-                        .scheduleOnce(
-                            Duration.create(1, TimeUnit.SECONDS),
-                            () -> {
-                                emailComposer.composePrivateExamParticipantNotification(user, sender, exam);
-                                logger.info("Exam participation notification email sent to {}", user.getEmail());
-                            },
-                            actor.dispatcher()
-                        );
+            .thenApplyAsync(result -> {
+                if (exam.getState() != Exam.State.PUBLISHED) {
                     return result;
                 }
-            );
+                if (result.status() != Http.Status.OK) {
+                    return result;
+                }
+                actor
+                    .scheduler()
+                    .scheduleOnce(
+                        Duration.create(1, TimeUnit.SECONDS),
+                        () -> {
+                            emailComposer.composePrivateExamParticipantNotification(user, sender, exam);
+                            logger.info("Exam participation notification email sent to {}", user.getEmail());
+                        },
+                        actor.dispatcher()
+                    );
+                return result;
+            });
     }
 
     @Authenticated

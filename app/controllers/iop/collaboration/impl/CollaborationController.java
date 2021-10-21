@@ -101,20 +101,18 @@ public class CollaborationController extends BaseController {
         StreamSupport
             .stream(root.spliterator(), false)
             .filter(node -> !locals.keySet().contains(node.get("_id").asText()))
-            .forEach(
-                node -> {
-                    String ref = node.get("_id").asText();
-                    String rev = node.get("_rev").asText();
-                    final boolean anonymous = node.get("anonymous").booleanValue();
-                    CollaborativeExam ce = new CollaborativeExam();
-                    ce.setExternalRef(ref);
-                    ce.setRevision(rev);
-                    ce.setCreated(DateTime.now());
-                    ce.setAnonymous(anonymous);
-                    ce.save();
-                    locals.put(ref, ce);
-                }
-            );
+            .forEach(node -> {
+                String ref = node.get("_id").asText();
+                String rev = node.get("_rev").asText();
+                final boolean anonymous = node.get("anonymous").booleanValue();
+                CollaborativeExam ce = new CollaborativeExam();
+                ce.setExternalRef(ref);
+                ce.setRevision(rev);
+                ce.setCreated(DateTime.now());
+                ce.setAnonymous(anonymous);
+                ce.save();
+                locals.put(ref, ce);
+            });
     }
 
     CompletionStage<Result> uploadExam(CollaborativeExam ce, Exam content, User sender) {
@@ -132,10 +130,8 @@ public class CollaborationController extends BaseController {
                 exam
                     .getExamOwners()
                     .stream()
-                    .anyMatch(
-                        u ->
-                            u.getEmail().equalsIgnoreCase(user.getEmail()) ||
-                            u.getEmail().equalsIgnoreCase(user.getEppn())
+                    .anyMatch(u ->
+                        u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn())
                     ) &&
                 exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED)
             )
@@ -149,10 +145,8 @@ public class CollaborationController extends BaseController {
                 exam
                     .getExamOwners()
                     .stream()
-                    .noneMatch(
-                        u ->
-                            u.getEmail().equalsIgnoreCase(user.getEmail()) ||
-                            u.getEmail().equalsIgnoreCase(user.getEppn())
+                    .noneMatch(u ->
+                        u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn())
                     ) ||
                 !exam.hasState(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED)
             )
@@ -165,16 +159,14 @@ public class CollaborationController extends BaseController {
 
     void calculateScores(JsonNode root) {
         stream(root)
-            .forEach(
-                ep -> {
-                    Exam exam = JsonDeserializer.deserialize(Exam.class, ep.get("exam"));
-                    exam.setMaxScore();
-                    exam.setApprovedAnswerCount();
-                    exam.setRejectedAnswerCount();
-                    exam.setTotalScore();
-                    ((ObjectNode) ep).set("exam", serialize(exam));
-                }
-            );
+            .forEach(ep -> {
+                Exam exam = JsonDeserializer.deserialize(Exam.class, ep.get("exam"));
+                exam.setMaxScore();
+                exam.setApprovedAnswerCount();
+                exam.setRejectedAnswerCount();
+                exam.setTotalScore();
+                ((ObjectNode) ep).set("exam", serialize(exam));
+            });
     }
 
     Stream<JsonNode> stream(JsonNode node) {

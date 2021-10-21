@@ -52,26 +52,22 @@ public class CollaborativeExamSectionController extends CollaborationController 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> addSection(Long examId, Http.Request request) {
         return findCollaborativeExam(examId)
-            .map(
-                ce -> {
-                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                    return downloadExam(ce)
-                        .thenComposeAsync(
-                            result -> {
-                                if (result.isPresent()) {
-                                    Exam exam = result.get();
-                                    if (isAuthorizedToView(exam, user)) {
-                                        ExamSection section = createDraft(exam, user);
-                                        exam.getExamSections().add(section);
-                                        return uploadExam(ce, exam, user, section, null);
-                                    }
-                                    return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
-                                }
-                                return wrapAsPromise(notFound());
+            .map(ce -> {
+                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                return downloadExam(ce)
+                    .thenComposeAsync(result -> {
+                        if (result.isPresent()) {
+                            Exam exam = result.get();
+                            if (isAuthorizedToView(exam, user)) {
+                                ExamSection section = createDraft(exam, user);
+                                exam.getExamSections().add(section);
+                                return uploadExam(ce, exam, user, section, null);
                             }
-                        );
-                }
-            )
+                            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+                        }
+                        return wrapAsPromise(notFound());
+                    });
+            })
             .get();
     }
 
@@ -82,31 +78,27 @@ public class CollaborativeExamSectionController extends CollaborationController 
         Function<Exam, Optional<? extends Model>> resultProvider
     ) {
         return findCollaborativeExam(examId)
-            .map(
-                ce -> {
-                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                    return downloadExam(ce)
-                        .thenComposeAsync(
-                            result -> {
-                                if (result.isPresent()) {
-                                    Exam exam = result.get();
-                                    if (isAuthorizedToView(exam, user)) {
-                                        Optional<Result> err = updater.apply(exam, user);
-                                        if (err.isPresent()) {
-                                            return wrapAsPromise(err.get());
-                                        }
-                                        PathProperties pp = PathProperties.parse(
-                                            "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
-                                        );
-                                        return uploadExam(ce, exam, user, resultProvider.apply(exam).orElse(null), pp);
-                                    }
-                                    return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+            .map(ce -> {
+                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                return downloadExam(ce)
+                    .thenComposeAsync(result -> {
+                        if (result.isPresent()) {
+                            Exam exam = result.get();
+                            if (isAuthorizedToView(exam, user)) {
+                                Optional<Result> err = updater.apply(exam, user);
+                                if (err.isPresent()) {
+                                    return wrapAsPromise(err.get());
                                 }
-                                return wrapAsPromise(notFound());
+                                PathProperties pp = PathProperties.parse(
+                                    "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
+                                );
+                                return uploadExam(ce, exam, user, resultProvider.apply(exam).orElse(null), pp);
                             }
-                        );
-                }
-            )
+                            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+                        }
+                        return wrapAsPromise(notFound());
+                    });
+            })
             .get();
     }
 
@@ -395,63 +387,56 @@ public class CollaborativeExamSectionController extends CollaborationController 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> updateQuestion(Long examId, Long sectionId, Long questionId, Http.Request request) {
         return findCollaborativeExam(examId)
-            .map(
-                ce -> {
-                    User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                    return downloadExam(ce)
-                        .thenComposeAsync(
-                            result -> {
-                                if (result.isPresent()) {
-                                    Exam exam = result.get();
-                                    if (isAuthorizedToView(exam, user)) {
-                                        Optional<ExamSection> section = exam
-                                            .getExamSections()
-                                            .stream()
-                                            .filter(es -> es.getId().equals(sectionId))
-                                            .findFirst();
-                                        if (section.isPresent()) {
-                                            ExamSection es = section.get();
-                                            Optional<ExamSectionQuestion> question = es
-                                                .getSectionQuestions()
-                                                .stream()
-                                                .filter(esq -> esq.getId().equals(questionId))
-                                                .findFirst();
-                                            if (question.isPresent()) {
-                                                ExamSectionQuestion esq = question.get();
-                                                JsonNode payload = request.body().asJson().get("question");
-                                                Question questionBody = JsonDeserializer.deserialize(
-                                                    Question.class,
-                                                    payload
-                                                );
-                                                Optional<Result> error = questionBody.getValidationResult(payload);
-                                                if (error.isPresent()) {
-                                                    return wrapAsPromise(error.get());
-                                                }
-                                                questionBody
-                                                    .getOptions()
-                                                    .stream()
-                                                    .filter(o -> o.getId() == null)
-                                                    .forEach(o -> o.setId(newId()));
-                                                updateExamQuestion(esq, questionBody);
-                                                esq.getOptions().forEach(o -> o.setId(newId()));
-                                                PathProperties pp = PathProperties.parse(
-                                                    "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
-                                                );
-                                                return uploadExam(ce, exam, user, esq, pp);
-                                            } else {
-                                                return wrapAsPromise(notFound("sitnet_error_not_found"));
-                                            }
-                                        } else {
-                                            return wrapAsPromise(notFound("sitnet_error_not_found"));
+            .map(ce -> {
+                User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                return downloadExam(ce)
+                    .thenComposeAsync(result -> {
+                        if (result.isPresent()) {
+                            Exam exam = result.get();
+                            if (isAuthorizedToView(exam, user)) {
+                                Optional<ExamSection> section = exam
+                                    .getExamSections()
+                                    .stream()
+                                    .filter(es -> es.getId().equals(sectionId))
+                                    .findFirst();
+                                if (section.isPresent()) {
+                                    ExamSection es = section.get();
+                                    Optional<ExamSectionQuestion> question = es
+                                        .getSectionQuestions()
+                                        .stream()
+                                        .filter(esq -> esq.getId().equals(questionId))
+                                        .findFirst();
+                                    if (question.isPresent()) {
+                                        ExamSectionQuestion esq = question.get();
+                                        JsonNode payload = request.body().asJson().get("question");
+                                        Question questionBody = JsonDeserializer.deserialize(Question.class, payload);
+                                        Optional<Result> error = questionBody.getValidationResult(payload);
+                                        if (error.isPresent()) {
+                                            return wrapAsPromise(error.get());
                                         }
+                                        questionBody
+                                            .getOptions()
+                                            .stream()
+                                            .filter(o -> o.getId() == null)
+                                            .forEach(o -> o.setId(newId()));
+                                        updateExamQuestion(esq, questionBody);
+                                        esq.getOptions().forEach(o -> o.setId(newId()));
+                                        PathProperties pp = PathProperties.parse(
+                                            "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
+                                        );
+                                        return uploadExam(ce, exam, user, esq, pp);
+                                    } else {
+                                        return wrapAsPromise(notFound("sitnet_error_not_found"));
                                     }
-                                    return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+                                } else {
+                                    return wrapAsPromise(notFound("sitnet_error_not_found"));
                                 }
-                                return wrapAsPromise(notFound());
                             }
-                        );
-                }
-            )
+                            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+                        }
+                        return wrapAsPromise(notFound());
+                    });
+            })
             .get();
     }
 

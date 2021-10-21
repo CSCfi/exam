@@ -63,7 +63,8 @@ export class ExaminationLogoutComponent {
                 (resp) => (this.quitLink = resp.quitLink),
                 () =>
                     // Fetching quit link failed for some reason, just log out. Nothing we can do
-                    () => this.logout(),
+                    () =>
+                        this.logout(),
             );
         } else {
             this.logout();

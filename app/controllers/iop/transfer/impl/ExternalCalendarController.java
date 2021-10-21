@@ -298,34 +298,30 @@ public class ExternalCalendarController extends CalendarController {
         WSRequest wsRequest = wsClient.url(url.toString());
         return wsRequest
             .post(body)
-            .thenComposeAsync(
-                response -> {
-                    JsonNode root = response.asJson();
-                    if (response.getStatus() != Http.Status.CREATED) {
-                        return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
-                    }
-                    return calendarHandler
-                        .handleExternalReservation(
-                            enrolment,
-                            enrolment.getExam(),
-                            root,
-                            start,
-                            end,
-                            user,
-                            orgRef,
-                            roomRef,
-                            sectionIds
-                        )
-                        .thenApplyAsync(
-                            err -> {
-                                if (err.isEmpty()) {
-                                    return created(root.get("id"));
-                                }
-                                return internalServerError();
-                            }
-                        );
+            .thenComposeAsync(response -> {
+                JsonNode root = response.asJson();
+                if (response.getStatus() != Http.Status.CREATED) {
+                    return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
                 }
-            );
+                return calendarHandler
+                    .handleExternalReservation(
+                        enrolment,
+                        enrolment.getExam(),
+                        root,
+                        start,
+                        end,
+                        user,
+                        orgRef,
+                        roomRef,
+                        sectionIds
+                    )
+                    .thenApplyAsync(err -> {
+                        if (err.isEmpty()) {
+                            return created(root.get("id"));
+                        }
+                        return internalServerError();
+                    });
+            });
     }
 
     @Authenticated

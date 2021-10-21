@@ -89,12 +89,10 @@ public interface BaseAttachmentInterface<T> {
                 .chunked(
                     source
                         .via(new ChunkMaker(3 * 1024))
-                        .map(
-                            byteString -> {
-                                final byte[] encoded = Base64.getEncoder().encode(byteString.toArray());
-                                return ByteString.fromArray(encoded);
-                            }
-                        )
+                        .map(byteString -> {
+                            final byte[] encoded = Base64.getEncoder().encode(byteString.toArray());
+                            return ByteString.fromArray(encoded);
+                        })
                 )
                 .as(mimeType)
                 .withHeader("Content-Disposition", "attachment; filename*=UTF-8''\"" + escapedName + "\"")

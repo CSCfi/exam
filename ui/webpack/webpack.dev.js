@@ -13,8 +13,10 @@ module.exports = merge(common, {
         pathinfo: false,
     },
     devServer: {
-        stats: 'minimal',
-        hot: true,
+        devMiddleware: {
+            stats: 'minimal',
+        },
+        hot: 'only',
     },
     optimization: {
         removeAvailableModules: false,

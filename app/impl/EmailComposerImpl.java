@@ -259,23 +259,21 @@ class EmailComposerImpl implements EmailComposer {
         sorted
             .stream()
             .filter(e -> e.getValue().amount > 0)
-            .forEach(
-                e -> {
-                    Map<String, String> stringValues = new HashMap<>();
-                    stringValues.put("exam_link", String.format("%s/exams/%d/regular/4", hostName, e.getKey().getId()));
-                    stringValues.put("exam_name", e.getKey().getName());
-                    stringValues.put("course_code", e.getKey().getCourse().getCode().split("_")[0]);
-                    String summary = messaging.get(
-                        lang,
-                        "email.weekly.report.review.summary",
-                        Integer.toString(e.getValue().amount),
-                        DF.print(new DateTime(e.getValue().earliestDeadLine))
-                    );
-                    stringValues.put("review_summary", summary);
-                    String row = replaceAll(inspectionTemplate, stringValues);
-                    rowBuilder.append(row);
-                }
-            );
+            .forEach(e -> {
+                Map<String, String> stringValues = new HashMap<>();
+                stringValues.put("exam_link", String.format("%s/exams/%d/regular/4", hostName, e.getKey().getId()));
+                stringValues.put("exam_name", e.getKey().getName());
+                stringValues.put("course_code", e.getKey().getCourse().getCode().split("_")[0]);
+                String summary = messaging.get(
+                    lang,
+                    "email.weekly.report.review.summary",
+                    Integer.toString(e.getValue().amount),
+                    DF.print(new DateTime(e.getValue().earliestDeadLine))
+                );
+                stringValues.put("review_summary", summary);
+                String row = replaceAll(inspectionTemplate, stringValues);
+                rowBuilder.append(row);
+            });
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("enrolments_title", messaging.get(lang, "email.template.weekly.report.enrolments"));
@@ -995,18 +993,16 @@ class EmailComposerImpl implements EmailComposer {
         return exam
             .getExamEnrolments()
             .stream()
-            .filter(
-                ee -> {
-                    Reservation reservation = ee.getReservation();
-                    ExaminationEventConfiguration eec = ee.getExaminationEventConfiguration();
-                    if (reservation != null) {
-                        return reservation.getStartAt().isAfter(DateTime.now());
-                    } else if (eec != null) {
-                        return eec.getExaminationEvent().getStart().isAfter(DateTime.now());
-                    }
-                    return false;
+            .filter(ee -> {
+                Reservation reservation = ee.getReservation();
+                ExaminationEventConfiguration eec = ee.getExaminationEventConfiguration();
+                if (reservation != null) {
+                    return reservation.getStartAt().isAfter(DateTime.now());
+                } else if (eec != null) {
+                    return eec.getExaminationEvent().getStart().isAfter(DateTime.now());
                 }
-            )
+                return false;
+            })
             .sorted()
             .collect(Collectors.toList());
     }
@@ -1034,34 +1030,32 @@ class EmailComposerImpl implements EmailComposer {
             .stream()
             .map(e -> new Tuple2<>(e, getEnrolments(e)))
             .filter(t -> !t._1.isPrivate() || !t._2.isEmpty())
-            .map(
-                t -> {
-                    Map<String, String> stringValues = new HashMap<>();
-                    stringValues.put("exam_link", String.format("%s/reservations/%d", hostName, t._1.getId()));
-                    stringValues.put("exam_name", t._1.getName());
-                    stringValues.put("course_code", t._1.getCourse().getCode().split("_")[0]);
-                    String subTemplate;
-                    if (t._2.isEmpty()) {
-                        String noEnrolments = messaging.get(lang, "email.enrolment.no.enrolments");
-                        subTemplate =
-                            String.format(
-                                "<li><a href=\"{{exam_link}}\">{{exam_name}} - {{course_code}}</a>: %s</li>",
-                                noEnrolments
-                            );
-                    } else {
-                        ExamEnrolment first = t._2.get(0);
-                        DateTime date = first.getReservation() != null
-                            ? adjustDST(first.getReservation().getStartAt())
-                            : first.getExaminationEventConfiguration().getExaminationEvent().getStart();
-                        stringValues.put(
-                            "enrolments",
-                            messaging.get(lang, "email.template.enrolment.first", t._2.size(), DTF.print(date))
+            .map(t -> {
+                Map<String, String> stringValues = new HashMap<>();
+                stringValues.put("exam_link", String.format("%s/reservations/%d", hostName, t._1.getId()));
+                stringValues.put("exam_name", t._1.getName());
+                stringValues.put("course_code", t._1.getCourse().getCode().split("_")[0]);
+                String subTemplate;
+                if (t._2.isEmpty()) {
+                    String noEnrolments = messaging.get(lang, "email.enrolment.no.enrolments");
+                    subTemplate =
+                        String.format(
+                            "<li><a href=\"{{exam_link}}\">{{exam_name}} - {{course_code}}</a>: %s</li>",
+                            noEnrolments
                         );
-                        subTemplate = enrolmentTemplate;
-                    }
-                    return replaceAll(subTemplate, stringValues);
+                } else {
+                    ExamEnrolment first = t._2.get(0);
+                    DateTime date = first.getReservation() != null
+                        ? adjustDST(first.getReservation().getStartAt())
+                        : first.getExaminationEventConfiguration().getExaminationEvent().getStart();
+                    stringValues.put(
+                        "enrolments",
+                        messaging.get(lang, "email.template.enrolment.first", t._2.size(), DTF.print(date))
+                    );
+                    subTemplate = enrolmentTemplate;
                 }
-            )
+                return replaceAll(subTemplate, stringValues);
+            })
             .collect(Collectors.joining());
     }
 
@@ -1083,12 +1077,10 @@ class EmailComposerImpl implements EmailComposer {
     }
 
     private static <K, V extends Comparable<? super V>> SortedSet<Map.Entry<K, V>> sortByValue(Map<K, V> map) {
-        SortedSet<Map.Entry<K, V>> set = new TreeSet<>(
-            (e1, e2) -> {
-                int res = e1.getValue().compareTo(e2.getValue());
-                return res != 0 ? res : 1;
-            }
-        );
+        SortedSet<Map.Entry<K, V>> set = new TreeSet<>((e1, e2) -> {
+            int res = e1.getValue().compareTo(e2.getValue());
+            return res != 0 ? res : 1;
+        });
         set.addAll(map.entrySet());
         return set;
     }

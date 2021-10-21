@@ -210,13 +210,11 @@ public class SessionController extends BaseController {
             .findSet()
             .stream()
             .filter(ee -> isUserPreEnrolled(ee.getPreEnrolledUserEmail(), user))
-            .forEach(
-                ee -> {
-                    ee.setPreEnrolledUserEmail(null);
-                    ee.setUser(user);
-                    ee.update();
-                }
-            );
+            .forEach(ee -> {
+                ee.setPreEnrolledUserEmail(null);
+                ee.setUser(user);
+                ee.update();
+            });
     }
 
     private Reservation getUpcomingExternalReservation(String eppn) {
@@ -307,8 +305,8 @@ public class SessionController extends BaseController {
                         },
                         () ->
                             new TreeMap<>(
-                                Comparator.comparingInt(
-                                    o -> !MULTI_STUDENT_ID_ORGS.contains(o) ? 1000 : MULTI_STUDENT_ID_ORGS.indexOf(o)
+                                Comparator.comparingInt(o ->
+                                    !MULTI_STUDENT_ID_ORGS.contains(o) ? 1000 : MULTI_STUDENT_ID_ORGS.indexOf(o)
                                 )
                             )
                     )
