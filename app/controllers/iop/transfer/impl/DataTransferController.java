@@ -268,7 +268,6 @@ public class DataTransferController extends BaseController {
             return badRequest("User not recognized");
         }
         User user = ou.get();
-        List<Tag> userTags = Ebean.find(Tag.class).where().eq("creator", user).findList();
         ArrayNode questionNode = node.withArray("questions");
         List<QuestionEntry> entries = StreamSupport
             .stream(questionNode.spliterator(), false)
@@ -280,6 +279,7 @@ public class DataTransferController extends BaseController {
                     copy.setCreatorWithDate(user);
                     copy.setModifierWithDate(user);
                     copy.save();
+                    List<Tag> userTags = Ebean.find(Tag.class).where().eq("creator", user).findList();
                     List<Tag> newTags = question
                         .getTags()
                         .stream()
