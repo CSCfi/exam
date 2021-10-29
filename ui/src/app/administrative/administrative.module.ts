@@ -17,7 +17,6 @@ import { UsersComponent } from './users/users.component';
 import { UserManagementService } from './users/users.service';
 
 @NgModule({
-    entryComponents: [UsersComponent, SettingsComponent, StatisticsComponent],
     declarations: [
         UsersComponent,
         SettingsComponent,

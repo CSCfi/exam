@@ -49,7 +49,6 @@ import { SlotPickerComponent } from './helpers/slotPicker.component';
         SlotPickerComponent,
         SelectedRoomComponent,
     ],
-    entryComponents: [CalendarComponent],
     providers: [CalendarService],
     exports: [CalendarComponent, BookingCalendarComponent],
 })

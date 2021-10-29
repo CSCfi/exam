@@ -10,7 +10,6 @@ import { MachineListComponent } from './machineList.component';
 import { MachineService } from './machines.service';
 
 @NgModule({
-    entryComponents: [MachineListComponent, MachineComponent],
     imports: [CommonModule, TranslateModule, NgbModule, UtilityModule, UIRouterModule],
     providers: [MachineService],
     declarations: [MachineListComponent, MachineComponent],

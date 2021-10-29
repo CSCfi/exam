@@ -26,6 +26,5 @@ import { TeacherDashboardModule } from './teacher/teacherDashboard.module';
 @NgModule({
     imports: [UtilityModule, StudentDashboardModule, TeacherDashboardModule, AdminDashboardModule, UIRouterModule],
     declarations: [DashboardComponent],
-    entryComponents: [DashboardComponent],
 })
 export class DashboardModule {}

@@ -39,7 +39,6 @@ import { ExaminationSectionComponent } from './section/examinationSection.compon
         ExaminationComponent,
         ClozeTestDisplayComponent,
     ],
-    entryComponents: [ExaminationComponent],
     providers: [ExaminationService, ExaminationStatusService],
 })
 export class ExaminationModule {}

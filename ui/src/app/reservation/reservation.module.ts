@@ -34,13 +34,6 @@ import { TeacherReservationComponent } from './teacher/teacherReservations.compo
         AdminReservationComponent,
         TeacherReservationComponent,
     ],
-    entryComponents: [
-        ChangeMachineDialogComponent,
-        RemoveReservationDialogComponent,
-        ReservationDetailsComponent,
-        AdminReservationComponent,
-        TeacherReservationComponent,
-    ],
     providers: [ReservationService],
 })
 export class ReservationModule {}

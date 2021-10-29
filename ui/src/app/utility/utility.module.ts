@@ -108,17 +108,6 @@ import { WindowRef } from './window/window.service';
         MaxDirective,
         OrderByPipe,
     ],
-    entryComponents: [
-        AttachmentSelectorComponent,
-        ConfirmationDialogComponent,
-        DatePickerComponent,
-        DateTimePickerComponent,
-        HistoryBackComponent,
-        PaginatorComponent,
-        TeacherListComponent,
-        TableSortComponent,
-        CourseCodeComponent,
-    ],
     providers: [
         AttachmentService,
         ConfirmationDialogService,
