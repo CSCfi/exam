@@ -58,6 +58,11 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         SelectExaminationEventDialogComponent,
         ShowInstructionsDialogComponent,
     ],
+    bootstrap: [
+        AddEnrolmentInformationDialogComponent,
+        SelectExaminationEventDialogComponent,
+        ShowInstructionsDialogComponent,
+    ],
     providers: [EnrolmentService, WrongLocationService],
 })
 export class EnrolmentModule {}

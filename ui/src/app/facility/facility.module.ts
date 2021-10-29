@@ -52,6 +52,7 @@ import { StartingTimeComponent } from './schedule/startingTime.component';
         RoomListComponent,
         AddressComponent,
     ],
+    bootstrap: [ExceptionDialogComponent],
     providers: [SettingsResourceService, InteroperabilityResourceService, RoomService],
     exports: [ExamRoomsAdminTabsComponent],
 })

@@ -26,6 +26,7 @@ import { SessionService } from './session.service';
     imports: [NgbModule, UtilityModule],
     exports: [DevLoginComponent],
     declarations: [DevLoginComponent, EulaDialogComponent, SelectRoleDialogComponent, LogoutComponent],
+    bootstrap: [EulaDialogComponent, SelectRoleDialogComponent],
     providers: [SessionService],
 })
 export class SessionModule {}
