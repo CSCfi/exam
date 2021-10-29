@@ -20,28 +20,32 @@
         </div>
     </div>
     <div class="tab-wrapper">
-        <ngb-tabset [activeId]="activeTab" (tabChange)="tabChanged($event)">
-            <ngb-tab *ngIf="user.isAdmin" [id]="1" [title]="getHeadingTranslation('sitnet_exam_all_rooms')">
-                <ng-template ngbTabContent>
+        <ul ngbNav #nav="ngbNav" class="nav-tabs">
+            <li ngbNavItem>
+                <a ngbNavLink>
+                    {{ getHeadingTranslation('sitnet_exam_all_rooms') }}
+                </a>
+                <ng-template ngbNavContent>
                     <room-list></room-list>
                 </ng-template>
-            </ngb-tab>
-            <!--<uib-tab ng-if="user.isAdmin" index="2" heading="{{ 'sitnet_exception_datetimes' | translate }}"-->
-            <!--deselect="tabChanged($selectedIndex)">-->
-            <!--<exception-list-all-->
-            <!--room="room" on-previous-tab-selected="switchToExamRooms" on-next-tab-selected="switchToNeededSoftware">-->
-            <!--</exception-list-all>-->
-            <!--</uib-tab>-->
-            <ngb-tab *ngIf="user.isAdmin" [id]="3" [title]="getHeadingTranslation('sitnet_exam_machine_softwares')">
-                <ng-template ngbTabContent>
+            </li>
+            <li ngbNavItem>
+                <a ngbNavLink>
+                    {{ getHeadingTranslation('sitnet_exam_machine_softwares') }}
+                </a>
+                <ng-template ngbNavContent>
                     <software></software>
                 </ng-template>
-            </ngb-tab>
-            <ngb-tab *ngIf="user.isAdmin" [id]="4" [title]="getHeadingTranslation('sitnet_room_accessibility_info')">
-                <ng-template ngbTabContent>
+            </li>
+            <li ngbNavItem>
+                <a ngbNavLink>
+                    {{ getHeadingTranslation('sitnet_room_accessibility_info') }}
+                </a>
+                <ng-template ngbNavContent>
                     <accessibility></accessibility>
                 </ng-template>
-            </ngb-tab>
-        </ngb-tabset>
+            </li>
+        </ul>
+        <div [ngbNavOutlet]="nav"></div>
     </div>
 </div>

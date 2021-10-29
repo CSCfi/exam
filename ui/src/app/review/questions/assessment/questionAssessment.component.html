@@ -95,13 +95,13 @@
             </div>
             <div class="top-row">
                 <div class="col-md-12">
-                    <ngb-tabset>
-                        <ngb-tab id="1">
-                            <ng-template ngbTabTitle>
+                    <ul ngbNav #nav="ngbNav" class="nav-tabs">
+                        <li ngbNavItem>
+                            <a ngbNavLink>
                                 {{ 'sitnet_unassessed_exams' | translate }}
                                 <span class="badge badge-danger">{{ getUnassessedAnswerCount() }}</span>
-                            </ng-template>
-                            <ng-template ngbTabContent>
+                            </a>
+                            <ng-template ngbNavContent>
                                 <essay-answers
                                     [answers]="unassessedAnswers"
                                     [editable]="true"
@@ -110,13 +110,13 @@
                                 >
                                 </essay-answers>
                             </ng-template>
-                        </ngb-tab>
-                        <ngb-tab id="2">
-                            <ng-template ngbTabTitle>
+                        </li>
+                        <li ngbNavItem>
+                            <a ngbNavLink>
                                 {{ 'sitnet_assessed_exams' | translate }}
                                 <span class="badge badge-danger">{{ getAssessedAnswerCount() }}</span>
-                            </ng-template>
-                            <ng-template ngbTabContent>
+                            </a>
+                            <ng-template ngbNavContent>
                                 <essay-answers
                                     [answers]="assessedAnswers"
                                     [editable]="true"
@@ -125,13 +125,13 @@
                                 >
                                 </essay-answers>
                             </ng-template>
-                        </ngb-tab>
-                        <ngb-tab id="3">
-                            <ng-template ngbTabTitle>
+                        </li>
+                        <li ngbNavItem>
+                            <a ngbNavLink>
                                 {{ 'sitnet_graded_logged_exams' | translate }}
                                 <span class="badge badge-danger">{{ getLockedAnswerCount() }}</span>
-                            </ng-template>
-                            <ng-template ngbTabContent>
+                            </a>
+                            <ng-template ngbNavContent>
                                 <essay-answers
                                     [answers]="lockedAnswers"
                                     [editable]="false"
@@ -139,8 +139,9 @@
                                 >
                                 </essay-answers>
                             </ng-template>
-                        </ngb-tab>
-                    </ngb-tabset>
+                        </li>
+                    </ul>
+                    <div [ngbNavOutlet]="nav"></div>
                 </div>
             </div>
             <div class="ballast"></div>

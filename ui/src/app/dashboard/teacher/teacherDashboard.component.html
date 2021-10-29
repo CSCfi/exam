@@ -24,15 +24,22 @@
     </div>
 
     <div class="tab-wrapper">
-        <ngb-tabset [activeId]="activeTab" (tabChange)="changeTab($event)">
-            <ngb-tab id="1">
-                <ng-template ngbTabTitle>
+        <ul
+            ngbNav
+            #nav="ngbNav"
+            [(activeId)]="activeTab"
+            [destroyOnHide]="false"
+            (navChange)="tabChanged($event)"
+            class="nav-tabs"
+        >
+            <li [ngbNavItem]="1">
+                <a ngbNavLink>
                     <div class="make-inline marr10">{{ 'sitnet_active_exams_title' | translate }}</div>
                     <div *ngIf="activeExams" class="make-inline tab-number">
                         {{ filteredActive.length }}
                     </div>
-                </ng-template>
-                <ng-template ngbTabContent>
+                </a>
+                <ng-template ngbNavContent>
                     <exam-list-category
                         [items]="filteredActive"
                         defaultPredicate="examActiveEndDate"
@@ -42,15 +49,15 @@
                     >
                     </exam-list-category>
                 </ng-template>
-            </ngb-tab>
-            <ngb-tab id="2">
-                <ng-template ngbTabTitle>
+            </li>
+            <li [ngbNavItem]="2">
+                <a ngbNavLink>
                     <div class="make-inline marr10">{{ 'sitnet_finished_exams_title' | translate }}</div>
                     <div class="make-inline tab-number">
                         {{ filteredFinished.length }}
                     </div>
-                </ng-template>
-                <ng-template ngbTabContent>
+                </a>
+                <ng-template ngbNavContent>
                     <exam-list-category
                         [items]="filteredFinished"
                         defaultPredicate="unassessedCount"
@@ -61,15 +68,15 @@
                     >
                     </exam-list-category>
                 </ng-template>
-            </ngb-tab>
-            <ngb-tab id="3">
-                <ng-template ngbTabTitle>
+            </li>
+            <li [ngbNavItem]="3">
+                <a ngbNavLink>
                     <div class="make-inline marr10">{{ 'sitnet_archived_teacher_exams_title' | translate }}</div>
                     <div class="make-inline tab-number">
                         {{ filteredArchived.length }}
                     </div>
-                </ng-template>
-                <ng-template ngbTabContent>
+                </a>
+                <ng-template ngbNavContent>
                     <exam-list-category
                         [items]="filteredArchived"
                         defaultPredicate="examActiveEndDate"
@@ -80,15 +87,15 @@
                     >
                     </exam-list-category>
                 </ng-template>
-            </ngb-tab>
-            <ngb-tab id="4">
-                <ng-template ngbTabTitle>
+            </li>
+            <li [ngbNavItem]="4">
+                <a ngbNavLink>
                     <div class="make-inline marr10">{{ 'sitnet_draft_exams' | translate }}</div>
                     <div class="make-inline tab-number">
                         {{ filteredDrafts.length }}
                     </div>
-                </ng-template>
-                <ng-template ngbTabContent>
+                </a>
+                <ng-template ngbNavContent>
                     <exam-list-category
                         [items]="filteredDrafts"
                         defaultPredicate="examActiveEndDate"
@@ -98,7 +105,8 @@
                     >
                     </exam-list-category>
                 </ng-template>
-            </ngb-tab>
-        </ngb-tabset>
+            </li>
+        </ul>
+        <div [ngbNavOutlet]="nav"></div>
     </div>
 </div>

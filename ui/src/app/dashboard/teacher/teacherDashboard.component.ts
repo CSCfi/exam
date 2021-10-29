@@ -21,7 +21,7 @@ import { ExamSearchPipe } from './examSearch.pipe';
 import { TeacherDashboardService } from './teacherDashboard.service';
 
 import type { OnInit } from '@angular/core';
-import type { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { ExamExecutionType } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
 import type { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teacherDashboard.service';
@@ -128,7 +128,7 @@ export class TeacherDashboardComponent implements OnInit {
         });
     }
 
-    changeTab = (event: NgbTabChangeEvent) => {
+    changeTab = (event: NgbNavChangeEvent) => {
         this.activeTab = event.nextId;
         this.state.go('dashboard', { tab: event.nextId });
     };

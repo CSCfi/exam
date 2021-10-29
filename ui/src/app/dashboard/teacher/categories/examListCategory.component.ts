@@ -43,7 +43,7 @@ type ExecutionType = ExamExecutionType & { name: string } & { examinationTypes: 
 export class ExamListCategoryComponent implements OnInit {
     @Input() items: Exam[];
     @Input() examTypes: ExecutionType[];
-    @Input() extraColumns: ExtraColumn[];
+    @Input() extraColumns: ExtraColumn[] = [];
     @Input() defaultPredicate: string;
     @Input() defaultReverse: boolean;
     @Output() onFilterChange = new EventEmitter<string>();

@@ -12,8 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, ViewChild } from '@angular/core';
-import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
 import * as toast from 'toastr';
@@ -24,7 +23,6 @@ import { RoomService } from './rooms/room.service';
 
 import type { OnInit } from '@angular/core';
 import type { User } from '../session/session.service';
-import type { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     templateUrl: './examRoomsAdminTabs.component.html',
@@ -32,8 +30,6 @@ import type { NgbTabChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 })
 export class ExamRoomsAdminTabsComponent implements OnInit {
     user: User;
-    activeTab: string;
-    @ViewChild('tabs', { static: false }) tabs: NgbTabset;
 
     constructor(
         private translate: TranslateService,
@@ -45,7 +41,6 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
 
     ngOnInit() {
         this.user = this.session.getUser();
-        this.activeTab = '1';
     }
 
     createExamRoom = () => {
@@ -58,10 +53,6 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
                 toast.error(error.data);
             },
         );
-    };
-
-    tabChanged = (event: NgbTabChangeEvent) => {
-        this.activeTab = event.nextId;
     };
 
     editMultipleRooms = function () {
