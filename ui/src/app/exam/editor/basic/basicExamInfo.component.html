@@ -33,7 +33,11 @@
                                 </sup>
                             </div>
                             <div class="col-md-9">
-                                <input class="form-control wdth-30" [(ngModel)]="exam.name" (change)="updateExam()" />
+                                <input
+                                    class="form-control wdth-30"
+                                    [(ngModel)]="exam.name"
+                                    (change)="updateExam(false)"
+                                />
                             </div>
                         </div>
                     </div>
@@ -112,7 +116,7 @@
                                     type="text"
                                     maxlength="128"
                                     [(ngModel)]="exam.internalRef"
-                                    (change)="updateExam()"
+                                    (change)="updateExam(false)"
                                 />
                             </div>
                         </div>
@@ -215,7 +219,7 @@
                                     class="btn btn-review"
                                     [ngClass]="exam.subjectToLanguageInspection === true ? 'btn-primary' : ''"
                                     [disabled]="exam.state === 'PUBLISHED'"
-                                    (click)="exam.subjectToLanguageInspection = true; updateExam()"
+                                    (click)="exam.subjectToLanguageInspection = true; updateExam(false)"
                                 >
                                     {{ 'DIALOGS_YES' | translate }}</button
                                 >&nbsp;
@@ -223,7 +227,7 @@
                                     class="btn btn-review"
                                     [ngClass]="exam.subjectToLanguageInspection === false ? 'btn-primary' : ''"
                                     [disabled]="exam.state === 'PUBLISHED'"
-                                    (click)="exam.subjectToLanguageInspection = false; updateExam()"
+                                    (click)="exam.subjectToLanguageInspection = false; updateExam(false)"
                                 >
                                     {{ 'DIALOGS_NO' | translate }}
                                 </button>
@@ -329,7 +333,7 @@
                                     cols="150"
                                     [enableClozeTest]="false"
                                     [(ngModel)]="exam.instruction"
-                                    (onBlur)="updateExam()"
+                                    (onBlur)="updateExam(false)"
                                     #ck="ngModel"
                                     name="ck"
                                 ></ckeditor>
@@ -363,7 +367,7 @@
                                     cols="150"
                                     [enableClozeTest]="false"
                                     [(ngModel)]="exam.enrollInstruction"
-                                    (onBlur)="updateExam()"
+                                    (onBlur)="updateExam(false)"
                                     #ck="ngModel"
                                     name="ck"
                                 ></ckeditor>
@@ -380,7 +384,7 @@
 <div class="row mt-3 justify-content-end">
     <div class="col-auto p1">
         <div class="review-attachment-button exam-questions-buttons">
-            <a class="pointer" (click)="updateExam()">
+            <a class="pointer" (click)="updateExam(false)">
                 {{ 'sitnet_save' | translate }}
             </a>
         </div>

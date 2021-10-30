@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Directive } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
 import { endOfDay, startOfDay } from 'date-fns';
 import * as _ from 'lodash';
@@ -67,7 +67,7 @@ type AnyReservation =
     | RemoteTransferExamReservation
     | CollaborativeExamReservation;
 
-@Injectable()
+@Directive()
 export class ReservationComponentBase {
     examId: string;
     user: User;

@@ -291,7 +291,7 @@ export interface ExamImpl {
     assessmentInfo: string;
     internalRef: string;
     objectVersion: number;
-    examFeedback?: Feedback;
+    examFeedback: Feedback;
     grade?: SelectableGrade;
     gradedTime?: Date;
     contentGrade?: string;
@@ -306,7 +306,7 @@ export interface ExamImpl {
     additionalInfo: string;
     instruction: string;
     autoEvaluationNotified: boolean;
-    languageInspection?: LanguageInspection;
+    languageInspection: LanguageInspection;
     inspectionComments: { comment: string; creator: User; created: Date }[];
     examInspections: ExamInspection[];
     examinationEventConfigurations: ExaminationEventConfiguration[];

@@ -28,7 +28,7 @@ export class ExamMaterialComponent {
 
     materials: ExamMaterial[] = [];
     filteredMaterials: ExamMaterial[] = [];
-    newMaterial?: ExamMaterial;
+    newMaterial: Partial<ExamMaterial> = {};
     filter: string;
     materialsChanged: boolean;
 
@@ -49,7 +49,7 @@ export class ExamMaterialComponent {
             (resp) => {
                 this.materials.push(resp);
                 this.filterMaterials();
-                delete this.newMaterial;
+                this.newMaterial = {};
                 this.materialsChanged = true;
             },
             (err) => toast.error(err),

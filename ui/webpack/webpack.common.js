@@ -38,13 +38,13 @@ const config = {
                     },
                 ],
             },
-            {
+            /*{
                 test: /\.ts$/,
                 use: [
                     { loader: 'ts-loader', options: { transpileOnly: true, experimentalWatchApi: true } },
                     { loader: 'angular2-template-loader' },
                 ],
-            },
+            },*/
             {
                 test: /\.(png|svg)$/,
                 type: 'asset/resource',

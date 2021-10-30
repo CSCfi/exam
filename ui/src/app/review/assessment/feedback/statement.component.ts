@@ -27,7 +27,6 @@ import type { FileResult } from '../../../utility/attachment/dialogs/attachmentS
 export class StatementComponent {
     @Input() exam: Exam;
     hideEditor = false;
-    statement = '';
 
     constructor(private Attachment: AttachmentService, private Files: FileService, private Maturity: MaturityService) {}
 

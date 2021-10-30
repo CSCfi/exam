@@ -30,7 +30,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                     name="timepicker"
                     [disabled]="disabled"
                     [(ngModel)]="time"
-                    (ngModelChange)="onTimeUpdate($event)"
+                    (ngModelChange)="onTimeUpdate()"
                     [minuteStep]="minuteStep"
                     [hourStep]="hourStep"
                 ></ngb-timepicker>
