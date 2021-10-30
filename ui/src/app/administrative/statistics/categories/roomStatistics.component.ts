@@ -84,11 +84,11 @@ export class RoomStatisticsComponent {
         });
     };
 
-    totalParticipations = (month: Date, room: string) => {
+    totalParticipations = (month?: Date, room?: string) => {
         if (!this.participations) return 0;
         const isWithinBounds = (p: ExamParticipation) => {
             const date = new Date(p.externalExam ? p.externalExam.started : p.exam.created);
-            const current = new Date(month);
+            const current = month ? new Date(month) : new Date();
             const min = new Date(current.getFullYear(), current.getMonth(), 1);
             const max = new Date(current.getFullYear(), current.getMonth() + 1, 0, 23, 59, 59);
             return date > min && date < max;

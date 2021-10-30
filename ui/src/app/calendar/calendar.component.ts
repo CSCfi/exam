@@ -30,6 +30,7 @@ import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
 
 export type SelectableSection = ExamSection & { selected: boolean };
 export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Partial<Course> } & {
+    duration: number;
     examSections: (ExamSection & { selected: boolean })[];
 };
 type ReservationInfo = {
@@ -59,6 +60,7 @@ export class CalendarComponent implements OnInit {
         examActiveStartDate: 0,
         examActiveEndDate: 0,
         name: '',
+        duration: 0,
         anonymous: false,
         examSections: [],
         course: { code: '', name: '' },
@@ -241,7 +243,7 @@ export class CalendarComponent implements OnInit {
         this.selectedOrganisation = org;
     }
 
-    printExamDuration(exam: Exam) {
+    printExamDuration(exam: { duration: number }) {
         return this.DateTime.printExamDuration(exam);
     }
 }

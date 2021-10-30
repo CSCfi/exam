@@ -26,7 +26,7 @@
                             course:</strong
                         ><br />
                         <h4><course-code [course]="exam.course"></course-code></h4>
-                        <h4>{{ exam.course.name }}</h4>
+                        <h4>{{ exam.course?.name }}</h4>
                     </td>
                 </tr>
                 <tr>
@@ -58,7 +58,7 @@
                     </td>
                     <td>
                         <strong>Opintopistem&auml;&auml;r&auml; / Studiepo&auml;ng / Credit units:</strong>
-                        &nbsp;{{ exam.course.credits }}
+                        &nbsp;{{ exam.course?.credits }}
                     </td>
                 </tr>
                 <tr>

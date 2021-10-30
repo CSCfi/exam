@@ -38,7 +38,7 @@ export class CollaborativeParticipationsComponent implements OnInit {
         this.CollaborativeExam.listStudentParticipations$().subscribe(
             (participations: CollaborativeParticipation[]) => {
                 this.originals = participations;
-                this.search();
+                this.search('');
             },
             (err) => toastr.error(err.data),
         );
@@ -50,8 +50,7 @@ export class CollaborativeParticipationsComponent implements OnInit {
 
     pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
 
-    search() {
-        const text = this.filter.text;
+    search(text: string) {
         if (!text || text.length < 1) {
             this.participations = this.originals;
         } else {

@@ -5,7 +5,6 @@ import * as moment from 'moment';
 import { DateTimeService } from '../../utility/date/date.service';
 import { ExamInfo } from '../calendar.component';
 
-import type { Exam } from '../../exam/exam.model';
 @Component({
     selector: 'calendar-exam-info',
     template: `
@@ -88,7 +87,7 @@ export class CalendarExamInfoComponent {
         this.reservationWindowEndDate = moment().add(this.reservationWindowSize, 'days');
     }
 
-    printExamDuration = (exam: Exam) => this.DateTime.printExamDuration(exam);
+    printExamDuration = (exam: { duration: number }) => this.DateTime.printExamDuration(exam);
 
     getReservationWindowDescription(): string {
         const text = this.translate

@@ -1,6 +1,6 @@
 <div class="review-grade-row mart20">
     <div class="col-md-2 general-info-title">{{ 'sitnet_total_score' | translate }}:</div>
-    <div class="col-md-4 general-info-content">{{ getExamTotalScore(exam) }} / {{ getExamMaxPossibleScore(exam) }}</div>
+    <div class="col-md-4 general-info-content">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
     <div class="col-md-2 general-info-title">{{ 'sitnet_inspection_status' | translate }}:</div>
     <div class="col-md-4 general-info-content">
         <div *ngFor="let inspection of exam.examInspections">

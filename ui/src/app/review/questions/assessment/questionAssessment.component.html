@@ -114,7 +114,7 @@
                         <li ngbNavItem>
                             <a ngbNavLink>
                                 {{ 'sitnet_assessed_exams' | translate }}
-                                <span class="badge badge-danger">{{ getAssessedAnswerCount() }}</span>
+                                <span class="badge badge-danger">{{ getAssessedAnswerCount(false) }}</span>
                             </a>
                             <ng-template ngbNavContent>
                                 <essay-answers

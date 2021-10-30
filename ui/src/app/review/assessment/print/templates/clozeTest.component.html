@@ -30,7 +30,7 @@
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
         <div class="sub-content-row col-md-9" id="exam">
-            <div [innerHtml]="sectionQuestion.clozeTestAnswer.question"></div>
+            <div [innerHtml]="sectionQuestion.clozeTestAnswer?.question"></div>
         </div>
     </div>
 
@@ -38,10 +38,10 @@
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_multiplechoice_question_correct' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            {{ sectionQuestion.clozeTestAnswer.score.correctAnswers }} /
+            {{ sectionQuestion.clozeTestAnswer?.score.correctAnswers }} /
             {{
-                sectionQuestion.clozeTestAnswer.score.correctAnswers +
-                    sectionQuestion.clozeTestAnswer.score.incorrectAnswers
+                sectionQuestion.clozeTestAnswer?.score.correctAnswers +
+                    sectionQuestion.clozeTestAnswer?.score.incorrectAnswers
             }}
         </div>
     </div>

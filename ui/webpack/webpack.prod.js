@@ -4,6 +4,16 @@ const { merge } = require('webpack-merge');
 const common = require('./webpack.common');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const AngularWebpackPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
+
+const tsloader = {
+    test: /\.ts$/,
+    use: [
+        { loader: '@ngtools/webpack' },
+    ],
+};
+common.module.rules.push(tsloader);
+
 
 module.exports = merge(common, {
     entry: ['./src/env/prod/main.ts'],
@@ -37,6 +47,10 @@ module.exports = merge(common, {
         },
     },
     plugins: [
+        new AngularWebpackPlugin({
+            tsConfigPath: '../tsconfig.json',
+            //entryModule: '../src/env/prod/main.ts'
+        }),
         new webpack.IgnorePlugin({
             resourceRegExp: /^\.\/locale$/,
             contextRegExp: /moment$/,

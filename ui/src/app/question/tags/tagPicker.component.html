@@ -27,7 +27,7 @@
         <span>
             <button
                 (click)="addTag()"
-                [disabled]="!question.newTag || question.newTag.length < 2"
+                [disabled]="!question.newTag || question.newTag.name.length < 2"
                 class="btn btn-primary green border-green"
             >
                 {{ 'sitnet_add' | translate }}
