@@ -77,7 +77,7 @@ export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
                 ngAfterViewInit() {
                     // this is ugly but I didn't find any other way
                     // see: https://github.com/angular/angular/issues/11859
-                    Array.from(this.el.nativeElement.querySelectorAll('*'))
+                    Array.from(this.el.nativeElement.querySelectorAll('*') as Element[])
                         .flatMap((e: Element) => Array.from(e.childNodes))
                         .filter((n) => n.nodeName === '#text')
                         .forEach((n) => {

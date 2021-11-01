@@ -10,8 +10,13 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "importHelpers": true,
+    "alwaysStrict": true,
     "strictNullChecks": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
     "noImplicitAny": true,
+    "noImplicitThis": true,
+    // "useUnknownInCatchVariables": true, <- not working until TS4.4.0
     "target": "es2015",
     "lib": [
       "es2019",
@@ -20,6 +25,6 @@
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
-    // "strictTemplates": true
+    // "strictTemplates": true <- enable when all fixed
   }
 }

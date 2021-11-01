@@ -24,8 +24,8 @@ import { RoomService } from './room.service';
 import { SettingsResourceService } from './settingsResource';
 
 import type { OnInit } from '@angular/core';
-import type { DefaultWorkingHours, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import type { InteroperableRoom, Week, Weekday, WeekdayBlock } from './room.service';
+import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import type { Week, Weekday, WeekdayBlock } from './room.service';
 
 @Component({
     templateUrl: './room.component.html',
@@ -33,7 +33,7 @@ import type { InteroperableRoom, Week, Weekday, WeekdayBlock } from './room.serv
 })
 export class RoomComponent implements OnInit {
     @ViewChild('roomForm', { static: false }) roomForm: NgForm;
-    room: InteroperableRoom;
+    room: ExamRoom;
     week: Week;
     showName: boolean;
     isInteroperable: boolean;
@@ -57,7 +57,7 @@ export class RoomComponent implements OnInit {
         });
 
         this.roomService.getRoom$(this.routing.params.id).subscribe(
-            (room: InteroperableRoom) => {
+            (room: ExamRoom) => {
                 room.availableForExternals = room.externalRef !== null;
                 this.room = room;
                 if (!this.roomService.isAnyExamMachines(this.room)) {
