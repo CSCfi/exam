@@ -147,13 +147,13 @@ export class ExaminationService {
     ): Observable<ExaminationQuestion[]> => {
         const questions = section.sectionQuestions.filter((esq) => this.isTextualAnswer(esq, allowEmpty));
         const tasks = questions.map((q) => this.saveTextualAnswer$(q, hash, autosave, canFail));
-        return forkJoin(tasks).pipe(defaultIfEmpty([]));
+        return forkJoin(tasks).pipe(defaultIfEmpty([] as ExaminationQuestion[]));
     };
 
     saveAllTextualAnswersOfExam$ = (exam: Examination, canFail: boolean): Observable<ExaminationQuestion[][]> =>
         forkJoin(
             exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, canFail)),
-        ).pipe(defaultIfEmpty([]));
+        ).pipe(defaultIfEmpty([] as ExaminationQuestion[][]));
 
     private stripHtml = (text: string) => {
         if (text && text.indexOf('math-tex') === -1) {

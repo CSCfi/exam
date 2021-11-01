@@ -30,7 +30,7 @@
         </li>
         <li ngbDropdownItem *ngFor="let opt of filteredOptions" [ngClass]="getClasses(opt)" (click)="selectOption(opt)">
             <a *ngIf="!opt.isHeader">
-                {{ opt.label | translate | slice: 0:40 }}
+                {{ opt.label || '' | translate | slice: 0:40 }}
             </a>
             <span *ngIf="opt.isHeader">{{ opt.label }}</span>
         </li>

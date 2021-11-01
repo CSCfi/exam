@@ -166,7 +166,8 @@ export class ReservationComponentBase {
                             };
                         });
                         const allEvents: Partial<Reservation>[] = reservations;
-                        return allEvents.concat(events);
+                        allEvents.concat(events);
+                        return allEvents as Reservation[]; // FIXME: this is wrong <- don't know how to model anymore with strict checking
                     }),
                     map((reservations: Reservation[]) =>
                         reservations.map((r) => ({

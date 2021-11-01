@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import type { OnInit } from '@angular/core';
 export interface AppConfig {
     eula: string;
     examDurations: number[];
@@ -59,5 +59,5 @@ export class SettingsComponent implements OnInit {
             .put('/app/settings/reservationWindow', { value: this.config.reservationWindowSize })
             .subscribe(this.onSuccess, this.onError);
 
-    showAttributes = () => this.http.get('/attributes').subscribe((resp: string[]) => (this.attributes = resp));
+    showAttributes = () => this.http.get<string[]>('/attributes').subscribe((resp) => (this.attributes = resp));
 }

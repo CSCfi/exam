@@ -56,11 +56,6 @@ export interface Address {
     street: string;
 }
 
-export interface InteroperableRoom extends ExamRoom {
-    availableForExternals: boolean;
-    externalRef: string | null;
-}
-
 const blocksForDay = (week: Week, day: Weekday) => {
     const blocks = [];
     let tmp = [];

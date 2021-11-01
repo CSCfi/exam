@@ -58,6 +58,8 @@ export interface ExamRoom {
     campus: string;
     contactPerson: string;
     videoRecordingsURL: string;
+    availableForExternals: boolean;
+    externalRef: string | null;
 }
 
 export interface ExamMachine {

@@ -74,10 +74,12 @@ export class DateTimePickerComponent {
         this.onUpdate.emit({ date: this.date });
     }
 
-    onDateUpdate(event: { date: Date }) {
-        this.date.setFullYear(event.date.getFullYear());
-        this.date.setMonth(event.date.getMonth(), event.date.getDate());
-        this.date.setHours(this.time.hour);
+    onDateUpdate(event: { date: Date | null }) {
+        if (event.date) {
+            this.date.setFullYear(event.date.getFullYear());
+            this.date.setMonth(event.date.getMonth(), event.date.getDate());
+            this.date.setHours(this.time.hour);
+        }
         this.date.setMinutes(this.time.minute);
         this.date.setSeconds(0);
         this.date.setMilliseconds(0);

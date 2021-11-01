@@ -55,9 +55,7 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
         );
     };
 
-    editMultipleRooms = function () {
-        this.state.go('multiRoom');
-    };
+    editMultipleRooms = () => this.state.go('multiRoom');
 
     goBack = (event: Event) => {
         event.preventDefault();

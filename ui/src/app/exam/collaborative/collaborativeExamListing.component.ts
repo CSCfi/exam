@@ -16,7 +16,7 @@ import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { Subject } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, exhaustMap, finalize, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, exhaustMap, finalize, takeUntil, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../session/session.service';
@@ -64,15 +64,13 @@ export class CollaborativeExamListingComponent implements OnInit {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(this.doSearch);
-        this.examCreated
-            .pipe(
-                exhaustMap(() => this.CollaborativeExam.createExam$()),
-                catchError((err) => toast.error(err)),
-            )
-            .subscribe((exam: CollaborativeExam) => {
+        this.examCreated.pipe(exhaustMap(() => this.CollaborativeExam.createExam$())).subscribe(
+            (exam: CollaborativeExam) => {
                 toast.info(this.translate.instant('sitnet_exam_created'));
                 this.state.go('examEditor.basic', { id: exam.id, collaborative: 'collaborative' });
-            });
+            },
+            (err) => toast.error(err),
+        );
     }
 
     ngOnDestroy() {

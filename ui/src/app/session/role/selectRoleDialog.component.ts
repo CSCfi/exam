@@ -34,10 +34,10 @@ import { User } from '../session.service';
                         <button
                             ngbDropdownItem
                             *ngFor="let role of user.roles"
-                            title="{{ role.displayName | translate }}"
+                            title="{{ role.displayName || '' | translate }}"
                             (click)="activeModal.close(role)"
                         >
-                            {{ role.displayName | translate }} <i [ngClass]="role.icon"></i>
+                            {{ role.displayName || '' | translate }} <i [ngClass]="role.icon || ''"></i>
                         </button>
                     </div>
                 </div>

@@ -52,7 +52,5 @@ export class ArchiveDownloadComponent {
             });
         }
     };
-    cancel = function () {
-        this.modal.dismiss();
-    };
+    cancel = () => this.modal.dismiss();
 }

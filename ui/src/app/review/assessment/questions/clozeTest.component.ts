@@ -76,11 +76,14 @@ export class ClozeTestComponent {
         return this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
     };
 
-    displayAchievedScore = function () {
+    displayAchievedScore = () => {
         const max = this.sectionQuestion.maxScore;
-        const score = this.sectionQuestion.clozeTestAnswer.score;
-        const value = (score.correctAnswers * max) / (score.correctAnswers + score.incorrectAnswers);
-        return _.isInteger(value) ? value : value.toFixed(2);
+        const score = this.sectionQuestion.clozeTestAnswer?.score;
+        if (score) {
+            const value = (score.correctAnswers * max) / (score.correctAnswers + score.incorrectAnswers);
+            return _.isInteger(value) ? value : value.toFixed(2);
+        }
+        return 0;
     };
 
     insertForcedScore = () =>

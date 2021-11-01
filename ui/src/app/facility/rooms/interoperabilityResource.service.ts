@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import type { InteroperableRoom } from './room.service';
+import type { ExamRoom } from '../../reservation/reservation.model';
 
 @Injectable()
 export class InteroperabilityResourceService {
@@ -23,5 +23,5 @@ export class InteroperabilityResourceService {
 
     facilityApi = (id: number) => `/integration/iop/facilities/${id}`;
 
-    updateFacility = (room: InteroperableRoom) => this.http.put<InteroperableRoom>(this.facilityApi(room.id), room);
+    updateFacility = (room: ExamRoom) => this.http.put<ExamRoom>(this.facilityApi(room.id), room);
 }

@@ -153,8 +153,8 @@ export class ExamSummaryComponent {
             },
             options: {
                 animation: {
-                    onComplete: function () {
-                        const ctx = this.chart.ctx;
+                    onComplete: (chart) => {
+                        const ctx = chart.ctx;
                         ctx.font = Chart.helpers.fontString(
                             Chart.defaults.global.defaultFontFamily,
                             'bold',
@@ -162,7 +162,7 @@ export class ExamSummaryComponent {
                         );
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'bottom';
-                        const dataset = this.data.datasets[0];
+                        const dataset = chart.data.datasets[0];
                         for (let i = 0; i < dataset.data?.length; i++) {
                             const model = dataset._meta[Object.keys(dataset._meta)[0]].data[i]._model,
                                 total = dataset._meta[Object.keys(dataset._meta)[0]].total,

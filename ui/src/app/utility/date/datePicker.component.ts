@@ -58,13 +58,14 @@ export class DatePickerComponent implements OnInit {
     showWeeks = true;
     format = 'dd.MM.yyyy';
     today: NgbDate;
+    startDate: NgbDate;
 
     ngOnInit() {
         const now = moment();
         const d = this.initialDate !== null ? moment(this.initialDate) : now;
         this.today = new NgbDate(now.get('year'), now.get('month') + 1, now.get('date'));
         if (!this.initiallyEmpty) {
-            this.date = new NgbDate(d.get('year'), d.get('month') + 1, d.get('date'));
+            this.startDate = this.date = new NgbDate(d.get('year'), d.get('month') + 1, d.get('date'));
         }
     }
 
