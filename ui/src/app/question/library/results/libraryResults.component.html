@@ -84,7 +84,7 @@
                 <tr
                     *ngFor="
                         let question of questions
-                            | orderBy: questionsPredicate:reverse:'case-insensitive'
+                            | orderBy: questionsPredicate:reverse
                             | slice: currentPage * pageSize:currentPage * pageSize + pageSize
                     "
                 >
@@ -172,7 +172,7 @@
                         </a>
                     </td>
                     <td class="padl20 padr10">
-                        <a (click)="copyQuestion(question, false)">
+                        <a (click)="copyQuestion(question)">
                             <i
                                 class="bi-files"
                                 popoverTitle="{{ 'sitnet_instructions' | translate }}"

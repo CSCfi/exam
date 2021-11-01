@@ -187,7 +187,7 @@
         <button
             *ngIf="exam.executionType.type === 'PRIVATE'"
             class="btn btn-publish"
-            [ngClass]="checkTrialCount()"
+            [ngClass]="checkTrialCount(null)"
             [disabled]="true"
         >
             1
@@ -267,8 +267,8 @@
 </div>
 <div class="row" *ngIf="exam.executionType.type === 'PUBLIC' && !collaborative">
     <div class="col-md-12 mart20">
-        <a href="{{ hostName }}/enroll/exam/{{ exam.id }}?code={{ exam.course.code }}">
-            {{ hostName }}/enroll/exam/{{ exam.id }}?code={{ exam.course.code }}
+        <a href="{{ hostName }}/enroll/exam/{{ exam.id }}?code={{ exam.course?.code }}">
+            {{ hostName }}/enroll/exam/{{ exam.id }}?code={{ exam.course?.code }}
         </a>
     </div>
 </div>
@@ -277,8 +277,8 @@
 <div *ngIf="canBeAutoEvaluated()">
     <auto-evaluation
         [exam]="exam"
-        (onDisabled)="autoEvaluationDisabled($event)"
-        (onEnabled)="autoEvaluationEnabled($event)"
+        (onDisabled)="autoEvaluationDisabled()"
+        (onEnabled)="autoEvaluationEnabled()"
         (onUpdate)="autoEvaluationConfigChanged($event)"
     >
     </auto-evaluation>

@@ -140,7 +140,7 @@
                 <tr
                     *ngFor="
                         let inspection of filteredInspections
-                            | orderBy: sorting.predicate:sorting.reverse:'case-insensitive'
+                            | orderBy: sorting.predicate:sorting.reverse
                             | slice: currentPage * pageSize:currentPage * pageSize + pageSize
                     "
                 >

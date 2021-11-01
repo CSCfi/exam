@@ -10,7 +10,7 @@
             (keyup.enter)="previousPage()"
         >
             <img class="arrow_icon" alt="previous page" src="/assets/assets/images/icon_left_white.png" />
-            {{ prev.text | translate }}
+            {{ prev.text || '' | translate }}
         </a>
         <!-- NEXT SECTION BUTTON -->
         <a
@@ -19,7 +19,7 @@
             (click)="nextPage()"
             tabindex="0"
             (keyup.enter)="nextPage()"
-            >{{ next.text | translate }}
+            >{{ next.text || '' | translate }}
             <img class="arrow_icon" alt="next page" src="/assets/assets/images/icon_right_white.png" />
         </a>
     </span>

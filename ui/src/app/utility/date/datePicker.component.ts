@@ -54,7 +54,7 @@ export class DatePickerComponent implements OnInit {
     @Output() onUpdate = new EventEmitter<{ date: Date | null }>();
     @Output() onExtraAction = new EventEmitter<{ date: Date | null }>();
 
-    date: NgbDate;
+    date: NgbDate | null;
     showWeeks = true;
     format = 'dd.MM.yyyy';
     today: NgbDate;

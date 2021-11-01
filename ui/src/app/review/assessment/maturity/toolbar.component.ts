@@ -46,7 +46,7 @@ export class MaturityToolbarComponent {
 
     saveAssessment = () => this.Assessment.saveAssessment(this.exam, this.isOwnerOrAdmin());
     getNextState = () => this.Maturity.getNextState(this.exam);
-    getAlternateState = (state: StateName) => this.Maturity.getState(state);
+    getAlternateState = (state?: StateName) => this.Maturity.getState(state);
     proceed = (alternate: boolean) => this.Maturity.proceed(this.exam, alternate);
     isMissingStatement = () => this.Maturity.isMissingStatement(this.exam);
     isDisabled = (name?: StateName) => {

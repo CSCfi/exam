@@ -3,7 +3,7 @@
         <div class="col-md-12">
             <h3>
                 <course-code *ngIf="exam.course" [course]="exam.course"></course-code> - {{ exam.name }},
-                <small>{{ exam.course.credits }} op</small>
+                <small>{{ exam.course?.credits }} op</small>
             </h3>
         </div>
     </div>
@@ -178,7 +178,7 @@
                 <strong>{{ 'sitnet_exam_owners' | translate }}:</strong>
             </div>
             <div class="col-md-9">
-                <span *ngFor="let teacher of exam.parent.examOwners; let isLast = last">
+                <span *ngFor="let teacher of exam.parent?.examOwners; last as isLast">
                     {{ teacher.firstName }} {{ teacher.lastName }}<span *ngIf="!isLast">,&nbsp;</span>
                 </span>
             </div>
@@ -190,7 +190,7 @@
                 >
             </div>
             <div class="col-md-9">
-                <span *ngFor="let inspection of exam.examInspections; let isLast = last">
+                <span *ngFor="let inspection of exam.examInspections; last as isLast">
                     <span>{{ inspection.user.firstName }} {{ inspection.user.lastName }}</span>
                     <span *ngIf="inspection.ready">({{ 'sitnet_ready' | translate }})</span>
                     <span *ngIf="!inspection.ready">({{ 'sitnet_in_progress' | translate }})</span>
@@ -229,7 +229,7 @@
             <strong>{{ 'sitnet_exam_credit' | translate }} (op):</strong>
         </div>
         <div class="col-md-9">
-            {{ exam.customCredit || exam.course.credits }}
+            {{ exam.customCredit || exam.course?.credits }}
         </div>
     </div>
 </div>

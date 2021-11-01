@@ -158,9 +158,9 @@ export class ExamPublicationComponent implements OnInit {
         return input;
     };
 
-    checkTrialCount = (x: number) => (this.exam.trialCount === x ? 'btn-primary' : '');
+    checkTrialCount = (x: number | null) => (this.exam.trialCount === x ? 'btn-primary' : '');
 
-    setTrialCount = (x: number) => {
+    setTrialCount = (x: number | null) => {
         this.exam.trialCount = x;
         this.updateExam$().subscribe();
     };

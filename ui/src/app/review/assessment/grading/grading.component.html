@@ -29,7 +29,9 @@
     <div class="col-md-2 general-info-title">{{ 'sitnet_exam_owners' | translate }}:</div>
     <div class="col-md-4 general-info-content">
         <div *ngIf="!collaborative">
-            <span *ngFor="let teacher of exam.parent.examOwners"> {{ teacher.firstName }} {{ teacher.lastName }} </span>
+            <span *ngFor="let teacher of exam.parent?.examOwners">
+                {{ teacher.firstName }} {{ teacher.lastName }}
+            </span>
         </div>
         <div *ngIf="collaborative">
             <span *ngFor="let teacher of exam.examOwners">
@@ -134,7 +136,7 @@
         [MathJax]="exam.examFeedback?.comment"
     ></div>
     <div *ngIf="exam.examFeedback?.attachment" class="col-md-offset-2 col-md-10 general-info-content">
-        <a class="pointer" (click)="downloadFeedbackAttachment(exam)">
+        <a class="pointer" (click)="downloadFeedbackAttachment()">
             {{ exam.examFeedback.attachment?.fileName }}
         </a>
     </div>

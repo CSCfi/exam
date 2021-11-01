@@ -38,13 +38,6 @@ const config = {
                     },
                 ],
             },
-            /*{
-                test: /\.ts$/,
-                use: [
-                    { loader: 'ts-loader', options: { transpileOnly: true, experimentalWatchApi: true } },
-                    { loader: 'angular2-template-loader' },
-                ],
-            },*/
             {
                 test: /\.(png|svg)$/,
                 type: 'asset/resource',
@@ -70,7 +63,8 @@ const config = {
     ],
     resolve: {
         extensions: ['.ts', '.js'],
-        fallback: { buffer: require.resolve('buffer/') },
+        //fallback: { buffer: require.resolve('buffer/') },
+        mainFields: [ 'es2015', 'main' ]
     },
 };
 
