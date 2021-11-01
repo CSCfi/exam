@@ -51,7 +51,7 @@ interface Participations {
                             <td colspan="2">
                                 <b>{{ 'sitnet_total' | translate }}</b>
                             </td>
-                            <td *ngFor="let room of rooms">{{ totalParticipations(null, room) }}</td>
+                            <td *ngFor="let room of rooms">{{ totalParticipations(undefined, room) }}</td>
                             <td>
                                 <b>{{ totalParticipations() }}</b>
                             </td>

@@ -9,7 +9,7 @@
             <!-- General info section container -->
             <div class="col-md-12">
                 <!-- Course data -->
-                <exam-course *ngIf="!collaborative" [exam]="exam" (onUpdate)="onCourseChange($event)"></exam-course>
+                <exam-course *ngIf="!collaborative" [exam]="exam" (onUpdate)="onCourseChange()"></exam-course>
                 <!-- Exam name and language -->
                 <div class="row marr30">
                     <div class="col-md-12 margin-20">

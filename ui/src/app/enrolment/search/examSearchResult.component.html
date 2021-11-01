@@ -25,7 +25,7 @@
                 <span [hidden]="collaborative">{{ 'sitnet_course_name' | translate }}:</span>
             </div>
             <div class="col-6 col-sm-6 col-md-3 col-lg-3 pad5">
-                <div *ngIf="!collaborative">
+                <div *ngIf="!collaborative && exam.course">
                     <course-code [course]="exam.course"></course-code> {{ exam.course.name }}
                 </div>
             </div>

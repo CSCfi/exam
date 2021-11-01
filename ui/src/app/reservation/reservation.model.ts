@@ -84,6 +84,10 @@ export interface ExternalReservation {
     roomTz: string;
     orgName: string;
     orgCode: string;
+    buildingName: string;
+    campus: string;
+    roomCode: string;
+    mailAddress: { street: string; zip: string; city: string };
     machineName: string;
     roomName: string;
     roomInstructionEN: string;

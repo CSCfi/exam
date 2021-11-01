@@ -172,7 +172,10 @@ export class MaturityService {
         return this.MATURITY_STATES[this.getNextStateName(exam)];
     };
 
-    getState = (state: StateName): State => {
+    getState = (state?: StateName): State => {
+        if (!state) {
+            throw Error('no state name provided!');
+        }
         return this.MATURITY_STATES[state];
     };
 

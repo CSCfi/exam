@@ -24,7 +24,7 @@
     </div>
     <div class="detail-row marb20" *ngIf="enrolment?.information">
         <div class="col-md-2 general-info-title">{{ 'sitnet_student_enrolment_info' | translate }}:</div>
-        <div class="col-md-10 general-info-content">{{ enrolment.information }}</div>
+        <div class="col-md-10 general-info-content">{{ enrolment?.information }}</div>
     </div>
     <div class="detail-row marb20" *ngIf="reservation">
         <div class="col-md-2 general-info-title">{{ 'sitnet_examination_location' | translate }}:</div>
@@ -42,11 +42,11 @@
     <div class="detail-row marb20" *ngIf="enrolment?.examinationEventConfiguration">
         <div class="col-md-2 general-info-title">{{ 'sitnet_examination_event' | translate }}:</div>
         <div class="col-md-4 general-info-content">
-            {{ enrolment.examinationEventConfiguration?.examinationEvent.start | date }}
+            {{ enrolment?.examinationEventConfiguration.examinationEvent.start | date }}
         </div>
         <div class="col-md-2 general-info-title">{{ 'sitnet_instructions' | translate }}:</div>
         <div class="col-md-4 general-info-content">
-            {{ enrolment.examinationEventConfiguration?.examinationEvent.description }}
+            {{ enrolment?.examinationEventConfiguration.examinationEvent.description }}
         </div>
     </div>
 

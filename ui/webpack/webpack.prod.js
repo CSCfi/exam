@@ -49,7 +49,6 @@ module.exports = merge(common, {
     plugins: [
         new AngularWebpackPlugin({
             tsConfigPath: '../tsconfig.json',
-            //entryModule: '../src/env/prod/main.ts'
         }),
         new webpack.IgnorePlugin({
             resourceRegExp: /^\.\/locale$/,

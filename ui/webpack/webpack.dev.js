@@ -1,5 +1,4 @@
 /* global __dirname */
-const { rules } = require('eslint-config-prettier');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common');
 
@@ -26,7 +25,7 @@ module.exports = merge(common, {
         devMiddleware: {
             stats: 'minimal',
         },
-        hot: 'only',
+        hot: true,
     },
     optimization: {
         removeAvailableModules: false,

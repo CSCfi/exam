@@ -69,7 +69,7 @@
                 <div class="points-title">
                     <span>{{ 'sitnet_exam_answer' | translate | uppercase }}</span>
                 </div>
-                <div [innerHtml]="sectionQuestion.clozeTestAnswer.question"></div>
+                <div [innerHtml]="sectionQuestion.clozeTestAnswer?.question"></div>
                 <div *ngIf="participation.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
                     <div class="points-title">
                         <span class="text text-danger"

@@ -16,6 +16,10 @@
     "lib": [
       "es2019",
       "dom"
-    ]
+    ],
   },
+  "angularCompilerOptions": {
+    "fullTemplateTypeCheck": true,
+    // "strictTemplates": true
+  }
 }

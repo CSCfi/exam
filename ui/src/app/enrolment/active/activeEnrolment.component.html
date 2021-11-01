@@ -26,7 +26,7 @@
                         <div *ngIf="enrolment.exam">
                             <a
                                 uiSref="enrolments"
-                                [uiParams]="{ id: enrolment.exam.id, code: enrolment.exam.course.code }"
+                                [uiParams]="{ id: enrolment.exam.id, code: enrolment.exam.course?.code }"
                             >
                                 {{ enrolment.exam.name }}
                             </a>
@@ -83,7 +83,7 @@
                         <div *ngIf="enrolment.exam">{{ 'sitnet_course_name' | translate }}:</div>
                     </div>
                     <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                        <div *ngIf="enrolment.exam">
+                        <div *ngIf="enrolment.exam && enrolment.exam.course">
                             <span class="exam-code">
                                 <strong><course-code [course]="enrolment.exam.course"></course-code></strong>
                             </span>
@@ -287,10 +287,10 @@
             <div
                 class="col-6 col-md-10"
                 [hidden]="!showInstructions"
-                [MathJax]="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction"
+                [MathJax]="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction || ''"
             ></div>
         </div>
-        <div class="row mt-2" *ngIf="enrolment.reservation?.optionalSections.length > 0">
+        <div class="row mt-2" *ngIf="enrolment.reservation && enrolment.reservation.optionalSections.length > 0">
             <div class="col-12">
                 <a
                     class="infolink pointer"
@@ -314,7 +314,7 @@
                 </a>
                 <div
                     class="student-exam-row-infobox"
-                    *ngIf="enrolment.reservation.optionalSections.length > 0"
+                    *ngIf="enrolment.reservation && enrolment.reservation.optionalSections.length > 0"
                     [hidden]="!showMaterials"
                 >
                     <div *ngFor="let section of enrolment.exam.examSections" class="marb20">

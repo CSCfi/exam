@@ -3,7 +3,7 @@
         <div class="col-md-12 alert alert-danger">
             <h4 class="alert-heading">{{ 'sitnet_logged_on_wrong_machine' | translate }}</h4>
             {{ 'sitnet_current_wrong_machine_title' | translate }}: {{ currentMachine.name }}<br />
-            {{ 'sitnet_reserved_machine' | translate }}: {{ enrolment.reservation.machine.name }}
+            {{ 'sitnet_reserved_machine' | translate }}: {{ enrolment.reservation?.machine.name }}
         </div>
     </div>
     <div class="detail-row" *ngIf="cause === 'room'">
@@ -30,7 +30,7 @@
 
     <div class="detail-row">
         <div class="col-md-3 header text">{{ 'sitnet_course_name' | translate }}:</div>
-        <strong class="col-md-9 text">{{ enrolment.exam.course.name }}</strong>
+        <strong class="col-md-9 text">{{ enrolment.exam?.course.name }}</strong>
     </div>
     <div class="detail-row">
         <div class="col-md-3 header text">{{ 'sitnet_exam_duration' | translate }}:</div>
@@ -40,7 +40,7 @@
         <div class="col-md-3 header text">{{ 'sitnet_exam_room' | translate }}:</div>
         <strong class="col-md-9 text"
             >{{ enrolment.reservation?.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-            {{ enrolment.reservation.machine.room.name }}({{ enrolment.reservation.machine.room.roomCode }})</strong
+            {{ enrolment.reservation?.machine.room.name }}({{ enrolment.reservation?.machine.room.roomCode }})</strong
         >
     </div>
     <div class="detail-row">

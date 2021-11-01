@@ -7,11 +7,11 @@
                     mwlCalendarPreviousView
                     [disabled]="prevWeekDisabled"
                     [view]="view"
-                    (click)="prevWeek(); refetch(viewDate)"
+                    (click)="prevWeek(); refetch()"
                 >
                     <i class="bi-chevron-left"></i>
                 </button>
-                <button class="btn btn-outline-secondary" mwlCalendarToday (click)="today(); refetch(viewDate)">
+                <button class="btn btn-outline-secondary" mwlCalendarToday (click)="today(); refetch()">
                     {{ 'sitnet_today' | translate }}
                 </button>
                 <button
@@ -19,7 +19,7 @@
                     mwlCalendarNextView
                     [view]="view"
                     [disabled]="nextWeekDisabled"
-                    (click)="nextWeek(); refetch(viewDate)"
+                    (click)="nextWeek(); refetch()"
                 >
                     <i class="bi-chevron-right"></i>
                 </button>
