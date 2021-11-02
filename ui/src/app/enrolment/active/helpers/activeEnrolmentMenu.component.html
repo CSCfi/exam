@@ -71,7 +71,7 @@
             *ngIf="
                 !enrolment.reservation &&
                 !enrolment.examinationEventConfiguration &&
-                (enrolment.exam?.executionType.type === 'PUBLIC' || enrolment.collaborativeExam)
+                (enrolment.exam?.executionType?.type === 'PUBLIC' || enrolment.collaborativeExam)
             "
             ngbDropdownItem
         >

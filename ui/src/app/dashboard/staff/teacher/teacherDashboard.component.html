@@ -44,7 +44,8 @@
                         [items]="filteredActive"
                         defaultPredicate="examActiveEndDate"
                         [examTypes]="executionTypes"
-                        [extraColumns]="activeExtraColumns"
+                        [extraColumnNames]="getActiveExtraColumns"
+                        [extraColumnValues]="getActiveExtraColumnValues"
                         (onFilterChange)="search($event)"
                     >
                     </exam-list-category>
@@ -62,7 +63,8 @@
                         [items]="filteredFinished"
                         defaultPredicate="unassessedCount"
                         [defaultReverse]="true"
-                        [extraColumns]="finishedExtraColumns"
+                        [extraColumnNames]="getFinishedExtraColumns"
+                        [extraColumnValues]="getFinishedExtraColumnValues"
                         [examTypes]="executionTypes"
                         (onFilterChange)="search($event)"
                     >
@@ -81,7 +83,8 @@
                         [items]="filteredArchived"
                         defaultPredicate="examActiveEndDate"
                         [defaultReverse]="true"
-                        [extraColumns]="archivedExtraColumns"
+                        [extraColumnNames]="getArchivedExtraColumns"
+                        [extraColumnValues]="getArchivedExtraColumnValues"
                         [examTypes]="executionTypes"
                         (onFilterChange)="search($event)"
                     >

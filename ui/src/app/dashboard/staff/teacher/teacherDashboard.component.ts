@@ -17,20 +17,16 @@ import { Component } from '@angular/core';
 import { StateService } from '@uirouter/core';
 
 import { SessionService } from '../../../session/session.service';
+import { ExtraColumnName } from './categories/examListCategory.component';
 import { ExamSearchPipe } from './examSearch.pipe';
 import { TeacherDashboardService } from './teacherDashboard.service';
 
 import type { OnInit } from '@angular/core';
 import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { ExamExecutionType } from '../../../exam/exam.model';
+import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
 import type { User } from '../../../session/session.service';
 import type { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teacherDashboard.service';
-interface ExtraColumn {
-    text: string;
-    property: string;
-    link: string;
-    checkOwnership: boolean;
-}
+
 @Component({
     selector: 'teacher-dashboard',
     templateUrl: './teacherDashboard.component.html',
@@ -39,10 +35,11 @@ export class TeacherDashboardComponent implements OnInit {
     activeTab: string;
     userId: number;
     executionTypes: (ExamExecutionType & { examinationTypes: { type: string; name: string }[] })[] = [];
-    activeExtraColumns: ExtraColumn[] = [];
-    finishedExtraColumns: ExtraColumn[] = [];
-    archivedExtraColumns: ExtraColumn[] = [];
-    draftExtraColumns: ExtraColumn[] = [];
+    activeExtraColumns: ExtraColumnName[] = [];
+    finishedExtraColumns: ExtraColumnName[] = [];
+    archivedExtraColumns: ExtraColumnName[] = [];
+    draftExtraColumns: ExtraColumnName[] = [];
+
     finishedExams: FinalizedExam[] = [];
     filteredFinished: FinalizedExam[] = [];
     activeExams: ActiveExam[] = [];
@@ -63,46 +60,57 @@ export class TeacherDashboardComponent implements OnInit {
             {
                 text: 'sitnet_participation_unreviewed',
                 property: 'unassessedCount',
-                link: '/exams/__/regular/4',
-                checkOwnership: false,
             },
             {
                 text: 'sitnet_participation_unfinished',
                 property: 'unfinishedCount',
-                link: '/exams/__/regular/4',
-                checkOwnership: true,
             },
             {
                 text: 'sitnet_dashboard_title_waiting_reservation',
                 property: 'reservationCount',
-                link: '/reservations/__',
-                checkOwnership: false,
             },
         ];
         this.finishedExtraColumns = [
             {
                 text: 'sitnet_participation_unreviewed',
                 property: 'unassessedCount',
-                link: '/exams/__/regular/4',
-                checkOwnership: false,
             },
             {
                 text: 'sitnet_participation_unfinished',
                 property: 'unfinishedCount',
-                link: '/exams/__/regular/4',
-                checkOwnership: true,
             },
         ];
         this.archivedExtraColumns = [
             {
                 text: 'sitnet_participations_assessed',
                 property: 'assessedCount',
-                link: '/exams/__/regular/4',
-                checkOwnership: true,
             },
         ];
         this.draftExtraColumns = [];
     }
+
+    getActiveExtraColumns = () => this.activeExtraColumns;
+    getActiveExtraColumnValues = (exam: Exam) => {
+        const activeExam = exam as ActiveExam;
+        return [
+            { link: '/staff/exams/__/regular/4', checkOwnership: false, value: activeExam.unassessedCount },
+            { link: '/staff/exams/__/regular/4', checkOwnership: true, value: activeExam.unfinishedCount },
+            { link: '/staff/reservations/__', checkOwnership: false, value: activeExam.reservationCount },
+        ];
+    };
+    getFinishedExtraColumns = () => this.finishedExtraColumns;
+    getFinishedExtraColumnValues = (exam: Exam) => {
+        const finishedExam = exam as FinalizedExam;
+        return [
+            { link: '/staff/exams/__/regular/4', checkOwnership: false, value: finishedExam.unassessedCount },
+            { link: '/staff/exams/__/regular/4', checkOwnership: true, value: finishedExam.unfinishedCount },
+        ];
+    };
+    getArchivedExtraColumns = () => this.archivedExtraColumns;
+    getArchivedExtraColumnValues = (exam: Exam) => {
+        const archivedExam = exam as ArchivedExam;
+        return [{ link: '/staff/exams/__/regular/4', checkOwnership: true, value: archivedExam.assessedCount }];
+    };
 
     ngOnInit() {
         this.userId = this.Session.getUser().id;

@@ -15,18 +15,18 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import type { ExamRoom } from '../../reservation/reservation.model';
 import { FileService } from '../../utility/file/file.service';
-import type { ExamEnrolment } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
+import type { ExamRoom } from '../../reservation/reservation.model';
+import type { ExamEnrolment } from '../enrolment.model';
 @Component({
     selector: 'active-enrolment',
     templateUrl: './activeEnrolment.component.html',
 })
 export class ActiveEnrolmentComponent {
-    @Input() enrolment: ExamEnrolment & { occasion: { startAt: Date; endAt: Date } };
-    @Output() onRemoval = new EventEmitter<ExamEnrolment>();
+    @Input() enrolment: ExamEnrolment & { occasion?: { startAt: string; endAt: string } };
+    @Output() onRemoval = new EventEmitter<number>();
 
     showGuide = false;
     showInstructions = false;
@@ -40,7 +40,7 @@ export class ActiveEnrolmentComponent {
 
     addEnrolmentInformation = () => this.Enrolment.addEnrolmentInformation(this.enrolment);
 
-    enrolmentRemoved = ($event: ExamEnrolment) => this.onRemoval.emit($event);
+    enrolmentRemoved = ($event: number) => this.onRemoval.emit($event);
 
     private getRoomInstructions = (lang: string, room: Partial<ExamRoom>) => {
         switch (lang) {

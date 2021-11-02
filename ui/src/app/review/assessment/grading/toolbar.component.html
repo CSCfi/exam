@@ -3,7 +3,7 @@
     <div class="review-attachment-button exam-questions-buttons marl15">
         <a
             class="pointer preview"
-            [uiSref]="getExitState().name"
+            [uiSref]="getExitState().name || ''"
             [uiParams]="getExitState().params"
             [hidden]="(!isReadOnly() && isOwnerOrAdmin()) || (!isReadOnly() && !isGraded())"
         >

@@ -38,10 +38,10 @@
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_multiplechoice_question_correct' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            {{ sectionQuestion.clozeTestAnswer?.score.correctAnswers }} /
+            {{ sectionQuestion.clozeTestAnswer?.score?.correctAnswers }} /
             {{
-                sectionQuestion.clozeTestAnswer?.score.correctAnswers +
-                    sectionQuestion.clozeTestAnswer?.score.incorrectAnswers
+                (sectionQuestion.clozeTestAnswer?.score?.correctAnswers || 0) +
+                    (sectionQuestion.clozeTestAnswer?.score?.incorrectAnswers || 0)
             }}
         </div>
     </div>
@@ -49,7 +49,7 @@
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_word_points' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             <span>
-                <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
+                <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                     {{ displayAchievedScore() }}
                 </span>
                 <span *ngIf="hasForcedScore()" class="text text-danger">

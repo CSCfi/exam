@@ -13,50 +13,65 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 
+import { isParticipation } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
 import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { WindowRef } from '../../../utility/window/window.service';
 
+import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import type { ExamParticipation } from '../../../exam/exam.model';
+
 @Component({
     selector: 'r-participation',
     templateUrl: './participation.component.html',
 })
 export class ParticipationComponent {
-    @Input() participation: ExamParticipation & { noShow: boolean };
+    @Input() participation: ExamEnrolment | ExamParticipation;
     @Input() collaborative: boolean;
 
     constructor(
-        private state: StateService,
+        private state: UIRouterGlobals,
         private Exam: CommonExamService,
         private Session: SessionService,
         private Window: WindowRef,
     ) {}
 
+    started: string;
+
+    ngOnInit() {
+        if (isParticipation(this.participation)) {
+            this.started = this.participation.started;
+        } else {
+            this.started = this.participation.examinationEventConfiguration
+                ? this.participation.examinationEventConfiguration.examinationEvent.start
+                : this.participation.reservation?.startAt || '';
+        }
+    }
+
     viewAnswers = () => {
         const url = this.collaborative
-            ? `/assessments/collaborative/${this.state.params.id}/${this.participation._id}`
-            : `/assessments/${this.participation.exam.id}`;
+            ? `/assessments/collaborative/${this.state.params.id}/${(this.participation as ExamParticipation)._id}`
+            : `/assessments/${this.participation.exam?.id}`;
         this.Window.nativeWindow.open(url, '_blank');
     };
 
-    hideGrade = () => this.participation.noShow || !this.participation.exam.grade;
+    hideGrade = () => this.participation?.reservation?.noShow || !this.participation.exam?.grade;
 
     hideAnswerLink = () => {
         const anonymous =
             (this.participation.collaborativeExam && this.participation.collaborativeExam.anonymous) ||
-            this.participation.exam.anonymous;
+            this.participation.exam?.anonymous;
         return (
-            this.participation.exam.state === 'ABORTED' ||
-            this.participation.noShow ||
+            this.participation.exam?.state === 'ABORTED' ||
+            this.participation?.reservation?.noShow ||
             (anonymous && !this.Session.getUser().isAdmin)
         );
     };
 
     translateGrade = () => {
-        if (!this.participation.exam.grade) {
+        if (!this.participation.exam?.grade) {
             return;
         }
         return this.Exam.getExamGradeDisplayName(this.participation.exam.grade.name);

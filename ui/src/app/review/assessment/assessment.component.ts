@@ -24,9 +24,11 @@ import { WindowRef } from '../../utility/window/window.service';
 import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborativeAssessment.service';
 
-import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../exam/exam.model';
+import type { Examination } from '../../examination/examination.model';
+import type { ClozeTestAnswer, ExamParticipation } from '../../exam/exam.model';
 import type { QuestionAmounts } from '../../question/question.service';
 import type { User } from '../../session/session.service';
+
 @Component({
     selector: 'assessment',
     templateUrl: './assessment.component.html',
@@ -35,7 +37,7 @@ export class AssessmentComponent {
     @Input() collaborative: boolean;
 
     questionSummary: QuestionAmounts;
-    exam: Exam;
+    exam: Examination;
     participation: ExamParticipation;
     user: User;
     hideGeneralInfo = false;
@@ -54,9 +56,11 @@ export class AssessmentComponent {
     ) {}
 
     ngOnInit() {
-        const path = this.collaborative ? `${this.state.params.id}/${this.state.params.ref}` : this.state.params.id;
+        const path = this.collaborative
+            ? `${this.routing.params.id}/${this.routing.params.ref}`
+            : this.routing.params.id;
         const url = this.getResource(path);
-        this.http.get<ExamParticipation>(url).subscribe(
+        this.http.get<Omit<ExamParticipation, 'exam'> & { exam: Examination }>(url).subscribe(
             (participation) => {
                 const exam = participation.exam;
                 exam.examSections.forEach((es) =>
@@ -93,7 +97,7 @@ export class AssessmentComponent {
 
     print = () => {
         const url = this.collaborative
-            ? `/print/exam/${this.state.params.id}/${this.state.params.ref}`
+            ? `/print/exam/${this.routing.params.id}/${this.routing.params.ref}`
             : `/print/exam/${this.exam.id}`;
         this.Window.nativeWindow.open(url, '_blank');
     };
@@ -129,7 +133,7 @@ export class AssessmentComponent {
                     state,
                     this.participation._rev as string,
                 );
-                const url = `/integration/iop/reviews/${this.state.params.id}/${this.state.params.ref}`;
+                const url = `/integration/iop/reviews/${this.routing.params.id}/${this.routing.params.ref}`;
                 this.http.put<{ rev: string }>(url, review).subscribe((resp) => {
                     this.participation._rev = resp.rev;
                     this.exam.state = state;

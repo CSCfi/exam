@@ -119,7 +119,7 @@ export class AutoEvaluationComponent implements OnInit {
         return (ratio / 100).toFixed(2);
     };
 
-    releaseDateChanged = (event: { date: Date }) => {
+    releaseDateChanged = (event: { date: Date | null }) => {
         if (!this.config) return;
         this.config.releaseDate = event.date;
         this.onUpdate.emit({ config: this.config });

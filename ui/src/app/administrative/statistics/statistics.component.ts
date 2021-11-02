@@ -27,7 +27,7 @@ enum Tab {
     EXAMS = 'EXAMS',
     RESERVATIONS = 'RESERVATIONS',
 }
-
+export type QueryParams = { start?: string; end?: string; dept?: string };
 @Component({
     templateUrl: './statistics.component.html',
     selector: 'statistics',
@@ -37,9 +37,9 @@ export class StatisticsComponent implements OnInit {
     departments: Departments[];
     filteredDepartments: Departments[];
     limitations: { department: string };
-    queryParams: { start?: string; end?: string; dept?: string };
-    startDate: Date;
-    endDate: Date;
+    queryParams: QueryParams;
+    startDate: Date | null;
+    endDate: Date | null;
 
     constructor(private http: HttpClient) {}
 
@@ -74,12 +74,12 @@ export class StatisticsComponent implements OnInit {
         this.setQueryParams();
     };
 
-    startDateChanged = (event: { date: Date }) => {
+    startDateChanged = (event: { date: Date | null }) => {
         this.startDate = event.date;
         this.setQueryParams();
     };
 
-    endDateChanged = (event: { date: Date }) => {
+    endDateChanged = (event: { date: Date | null }) => {
         this.endDate = event.date;
         this.setQueryParams();
     };

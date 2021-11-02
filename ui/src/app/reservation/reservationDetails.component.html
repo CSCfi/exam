@@ -78,7 +78,7 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let r of reservations | orderBy: predicate:reverse">
+        <tr *ngFor="let r of fixedReservations | orderBy: predicate:reverse">
             <td class="reservation-search">
                 <span>{{ r.userAggregate }}</span>
                 <span *ngIf="r.user?.userIdentifier">&nbsp;({{ r.user.userIdentifier }})</span>
@@ -110,7 +110,7 @@
                 {{ 'sitnet_exam_status_external' | translate }}
             </td>
 
-            <td class="reservation-search" *ngIf="!r.enrolment.exam.external">
+            <td class="reservation-search" *ngIf="!r.enrolment.exam.external && r.enrolment.exam.course">
                 <course-code [course]="r.enrolment.exam.course"></course-code>
             </td>
             <td class="reservation-search text-primary" *ngIf="r.enrolment.exam.external">
@@ -146,7 +146,7 @@
             </td>
             <td class="reservation-search">
                 <span *ngIf="r.externalUserRef || r.enrolment.exam.implementation === 'AQUARIUM'">
-                    {{ r.machine?.room.name }}<span *ngIf="r.org">,&nbsp;{{ r.org.name }} ({{ r.org.code }})</span>
+                    {{ r.machine?.room?.name }}<span *ngIf="r.org">,&nbsp;{{ r.org.name }} ({{ r.org.code }})</span>
                     <br />{{ r.machine?.name }}
                 </span>
                 <span *ngIf="!r.externalUserRef && r.enrolment.exam.implementation !== 'AQUARIUM'"

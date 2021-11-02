@@ -24,8 +24,8 @@ import type { LanguageInspectionData } from '../languageInspections.component';
 })
 export class ReviewedInspectionsComponent implements OnChanges {
     @Input() inspections: LanguageInspectionData[] = [];
-    @Output() onStartDateChange = new EventEmitter<{ date: Date }>();
-    @Output() onEndDateChange = new EventEmitter<{ date: Date }>();
+    @Output() onStartDateChange = new EventEmitter<{ date: Date | null }>();
+    @Output() onEndDateChange = new EventEmitter<{ date: Date | null }>();
 
     filteredInspections: LanguageInspectionData[] = [];
     sorting = {
@@ -67,9 +67,10 @@ export class ReviewedInspectionsComponent implements OnChanges {
             this.examToString(i).toLowerCase().match(this.filterText.toLowerCase()),
         ));
 
-    startDateChanged = (event: { date: Date }) => this.onStartDateChange.emit({ date: event.date });
+    startDateChanged = (event: { date: Date | null }) => this.onStartDateChange.emit({ date: event.date });
 
-    endDateChanged = (event: { date: Date }) => this.onEndDateChange.emit({ date: event.date });
+    endDateChanged = (event: { date: Date | null }) => this.onEndDateChange.emit({ date: event.date });
 
-    showStatement = (statement: { comment: string }) => this.LanguageInspections.showStatement(statement);
+    showStatement = (statement: { comment?: string }) =>
+        this.LanguageInspections.showStatement({ comment: statement.comment || '' });
 }

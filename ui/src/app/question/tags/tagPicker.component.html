@@ -15,10 +15,9 @@
             id="newTag"
             name="newTag"
             maxlength="30"
-            #newTag
-            (newTag)="newTag.value = $event.target.value.toLowerCase()"
             class="form-control wdth-30 make-inline"
             [(ngModel)]="tagName"
+            lowerCase
             [ngbTypeahead]="getTags$"
             (selectItem)="onTagSelect($event)"
             [resultFormatter]="nameFormat"
@@ -27,7 +26,7 @@
         <span>
             <button
                 (click)="addTag()"
-                [disabled]="!question.newTag || question.newTag.name.length < 2"
+                [disabled]="!newTag || newTag.name.length < 2"
                 class="btn btn-primary green border-green"
             >
                 {{ 'sitnet_add' | translate }}

@@ -48,6 +48,7 @@ import { TableSortComponent } from './sorting/tableSort.component';
 import { TeacherListComponent } from './user/teacherList.component';
 import { UserService } from './user/user.service';
 import { FixedPrecisionValidatorDirective } from './validation/fixedPrecision.directive';
+import { LowerCaseValidatorDirective } from './validation/lowerCase.directive';
 import { MaxDirective } from './validation/maxValue.directive';
 import { MinDirective } from './validation/minValue.directive';
 import { UniqueValuesValidatorDirective } from './validation/uniqueValues.directive';
@@ -72,6 +73,7 @@ import { WindowRef } from './window/window.service';
         MathJaxDirective,
         UniqueValuesValidatorDirective,
         FixedPrecisionValidatorDirective,
+        LowerCaseValidatorDirective,
         CourseCodeComponent,
         SanitizedHtmlPipe,
         DiffInMinutesPipe,
@@ -99,6 +101,7 @@ import { WindowRef } from './window/window.service';
         ApplyDstPipe,
         UniqueValuesValidatorDirective,
         FixedPrecisionValidatorDirective,
+        LowerCaseValidatorDirective,
         SanitizedHtmlPipe,
         DiffInMinutesPipe,
         DiffInDaysPipe,

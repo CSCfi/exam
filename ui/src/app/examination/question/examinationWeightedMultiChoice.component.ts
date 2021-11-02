@@ -16,7 +16,7 @@ import { Component, Input } from '@angular/core';
 
 import { ExaminationService } from '../examination.service';
 
-import type { ExaminationQuestion } from '../examination.service';
+import type { ExaminationQuestion } from '../examination.model';
 
 @Component({
     selector: 'examination-weighted-multi-choice-question',
@@ -50,7 +50,7 @@ export class ExaminationWeightedMultiChoiceComponent {
 
     ngOnInit() {
         if (this.orderOptions) {
-            this.sq.options.sort((a, b) => a.id - b.id);
+            this.sq.options.sort((a, b) => (a.id || -1) - (b.id || -1));
         }
     }
 

@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import './assets/styles/main.scss';
+import '@angular/localize';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'toastr/toastr.scss';
 

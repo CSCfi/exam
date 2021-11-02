@@ -16,7 +16,7 @@ import { Component, Input } from '@angular/core';
 
 import { ExaminationService } from '../examination.service';
 
-import type { ExaminationQuestion } from '../examination.service';
+import type { ExaminationQuestion } from '../examination.model';
 
 @Component({
     selector: 'examination-multi-choice-question',
@@ -63,7 +63,7 @@ export class ExaminationMultiChoiceComponent {
         if (this.sq.question.type === 'ClaimChoiceQuestion' && this.orderOptions) {
             this.sq.options.sort((a, b) => (a.option.id || 0) - (b.option.id || 0));
         } else if (this.orderOptions) {
-            this.sq.options.sort((a, b) => a.id - b.id);
+            this.sq.options.sort((a, b) => (a.id || -1) - (b.id || -1));
         }
 
         const answered = this.sq.options.filter((o) => o.answered);
@@ -71,7 +71,7 @@ export class ExaminationMultiChoiceComponent {
             console.warn('several answered options for mcq');
         }
         if (answered.length === 1) {
-            this.sq.selectedOption = answered[0].id;
+            this.sq.selectedOption = answered[0].id as number;
         }
     }
 

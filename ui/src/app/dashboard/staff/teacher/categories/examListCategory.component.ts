@@ -30,13 +30,16 @@ import { CommonExamService } from '../../../../utility/miscellaneous/commonExam.
 
 import type { OnInit } from '@angular/core';
 import type { Exam, ExamExecutionType } from '../../../../exam/exam.model';
-export interface ExtraColumn {
+export interface ExtraColumnName {
     text: string;
     property: string;
+}
+export interface ExtraColumnValue {
     link: string;
     checkOwnership: boolean;
+    value: unknown;
 }
-type ExecutionType = ExamExecutionType & { name: string } & { examinationTypes: { type: string; name: string }[] };
+type ExecutionType = ExamExecutionType & { examinationTypes: { type: string; name: string }[] };
 @Component({
     selector: 'exam-list-category',
     templateUrl: './examListCategory.component.html',
@@ -44,7 +47,8 @@ type ExecutionType = ExamExecutionType & { name: string } & { examinationTypes: 
 export class ExamListCategoryComponent implements OnInit {
     @Input() items: Exam[];
     @Input() examTypes: ExecutionType[];
-    @Input() extraColumns: ExtraColumn[] = [];
+    @Input() extraColumnNames: () => ExtraColumnName[] = () => [];
+    @Input() extraColumnValues: (exam: Exam) => ExtraColumnValue[] = () => [];
     @Input() defaultPredicate: string;
     @Input() defaultReverse: boolean;
     @Output() onFilterChange = new EventEmitter<string>();

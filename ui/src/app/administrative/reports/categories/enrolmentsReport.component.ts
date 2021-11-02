@@ -17,8 +17,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
-
-import type { ExamName } from '../reports.service';
+import { Option } from '../../../utility/select/dropDownSelect.component';
 
 @Component({
     template: `
@@ -57,20 +56,20 @@ import type { ExamName } from '../reports.service';
     selector: 'enrolments-report',
 })
 export class EnrolmentsReportComponent {
-    @Input() examNames: ExamName[];
-    enrolment: ExamName;
+    @Input() examNames: Option<string, number>[];
+    enrolment?: number;
 
     constructor(private translate: TranslateService, private files: FileService) {}
 
     getExamEnrolments = () => {
         if (this.enrolment) {
-            this.files.download(`/app/statistics/examenrollments/${this.enrolment.id}`, 'exam_enrolments.xlsx');
+            this.files.download(`/app/statistics/examenrollments/${this.enrolment}`, 'exam_enrolments.xlsx');
         } else {
             toast.error(this.translate.instant('sitnet_choose_exam'));
         }
     };
 
-    enrolmentSelected = (event: { value: ExamName }) => {
-        this.enrolment = event.value;
+    enrolmentSelected = (event?: Option<string, number>) => {
+        this.enrolment = event?.id;
     };
 }

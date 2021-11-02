@@ -52,7 +52,10 @@ export class StudentDashboardComponent implements OnInit {
 
     getUsername = (): string => this.Session.getUserName();
 
-    enrolmentRemoved = (data: DashboardEnrolment) => this.userEnrolments.splice(this.userEnrolments.indexOf(data), 1);
+    enrolmentRemoved = (id: number) => {
+        const index = this.userEnrolments.map((e) => e.id).indexOf(id);
+        this.userEnrolments.splice(index, 1);
+    };
 
     removeEnrolment = (enrolment: ExamEnrolment) => this.Enrolment.removeEnrolment(enrolment);
 }

@@ -15,7 +15,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 
+import type { QueryParams } from '../statistics.component';
 import type { ExamParticipation } from '../../../exam/exam.model';
+
 interface Participations {
     [room: string]: ExamParticipation[];
 }
@@ -64,7 +66,7 @@ interface Participations {
     selector: 'room-statistics',
 })
 export class RoomStatisticsComponent {
-    @Input() queryParams: { start: string; end: string };
+    @Input() queryParams: QueryParams;
     participations: Participations;
     rooms: string[] = [];
     months: Date[] = [];

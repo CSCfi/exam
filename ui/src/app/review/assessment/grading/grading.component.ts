@@ -27,7 +27,7 @@ import { CollaborativeAssesmentService } from '../collaborativeAssessment.servic
 import { GradingBaseComponent } from '../common/gradingBase.component';
 
 import type { QuestionAmounts } from '../../../question/question.service';
-import type { Examination } from '../../../examination/examination.service';
+import type { Examination } from '../../../examination/examination.model';
 import type { User } from '../../../session/session.service';
 import type { OnInit } from '@angular/core';
 import type { Exam, ExamLanguage, ExamParticipation, ExamType, SelectableGrade } from '../../../exam/exam.model';

@@ -14,7 +14,7 @@
  */
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as _ from 'lodash';
 import { forkJoin } from 'rxjs';
 import * as toast from 'toastr';
@@ -26,6 +26,7 @@ import { QuestionReviewService } from '../questionReview.service';
 
 import type { User } from '../../../session/session.service';
 import type { QuestionReview, ReviewQuestion } from '../../review.model';
+
 @Component({
     selector: 'question-assessment',
     templateUrl: './questionAssessment.component.html',
@@ -41,7 +42,7 @@ export class QuestionAssessmentComponent {
     lockedAnswers: ReviewQuestion[] = [];
 
     constructor(
-        private state: StateService,
+        private state: UIRouterGlobals,
         private $translate: TranslateService,
         private QuestionReview: QuestionReviewService,
         private Assessment: AssessmentService,

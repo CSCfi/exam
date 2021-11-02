@@ -22,7 +22,7 @@ import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDia
 import { WindowRef } from '../../utility/window/window.service';
 import { QuestionService } from '../question.service';
 
-import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
+import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
 import type { OnInit } from '@angular/core';
 import type { User } from '../../session/session.service';
 import type { QuestionDraft } from '../question.service';
@@ -45,7 +45,7 @@ export class QuestionComponent implements OnInit {
     @Output() onCancel = new EventEmitter<void>();
 
     currentOwners: User[];
-    question: Question | QuestionDraft;
+    question: ReverseQuestion | QuestionDraft;
     transitionWatcher?: unknown;
     constructor(
         private state: StateService,
@@ -83,12 +83,12 @@ export class QuestionComponent implements OnInit {
             this.question = this.Question.getQuestionDraft();
             this.currentOwners = _.clone(this.question.questionOwners);
         } else if (this.questionDraft && this.collaborative) {
-            this.question = this.questionDraft;
+            this.question = { ...this.questionDraft, examSectionQuestions: [] };
             this.currentOwners = _.clone(this.question.questionOwners);
             this.window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         } else {
             this.Question.getQuestion(this.questionId || this.state.params.id).subscribe(
-                (question: Question) => {
+                (question: ReverseQuestion) => {
                     this.question = question;
                     this.currentOwners = _.clone(this.question.questionOwners);
                     this.window.nativeWindow.onbeforeunload = () =>

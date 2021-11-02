@@ -29,7 +29,7 @@ import type { Course, Exam, ExamSection } from '../exam/exam.model';
 import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
 
 export type SelectableSection = ExamSection & { selected: boolean };
-export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Partial<Course> } & {
+export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Course } & {
     duration: number;
     examSections: (ExamSection & { selected: boolean })[];
 };
@@ -57,13 +57,13 @@ export class CalendarComponent implements OnInit {
     isInteroperable: boolean;
     confirming = false;
     examInfo: ExamInfo = {
-        examActiveStartDate: 0,
-        examActiveEndDate: 0,
+        examActiveStartDate: null,
+        examActiveEndDate: null,
         name: '',
         duration: 0,
         anonymous: false,
         examSections: [],
-        course: { code: '', name: '' },
+        course: { code: '', name: '', id: 0, credits: 0 },
     };
     reservation?: {
         room: ExamRoom;

@@ -20,7 +20,7 @@ export interface Day {
     type: string;
 }
 
-export type Week = Record<Weekday, Day[]>;
+export type Week = { [day: string]: Day[] };
 
 interface HourBlock {
     start: string;

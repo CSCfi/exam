@@ -16,7 +16,7 @@ import { Component, Input } from '@angular/core';
 
 import { DateTimeService } from '../../utility/date/date.service';
 
-import type { Examination } from '../examination.service';
+import type { Examination } from '../examination.model';
 
 @Component({
     selector: 'answer-instructions',

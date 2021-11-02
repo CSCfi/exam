@@ -14,7 +14,7 @@
  */
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { ExamSection } from '../exam/exam.model';
-import type { WorkingHour } from '../facility/rooms/room.service';
+import type { Address, WorkingHour } from '../facility/rooms/room.service';
 import type { User } from '../session/session.service';
 
 export type DefaultWorkingHours = {
@@ -53,7 +53,7 @@ export interface ExamRoom {
     outOfService: boolean;
     statusComment: string;
     buildingName: string;
-    mailAddress: { street: string; zip: string; city: string };
+    mailAddress: Address;
     state: 'ACTIVE' | 'INACTIVE';
     campus: string;
     contactPerson: string;

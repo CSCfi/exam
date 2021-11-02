@@ -135,7 +135,7 @@ export class PrintedAssessmentComponent {
     private getResource = (path: string) =>
         this.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`;
 
-    translateGrade = (participation: ExamParticipation) =>
+    translateGrade = (participation: PreviousParticipation) =>
         !participation.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(participation.exam.grade.name);
 
     getGrade = () => (!this.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(this.exam.grade.name));
@@ -161,5 +161,5 @@ export class PrintedAssessmentComponent {
         return this.exam.examInspections.length + owners.length;
     };
 
-    translateState = (participation: ExamParticipation) => 'sitnet_exam_status_' + participation.exam.state;
+    translateState = (participation: PreviousParticipation) => 'sitnet_exam_status_' + participation.exam.state;
 }

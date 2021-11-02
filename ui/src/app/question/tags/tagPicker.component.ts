@@ -14,20 +14,22 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 
-import type { Question, Tag } from '../../exam/exam.model';
+import { QuestionDraft } from '../question.service';
 
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { Observable } from 'rxjs';
+import type { Question, Tag } from '../../exam/exam.model';
 @Component({
     selector: 'tag-picker',
     templateUrl: './tagPicker.component.html',
 })
 export class TagPickerComponent {
-    @Input() question: Question & { newTag?: Tag };
-    tagName: string;
+    @Input() question: Question | QuestionDraft;
+    tagName = '';
+    newTag: Tag;
 
     constructor(private http: HttpClient) {}
 
@@ -55,12 +57,12 @@ export class TagPickerComponent {
             }),
         );
 
-    onTagSelect = (event: NgbTypeaheadSelectItemEvent) => (this.question.newTag = event.item);
+    onTagSelect = (event: NgbTypeaheadSelectItemEvent) => (this.newTag = event.item);
     nameFormat = (tag: Tag) => tag.name;
 
     addTag = () => {
-        if (this.question.newTag) this.question.tags.push(this.question.newTag);
-        delete this.question.newTag;
+        if (this.newTag) this.question.tags.push(this.newTag);
+        this.newTag = { name: '' };
         this.tagName = '';
     };
 

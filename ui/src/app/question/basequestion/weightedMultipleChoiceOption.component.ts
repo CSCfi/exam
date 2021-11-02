@@ -16,8 +16,9 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
+import { QuestionDraft } from '../question.service';
 
+import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 @Component({
     selector: 'wmc-option-editor',
     template: `
@@ -62,7 +63,7 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 export class WeightedMultipleChoiceOptionEditorComponent {
     @Input() option: MultipleChoiceOption;
     @Input() index: number;
-    @Input() question: Question;
+    @Input() question: Question | QuestionDraft;
     @Input() lotteryOn: boolean;
 
     constructor(private translate: TranslateService) {}

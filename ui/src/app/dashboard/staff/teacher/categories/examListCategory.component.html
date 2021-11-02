@@ -53,7 +53,7 @@
                             ></table-sort>
                         </th>
 
-                        <th *ngFor="let column of extraColumns" class="with-top with-space">
+                        <th *ngFor="let column of extraColumnNames()" class="with-top with-space">
                             <table-sort
                                 by="{{ column.property }}"
                                 text="{{ column.text }}"
@@ -95,7 +95,7 @@
                             <span class="text-danger" *ngIf="!isOwner(exam)">{{ 'sitnet_no_name' | translate }}</span>
                         </td>
                         <td>
-                            <course-code class="exam-code" [course]="exam.course"></course-code>
+                            <course-code class="exam-code" *ngIf="exam.course" [course]="exam.course"></course-code>
                         </td>
                         <td>
                             <span class="exam-type">{{ getExecutionTypeTranslation(exam) }}</span>
@@ -107,15 +107,15 @@
                             </span>
                         </td>
 
-                        <td *ngFor="let column of extraColumns" class="table-column-enroll-participation">
+                        <td *ngFor="let column of extraColumnValues(exam)" class="table-column-enroll-participation">
                             <span class="exam-count">
                                 <a
                                     *ngIf="
                                         (!column.checkOwnership || isOwner(exam)) &&
                                         exam.executionType.type !== 'PRINTOUT'
                                     "
-                                    href="{{ column.link.replace('__', exam.id) }}"
-                                    >{{ exam[column.property] }}</a
+                                    href="{{ column.link.replace('__', exam.id.toString()) }}"
+                                    >{{ column.value }}</a
                                 >
                                 <span
                                     *ngIf="
@@ -124,7 +124,7 @@
                                         exam.executionType.type !== 'PRINTOUT'
                                     "
                                     class="exam-count-not-active"
-                                    >{{ exam[column.property] }}</span
+                                    >{{ column.value }}</span
                                 >
                             </span>
                             <div *ngIf="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
@@ -155,7 +155,9 @@
                         </td>
                     </tr>
                     <tr *ngIf="items?.length === 0">
-                        <td [attr.colspan]="5 + extraColumns.length">{{ 'sitnet_exam_no_result' | translate }}</td>
+                        <td [attr.colspan]="5 + extraColumnNames().length">
+                            {{ 'sitnet_exam_no_result' | translate }}
+                        </td>
                     </tr>
                 </tbody>
             </table>

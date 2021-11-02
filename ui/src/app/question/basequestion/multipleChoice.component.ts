@@ -16,7 +16,7 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { QuestionService } from '../question.service';
+import { QuestionDraft, QuestionService } from '../question.service';
 
 import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 @Component({
@@ -86,7 +86,7 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
     `,
 })
 export class MultipleChoiceEditorComponent {
-    @Input() question: Omit<Question, 'options'> & { options: Partial<MultipleChoiceOption>[] };
+    @Input() question: Question | QuestionDraft;
     @Input() showWarning: boolean;
     @Input() lotteryOn: boolean;
     @Input() allowOptionRemoval: boolean;
@@ -103,7 +103,12 @@ export class MultipleChoiceEditorComponent {
             toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
             return;
         }
-        this.question.options.push({ correctOption: false });
+        const option: MultipleChoiceOption = {
+            option: '',
+            correctOption: false,
+            defaultScore: 0,
+        };
+        this.question.options.push(option);
     };
 
     calculateDefaultMaxPoints = () => this.Question.calculateDefaultMaxPoints(this.question as Question);

@@ -70,11 +70,14 @@
     <div *ngIf="sectionQuestion.expanded" class="marl10 mt-2">
         <img
             src="/assets/assets/images/icon_info.png"
-            *ngIf="sectionQuestion.answerInstructions?.length > 0"
+            *ngIf="sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0"
             alt="exam"
             onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'"
         />
-        <span *ngIf="sectionQuestion.answerInstructions?.length > 0" class="padl10">
+        <span
+            *ngIf="sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0"
+            class="padl10"
+        >
             {{ sectionQuestion.answerInstructions }}</span
         >
         <ul class="exam-section-question-options mt-2">

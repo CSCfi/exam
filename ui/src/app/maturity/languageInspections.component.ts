@@ -37,8 +37,8 @@ export interface LanguageInspectionData extends LanguageInspection {
     templateUrl: './languageInspections.component.html',
 })
 export class LanguageInspectionsComponent implements OnInit {
-    private startDate: Date;
-    private endDate: Date;
+    private startDate: Date | null;
+    private endDate: Date | null;
     public ongoingInspections: LanguageInspectionData[];
     public processedInspections: LanguageInspectionData[];
 
@@ -83,12 +83,12 @@ export class LanguageInspectionsComponent implements OnInit {
         });
     };
 
-    startDateChanged = (event: { date: Date }) => {
+    startDateChanged = (event: { date: Date | null }) => {
         this.startDate = event.date;
         this.query();
     };
 
-    endDateChanged = (event: { date: Date }) => {
+    endDateChanged = (event: { date: Date | null }) => {
         this.endDate = event.date;
         this.query();
     };

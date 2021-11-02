@@ -18,7 +18,7 @@
     "strictFunctionTypes": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
-    // "useUnknownInCatchVariables": true, <- not working until TS4.4.0
+    // "useUnknownInCatchVariables": true, <- not available until TS4.4.0
     "target": "es2015",
     "lib": [
       "es6",
@@ -26,7 +26,6 @@
     ],
   },
   "angularCompilerOptions": {
-    "fullTemplateTypeCheck": true,
-    // "strictTemplates": true <- enable when all fixed
+    "strictTemplates": true
   }
 }

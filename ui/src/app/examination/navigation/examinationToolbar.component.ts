@@ -25,7 +25,7 @@ import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDia
 import { WindowRef } from '../../utility/window/window.service';
 import { ExaminationService } from '../examination.service';
 
-import type { Examination, ExaminationSection } from '../examination.service';
+import type { Examination, ExaminationSection } from '../examination.model';
 import type { ExamRoom } from '../../reservation/reservation.model';
 
 @Component({
@@ -34,7 +34,7 @@ import type { ExamRoom } from '../../reservation/reservation.model';
 })
 export class ExaminationToolbarComponent {
     @Input() exam: Examination;
-    @Input() activeSection: ExaminationSection;
+    @Input() activeSection?: ExaminationSection;
     @Input() isPreview: boolean;
     @Input() isCollaborative: boolean;
     @Output() onPageSelect = new EventEmitter<{ page: { id?: number; type: string } }>();

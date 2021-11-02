@@ -94,7 +94,7 @@ export class QuestionService {
         };
     }
 
-    getQuestion = (id: number): Observable<Question> => this.http.get<Question>(this.questionsApi(id));
+    getQuestion = (id: number): Observable<ReverseQuestion> => this.http.get<ReverseQuestion>(this.questionsApi(id));
 
     getQuestionAmounts = (exam: Exam): QuestionAmounts => {
         const data = { accepted: 0, rejected: 0, hasEssays: false };

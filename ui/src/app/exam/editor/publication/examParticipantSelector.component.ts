@@ -28,6 +28,7 @@ import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { Observable } from 'rxjs';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import type { User } from '../../../session/session.service';
+
 @Component({
     selector: 'exam-participant-selector',
     templateUrl: './examParticipantSelector.component.html',

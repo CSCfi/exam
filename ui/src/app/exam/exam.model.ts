@@ -25,7 +25,7 @@ export interface GradeEvaluation {
 
 export interface AutoEvaluationConfig {
     id?: number;
-    releaseDate: Date;
+    releaseDate: Date | null;
     amountDays?: number;
     releaseType?: string;
     gradeEvaluations: GradeEvaluation[];
@@ -55,7 +55,7 @@ export interface GradeScale {
 
 export interface ExaminationDate {
     id: number;
-    date: Date | number;
+    date: string;
 }
 
 export interface ExamLanguage {
@@ -103,6 +103,8 @@ export interface Question {
     parent?: Question;
     state: string;
     defaultMaxScore?: number;
+    modifier?: User;
+    modified?: Date;
     shared?: boolean;
     defaultAnswerInstructions?: string;
     defaultEvaluationCriteria?: string;
@@ -127,7 +129,7 @@ export interface MultipleChoiceOption {
 }
 
 export interface ExamSectionQuestionOption {
-    id: number;
+    id?: number;
     score: number;
     answered: boolean;
     option: MultipleChoiceOption;
@@ -173,6 +175,7 @@ export interface ExamSectionQuestion {
     expectedWordCount?: number;
     sequenceNumber: number;
     expanded: boolean;
+    derivedMaxScore?: number;
 }
 
 export interface ExamMaterial {
@@ -237,7 +240,7 @@ export interface ExaminationEventConfiguration {
 export type Implementation = 'AQUARIUM' | 'CLIENT_AUTH' | 'WHATEVER';
 
 export interface ExamInspection {
-    id?: number;
+    id: number;
     user: User;
     ready: boolean;
 }
@@ -260,8 +263,8 @@ export interface ExamImpl {
     attachment?: Attachment;
     hasEnrolmentsInEffect: boolean;
     name: string | null;
-    examActiveStartDate: string | number;
-    examActiveEndDate: string | number;
+    examActiveStartDate: string | null;
+    examActiveEndDate: string | null;
     duration: number;
     course?: Course;
     external: boolean;
@@ -328,9 +331,14 @@ export interface ExamParticipation {
     externalExam?: { started: Date };
     user: User;
     duration: string;
+    deadline: string;
     displayName?: string;
     _id?: string;
     _rev?: string;
+}
+
+export function isParticipation(event: ExamParticipation | ExamEnrolment): event is ExamParticipation {
+    return event.reservation !== undefined && event.reservation.noShow === undefined;
 }
 
 export enum ClaimChoiceOptionType {

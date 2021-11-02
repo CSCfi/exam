@@ -61,9 +61,9 @@
             {{ 'sitnet_save' | translate }}
         </button>
     </div>
-    <div class="col-md-6" *ngIf="exam.implementation !== 'CLIENT_AUTH' && sq.essayAnswer && !sq.essayAnswer.attachment">
+    <div class="col-md-6" *ngIf="exam.implementation !== 'CLIENT_AUTH' && sq.essayAnswer">
         <div class="float-right mart10">
-            <div class="filename-text" *ngIf="!sq.essayAnswer?.attachment?.fileName">
+            <div class="filename-text" *ngIf="!sq.essayAnswer.attachment?.fileName">
                 {{ 'sitnet_no_attachment' | translate }}
             </div>
             <button

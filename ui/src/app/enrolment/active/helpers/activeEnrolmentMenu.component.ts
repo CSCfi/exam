@@ -13,7 +13,7 @@ import type { ExamEnrolment } from '../../enrolment.model';
 })
 export class ActiveEnrolmentMenuComponent {
     @Input() enrolment: ExamEnrolment;
-    @Output() onRemoval = new EventEmitter<ExamEnrolment>();
+    @Output() onRemoval = new EventEmitter<number>();
 
     constructor(
         private translate: TranslateService,
@@ -39,7 +39,7 @@ export class ActiveEnrolmentMenuComponent {
                 this.translate.instant('sitnet_confirm'),
                 this.translate.instant('sitnet_are_you_sure'),
             ).result.then(() =>
-                this.Enrolment.removeEnrolment(this.enrolment).subscribe(() => this.onRemoval.emit(this.enrolment)),
+                this.Enrolment.removeEnrolment(this.enrolment).subscribe(() => this.onRemoval.emit(this.enrolment.id)),
             );
         }
     };

@@ -83,7 +83,7 @@
             <tbody>
                 <tr
                     *ngFor="
-                        let question of questions
+                        let question of fixedQuestions
                             | orderBy: questionsPredicate:reverse
                             | slice: currentPage * pageSize:currentPage * pageSize + pageSize
                     "
@@ -126,7 +126,7 @@
                         <span *ngIf="question.modified" class="timestamp">
                             {{ question.modified | date: 'dd.MM.yyyy HH:mm' }}
                             <br />
-                            <small>{{ question.modifier.firstName }} {{ question.modifier.lastName }}</small>
+                            <small>{{ question.modifier?.firstName }} {{ question.modifier?.lastName }}</small>
                         </span>
                     </td>
                     <td>{{ showDisplayedScoreOrTranslate(question.displayedMaxScore) }}</td>

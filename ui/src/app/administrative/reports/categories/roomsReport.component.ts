@@ -18,9 +18,9 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
+import { Option } from '../../../utility/select/dropDownSelect.component';
 
 import type { ExamRoom } from '../../../reservation/reservation.model';
-
 @Component({
     template: `
         <div class="top-row">
@@ -70,32 +70,32 @@ import type { ExamRoom } from '../../../reservation/reservation.model';
     selector: 'rooms-report',
 })
 export class RoomsReportComponent {
-    room: ExamRoom;
-    startDate: Date;
-    endDate: Date;
-    @Input() rooms: ExamRoom[];
+    room?: number;
+    startDate: Date | null;
+    endDate: Date | null;
+    @Input() rooms: Option<ExamRoom, number>[];
 
     constructor(private translate: TranslateService, private datePipe: DatePipe, private files: FileService) {}
 
-    roomSelected = (event: { value: ExamRoom }) => {
-        this.room = event.value;
+    roomSelected = (event?: Option<ExamRoom, number>) => {
+        this.room = event?.id;
     };
 
     getRoomReservationsByDate = () => {
         const f = this.datePipe.transform(this.startDate || new Date(), 'dd.MM.yyyy');
         const t = this.datePipe.transform(this.endDate || new Date(), 'dd.MM.yyyy');
         if (this.room) {
-            this.files.download(`/app/statistics/resbydate/${this.room.id}/${f}/${t}`, `reservations_${f}_${t}.xlsx`);
+            this.files.download(`/app/statistics/resbydate/${this.room}/${f}/${t}`, `reservations_${f}_${t}.xlsx`);
         } else {
             toast.error(this.translate.instant('sitnet_choose_room'));
         }
     };
 
-    startDateChanged = (event: { date: Date }) => {
+    startDateChanged = (event: { date: Date | null }) => {
         this.startDate = event.date;
     };
 
-    endDateChanged = (event: { date: Date }) => {
+    endDateChanged = (event: { date: Date | null }) => {
         this.endDate = event.date;
     };
 }

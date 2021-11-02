@@ -33,7 +33,7 @@ import type { OpeningHours } from '../calendar.service';
                 </div>
             </div>
         </div>
-        <div class="row mt-2" *ngIf="exceptionHours?.length > 0">
+        <div class="row mt-2" *ngIf="exceptionHours.length > 0">
             <div class="col-md-2 col-12">{{ 'sitnet_exception_datetimes' | translate }}:</div>
             <div class="col-md-10 col-12">
                 <div

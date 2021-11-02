@@ -81,7 +81,7 @@
                                 <a
                                     class="pointer"
                                     uiSref="staff.assessment"
-                                    [uiParams]="{ id: review.examParticpation?.exam.id }"
+                                    [uiParams]="{ id: review.examParticipation.exam.id }"
                                 >
                                     {{ review.examParticipation.user?.email }}
                                 </a>
@@ -145,7 +145,7 @@
                                     <option *ngFor="let grade of review.grades | orderBy: 'id'" [ngValue]="grade">
                                         {{ grade.name }}
                                     </option>
-                                    <option value="" [selected]="!review.exam?.selectedGrade">
+                                    <option value="" [selected]="!review.selectedGrade">
                                         {{ 'sitnet_choose' | translate }}
                                     </option>
                                 </select>
