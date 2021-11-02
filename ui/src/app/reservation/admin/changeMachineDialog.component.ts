@@ -32,8 +32,8 @@ import type { ExamMachine } from '../reservation.model';
 export class ChangeMachineDialogComponent implements OnInit {
     @Input() reservation: Reservation;
 
-    selection: ExamMachine;
-    availableMachineOptions: Option[] = [];
+    selection?: ExamMachine;
+    availableMachineOptions: Option<ExamMachine, number>[] = [];
 
     constructor(public activeModal: NgbActiveModal, private http: HttpClient, private translate: TranslateService) {}
 
@@ -50,11 +50,11 @@ export class ChangeMachineDialogComponent implements OnInit {
         );
     }
 
-    machineChanged = (event: { value: ExamMachine }) => (this.selection = event.value);
+    machineChanged = (event: Option<ExamMachine, number> | undefined) => (this.selection = event?.value);
 
     ok = () =>
         this.http
-            .put<ExamMachine>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection.id })
+            .put<ExamMachine>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection?.id })
             .subscribe(
                 (resp) => {
                     toast.info(this.translate.instant('sitnet_updated'));

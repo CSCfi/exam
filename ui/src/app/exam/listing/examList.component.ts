@@ -78,7 +78,7 @@ export class ExamListingComponent {
                     exams.forEach((e) => {
                         e.ownerAggregate = e.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join();
                         if (e.state === 'PUBLISHED') {
-                            e.expired = new Date() > new Date(e.examActiveEndDate);
+                            e.expired = e.examActiveEndDate != null && new Date() > new Date(e.examActiveEndDate);
                         } else {
                             e.expired = false;
                         }
@@ -96,7 +96,10 @@ export class ExamListingComponent {
 
     newExam = () => this.state.go('staff.newExam');
 
-    search = (event: { target: { value: string } }) => this.subject.next(event.target.value);
+    search = (event: KeyboardEvent) => {
+        const e = event.target as HTMLInputElement;
+        return this.subject.next(e.value);
+    };
 
     createExam = (executionType: Implementation) => this.Exam.createExam(executionType);
 

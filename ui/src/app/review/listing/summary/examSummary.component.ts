@@ -259,8 +259,8 @@ export class ExamSummaryComponent {
 
     calculateExaminationTimeValues = () => {
         const dates = eachDayOfInterval({
-            start: min([new Date(this.exam.examActiveStartDate), new Date()]),
-            end: min([new Date(this.exam.examActiveEndDate), new Date()]),
+            start: min([new Date(this.exam.examActiveStartDate as string), new Date()]),
+            end: min([new Date(this.exam.examActiveEndDate as string), new Date()]),
         });
         this.examinationDateData = dates.map((d, i) => ({
             date: i,

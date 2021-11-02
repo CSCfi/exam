@@ -14,14 +14,14 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as moment from 'moment';
 
-import type { Exam } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 
+import type { Exam } from '../../../exam/exam.model';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import type { ExaminationEventConfiguration, ExamParticipation } from '../../../exam/exam.model';
+import type { ExamParticipation } from '../../../exam/exam.model';
 import type { Reservation } from '../../../reservation/reservation.model';
 import type { User } from '../../../session/session.service';
 export type Participation = Partial<Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> }>;
@@ -39,33 +39,23 @@ export class GeneralInfoComponent {
     studentName: string;
     enrolment?: ExamEnrolment;
     reservation?: Reservation;
-    previousParticipations: Partial<Participation>[];
+    participations: ExamParticipation[] = [];
+    noShows: ExamEnrolment[] = [];
 
-    constructor(private http: HttpClient, private state: StateService, private Attachment: AttachmentService) {}
+    constructor(private http: HttpClient, private state: UIRouterGlobals, private Attachment: AttachmentService) {}
 
-    private handleParticipations = (data: Partial<Participation>[]) => {
+    private handleParticipations = (data: ExamParticipation[]) => {
         if (this.collaborative) {
             // TODO: Add collaborative support for noshows.
-            this.previousParticipations = data;
+            this.participations = data;
             return;
         }
         // Filter out the participation we are looking into
-        const previousParticipations = data.filter((p) => {
+        this.participations = data.filter((p) => {
             return p.id !== this.participation.id;
         });
         this.http.get<ExamEnrolment[]>(`/app/usernoshows/${this.exam.id}`).subscribe((enrolments) => {
-            const noShows: Partial<Participation>[] = enrolments.map((ee) => {
-                return {
-                    id: ee.id,
-                    noShow: true,
-                    user: ee.user,
-                    started: ee.reservation
-                        ? ee.reservation.startAt
-                        : (ee.examinationEventConfiguration as ExaminationEventConfiguration).examinationEvent.start,
-                    exam: { state: 'no_show' },
-                };
-            });
-            this.previousParticipations = previousParticipations.concat(noShows);
+            this.noShows = enrolments.map((ee) => ({ ...ee, exam: { ...ee.exam, state: 'no_show' } }));
         });
     };
 
@@ -85,13 +75,13 @@ export class GeneralInfoComponent {
         this.reservation = this.enrolment?.reservation;
         if (this.collaborative) {
             this.http
-                .get<Participation[]>(
+                .get<ExamParticipation[]>(
                     `/integration/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
                 )
                 .subscribe(this.handleParticipations);
         } else {
             this.http
-                .get<Participation[]>(`app/examparticipations/${this.state.params.id}`)
+                .get<ExamParticipation[]>(`app/examparticipations/${this.state.params.id}`)
                 .subscribe(this.handleParticipations);
         }
     }

@@ -15,7 +15,7 @@
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { QuestionService } from '../question.service';
+import { QuestionDraft, QuestionService } from '../question.service';
 
 import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 
@@ -95,7 +95,7 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 })
 export class ClaimChoiceEditorComponent {
     @Input() option: MultipleChoiceOption;
-    @Input() question: Question;
+    @Input() question: Question | QuestionDraft;
     @Input() lotteryOn: boolean;
     @Input() showWarning: boolean;
 

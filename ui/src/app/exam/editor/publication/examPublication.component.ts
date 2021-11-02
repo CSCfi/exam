@@ -77,11 +77,11 @@ export class ExamPublicationComponent implements OnInit {
         this.Tabs.notifyTabChange(3);
     }
 
-    addExaminationDate = (date: Date) => {
+    addExaminationDate = (event: { date: Date | null }) => {
         const fmt = 'DD/MM/YYYY';
-        const formattedDate = moment(date).format(fmt);
+        const formattedDate = moment(event.date).format(fmt);
         const alreadyExists: boolean = this.exam.examinationDates
-            .map((ed: { date: Date | number }) => moment(ed.date).format(fmt))
+            .map((ed) => moment(ed.date).format(fmt))
             .some((d: string) => d === formattedDate);
         if (!alreadyExists) {
             this.http
@@ -99,8 +99,10 @@ export class ExamPublicationComponent implements OnInit {
         });
     };
 
-    startDateChanged = (event: { date: string }) => (this.exam.examActiveStartDate = event.date);
-    endDateChanged = (event: { date: string }) => (this.exam.examActiveEndDate = event.date);
+    startDateChanged = (event: { date: Date | null }) =>
+        (this.exam.examActiveStartDate = event.date ? event.date.toISOString() : null);
+    endDateChanged = (event: { date: Date | null }) =>
+        (this.exam.examActiveEndDate = event.date ? event.date.toISOString() : null);
 
     autoEvaluationConfigChanged = (event: { config: AutoEvaluationConfig }) => {
         this.exam.autoEvaluationConfig = event.config;

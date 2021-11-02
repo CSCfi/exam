@@ -58,9 +58,9 @@ export class TeacherDashboardService {
     // Printout exams do not have an activity period but have examination dates.
     // Produce a fake period for information purposes by selecting first and last examination dates.
     private createFakeActivityPeriod(exam: Exam) {
-        const dates = exam.examinationDates.map((es) => es.date as number);
-        exam.examActiveStartDate = Math.min(...dates);
-        exam.examActiveEndDate = Math.max(...dates);
+        const dates = exam.examinationDates.map((es) => new Date(es.date).getTime());
+        exam.examActiveStartDate = new Date(dates.length > 0 ? Math.min(...dates) : new Date()).toISOString();
+        exam.examActiveEndDate = new Date(dates.length > 0 ? Math.max(...dates) : new Date()).toISOString();
     }
 
     populate = (): Observable<Dashboard> =>
@@ -88,7 +88,7 @@ export class TeacherDashboardService {
                     }
                     const periodOk =
                         r.executionType.type !== 'PRINTOUT' &&
-                        new Date() <= new Date(r.examActiveEndDate) &&
+                        new Date() <= new Date(r.examActiveEndDate as string) &&
                         this.participationsInFuture(r);
                     const examinationDatesOk =
                         r.executionType.type === 'PRINTOUT' && this.hasUpcomingExaminationDates(r);
@@ -112,7 +112,7 @@ export class TeacherDashboardService {
                     }
                     const periodOk =
                         r.executionType.type !== 'PRINTOUT' &&
-                        (new Date() > new Date(r.examActiveEndDate) || !this.participationsInFuture(r));
+                        (new Date() > new Date(r.examActiveEndDate as string) || !this.participationsInFuture(r));
                     const examinationDatesOk =
                         r.executionType.type === 'PRINTOUT' && !this.hasUpcomingExaminationDates(r);
                     return periodOk || examinationDatesOk;

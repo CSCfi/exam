@@ -25,7 +25,7 @@ import { AttachmentSelectorComponent } from './dialogs/attachmentSelector.compon
 import type { Observable } from 'rxjs';
 import type { ReviewedExam } from '../../enrolment/enrolment.model';
 import type { Exam, ExamParticipation, ExamSectionQuestion, Question } from '../../exam/exam.model';
-import type { Examination } from '../../examination/examination.service';
+import type { Examination } from '../../examination/examination.model';
 import type { ReviewQuestion } from '../../review/review.model';
 import type { FileResult } from './dialogs/attachmentSelector.component';
 

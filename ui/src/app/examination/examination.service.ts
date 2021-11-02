@@ -24,34 +24,8 @@ import * as toast from 'toastr';
 import { WindowRef } from '../utility/window/window.service';
 
 import type { Observable } from 'rxjs';
-import type {
-    ClozeTestAnswer,
-    EssayAnswer,
-    Exam,
-    ExamSection,
-    ExamSectionQuestion,
-    ExamSectionQuestionOption,
-} from '../exam/exam.model';
-export interface Examination extends Exam {
-    cloned: boolean;
-    external: boolean;
-    examSections: ExaminationSection[];
-}
-export interface ExaminationQuestion extends ExamSectionQuestion {
-    questionStatus: string;
-    autosaved: Date;
-    derivedMaxScore: number;
-    derivedMinScore: number;
-    selectedOption: number;
-    answered: boolean;
-    selectedAnsweredState: string;
-    expanded: boolean;
-    options: ExamSectionQuestionOption[];
-}
-
-export interface ExaminationSection extends ExamSection {
-    sectionQuestions: ExaminationQuestion[];
-}
+import type { ClozeTestAnswer, EssayAnswer } from '../exam/exam.model';
+import type { ExaminationQuestion, Examination, ExaminationSection } from './examination.model';
 
 @Injectable()
 export class ExaminationService {
@@ -205,7 +179,7 @@ export class ExaminationService {
     saveOption = (hash: string, sq: ExaminationQuestion, preview: boolean) => {
         let ids: number[];
         if (sq.question.type === 'WeightedMultipleChoiceQuestion') {
-            ids = sq.options.filter((o) => o.answered).map((o) => o.id);
+            ids = sq.options.filter((o) => o.answered).map((o) => o.id as number);
         } else {
             ids = [sq.selectedOption];
         }
@@ -214,7 +188,7 @@ export class ExaminationService {
             this.http.post(url, { oids: ids }).subscribe(
                 () => {
                     toast.info(this.translate.instant('sitnet_answer_saved'));
-                    sq.options.forEach((o) => (o.answered = ids.indexOf(o.id) > -1));
+                    sq.options.forEach((o) => (o.answered = ids.indexOf(o.id as number) > -1));
                     this.setQuestionColors(sq);
                 },
                 (resp) => toast.error(resp),

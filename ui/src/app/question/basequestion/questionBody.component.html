@@ -123,7 +123,7 @@
                     #ck="ngModel"
                     [enableClozeTest]="question.type === 'ClozeTestQuestion'"
                     [(ngModel)]="question.question"
-                    required
+                    [required]="true"
                 >
                 </ckeditor>
             </div>
@@ -214,8 +214,8 @@
                     lang="en"
                     class="form-control wdt100"
                     [(ngModel)]="question.defaultMaxScore"
-                    min="0"
-                    max="1000"
+                    [min]="0"
+                    [max]="1000"
                     required
                     [disabled]="lotteryOn"
                 />

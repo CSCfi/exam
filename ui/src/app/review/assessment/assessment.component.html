@@ -39,7 +39,7 @@
         <div class="review-border">
             <div class="padt50 padl30 padr30">
                 <div class="review-list-title">
-                    <course-code [course]="exam?.course"></course-code> - {{ exam.name }}
+                    <course-code *ngIf="exam.course" [course]="exam.course"></course-code> - {{ exam.name }}
                     <a class="pointer" (click)="hideGeneralInfo = !hideGeneralInfo">
                         <img
                             *ngIf="hideGeneralInfo"

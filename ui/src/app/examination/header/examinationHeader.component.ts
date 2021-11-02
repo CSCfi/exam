@@ -16,7 +16,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { SessionService } from '../../session/session.service';
 
-import type { Examination } from '../examination.service';
+import type { Examination } from '../examination.model';
 
 @Component({
     selector: 'examination-header',

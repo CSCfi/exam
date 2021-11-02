@@ -114,7 +114,7 @@
                 ngbDropdownToggle
                 aria-expanded="true"
             >
-                {{ selectedReleaseType()?.translation | translate }}&nbsp;<span class="caret"></span>
+                {{ selectedReleaseType()?.translation || '' | translate }}&nbsp;<span class="caret"></span>
             </button>
             <ul ngbDropdownMenu role="menu">
                 <li

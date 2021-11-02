@@ -58,8 +58,8 @@ import { FileService } from '../../../utility/file/file.service';
     selector: 'answers-report',
 })
 export class AnswersReportComponent {
-    startDate: Date;
-    endDate: Date;
+    startDate: Date | null;
+    endDate: Date | null;
 
     constructor(private datePipe: DatePipe, private files: FileService) {}
 
@@ -69,11 +69,11 @@ export class AnswersReportComponent {
         this.files.download(`/app/statistics/allexams/${f}/${t}`, `exam_answers_${f}_${t}.xlsx`);
     };
 
-    startDateChanged = (event: { date: Date }) => {
+    startDateChanged = (event: { date: Date | null }) => {
         this.startDate = event.date;
     };
 
-    endDateChanged = (event: { date: Date }) => {
+    endDateChanged = (event: { date: Date | null }) => {
         this.endDate = event.date;
     };
 }

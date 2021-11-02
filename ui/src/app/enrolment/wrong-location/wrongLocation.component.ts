@@ -33,6 +33,7 @@ export class WrongLocationComponent implements OnInit {
     @Input() cause: string;
 
     enrolment: ExamEnrolment;
+    reservation: Reservation;
     isUpcoming: boolean;
     roomInstructions: string;
     currentMachine: ExamMachine;
@@ -67,7 +68,8 @@ export class WrongLocationComponent implements OnInit {
                     }
                     this.setOccasion(enrolment.reservation);
                     this.enrolment = enrolment;
-                    const room = enrolment.reservation.machine.room;
+                    this.reservation = enrolment.reservation;
+                    const room = this.reservation.machine.room;
                     const code = this.translate.currentLang.toUpperCase();
                     this.roomInstructions = this.getRoomInstructions(code, room);
                     this.http

@@ -53,7 +53,7 @@ export const STAFF_STATES: Ng2StateDeclaration[] = [
         component: QuestionComponent,
         resolve: {
             newQuestion: () => false,
-            nextState: () => 'library',
+            nextState: () => 'staff.library',
         },
     },
     {

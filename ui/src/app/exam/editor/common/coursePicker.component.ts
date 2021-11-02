@@ -67,10 +67,12 @@ export class CoursePickerComponent implements OnInit {
             }),
         );
 
+    private isCourse = (input: string | Course): input is Course => (input as Course).code !== undefined;
+
     getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
     getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);
-    codeFormat = (c: Course) => c.code || c;
-    nameFormat = (c: Course) => c.name || c;
+    codeFormat = (c: Course | string) => (this.isCourse(c) ? c.code : c);
+    nameFormat = (c: Course | string) => (this.isCourse(c) ? c.name : c);
 
     onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
         this.codeFilter = event.item.code.split('_')[0];

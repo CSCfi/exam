@@ -57,8 +57,8 @@ import { FileService } from '../../../utility/file/file.service';
     selector: 'reviews-report',
 })
 export class ReviewsReportComponent {
-    startDate: Date;
-    endDate: Date;
+    startDate: Date | null;
+    endDate: Date | null;
 
     constructor(private datePipe: DatePipe, private files: FileService) {}
 
@@ -68,11 +68,11 @@ export class ReviewsReportComponent {
         this.files.download(`/app/statistics/reviewsbydate/${f}/${t}`, `reviews_${f}_${t}.xlsx`);
     };
 
-    startDateChanged = (event: { date: Date }) => {
+    startDateChanged = (event: { date: Date | null }) => {
         this.startDate = event.date;
     };
 
-    endDateChanged = (event: { date: Date }) => {
+    endDateChanged = (event: { date: Date | null }) => {
         this.endDate = event.date;
     };
 }

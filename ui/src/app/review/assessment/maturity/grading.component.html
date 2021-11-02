@@ -24,8 +24,8 @@
 <!-- language inspection - inspector -->
 <div class="detail-row mart20" *ngIf="hasGoneThroughLanguageInspection()">
     <div class="col-md-2 general-info-title">{{ 'sitnet_language_inspector' | translate }}:</div>
-    <div class="col-md-10 general-info-content">
-        {{ exam.languageInspection?.modifier.firstName }} {{ exam.languageInspection?.modifier.lastName }}
+    <div class="col-md-10 general-info-content" *ngIf="exam.languageInspection">
+        {{ exam.languageInspection.modifier.firstName }} {{ exam.languageInspection.modifier.lastName }}
     </div>
 </div>
 
@@ -39,12 +39,12 @@
 <!-- language inspection - statement attachment -->
 <div
     class="detail-row mart20"
-    *ngIf="hasGoneThroughLanguageInspection() && exam.languageInspection?.statement.attachment"
+    *ngIf="hasGoneThroughLanguageInspection() && exam.languageInspection?.statement?.attachment"
 >
     <div class="col-md-2 general-info-title">{{ 'sitnet_statement_attachment' | translate }}:</div>
     <div class="col-md-10 general-info-content">
         <a class="pointer" (click)="downloadStatementAttachment()">
-            {{ exam.languageInspection?.statement.attachment?.fileName }}
+            {{ exam.languageInspection?.statement?.attachment?.fileName }}
         </a>
     </div>
 </div>
@@ -52,8 +52,8 @@
 <!-- inspection creator -->
 <div class="detail-row mart20" *ngIf="isReadOnly() || isUnderLanguageInspection()">
     <div class="col-md-2 general-info-title">{{ 'sitnet_inspector_name' | translate }}:</div>
-    <div class="col-md-10 general-info-content">
-        {{ exam.languageInspection?.creator.firstName }} {{ exam.languageInspection?.creator.lastName }}
+    <div class="col-md-10 general-info-content" *ngIf="exam.languageInspection">
+        {{ exam.languageInspection.creator.firstName }} {{ exam.languageInspection.creator.lastName }}
     </div>
 </div>
 
@@ -153,7 +153,7 @@
                 lang="en"
                 [disabled]="isReadOnly() || !isOwnerOrAdmin() || isAwaitingInspection()"
                 required
-                min="0"
+                [min]="0"
                 class="form-control"
                 maxlength="3"
                 [(ngModel)]="exam.customCredit"

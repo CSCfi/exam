@@ -23,9 +23,11 @@ import { AttachmentService } from '../../../utility/attachment/attachment.servic
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { LibraryService } from '../library.service';
 
+import type { Question } from '../../../exam/exam.model';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import type { User } from '../../../session/session.service';
 import type { LibraryQuestion } from '../library.service';
+
 type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
 @Component({
@@ -33,7 +35,7 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
     templateUrl: './libraryResults.component.html',
 })
 export class LibraryResultsComponent implements OnInit, OnChanges {
-    @Input() questions: SelectableQuestion[];
+    @Input() questions: Question[];
     @Input() disableLinks: boolean;
     @Input() tableClass: string;
     @Output() onSelection = new EventEmitter<number[]>();
@@ -45,6 +47,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     currentPage = 0;
     questionsPredicate: string;
     reverse: boolean;
+    fixedQuestions: SelectableQuestion[] = [];
 
     constructor(
         private http: HttpClient,
@@ -56,6 +59,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     ) {}
 
     ngOnInit() {
+        this.fixedQuestions = this.questions as SelectableQuestion[]; // FIXME: ugly cast, should resolve this better
         this.user = this.Session.getUser();
         this.tableClass = this.tableClass || 'exams-table';
         const storedData = this.Library.loadFilters('sorting');
@@ -69,16 +73,17 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         if (changes.questions) {
             this.currentPage = 0;
             this.resetSelections();
+            this.fixedQuestions = this.questions as SelectableQuestion[];
         }
     }
 
     selectAll = () => {
-        this.questions.forEach((q) => (q.selected = this.allSelected));
+        this.fixedQuestions.forEach((q) => (q.selected = this.allSelected));
         this.questionSelected();
     };
 
     questionSelected = () => {
-        const selections = this.questions.filter((q) => q.selected).map((q) => q.id);
+        const selections = this.fixedQuestions.filter((q) => q.selected).map((q) => q.id);
         this.onSelection.emit(selections);
     };
 
@@ -186,7 +191,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     };
 
     private resetSelections = () => {
-        this.questions.forEach((q) => (q.selected = false));
+        this.fixedQuestions.forEach((q) => (q.selected = false));
         this.questionSelected();
     };
 

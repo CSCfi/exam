@@ -26,18 +26,22 @@
                 </div>
                 <div class="top-row">
                     <div class="col-md-11 col-md-offset-1">
-                        {{ getAssessedAnswerCount(true) }} / {{ selectedReview?.answers.length }}
+                        {{ getAssessedAnswerCount(true) }} / {{ selectedReview && selectedReview.answers.length }}
                         {{ 'sitnet_graded' | translate | lowercase }}
                     </div>
                 </div>
                 <div class="detail-row">
                     <div
-                        [ngClass]="selectedReview?.question.defaultAnswerInstructions ? 'col-md-10' : 'col-md-11'"
+                        [ngClass]="
+                            selectedReview && selectedReview.question.defaultAnswerInstructions
+                                ? 'col-md-10'
+                                : 'col-md-11'
+                        "
                         class="col-md-offset-1"
                     >
-                        <div class="review-question-title" [MathJax]="selectedReview?.question.question"></div>
+                        <div class="review-question-title" [MathJax]="selectedReview.question.question"></div>
                     </div>
-                    <div *ngIf="selectedReview?.question.defaultAnswerInstructions" class="col-md-1">
+                    <div *ngIf="selectedReview && selectedReview.question.defaultAnswerInstructions" class="col-md-1">
                         <a (click)="selectedReview.expanded = !selectedReview.expanded" class="pointer-hand">
                             <img
                                 *ngIf="!selectedReview.expanded"
@@ -56,7 +60,9 @@
                 </div>
                 <div
                     class="main-row"
-                    *ngIf="selectedReview?.expanded && selectedReview?.question.defaultAnswerInstructions"
+                    *ngIf="
+                        selectedReview && selectedReview.expanded && selectedReview.question.defaultAnswerInstructions
+                    "
                 >
                     <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box">
                         <img
@@ -64,10 +70,10 @@
                             alt="exam"
                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"
                         />
-                        <span class="padl10">{{ selectedReview?.question.defaultAnswerInstructions }}</span>
+                        <span class="padl10">{{ selectedReview.question.defaultAnswerInstructions }}</span>
                     </div>
                 </div>
-                <div class="main-row" *ngIf="selectedReview?.question.attachment">
+                <div class="main-row" *ngIf="selectedReview && selectedReview.question.attachment">
                     <div class="col-md-10 col-md-offset-1">
                         <span>
                             <i class="bi-paperclip text-primary"></i>&nbsp;

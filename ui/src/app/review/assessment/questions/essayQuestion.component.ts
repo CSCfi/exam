@@ -22,7 +22,7 @@ import { AttachmentService } from '../../../utility/attachment/attachment.servic
 import { AssessmentService } from '../assessment.service';
 
 import type { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
-import type { ExaminationQuestion } from '../../../examination/examination.service';
+import type { ExaminationQuestion } from '../../../examination/examination.model';
 import type { ReviewQuestion } from '../../review.model';
 
 @Component({

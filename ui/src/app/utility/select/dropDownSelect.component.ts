@@ -18,13 +18,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import type { OnInit, OnChanges } from '@angular/core';
 
-interface Selection {
-    value: unknown;
-}
-
-export interface Option {
-    value?: unknown;
-    id: unknown | null;
+export interface Option<V, I> {
+    value?: V;
+    id?: I;
     label: string | null;
     isHeader?: boolean;
 }
@@ -33,15 +29,15 @@ export interface Option {
     selector: 'dropdown-select',
     templateUrl: './dropDownSelect.component.html',
 })
-export class DropdownSelectComponent implements OnInit, OnChanges {
-    @Input() options: Option[] = []; // everything
+export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
+    @Input() options: Option<V, I>[] = []; // everything
     @Input() placeholder = '-';
     @Input() limitTo?: number;
     @Input() fullWidth?: boolean = false;
-    @Output() onSelect = new EventEmitter<Selection>();
-    filteredOptions: Option[] = []; // filtered
+    @Output() onSelect = new EventEmitter<Option<V, I> | undefined>();
+    filteredOptions: Option<V, I>[] = []; // filtered
     searchFilter = '';
-    selected?: Option;
+    selected?: Option<V, I>;
 
     ngOnInit() {
         this.limitTo = !this.limitTo && this.limitTo !== 0 ? 15 : this.limitTo;
@@ -51,7 +47,7 @@ export class DropdownSelectComponent implements OnInit, OnChanges {
         this.filterOptions();
     }
 
-    labelFilter = (option: Option): boolean =>
+    labelFilter = (option: Option<V, I>): boolean =>
         option.label != null && option.label.toLowerCase().includes(this.searchFilter.toLowerCase());
 
     filterOptions = () => {
@@ -63,12 +59,12 @@ export class DropdownSelectComponent implements OnInit, OnChanges {
         }
     };
 
-    selectOption = (option: Option) => {
+    selectOption = (option: Option<V, I>) => {
         this.selected = option;
-        this.onSelect.emit({ value: option.value || option.id });
+        this.onSelect.emit(option);
     };
 
-    getClasses = (option: Option): string[] => {
+    getClasses = (option: Option<V, I>): string[] => {
         const classes: string[] = [];
         if (this.selected && this.selected.id === option.id) {
             classes.push('active');

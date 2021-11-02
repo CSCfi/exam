@@ -15,17 +15,13 @@
 import { Component } from '@angular/core';
 
 import { RoomService } from '../../facility/rooms/room.service';
+import { ExamRoom } from '../../reservation/reservation.model';
+import { User } from '../../session/session.service';
+import { Option } from '../../utility/select/dropDownSelect.component';
 import { ReportsService } from './reports.service';
 import { UserResourceService, UserRole } from './userResource.service';
 
 import type { OnInit } from '@angular/core';
-
-interface Category {
-    id: number;
-    label: string;
-    value: Record<string, unknown>;
-}
-
 @Component({
     selector: 'reports',
     template: `
@@ -64,10 +60,10 @@ export class ReportsComponent implements OnInit {
         private userResource: UserResourceService,
     ) {}
 
-    rooms: Category[];
-    examNames: Category[];
-    teachers: Category[];
-    students: Category[];
+    rooms: Option<ExamRoom, number>[];
+    examNames: Option<string, number>[];
+    teachers: Option<User, number>[];
+    students: Option<User, number>[];
 
     ngOnInit() {
         this.room.getRooms$().subscribe((resp) => {
@@ -82,7 +78,7 @@ export class ReportsComponent implements OnInit {
             this.examNames = resp.map((en) => ({
                 id: en.id,
                 label: `${en.course.code} - ${en.name}`,
-                value: { ...en },
+                value: en.name,
             }));
         });
 
@@ -90,7 +86,7 @@ export class ReportsComponent implements OnInit {
             this.teachers = resp.map((t) => ({
                 id: t.id,
                 label: t.name as string,
-                value: { ...t },
+                value: t,
             }));
         });
 
@@ -98,7 +94,7 @@ export class ReportsComponent implements OnInit {
             this.students = resp.map((t) => ({
                 id: t.id,
                 label: t.name as string,
-                value: { ...t },
+                value: t,
             }));
         });
     }

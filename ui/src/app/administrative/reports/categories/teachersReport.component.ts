@@ -18,9 +18,9 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
+import { Option } from '../../../utility/select/dropDownSelect.component';
 
 import type { User } from '../../../session/session.service';
-
 @Component({
     template: `
         <div class="top-row">
@@ -70,10 +70,10 @@ import type { User } from '../../../session/session.service';
     selector: 'teachers-report',
 })
 export class TeachersReportComponent {
-    @Input() teachers: User[];
-    teacher: User;
-    answerStartDate: Date;
-    answerEndDate: Date;
+    @Input() teachers: Option<User, number>[];
+    teacher?: number;
+    answerStartDate: Date | null;
+    answerEndDate: Date | null;
 
     constructor(private datePipe: DatePipe, private translate: TranslateService, private files: FileService) {}
 
@@ -82,7 +82,7 @@ export class TeachersReportComponent {
         const t = this.datePipe.transform(this.answerEndDate || new Date(), 'dd.MM.yyyy');
         if (this.teacher) {
             this.files.download(
-                `/app/statistics/teacherexamsbydate/${this.teacher.id}/${f}/${t}`,
+                `/app/statistics/teacherexamsbydate/${this.teacher}/${f}/${t}`,
                 `teacherexams_${f}_${t}.xlsx`,
             );
         } else {
@@ -90,15 +90,15 @@ export class TeachersReportComponent {
         }
     };
 
-    teacherSelected = (event: { value: User }) => {
-        this.teacher = event.value;
+    teacherSelected = (event?: Option<User, number>) => {
+        this.teacher = event?.id;
     };
 
-    answerStartDateChanged = (event: { date: Date }) => {
+    answerStartDateChanged = (event: { date: Date | null }) => {
         this.answerStartDate = event.date;
     };
 
-    answerEndDateChanged = (event: { date: Date }) => {
+    answerEndDateChanged = (event: { date: Date | null }) => {
         this.answerEndDate = event.date;
     };
 }

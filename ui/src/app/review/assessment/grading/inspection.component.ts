@@ -17,15 +17,16 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import type { ExamInspection } from '../../../exam/exam.model';
 import type { User } from '../../../session/session.service';
-
 import type { OnInit } from '@angular/core';
+
 @Component({
     selector: 'r-inspection',
     templateUrl: './inspection.component.html',
 })
 export class InspectionComponent implements OnInit {
-    @Input() inspection: { id: number; user: User; ready: boolean };
+    @Input() inspection: ExamInspection;
     @Input() user: User;
     @Input() disabled: boolean;
     @Output() onInspection = new EventEmitter<void>();

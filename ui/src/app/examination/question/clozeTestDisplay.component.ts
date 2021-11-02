@@ -35,7 +35,7 @@ export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
     @Input() answer: ClozeTestAnswer;
     @Input() content: string;
     @Input() editable: boolean;
-    @Output() onAnswerChange: EventEmitter<ClozeTestAnswer> = new EventEmitter();
+    @Output() onAnswerChange = new EventEmitter<ClozeTestAnswer>();
     @ViewChild('clozeContainer', { read: ViewContainerRef, static: true }) container: ViewContainerRef;
     componentRef: ComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
 

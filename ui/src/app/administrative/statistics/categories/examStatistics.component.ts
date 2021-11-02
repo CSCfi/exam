@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 
+import type { QueryParams } from '../statistics.component';
 import type { OnInit } from '@angular/core';
+
 interface ExamInfo {
     name: string;
     participations: number;
@@ -55,7 +57,7 @@ interface ExamInfo {
     selector: 'exam-statistics',
 })
 export class ExamStatisticsComponent implements OnInit {
-    @Input() queryParams: { start: string; end: string };
+    @Input() queryParams: QueryParams;
     exams: ExamInfo[] = [];
 
     constructor(private http: HttpClient) {}

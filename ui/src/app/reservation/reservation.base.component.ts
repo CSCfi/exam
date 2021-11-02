@@ -61,7 +61,7 @@ type RemoteTransferExamReservation = Omit<ReservationDisplay, 'enrolment'> & {
 type CollaborativeExamReservation = Omit<ReservationDisplay, 'enrolment'> & {
     enrolment: CollaborativeExamEnrolment;
 };
-type AnyReservation =
+export type AnyReservation =
     | ReservationDisplay
     | LocalTransferExamReservation
     | RemoteTransferExamReservation
@@ -71,8 +71,8 @@ type AnyReservation =
 export class ReservationComponentBase {
     examId: string;
     user: User;
-    startDate: Date = new Date();
-    endDate: Date = new Date();
+    startDate: Date | null = new Date();
+    endDate: Date | null = new Date();
     examStates = [
         'REVIEW',
         'REVIEW_STARTED',
@@ -86,12 +86,12 @@ export class ReservationComponentBase {
         'NO_SHOW',
     ];
     selection: Selection;
-    stateOptions: Option[];
-    examOptions: Option[];
-    roomOptions: Option[];
-    machineOptions: Option[];
-    studentOptions: Option[];
-    teacherOptions: Option[];
+    stateOptions: Option<string, string>[] = [];
+    examOptions: Option<Exam | CollaborativeExam, number>[];
+    roomOptions: Option<ExamRoom, number>[];
+    machineOptions: Option<ExamMachine, number>[];
+    studentOptions: Option<User, number>[] = [];
+    teacherOptions: Option<User, number>[];
     rooms: ExamRoom[];
     machines: ExamMachine[];
     reservations: AnyReservation[];
@@ -285,9 +285,7 @@ export class ReservationComponentBase {
             this.http.get<(User & { name: string })[]>('/app/reservations/teachers').subscribe(
                 (resp) => {
                     const teachers = this.orderPipe.transform(resp, 'lastName');
-                    this.teacherOptions = teachers.map((t) => {
-                        return { id: t.id, value: t, label: t.name };
-                    });
+                    this.teacherOptions = teachers.map((t) => ({ id: t.id, value: t, label: t.name }));
                 },
                 (resp) => toast.error(resp.data),
             );
@@ -295,9 +293,7 @@ export class ReservationComponentBase {
             this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe(
                 (resp) => {
                     this.rooms = this.orderPipe.transform(resp, 'name');
-                    this.roomOptions = this.rooms.map((r) => {
-                        return { id: r.id, value: r, label: r.name };
-                    });
+                    this.roomOptions = this.rooms.map((r) => ({ id: r.id, value: r, label: r.name }));
                     this.http.get<ExamMachine[]>('/app/machines').subscribe((resp) => {
                         this.machines = this.orderPipe.transform(resp, 'name');
                         this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
@@ -308,7 +304,8 @@ export class ReservationComponentBase {
         }
     }
 
-    getPlaceHolder = () => (this.examId ? this.examOptions.find((o) => o.id == this.examId)?.label : '-');
+    getPlaceHolder = () =>
+        this.examId ? this.examOptions.find((o) => (o.id ? o.id.toString() : o) === this.examId)?.label : '-';
 
     protected initExamOptions = () => {
         const examObservables: Observable<Exam[] | CollaborativeExam[]>[] = [
@@ -327,16 +324,16 @@ export class ReservationComponentBase {
 
     private roomContains = (room: ExamRoom, machine: ExamMachine) => room.examMachines.some((m) => m.id === machine.id);
 
-    private machinesForRoom(room: ExamRoom, machines: ExamMachine[]): Option[] {
+    private machinesForRoom(room: ExamRoom, machines: ExamMachine[]): Option<ExamMachine, number>[] {
         if (room.examMachines.length < 1) {
             return [];
         }
-        const header: Option = {
+        const header: Option<ExamMachine, number> = {
             id: undefined,
             label: room.name,
             isHeader: true,
         };
-        const machineData: Option[] = machines
+        const machineData: Option<ExamMachine, number>[] = machines
             .filter((m) => this.roomContains(room, m))
             .map((m) => {
                 return { id: m.id, value: m, label: m.name == null ? '' : m.name };
@@ -345,10 +342,10 @@ export class ReservationComponentBase {
         return machineData;
     }
 
-    private machinesForRooms = (rooms: ExamRoom[], machines: ExamMachine[]): Option[] =>
+    private machinesForRooms = (rooms: ExamRoom[], machines: ExamMachine[]): Option<ExamMachine, number>[] =>
         rooms.map((r) => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
 
-    roomChanged(event?: { value: ExamRoom }) {
+    roomChanged(event: Option<ExamRoom, number> | undefined) {
         if (event?.value === undefined) {
             delete this.selection.roomId;
             this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
@@ -359,12 +356,12 @@ export class ReservationComponentBase {
         this.query();
     }
 
-    startDateChanged(event: { date: Date }) {
+    startDateChanged(event: { date: Date | null }) {
         this.startDate = event.date;
         this.query();
     }
 
-    endDateChanged(event: { date: Date }) {
+    endDateChanged(event: { date: Date | null }) {
         this.endDate = event.date;
         this.query();
     }
@@ -385,7 +382,7 @@ export class ReservationComponentBase {
         return this.startDate || this.endDate;
     }
 
-    ownerChanged(event?: { value: User }) {
+    ownerChanged(event: Option<User, number> | undefined) {
         if (event?.value) {
             this.selection.ownerId = event.value.id.toString();
         } else {
@@ -394,7 +391,7 @@ export class ReservationComponentBase {
         this.query();
     }
 
-    stateChanged(event?: { value: string }) {
+    stateChanged(event: Option<string, string> | undefined) {
         if (event?.value) {
             this.selection.state = event.value;
         } else {
@@ -403,7 +400,7 @@ export class ReservationComponentBase {
         this.query();
     }
 
-    studentChanged(event?: { value: User }) {
+    studentChanged(event: Option<User, number> | undefined) {
         if (event?.value) {
             this.selection.studentId = event.value.id.toString();
         } else {
@@ -412,7 +409,7 @@ export class ReservationComponentBase {
         this.query();
     }
 
-    machineChanged(event?: { value: ExamMachine }) {
+    machineChanged(event: Option<ExamMachine, number> | undefined) {
         if (event?.value) {
             this.selection.machineId = event.value.id.toString();
         } else {
@@ -421,7 +418,7 @@ export class ReservationComponentBase {
         this.query();
     }
 
-    examChanged(event?: { value: Exam }) {
+    examChanged(event: Option<Exam | CollaborativeExam, number> | undefined) {
         if (event?.value) {
             this.selection.examId = event.value.id.toString();
         } else {

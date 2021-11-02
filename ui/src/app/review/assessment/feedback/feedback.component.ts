@@ -21,7 +21,7 @@ import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 
 import type { ExamParticipation } from '../../../exam/exam.model';
-import type { Examination } from '../../../examination/examination.service';
+import type { Examination } from '../../../examination/examination.model';
 import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 
 @Component({

@@ -10,8 +10,8 @@
                 name="hourOffset"
                 type="number"
                 lang="en"
-                min="0"
-                max="59"
+                [min]="0"
+                [max]="59"
                 [(ngModel)]="examStartingHourOffset"
                 (change)="setStartingHourOffset()"
             />

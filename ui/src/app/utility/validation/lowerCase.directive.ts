@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Exam Consortium
+ * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -12,21 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Directive, ElementRef, HostListener } from '@angular/core';
 
-import { ExaminationService } from '../examination.service';
-
-import type { ExaminationQuestion } from '../examination.model';
-
-@Component({
-    selector: 'examination-cloze-test',
-    templateUrl: './examinationClozeTest.component.html',
+@Directive({
+    selector: '[lowerCase]',
 })
-export class ExaminationClozeTestComponent {
-    @Input() sq: ExaminationQuestion;
-    @Input() examHash: string;
+export class LowerCaseValidatorDirective {
+    constructor(private el: ElementRef) {}
 
-    constructor(private Examination: ExaminationService) {}
-
-    saveAnswer = () => this.Examination.saveTextualAnswer$(this.sq, this.examHash, false, false).subscribe();
+    @HostListener('input')
+    onInput() {
+        const native = this.el.nativeElement as HTMLInputElement;
+        native.value = native.value.toLowerCase();
+    }
 }

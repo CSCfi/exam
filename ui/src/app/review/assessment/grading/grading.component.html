@@ -199,7 +199,7 @@
                     lang="en"
                     [disabled]="isReadOnly() || !isOwnerOrAdmin()"
                     required
-                    min="0"
+                    [min]="0"
                     class="form-control"
                     maxlength="3"
                     [(ngModel)]="exam.customCredit"
@@ -211,7 +211,7 @@
 
 <!-- Bottom toolbar -->
 <r-toolbar
-    [valid]="gradingForm.valid"
+    [valid]="!!gradingForm.valid"
     [exam]="exam"
     [participation]="participation"
     [collaborative]="collaborative"

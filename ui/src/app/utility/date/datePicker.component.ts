@@ -43,7 +43,7 @@ export class DatePickerFormatter extends NgbDateParserFormatter {
     providers: [{ provide: NgbDateParserFormatter, useClass: DatePickerFormatter }],
 })
 export class DatePickerComponent implements OnInit {
-    @Input() initialDate: Date | string | null = null;
+    @Input() initialDate: Date | string | number | null = null;
     @Input() initiallyEmpty = false;
     @Input() extra: boolean;
     @Input() extraText: string;

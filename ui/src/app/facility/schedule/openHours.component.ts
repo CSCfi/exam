@@ -19,7 +19,7 @@ import { DateTimeService } from '../../utility/date/date.service';
 import { RoomService } from '../rooms/room.service';
 
 import type { OnInit } from '@angular/core';
-import type { Week, Weekday } from '../rooms/room.service';
+import type { Week } from '../rooms/room.service';
 
 @Component({
     templateUrl: './openHours.component.html',
@@ -49,7 +49,8 @@ export class OpenHoursComponent implements OnInit {
         return Object.keys(this.week);
     };
 
-    getType = (day: Weekday, time: number) => {
+    getType = (day: string, time: number) => {
+        this.week;
         return this.week[day][time].type;
     };
 
@@ -57,7 +58,7 @@ export class OpenHoursComponent implements OnInit {
         return (this.times[index] || '0:00') + ' - ' + this.times[index + 1];
     };
 
-    selectSlot = (day: Weekday, time: number) => {
+    selectSlot = (day: string, time: number) => {
         const status = this.week[day][time].type;
         if (status === 'accepted') {
             // clear selection

@@ -42,7 +42,7 @@
     </div>
     <div *ngIf="!isReadOnly() && getNextState().alternateState" class="review-attachment-button exam-questions-buttons">
         <span *ngIf="isMissingStatement()" class="text-danger"
-            >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{ getNextState()?.hint | translate }}</span
+            >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{ getNextState()?.hint || '' | translate }}</span
         >
     </div>
 </div>

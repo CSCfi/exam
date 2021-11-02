@@ -16,7 +16,7 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { QuestionService } from '../question.service';
+import { QuestionDraft, QuestionService } from '../question.service';
 
 import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 
@@ -62,8 +62,8 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 export class MultipleChoiceOptionEditorComponent {
     @Input() option: MultipleChoiceOption;
     @Input() index: number;
-    @Input() question: Question;
-    @Input() allowRemoval: boolean; // !lotteryOn && !inPublishedExam
+    @Input() question: Question | QuestionDraft;
+    @Input() allowRemoval: boolean;
 
     constructor(private translate: TranslateService, private Question: QuestionService) {}
 

@@ -182,7 +182,7 @@ export class LibraryService {
                                 const exam = esq.examSection.exam;
                                 return (
                                     exam.state === 'PUBLISHED' &&
-                                    new Date(exam.examActiveEndDate).getTime() > new Date().getTime()
+                                    new Date(exam.examActiveEndDate || 0).getTime() > new Date().getTime()
                                 );
                             }).length === 0;
                     });

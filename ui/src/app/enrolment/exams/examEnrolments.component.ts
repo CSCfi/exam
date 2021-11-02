@@ -31,7 +31,7 @@ import type { EnrolmentInfo } from '../enrolment.model';
                 </div>
             </div>
             <enrolment-details *ngIf="exam" [exam]="exam"></enrolment-details>
-            <div *ngIf="exams?.length > 0">
+            <div *ngIf="exams.length > 0">
                 <div class="row mt-2 ml-4 mr-4">
                     <div class="col-md-12 mt-2 ml-4 mr-4">
                         <h3>{{ 'sitnet_student_exams' | translate }}</h3>
@@ -48,7 +48,7 @@ import type { EnrolmentInfo } from '../enrolment.model';
 })
 export class ExamEnrolmentsComponent implements OnInit {
     exam: EnrolmentInfo;
-    exams: EnrolmentInfo[];
+    exams: EnrolmentInfo[] = [];
 
     constructor(private state: StateService, private Enrolment: EnrolmentService, private Session: SessionService) {}
 

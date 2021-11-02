@@ -1,8 +1,10 @@
-<div class="col-md-2 general-info-title">{{ participation.started | date: 'dd.MM.yyyy' }}</div>
+<div class="col-md-2 general-info-title">{{ started | date: 'dd.MM.yyyy' }}</div>
 <div class="col-md-2">
     <span
         [ngStyle]="
-            participation.exam.state === 'ABORTED' || participation.noShow ? { color: '#F35D6C' } : { color: '#3CA34F' }
+            participation.exam.state === 'ABORTED' || participation.reservation?.noShow
+                ? { color: '#F35D6C' }
+                : { color: '#3CA34F' }
         "
     >
         {{ 'sitnet_exam_status_' + participation.exam.state | lowercase | translate }}
@@ -14,6 +16,9 @@
 <div class="col-md-4 general-info-link-bold" *ngIf="!hideAnswerLink()">
     <a class="pointer" (click)="viewAnswers()">{{ 'sitnet_view_answers' | translate }}</a>
 </div>
-<div class="col-md-4 sitnet-info-text-compact" *ngIf="participation.exam.state === 'ABORTED' || participation.noShow">
+<div
+    class="col-md-4 sitnet-info-text-compact"
+    *ngIf="participation.exam.state === 'ABORTED' || participation.reservation?.noShow"
+>
     &nbsp;
 </div>

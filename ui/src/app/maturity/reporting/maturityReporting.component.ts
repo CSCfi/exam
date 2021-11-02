@@ -20,9 +20,12 @@ import * as moment from 'moment';
 import { WindowRef } from '../../utility/window/window.service';
 import { LanguageInspectionService } from '../languageInspections.service';
 
+import type { Attachment } from '../../exam/exam.model';
+
 import type { OnInit } from '@angular/core';
 import type { LanguageInspection } from '../maturity.model';
 import type { Option } from '../../utility/select/dropDownSelect.component';
+
 @Component({
     selector: 'maturity-reporting',
     templateUrl: './maturityReporting.component.html',
@@ -31,8 +34,8 @@ export class MaturityReportingComponent implements OnInit {
     month?: number;
     year?: number;
     processedInspections: LanguageInspection[] = [];
-    months: Option[] = [];
-    years: Option[] = [];
+    months: Option<number, unknown>[] = [];
+    years: Option<number, unknown>[] = [];
 
     constructor(private LanguageInspection: LanguageInspectionService, private Window: WindowRef) {}
 
@@ -45,12 +48,12 @@ export class MaturityReportingComponent implements OnInit {
 
     printReport = () => this.Window.nativeWindow.setTimeout(() => this.Window.nativeWindow.print(), 500);
 
-    monthChanged = (event?: { value: number }) => {
+    monthChanged = (event?: Option<number, unknown>) => {
         this.month = event?.value;
         this.query();
     };
 
-    yearChanged = (event?: { value: number }) => {
+    yearChanged = (event?: Option<number, unknown>) => {
         this.year = event?.value;
         this.query();
     };
@@ -67,7 +70,7 @@ export class MaturityReportingComponent implements OnInit {
         );
     };
 
-    showStatement = (statement: { comment: string }) => {
-        this.LanguageInspection.showStatement(statement);
+    showStatement = (statement: { attachment?: Attachment; comment?: string }) => {
+        this.LanguageInspection.showStatement({ comment: statement.comment || '' });
     };
 }

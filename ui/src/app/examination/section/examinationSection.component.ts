@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { WindowRef } from '../../utility/window/window.service';
 import { ExaminationService } from '../examination.service';
 
-import type { Examination, ExaminationSection } from '../examination.service';
+import type { Examination, ExaminationSection } from '../examination.model';
 
 @Component({
     selector: 'examination-section',

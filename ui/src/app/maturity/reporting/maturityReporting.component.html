@@ -61,10 +61,15 @@
 
                     <tbody>
                         <tr *ngFor="let inspection of processedInspections | orderBy: 'finishedAt'">
-                            <td><course-code [course]="inspection.exam.course"></course-code></td>
+                            <td>
+                                <course-code
+                                    *ngIf="inspection.exam.course"
+                                    [course]="inspection.exam.course"
+                                ></course-code>
+                            </td>
                             <td>{{ inspection.exam.name }}</td>
                             <td>
-                                <span *ngFor="let owner of inspection.exam.parent.examOwners">
+                                <span *ngFor="let owner of inspection.exam.parent?.examOwners">
                                     {{ owner.firstName }} {{ owner.lastName }}
                                 </span>
                             </td>

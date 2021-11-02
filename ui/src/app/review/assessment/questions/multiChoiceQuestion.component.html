@@ -10,7 +10,7 @@
                         class="d-inline-block review-points"
                         *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
                     >
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
+                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                             {{ scoreMultipleChoiceAnswer(true) }}
                         </span>
                         <span *ngIf="hasForcedScore()" class="text text-danger">
@@ -22,7 +22,7 @@
                         class="d-inline-block review-points"
                         *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
                     >
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
+                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                             {{ scoreWeightedMultipleChoiceAnswer(true) }}
                         </span>
                         <span *ngIf="hasForcedScore()" class="text text-danger">
@@ -34,7 +34,7 @@
                         class="d-inline-block review-points"
                         *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'"
                     >
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
+                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                             {{ scoreClaimChoiceAnswer(true) }}
                         </span>
                         <span *ngIf="hasForcedScore()" class="text text-danger">
@@ -95,8 +95,8 @@
                             type="number"
                             lang="en"
                             class="form-control"
-                            [(ngModel)]="scoreValue"
                             fixedPrecision
+                            [(ngModel)]="scoreValue"
                             (blur)="forcedPoints.valid && insertForcedScore()"
                             onclick="this.focus()"
                             [disabled]="!isScorable"

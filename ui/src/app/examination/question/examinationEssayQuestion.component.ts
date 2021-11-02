@@ -18,7 +18,7 @@ import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { FileService } from '../../utility/file/file.service';
 import { ExaminationService } from '../examination.service';
 
-import type { Examination, ExaminationQuestion } from '../examination.service';
+import type { Examination, ExaminationQuestion } from '../examination.model';
 import type { AnsweredQuestion } from '../../utility/attachment/attachment.service';
 import type { EssayAnswer } from '../../exam/exam.model';
 

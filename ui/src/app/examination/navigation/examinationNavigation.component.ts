@@ -15,14 +15,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import type { SimpleChanges } from '@angular/core';
-import type { Examination, ExaminationSection } from '../examination.service';
-
-interface NavigationPage {
-    id: number;
-    text: string;
-    type: string;
-    valid: boolean;
-}
+import type { Examination, ExaminationSection, NavigationPage } from '../examination.model';
 
 @Component({
     selector: 'examination-navigation',
@@ -30,7 +23,7 @@ interface NavigationPage {
 })
 export class ExaminationNavigationComponent {
     @Input() exam: Examination;
-    @Input() activeSection: ExaminationSection;
+    @Input() activeSection?: ExaminationSection;
     @Output() onSelect = new EventEmitter<{ page: Partial<NavigationPage> }>();
 
     pages: Partial<NavigationPage>[];
@@ -63,7 +56,7 @@ export class ExaminationNavigationComponent {
     };
 
     private activePageIndex = () => {
-        const page = this.pages.filter((p) => this.activeSection.id === p.id)[0];
+        const page = this.pages.filter((p) => this.activeSection?.id === p.id)[0];
         return this.pages.indexOf(page);
     };
 

@@ -15,6 +15,7 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
+import type { Reservation } from '../../../reservation/reservation.model';
 import type { Exam } from '../../../exam/exam.model';
 import type { User } from '../../../session/session.service';
 
@@ -22,6 +23,7 @@ interface NoShow {
     exam: Exam;
     displayName: string | number;
     user: User;
+    reservation: Reservation;
 }
 
 @Component({

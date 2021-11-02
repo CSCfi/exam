@@ -165,7 +165,7 @@ export class LibrarySearchComponent implements OnInit {
         return res.concat(courses).concat(exams).concat(tags);
     };
 
-    applyFilter = (tag: Filterable<Tag>) => {
+    applyFilter = (tag: Filterable<unknown>) => {
         tag.filtered = !tag.filtered;
         this.query().subscribe(() => this.applySearchFilter());
     };

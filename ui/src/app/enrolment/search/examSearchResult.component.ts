@@ -17,14 +17,14 @@ import { StateService } from '@uirouter/core';
 
 import { EnrolmentService } from '../enrolment.service';
 
-import type { EnrolmentInfo } from '../enrolment.model';
-
+import type { Exam } from '../../exam/exam.model';
+import type { EnrolmentInfo, CollaborativeExamInfo } from '../enrolment.model';
 @Component({
     selector: 'exam-search-result',
     templateUrl: './examSearchResult.component.html',
 })
 export class ExamSearchResultComponent {
-    @Input() exam: EnrolmentInfo;
+    @Input() exam: EnrolmentInfo | CollaborativeExamInfo;
     @Input() collaborative: boolean;
 
     enrolling: boolean;
@@ -36,7 +36,7 @@ export class ExamSearchResultComponent {
             return;
         }
         this.enrolling = true;
-        this.Enrolment.checkAndEnroll(this.exam, this.collaborative).subscribe(() => (this.enrolling = false));
+        this.Enrolment.checkAndEnroll(this.exam as Exam, this.collaborative).subscribe(() => (this.enrolling = false));
     };
 
     makeReservation = () => {
