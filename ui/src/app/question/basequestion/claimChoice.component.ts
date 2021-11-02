@@ -15,8 +15,9 @@
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
-import { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
+
+import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 
 @Component({
     selector: 'claim-choice-editor',

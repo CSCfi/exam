@@ -20,13 +20,14 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { SessionService } from '../../session/session.service';
-import { Exam } from '../exam.model';
 import { ExamTabService } from './examTabs.service';
 
+import type { Exam } from '../exam.model';
 import type { UpdateProps } from './examTabs.service';
 import type { OnInit, OnDestroy } from '@angular/core';
 import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { User } from '../../session/session.service';
+
 @Component({
     selector: 'exam-tabs',
     templateUrl: './examTabs.component.html',
@@ -98,17 +99,17 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
     navChanged = (event: NgbNavChangeEvent, forceRegularExam = false) => {
         const params = forceRegularExam ? { collaborative: 'false', id: this.exam.id } : undefined;
         if (event.nextId === 1) {
-            this.state.go('examEditor.basic', params);
+            this.state.go('staff.examEditor.basic', params);
         } else if (event.nextId === 2) {
-            this.state.go('examEditor.sections', params);
+            this.state.go('staff.examEditor.sections', params);
         } else if (event.nextId === 3) {
-            this.state.go('examEditor.publication', params);
+            this.state.go('staff.examEditor.publication', params);
         } else if (event.nextId === 4) {
-            this.state.go('examEditor.assessments', params);
+            this.state.go('estaff.xamEditor.assessments', params);
         } else if (event.nextId === 5) {
-            this.state.go('examEditor.questionReview', params);
+            this.state.go('staff.examEditor.questionReview', params);
         } else if (event.nextId === 6) {
-            this.state.go('examEditor.summary', params);
+            this.state.go('staff.examEditor.summary', params);
         }
     };
 

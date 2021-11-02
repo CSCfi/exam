@@ -143,7 +143,7 @@ export class RoomComponent implements OnInit {
         this.roomService.updateRoom(this.room).subscribe(
             () => {
                 toast.info(this.translate.instant('sitnet_room_saved'));
-                this.state.go('rooms');
+                this.state.go('staff.rooms');
             },
             (error) => {
                 toast.error(error.data);

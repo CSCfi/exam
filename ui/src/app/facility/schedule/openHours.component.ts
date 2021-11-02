@@ -16,10 +16,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
 import { DateTimeService } from '../../utility/date/date.service';
-import { RoomService, Week } from '../rooms/room.service';
+import { RoomService } from '../rooms/room.service';
 
 import type { OnInit } from '@angular/core';
-import type { Weekday } from '../rooms/room.service';
+import type { Week, Weekday } from '../rooms/room.service';
 
 @Component({
     templateUrl: './openHours.component.html',

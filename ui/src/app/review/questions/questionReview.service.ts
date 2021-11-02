@@ -15,6 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import * as _ from 'lodash';
+
 import type { Observable } from 'rxjs';
 
 import type { User } from '../../session/session.service';
@@ -51,8 +52,8 @@ export class QuestionReviewService {
     getReviews$ = (examId: number, ids = []): Observable<QuestionReview[]> =>
         this.http.get<QuestionReview[]>(`/app/exam/${examId}/questions`, { params: { ids: ids } });
 
-    getProcessedAnswerCount = (review: QuestionReview, user: User) => {
-        if (!review) {
+    getProcessedAnswerCount = (review?: QuestionReview, user?: User) => {
+        if (!review || !user) {
             return 0;
         }
         return review.answers.filter(

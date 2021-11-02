@@ -18,11 +18,12 @@ import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { noop } from 'rxjs';
 import * as toast from 'toastr';
 
-import { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
-import { Examination } from '../../../examination/examination.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
+
+import type { ExamParticipation } from '../../../exam/exam.model';
+import type { Examination } from '../../../examination/examination.service';
 
 @Component({
     selector: 'r-toolbar',

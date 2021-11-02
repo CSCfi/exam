@@ -251,10 +251,10 @@ export class MaturityService {
             .subscribe(() => {
                 if (reject) {
                     toast.info(this.translate.instant('sitnet_maturity_rejected'));
-                    this.state.go('languageInspections');
+                    this.state.go('staff.languageInspections');
                 } else {
                     toast.info(this.translate.instant('sitnet_review_recorded'));
-                    this.state.go('languageInspections');
+                    this.state.go('staff.languageInspections');
                 }
             });
     };

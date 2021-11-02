@@ -16,7 +16,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../../assessment/assessment.service';
-import { ReviewQuestion } from '../../review.model';
+
+import type { ReviewQuestion } from '../../review.model';
 
 @Component({
     selector: 'essay-answer',

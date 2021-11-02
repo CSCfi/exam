@@ -66,5 +66,8 @@ export class QuestionReviewsComponent {
     selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
 
     startReview = () =>
-        this.state.go('questionAssessment', { id: this.examId, q: this.selectedReviews.map((r) => r.toString()) });
+        this.state.go('staff.questionAssessment', {
+            id: this.examId,
+            q: this.selectedReviews.map((r) => r.toString()),
+        });
 }

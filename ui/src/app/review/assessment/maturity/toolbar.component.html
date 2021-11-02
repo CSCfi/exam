@@ -9,7 +9,7 @@
         <div *ngIf="isReadOnly()" class="review-attachment-button exam-questions-buttons marl15">
             <a
                 class="pointer preview"
-                uiSref="examEditor.assessments"
+                uiSref="staff.examEditor.assessments"
                 [uiParams]="{ id: exam.parent?.id, collaborative: 'false' }"
             >
                 {{ 'sitnet_close' | translate }}</a

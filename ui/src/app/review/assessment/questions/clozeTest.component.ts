@@ -19,9 +19,10 @@ import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
-import { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../assessment.service';
+
+import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-cloze-test',

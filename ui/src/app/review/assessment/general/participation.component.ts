@@ -15,11 +15,11 @@
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 
-import type { ExamParticipation } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { WindowRef } from '../../../utility/window/window.service';
 
+import type { ExamParticipation } from '../../../exam/exam.model';
 @Component({
     selector: 'r-participation',
     templateUrl: './participation.component.html',
@@ -30,7 +30,7 @@ export class ParticipationComponent {
 
     constructor(
         private state: StateService,
-        private Exam: ExamService,
+        private Exam: CommonExamService,
         private Session: SessionService,
         private Window: WindowRef,
     ) {}

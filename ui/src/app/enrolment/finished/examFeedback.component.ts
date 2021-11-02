@@ -17,7 +17,8 @@ import * as moment from 'moment';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { FileService } from '../../utility/file/file.service';
-import { ReviewedExam, Scores } from '../enrolment.model';
+
+import type { ReviewedExam, Scores } from '../enrolment.model';
 
 @Component({
     selector: 'exam-feedback',

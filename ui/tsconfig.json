@@ -1,15 +1,17 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./src",
+    "baseUrl": "",
     "sourceMap": true,
     "declaration": false,
     "downlevelIteration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "module": "CommonJS",
+    "module": "esnext",
     "moduleResolution": "node",
-    "importHelpers": true,
+    "mapRoot": "./",
+    "skipLibCheck": true,
+    "importsNotUsedAsValues": "preserve",
     "alwaysStrict": true,
     "strictNullChecks": true,
     "strictBindCallApply": true,
@@ -19,7 +21,7 @@
     // "useUnknownInCatchVariables": true, <- not working until TS4.4.0
     "target": "es2015",
     "lib": [
-      "es2019",
+      "es6",
       "dom"
     ],
   },

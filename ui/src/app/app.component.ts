@@ -75,17 +75,14 @@ export class AppComponent {
     }
 
     ngOnInit() {
-        const storedUser: string = this.Window.nativeWindow.sessionStorage['EXAM_USER'];
-        if (storedUser) {
-            const user = JSON.parse(storedUser);
+        const user = this.Session.getUser();
+        if (user) {
             if (!user.loginRole) {
                 // This happens if user refreshes the tab before having selected a login role,
                 // lets just throw him out.
                 this.Session.logout();
                 return;
             }
-            this.Session.setEnv();
-            this.Session.setUser(user);
             this.Session.translate(user.lang);
             this.Session.restartSessionCheck();
             this.user = user;

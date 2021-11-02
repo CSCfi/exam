@@ -2,10 +2,9 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { addWeeks } from 'date-fns';
 
-import { ExamRoom } from '../../reservation/reservation.model';
 import { CalendarService } from '../calendar.service';
 
-import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
+import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import type { OpeningHours } from '../calendar.service';
 
 @Component({

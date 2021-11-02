@@ -18,12 +18,12 @@ import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
-import { Exam } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { FileService } from '../../../utility/file/file.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { ReviewListService } from '../reviewList.service';
 
+import type { Exam } from '../../../exam/exam.model';
 import type { SimpleChanges } from '@angular/core';
 import type { Review } from '../../review.model';
 import type { ReviewListView } from '../reviewList.service';
@@ -44,7 +44,7 @@ export class GradedLoggedReviewsComponent {
         private translate: TranslateService,
         private ReviewList: ReviewListService,
         private Files: FileService,
-        private Exam: ExamService,
+        private CommonExam: CommonExamService,
         private Session: SessionService,
     ) {}
 
@@ -126,7 +126,7 @@ export class GradedLoggedReviewsComponent {
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.Exam.getExamGradeDisplayName(grade);
+        return this.CommonExam.getExamGradeDisplayName(grade);
     };
 
     private handleGradedReviews = (r: Review) => {
@@ -134,6 +134,6 @@ export class GradedLoggedReviewsComponent {
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
-        r.displayedCredit = this.Exam.getExamDisplayCredit(r.examParticipation.exam);
+        r.displayedCredit = this.CommonExam.getExamDisplayCredit(r.examParticipation.exam);
     };
 }

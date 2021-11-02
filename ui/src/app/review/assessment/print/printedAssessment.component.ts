@@ -14,13 +14,13 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as moment from 'moment';
 
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
 import { SessionService } from '../../../session/session.service';
-import { LanguageService } from '../../../utility/language/language.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../assessment.service';
 
@@ -47,14 +47,14 @@ export class PrintedAssessmentComponent {
     reservation: Reservation;
 
     constructor(
-        private state: StateService,
+        private state: UIRouterGlobals,
         private http: HttpClient,
         private Window: WindowRef,
         private Question: QuestionService,
         private Exam: ExamService,
+        private CommonExam: CommonExamService,
         private Assessment: AssessmentService,
         private Session: SessionService,
-        private Language: LanguageService,
     ) {}
 
     ngAfterViewInit() {
@@ -136,11 +136,11 @@ export class PrintedAssessmentComponent {
         this.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`;
 
     translateGrade = (participation: ExamParticipation) =>
-        !participation.exam.grade ? 'N/A' : this.Exam.getExamGradeDisplayName(participation.exam.grade.name);
+        !participation.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(participation.exam.grade.name);
 
-    getGrade = () => (!this.exam.grade ? 'N/A' : this.Exam.getExamGradeDisplayName(this.exam.grade.name));
+    getGrade = () => (!this.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(this.exam.grade.name));
 
-    getCreditType = () => (!this.exam ? 'N/A' : this.Exam.getExamTypeDisplayName(this.exam.examType.type));
+    getCreditType = () => (!this.exam ? 'N/A' : this.CommonExam.getExamTypeDisplayName(this.exam.examType.type));
 
     getLanguage = () => {
         if (!this.exam) return 'N/A';

@@ -18,16 +18,16 @@ import { ControlContainer, NgForm } from '@angular/forms';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 
-import { ExamSectionQuestion } from '../../exam/exam.model';
 import { SessionService } from '../../session/session.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { QuestionService } from '../question.service';
 
 import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { Observable } from 'rxjs';
-import type { ReverseQuestion, Tag } from '../../exam/exam.model';
+import type { ExamSectionQuestion, ReverseQuestion, Tag } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
 import type { QuestionDraft } from '../question.service';
+
 @Component({
     selector: 'question-body',
     templateUrl: './questionBody.component.html',

@@ -1,4 +1,5 @@
 import { isRealGrade } from '../../../exam/exam.model';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 
 import type { HttpClient } from '@angular/common/http';
 
@@ -6,7 +7,6 @@ import type { Exam, ExamLanguage, ExamType, GradeScale, NoGrade, SelectableGrade
 import type { ExamService } from '../../../exam/exam.service';
 import type { LanguageService } from '../../../utility/language/language.service';
 import type { AssessmentService } from '../assessment.service';
-
 export abstract class GradingBaseComponent {
     selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null };
     grades: SelectableGrade[];
@@ -17,6 +17,7 @@ export abstract class GradingBaseComponent {
         protected http: HttpClient,
         protected Assessment: AssessmentService,
         protected Exam: ExamService,
+        protected CommonExam: CommonExamService,
         protected Language: LanguageService,
     ) {
         this.selections = {
@@ -50,7 +51,7 @@ export abstract class GradingBaseComponent {
         this.grades = scale.grades.map((grade) => {
             return {
                 ...grade,
-                name: this.Exam.getExamGradeDisplayName(grade.name),
+                name: this.CommonExam.getExamGradeDisplayName(grade.name),
                 type: grade.name,
             };
         });
@@ -61,7 +62,7 @@ export abstract class GradingBaseComponent {
 
         // The "no grade" option
         const noGrade: NoGrade = {
-            name: this.Exam.getExamGradeDisplayName('NONE'),
+            name: this.CommonExam.getExamGradeDisplayName('NONE'),
             type: 'NONE',
             marksRejection: false,
         };
@@ -84,7 +85,7 @@ export abstract class GradingBaseComponent {
                 }
             });
         });
-        if (exam.course && !this.Exam.hasCustomCredit(exam)) {
+        if (exam.course && !this.CommonExam.hasCustomCredit(exam)) {
             exam.customCredit = exam.course.credits;
         }
     };

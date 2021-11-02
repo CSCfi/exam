@@ -38,6 +38,7 @@ import { HistoryBackComponent } from './history/historyBack.component';
 import { SanitizedHtmlPipe } from './html/sanitizedHtml.pipe';
 import { LanguageService } from './language/language.service';
 import { MathJaxDirective } from './math/mathJax.directive';
+import { CommonExamService } from './miscellaneous/commonExam.service';
 import { CourseCodeComponent } from './miscellaneous/courseCode.component';
 import { PageFillPipe } from './paginator/pageFill.pipe';
 import { PaginatorComponent } from './paginator/paginator.component';
@@ -115,6 +116,7 @@ import { WindowRef } from './window/window.service';
         DateTimeService,
         FileService,
         LanguageService,
+        CommonExamService,
         UserService,
         WindowRef,
         QuestionControlService,

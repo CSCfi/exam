@@ -14,7 +14,9 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { ExaminationQuestion, ExaminationService } from '../examination.service';
+import { ExaminationService } from '../examination.service';
+
+import type { ExaminationQuestion } from '../examination.service';
 
 @Component({
     selector: 'examination-multi-choice-question',

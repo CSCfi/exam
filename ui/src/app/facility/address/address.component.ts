@@ -17,7 +17,9 @@ import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Address, RoomService } from '../rooms/room.service';
+import { RoomService } from '../rooms/room.service';
+
+import type { Address } from '../rooms/room.service';
 
 @Component({
     templateUrl: './address.component.html',

@@ -3,7 +3,8 @@ import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment';
 
 import { DateTimeService } from '../../utility/date/date.service';
-import { ExamInfo } from '../calendar.component';
+
+import type { ExamInfo } from '../calendar.component';
 
 @Component({
     selector: 'calendar-exam-info',

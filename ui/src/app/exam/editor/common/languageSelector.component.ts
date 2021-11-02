@@ -18,10 +18,10 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { LanguageService } from '../../../utility/language/language.service';
-import { Exam } from '../../exam.model';
 
 import type { OnInit } from '@angular/core';
-import type { ExamLanguage } from '../../exam.model';
+import type { Exam, ExamLanguage } from '../../exam.model';
+
 @Component({
     selector: 'language-selector',
     templateUrl: './languageSelector.component.html',

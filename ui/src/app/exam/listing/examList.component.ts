@@ -94,7 +94,7 @@ export class ExamListingComponent {
             .subscribe();
     }
 
-    newExam = () => this.state.go('newExam');
+    newExam = () => this.state.go('staff.newExam');
 
     search = (event: { target: { value: string } }) => this.subject.next(event.target.value);
 
@@ -110,7 +110,7 @@ export class ExamListingComponent {
             .subscribe(
                 (resp) => {
                     toast.success(this.translate.instant('sitnet_exam_copied'));
-                    this.state.go('examEditor.basic', { id: resp.id });
+                    this.state.go('staff.examEditor.basic', { id: resp.id });
                 },
                 (err) => toast.error(err),
             );

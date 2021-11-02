@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import * as toast from 'toastr';
 
-import { Reservation } from '../reservation.model';
+import type { Reservation } from '../reservation.model';
 
 @Component({
     selector: 'remove-reservation-dialog',

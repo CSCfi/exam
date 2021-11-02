@@ -17,14 +17,15 @@ import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ExamTabService } from '../../exam/editor/examTabs.service';
-import { Exam } from '../../exam/exam.model';
 import { AbortedExamsComponent } from './dialogs/abortedExams.component';
 import { NoShowsComponent } from './dialogs/noShows.component';
 import { ReviewListService } from './reviewList.service';
 
+import type { Exam } from '../../exam/exam.model';
 import type { ExamEnrolment } from '../../enrolment/enrolment.model';
 import type { ExamParticipation } from '../../exam/exam.model';
 import type { Review } from '../review.model';
+
 @Component({
     selector: 'review-list',
     templateUrl: './reviewList.component.html',

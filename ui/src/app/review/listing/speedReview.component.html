@@ -80,7 +80,7 @@
                                 <br />
                                 <a
                                     class="pointer"
-                                    uiSref="assessment"
+                                    uiSref="staff.assessment"
                                     [uiParams]="{ id: review.examParticpation?.exam.id }"
                                 >
                                     {{ review.examParticipation.user?.email }}
@@ -216,7 +216,7 @@
 
             <div class="p-2">
                 <div class="review-attachment-button make-inline">
-                    <a class="pointer preview" uiSref="examEditor.assessments" [uiParams]="{ id: examId }">
+                    <a class="pointer preview" uiSref="staff.examEditor.assessments" [uiParams]="{ id: examId }">
                         {{ 'sitnet_button_cancel' | translate }}
                     </a>
                 </div>

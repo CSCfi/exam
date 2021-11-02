@@ -17,10 +17,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { CalendarDateFormatter, CalendarView, DAYS_OF_WEEK } from 'angular-calendar';
 import { addWeeks, endOfWeek, startOfWeek, subWeeks } from 'date-fns';
 
-import { ExamRoom } from '../reservation/reservation.model';
 import { DateFormatter } from './bookingCalendarDateFormatter';
 import { CalendarService } from './calendar.service';
 
+import type { ExamRoom } from '../reservation/reservation.model';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import type { CalendarEvent } from 'angular-calendar';
 export type SlotMeta = { availableMachines: number };

@@ -19,7 +19,7 @@ module.exports = {
         node: true,
     },
     rules: {
-        '@typescript-eslint/consistent-type-imports': 1,
+        //'@typescript-eslint/consistent-type-imports': 1,
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         'no-redeclare': 'error',
         'no-eval': 'error',

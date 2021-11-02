@@ -16,14 +16,14 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { StateService } from '@uirouter/core';
 
-import { SessionService } from '../../session/session.service';
+import { SessionService } from '../../../session/session.service';
 import { ExamSearchPipe } from './examSearch.pipe';
 import { TeacherDashboardService } from './teacherDashboard.service';
 
 import type { OnInit } from '@angular/core';
 import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { ExamExecutionType } from '../../exam/exam.model';
-import type { User } from '../../session/session.service';
+import type { ExamExecutionType } from '../../../exam/exam.model';
+import type { User } from '../../../session/session.service';
 import type { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teacherDashboard.service';
 interface ExtraColumn {
     text: string;
@@ -130,7 +130,7 @@ export class TeacherDashboardComponent implements OnInit {
 
     changeTab = (event: NgbNavChangeEvent) => {
         this.activeTab = event.nextId;
-        this.state.go('dashboard', { tab: event.nextId });
+        this.state.go('staff.teacher', { tab: event.nextId });
     };
 
     search = (text: string) => {

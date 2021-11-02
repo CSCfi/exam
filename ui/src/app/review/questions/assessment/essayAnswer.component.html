@@ -9,7 +9,7 @@
     </div>
     <div class="main-row pt-0 px-3 w-100 d-flex justify-content-between essay-answer-item">
         <div>
-            <a uiSref="assessment" [uiParams]="{ id: answer.examSection.exam.id }" target="_blank">
+            <a uiSref="staff.assessment" [uiParams]="{ id: answer.examSection.exam.id }" target="_blank">
                 <strong>
                     {{ name }}
                     <span *ngIf="answer.examSection.exam.creator?.userIdentifier">

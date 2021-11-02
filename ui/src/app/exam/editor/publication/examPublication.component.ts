@@ -26,7 +26,6 @@ import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../../utility/window/window.service';
-import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { ExaminationEventDialogComponent } from '../events/examinationEventDialog.component';
 import { ExamTabService } from '../examTabs.service';
@@ -37,7 +36,8 @@ import { PublicationRevocationDialogComponent } from './publicationRevocationDia
 import type { OnInit } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { User } from '../../../session/session.service';
-import type { AutoEvaluationConfig, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
+import type { Exam, AutoEvaluationConfig, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
+
 @Component({
     selector: 'exam-publication',
     templateUrl: './examPublication.component.html',
@@ -169,11 +169,11 @@ export class ExamPublicationComponent implements OnInit {
 
     nextTab = () => {
         this.Tabs.notifyTabChange(4);
-        this.state.go('examEditor.assessments');
+        this.state.go('staff.examEditor.assessments');
     };
     previousTab = () => {
         this.Tabs.notifyTabChange(2);
-        this.state.go('examEditor.sections');
+        this.state.go('staff.examEditor.sections');
     };
 
     saveAndPublishExam = () => {
@@ -205,7 +205,7 @@ export class ExamPublicationComponent implements OnInit {
                             ? 'sitnet_exam_saved_and_pre_published'
                             : 'sitnet_exam_saved_and_published';
                         toast.success(this.translate.instant(text));
-                        this.state.go('dashboard');
+                        this.state.go(this.user.isAdmin ? 'staff.admin' : 'staff.teacher');
                     },
                     (err) => toast.error(err.data),
                 );

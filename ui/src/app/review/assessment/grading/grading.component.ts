@@ -18,19 +18,19 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
-import { Examination } from '../../../examination/examination.service';
-import { QuestionAmounts } from '../../../question/question.service';
-import { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { LanguageService } from '../../../utility/language/language.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 import { GradingBaseComponent } from '../common/gradingBase.component';
 
+import type { QuestionAmounts } from '../../../question/question.service';
+import type { Examination } from '../../../examination/examination.service';
+import type { User } from '../../../session/session.service';
 import type { OnInit } from '@angular/core';
-import type { Exam, ExamLanguage, ExamType, SelectableGrade } from '../../../exam/exam.model';
+import type { Exam, ExamLanguage, ExamParticipation, ExamType, SelectableGrade } from '../../../exam/exam.model';
 @Component({
     selector: 'r-grading',
     templateUrl: './grading.component.html',
@@ -55,10 +55,11 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
         Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         Exam: ExamService,
+        CommonExam: CommonExamService,
         private Attachment: AttachmentService,
         Language: LanguageService,
     ) {
-        super(http, Assessment, Exam, Language);
+        super(http, Assessment, Exam, CommonExam, Language);
     }
 
     getExam = () => this.exam;
@@ -70,7 +71,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
 
         this.translate.onLangChange.subscribe(() => {
             this.initCreditTypes();
-            this.grades.forEach((g) => (g.name = this.Exam.getExamGradeDisplayName(g.type)));
+            this.grades.forEach((g) => (g.name = this.CommonExam.getExamGradeDisplayName(g.type)));
         });
     }
 

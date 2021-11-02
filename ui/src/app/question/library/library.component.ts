@@ -41,7 +41,7 @@ export class LibraryComponent {
 
     questionCopied(copy: LibraryQuestion) {
         toast.info(this.translate.instant('sitnet_question_copied'));
-        this.state.go('question', { id: copy.id });
+        this.state.go('staff.question', { id: copy.id });
     }
 
     ownerSelected(event: { user: User; selections: number[] }) {

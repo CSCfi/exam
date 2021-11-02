@@ -16,9 +16,9 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TransitionService } from '@uirouter/core';
 
-import { ExamSectionQuestion, Question } from '../../exam/exam.model';
 import { WindowRef } from '../../utility/window/window.service';
 
+import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
 import type { QuestionDraft } from '../question.service';
 
 @Component({

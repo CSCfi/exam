@@ -21,14 +21,15 @@ import { eachDayOfInterval, min, startOfDay } from 'date-fns';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 
-import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
 import { FileService } from '../../../utility/file/file.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { AbortedExamsComponent } from '../dialogs/abortedExams.component';
 import { NoShowsComponent } from '../dialogs/noShows.component';
 import { ReviewListService } from '../reviewList.service';
 
+import type { Exam } from '../../../exam/exam.model';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
 import type { ExamParticipation, Question } from '../../../exam/exam.model';
@@ -71,6 +72,7 @@ export class ExamSummaryComponent {
         private translate: TranslateService,
         private modal: NgbModal,
         private Exam: ExamService,
+        private CommonExam: CommonExamService,
         private Question: QuestionService,
         private ReviewList: ReviewListService,
         private Files: FileService,
@@ -133,7 +135,7 @@ export class ExamSummaryComponent {
             .map((r) => (r.exam.grade ? r.exam.grade.name : this.translate.instant('sitnet_no_grading')));
         this.gradeDistribution = _.countBy(grades);
         this.gradeDistributionData = Object.values(this.gradeDistribution);
-        this.gradeDistributionLabels = Object.keys(this.gradeDistribution).map(this.Exam.getExamGradeDisplayName);
+        this.gradeDistributionLabels = Object.keys(this.gradeDistribution).map(this.CommonExam.getExamGradeDisplayName);
     };
 
     renderGradeDistributionChart = () => {

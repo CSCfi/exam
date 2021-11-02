@@ -17,11 +17,11 @@ import { Injectable } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ExamService } from '../../exam/exam.service';
-import { ReservationService } from '../../reservation/reservation.service';
+import { ExamService } from '../../../exam/exam.service';
+import { ReservationService } from '../../../reservation/reservation.service';
 
 import type { Observable } from 'rxjs';
-import type { Exam, ExamExecutionType } from '../../exam/exam.model';
+import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
 export interface DraftExam extends Exam {
     ownerAggregate: string;
 }

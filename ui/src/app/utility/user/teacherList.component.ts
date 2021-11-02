@@ -14,7 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { Exam } from '../../exam/exam.model';
+import type { Exam } from '../../exam/exam.model';
 
 import type { OnInit } from '@angular/core';
 @Component({

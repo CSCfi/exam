@@ -18,11 +18,11 @@ import { StateService, TransitionService, UIRouterGlobals } from '@uirouter/core
 import * as _ from 'lodash';
 import * as toast from 'toastr';
 
-import { ExamSectionQuestion, Question } from '../../exam/exam.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
 import { QuestionService } from '../question.service';
 
+import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
 import type { OnInit } from '@angular/core';
 import type { User } from '../../session/session.service';
 import type { QuestionDraft } from '../question.service';

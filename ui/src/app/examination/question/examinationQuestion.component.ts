@@ -15,9 +15,11 @@
 import { ChangeDetectorRef, Component, Input } from '@angular/core';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { Examination, ExaminationQuestion, ExaminationService } from '../examination.service';
+import { ExaminationService } from '../examination.service';
 
+import type { Examination, ExaminationQuestion } from '../examination.service';
 import type { AfterViewInit } from '@angular/core';
+
 @Component({
     selector: 'examination-question',
     templateUrl: './examinationQuestion.component.html',

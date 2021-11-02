@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-import { Course } from '../../exam/exam.model';
+import type { Course } from '../../exam/exam.model';
 
 @Component({
     selector: 'course-code',

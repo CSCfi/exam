@@ -15,8 +15,9 @@
 import { Component, Input } from '@angular/core';
 import * as _ from 'lodash';
 
-import { ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
+
+import type { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'printed-multi-choice',

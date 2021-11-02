@@ -17,10 +17,8 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Exam } from '../../exam.model';
-
 import type { OnInit } from '@angular/core';
-import type { Software } from '../../exam.model';
+import type { Exam, Software } from '../../exam.model';
 
 @Component({
     selector: 'software-selector',

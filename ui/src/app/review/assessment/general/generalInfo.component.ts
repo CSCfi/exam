@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import * as moment from 'moment';
 
-import { Exam } from '../../../exam/exam.model';
+import type { Exam } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';

@@ -23,9 +23,11 @@ import { SessionService } from '../../session/session.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
-import { Examination, ExaminationSection, ExaminationService } from '../examination.service';
+import { ExaminationService } from '../examination.service';
 
+import type { Examination, ExaminationSection } from '../examination.service';
 import type { ExamRoom } from '../../reservation/reservation.model';
+
 @Component({
     selector: 'examination-toolbar',
     templateUrl: './examinationToolbar.component.html',
@@ -145,13 +147,13 @@ export class ExaminationToolbarComponent {
         const tab = parseInt(this.routing.params.tab || 1);
         const collab = this.isCollaborative ? 'collaborative' : 'false';
         if (tab == 1) {
-            this.state.go('examEditor.basic', { id: this.exam.id, collaborative: collab });
+            this.state.go('staff.examEditor.basic', { id: this.exam.id, collaborative: collab });
         } else if (tab == 2) {
-            this.state.go('examEditor.sections', { id: this.exam.id, collaborative: collab });
+            this.state.go('staff.examEditor.sections', { id: this.exam.id, collaborative: collab });
         } else if (tab == 3) {
-            this.state.go('examEditor.publication', { id: this.exam.id, collaborative: collab });
+            this.state.go('staff.examEditor.publication', { id: this.exam.id, collaborative: collab });
         } else if (tab == 4) {
-            this.state.go('examEditor.assessments', { id: this.exam.id, collaborative: collab });
+            this.state.go('staff.examEditor.assessments', { id: this.exam.id, collaborative: collab });
         }
     };
 }

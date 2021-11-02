@@ -12,17 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { HttpParams } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import type { Observable } from 'rxjs';
 import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { InspectionStatementDialogComponent } from './dialogs/inspectionStatementDialog.component';
+
+import type { HttpParams } from '@angular/common/http';
+import type { Observable } from 'rxjs';
 import type { LanguageInspection } from './maturity.model';
 
 export interface QueryParams {
@@ -59,7 +60,7 @@ export class LanguageInspectionService {
         );
         dialog.result.then(() => {
             this.http.put(`/app/inspection/${inspection.id}`, {}).subscribe(
-                () => this.state.go('assessment', { id: inspection.exam.id }),
+                () => this.state.go('staff.assessment', { id: inspection.exam.id }),
                 (err) => toast.error(err.data),
             );
         });

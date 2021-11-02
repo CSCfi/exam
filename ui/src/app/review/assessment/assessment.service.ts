@@ -23,16 +23,15 @@ import { catchError, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { isRealGrade } from '../../exam/exam.model';
-import { ExamService } from '../../exam/exam.service';
 import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
 import { WindowRef } from '../../utility/window/window.service';
 
 import type { Observable } from 'rxjs';
 import type { Exam, ExamSectionQuestion, Feedback, ExamLanguage } from '../../exam/exam.model';
 import type { ReviewedExam } from '../../enrolment/enrolment.model';
 import type { StateDeclaration } from '@uirouter/core';
-
 type Payload = {
     id: number;
     state: string;
@@ -55,7 +54,7 @@ export class AssessmentService {
         private windowRef: WindowRef,
         private Confirmation: ConfirmationDialogService,
         private Session: SessionService,
-        private Exam: ExamService,
+        private Exam: CommonExamService,
     ) {}
 
     saveFeedback$ = (exam: Exam, silent = false): Observable<Feedback> => {
@@ -146,7 +145,7 @@ export class AssessmentService {
 
     getExitStateById = (id: number, collaborative: boolean): StateDeclaration => {
         return {
-            name: 'examEditor.assessments',
+            name: 'staff.examEditor.assessments',
             params: { collaborative: collaborative ? 'collaborative' : 'regular', id: id },
         };
     };
@@ -154,7 +153,7 @@ export class AssessmentService {
     getExitState = (exam: Exam, collaborative = false): StateDeclaration => {
         const user = this.Session.getUser();
         if (user && user.isAdmin) {
-            return { name: 'app' };
+            return { name: 'staff.admin' };
         }
         const id = exam.parent ? exam.parent.id : this.routing.params.id;
         return this.getExitStateById(id, collaborative);
@@ -188,21 +187,6 @@ export class AssessmentService {
     };
 
     isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
-
-    setCommentRead = (exam: Exam | ReviewedExam) => {
-        if (!this.isCommentRead(exam)) {
-            const examFeedback = {
-                feedbackStatus: true,
-            };
-            this.http
-                .put<void>(`/app/review/${exam.id}/comment/${exam.examFeedback?.id}/feedbackstatus`, examFeedback)
-                .subscribe(() => {
-                    if (exam.examFeedback) {
-                        exam.examFeedback.feedbackStatus = true;
-                    }
-                });
-        }
-    };
 
     saveEssayScore$ = (question: ExamSectionQuestion): Observable<void> => {
         if (!question.essayAnswer || isNaN(question.essayAnswer?.evaluatedScore as number)) {

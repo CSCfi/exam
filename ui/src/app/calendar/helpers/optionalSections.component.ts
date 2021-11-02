@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { ExamInfo } from '../calendar.component';
+import type { ExamInfo } from '../calendar.component';
 
 @Component({
     selector: 'calendar-optional-sections',
