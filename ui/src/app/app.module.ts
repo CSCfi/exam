@@ -26,25 +26,18 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
-import { AdministrativeModule } from './administrative/administrative.module';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CalendarModule } from './calendar/calendar.module';
-import { DashboardModule } from './dashboard/dashboard.module';
+import { StudentDashboardModule } from './dashboard/student/studentDashboard.module';
 import { EnrolmentModule } from './enrolment/enrolment.module';
-import { ExamModule } from './exam/exam.module';
 import { ExaminationModule } from './examination/examination.module';
-import { FacilityModule } from './facility/facility.module';
 import { AuthInterceptor } from './interceptors/httpAuthInterceptor';
 import { ErrorInterceptor } from './interceptors/httpErrorInterceptor';
 import { ExaminationInterceptor } from './interceptors/httpExaminationInterceptor';
-import { MaturityModule } from './maturity/maturity.module';
 import { NavigationModule } from './navigation/navigation.module';
-import { QuestionModule } from './question/question.module';
-import { ReviewModule } from './review/review.module';
 import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
-import { SoftwareModule } from './software/software.module';
 import { UtilityModule } from './utility/utility.module';
 
 // AoT requires an exported function for factories
@@ -66,22 +59,15 @@ export function HttpLoaderFactory(http: HttpClient) {
                 deps: [HttpClient],
             },
         }),
-        AppRoutingModule,
         NgbModule,
+        AppRoutingModule,
+        UtilityModule,
         SessionModule,
         NavigationModule,
-        DashboardModule,
-        ExamModule,
+        StudentDashboardModule,
         ExaminationModule,
         EnrolmentModule,
-        QuestionModule,
-        UtilityModule,
-        ReviewModule,
         CalendarModule,
-        MaturityModule,
-        AdministrativeModule,
-        SoftwareModule,
-        FacilityModule,
     ],
     declarations: [AppComponent],
     providers: [

@@ -79,7 +79,7 @@
                 <tbody>
                     <tr *ngFor="let exam of items | orderBy: sorting.predicate:sorting.reverse">
                         <td *ngIf="exam.name" class="table-column-examname">
-                            <a *ngIf="isOwner(exam)" uiSref="examEditor.basic" [uiParams]="{ id: exam.id }">{{
+                            <a *ngIf="isOwner(exam)" uiSref="staff.examEditor.basic" [uiParams]="{ id: exam.id }">{{
                                 exam.name
                             }}</a>
                             <span *ngIf="!isOwner(exam)">{{ exam.name }}</span>
@@ -88,7 +88,7 @@
                             <a
                                 class="text-danger"
                                 *ngIf="isOwner(exam)"
-                                uiSref="examEditor.basic"
+                                uiSref="staff.examEditor.basic"
                                 [uiParams]="{ id: exam.id }"
                                 >{{ 'sitnet_no_name' | translate }}</a
                             >

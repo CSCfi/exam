@@ -14,7 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { ExamSectionQuestion } from '../../../exam/exam.model';
+import type { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-weighted-multi-choice-answer',

@@ -47,7 +47,7 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
         this.room.getDraft$().subscribe(
             (room) => {
                 toast.info(this.translate.instant('sitnet_room_draft_created'));
-                this.state.go('room', { id: room.id });
+                this.state.go('staff.room', { id: room.id });
             },
             (error) => {
                 toast.error(error.data);
@@ -55,7 +55,7 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
         );
     };
 
-    editMultipleRooms = () => this.state.go('multiRoom');
+    editMultipleRooms = () => this.state.go('staff.multiRoom');
 
     goBack = (event: Event) => {
         event.preventDefault();

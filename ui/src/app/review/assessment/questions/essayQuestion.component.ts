@@ -18,10 +18,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../assessment.service';
 
+import type { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import type { ExaminationQuestion } from '../../../examination/examination.service';
 import type { ReviewQuestion } from '../../review.model';
 

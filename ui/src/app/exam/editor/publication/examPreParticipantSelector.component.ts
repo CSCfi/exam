@@ -18,9 +18,10 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { EnrolmentService } from '../../../enrolment/enrolment.service';
-import { Exam } from '../../exam.model';
 
+import type { Exam } from '../../exam.model';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+
 @Component({
     selector: 'exam-pre-participant-selector',
     templateUrl: './examPreParticipantSelector.component.html',

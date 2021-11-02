@@ -112,15 +112,15 @@ export class PrintoutComponent {
     exitPreview = () => {
         const tab = parseInt(this.routing.params.tab);
         if (tab == 1) {
-            this.state.go('examEditor.basic', { id: this.exam.id, collaborative: false });
+            this.state.go('staff.examEditor.basic', { id: this.exam.id, collaborative: false });
         } else if (tab == 2) {
-            this.state.go('examEditor.sections', { id: this.exam.id, collaborative: false });
+            this.state.go('staff.examEditor.sections', { id: this.exam.id, collaborative: false });
         } else if (tab == 3) {
-            this.state.go('examEditor.publication', { id: this.exam.id, collaborative: false });
+            this.state.go('staff.examEditor.publication', { id: this.exam.id, collaborative: false });
         } else if (tab == 4) {
-            this.state.go('examEditor.assessments', { id: this.exam.id, collaborative: false });
+            this.state.go('staff.examEditor.assessments', { id: this.exam.id, collaborative: false });
         } else {
-            this.state.go('printouts');
+            this.state.go('staff.printouts');
         }
     };
 

@@ -62,7 +62,7 @@ export class RoomListComponent implements OnInit {
                 });
             }
         } else {
-            this.state.go('dashboard');
+            this.state.go('staff.admin');
         }
     }
 
@@ -79,7 +79,7 @@ export class RoomListComponent implements OnInit {
         this.room.getDraft$().subscribe(
             (room) => {
                 toast.info(this.translate.instant('sitnet_room_draft_created'));
-                this.state.go('room', { id: room.id });
+                this.state.go('staff.room', { id: room.id });
             },
             function (error) {
                 toast.error(error.data);

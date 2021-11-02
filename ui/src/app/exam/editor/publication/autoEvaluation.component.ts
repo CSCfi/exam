@@ -1,10 +1,3 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import * as _ from 'lodash';
-
-import { Exam } from '../../exam.model';
-import { ExamService } from '../../exam.service';
-
 /*
  * Copyright (c) 2017 Exam Consortium
  *
@@ -19,8 +12,15 @@ import { ExamService } from '../../exam.service';
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
+import * as _ from 'lodash';
+
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
+import { ExamService } from '../../exam.service';
+
 import type { OnInit, SimpleChanges } from '@angular/core';
-import type { AutoEvaluationConfig, Grade, GradeEvaluation } from '../../exam.model';
+import type { Exam, AutoEvaluationConfig, Grade, GradeEvaluation } from '../../exam.model';
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
 
 type AutoEvaluationConfigurationTemplate = {
@@ -43,7 +43,7 @@ export class AutoEvaluationComponent implements OnInit {
     config: AutoEvaluationConfig;
     autoevaluationDisplay: { visible: boolean };
 
-    constructor(private Exam: ExamService) {}
+    constructor(private Exam: ExamService, private CommonExam: CommonExamService) {}
 
     ngOnInit() {
         this.autoevaluation = {
@@ -108,7 +108,7 @@ export class AutoEvaluationComponent implements OnInit {
 
     calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
 
-    getGradeDisplayName = (grade: Grade) => this.Exam.getExamGradeDisplayName(grade.name);
+    getGradeDisplayName = (grade: Grade) => this.CommonExam.getExamGradeDisplayName(grade.name);
 
     calculatePointLimit = (evaluation: GradeEvaluation) => {
         const max = this.calculateExamMaxScore();

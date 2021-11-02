@@ -16,11 +16,10 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { ExamRoom } from '../../reservation/reservation.model';
 import { AccessibilityService } from './accessibility.service';
 
 import type { OnInit } from '@angular/core';
-import type { Accessibility } from '../../reservation/reservation.model';
+import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './accessibilitySelector.component.html',

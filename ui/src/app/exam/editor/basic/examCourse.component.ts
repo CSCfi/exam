@@ -17,10 +17,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import type { Course } from '../../exam.model';
-import { Exam } from '../../exam.model';
-import { ExamService } from '../../exam.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 
+import type { Course, Exam } from '../../exam.model';
 @Component({
     selector: 'exam-course',
     templateUrl: './examCourse.component.html',
@@ -29,7 +28,7 @@ export class ExamCourseComponent {
     @Input() exam: Exam;
     @Output() onUpdate = new EventEmitter<Course>();
 
-    constructor(private http: HttpClient, private translate: TranslateService, private Exam: ExamService) {}
+    constructor(private http: HttpClient, private translate: TranslateService, private Exam: CommonExamService) {}
 
     displayGradeScale = () =>
         this.exam.course && this.exam.course.gradeScale

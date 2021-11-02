@@ -14,7 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { ExamSection } from '../../../exam/exam.model';
+import type { ExamSection } from '../../../exam/exam.model';
 
 @Component({
     selector: 'printed-section',

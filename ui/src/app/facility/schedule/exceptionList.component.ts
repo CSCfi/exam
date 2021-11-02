@@ -15,10 +15,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import * as moment from 'moment';
 
-import { ExamRoom } from '../../reservation/reservation.model';
 import { RoomService } from '../rooms/room.service';
 
-import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
+import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './exceptionList.component.html',

@@ -14,9 +14,10 @@
  */
 import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { Exam, ExamParticipation, ExamSection } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
+
+import type { Exam, ExamParticipation, ExamSection } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-exam-section',

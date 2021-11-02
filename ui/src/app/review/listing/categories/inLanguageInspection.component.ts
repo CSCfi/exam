@@ -14,11 +14,11 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { Exam } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { ReviewListService } from '../reviewList.service';
 
+import type { Exam } from '../../../exam/exam.model';
 import type { Review } from '../../review.model';
 import type { ReviewListView } from '../reviewList.service';
 @Component({
@@ -30,7 +30,11 @@ export class InLanguageInspectionReviewsComponent {
     @Input() exam: Exam;
     view: ReviewListView;
 
-    constructor(private ReviewList: ReviewListService, private Session: SessionService, private Exam: ExamService) {}
+    constructor(
+        private ReviewList: ReviewListService,
+        private Session: SessionService,
+        private CommonExam: CommonExamService,
+    ) {}
 
     ngOnInit() {
         this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'deadline');
@@ -53,7 +57,7 @@ export class InLanguageInspectionReviewsComponent {
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.Exam.getExamGradeDisplayName(grade);
+        return this.CommonExam.getExamGradeDisplayName(grade);
     };
 
     private handleGradedReviews = (r: Review) => {
@@ -61,6 +65,6 @@ export class InLanguageInspectionReviewsComponent {
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
-        r.displayedCredit = this.Exam.getExamDisplayCredit(r.examParticipation.exam);
+        r.displayedCredit = this.CommonExam.getExamDisplayCredit(r.examParticipation.exam);
     };
 }

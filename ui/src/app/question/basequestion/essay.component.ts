@@ -14,7 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { Question } from '../../exam/exam.model';
+import type { Question } from '../../exam/exam.model';
 
 @Component({
     selector: 'essay-editor',

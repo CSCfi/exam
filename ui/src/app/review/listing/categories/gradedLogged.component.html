@@ -174,7 +174,7 @@
                     <a
                         *ngIf="collaborative"
                         class="pointer"
-                        uiSref="collaborativeAssessment"
+                        uiSref="staff.collaborativeAssessment"
                         [uiParams]="{ id: exam.id, ref: review.examParticipation._id }"
                     >
                         {{ review.displayName }}
@@ -185,7 +185,7 @@
                     <a
                         *ngIf="!collaborative"
                         class="pointer"
-                        uiSref="assessment"
+                        uiSref="staff.assessment"
                         [uiParams]="{ id: review.examParticipation.exam.id }"
                     >
                         {{ review.displayName }}

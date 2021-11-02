@@ -28,6 +28,7 @@ import { ExamService } from '../../exam/exam.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../utility/file/file.service';
+import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
 import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 
 import type { Observable } from 'rxjs';
@@ -63,6 +64,7 @@ export class SpeedReviewComponent {
         private translate: TranslateService,
         private modal: NgbModal,
         private Exam: ExamService,
+        private CommonExam: CommonExamService,
         private Confirmation: ConfirmationDialogService,
         private Files: FileService,
         private Attachment: AttachmentService,
@@ -86,14 +88,14 @@ export class SpeedReviewComponent {
             .map((grade) => {
                 return {
                     ...grade,
-                    name: this.Exam.getExamGradeDisplayName(grade.name),
+                    name: this.CommonExam.getExamGradeDisplayName(grade.name),
                     type: grade.name,
                 };
             })
             .filter(isRealGrade);
         // The "no grade" option
         const noGrade: NoGrade = {
-            name: this.Exam.getExamGradeDisplayName('NONE'),
+            name: this.CommonExam.getExamGradeDisplayName('NONE'),
             type: 'NONE',
             marksRejection: false,
         };
@@ -197,7 +199,7 @@ export class SpeedReviewComponent {
             forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
                 toast.info(this.translate.instant('sitnet_saved'));
                 if (this.examReviews.length === 0) {
-                    this.state.go('examEditor.assessments', { id: this.routing.params.id });
+                    this.state.go('staff.examEditor.assessments', { id: this.routing.params.id });
                 }
             });
         });

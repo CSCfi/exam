@@ -21,14 +21,15 @@ import { from, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { ExaminationTypeSelectorComponent } from '../../../exam/editor/common/examinationTypeSelector.component';
-import { ExamService } from '../../../exam/exam.service';
-import { SessionService } from '../../../session/session.service';
-import { DateTimeService } from '../../../utility/date/date.service';
-import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
+import { ExaminationTypeSelectorComponent } from '../../../../exam/editor/common/examinationTypeSelector.component';
+import { ExamService } from '../../../../exam/exam.service';
+import { SessionService } from '../../../../session/session.service';
+import { DateTimeService } from '../../../../utility/date/date.service';
+import { ConfirmationDialogService } from '../../../../utility/dialogs/confirmationDialog.service';
+import { CommonExamService } from '../../../../utility/miscellaneous/commonExam.service';
 
 import type { OnInit } from '@angular/core';
-import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
+import type { Exam, ExamExecutionType } from '../../../../exam/exam.model';
 export interface ExtraColumn {
     text: string;
     property: string;
@@ -65,6 +66,7 @@ export class ExamListCategoryComponent implements OnInit {
         private modal: NgbModal,
         private Dialog: ConfirmationDialogService,
         private Exam: ExamService,
+        private CommonExam: CommonExamService,
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {
@@ -72,7 +74,7 @@ export class ExamListCategoryComponent implements OnInit {
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((text) => {
                 this.filterText = text;
-                this.state.go('dashboard', { tab: this.state.params.tab, filter: this.filterText });
+                this.state.go('staff.teacher', { tab: this.state.params.tab, filter: this.filterText });
                 this.onFilterChange.emit(this.filterText);
             });
     }
@@ -109,7 +111,7 @@ export class ExamListCategoryComponent implements OnInit {
 
     getExecutionTypeTranslation = (exam: Exam) => {
         const type = this.Exam.getExecutionTypeTranslation(exam.executionType);
-        const impl = this.Exam.getExamImplementationTranslation(exam.implementation);
+        const impl = this.CommonExam.getExamImplementationTranslation(exam.implementation);
         return `${this.translate.instant(type)} - ${this.translate.instant(impl)}`;
     };
 
@@ -123,7 +125,7 @@ export class ExamListCategoryComponent implements OnInit {
             .subscribe(
                 (resp) => {
                     toast.success(this.translate.instant('sitnet_exam_copied'));
-                    this.state.go('examEditor.basic', { id: resp.id, collaborative: 'false' });
+                    this.state.go('staff.examEditor.basic', { id: resp.id, collaborative: 'false' });
                 },
                 (err) => toast.error(err.data),
             );

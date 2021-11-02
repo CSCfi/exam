@@ -51,7 +51,7 @@
                 [hidden]="exam.executionType.type === 'MATURITY' || collaborative"
                 class="review-attachment-button mr-2"
             >
-                <a class="pointer" uiSref="speedReview" [uiParams]="{ id: exam.id }">
+                <a class="pointer" uiSref="staff.speedReview" [uiParams]="{ id: exam.id }">
                     {{ 'sitnet_speed_review' | translate }} ({{ view.filtered.length }})
                 </a>
             </div>
@@ -141,7 +141,7 @@
                         <a
                             *ngIf="collaborative"
                             class="pointer"
-                            uiSref="collaborativeAssessment"
+                            uiSref="staff.collaborativeAssessment"
                             [uiParams]="{ id: this.exam.id, ref: review.examParticipation._id }"
                         >
                             {{ review.displayName }}
@@ -152,7 +152,7 @@
                         <a
                             *ngIf="!collaborative"
                             class="pointer"
-                            uiSref="assessment"
+                            uiSref="staff.assessment"
                             [uiParams]="{ id: review.examParticipation.exam.id }"
                         >
                             {{ review.displayName }}

@@ -5,6 +5,7 @@ const common = require('./webpack.common');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const AngularWebpackPlugin = require('@ngtools/webpack').AngularWebpackPlugin;
+// const CompressionWebpackPlugin = require('compression-webpack-plugin');
 
 const tsloader = {
     test: /\.ts$/,
@@ -17,20 +18,15 @@ common.module.rules.push(tsloader);
 
 module.exports = merge(common, {
     entry: ['./src/env/prod/main.ts'],
-    devtool: 'source-map',
+    // devtool: 'source-map',
     mode: 'production',
     output: {
         filename: '[name].[contenthash].js',
-        //chunkFilename: '[id].[contenthash].chunk.js'
+        // chunkFilename: '[id].[contenthash].chunk.js'
     },
     optimization: {
-        emitOnErrors: false,
-        moduleIds: 'deterministic',
-        runtimeChunk: 'single',
         splitChunks: {
             chunks: 'all',
-            maxInitialRequests: Infinity,
-            minSize: 0,
             cacheGroups: {
                 defaultVendors: {
                     test: /[\\/]node_modules[\\/]/,
@@ -54,6 +50,7 @@ module.exports = merge(common, {
             resourceRegExp: /^\.\/locale$/,
             contextRegExp: /moment$/,
         }),
+        //new CompressionWebpackPlugin(),
         new HtmlWebpackPlugin({
             template: path.resolve(__dirname, './index.ejs'),
             inject: true,

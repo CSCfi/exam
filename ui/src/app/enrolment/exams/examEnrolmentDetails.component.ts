@@ -15,11 +15,11 @@
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 
-import { ExamService } from '../../exam/exam.service';
 import { DateTimeService } from '../../utility/date/date.service';
-import { EnrolmentInfo } from '../enrolment.model';
+import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
 import { EnrolmentService } from '../enrolment.service';
 
+import type { EnrolmentInfo } from '../enrolment.model';
 @Component({
     selector: 'enrolment-details',
     templateUrl: './examEnrolmentDetails.component.html',
@@ -29,7 +29,7 @@ export class EnrolmentDetailsComponent {
 
     constructor(
         private state: StateService,
-        private Exam: ExamService,
+        private Exam: CommonExamService,
         private Enrolment: EnrolmentService,
         private DateTime: DateTimeService,
     ) {}

@@ -16,7 +16,7 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { EnrolmentInfo } from '../../enrolment.model';
+import type { EnrolmentInfo } from '../../enrolment.model';
 
 @Component({
     selector: 'add-enrolment-information-dialog',

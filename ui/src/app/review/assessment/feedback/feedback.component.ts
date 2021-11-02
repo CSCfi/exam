@@ -15,14 +15,15 @@
 import { Component, Input } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
 
-import { ExamParticipation } from '../../../exam/exam.model';
-import { Examination } from '../../../examination/examination.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 
+import type { ExamParticipation } from '../../../exam/exam.model';
+import type { Examination } from '../../../examination/examination.service';
 import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
+
 @Component({
     selector: 'r-feedback',
     templateUrl: './feedback.component.html',

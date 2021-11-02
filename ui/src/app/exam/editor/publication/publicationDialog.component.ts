@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 
-import { Exam } from '../../exam.model';
+import type { Exam } from '../../exam.model';
 
 @Component({
     selector: 'publication-dialog',

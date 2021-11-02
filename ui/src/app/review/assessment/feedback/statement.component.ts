@@ -14,7 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { Exam } from '../../../exam/exam.model';
+import type { Exam } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
 import { MaturityService } from '../maturity/maturity.service';

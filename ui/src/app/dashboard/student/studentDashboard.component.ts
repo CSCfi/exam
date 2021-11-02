@@ -15,7 +15,6 @@
 import { Component } from '@angular/core';
 
 import { EnrolmentService } from '../../enrolment/enrolment.service';
-import { ReservationService } from '../../reservation/reservation.service';
 import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../utility/date/date.service';
 import { StudentDashboardService } from './studentDashboard.service';
@@ -33,7 +32,6 @@ export class StudentDashboardComponent implements OnInit {
 
     constructor(
         private StudentDashboard: StudentDashboardService,
-        private Reservation: ReservationService,
         private DateTime: DateTimeService,
         private Enrolment: EnrolmentService,
         private Session: SessionService,
@@ -48,7 +46,7 @@ export class StudentDashboardComponent implements OnInit {
 
     printExamDuration = (exam: Exam) => this.DateTime.printExamDuration(exam);
 
-    removeReservation = (enrolment: ExamEnrolment) => this.Reservation.removeReservation(enrolment);
+    removeReservation = (enrolment: ExamEnrolment) => this.Enrolment.removeReservation(enrolment);
 
     addEnrolmentInformation = (enrolment: ExamEnrolment) => this.Enrolment.addEnrolmentInformation(enrolment);
 

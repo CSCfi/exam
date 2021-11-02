@@ -51,7 +51,7 @@
                     <a
                         [ngClass]="{ 'text-danger': !machine.name }"
                         class="exams-info-title bold-button"
-                        uiSref="machine"
+                        uiSref="staff.machine"
                         [uiParams]="{ id: machine.id }"
                     >
                         {{ !machine.name ? ('sitnet_no_name' | translate) : machine.name }}

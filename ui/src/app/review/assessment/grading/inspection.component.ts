@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { User } from '../../../session/session.service';
+import type { User } from '../../../session/session.service';
 
 import type { OnInit } from '@angular/core';
 @Component({

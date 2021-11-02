@@ -18,16 +18,13 @@ import { TranslateService } from '@ngx-translate/core';
 import { noop, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { ExamService } from '../../exam/exam.service';
-import { AssessmentService } from '../../review/assessment/assessment.service';
-import { CollaborativeAssesmentService } from '../../review/assessment/collaborativeAssessment.service';
+import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
+import { EnrolmentService } from '../enrolment.service';
 
 import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
-import type { ExamParticipation } from '../../exam/exam.model';
 import type { OnInit } from '@angular/core';
-import type { Exam } from '../../exam/exam.model';
+import type { Exam, ExamParticipation } from '../../exam/exam.model';
 import type { ReviewedExam } from '../enrolment.model';
-
 type Scores = {
     maxScore: number;
     totalScore: number;
@@ -52,9 +49,8 @@ export class ExamParticipationComponent implements OnInit {
     constructor(
         private translate: TranslateService,
         private http: HttpClient,
-        private Exam: ExamService,
-        private Assessment: AssessmentService,
-        private CollaborativeAssessment: CollaborativeAssesmentService,
+        private Exam: CommonExamService,
+        private Enrolment: EnrolmentService,
     ) {}
 
     ngOnInit() {
@@ -91,17 +87,15 @@ export class ExamParticipationComponent implements OnInit {
             !this.participation.exam.examFeedback.feedbackStatus
         ) {
             const participation = this.participation as CollaborativeParticipation;
-            this.CollaborativeAssessment.setCommentRead$(
-                participation.examId,
-                participation._id,
-                participation._rev,
-            ).subscribe(() => {
-                if (this.participation.exam.examFeedback) {
-                    this.participation.exam.examFeedback.feedbackStatus = true;
-                }
-            });
+            this.Enrolment.setCommentRead$(participation.examId, participation._id, participation._rev).subscribe(
+                () => {
+                    if (this.participation.exam.examFeedback) {
+                        this.participation.exam.examFeedback.feedbackStatus = true;
+                    }
+                },
+            );
         } else {
-            this.Assessment.setCommentRead(exam);
+            this.Enrolment.setCommentRead(exam);
         }
     };
 

@@ -21,8 +21,8 @@ import { debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/
 import * as toast from 'toastr';
 
 import { EnrolmentService } from '../../../enrolment/enrolment.service';
-import { Exam } from '../../exam.model';
 
+import type { Exam } from '../../exam.model';
 import type { OnInit } from '@angular/core';
 import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { Observable } from 'rxjs';

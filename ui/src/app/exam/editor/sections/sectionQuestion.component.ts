@@ -27,10 +27,10 @@ import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
-import { ExamSection, ExamSectionQuestion } from '../../exam.model';
 
 import type { Observable } from 'rxjs';
-import type { ExamSectionQuestionOption, Question } from '../../exam.model';
+import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from '../../exam.model';
+
 @Component({
     selector: 'section-question',
     templateUrl: './sectionQuestion.component.html',

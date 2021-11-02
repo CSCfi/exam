@@ -17,14 +17,15 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
-import { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { LanguageService } from '../../../utility/language/language.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { AssessmentService } from '../assessment.service';
 import { GradingBaseComponent } from '../common/gradingBase.component';
 
+import type { Exam } from '../../../exam/exam.model';
+import type { User } from '../../../session/session.service';
 @Component({
     selector: 'r-maturity-grading',
     templateUrl: './grading.component.html',
@@ -42,10 +43,11 @@ export class MaturityGradingComponent extends GradingBaseComponent {
         http: HttpClient,
         Assessment: AssessmentService,
         Exam: ExamService,
+        CommonExam: CommonExamService,
         private Attachment: AttachmentService,
         Language: LanguageService,
     ) {
-        super(http, Assessment, Exam, Language);
+        super(http, Assessment, Exam, CommonExam, Language);
     }
 
     ngOnInit() {
@@ -55,7 +57,7 @@ export class MaturityGradingComponent extends GradingBaseComponent {
 
         this.translate.onLangChange.subscribe(() => {
             this.initCreditTypes();
-            this.grades.forEach((g) => (g.name = this.Exam.getExamGradeDisplayName(g.type)));
+            this.grades.forEach((g) => (g.name = this.CommonExam.getExamGradeDisplayName(g.type)));
         });
     }
 

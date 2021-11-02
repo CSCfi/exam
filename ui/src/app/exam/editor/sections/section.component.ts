@@ -24,11 +24,11 @@ import { QuestionService } from '../../../question/question.service';
 import { QuestionSelectorComponent } from '../../../question/selector/questionSelector.component';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
-import { ExamSection } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
-import type { ExamMaterial, ExamSectionQuestion, Question } from '../../exam.model';
+import type { ExamSection, ExamMaterial, ExamSectionQuestion, Question } from '../../exam.model';
+
 @Component({
     selector: 'section',
     encapsulation: ViewEncapsulation.None,

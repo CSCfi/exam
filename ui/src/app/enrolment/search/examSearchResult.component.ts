@@ -15,8 +15,9 @@
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 
-import { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
+
+import type { EnrolmentInfo } from '../enrolment.model';
 
 @Component({
     selector: 'exam-search-result',

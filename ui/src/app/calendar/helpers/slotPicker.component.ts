@@ -7,8 +7,7 @@ import { startOfWeek } from 'date-fns';
 import * as moment from 'moment';
 import * as toast from 'toastr';
 
-import { Organisation } from '../calendar.component';
-
+import type { Organisation } from '../calendar.component';
 import type { SimpleChanges } from '@angular/core';
 import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
 import type { CalendarEvent } from 'angular-calendar';

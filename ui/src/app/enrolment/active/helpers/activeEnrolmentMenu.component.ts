@@ -2,10 +2,10 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { ReservationService } from '../../../reservation/reservation.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import { ExamEnrolment } from '../../enrolment.model';
 import { EnrolmentService } from '../../enrolment.service';
+
+import type { ExamEnrolment } from '../../enrolment.model';
 
 @Component({
     selector: 'active-enrolment-menu',
@@ -17,7 +17,6 @@ export class ActiveEnrolmentMenuComponent {
 
     constructor(
         private translate: TranslateService,
-        private Reservation: ReservationService,
         private Enrolment: EnrolmentService,
         private Confirmation: ConfirmationDialogService,
     ) {}
@@ -26,7 +25,7 @@ export class ActiveEnrolmentMenuComponent {
 
     removeReservation = () => {
         if (this.enrolment.reservation) {
-            this.Reservation.removeReservation(this.enrolment);
+            this.Enrolment.removeReservation(this.enrolment);
         } else {
             this.Enrolment.removeExaminationEvent(this.enrolment);
         }

@@ -17,10 +17,11 @@ import { Component, Input } from '@angular/core';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../../session/session.service';
-import { Exam } from '../../exam.model';
 
+import type { Exam } from '../../exam.model';
 import type { OnInit } from '@angular/core';
 import type { User } from '../../../session/session.service';
+
 @Component({
     selector: 'collaborative-exam-owner-selector',
     templateUrl: './collaborativeExamOwnerSelector.component.html',

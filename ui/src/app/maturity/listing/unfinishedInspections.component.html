@@ -187,7 +187,7 @@
                         <span class="text-danger">{{ 'sitnet_undefined' | translate }}</span>
                     </td>
                     <td *ngIf="inspection.modifier">
-                        <a class="pointer" uiSref="assessment" [uiParams]="{ id: inspection.exam.id }">{{
+                        <a class="pointer" uiSref="staff.assessment" [uiParams]="{ id: inspection.exam.id }">{{
                             'sitnet_view' | translate
                         }}</a>
                     </td>

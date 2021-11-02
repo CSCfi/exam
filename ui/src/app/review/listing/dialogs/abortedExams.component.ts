@@ -18,9 +18,10 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Exam } from '../../../exam/exam.model';
-import type { Reservation } from '../../../reservation/reservation.model';
 import { SessionService } from '../../../session/session.service';
+
+import type { Exam } from '../../../exam/exam.model';
+import type { Reservation } from '../../../reservation/reservation.model';
 import type { Review } from '../../review.model';
 
 @Component({

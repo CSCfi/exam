@@ -13,17 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import type { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import type { ExamMaterial } from '../../exam.model';
-import { ExamSection } from '../../exam.model';
 import { ExamMaterialComponent } from './examMaterial.component';
+
+import type { SimpleChanges } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import type { Observable } from 'rxjs';
+import type { ExamSection, ExamMaterial } from '../../exam.model';
 
 @Component({
     selector: 'exam-material-selector',

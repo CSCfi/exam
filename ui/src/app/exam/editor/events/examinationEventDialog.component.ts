@@ -18,9 +18,9 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { ExaminationEventConfiguration } from '../../exam.model';
-
+import type { ExaminationEventConfiguration } from '../../exam.model';
 import type { OnInit } from '@angular/core';
+
 @Component({
     selector: 'examination-event-dialog',
     templateUrl: './examinationEventDialog.component.html',

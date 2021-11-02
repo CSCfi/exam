@@ -15,9 +15,10 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { Exam } from '../../../exam/exam.model';
 import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../../assessment/assessment.service';
+
+import type { Exam } from '../../../exam/exam.model';
 
 @Component({
     selector: 'speed-review-feedback',

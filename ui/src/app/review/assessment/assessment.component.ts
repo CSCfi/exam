@@ -110,10 +110,8 @@ export class AssessmentComponent {
     isReadOnly = () => this.Assessment.isReadOnly(this.exam);
     isGraded = () => this.Assessment.isGraded(this.exam);
 
-    setCommentRead = () => this.Assessment.setCommentRead(this.exam);
-
     goToAssessment = () =>
-        this.state.go('examEditor.assessments', {
+        this.state.go('staff.examEditor.assessments', {
             id: this.collaborative ? this.routing.params.id : this.exam.parent?.id,
             collaborative: this.collaborative ? 'collaborative' : 'regular',
         });

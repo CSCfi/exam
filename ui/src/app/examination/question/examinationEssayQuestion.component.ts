@@ -16,11 +16,12 @@ import { Component, Input } from '@angular/core';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { FileService } from '../../utility/file/file.service';
-import { Examination, ExaminationService } from '../examination.service';
+import { ExaminationService } from '../examination.service';
 
-import type { ExaminationQuestion } from '../examination.service';
+import type { Examination, ExaminationQuestion } from '../examination.service';
 import type { AnsweredQuestion } from '../../utility/attachment/attachment.service';
 import type { EssayAnswer } from '../../exam/exam.model';
+
 @Component({
     selector: 'examination-essay-question',
     templateUrl: './examinationEssayQuestion.component.html',

@@ -20,7 +20,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Reservation } from '../reservation.model';
+import type { Reservation } from '../reservation.model';
 
 import type { OnInit } from '@angular/core';
 import type { Option } from '../../utility/select/dropDownSelect.component';

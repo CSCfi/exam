@@ -23,7 +23,6 @@ import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import { LanguageService } from '../utility/language/language.service';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
 import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
@@ -32,7 +31,7 @@ import type { Observable } from 'rxjs';
 import type { Exam, ExaminationEventConfiguration } from '../exam/exam.model';
 import type { ExamRoom } from '../reservation/reservation.model';
 import type { User } from '../session/session.service';
-import type { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
+import type { EnrolmentInfo, ExamEnrolment, ReviewedExam } from './enrolment.model';
 
 @Injectable()
 export class EnrolmentService {
@@ -42,7 +41,6 @@ export class EnrolmentService {
         private State: StateService,
         private ngbModal: NgbModal,
         private Confirmation: ConfirmationDialogService,
-        private Language: LanguageService,
     ) {}
 
     private getMaturityInstructions = (exam: Exam): Observable<string> => {
@@ -94,6 +92,27 @@ export class EnrolmentService {
             );
         });
     };
+
+    removeReservation(enrolment: ExamEnrolment) {
+        if (!enrolment.reservation) {
+            return;
+        }
+        const externalRef = enrolment.reservation.externalRef;
+        const dialog = this.Confirmation.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_are_you_sure'),
+        );
+        const successFn = () => {
+            delete enrolment.reservation;
+            enrolment.reservationCanceled = true;
+        };
+        const errorFn = (resp: { data: string }) => toast.error(resp.data);
+        const url = externalRef
+            ? `/integration/iop/reservations/external/${externalRef}`
+            : `/app/calendar/reservation/${enrolment.reservation.id}`;
+
+        dialog.result.then(() => this.http.delete(url).subscribe(successFn, errorFn));
+    }
 
     enroll = (exam: Exam, collaborative = false): Observable<ExamEnrolment> =>
         this.http
@@ -226,6 +245,28 @@ export class EnrolmentService {
             );
         });
     };
+
+    private isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
+
+    setCommentRead = (exam: Exam | ReviewedExam) => {
+        if (!this.isCommentRead(exam)) {
+            const examFeedback = {
+                feedbackStatus: true,
+            };
+            this.http
+                .put<void>(`/app/review/${exam.id}/comment/${exam.examFeedback?.id}/feedbackstatus`, examFeedback)
+                .subscribe(() => {
+                    if (exam.examFeedback) {
+                        exam.examFeedback.feedbackStatus = true;
+                    }
+                });
+        }
+    };
+
+    setCommentRead$(examId: string, examRef: string, revision: string) {
+        const url = `/integration/iop/reviews/${examId}/${examRef}/comment`;
+        return this.http.post(url, { rev: revision });
+    }
 
     getRoomInstructions = (hash: string): Observable<ExamRoom> =>
         this.http.get<ExamRoom>(`/app/enrolments/room/${hash}`);

@@ -12,25 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 
-import type { User } from '../session/session.service';
-import { SessionService } from '../session/session.service';
-
 @Component({
-    selector: 'dashboard',
-    templateUrl: './dashboard.component.html',
+    selector: 'staff-dashboard',
+    template: `<ui-view></ui-view>`,
 })
-export class DashboardComponent implements OnInit {
-    user: User;
-
-    constructor(private Session: SessionService) {}
-
-    ngOnInit() {
-        this.user = this.Session.getUser();
-        if (!this.user) {
-            console.log('not logged in');
-        }
-    }
-}
+export class StaffDashboardComponent {}
