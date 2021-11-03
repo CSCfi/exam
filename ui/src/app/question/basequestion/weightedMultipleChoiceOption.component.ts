@@ -61,10 +61,10 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
     `,
 })
 export class WeightedMultipleChoiceOptionEditorComponent {
-    @Input() option: MultipleChoiceOption;
-    @Input() index: number;
-    @Input() question: Question | QuestionDraft;
-    @Input() lotteryOn: boolean;
+    @Input() option!: MultipleChoiceOption;
+    @Input() index = 0;
+    @Input() question!: Question | QuestionDraft;
+    @Input() lotteryOn = false;
 
     constructor(private translate: TranslateService) {}
 

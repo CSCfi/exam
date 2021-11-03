@@ -24,7 +24,7 @@ import type { QuestionReview } from '../../review.model';
     templateUrl: './questionReview.component.html',
 })
 export class QuestionReviewComponent {
-    @Input() review: QuestionReview;
+    @Input() review!: QuestionReview;
     @Output() onSelection = new EventEmitter<{ id: number; selected: boolean }>();
 
     constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}

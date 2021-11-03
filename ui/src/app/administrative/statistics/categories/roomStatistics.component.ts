@@ -66,8 +66,8 @@ interface Participations {
     selector: 'room-statistics',
 })
 export class RoomStatisticsComponent {
-    @Input() queryParams: QueryParams;
-    participations: Participations;
+    @Input() queryParams: QueryParams = {};
+    participations: Participations = {};
     rooms: string[] = [];
     months: Date[] = [];
 

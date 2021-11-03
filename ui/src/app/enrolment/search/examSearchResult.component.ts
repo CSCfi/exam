@@ -24,10 +24,10 @@ import type { EnrolmentInfo, CollaborativeExamInfo } from '../enrolment.model';
     templateUrl: './examSearchResult.component.html',
 })
 export class ExamSearchResultComponent {
-    @Input() exam: EnrolmentInfo | CollaborativeExamInfo;
-    @Input() collaborative: boolean;
+    @Input() exam!: EnrolmentInfo | CollaborativeExamInfo;
+    @Input() collaborative = false;
 
-    enrolling: boolean;
+    enrolling = false; // DO WE NEED THIS?
 
     constructor(private State: StateService, private Enrolment: EnrolmentService) {}
 

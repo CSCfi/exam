@@ -25,7 +25,7 @@ import type { QuestionReview } from '../../review.model';
     templateUrl: './questionReviews.component.html',
 })
 export class QuestionReviewsComponent {
-    @Input() examId: number;
+    @Input() examId = 0;
     reviews: QuestionReview[] = [];
     selectedReviews: number[] = [];
     selectionToggle = false;

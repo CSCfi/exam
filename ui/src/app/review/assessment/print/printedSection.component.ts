@@ -50,6 +50,6 @@ import type { ExamSection } from '../../../exam/exam.model';
     `,
 })
 export class PrintedSectionComponent {
-    @Input() section: ExamSection;
-    @Input() index: number;
+    @Input() section!: ExamSection;
+    @Input() index = 0;
 }

@@ -24,10 +24,10 @@ import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservat
     selector: 'exception-list',
 })
 export class ExceptionListComponent {
-    @Input() room: ExamRoom;
-    @Input() hideButton: boolean;
-    @Input() hideTitle: boolean;
-    @Input() filter: (exception: ExceptionWorkingHours) => boolean;
+    @Input() room!: ExamRoom;
+    @Input() hideButton = false;
+    @Input() hideTitle = false;
+    @Input() filter: (exception: ExceptionWorkingHours) => boolean = () => false;
     @Output() onCreate = new EventEmitter<ExceptionWorkingHours>();
     @Output() onDelete = new EventEmitter<ExceptionWorkingHours>();
 

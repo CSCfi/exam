@@ -54,7 +54,9 @@ import type { Examination } from '../examination.model';
     `,
 })
 export class AnswerInstructionsComponent {
-    @Input() exam: Examination;
+    @Input() exam!: Examination;
+
     constructor(private DateTime: DateTimeService) {}
+
     printExamDuration = () => this.DateTime.printExamDuration(this.exam);
 }

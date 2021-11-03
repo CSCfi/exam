@@ -32,21 +32,22 @@ import type { QuestionDraft } from '../question.service';
     templateUrl: './question.component.html',
 })
 export class QuestionComponent implements OnInit {
-    @Input() newQuestion: boolean;
-    @Input() questionId: number;
-    @Input() questionDraft: Question;
-    @Input() lotteryOn: boolean;
-    @Input() collaborative: boolean;
-    @Input() examId: number;
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() newQuestion = false;
+    @Input() questionId = 0;
+    @Input() questionDraft!: Question;
+    @Input() lotteryOn = false;
+    @Input() collaborative = false;
+    @Input() examId = 0;
+    @Input() sectionQuestion!: ExamSectionQuestion;
     @Input() nextState?: string;
 
     @Output() onSave = new EventEmitter<Question | QuestionDraft>();
     @Output() onCancel = new EventEmitter<void>();
 
-    currentOwners: User[];
-    question: ReverseQuestion | QuestionDraft;
+    currentOwners: User[] = [];
+    question!: ReverseQuestion | QuestionDraft;
     transitionWatcher?: unknown;
+
     constructor(
         private state: StateService,
         private routing: UIRouterGlobals,

@@ -12,7 +12,7 @@ import type { ExamEnrolment } from '../../enrolment.model';
     templateUrl: './activeEnrolmentMenu.component.html',
 })
 export class ActiveEnrolmentMenuComponent {
-    @Input() enrolment: ExamEnrolment;
+    @Input() enrolment!: ExamEnrolment;
     @Output() onRemoval = new EventEmitter<number>();
 
     constructor(

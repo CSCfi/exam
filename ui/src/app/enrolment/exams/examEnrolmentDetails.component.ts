@@ -25,7 +25,7 @@ import type { EnrolmentInfo } from '../enrolment.model';
     templateUrl: './examEnrolmentDetails.component.html',
 })
 export class EnrolmentDetailsComponent {
-    @Input() exam: EnrolmentInfo;
+    @Input() exam!: EnrolmentInfo;
 
     constructor(
         private state: StateService,

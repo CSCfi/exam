@@ -29,12 +29,12 @@ import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.
     templateUrl: './clozeTest.component.html',
 })
 export class ClozeTestComponent {
-    @Input() participation: ExamParticipation;
-    @Input() sectionQuestion: ExamSectionQuestion;
-    @Input() isScorable: boolean;
-    @Input() collaborative: boolean;
+    @Input() participation!: ExamParticipation;
+    @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() isScorable = false;
+    @Input() collaborative = false;
     @Output() onScore = new EventEmitter<string>();
-    @ViewChild('forcedPoints', { static: false }) form: NgForm;
+    @ViewChild('forcedPoints', { static: false }) form?: NgForm;
 
     reviewExpanded = true;
     _score: number | null = null;

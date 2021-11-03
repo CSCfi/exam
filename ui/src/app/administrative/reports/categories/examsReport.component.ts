@@ -59,8 +59,8 @@ import { Option } from '../../../utility/select/dropDownSelect.component';
     selector: 'exams-report',
 })
 export class ExamsReportComponent {
-    @Input() examNames: Option<string, number>[];
-    @Input() fileType: string;
+    @Input() examNames: Option<string, number>[] = [];
+    @Input() fileType = '';
 
     exam?: number;
 

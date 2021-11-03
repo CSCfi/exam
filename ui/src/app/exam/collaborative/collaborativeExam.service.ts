@@ -30,7 +30,7 @@ export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exa
 
 @Injectable()
 export class CollaborativeExamService {
-    exams: CollaborativeExam[];
+    exams: CollaborativeExam[] = [];
 
     constructor(private http: HttpClient, private Session: SessionService) {}
 

@@ -24,7 +24,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
     templateUrl: './templates/multiChoice.component.html',
 })
 export class PrintedMultiChoiceComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() sectionQuestion!: ExamSectionQuestion;
 
     constructor(private Question: QuestionService) {}
 

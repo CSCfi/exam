@@ -7,7 +7,7 @@ import type { Validator, AbstractControl, ValidationErrors } from '@angular/form
     providers: [{ provide: NG_VALIDATORS, useExisting: MaxDirective, multi: true }],
 })
 export class MaxDirective implements Validator {
-    @Input() max: number;
+    @Input() max = 0;
 
     validate(control: AbstractControl): ValidationErrors | null {
         return Validators.max(this.max)(control);

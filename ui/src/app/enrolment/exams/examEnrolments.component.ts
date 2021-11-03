@@ -47,7 +47,7 @@ import type { EnrolmentInfo } from '../enrolment.model';
     `,
 })
 export class ExamEnrolmentsComponent implements OnInit {
-    exam: EnrolmentInfo;
+    exam!: EnrolmentInfo;
     exams: EnrolmentInfo[] = [];
 
     constructor(private state: StateService, private Enrolment: EnrolmentService, private Session: SessionService) {}

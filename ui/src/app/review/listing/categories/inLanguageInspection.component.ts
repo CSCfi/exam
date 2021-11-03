@@ -27,8 +27,8 @@ import type { ReviewListView } from '../reviewList.service';
 })
 export class InLanguageInspectionReviewsComponent {
     @Input() reviews: Review[] = [];
-    @Input() exam: Exam;
-    view: ReviewListView;
+    @Input() exam!: Exam;
+    view!: ReviewListView;
 
     constructor(
         private ReviewList: ReviewListService,

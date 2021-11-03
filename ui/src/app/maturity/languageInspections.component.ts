@@ -37,10 +37,10 @@ export interface LanguageInspectionData extends LanguageInspection {
     templateUrl: './languageInspections.component.html',
 })
 export class LanguageInspectionsComponent implements OnInit {
-    private startDate: Date | null;
-    private endDate: Date | null;
-    public ongoingInspections: LanguageInspectionData[];
-    public processedInspections: LanguageInspectionData[];
+    private startDate: Date | null = null;
+    private endDate: Date | null = null;
+    public ongoingInspections: LanguageInspectionData[] = [];
+    public processedInspections: LanguageInspectionData[] = [];
 
     constructor(private Language: LanguageService, private LanguageInspection: LanguageInspectionService) {}
 

@@ -28,13 +28,14 @@ import type { Week } from './room.service';
 })
 export class ExceptionListAllComponent implements OnInit {
     week: Week;
-    rooms: ExamRoom[];
-    roomIds: number[];
+    rooms: ExamRoom[] = [];
+    roomIds: number[] = [];
 
-    constructor(private room: RoomService) {}
+    constructor(private room: RoomService) {
+        this.week = this.room.getWeek();
+    }
 
     ngOnInit() {
-        this.week = this.room.getWeek();
         this.loadRooms();
     }
 

@@ -32,7 +32,7 @@ type Organisation = {
 export class LibraryTransferComponent implements OnInit {
     @Input() selections: number[] = [];
     organisations: Organisation[] = [];
-    organisation: Organisation;
+    organisation?: Organisation;
     showOrganisationSelection = false;
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
@@ -50,7 +50,7 @@ export class LibraryTransferComponent implements OnInit {
             this.http
                 .post('/integration/iop/export', {
                     type: 'QUESTION',
-                    orgRef: this.organisation._id,
+                    orgRef: this.organisation?._id,
                     ids: this.selections,
                 })
                 .subscribe(

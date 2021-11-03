@@ -61,6 +61,12 @@ export class CollaborativeExamListingComponent implements OnInit {
         private Session: SessionService,
         private CollaborativeExam: CollaborativeExamService,
     ) {
+        this.view = ListingView.PUBLISHED;
+        this.user = this.Session.getUser();
+        this.examsPredicate = 'examActiveEndDate';
+        this.reverse = true;
+        this.filter = { text: '' };
+        this.loader = { loading: false };
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(this.doSearch);
@@ -79,12 +85,6 @@ export class CollaborativeExamListingComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.view = ListingView.PUBLISHED;
-        this.user = this.Session.getUser();
-        this.examsPredicate = 'examActiveEndDate';
-        this.reverse = true;
-        this.filter = { text: '' };
-        this.loader = { loading: false };
         this.listAllExams();
     }
 

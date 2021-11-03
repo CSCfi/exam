@@ -36,17 +36,22 @@ import type { Exam, ExamLanguage, ExamParticipation, ExamType, SelectableGrade }
     templateUrl: './grading.component.html',
 })
 export class GradingComponent extends GradingBaseComponent implements OnInit {
-    @Input() exam: Examination;
-    @Input() questionSummary: QuestionAmounts;
-    @Input() participation: ExamParticipation;
-    @Input() collaborative: boolean;
-    @Input() user: User;
+    @Input() exam!: Examination;
+    @Input() questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
+    @Input() participation!: ExamParticipation;
+    @Input() collaborative = false;
+    @Input() user!: User;
     @Output() onUpdate = new EventEmitter<void>();
+
     message: { text?: string } = { text: '' };
-    selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null };
-    grades: SelectableGrade[];
-    creditTypes: (ExamType & { name: string })[];
-    languages: (ExamLanguage & { name: string })[];
+    selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null } = {
+        grade: null,
+        type: null,
+        language: null,
+    };
+    grades: SelectableGrade[] = [];
+    creditTypes: (ExamType & { name: string })[] = [];
+    languages: (ExamLanguage & { name: string })[] = [];
 
     constructor(
         private translate: TranslateService,

@@ -27,9 +27,9 @@ import type { Question, Tag } from '../../exam/exam.model';
     templateUrl: './tagPicker.component.html',
 })
 export class TagPickerComponent {
-    @Input() question: Question | QuestionDraft;
+    @Input() question!: Question | QuestionDraft;
     tagName = '';
-    newTag: Tag;
+    newTag: Tag = { name: '' };
 
     constructor(private http: HttpClient) {}
 

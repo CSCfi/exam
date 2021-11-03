@@ -35,21 +35,22 @@ export class BookingCalendarComponent implements OnChanges {
     @Output() onEventSelected = new EventEmitter<CalendarEvent>();
     @Output() onNeedMoreEvents = new EventEmitter<{ date: Date }>();
 
-    @Input() events: CalendarEvent<SlotMeta>[];
-    @Input() visible: boolean;
+    @Input() events: CalendarEvent<SlotMeta>[] = [];
+    @Input() visible = false;
     @Input() minDate?: Date;
     @Input() maxDate?: Date;
-    @Input() room: ExamRoom;
+    @Input() room!: ExamRoom;
+
     view: CalendarView = CalendarView.Week;
-    minHour: number;
-    maxHour: number;
+    minHour = 0;
+    maxHour = 23;
 
     locale: string;
     weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
     hiddenDays: number[] = [];
     activeDayIsOpen = false;
     viewDate: Date = new Date();
-    clickedEvent: CalendarEvent<SlotMeta>;
+    clickedEvent?: CalendarEvent<SlotMeta>;
 
     nextWeekDisabled = false;
     prevWeekDisabled = true;

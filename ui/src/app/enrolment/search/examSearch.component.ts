@@ -20,8 +20,6 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { LanguageService } from '../../utility/language/language.service';
-
 import type { OnInit } from '@angular/core';
 import type { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
 
@@ -45,10 +43,10 @@ export class ExamSearchComponent implements OnInit {
     exams: EnrolmentInfo[] = [];
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
-    filter: { text: string };
-    permissionCheck: { active: boolean };
+    filter = { text: '' };
+    permissionCheck = { active: false };
 
-    constructor(private http: HttpClient, private Language: LanguageService) {
+    constructor(private http: HttpClient) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((txt) => {

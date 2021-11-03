@@ -39,9 +39,9 @@ import type { CalendarEvent } from 'calendar-utils';
     ],
 })
 export class AvailabilityComponent implements OnInit {
-    openingHours: OpeningHours[];
-    exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[];
-    room: ExamRoom;
+    openingHours: OpeningHours[] = [];
+    exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
+    room!: ExamRoom;
     events: CalendarEvent<SlotMeta>[] = [];
 
     constructor(private state: StateService, private roomService: RoomService, private calendar: CalendarService) {}

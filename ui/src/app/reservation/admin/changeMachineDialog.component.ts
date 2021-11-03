@@ -30,7 +30,7 @@ import type { ExamMachine } from '../reservation.model';
     templateUrl: './changeMachineDialog.component.html',
 })
 export class ChangeMachineDialogComponent implements OnInit {
-    @Input() reservation: Reservation;
+    @Input() reservation!: Reservation;
 
     selection?: ExamMachine;
     availableMachineOptions: Option<ExamMachine, number>[] = [];

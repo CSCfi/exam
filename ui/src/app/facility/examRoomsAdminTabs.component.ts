@@ -21,14 +21,13 @@ import { SessionService } from '../session/session.service';
 import { WindowRef } from '../utility/window/window.service';
 import { RoomService } from './rooms/room.service';
 
-import type { OnInit } from '@angular/core';
 import type { User } from '../session/session.service';
 
 @Component({
     templateUrl: './examRoomsAdminTabs.component.html',
     selector: 'exam-rooms-admin-tabs',
 })
-export class ExamRoomsAdminTabsComponent implements OnInit {
+export class ExamRoomsAdminTabsComponent {
     user: User;
 
     constructor(
@@ -37,9 +36,7 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
         private window: WindowRef,
         private state: StateService,
         private room: RoomService,
-    ) {}
-
-    ngOnInit() {
+    ) {
         this.user = this.session.getUser();
     }
 

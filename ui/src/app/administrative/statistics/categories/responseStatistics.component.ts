@@ -48,7 +48,7 @@ import type { Exam } from '../../../exam/exam.model';
     selector: 'response-statistics',
 })
 export class ResponseStatisticsComponent implements OnInit {
-    @Input() queryParams: QueryParams;
+    @Input() queryParams: QueryParams = {};
     assessedExams: Exam[] = [];
     unassessedExams: Exam[] = [];
     abortedExams: Exam[] = [];

@@ -27,10 +27,10 @@ import type { Week } from './room.service';
     selector: 'multi-room',
 })
 export class MultiRoomComponent implements OnInit {
-    week: Week;
-    allRooms: ExamRoom[];
-    massEditedRooms: ExamRoom[];
-    roomIds: number[];
+    week: Week = {};
+    allRooms: ExamRoom[] = [];
+    massEditedRooms: ExamRoom[] = [];
+    roomIds: number[] = [];
 
     constructor(private room: RoomService) {}
 

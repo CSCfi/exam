@@ -85,18 +85,18 @@ export class ReservationComponentBase {
         'ABORTED',
         'NO_SHOW',
     ];
-    selection: Selection;
+    selection: Selection = {};
     stateOptions: Option<string, string>[] = [];
-    examOptions: Option<Exam | CollaborativeExam, number>[];
-    roomOptions: Option<ExamRoom, number>[];
-    machineOptions: Option<ExamMachine, number>[];
+    examOptions: Option<Exam | CollaborativeExam, number>[] = [];
+    roomOptions: Option<ExamRoom, number>[] = [];
+    machineOptions: Option<ExamMachine, number>[] = [];
     studentOptions: Option<User, number>[] = [];
-    teacherOptions: Option<User, number>[];
-    rooms: ExamRoom[];
-    machines: ExamMachine[];
-    reservations: AnyReservation[];
-    isInteroperable: boolean;
-    externalReservationsOnly: boolean;
+    teacherOptions: Option<User, number>[] = [];
+    rooms: ExamRoom[] = [];
+    machines: ExamMachine[] = [];
+    reservations: AnyReservation[] = [];
+    isInteroperable = false;
+    externalReservationsOnly = false;
 
     constructor(
         private http: HttpClient,

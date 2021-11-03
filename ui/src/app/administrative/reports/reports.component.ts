@@ -60,10 +60,10 @@ export class ReportsComponent implements OnInit {
         private userResource: UserResourceService,
     ) {}
 
-    rooms: Option<ExamRoom, number>[];
-    examNames: Option<string, number>[];
-    teachers: Option<User, number>[];
-    students: Option<User, number>[];
+    rooms: Option<ExamRoom, number>[] = [];
+    examNames: Option<string, number>[] = [];
+    teachers: Option<User, number>[] = [];
+    students: Option<User, number>[] = [];
 
     ngOnInit() {
         this.room.getRooms$().subscribe((resp) => {

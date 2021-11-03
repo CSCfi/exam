@@ -34,12 +34,12 @@ import type { Exam, ExamType, GradeScale } from '../../exam.model';
     templateUrl: './basicExamInfo.component.html',
 })
 export class BasicExamInfoComponent implements OnInit, OnDestroy {
-    @Input() exam: Exam;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() collaborative = false;
 
     byodExaminationSupported = false;
-    anonymousReviewEnabled: boolean;
-    gradeScaleSetting: { overridable: boolean };
+    anonymousReviewEnabled = false;
+    gradeScaleSetting = { overridable: false };
     examTypes: (ExamType & { name: string })[] = [];
     gradeScales: GradeScale[] = [];
     pwdInputType = 'password';

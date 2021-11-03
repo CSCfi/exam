@@ -58,8 +58,8 @@ import { FileService } from '../../../utility/file/file.service';
     selector: 'answers-report',
 })
 export class AnswersReportComponent {
-    startDate: Date | null;
-    endDate: Date | null;
+    startDate: Date | null = null;
+    endDate: Date | null = null;
 
     constructor(private datePipe: DatePipe, private files: FileService) {}
 

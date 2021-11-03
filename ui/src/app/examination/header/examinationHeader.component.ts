@@ -23,8 +23,8 @@ import type { Examination } from '../examination.model';
     templateUrl: './examinationHeader.component.html',
 })
 export class ExaminationHeaderComponent {
-    @Input() exam: Examination;
-    @Input() isPreview: boolean;
+    @Input() exam!: Examination;
+    @Input() isPreview = false;
     @Output() onTimeout = new EventEmitter<void>();
 
     constructor(private Session: SessionService) {}

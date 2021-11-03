@@ -25,11 +25,11 @@ import type { ExamSection, Question } from '../../exam/exam.model';
     templateUrl: './questionSelector.component.html',
 })
 export class QuestionSelectorComponent {
-    @Input() questionCount: number;
-    @Input() sectionId: number;
-    @Input() examId: number;
+    @Input() questionCount = 0;
+    @Input() sectionId = 0;
+    @Input() examId = 0;
     questions: Question[] = [];
-    selections: number[];
+    selections: number[] = [];
 
     constructor(private modal: NgbActiveModal, private http: HttpClient, private translate: TranslateService) {}
 

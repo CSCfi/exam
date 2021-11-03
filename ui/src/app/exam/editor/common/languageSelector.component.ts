@@ -27,10 +27,10 @@ import type { Exam, ExamLanguage } from '../../exam.model';
     templateUrl: './languageSelector.component.html',
 })
 export class LanguageSelectorComponent implements OnInit {
-    @Input() exam: Exam;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() collaborative = false;
 
-    examLanguages: ExamLanguage[];
+    examLanguages: ExamLanguage[] = [];
 
     constructor(private http: HttpClient, private translate: TranslateService, private Language: LanguageService) {}
 

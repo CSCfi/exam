@@ -24,7 +24,7 @@ import type { Reservation } from '../reservation.model';
     templateUrl: './removeReservationDialog.component.html',
 })
 export class RemoveReservationDialogComponent {
-    @Input() reservation: Reservation;
+    @Input() reservation!: Reservation;
     message = { text: '' };
 
     constructor(public activeModal: NgbActiveModal, private http: HttpClient) {}

@@ -26,8 +26,8 @@ import type { Accessibility } from '../../reservation/reservation.model';
     selector: 'accessibility',
 })
 export class AccessibilityComponent implements OnInit {
-    newItem: { name: string };
-    accessibilities: Accessibility[];
+    newItem: { name: string } = { name: '' };
+    accessibilities: Accessibility[] = [];
     showName = false;
 
     constructor(private translate: TranslateService, private accessibilityService: AccessibilityService) {}

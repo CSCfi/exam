@@ -33,10 +33,10 @@ import type { Exam, ExamMaterial, ExamSection } from '../../exam.model';
     templateUrl: './sectionsList.component.html',
 })
 export class SectionsListComponent implements OnChanges {
-    @Input() exam: Exam;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() collaborative = false;
 
-    materials: ExamMaterial[];
+    materials: ExamMaterial[] = [];
 
     constructor(
         private http: HttpClient,

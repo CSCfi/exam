@@ -25,10 +25,11 @@ import type { WorkingHour } from '../rooms/room.service';
     selector: 'starting-time',
 })
 export class StartingTimeComponent implements OnInit {
-    @Input() roomIds: number[];
-    @Input() startingHours: WorkingHour[];
-    examStartingHours: WorkingHour[];
-    examStartingHourOffset: number;
+    @Input() roomIds: number[] = [];
+    @Input() startingHours: WorkingHour[] = [];
+
+    examStartingHours: WorkingHour[] = [];
+    examStartingHourOffset = 0;
 
     constructor(private room: RoomService) {}
 

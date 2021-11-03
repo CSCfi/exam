@@ -70,10 +70,11 @@ import type { ExamRoom } from '../../../reservation/reservation.model';
     selector: 'rooms-report',
 })
 export class RoomsReportComponent {
+    @Input() rooms: Option<ExamRoom, number>[] = [];
+
     room?: number;
-    startDate: Date | null;
-    endDate: Date | null;
-    @Input() rooms: Option<ExamRoom, number>[];
+    startDate: Date | null = null;
+    endDate: Date | null = null;
 
     constructor(private translate: TranslateService, private datePipe: DatePipe, private files: FileService) {}
 

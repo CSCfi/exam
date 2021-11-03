@@ -41,7 +41,7 @@ declare let CKEDITOR: any;
 })
 export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDestroy, ControlValueAccessor {
     @Input() required = false;
-    @Input() enableClozeTest: boolean;
+    @Input() enableClozeTest = false;
     @Input()
     set value(v) {
         if (v !== this._value) {
@@ -53,13 +53,13 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
         return this._value;
     }
 
-    @ViewChild('host', { static: false }) host: ElementRef;
+    @ViewChild('host', { static: false }) host!: ElementRef;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     instance: any;
     _value: unknown;
-    onChange: (_: unknown) => unknown;
-    onTouched: () => unknown;
+    onChange!: (_: unknown) => unknown;
+    onTouched!: () => unknown;
 
     constructor(
         private zone: NgZone,

@@ -25,7 +25,7 @@ import type { Exam } from '../../../exam/exam.model';
     templateUrl: './feedback.component.html',
 })
 export class SpeedReviewFeedbackComponent {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
 
     constructor(private modal: NgbActiveModal, private Window: WindowRef, private Assessment: AssessmentService) {}
 

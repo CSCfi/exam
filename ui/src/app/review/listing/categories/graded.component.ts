@@ -31,12 +31,12 @@ import type { ReviewListView } from '../reviewList.service';
     templateUrl: './graded.component.html',
 })
 export class GradedReviewsComponent {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     @Input() reviews: Review[] = [];
-    @Input() collaborative: boolean;
+    @Input() collaborative = false;
     @Output() onRegistered = new EventEmitter<Review[]>();
-    view: ReviewListView;
-    selections: { all: boolean; page: boolean };
+    view!: ReviewListView;
+    selections: { all: boolean; page: boolean } = { all: false, page: false };
 
     constructor(
         private translate: TranslateService,

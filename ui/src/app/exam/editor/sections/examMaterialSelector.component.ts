@@ -30,12 +30,13 @@ import type { ExamSection, ExamMaterial } from '../../exam.model';
     templateUrl: './examMaterialSelector.component.html',
 })
 export class ExamMaterialSelectorComponent {
-    @Input() section: ExamSection;
-    @Input() allMaterials: ExamMaterial[];
+    @Input() section!: ExamSection;
+    @Input() allMaterials: ExamMaterial[] = [];
     @Output() onChanges = new EventEmitter<void>();
-    materials: ExamMaterial[];
+
+    materials: ExamMaterial[] = [];
     selectedMaterial?: ExamMaterial;
-    filter: string;
+    filter = '';
 
     constructor(private http: HttpClient, private modal: NgbModal) {}
 

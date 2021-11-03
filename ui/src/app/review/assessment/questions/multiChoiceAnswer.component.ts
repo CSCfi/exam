@@ -21,6 +21,6 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
     templateUrl: './multiChoiceAnswer.component.html',
 })
 export class MultiChoiceAnswerComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() sectionQuestion!: ExamSectionQuestion;
     reviewExpanded = true;
 }

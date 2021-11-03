@@ -39,14 +39,14 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     `,
 })
 export class DateTimePickerComponent {
-    @Input() initialTime: Date;
-    @Input() hourStep: number;
-    @Input() minuteStep: number;
-    @Input() disabled: boolean;
+    @Input() initialTime: Date | null = null;
+    @Input() hourStep = 0;
+    @Input() minuteStep = 0;
+    @Input() disabled = false;
     @Output() onUpdate = new EventEmitter<{ date: Date }>();
 
-    date: Date;
-    time: { hour: number; minute: number; second: number; millisecond?: number };
+    date: Date = new Date();
+    time!: { hour: number; minute: number; second: number; millisecond?: number };
 
     private setDateTime = (dt: Date) => {
         this.date.setFullYear(dt.getFullYear());

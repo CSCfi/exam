@@ -37,8 +37,8 @@ import type {
     templateUrl: './examQuestion.component.html',
 })
 export class ExamQuestionComponent {
-    @Input() examQuestion: ExamSectionQuestion;
-    @Input() lotteryOn: boolean;
+    @Input() examQuestion!: ExamSectionQuestion;
+    @Input() lotteryOn = false;
     @Output() onSave = new EventEmitter<{ question: Question; examQuestion: ExamSectionQuestion }>();
     @Output() onCancel = new EventEmitter<void>();
 
@@ -47,7 +47,7 @@ export class ExamQuestionComponent {
     examNames: string[] = [];
     sectionNames: string[] = [];
     missingOptions: string[] = [];
-    isInPublishedExam: boolean;
+    isInPublishedExam = false;
 
     constructor(
         private http: HttpClient,

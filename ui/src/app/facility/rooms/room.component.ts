@@ -32,11 +32,12 @@ import type { Week, Weekday, WeekdayBlock } from './room.service';
     selector: 'room',
 })
 export class RoomComponent implements OnInit {
-    @ViewChild('roomForm', { static: false }) roomForm: NgForm;
-    room: ExamRoom;
-    week: Week;
-    showName: boolean;
-    isInteroperable: boolean;
+    @ViewChild('roomForm', { static: false }) roomForm!: NgForm;
+
+    room!: ExamRoom;
+    week: Week = {};
+    showName = false;
+    isInteroperable = false;
     editingMultipleRooms = false;
     workingHours: WeekdayBlock[] = [];
 

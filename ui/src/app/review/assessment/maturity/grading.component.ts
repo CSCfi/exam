@@ -31,12 +31,12 @@ import type { User } from '../../../session/session.service';
     templateUrl: './grading.component.html',
 })
 export class MaturityGradingComponent extends GradingBaseComponent {
-    @Input() exam: Exam;
-    @Input() user: User;
+    @Input() exam!: Exam;
+    @Input() user!: User;
     @Input() questionSummary: unknown;
     @Output() onUpdate = new EventEmitter<void>();
 
-    message: { text?: string };
+    message: { text?: string } = {};
 
     constructor(
         private translate: TranslateService,

@@ -47,9 +47,11 @@ interface Reservation {
     selector: 'reservation-statistics',
 })
 export class ReservationStatisticsComponent implements OnInit {
+    @Input() queryParams: QueryParams = {};
+
     reservations: Reservation[] = [];
     noShows: Reservation[] = [];
-    @Input() queryParams: QueryParams;
+
     constructor(private http: HttpClient) {}
 
     ngOnInit() {

@@ -37,11 +37,11 @@ type Scores = {
     templateUrl: './examParticipation.component.html',
 })
 export class ExamParticipationComponent implements OnInit {
-    @Input() participation: ExamParticipation | CollaborativeParticipation;
-    @Input() collaborative: boolean;
+    @Input() participation!: ExamParticipation | CollaborativeParticipation;
+    @Input() collaborative = false;
 
-    reviewedExam: ReviewedExam;
-    scores: Scores;
+    reviewedExam!: ReviewedExam;
+    scores!: Scores;
     showEvaluation = false;
     gradeDisplayName = '';
     private ngUnsubscribe = new Subject();

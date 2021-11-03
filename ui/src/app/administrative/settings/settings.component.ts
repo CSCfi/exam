@@ -30,8 +30,8 @@ export interface AppConfig {
     selector: 'settings',
 })
 export class SettingsComponent implements OnInit {
-    config: AppConfig;
-    attributes: string[];
+    config!: AppConfig;
+    attributes: string[] = [];
 
     constructor(private translate: TranslateService, private http: HttpClient) {}
 

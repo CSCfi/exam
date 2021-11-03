@@ -12,12 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { FileService } from '../../file/file.service';
 
+import type { OnInit } from '@angular/core';
 export interface FileResult {
     $value: { attachmentFile: File };
 }
@@ -27,12 +27,12 @@ export interface FileResult {
     templateUrl: './attachmentSelector.component.html',
 })
 export class AttachmentSelectorComponent implements OnInit {
-    @ViewChild('file', { static: false }) file: ElementRef;
-    fileObject: File;
+    @ViewChild('file', { static: false }) file!: ElementRef;
+    fileObject!: File;
 
-    @Input() title: string;
-    @Input() isTeacherModal: boolean;
-    maxFileSize: number;
+    @Input() title = '';
+    @Input() isTeacherModal = false;
+    maxFileSize = 0;
 
     constructor(public activeModal: NgbActiveModal, private Files: FileService) {}
 

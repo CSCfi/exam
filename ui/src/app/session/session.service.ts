@@ -62,7 +62,7 @@ interface Env {
 @Injectable()
 export class SessionService implements OnDestroy {
     private PING_INTERVAL: number = 30 * 1000;
-    private sessionCheckSubscription: Unsubscribable;
+    private sessionCheckSubscription?: Unsubscribable;
     private userChangeSubscription = new Subject<User>();
     private devLogoutSubscription = new Subject<void>();
 
@@ -83,7 +83,7 @@ export class SessionService implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.sessionCheckSubscription.unsubscribe();
+        if (this.sessionCheckSubscription) this.sessionCheckSubscription.unsubscribe();
     }
 
     getUser = (): User => {

@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { from, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -45,20 +45,17 @@ type ExecutionType = ExamExecutionType & { examinationTypes: { type: string; nam
     templateUrl: './examListCategory.component.html',
 })
 export class ExamListCategoryComponent implements OnInit {
-    @Input() items: Exam[];
-    @Input() examTypes: ExecutionType[];
+    @Input() items: Exam[] = [];
+    @Input() examTypes: ExecutionType[] = [];
     @Input() extraColumnNames: () => ExtraColumnName[] = () => [];
     @Input() extraColumnValues: (exam: Exam) => ExtraColumnValue[] = () => [];
-    @Input() defaultPredicate: string;
-    @Input() defaultReverse: boolean;
+    @Input() defaultPredicate = '';
+    @Input() defaultReverse = false;
     @Output() onFilterChange = new EventEmitter<string>();
 
     userId: number;
     pageSize = 10;
-    sorting: {
-        predicate: string;
-        reverse: boolean;
-    };
+    sorting = { predicate: '', reverse: false };
     filterText: string;
     filterChanged = new Subject<string>();
     ngUnsubscribe = new Subject();
@@ -67,6 +64,7 @@ export class ExamListCategoryComponent implements OnInit {
         private http: HttpClient,
         private translate: TranslateService,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private modal: NgbModal,
         private Dialog: ConfirmationDialogService,
         private Exam: ExamService,
@@ -81,6 +79,8 @@ export class ExamListCategoryComponent implements OnInit {
                 this.state.go('staff.teacher', { tab: this.state.params.tab, filter: this.filterText });
                 this.onFilterChange.emit(this.filterText);
             });
+        this.userId = this.Session.getUser().id;
+        this.filterText = this.routing.params.filter;
     }
 
     ngOnDestroy() {
@@ -89,12 +89,10 @@ export class ExamListCategoryComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.userId = this.Session.getUser().id;
         this.sorting = {
             predicate: this.defaultPredicate,
             reverse: this.defaultReverse,
         };
-        this.filterText = this.state.params.filter;
         if (this.filterText) {
             this.search(this.filterText);
         }

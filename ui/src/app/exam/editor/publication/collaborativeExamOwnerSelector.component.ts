@@ -19,22 +19,19 @@ import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
 
 import type { Exam } from '../../exam.model';
-import type { OnInit } from '@angular/core';
 import type { User } from '../../../session/session.service';
 
 @Component({
     selector: 'collaborative-exam-owner-selector',
     templateUrl: './collaborativeExamOwnerSelector.component.html',
 })
-export class CollaborativeExamOwnerSelectorComponent implements OnInit {
-    @Input() exam: Exam;
+export class CollaborativeExamOwnerSelectorComponent {
+    @Input() exam!: Exam;
 
     user: User;
     newOwner: { email: string | undefined } = { email: undefined };
 
-    constructor(private http: HttpClient, private Session: SessionService) {}
-
-    ngOnInit() {
+    constructor(private http: HttpClient, private Session: SessionService) {
         this.user = this.Session.getUser();
     }
 

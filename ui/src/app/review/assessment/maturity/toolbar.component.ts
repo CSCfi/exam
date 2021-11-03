@@ -14,20 +14,20 @@
  */
 import { Component, Input } from '@angular/core';
 
-import type { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { AssessmentService } from '../assessment.service';
 import { MaturityService } from './maturity.service';
 
+import type { Exam } from '../../../exam/exam.model';
 import type { StateName } from './maturity.service';
 @Component({
     selector: 'r-maturity-toolbar',
     templateUrl: './toolbar.component.html',
 })
 export class MaturityToolbarComponent {
-    @Input() exam: Exam;
-    @Input() valid: boolean;
+    @Input() exam!: Exam;
+    @Input() valid = false;
 
     constructor(
         private Maturity: MaturityService,

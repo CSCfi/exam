@@ -27,10 +27,10 @@ import type { Examination, ExaminationSection, NavigationPage } from './examinat
     templateUrl: './examination.component.html',
 })
 export class ExaminationComponent {
-    @Input() isCollaborative: boolean;
-    exam: Examination;
+    @Input() isCollaborative = false;
+    exam!: Examination;
     activeSection?: ExaminationSection;
-    isPreview: boolean;
+    isPreview = false;
 
     constructor(
         private state: StateService,

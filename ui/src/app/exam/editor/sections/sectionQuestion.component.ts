@@ -36,11 +36,11 @@ import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Quest
     templateUrl: './sectionQuestion.component.html',
 })
 export class SectionQuestionComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
-    @Input() lotteryOn: boolean;
-    @Input() collaborative: boolean;
-    @Input() section: ExamSection;
-    @Input() examId: number;
+    @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() lotteryOn = false;
+    @Input() collaborative = false;
+    @Input() section!: ExamSection;
+    @Input() examId = 0;
     @Output() onDelete = new EventEmitter<ExamSectionQuestion>();
 
     constructor(

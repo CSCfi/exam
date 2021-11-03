@@ -30,12 +30,12 @@ import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.
     templateUrl: './multiChoiceQuestion.component.html',
 })
 export class MultiChoiceQuestionComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
-    @Input() participation: ExamParticipation;
-    @Input() isScorable: boolean;
-    @Input() collaborative: boolean;
+    @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() participation!: ExamParticipation;
+    @Input() isScorable = false;
+    @Input() collaborative = false;
     @Output() onScore = new EventEmitter<string>();
-    @ViewChild('forcedPoints', { static: false }) form: NgForm;
+    @ViewChild('forcedPoints', { static: false }) form?: NgForm;
 
     reviewExpanded = true;
     _score: number | null = null;

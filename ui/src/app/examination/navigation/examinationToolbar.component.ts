@@ -33,13 +33,13 @@ import type { ExamRoom } from '../../reservation/reservation.model';
     templateUrl: './examinationToolbar.component.html',
 })
 export class ExaminationToolbarComponent {
-    @Input() exam: Examination;
+    @Input() exam!: Examination;
     @Input() activeSection?: ExaminationSection;
-    @Input() isPreview: boolean;
-    @Input() isCollaborative: boolean;
+    @Input() isPreview = false;
+    @Input() isCollaborative = false;
     @Output() onPageSelect = new EventEmitter<{ page: { id?: number; type: string } }>();
 
-    room: ExamRoom;
+    room?: ExamRoom;
 
     constructor(
         private http: HttpClient,

@@ -57,8 +57,8 @@ import { FileService } from '../../../utility/file/file.service';
     selector: 'records-report',
 })
 export class RecordsReportComponent {
-    startDate: Date | null;
-    endDate: Date | null;
+    startDate: Date | null = null;
+    endDate: Date | null = null;
 
     constructor(private files: FileService) {}
 

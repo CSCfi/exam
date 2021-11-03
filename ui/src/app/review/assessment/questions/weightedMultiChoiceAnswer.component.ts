@@ -21,6 +21,6 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
     templateUrl: './weightedMultiChoiceAnswer.component.html',
 })
 export class WeightedMultiChoiceAnswerComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() sectionQuestion!: ExamSectionQuestion;
     reviewExpanded = true;
 }

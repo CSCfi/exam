@@ -31,12 +31,12 @@ export type Participation = Partial<Omit<ExamParticipation, 'exam'> & { exam: Pa
     templateUrl: './generalInfo.component.html',
 })
 export class GeneralInfoComponent {
-    @Input() exam: Exam;
-    @Input() participation: Participation;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() participation!: Participation;
+    @Input() collaborative = false;
 
-    student: User;
-    studentName: string;
+    student?: User;
+    studentName = '';
     enrolment?: ExamEnrolment;
     reservation?: Reservation;
     participations: ExamParticipation[] = [];

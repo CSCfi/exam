@@ -60,10 +60,10 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
     `,
 })
 export class MultipleChoiceOptionEditorComponent {
-    @Input() option: MultipleChoiceOption;
-    @Input() index: number;
-    @Input() question: Question | QuestionDraft;
-    @Input() allowRemoval: boolean;
+    @Input() option!: MultipleChoiceOption;
+    @Input() index = 0;
+    @Input() question!: Question | QuestionDraft;
+    @Input() allowRemoval = false;
 
     constructor(private translate: TranslateService, private Question: QuestionService) {}
 

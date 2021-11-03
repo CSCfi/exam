@@ -31,8 +31,8 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
     templateUrl: './reservationDetails.component.html',
 })
 export class ReservationDetailsComponent {
-    @Input() reservations: AnyReservation[];
-    @Input() isAdminView: boolean;
+    @Input() reservations: AnyReservation[] = [];
+    @Input() isAdminView = false;
 
     predicate = 'reservation.startAt';
     reverse = false;

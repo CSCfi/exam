@@ -33,11 +33,11 @@ import type { ReviewListView } from '../reviewList.service';
 })
 export class GradedLoggedReviewsComponent {
     @Input() reviews: Review[] = [];
-    @Input() exam: Exam;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() collaborative = false;
     @Output() onArchive = new EventEmitter<Review[]>();
-    view: ReviewListView;
-    selections: { all: boolean; page: boolean };
+    view!: ReviewListView;
+    selections: { all: boolean; page: boolean } = { all: false, page: false };
 
     constructor(
         private http: HttpClient,

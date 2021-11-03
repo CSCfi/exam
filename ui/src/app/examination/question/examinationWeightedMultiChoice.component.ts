@@ -41,10 +41,10 @@ import type { ExaminationQuestion } from '../examination.model';
     `,
 })
 export class ExaminationWeightedMultiChoiceComponent {
-    @Input() sq: ExaminationQuestion;
-    @Input() examHash: string;
-    @Input() isPreview: boolean;
-    @Input() orderOptions: boolean;
+    @Input() sq!: ExaminationQuestion;
+    @Input() examHash = '';
+    @Input() isPreview = false;
+    @Input() orderOptions = false;
 
     constructor(private Examination: ExaminationService) {}
 

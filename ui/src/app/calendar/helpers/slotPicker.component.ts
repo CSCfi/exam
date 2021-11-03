@@ -161,14 +161,14 @@ type AvailableSlot = Slot & { availableMachines: number };
     encapsulation: ViewEncapsulation.None,
 })
 export class SlotPickerComponent {
-    @Input() sequenceNumber: number;
-    @Input() isInteroperable: boolean;
-    @Input() isCollaborative: boolean;
-    @Input() isExternal: boolean;
+    @Input() sequenceNumber = 0;
+    @Input() isInteroperable = false;
+    @Input() isCollaborative = false;
+    @Input() isExternal = false;
     @Input() organisation?: Organisation;
-    @Input() disabled: boolean;
-    @Input() minDate: Date;
-    @Input() maxDate: Date;
+    @Input() disabled = false;
+    @Input() minDate = new Date();
+    @Input() maxDate = new Date();
     @Output() onCancel = new EventEmitter<void>();
     @Output() onEventSelected = new EventEmitter<{
         start: Date;

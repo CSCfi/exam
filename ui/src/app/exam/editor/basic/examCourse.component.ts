@@ -25,7 +25,7 @@ import type { Course, Exam } from '../../exam.model';
     templateUrl: './examCourse.component.html',
 })
 export class ExamCourseComponent {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     @Output() onUpdate = new EventEmitter<Course>();
 
     constructor(private http: HttpClient, private translate: TranslateService, private Exam: CommonExamService) {}

@@ -25,9 +25,9 @@ import type { Exam, Software } from '../../exam.model';
     templateUrl: './softwareSelector.component.html',
 })
 export class SoftwareSelectorComponent implements OnInit {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
 
-    software: Software[];
+    software: Software[] = [];
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 

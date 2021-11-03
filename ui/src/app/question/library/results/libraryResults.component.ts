@@ -35,9 +35,9 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
     templateUrl: './libraryResults.component.html',
 })
 export class LibraryResultsComponent implements OnInit, OnChanges {
-    @Input() questions: Question[];
-    @Input() disableLinks: boolean;
-    @Input() tableClass: string;
+    @Input() questions: Question[] = [];
+    @Input() disableLinks = false;
+    @Input() tableClass = '';
     @Output() onSelection = new EventEmitter<number[]>();
     @Output() onCopy = new EventEmitter<LibraryQuestion>();
 
@@ -45,8 +45,8 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     allSelected = false;
     pageSize = 25;
     currentPage = 0;
-    questionsPredicate: string;
-    reverse: boolean;
+    questionsPredicate = '';
+    reverse = false;
     fixedQuestions: SelectableQuestion[] = [];
 
     constructor(
@@ -56,11 +56,12 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         private Library: LibraryService,
         private Attachment: AttachmentService,
         private Session: SessionService,
-    ) {}
+    ) {
+        this.user = this.Session.getUser();
+    }
 
     ngOnInit() {
         this.fixedQuestions = this.questions as SelectableQuestion[]; // FIXME: ugly cast, should resolve this better
-        this.user = this.Session.getUser();
         this.tableClass = this.tableClass || 'exams-table';
         const storedData = this.Library.loadFilters('sorting');
         if (storedData.filters) {

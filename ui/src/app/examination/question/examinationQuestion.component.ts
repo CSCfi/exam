@@ -28,14 +28,14 @@ type ClozeTestAnswer = { [key: string]: string };
     templateUrl: './examinationQuestion.component.html',
 })
 export class ExaminationQuestionComponent implements AfterViewInit {
-    @Input() exam: Examination;
-    @Input() question: ExaminationQuestion;
-    @Input() isPreview: boolean;
-    @Input() isCollaborative: boolean;
+    @Input() exam!: Examination;
+    @Input() question!: ExaminationQuestion;
+    @Input() isPreview = false;
+    @Input() isCollaborative = false;
 
     clozeAnswer: { [key: string]: string } = {};
     expanded = true;
-    sq: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
+    sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
 
     constructor(
         private cdr: ChangeDetectorRef,

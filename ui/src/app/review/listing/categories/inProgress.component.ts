@@ -30,10 +30,10 @@ import type { ReviewListView } from '../reviewList.service';
     templateUrl: './inProgress.component.html',
 })
 export class InProgressReviewsComponent {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     @Input() reviews: Review[] = [];
-    @Input() collaborative: boolean;
-    view: ReviewListView;
+    @Input() collaborative = false;
+    view!: ReviewListView;
 
     constructor(
         private modal: NgbModal,

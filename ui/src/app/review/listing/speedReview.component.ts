@@ -51,11 +51,11 @@ export class SpeedReviewComponent {
     pageSize = 10;
     currentPage = 0;
     reviewPredicate = 'deadline';
-    reverse: false;
-    examId: number;
-    examInfo: { examOwners: User[]; title: string; anonymous: boolean };
+    reverse = false;
+    examId = 0;
+    examInfo?: { examOwners: User[]; title: string; anonymous: boolean };
     toggleReviews = false;
-    examReviews: Review[];
+    examReviews: Review[] = [];
 
     constructor(
         private http: HttpClient,

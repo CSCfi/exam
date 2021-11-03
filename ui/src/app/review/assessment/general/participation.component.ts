@@ -28,8 +28,8 @@ import type { ExamParticipation } from '../../../exam/exam.model';
     templateUrl: './participation.component.html',
 })
 export class ParticipationComponent {
-    @Input() participation: ExamEnrolment | ExamParticipation;
-    @Input() collaborative: boolean;
+    @Input() participation!: ExamEnrolment | ExamParticipation;
+    @Input() collaborative = false;
 
     constructor(
         private state: UIRouterGlobals,
@@ -38,7 +38,7 @@ export class ParticipationComponent {
         private Window: WindowRef,
     ) {}
 
-    started: string;
+    started = '';
 
     ngOnInit() {
         if (isParticipation(this.participation)) {

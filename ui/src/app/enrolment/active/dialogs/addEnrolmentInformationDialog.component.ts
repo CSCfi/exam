@@ -23,7 +23,7 @@ import type { EnrolmentInfo } from '../../enrolment.model';
     templateUrl: './addEnrolmentInformationDialog.component.html',
 })
 export class AddEnrolmentInformationDialogComponent {
-    @Input() information: EnrolmentInfo;
+    @Input() information!: EnrolmentInfo;
 
     constructor(public activeModal: NgbActiveModal) {}
 

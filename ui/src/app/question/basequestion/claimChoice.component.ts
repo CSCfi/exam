@@ -94,10 +94,10 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
     `,
 })
 export class ClaimChoiceEditorComponent {
-    @Input() option: MultipleChoiceOption;
-    @Input() question: Question | QuestionDraft;
-    @Input() lotteryOn: boolean;
-    @Input() showWarning: boolean;
+    @Input() option!: MultipleChoiceOption;
+    @Input() question!: Question | QuestionDraft;
+    @Input() lotteryOn = false;
+    @Input() showWarning = false;
 
     missingOptions: string[] = [];
 

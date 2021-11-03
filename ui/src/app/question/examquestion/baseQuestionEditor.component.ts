@@ -43,13 +43,13 @@ import type { QuestionDraft } from '../question.service';
     `,
 })
 export class BaseQuestionEditorComponent {
-    @Input() newQuestion: boolean;
-    @Input() questionDraft: Question;
-    @Input() questionId: number;
-    @Input() collaborative: boolean;
-    @Input() lotteryOn: boolean;
-    @Input() examId: number;
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() newQuestion = false;
+    @Input() questionDraft!: Question;
+    @Input() questionId = 0;
+    @Input() collaborative = false;
+    @Input() lotteryOn = false;
+    @Input() examId = 0;
+    @Input() sectionQuestion!: ExamSectionQuestion;
 
     transitionWatcher: unknown;
 
