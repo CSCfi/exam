@@ -30,13 +30,13 @@ import type { ReviewQuestion } from '../../review.model';
     templateUrl: './essayQuestion.component.html',
 })
 export class EssayQuestionComponent {
-    @Input() participation: ExamParticipation;
-    @Input() exam: Exam;
-    @Input() sectionQuestion: ExamSectionQuestion;
-    @Input() isScorable: boolean;
-    @Input() collaborative: boolean;
+    @Input() participation!: ExamParticipation;
+    @Input() exam!: Exam;
+    @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() isScorable = false;
+    @Input() collaborative = false;
     @Output() onScore = new EventEmitter<string>();
-    @ViewChild('essayPoints', { static: false }) form: NgForm;
+    @ViewChild('essayPoints', { static: false }) form?: NgForm;
 
     reviewExpanded = true;
     _score: number | undefined = undefined;

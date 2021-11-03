@@ -16,6 +16,7 @@
     "strictNullChecks": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
     // "useUnknownInCatchVariables": true, <- not available until TS4.4.0

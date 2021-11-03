@@ -27,11 +27,11 @@ import type { OnInit } from '@angular/core';
 })
 export class ExaminationEventDialogComponent implements OnInit {
     @Input() config?: ExaminationEventConfiguration;
-    @Input() requiresPassword: boolean;
-    start: Date;
-    description: string;
+    @Input() requiresPassword = false;
+    start = new Date();
+    description = '';
     password?: string;
-    hasEnrolments: boolean;
+    hasEnrolments = false;
     pwdInputType = 'password';
 
     constructor(public activeModal: NgbActiveModal, private translate: TranslateService) {}
@@ -42,8 +42,6 @@ export class ExaminationEventDialogComponent implements OnInit {
             this.description = this.config.examinationEvent.description;
             this.password = this.config.settingsPassword;
             this.hasEnrolments = this.config.examEnrolments.length > 0;
-        } else {
-            this.start = new Date();
         }
     }
 

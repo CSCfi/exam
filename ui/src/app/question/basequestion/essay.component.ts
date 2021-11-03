@@ -53,7 +53,7 @@ import type { Question } from '../../exam/exam.model';
     `,
 })
 export class EssayEditorComponent {
-    @Input() question: Question | QuestionDraft;
+    @Input() question!: Question | QuestionDraft;
 
     ngOnInit() {
         this.question.defaultEvaluationType = this.question.defaultEvaluationType || 'Points';

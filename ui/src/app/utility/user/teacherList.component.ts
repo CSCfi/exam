@@ -29,7 +29,7 @@ type Personnel = { examInspections: ExamInspection[]; examOwners: User[] };
     `,
 })
 export class TeacherListComponent implements OnInit {
-    @Input() exam: Personnel & { parent: Personnel | null };
+    @Input() exam!: Personnel & { parent: Personnel | null };
     @Input() useParent = false;
 
     owners = '';

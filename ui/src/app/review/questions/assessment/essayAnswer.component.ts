@@ -24,12 +24,12 @@ import type { ReviewQuestion } from '../../review.model';
     templateUrl: './essayAnswer.component.html',
 })
 export class EssayAnswerComponent {
-    @Input() answer: ReviewQuestion;
-    @Input() editable: boolean;
-    @Input() action: string;
+    @Input() answer!: ReviewQuestion;
+    @Input() editable = false;
+    @Input() action = '';
     @Output() onSelection = new EventEmitter<ReviewQuestion>();
 
-    name: string;
+    name = '';
 
     constructor(private Assessment: AssessmentService, private Attachment: AttachmentService) {}
 

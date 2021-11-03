@@ -14,18 +14,18 @@
  */
 import { Component, Input } from '@angular/core';
 
-import type { Exam } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
 import { MaturityService } from '../maturity/maturity.service';
 
+import type { Exam } from '../../../exam/exam.model';
 import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 @Component({
     selector: 'r-statement',
     templateUrl: './statement.component.html',
 })
 export class StatementComponent {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     hideEditor = false;
 
     constructor(private Attachment: AttachmentService, private Files: FileService, private Maturity: MaturityService) {}

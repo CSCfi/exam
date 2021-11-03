@@ -34,20 +34,20 @@ import type { QuestionDraft } from '../question.service';
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class QuestionBodyComponent {
-    @Input() question: ReverseQuestion | QuestionDraft;
-    @Input() currentOwners: User[];
-    @Input() lotteryOn: boolean;
-    @Input() examId: number;
-    @Input() sectionQuestion: ExamSectionQuestion;
-    @Input() collaborative: boolean;
+    @Input() question!: ReverseQuestion | QuestionDraft;
+    @Input() currentOwners: User[] = [];
+    @Input() lotteryOn = false;
+    @Input() examId = 0;
+    @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() collaborative = false;
 
-    isInPublishedExam: boolean;
-    examNames: string[];
-    sectionNames: string[];
+    isInPublishedExam = false;
+    examNames: string[] = [];
+    sectionNames: string[] = [];
     newOwner: { name?: string } = {};
     newOwnerTemplate?: User;
-    newType: string;
-    questionTypes: { type: string; name: string }[];
+    newType = '';
+    questionTypes: { type: string; name: string }[] = [];
 
     constructor(
         private http: HttpClient,

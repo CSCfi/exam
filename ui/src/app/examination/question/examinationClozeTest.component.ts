@@ -23,8 +23,8 @@ import type { ExaminationQuestion } from '../examination.model';
     templateUrl: './examinationClozeTest.component.html',
 })
 export class ExaminationClozeTestComponent {
-    @Input() sq: ExaminationQuestion;
-    @Input() examHash: string;
+    @Input() sq!: ExaminationQuestion;
+    @Input() examHash = '';
 
     constructor(private Examination: ExaminationService) {}
 

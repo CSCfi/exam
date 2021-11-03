@@ -36,8 +36,8 @@ import { ExaminationStatusService } from '../examinationStatus.service';
     `,
 })
 export class ExaminationLogoutComponent {
-    quitLinkEnabled: boolean;
-    reasonPhrase: string;
+    quitLinkEnabled = false;
+    reasonPhrase = '';
     quitLink?: string;
 
     constructor(

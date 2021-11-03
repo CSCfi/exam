@@ -49,7 +49,7 @@ export class UsersComponent implements OnInit {
         { type: 'TEACHER', name: 'sitnet_teacher', icon: 'bi-person-fill' },
         { type: 'STUDENT', name: 'sitnet_student', icon: 'bi-person' },
     ];
-    permissions: PermissionOption[];
+    permissions: PermissionOption[] = [];
     loader = { loading: false };
 
     constructor(

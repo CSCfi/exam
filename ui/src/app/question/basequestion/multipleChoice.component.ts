@@ -86,10 +86,10 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
     `,
 })
 export class MultipleChoiceEditorComponent {
-    @Input() question: Question | QuestionDraft;
-    @Input() showWarning: boolean;
-    @Input() lotteryOn: boolean;
-    @Input() allowOptionRemoval: boolean;
+    @Input() question!: Question | QuestionDraft;
+    @Input() showWarning = false;
+    @Input() lotteryOn = false;
+    @Input() allowOptionRemoval = false;
 
     constructor(private translate: TranslateService, private Question: QuestionService) {}
 

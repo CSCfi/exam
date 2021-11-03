@@ -27,7 +27,7 @@ import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
     templateUrl: './examPreParticipantSelector.component.html',
 })
 export class ExamPreParticipantSelectorComponent {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
 
     newPreParticipant: { email?: string } = { email: '' };
 

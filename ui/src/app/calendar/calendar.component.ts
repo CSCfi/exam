@@ -51,10 +51,10 @@ export type Organisation = {
     templateUrl: './calendar.component.html',
 })
 export class CalendarComponent implements OnInit {
-    @Input() isExternal: boolean;
-    @Input() isCollaborative: boolean;
+    @Input() isExternal = false;
+    @Input() isCollaborative = false;
 
-    isInteroperable: boolean;
+    isInteroperable = false;
     confirming = false;
     examInfo: ExamInfo = {
         examActiveStartDate: null,
@@ -72,10 +72,10 @@ export class CalendarComponent implements OnInit {
         time: string;
         accessibilities: Accessibility[];
     };
-    minDate: Date;
-    maxDate: Date;
-    reservationWindowEndDate: moment.Moment;
-    reservationWindowSize: number;
+    minDate = new Date();
+    maxDate = new Date();
+    reservationWindowEndDate?: moment.Moment;
+    reservationWindowSize = 0;
     selectedOrganisation?: Organisation;
 
     constructor(

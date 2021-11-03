@@ -26,10 +26,11 @@ import type { Week } from '../rooms/room.service';
     selector: 'open-hours',
 })
 export class OpenHoursComponent implements OnInit {
-    @Input() week: Week;
+    @Input() week: Week = {};
     @Output() onSelect = new EventEmitter();
-    weekdayNames: string[];
-    times: string[];
+
+    weekdayNames: string[] = [];
+    times: string[] = [];
 
     constructor(private room: RoomService, private dateTime: DateTimeService, private translate: TranslateService) {}
 

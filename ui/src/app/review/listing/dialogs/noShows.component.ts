@@ -31,7 +31,7 @@ interface NoShow {
     templateUrl: './noShows.component.html',
 })
 export class NoShowsComponent {
-    @Input() noShows: NoShow[];
+    @Input() noShows: NoShow[] = [];
 
     noShowPredicate = 'reservation.startAt';
     reverse = false;

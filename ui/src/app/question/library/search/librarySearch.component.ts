@@ -49,7 +49,9 @@ export class LibrarySearchComponent implements OnInit {
     filteredTags = this.tags;
     questions: LibraryQuestion[] = [];
 
-    constructor(private Library: LibraryService, private Session: SessionService) {}
+    constructor(private Library: LibraryService, private Session: SessionService) {
+        this.user = this.Session.getUser();
+    }
 
     private saveFilters = () => {
         const filters = {
@@ -89,7 +91,6 @@ export class LibrarySearchComponent implements OnInit {
     };
 
     ngOnInit() {
-        this.user = this.Session.getUser();
         const storedData = this.Library.loadFilters('search');
         if (storedData.filters) {
             this.exams = this.filteredExams = storedData.filters.exams || [];

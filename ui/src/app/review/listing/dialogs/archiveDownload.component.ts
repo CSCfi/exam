@@ -23,12 +23,10 @@ import * as toast from 'toastr';
     templateUrl: './archiveDownload.component.html',
 })
 export class ArchiveDownloadComponent {
-    params: { startDate: Date | null; endDate: Date | null };
+    params: { startDate: Date | null; endDate: Date | null } = { startDate: new Date(), endDate: new Date() };
+
     constructor(private modal: NgbActiveModal, private translate: TranslateService) {}
 
-    ngOnInit() {
-        this.params = { startDate: new Date(), endDate: new Date() };
-    }
     startDateChanged = (event: { date: Date | null }) => (this.params.startDate = event.date);
 
     endDateChanged = (event: { date: Date | null }) => (this.params.endDate = event.date);

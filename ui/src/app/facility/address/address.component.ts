@@ -26,13 +26,13 @@ import type { Address } from '../rooms/room.service';
     selector: 'exam-address',
 })
 export class AddressComponent {
-    @Input() address: Address;
-    @ViewChild('addressForm', { static: false }) addressForm: NgForm;
+    @Input() address!: Address;
+    @ViewChild('addressForm', { static: false }) addressForm?: NgForm;
 
     constructor(private room: RoomService, private translate: TranslateService) {}
 
     validateAndUpdateAddress = () => {
-        if (this.addressForm.valid) {
+        if (this.addressForm?.valid) {
             this.updateAddress();
         }
     };

@@ -35,19 +35,19 @@ interface RoomWithAddressVisibility extends ExamRoom {
 })
 export class RoomListComponent implements OnInit {
     user: User;
-    times: string[];
-    rooms: RoomWithAddressVisibility[];
+    times: string[] = [];
+    rooms: RoomWithAddressVisibility[] = [];
 
     constructor(
         private state: StateService,
         private session: SessionService,
         private room: RoomService,
         private translate: TranslateService,
-    ) {}
+    ) {
+        this.user = this.session.getUser();
+    }
 
     ngOnInit() {
-        this.user = this.session.getUser();
-
         if (this.user.isAdmin) {
             if (!this.state.params.id) {
                 this.room.getRooms$().subscribe((rooms) => {

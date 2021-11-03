@@ -29,9 +29,9 @@ import type { Exam, ExamInspection } from '../../exam.model';
     templateUrl: './examInspectorSelector.component.html',
 })
 export class ExamInspectorSelectorComponent implements OnInit {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
 
-    examInspections: ExamInspection[];
+    examInspections: ExamInspection[] = [];
 
     newInspector: {
         id?: number;

@@ -45,20 +45,20 @@ export class DatePickerFormatter extends NgbDateParserFormatter {
 export class DatePickerComponent implements OnInit {
     @Input() initialDate: Date | string | number | null = null;
     @Input() initiallyEmpty = false;
-    @Input() extra: boolean;
-    @Input() extraText: string;
+    @Input() extra = false;
+    @Input() extraText = '';
     @Input() modelOptions: Record<string, string> = {};
-    @Input() disabled: boolean;
+    @Input() disabled = false;
     @Input() optional = true;
 
     @Output() onUpdate = new EventEmitter<{ date: Date | null }>();
     @Output() onExtraAction = new EventEmitter<{ date: Date | null }>();
 
-    date: NgbDate | null;
+    date: NgbDate | null = null;
     showWeeks = true;
     format = 'dd.MM.yyyy';
-    today: NgbDate;
-    startDate: NgbDate;
+    today!: NgbDate;
+    startDate!: NgbDate;
 
     ngOnInit() {
         const now = moment();

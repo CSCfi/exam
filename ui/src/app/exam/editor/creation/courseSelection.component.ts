@@ -28,7 +28,7 @@ import type { Course, Exam } from '../../exam.model';
     templateUrl: './courseSelection.component.html',
 })
 export class CourseSelectionComponent implements OnInit {
-    exam: Exam;
+    exam!: Exam;
 
     constructor(
         private translate: TranslateService,

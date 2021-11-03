@@ -13,7 +13,7 @@ export class ExceptionDialogComponent {
     dateOptions = {
         'starting-day': 1,
     };
-    dateFormat: 'dd.MM.yyyy';
+    dateFormat = 'dd.MM.yyyy';
     exception: {
         startDate: Date;
         endDate: Date;

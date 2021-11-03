@@ -29,9 +29,9 @@ import type { FileResult } from '../../../utility/attachment/dialogs/attachmentS
     templateUrl: './feedback.component.html',
 })
 export class FeedbackComponent {
-    @Input() exam: Examination;
-    @Input() collaborative: boolean;
-    @Input() participation: ExamParticipation;
+    @Input() exam!: Examination;
+    @Input() collaborative = false;
+    @Input() participation!: ExamParticipation;
     feedbackComment = '';
 
     hideEditor = false;

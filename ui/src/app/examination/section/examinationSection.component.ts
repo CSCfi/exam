@@ -24,11 +24,11 @@ import type { Examination, ExaminationSection } from '../examination.model';
     templateUrl: './examinationSection.component.html',
 })
 export class ExaminationSectionComponent {
-    @Input() exam: Examination;
-    @Input() section: ExaminationSection;
+    @Input() exam!: Examination;
+    @Input() section!: ExaminationSection;
     @Input() index?: number;
-    @Input() isPreview: boolean;
-    @Input() isCollaborative: boolean;
+    @Input() isPreview = false;
+    @Input() isCollaborative = false;
 
     autosaver?: number;
 

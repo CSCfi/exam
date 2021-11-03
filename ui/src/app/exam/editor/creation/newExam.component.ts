@@ -26,15 +26,14 @@ import type { ExamExecutionType, Implementation } from '../../exam.model';
 export class NewExamComponent implements OnInit {
     executionTypes: (ExamExecutionType & { name: string })[] = [];
     type?: ExamExecutionType;
-    examinationType: Implementation;
-    byodExaminationSupported: boolean;
+    examinationType: Implementation = 'AQUARIUM';
+    byodExaminationSupported = false;
 
     constructor(private http: HttpClient, private Exam: ExamService) {}
 
     ngOnInit() {
         this.Exam.listExecutionTypes$().subscribe((types) => {
             this.executionTypes = types;
-            this.examinationType = 'AQUARIUM';
             this.http
                 .get<{ isByodExaminationSupported: boolean }>('/app/settings/byod')
                 .subscribe((resp) => (this.byodExaminationSupported = resp.isByodExaminationSupported));

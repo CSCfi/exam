@@ -21,7 +21,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     templateUrl: './publicationErrorDialog.component.html',
 })
 export class PublicationErrorDialogComponent {
-    @Input() errors: string[];
+    @Input() errors: string[] = [];
 
     constructor(public activeModal: NgbActiveModal) {}
 }

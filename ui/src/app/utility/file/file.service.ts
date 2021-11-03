@@ -25,7 +25,7 @@ type Container = { attachment?: Attachment; objectVersion?: number };
 
 @Injectable()
 export class FileService {
-    maxFileSize: number;
+    maxFileSize = 0;
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
     download(url: string, filename: string, params?: Record<string, string | string[]>, post?: boolean) {

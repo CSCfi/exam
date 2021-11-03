@@ -25,10 +25,10 @@ import { Component, Input } from '@angular/core';
     `,
 })
 export class TableSortComponent {
-    @Input() by: string;
-    @Input() predicate: string;
-    @Input() text: string;
-    @Input() reverse: boolean;
+    @Input() by = '';
+    @Input() predicate = '';
+    @Input() text = '';
+    @Input() reverse = false;
 
     getSortClass = () =>
         this.by === this.predicate ? (this.reverse ? 'bi-sort-alpha-down' : 'bi-sort-alpha-up') : 'bi-arrow-down-up';

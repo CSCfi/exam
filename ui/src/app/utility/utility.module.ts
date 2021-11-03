@@ -31,9 +31,6 @@ import { ConfirmationDialogComponent } from './dialogs/confirmationDialog.compon
 import { ConfirmationDialogService } from './dialogs/confirmationDialog.service';
 import { FileService } from './file/file.service';
 import { FilterByPipe } from './filter/filterBy.pipe';
-import { DynamicFormComponent } from './forms/dynamicForm.component';
-import { DynamicFormQuestionComponent } from './forms/dynamicFormQuestion.component';
-import { QuestionControlService } from './forms/questionControl.service';
 import { HistoryBackComponent } from './history/historyBack.component';
 import { SanitizedHtmlPipe } from './html/sanitizedHtml.pipe';
 import { LanguageService } from './language/language.service';
@@ -78,7 +75,6 @@ import { WindowRef } from './window/window.service';
         SanitizedHtmlPipe,
         DiffInMinutesPipe,
         DiffInDaysPipe,
-        DynamicFormComponent,
         FilterByPipe,
         MinDirective,
         MaxDirective,
@@ -105,8 +101,6 @@ import { WindowRef } from './window/window.service';
         SanitizedHtmlPipe,
         DiffInMinutesPipe,
         DiffInDaysPipe,
-        DynamicFormComponent,
-        DynamicFormQuestionComponent,
         FilterByPipe,
         MinDirective,
         MaxDirective,
@@ -122,7 +116,6 @@ import { WindowRef } from './window/window.service';
         CommonExamService,
         UserService,
         WindowRef,
-        QuestionControlService,
     ],
 })
 export class UtilityModule {}

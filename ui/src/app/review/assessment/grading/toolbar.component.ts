@@ -30,10 +30,10 @@ import type { Examination } from '../../../examination/examination.model';
     templateUrl: './toolbar.component.html',
 })
 export class ToolbarComponent {
-    @Input() valid: boolean;
-    @Input() participation: ExamParticipation;
-    @Input() collaborative: boolean;
-    @Input() exam: Examination;
+    @Input() valid = false;
+    @Input() participation!: ExamParticipation;
+    @Input() collaborative = false;
+    @Input() exam!: Examination;
 
     constructor(
         private state: StateService,

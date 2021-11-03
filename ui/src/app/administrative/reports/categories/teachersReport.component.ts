@@ -70,10 +70,10 @@ import type { User } from '../../../session/session.service';
     selector: 'teachers-report',
 })
 export class TeachersReportComponent {
-    @Input() teachers: Option<User, number>[];
+    @Input() teachers: Option<User, number>[] = [];
     teacher?: number;
-    answerStartDate: Date | null;
-    answerEndDate: Date | null;
+    answerStartDate: Date | null = null;
+    answerEndDate: Date | null = null;
 
     constructor(private datePipe: DatePipe, private translate: TranslateService, private files: FileService) {}
 

@@ -36,15 +36,15 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
     templateUrl: './printedAssessment.component.html',
 })
 export class PrintedAssessmentComponent {
-    @Input() collaborative: boolean;
-    questionSummary: QuestionAmounts;
-    exam: Exam;
+    @Input() collaborative = false;
+    questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
+    exam!: Exam;
     user: User;
-    participation: ExamParticipation;
-    previousParticipations: PreviousParticipation[];
-    student: User;
-    enrolment: ExamEnrolment;
-    reservation: Reservation;
+    participation!: ExamParticipation;
+    previousParticipations: PreviousParticipation[] = [];
+    student?: User;
+    enrolment?: ExamEnrolment;
+    reservation!: Reservation;
 
     constructor(
         private state: UIRouterGlobals,
@@ -55,7 +55,9 @@ export class PrintedAssessmentComponent {
         private CommonExam: CommonExamService,
         private Assessment: AssessmentService,
         private Session: SessionService,
-    ) {}
+    ) {
+        this.user = this.Session.getUser();
+    }
 
     ngAfterViewInit() {
         const path = this.collaborative ? `${this.state.params.id}/${this.state.params.ref}` : this.state.params.id;

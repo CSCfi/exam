@@ -43,13 +43,13 @@ import type { Exam, AutoEvaluationConfig, ExaminationDate, ExaminationEventConfi
     templateUrl: './examPublication.component.html',
 })
 export class ExamPublicationComponent implements OnInit {
-    @Input() exam: Exam;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() collaborative = false;
 
     user: User;
     hostName: string;
-    autoEvaluation: { enabled: boolean };
-    examDurations: number[];
+    autoEvaluation: { enabled: boolean } = { enabled: false };
+    examDurations: number[] = [];
     visibleParticipantSelector = 'participant';
 
     constructor(
@@ -62,14 +62,13 @@ export class ExamPublicationComponent implements OnInit {
         private Exam: ExamService,
         private Confirmation: ConfirmationDialogService,
         private Tabs: ExamTabService,
-    ) {}
-
-    ngOnInit() {
+    ) {
         this.hostName = this.windowRef.nativeWindow.location.origin;
         this.user = this.Session.getUser();
-        this.autoEvaluation = {
-            enabled: !!this.exam.autoEvaluationConfig,
-        };
+    }
+
+    ngOnInit() {
+        this.autoEvaluation = { enabled: !!this.exam.autoEvaluationConfig };
         this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe(
             (data) => (this.examDurations = data.examDurations),
             (error) => toast.error(error),

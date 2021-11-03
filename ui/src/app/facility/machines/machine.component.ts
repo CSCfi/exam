@@ -33,8 +33,8 @@ interface SoftwareWithClass extends Software {
     selector: 'machine',
 })
 export class MachineComponent implements OnInit {
-    machine: ExamMachine;
-    software: SoftwareWithClass[];
+    machine!: ExamMachine;
+    software: SoftwareWithClass[] = [];
 
     constructor(
         private Confirmation: ConfirmationDialogService,

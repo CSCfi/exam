@@ -59,13 +59,12 @@ import type { User } from '../../../session/session.service';
     </div>`,
 })
 export class LibraryOwnersComponent implements OnInit {
-    @Input() selections: number[];
+    @Input() selections: number[] = [];
     @Output() selected = new EventEmitter<{ user: User; selections: number[] }>();
 
     showOwnerSelection = false;
-
-    teachers: User[];
-    selectedTeacherId: number | undefined;
+    teachers: User[] = [];
+    selectedTeacherId?: number;
 
     constructor(private translate: TranslateService, private Question: QuestionService, private User: UserService) {}
 

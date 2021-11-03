@@ -68,8 +68,8 @@ import type { User } from '../session.service';
 export class DevLoginComponent {
     @Output() onLoggedIn = new EventEmitter<User>();
 
-    username: string;
-    password: string;
+    username = '';
+    password = '';
 
     constructor(private Session: SessionService) {}
 

@@ -47,25 +47,25 @@ type QuestionData = {
     templateUrl: './examSummary.component.html',
 })
 export class ExamSummaryComponent {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     @Input() reviews: ExamParticipation[] = [];
-    @Input() collaborative: boolean;
+    @Input() collaborative = false;
 
-    gradeDistribution: Record<string, number>;
-    gradedCount: number;
-    gradeTimeData: Array<{ x: string; y: number }>;
+    gradeDistribution: Record<string, number> = {};
+    gradedCount = 0;
+    gradeTimeData: Array<{ x: string; y: number }> = [];
     examinationDateData: { date: number; amount: number }[] = [];
     questionScoreData: QuestionData[] = [];
     gradeDistributionData: number[] = [];
     gradeDistributionLabels: string[] = [];
     abortedExams: Review[] = [];
     noShows: ExamEnrolment[] = [];
-    gradeDistributionChart: Chart;
-    gradeTimeChart: Chart;
-    examinationDateDistribution: Chart;
-    questionScoreChart: Chart;
-    approvalRatingChart: Chart;
-    sectionScores: Record<string, { max: number; totals: number[] }>;
+    gradeDistributionChart!: Chart;
+    gradeTimeChart!: Chart;
+    examinationDateDistribution!: Chart;
+    questionScoreChart!: Chart;
+    approvalRatingChart!: Chart;
+    sectionScores: Record<string, { max: number; totals: number[] }> = {};
 
     constructor(
         private http: HttpClient,

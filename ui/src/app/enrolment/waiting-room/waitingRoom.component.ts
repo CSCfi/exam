@@ -36,10 +36,10 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     templateUrl: './waitingRoom.component.html',
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {
-    enrolment: WaitingEnrolment;
-    isUpcoming: boolean;
-    timeoutId: number;
-    roomInstructions: string;
+    enrolment!: WaitingEnrolment;
+    isUpcoming = false;
+    timeoutId = 0;
+    roomInstructions = '';
 
     constructor(
         private http: HttpClient,

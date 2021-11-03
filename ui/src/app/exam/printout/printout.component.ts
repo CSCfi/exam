@@ -29,7 +29,8 @@ type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & {
     templateUrl: './printout.component.html',
 })
 export class PrintoutComponent {
-    exam: Printout;
+    exam!: Printout;
+
     constructor(
         private http: HttpClient,
         private state: StateService,

@@ -34,11 +34,11 @@ import type { User } from '../../session/session.service';
     templateUrl: './assessment.component.html',
 })
 export class AssessmentComponent {
-    @Input() collaborative: boolean;
+    @Input() collaborative = false;
 
-    questionSummary: QuestionAmounts;
-    exam: Examination;
-    participation: ExamParticipation;
+    questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
+    exam!: Examination;
+    participation!: ExamParticipation;
     user: User;
     hideGeneralInfo = false;
     hideGradeInfo = false;
@@ -53,7 +53,9 @@ export class AssessmentComponent {
         private Exam: ExamService,
         private Session: SessionService,
         private Window: WindowRef,
-    ) {}
+    ) {
+        this.user = this.Session.getUser();
+    }
 
     ngOnInit() {
         const path = this.collaborative
@@ -82,7 +84,6 @@ export class AssessmentComponent {
                 this.questionSummary = this.Question.getQuestionAmounts(exam);
                 this.exam = exam;
                 this.participation = participation;
-                this.user = this.Session.getUser();
             },
             (err) => toast.error(err.data),
         );

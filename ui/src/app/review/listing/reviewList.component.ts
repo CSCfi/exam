@@ -31,8 +31,8 @@ import type { Review } from '../review.model';
     templateUrl: './reviewList.component.html',
 })
 export class ReviewListComponent {
-    @Input() exam: Exam;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() collaborative = false;
     @Input() reviews: ExamParticipation[] = [];
 
     noShows: ExamEnrolment[] = [];

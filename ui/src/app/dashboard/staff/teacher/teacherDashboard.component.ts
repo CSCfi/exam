@@ -32,13 +32,13 @@ import type { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teach
     templateUrl: './teacherDashboard.component.html',
 })
 export class TeacherDashboardComponent implements OnInit {
-    activeTab: string;
-    userId: number;
+    activeTab = '';
+    userId = 0;
     executionTypes: (ExamExecutionType & { examinationTypes: { type: string; name: string }[] })[] = [];
-    activeExtraColumns: ExtraColumnName[] = [];
-    finishedExtraColumns: ExtraColumnName[] = [];
-    archivedExtraColumns: ExtraColumnName[] = [];
-    draftExtraColumns: ExtraColumnName[] = [];
+    activeExtraColumns: ExtraColumnName[];
+    finishedExtraColumns: ExtraColumnName[];
+    archivedExtraColumns: ExtraColumnName[];
+    draftExtraColumns: ExtraColumnName[];
 
     finishedExams: FinalizedExam[] = [];
     filteredFinished: FinalizedExam[] = [];

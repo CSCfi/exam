@@ -57,7 +57,8 @@ interface ExamInfo {
     selector: 'exam-statistics',
 })
 export class ExamStatisticsComponent implements OnInit {
-    @Input() queryParams: QueryParams;
+    @Input() queryParams: QueryParams = {};
+
     exams: ExamInfo[] = [];
 
     constructor(private http: HttpClient) {}

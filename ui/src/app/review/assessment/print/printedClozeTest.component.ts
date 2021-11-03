@@ -22,7 +22,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
     templateUrl: './templates/clozeTest.component.html',
 })
 export class PrintedClozeTestComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() sectionQuestion!: ExamSectionQuestion;
 
     hasForcedScore = () => _.isNumber(this.sectionQuestion.forcedScore);
 

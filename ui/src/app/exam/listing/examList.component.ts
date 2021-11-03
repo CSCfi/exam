@@ -40,10 +40,10 @@ export class ExamListingComponent {
         { view: 'SAVED', showExpired: false },
         { view: 'DRAFT', showExpired: false },
     ];
-    examsPredicate: string;
-    reverse: boolean;
-    filter: { text: string };
-    loader: { loading: boolean };
+    examsPredicate = 'examActiveEndDate';
+    reverse = true;
+    filter = { text: '' };
+    loader = { loading: false };
     exams: ExamListExam[] = [];
     subject = new Subject<string>();
     ngUnsubscribe = new Subject();
@@ -63,11 +63,6 @@ export class ExamListingComponent {
     }
 
     ngOnInit() {
-        this.examsPredicate = 'examActiveEndDate';
-        this.reverse = true;
-        this.filter = { text: '' };
-        this.loader = { loading: false };
-
         this.subject
             .pipe(
                 debounceTime(500),

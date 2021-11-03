@@ -30,9 +30,9 @@ import type { Exam } from '../../exam.model';
     templateUrl: './examOwnerSelector.component.html',
 })
 export class ExamOwnerSelectorComponent implements OnInit {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
 
-    examOwners: User[];
+    examOwners: User[] = [];
 
     newOwner: {
         id?: number;

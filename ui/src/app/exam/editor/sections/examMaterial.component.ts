@@ -29,8 +29,8 @@ export class ExamMaterialComponent {
     materials: ExamMaterial[] = [];
     filteredMaterials: ExamMaterial[] = [];
     newMaterial: Partial<ExamMaterial> = {};
-    filter: string;
-    materialsChanged: boolean;
+    filter = '';
+    materialsChanged = false;
 
     ngOnInit() {
         this.http

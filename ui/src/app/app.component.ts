@@ -50,7 +50,7 @@ import type { User } from './session/session.service';
 export class AppComponent {
     user?: User;
     hideNavBar = false;
-    devLoginRequired: boolean;
+    devLoginRequired = false;
     private ngUnsubscribe = new Subject();
 
     constructor(

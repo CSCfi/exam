@@ -33,19 +33,17 @@ type AutoEvaluationConfigurationTemplate = {
     templateUrl: './autoEvaluation.component.html',
 })
 export class AutoEvaluationComponent implements OnInit {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     @Output() onEnabled = new EventEmitter<void>();
     @Output() onDisabled = new EventEmitter<void>();
     @Output() onUpdate = new EventEmitter<{ config: AutoEvaluationConfig }>();
-    @ViewChild('gradesForm', { static: false }) gradesForm: NgForm;
+    @ViewChild('gradesForm', { static: false }) gradesForm?: NgForm;
 
     autoevaluation: AutoEvaluationConfigurationTemplate;
-    config: AutoEvaluationConfig;
+    config?: AutoEvaluationConfig;
     autoevaluationDisplay: { visible: boolean };
 
-    constructor(private Exam: ExamService, private CommonExam: CommonExamService) {}
-
-    ngOnInit() {
+    constructor(private Exam: ExamService, private CommonExam: CommonExamService) {
         this.autoevaluation = {
             enabled: false,
             releaseTypes: [
@@ -61,6 +59,9 @@ export class AutoEvaluationComponent implements OnInit {
             ],
         };
         this.autoevaluationDisplay = { visible: false };
+    }
+
+    ngOnInit() {
         this.prepareAutoEvaluationConfig();
     }
 
@@ -126,6 +127,6 @@ export class AutoEvaluationComponent implements OnInit {
     };
 
     propertyChanged = () => {
-        if (this.config && this.gradesForm.valid) this.onUpdate.emit({ config: this.config });
+        if (this.config && this.gradesForm?.valid) this.onUpdate.emit({ config: this.config });
     };
 }

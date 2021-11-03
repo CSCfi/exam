@@ -25,9 +25,9 @@ import type { ReviewedExam, Scores } from '../enrolment.model';
     templateUrl: './examFeedback.component.html',
 })
 export class ExamFeedbackComponent {
-    @Input() assessment: ReviewedExam;
-    @Input() scores: Scores;
-    @Input() collaborative: boolean;
+    @Input() assessment!: ReviewedExam;
+    @Input() scores!: Scores;
+    @Input() collaborative = false;
 
     constructor(private Attachment: AttachmentService, private Files: FileService) {}
 

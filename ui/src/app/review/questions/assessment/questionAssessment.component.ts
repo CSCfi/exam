@@ -34,9 +34,8 @@ import type { QuestionReview, ReviewQuestion } from '../../review.model';
 export class QuestionAssessmentComponent {
     user: User;
     examId: number;
-    ids: number[];
     reviews: QuestionReview[] = [];
-    selectedReview: QuestionReview & { expanded: boolean };
+    selectedReview!: QuestionReview & { expanded: boolean };
     assessedAnswers: ReviewQuestion[] = [];
     unassessedAnswers: ReviewQuestion[] = [];
     lockedAnswers: ReviewQuestion[] = [];
@@ -48,11 +47,12 @@ export class QuestionAssessmentComponent {
         private Assessment: AssessmentService,
         private Session: SessionService,
         private Attachment: AttachmentService,
-    ) {}
-
-    ngOnInit() {
+    ) {
         this.user = this.Session.getUser();
         this.examId = this.state.params.id;
+    }
+
+    ngOnInit() {
         const ids = this.state.params.q || [];
         this.QuestionReview.getReviews$(this.examId, ids).subscribe(
             (reviews) => {

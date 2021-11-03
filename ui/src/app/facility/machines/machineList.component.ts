@@ -25,8 +25,9 @@ import type { ExamRoom, ExamMachine } from '../../reservation/reservation.model'
     selector: 'machine-list',
 })
 export class MachineListComponent implements OnInit {
-    @Input() room: ExamRoom;
-    showMachines: boolean;
+    @Input() room!: ExamRoom;
+
+    showMachines = false;
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 

@@ -39,8 +39,8 @@ import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
     `,
 })
 export class ExamQuestionEditorComponent {
-    @Input() examQuestion: ExamSectionQuestion;
-    @Input() lotteryOn: boolean;
+    @Input() examQuestion!: ExamSectionQuestion;
+    @Input() lotteryOn = false;
     transitionWatcher: unknown;
 
     constructor(private modal: NgbActiveModal, private transition: TransitionService, private Window: WindowRef) {

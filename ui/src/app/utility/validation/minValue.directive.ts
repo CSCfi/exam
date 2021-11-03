@@ -7,7 +7,7 @@ import type { Validator, AbstractControl, ValidationErrors } from '@angular/form
     providers: [{ provide: NG_VALIDATORS, useExisting: MinDirective, multi: true }],
 })
 export class MinDirective implements Validator {
-    @Input() min: number;
+    @Input() min = 0;
 
     validate(control: AbstractControl): ValidationErrors | null {
         return Validators.min(this.min)(control);

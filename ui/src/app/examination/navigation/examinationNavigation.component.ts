@@ -22,13 +22,13 @@ import type { Examination, ExaminationSection, NavigationPage } from '../examina
     templateUrl: './examinationNavigation.component.html',
 })
 export class ExaminationNavigationComponent {
-    @Input() exam: Examination;
+    @Input() exam!: Examination;
     @Input() activeSection?: ExaminationSection;
     @Output() onSelect = new EventEmitter<{ page: Partial<NavigationPage> }>();
 
-    pages: Partial<NavigationPage>[];
-    next: Partial<NavigationPage>;
-    prev: Partial<NavigationPage>;
+    pages: Partial<NavigationPage>[] = [];
+    next!: Partial<NavigationPage>;
+    prev!: Partial<NavigationPage>;
 
     ngOnInit() {
         this.pages = this.exam.examSections.map((es) => ({ id: es.id, text: es.name, type: 'section', valid: true }));

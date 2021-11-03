@@ -12,8 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { ChangeDetectorRef, Component, Input, ViewChild } from '@angular/core';
-import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
+import { ChangeDetectorRef, Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
 import { Subject } from 'rxjs';
@@ -33,15 +32,13 @@ import type { User } from '../../session/session.service';
     templateUrl: './examTabs.component.html',
 })
 export class ExamTabsComponent implements OnInit, OnDestroy {
-    @Input() exam: Exam;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() collaborative = false;
 
     user: User;
     examInfo: { title: string | null };
     activeTab = 1;
     private ngUnsubscribe = new Subject();
-
-    @ViewChild('nav', { static: false }) nav: NgbNav;
 
     constructor(
         private cdr: ChangeDetectorRef,
@@ -50,6 +47,7 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
         private Session: SessionService,
         private Tabs: ExamTabService,
     ) {
+        this.user = this.Session.getUser();
         this.examInfo = { title: null };
         this.Tabs.tabChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((tab: number) => {
             this.activeTab = tab;
@@ -61,7 +59,6 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.user = this.Session.getUser();
         this.updateTitle(!this.exam.course ? null : this.exam.course.code, this.exam.name);
         this.initGradeScale();
     }

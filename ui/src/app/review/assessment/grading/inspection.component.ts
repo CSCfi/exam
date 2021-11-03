@@ -26,12 +26,12 @@ import type { OnInit } from '@angular/core';
     templateUrl: './inspection.component.html',
 })
 export class InspectionComponent implements OnInit {
-    @Input() inspection: ExamInspection;
-    @Input() user: User;
-    @Input() disabled: boolean;
+    @Input() inspection!: ExamInspection;
+    @Input() user!: User;
+    @Input() disabled = false;
     @Output() onInspection = new EventEmitter<void>();
 
-    reviewStatuses: { key: boolean; value: string }[];
+    reviewStatuses: { key: boolean; value: string }[] = [];
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 

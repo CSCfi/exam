@@ -35,12 +35,12 @@ import type { ExamSection, ExamMaterial, ExamSectionQuestion, Question } from '.
     templateUrl: './section.component.html',
 })
 export class SectionComponent {
-    @Input() section: ExamSection;
-    @Input() index: number;
-    @Input() examId: number;
-    @Input() canBeOptional: boolean;
-    @Input() collaborative: boolean;
-    @Input() materials: ExamMaterial[];
+    @Input() section!: ExamSection;
+    @Input() index = 0;
+    @Input() examId = 0;
+    @Input() canBeOptional = false;
+    @Input() collaborative = false;
+    @Input() materials: ExamMaterial[] = [];
 
     @Output() onDelete = new EventEmitter<ExamSection>();
     @Output() onMaterialsChanged = new EventEmitter<void>();

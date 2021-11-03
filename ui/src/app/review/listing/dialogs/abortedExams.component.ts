@@ -29,8 +29,8 @@ import type { Review } from '../../review.model';
     templateUrl: './abortedExams.component.html',
 })
 export class AbortedExamsComponent {
-    @Input() exam: Exam;
-    @Input() abortedExams: Review[];
+    @Input() exam!: Exam;
+    @Input() abortedExams: Review[] = [];
 
     abortedPredicate = 'started';
     reverse = false;

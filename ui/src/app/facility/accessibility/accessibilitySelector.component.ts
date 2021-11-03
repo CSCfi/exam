@@ -26,8 +26,8 @@ import type { Accessibility, ExamRoom } from '../../reservation/reservation.mode
     selector: 'accessibility-selector',
 })
 export class AccessibilitySelectorComponent implements OnInit {
-    @Input() room: ExamRoom;
-    accessibilities: Accessibility[];
+    @Input() room!: ExamRoom;
+    accessibilities: Accessibility[] = [];
 
     constructor(private translate: TranslateService, private accessibilityService: AccessibilityService) {}
 

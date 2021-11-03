@@ -58,8 +58,8 @@ import type { OpeningHours } from '../calendar.service';
     `,
 })
 export class SelectedRoomComponent {
-    @Input() room: ExamRoom;
-    @Input() viewStart: Date;
+    @Input() room!: ExamRoom;
+    @Input() viewStart = new Date();
 
     openingHours: OpeningHours[] = [];
     exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];

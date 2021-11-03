@@ -24,14 +24,13 @@ import type { Exam } from '../exam.model';
     templateUrl: './printoutListing.component.html',
 })
 export class PrintoutListingComponent {
-    printouts: (Exam & { examinationDatesAggregate: string })[];
-    predicate: string;
-    reverse: boolean;
+    printouts: (Exam & { examinationDatesAggregate: string })[] = [];
+    predicate = 'examinationDatesAggregate';
+    reverse = true;
+
     constructor(private http: HttpClient) {}
 
     ngOnInit() {
-        this.predicate = 'examinationDatesAggregate';
-        this.reverse = true;
         this.http
             .get<Exam[]>('/app/exam/printouts')
             .pipe(

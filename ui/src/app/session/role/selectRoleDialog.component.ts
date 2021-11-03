@@ -51,7 +51,7 @@ import type { User } from '../session.service';
     `,
 })
 export class SelectRoleDialogComponent {
-    @Input() user: User;
+    @Input() user!: User;
 
     constructor(public activeModal: NgbActiveModal) {}
 }

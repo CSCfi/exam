@@ -34,9 +34,9 @@ import type { User } from '../../../session/session.service';
     templateUrl: './examParticipantSelector.component.html',
 })
 export class ExamParticipantSelectorComponent implements OnInit {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     newParticipant: { id?: number; name?: string } = {};
-    participants: User[];
+    participants: User[] = [];
 
     constructor(private http: HttpClient, private translate: TranslateService, private Enrolment: EnrolmentService) {}
 

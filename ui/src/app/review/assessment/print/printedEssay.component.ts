@@ -23,7 +23,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
     templateUrl: './templates/essay.component.html',
 })
 export class PrintedEssayComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() sectionQuestion!: ExamSectionQuestion;
 
     constructor(private Assessment: AssessmentService) {}
 

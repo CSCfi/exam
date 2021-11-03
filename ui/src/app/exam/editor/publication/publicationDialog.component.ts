@@ -24,8 +24,8 @@ import type { Exam } from '../../exam.model';
     templateUrl: './publicationDialog.component.html',
 })
 export class PublicationDialogComponent {
-    @Input() exam: Exam;
-    @Input() prePublication: boolean;
+    @Input() exam!: Exam;
+    @Input() prePublication = false;
 
     constructor(public activeModal: NgbActiveModal, private translate: TranslateService) {}
 

@@ -39,17 +39,17 @@
         </div>
         <div class="col-md-4">{{ participation.duration | date: 'HH:mm' }}</div>
     </div>
-    <div class="row" *ngIf="enrolment.information">
+    <div class="row" *ngIf="enrolment?.information">
         <div class="col-md-2">
             <strong>{{ 'sitnet_student_enrolment_info' | translate }}:</strong>
         </div>
-        <div class="col-md-10">{{ enrolment.information }}</div>
+        <div class="col-md-10">{{ enrolment?.information }}</div>
     </div>
     <div class="row">
         <div class="col-md-2">
             <strong>{{ 'sitnet_examination_location' | translate }}:</strong>
         </div>
-        <div class="col-md-4" *ngIf="reservation?.machine?.room">
+        <div class="col-md-4" *ngIf="reservation.machine.room">
             {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
         </div>
         <div class="col-md-4" *ngIf="!reservation?.machine?.room">N/A</div>

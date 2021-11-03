@@ -15,17 +15,17 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { SessionService } from '../../../session/session.service';
-import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
+import type { QuestionReview } from '../../review.model';
 @Component({
     selector: 'question-flow-category',
     templateUrl: './questionFlowCategory.component.html',
 })
 export class QuestionFlowCategoryComponent {
-    @Input() categoryTitle: string;
+    @Input() categoryTitle = '';
     @Input() reviews: QuestionReview[] = [];
-    @Input() allDone: boolean;
+    @Input() allDone = false;
     @Output() onSelection = new EventEmitter<QuestionReview>();
 
     hideCategory = false;

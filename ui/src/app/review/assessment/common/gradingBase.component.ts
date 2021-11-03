@@ -9,9 +9,9 @@ import type { LanguageService } from '../../../utility/language/language.service
 import type { AssessmentService } from '../assessment.service';
 export abstract class GradingBaseComponent {
     selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null };
-    grades: SelectableGrade[];
-    creditTypes: (ExamType & { name: string })[];
-    languages: (ExamLanguage & { name: string })[];
+    grades: SelectableGrade[] = [];
+    creditTypes: (ExamType & { name: string })[] = [];
+    languages: (ExamLanguage & { name: string })[] = [];
 
     constructor(
         protected http: HttpClient,

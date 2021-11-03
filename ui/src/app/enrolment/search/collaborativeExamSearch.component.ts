@@ -29,8 +29,8 @@ import type { CollaborativeExamInfo } from '../enrolment.model';
 })
 export class CollaborativeExamSearchComponent implements OnInit {
     exams: CollaborativeExamInfo[] = [];
-    filter: { text: string };
-    loader: { loading: boolean };
+    filter = { text: '' };
+    loader = { loading: false };
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
 

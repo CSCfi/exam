@@ -21,8 +21,8 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     templateUrl: './showInstructionsDialog.component.html',
 })
 export class ShowInstructionsDialogComponent {
-    @Input() instructions: string;
-    @Input() title: string;
+    @Input() instructions = '';
+    @Input() title = '';
 
     constructor(public activeModal: NgbActiveModal) {}
 

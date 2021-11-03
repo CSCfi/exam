@@ -76,11 +76,11 @@ import type { ExamInfo } from '../calendar.component';
     `,
 })
 export class CalendarExamInfoComponent {
-    @Input() examInfo: ExamInfo;
-    @Input() reservationWindowSize: number;
-    @Input() collaborative: boolean;
+    @Input() examInfo!: ExamInfo;
+    @Input() reservationWindowSize = 0;
+    @Input() collaborative = false;
 
-    reservationWindowEndDate: moment.Moment;
+    reservationWindowEndDate?: moment.Moment;
 
     constructor(private translate: TranslateService, private DateTime: DateTimeService) {}
 
@@ -94,8 +94,9 @@ export class CalendarExamInfoComponent {
         const text = this.translate
             .instant('sitnet_description_reservation_window')
             .replace('{}', this.reservationWindowSize.toString());
-        return `${text} (${this.reservationWindowEndDate.format('DD.MM.YYYY')})`;
+        return `${text} (${this.reservationWindowEndDate?.format('DD.MM.YYYY')})`;
     }
 
-    showReservationWindowInfo = (): boolean => moment(this.examInfo.examActiveEndDate) > this.reservationWindowEndDate;
+    showReservationWindowInfo = (): boolean =>
+        !!this.reservationWindowEndDate && moment(this.examInfo.examActiveEndDate) > this.reservationWindowEndDate;
 }

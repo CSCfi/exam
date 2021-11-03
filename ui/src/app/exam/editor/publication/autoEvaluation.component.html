@@ -71,9 +71,9 @@
 <div class="row" [hidden]="!autoevaluationDisplay.visible">
     <div
         class="col-md-12 pt-2"
-        [ngStyle]="gradesForm.invalid ? { border: 'red 1px solid' } : { border: 'white 1px solid' }"
+        [ngStyle]="gradesForm?.invalid ? { border: 'red 1px solid' } : { border: 'white 1px solid' }"
     >
-        <form role="form" #gradesForm="ngForm" appUniqueValues name="gradeEvaluations">
+        <form role="form" #gradesForm="ngForm" appUniqueValues name="gradeEvaluations" *ngIf="config">
             <div *ngFor="let ge of config.gradeEvaluations | orderBy: 'grade.name'">
                 <div class="row padl30 mb-2">
                     <div class="col-md-2">
@@ -138,7 +138,7 @@
                 <div class="col-md-6">
                     <date-picker
                         (onUpdate)="releaseDateChanged($event)"
-                        [initialDate]="config.releaseDate"
+                        [initialDate]="config ? config.releaseDate : null"
                     ></date-picker>
                 </div>
             </div>
@@ -146,6 +146,7 @@
                 <div class="col-md-6">
                     <div class="sitnet-info-text">{{ 'sitnet_autoevaluation_release_after_days' | translate }}:</div>
                     <input
+                        *ngIf="config"
                         name="amountDays"
                         type="number"
                         lang="en"

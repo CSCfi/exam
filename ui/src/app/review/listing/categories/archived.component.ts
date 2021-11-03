@@ -27,9 +27,9 @@ import type { ReviewListView } from '../reviewList.service';
 })
 export class ArchivedReviewsComponent {
     @Input() reviews: Review[] = [];
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
 
-    view: ReviewListView;
+    view!: ReviewListView;
 
     constructor(
         private ReviewList: ReviewListService,

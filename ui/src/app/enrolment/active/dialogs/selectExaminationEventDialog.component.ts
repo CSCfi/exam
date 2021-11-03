@@ -25,10 +25,10 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
     templateUrl: './selectExaminationEventDialog.component.html',
 })
 export class SelectExaminationEventDialogComponent implements OnInit {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     @Input() existingEventId?: number;
 
-    configs: ExaminationEventConfiguration[];
+    configs: ExaminationEventConfiguration[] = [];
 
     constructor(public activeModal: NgbActiveModal) {}
 

@@ -23,7 +23,7 @@ import type { ExamSectionQuestion, ExamSectionQuestionOption } from '../../../ex
     templateUrl: './claimChoiceAnswer.component.html',
 })
 export class ClaimChoiceAnswerComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() sectionQuestion!: ExamSectionQuestion;
 
     reviewExpanded = true;
 

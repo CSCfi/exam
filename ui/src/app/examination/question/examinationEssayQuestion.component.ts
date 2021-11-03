@@ -27,9 +27,10 @@ import type { EssayAnswer } from '../../exam/exam.model';
     templateUrl: './examinationEssayQuestion.component.html',
 })
 export class ExaminationEssayQuestionComponent {
-    @Input() sq: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
-    @Input() exam: Examination;
-    @Input() isPreview: boolean;
+    @Input() sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
+    @Input() exam!: Examination;
+    @Input() isPreview = false;
+
     constructor(
         private Examination: ExaminationService,
         private Attachment: AttachmentService,

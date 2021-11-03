@@ -27,8 +27,8 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     `,
 })
 export class ConfirmationDialogComponent {
-    title: string;
-    description: string;
+    title = '';
+    description = '';
 
     constructor(public activeModal: NgbActiveModal) {}
 }

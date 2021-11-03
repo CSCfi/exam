@@ -30,14 +30,14 @@ import type { ExamEnrolment } from '../enrolment.model';
     templateUrl: './wrongLocation.component.html',
 })
 export class WrongLocationComponent implements OnInit {
-    @Input() cause: string;
+    @Input() cause = '';
 
-    enrolment: ExamEnrolment;
-    reservation: Reservation;
-    isUpcoming: boolean;
-    roomInstructions: string;
-    currentMachine: ExamMachine;
-    occasion: { startAt: string; endAt: string };
+    enrolment!: ExamEnrolment;
+    reservation!: Reservation;
+    isUpcoming = false;
+    roomInstructions = '';
+    currentMachine!: ExamMachine;
+    occasion = { startAt: '', endAt: '' };
 
     constructor(
         private http: HttpClient,
