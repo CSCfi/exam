@@ -180,7 +180,7 @@ public class ExcelBuilder {
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet(messages.get(lang, "reports.scores"));
         Map<String, String> defaultHeaders = getStudentReportHeaderMap(student);
-        Row headerRow = sheet.createRow(sheet.getLastRowNum());
+        Row headerRow = sheet.createRow(0);
         Row valueRow = sheet.createRow(sheet.getLastRowNum() + 1);
 
         for (Map.Entry<String, String> entry : defaultHeaders.entrySet()) {
