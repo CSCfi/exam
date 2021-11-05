@@ -32,7 +32,7 @@ import type { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teach
     templateUrl: './teacherDashboard.component.html',
 })
 export class TeacherDashboardComponent implements OnInit {
-    activeTab = '';
+    activeTab = 1;
     userId = 0;
     executionTypes: (ExamExecutionType & { examinationTypes: { type: string; name: string }[] })[] = [];
     activeExtraColumns: ExtraColumnName[];

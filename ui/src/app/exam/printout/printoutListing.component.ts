@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import * as moment from 'moment';
+import { format, parseISO } from 'date-fns';
 import { map } from 'rxjs/operators';
 
 import type { Exam } from '../exam.model';
@@ -39,7 +39,7 @@ export class PrintoutListingComponent {
                         const dates = p.examinationDates.map((ed) => ed.date).sort();
                         return {
                             ...p,
-                            examinationDatesAggregate: dates.map((d) => moment(d).format('DD.MM.YYYY')).join(', '),
+                            examinationDatesAggregate: dates.map((d) => format(parseISO(d), 'DD.MM.YYYY')).join(', '),
                         };
                     });
                 }),

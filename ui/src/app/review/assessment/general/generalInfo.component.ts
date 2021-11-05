@@ -15,16 +15,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
-import * as moment from 'moment';
+import { parseISO, roundToNearestMinutes } from 'date-fns';
 
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
+import { DateTimeService } from '../../../utility/date/date.service';
 
 import type { Exam } from '../../../exam/exam.model';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import type { ExamParticipation } from '../../../exam/exam.model';
 import type { Reservation } from '../../../reservation/reservation.model';
 import type { User } from '../../../session/session.service';
-export type Participation = Partial<Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> }>;
+export type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
     selector: 'r-general-info',
@@ -42,7 +43,12 @@ export class GeneralInfoComponent {
     participations: ExamParticipation[] = [];
     noShows: ExamEnrolment[] = [];
 
-    constructor(private http: HttpClient, private state: UIRouterGlobals, private Attachment: AttachmentService) {}
+    constructor(
+        private http: HttpClient,
+        private state: UIRouterGlobals,
+        private Attachment: AttachmentService,
+        private DateTime: DateTimeService,
+    ) {}
 
     private handleParticipations = (data: ExamParticipation[]) => {
         if (this.collaborative) {
@@ -51,20 +57,15 @@ export class GeneralInfoComponent {
             return;
         }
         // Filter out the participation we are looking into
-        this.participations = data.filter((p) => {
-            return p.id !== this.participation.id;
-        });
+        this.participations = data.filter((p) => p.id !== this.participation.id);
         this.http.get<ExamEnrolment[]>(`/app/usernoshows/${this.exam.id}`).subscribe((enrolments) => {
             this.noShows = enrolments.map((ee) => ({ ...ee, exam: { ...ee.exam, state: 'no_show' } }));
         });
     };
 
     ngOnInit() {
-        const duration = moment.utc(new Date(this.participation.duration as string));
-        if (duration.second() > 29) {
-            duration.add(1, 'minutes');
-        }
-        this.participation.duration = duration.format();
+        const duration = roundToNearestMinutes(parseISO(this.participation.duration as string));
+        this.participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC');
         this.student = this.participation.user as User;
         this.studentName = this.student
             ? `${this.student.lastName} ${this.student.firstName}`

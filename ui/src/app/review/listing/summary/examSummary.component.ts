@@ -17,9 +17,8 @@ import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
-import { eachDayOfInterval, min, startOfDay } from 'date-fns';
+import { eachDayOfInterval, format, min, startOfDay } from 'date-fns';
 import * as _ from 'lodash';
-import * as moment from 'moment';
 
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
@@ -465,7 +464,7 @@ export class ExamSummaryComponent {
             const url = '/app/reports/questionreport/' + this.exam.id;
             this.Files.download(
                 url,
-                this.translate.instant('sitnet_grading_info') + '_' + moment().format('dd-MM-yyyy') + '.xlsx',
+                this.translate.instant('sitnet_grading_info') + '_' + format(new Date(), 'dd-MM-yyyy') + '.xlsx',
                 { childIds: ids.map((i) => i.toString()) },
                 true,
             );

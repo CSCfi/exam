@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import * as moment from 'moment';
+import { parseISO } from 'date-fns';
 import { noop } from 'rxjs';
 
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
@@ -47,7 +47,7 @@ export class ReservationService {
     getReservationCount = (exam: Exam) =>
         exam.examEnrolments.filter(
             (enrolment) =>
-                (enrolment.reservation && moment(enrolment.reservation.endAt) > moment()) ||
+                (enrolment.reservation && parseISO(enrolment.reservation.endAt) > new Date()) ||
                 (enrolment.examinationEventConfiguration &&
                     new Date(enrolment.examinationEventConfiguration.examinationEvent.start) > new Date()),
         ).length;

@@ -18,15 +18,15 @@ import type { Address, WorkingHour } from '../facility/rooms/room.service';
 import type { User } from '../session/session.service';
 
 export type DefaultWorkingHours = {
-    startTime: Date;
-    endTime: Date;
+    startTime: string;
+    endTime: string;
     weekday: string;
 };
 
 export type ExceptionWorkingHours = {
     id: number;
-    startDate: Date | string;
-    endDate: Date | string;
+    startDate: string;
+    endDate: string;
     outOfService: boolean;
     massEdited: boolean;
 };

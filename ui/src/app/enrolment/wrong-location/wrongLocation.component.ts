@@ -16,7 +16,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
-import * as moment from 'moment';
+import { addHours, format, parseISO } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import * as toast from 'toastr';
 
 import { DateTimeService } from '../../utility/date/date.service';
@@ -85,17 +86,17 @@ export class WrongLocationComponent implements OnInit {
 
     private setOccasion = (reservation: Reservation) => {
         const tz = reservation.machine.room.localTimezone;
-        const start = moment.tz(reservation.startAt, tz);
-        const end = moment.tz(reservation.endAt, tz);
-        if (start.isDST()) {
-            start.add(-1, 'hour');
+        let start = zonedTimeToUtc(parseISO(reservation.startAt), tz);
+        let end = zonedTimeToUtc(parseISO(reservation.endAt), tz);
+        if (this.DateTime.isDST(start)) {
+            start = addHours(start, -1);
         }
-        if (end.isDST()) {
-            end.add(-1, 'hour');
+        if (this.DateTime.isDST(end)) {
+            end = addHours(end, -1);
         }
         this.occasion = {
-            startAt: start.format('HH:mm'),
-            endAt: end.format('HH:mm'),
+            startAt: format(start, 'HH:mm'),
+            endAt: format(end, 'HH:mm'),
         };
     };
 

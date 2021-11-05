@@ -14,7 +14,6 @@
  */
 import { Component, EventEmitter, Injectable, Input, Output } from '@angular/core';
 import { NgbDate, NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
-import * as moment from 'moment';
 
 import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import type { OnInit } from '@angular/core';
@@ -61,11 +60,11 @@ export class DatePickerComponent implements OnInit {
     startDate!: NgbDate;
 
     ngOnInit() {
-        const now = moment();
-        const d = this.initialDate !== null ? moment(this.initialDate) : now;
-        this.today = new NgbDate(now.get('year'), now.get('month') + 1, now.get('date'));
+        const now = new Date();
+        const d = this.initialDate !== null ? new Date(this.initialDate) : now;
+        this.today = new NgbDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
         if (!this.initiallyEmpty) {
-            this.startDate = this.date = new NgbDate(d.get('year'), d.get('month') + 1, d.get('date'));
+            this.startDate = this.date = new NgbDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
         }
     }
 

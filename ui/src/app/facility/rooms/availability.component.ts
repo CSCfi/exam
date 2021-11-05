@@ -14,7 +14,7 @@
  */
 import { Component } from '@angular/core';
 import { StateService } from '@uirouter/core';
-import * as moment from 'moment';
+import { format } from 'date-fns';
 import * as toast from 'toastr';
 
 import { CalendarService } from '../../calendar/calendar.service';
@@ -26,7 +26,6 @@ import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservat
 import type { Availability } from './room.service';
 import type { SlotMeta } from '../../calendar/bookingCalendar.component';
 import type { CalendarEvent } from 'calendar-utils';
-
 @Component({
     templateUrl: './availability.component.html',
     selector: 'availability',
@@ -79,6 +78,6 @@ export class AvailabilityComponent implements OnInit {
             }));
         };
         const errorFn = (resp: string) => toast.error(resp);
-        this.query$(moment(event.date).format('YYYY-MM-DD')).subscribe(successFn, errorFn);
+        this.query$(format(event.date, 'yyyy-MM-dd')).subscribe(successFn, errorFn);
     };
 }

@@ -17,8 +17,8 @@ import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
+import { format, parseISO } from 'date-fns';
 import * as _ from 'lodash';
-import * as moment from 'moment';
 import { throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -37,7 +37,6 @@ import type { OnInit } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { User } from '../../../session/session.service';
 import type { Exam, AutoEvaluationConfig, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
-
 @Component({
     selector: 'exam-publication',
     templateUrl: './examPublication.component.html',
@@ -77,10 +76,11 @@ export class ExamPublicationComponent implements OnInit {
     }
 
     addExaminationDate = (event: { date: Date | null }) => {
+        if (!event.date) return;
         const fmt = 'DD/MM/YYYY';
-        const formattedDate = moment(event.date).format(fmt);
+        const formattedDate = format(event.date, fmt);
         const alreadyExists: boolean = this.exam.examinationDates
-            .map((ed) => moment(ed.date).format(fmt))
+            .map((ed) => format(parseISO(ed.date), fmt))
             .some((d: string) => d === formattedDate);
         if (!alreadyExists) {
             this.http

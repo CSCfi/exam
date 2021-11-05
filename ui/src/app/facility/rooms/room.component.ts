@@ -16,7 +16,7 @@ import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/angular';
-import * as moment from 'moment';
+import { format, parseISO } from 'date-fns';
 import * as toast from 'toastr';
 
 import { InteroperabilityResourceService } from './interoperabilityResource.service';
@@ -26,7 +26,6 @@ import { SettingsResourceService } from './settingsResource';
 import type { OnInit } from '@angular/core';
 import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import type { Week, Weekday, WeekdayBlock } from './room.service';
-
 @Component({
     templateUrl: './room.component.html',
     selector: 'room',
@@ -180,8 +179,8 @@ export class RoomComponent implements OnInit {
 
     private slotToTimes = (slot: DefaultWorkingHours) => {
         const arr = [];
-        const startKey = moment(slot.startTime).format('H:mm');
-        const endKey = moment(slot.endTime).format('H:mm');
+        const startKey = format(parseISO(slot.startTime), 'H:mm');
+        const endKey = format(parseISO(slot.endTime), 'H:mm');
         const times = this.roomService.getTimes();
         const start = startKey === '0:00' ? 0 : times.indexOf(startKey);
         for (let i = start; i < times.length; i++) {

@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
-import * as moment from 'moment';
+import { addDays, format } from 'date-fns';
 import { switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -27,7 +27,6 @@ import { CalendarService } from './calendar.service';
 import type { OnInit } from '@angular/core';
 import type { Course, Exam, ExamSection } from '../exam/exam.model';
 import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
-
 export type SelectableSection = ExamSection & { selected: boolean };
 export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Course } & {
     duration: number;
@@ -67,14 +66,14 @@ export class CalendarComponent implements OnInit {
     };
     reservation?: {
         room: ExamRoom;
-        start: moment.Moment;
-        end: moment.Moment;
+        start: Date;
+        end: Date;
         time: string;
         accessibilities: Accessibility[];
     };
     minDate = new Date();
     maxDate = new Date();
-    reservationWindowEndDate?: moment.Moment;
+    reservationWindowEndDate?: Date;
     reservationWindowSize = 0;
     selectedOrganisation?: Organisation;
 
@@ -116,11 +115,14 @@ export class CalendarComponent implements OnInit {
                 switchMap(() => this.http.get<{ value: number }>('/app/settings/reservationWindow')),
                 tap((resp) => {
                     this.reservationWindowSize = resp.value;
-                    this.reservationWindowEndDate = moment().add(resp.value, 'days');
-                    this.minDate = moment.max(moment(), moment(this.examInfo.examActiveStartDate)).toDate();
-                    this.maxDate = moment
-                        .min(this.reservationWindowEndDate, moment(this.examInfo.examActiveEndDate))
-                        .toDate();
+                    this.reservationWindowEndDate = addDays(new Date(), resp.value);
+                    this.minDate = [new Date(), new Date(this.examInfo.examActiveStartDate as string)].reduce((a, b) =>
+                        a < b ? a : b,
+                    );
+                    this.maxDate = [
+                        this.reservationWindowEndDate,
+                        new Date(this.examInfo.examActiveEndDate as string),
+                    ].reduce((a, b) => (a > b ? a : b));
                 }),
                 switchMap(() => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit')),
                 tap((resp) => (this.isInteroperable = resp.isExamVisitSupported)),
@@ -192,9 +194,9 @@ export class CalendarComponent implements OnInit {
     createReservation($event: { start: Date; end: Date; room: ExamRoom; accessibilities: Accessibility[] }) {
         this.reservation = {
             room: $event.room,
-            time: moment($event.start).format('DD.MM.YYYY HH:mm') + ' - ' + moment($event.end).format('HH:mm'),
-            start: moment($event.start),
-            end: moment($event.end),
+            time: format($event.start, 'dd.MM.yyyy HH:mm') + ' - ' + format($event.end, 'HH:mm'),
+            start: $event.start,
+            end: $event.end,
             accessibilities: $event.accessibilities,
         };
     }

@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as moment from 'moment';
+import { format } from 'date-fns';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../../session/session.service';
@@ -114,7 +114,7 @@ export class GradedLoggedReviewsComponent {
 
         this.Files.download(
             url + this.exam.id,
-            `${this.translate.instant('sitnet_grading_info')}_${moment().format('dd-MM-yyyy')}.${fileType}`,
+            `${this.translate.instant('sitnet_grading_info')}_${format(new Date(), 'dd-MM-yyyy')}.${fileType}`,
             { childIds: ids.map((i) => i.toString()) },
             true,
         );

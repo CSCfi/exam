@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as moment from 'moment';
+import { addDays, format, parseISO } from 'date-fns';
 
 import { DateTimeService } from '../../utility/date/date.service';
 
@@ -80,12 +80,12 @@ export class CalendarExamInfoComponent {
     @Input() reservationWindowSize = 0;
     @Input() collaborative = false;
 
-    reservationWindowEndDate?: moment.Moment;
+    reservationWindowEndDate = new Date();
 
     constructor(private translate: TranslateService, private DateTime: DateTimeService) {}
 
     ngOnInit() {
-        this.reservationWindowEndDate = moment().add(this.reservationWindowSize, 'days');
+        this.reservationWindowEndDate = addDays(this.reservationWindowEndDate, this.reservationWindowSize);
     }
 
     printExamDuration = (exam: { duration: number }) => this.DateTime.printExamDuration(exam);
@@ -94,9 +94,10 @@ export class CalendarExamInfoComponent {
         const text = this.translate
             .instant('sitnet_description_reservation_window')
             .replace('{}', this.reservationWindowSize.toString());
-        return `${text} (${this.reservationWindowEndDate?.format('DD.MM.YYYY')})`;
+        return `${text} (${format(this.reservationWindowEndDate, 'dd.MM.yyyy')})`;
     }
 
     showReservationWindowInfo = (): boolean =>
-        !!this.reservationWindowEndDate && moment(this.examInfo.examActiveEndDate) > this.reservationWindowEndDate;
+        !!this.reservationWindowEndDate &&
+        parseISO(this.examInfo.examActiveEndDate as string) > this.reservationWindowEndDate;
 }

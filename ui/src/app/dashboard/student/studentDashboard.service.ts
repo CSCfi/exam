@@ -14,13 +14,15 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import * as moment from 'moment';
+import { addHours, format, parseISO } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import { map } from 'rxjs/operators';
+
+import { DateTimeService } from '../../utility/date/date.service';
 
 import type { Observable } from 'rxjs';
 import type { ExamEnrolment } from '../../enrolment/enrolment.model';
 import type { Reservation } from '../../reservation/reservation.model';
-
 interface Occasion {
     startAt: string;
     endAt: string;
@@ -33,7 +35,7 @@ export interface DashboardEnrolment extends ExamEnrolment {
 
 @Injectable()
 export class StudentDashboardService {
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private DateTime: DateTimeService) {}
 
     listEnrolments = (): Observable<DashboardEnrolment[]> =>
         this.http.get<ExamEnrolment[]>('/app/student/enrolments').pipe(
@@ -59,17 +61,17 @@ export class StudentDashboardService {
         } else if (machine) {
             tz = machine.room.localTimezone;
         }
-        const start = tz ? moment.tz(reservation.startAt, tz) : moment(reservation.startAt);
-        const end = tz ? moment.tz(reservation.endAt, tz) : moment(reservation.endAt);
-        if (start.isDST()) {
-            start.add(-1, 'hour');
+        let start = tz ? zonedTimeToUtc(parseISO(reservation.startAt), tz) : parseISO(reservation.startAt);
+        let end = tz ? zonedTimeToUtc(parseISO(reservation.endAt), tz) : parseISO(reservation.endAt);
+        if (this.DateTime.isDST(start)) {
+            start = addHours(start, -1);
         }
-        if (end.isDST()) {
-            end.add(-1, 'hour');
+        if (this.DateTime.isDST(end)) {
+            end = addHours(end, -1);
         }
         return {
-            startAt: start.format('HH:mm'),
-            endAt: end.format('HH:mm'),
+            startAt: format(start, 'HH:mm'),
+            endAt: format(end, 'HH:mm'),
         };
     }
 }

@@ -14,6 +14,8 @@
  */
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { format, parseISO, roundToNearestMinutes } from 'date-fns';
+import { format as formatTz, utcToZonedTime } from 'date-fns-tz';
 import * as _ from 'lodash';
 
 @Injectable()
@@ -35,6 +37,12 @@ export class DateTimeService {
         return '';
     }
 
+    getDuration = (timestamp: string) =>
+        format(roundToNearestMinutes(utcToZonedTime(parseISO(timestamp), 'UTC')), 'HH:mm');
+
+    formatInTimeZone = (date: Date, tz: string) =>
+        formatTz(utcToZonedTime(date, tz), "yyyy-MM-dd'T'HH:mm:ss'Z'", { timeZone: tz });
+
     getDateForWeekday(ordinal: number): Date {
         const now = new Date();
         const distance = ordinal - now.getDay();
@@ -49,4 +57,12 @@ export class DateTimeService {
             .concat(0)
             .map((d) => this.getDateForWeekday(d).toLocaleDateString(locale, options));
     }
+
+    isDST = (date: Date | string | number): boolean => {
+        const d = new Date(date);
+        const jan = new Date(d.getFullYear(), 0, 1);
+        const jul = new Date(d.getFullYear(), 6, 1);
+        const offset = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+        return d.getTimezoneOffset() < offset;
+    };
 }

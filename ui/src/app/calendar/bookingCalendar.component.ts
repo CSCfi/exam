@@ -15,7 +15,7 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { CalendarDateFormatter, CalendarView, DAYS_OF_WEEK } from 'angular-calendar';
-import { addWeeks, endOfWeek, startOfWeek, subWeeks } from 'date-fns';
+import { addHours, addWeeks, endOfWeek, startOfWeek, subWeeks } from 'date-fns';
 
 import { DateFormatter } from './bookingCalendarDateFormatter';
 import { CalendarService } from './calendar.service';
@@ -93,11 +93,11 @@ export class BookingCalendarComponent implements OnChanges {
     ngOnChanges(changes: SimpleChanges) {
         if (changes.room && this.room) {
             const earliestOpening = this.Calendar.getEarliestOpening(this.room);
-            const minTime = earliestOpening.hours() > 1 ? earliestOpening.add(-1, 'hours') : earliestOpening;
+            const minTime = earliestOpening.getHours() > 1 ? addHours(earliestOpening, -1) : earliestOpening;
             const latestClosing = this.Calendar.getLatestClosing(this.room);
-            const maxTime = latestClosing.hours() < 23 ? latestClosing.add(1, 'hours') : latestClosing;
+            const maxTime = latestClosing.getHours() < 23 ? addHours(latestClosing, 1) : latestClosing;
             this.hiddenDays = this.Calendar.getClosedWeekdays(this.room);
-            [this.minHour, this.maxHour] = [minTime.hour(), maxTime.hour()];
+            [this.minHour, this.maxHour] = [minTime.getHours(), maxTime.getHours()];
         }
     }
 

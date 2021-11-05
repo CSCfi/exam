@@ -15,9 +15,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Directive } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
-import { endOfDay, startOfDay } from 'date-fns';
+import { addMinutes, endOfDay, parseISO, startOfDay } from 'date-fns';
 import * as _ from 'lodash';
-import * as moment from 'moment';
 import { forkJoin } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -160,14 +159,15 @@ export class ReservationComponentBase {
                                 user: ee.user,
                                 enrolment: ee,
                                 startAt: ee.examinationEventConfiguration?.examinationEvent.start,
-                                endAt: moment(ee.examinationEventConfiguration?.examinationEvent.start)
-                                    .add(ee.exam.duration, 'm')
-                                    .toISOString(),
+                                endAt: addMinutes(
+                                    parseISO(ee.examinationEventConfiguration?.examinationEvent.start as string),
+                                    ee.exam.duration,
+                                ).toISOString(),
                             };
                         });
                         const allEvents: Partial<Reservation>[] = reservations;
                         allEvents.concat(events);
-                        return allEvents as Reservation[]; // FIXME: this is wrong <- don't know how to model anymore with strict checking
+                        return allEvents as Reservation[]; // FIXME: this is wrong(?) <- don't know how to model anymore with strict checking
                     }),
                     map((reservations: Reservation[]) =>
                         reservations.map((r) => ({

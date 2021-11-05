@@ -13,9 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
-import { startOfMonth } from 'date-fns';
+import { formatISO, startOfMonth } from 'date-fns';
 import * as _ from 'lodash';
-import * as moment from 'moment';
 
 import { WindowRef } from '../../utility/window/window.service';
 import { LanguageInspectionService } from '../languageInspections.service';
@@ -63,7 +62,7 @@ export class MaturityReportingComponent implements OnInit {
         if (this.month && this.year) {
             const date = new Date(this.year, this.month - 1, 1);
             const beginning = startOfMonth(date);
-            params.month = moment(beginning).toISOString();
+            params.month = formatISO(beginning);
         }
         this.LanguageInspection.query(params).subscribe(
             (inspections) => (this.processedInspections = inspections.filter((i) => i.finishedAt)),

@@ -2,12 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { format, formatISO, parseISO, setHours, setMinutes } from 'date-fns';
 import { cloneDeep } from 'lodash';
-import * as moment from 'moment';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { DateTimeService } from '../../utility/date/date.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { ExceptionDialogComponent } from '../schedule/exceptionDialog.component';
 
@@ -74,24 +74,16 @@ const blocksForDay = (week: Week, day: Weekday) => {
     return blocks;
 };
 
-const formatTime = (time: string) => {
-    const hours = moment().isDST() ? 1 : 0;
-    return moment()
-        .set('hour', parseInt(time.split(':')[0]) + hours)
-        .set('minute', parseInt(time.split(':')[1]))
-        .format('DD.MM.YYYY HH:mmZZ');
-};
-
 @Injectable()
 export class RoomService {
     times = [''];
 
     constructor(
         private http: HttpClient,
+        private ngbModal: NgbModal,
         private translate: TranslateService,
         private dialogs: ConfirmationDialogService,
-        private state: StateService,
-        private ngbModal: NgbModal,
+        private DateTime: DateTimeService,
     ) {
         for (let i = 0; i <= 24; ++i) {
             if (i > 0) {
@@ -197,6 +189,14 @@ export class RoomService {
         return cloneDeep(this.week);
     };
 
+    private formatTime = (time: string) => {
+        const hours = this.DateTime.isDST(new Date()) ? 1 : 0;
+        return format(
+            setMinutes(setHours(new Date(), parseInt(time.split(':')[0]) + hours), parseInt(time.split(':')[1])),
+            'dd.MM.yyyy HH:mmXXX',
+        );
+    };
+
     disableRoom = (room: ExamRoom) => {
         const dialog = this.dialogs.open(
             this.translate.instant('sitnet_confirm'),
@@ -266,13 +266,13 @@ export class RoomService {
         });
 
     formatExceptionEvent = (event: ExceptionWorkingHours) => {
-        event.startDate = moment(event.startDate).format();
-        event.endDate = moment(event.endDate).format();
+        event.startDate = formatISO(parseISO(event.startDate));
+        event.endDate = formatISO(parseISO(event.endDate));
     };
 
     updateStartingHours = (hours: WorkingHour[], offset: number, roomIds: number[]) =>
         new Promise<void>((resolve, reject) => {
-            const selected = hours.filter((hour) => hour.selected).map((hour) => formatTime(hour.startingHour));
+            const selected = hours.filter((hour) => hour.selected).map((hour) => this.formatTime(hour.startingHour));
             const data = { hours: selected, offset, roomIds };
 
             this.updateExamStartingHours$(data).subscribe(
@@ -297,8 +297,8 @@ export class RoomService {
                 const weekdayBlocks: WeekdayBlock = { weekday: day as Weekday, blocks: [] };
                 for (let i = 0; i < blocks.length; ++i) {
                     const block = blocks[i];
-                    const start = formatTime(times[block[0]] || '0:00');
-                    const end = formatTime(times[block[block.length - 1] + 1]);
+                    const start = this.formatTime(times[block[0]] || '0:00');
+                    const end = this.formatTime(times[block[block.length - 1] + 1]);
                     weekdayBlocks.blocks.push({ start: start, end: end });
                 }
                 workingHours.push(weekdayBlocks);

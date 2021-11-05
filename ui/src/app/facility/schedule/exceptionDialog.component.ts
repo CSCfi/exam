@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash';
-import * as moment from 'moment';
 import * as toast from 'toastr';
 
 @Component({
@@ -32,8 +31,8 @@ export class ExceptionDialogComponent {
     }
 
     ok = () => {
-        const start = moment(this.exception.startDate);
-        const end = moment(this.exception.endDate);
+        const start = this.exception.startDate;
+        const end = this.exception.endDate;
         if (end <= start) {
             toast.error(this.translate.instant('sitnet_endtime_before_starttime'));
             return;

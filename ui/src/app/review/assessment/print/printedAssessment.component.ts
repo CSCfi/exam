@@ -15,11 +15,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
-import * as moment from 'moment';
+import { parseISO, roundToNearestMinutes } from 'date-fns';
 
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
 import { SessionService } from '../../../session/session.service';
+import { DateTimeService } from '../../../utility/date/date.service';
 import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../assessment.service';
@@ -55,6 +56,7 @@ export class PrintedAssessmentComponent {
         private CommonExam: CommonExamService,
         private Assessment: AssessmentService,
         private Session: SessionService,
+        private DateTime: DateTimeService,
     ) {
         this.user = this.Session.getUser();
     }
@@ -81,11 +83,8 @@ export class PrintedAssessmentComponent {
             this.exam = exam;
             this.user = this.Session.getUser();
             this.participation = participation;
-            const duration = moment.utc(new Date(this.participation.duration));
-            if (duration.second() > 29) {
-                duration.add(1, 'minutes');
-            }
-            this.participation.duration = duration.format();
+            const duration = roundToNearestMinutes(parseISO(this.participation.duration as string));
+            this.participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC');
 
             this.student = this.participation.user;
             this.enrolment = this.exam.examEnrolments[0];

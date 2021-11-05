@@ -3,9 +3,11 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
-import { startOfWeek } from 'date-fns';
-import * as moment from 'moment';
+import { addHours, format, startOfWeek } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import * as toast from 'toastr';
+
+import { DateTimeService } from '../../utility/date/date.service';
 
 import type { Organisation } from '../calendar.component';
 import type { SimpleChanges } from '@angular/core';
@@ -14,7 +16,6 @@ import type { CalendarEvent } from 'angular-calendar';
 import type { SlotMeta } from '../bookingCalendar.component';
 import type { Slot } from '../calendar.service';
 import type { Observable } from 'rxjs';
-
 type FilterableAccessibility = Accessibility & { filtered: boolean };
 type FilterableRoom = ExamRoom & { filtered: boolean };
 type AvailableSlot = Slot & { availableMachines: number };
@@ -184,7 +185,12 @@ export class SlotPickerComponent {
     currentWeek = new Date();
     events: CalendarEvent<SlotMeta>[] = [];
 
-    constructor(private http: HttpClient, private translate: TranslateService, private uiRouter: UIRouterGlobals) {}
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private uiRouter: UIRouterGlobals,
+        private DateTime: DateTimeService,
+    ) {}
 
     ngOnInit() {
         this.http
@@ -212,8 +218,8 @@ export class SlotPickerComponent {
         });
 
     private getTitle(slot: AvailableSlot): string {
-        const start = moment(this.adjust(slot.start, this.selectedRoom?.localTimezone as string)).format('HH:mm');
-        const end = moment(this.adjust(slot.end, this.selectedRoom?.localTimezone as string)).format('HH:mm');
+        const start = format(this.adjust(slot.start, this.selectedRoom?.localTimezone as string), 'HH:mm');
+        const end = format(this.adjust(slot.end, this.selectedRoom?.localTimezone as string), 'HH:mm');
         if (slot.availableMachines > 0) {
             return `${start}-${end} ${this.translate.instant('sitnet_slot_available')} (${slot.availableMachines})`;
         } else {
@@ -249,9 +255,9 @@ export class SlotPickerComponent {
     }
 
     private adjust = (date: string, tz: string): Date => {
-        const adjusted: moment.Moment = moment.tz(date, tz);
-        const offset = adjusted.isDST() ? -1 : 0;
-        return adjusted.add(offset, 'hour').toDate();
+        const adjusted = zonedTimeToUtc(date, tz);
+        const offset = this.DateTime.isDST(adjusted) ? -1 : 0;
+        return addHours(adjusted, offset);
     };
 
     refresh($event: { date: Date }) {
@@ -283,7 +289,7 @@ export class SlotPickerComponent {
             this.events = events;
         };
         const errorFn = (resp: string) => toast.error(resp);
-        this.query(moment($event.date).format('YYYY-MM-DD'), accessibilities).subscribe(successFn, errorFn);
+        this.query(format($event.date, 'yyyy-MM-dd'), accessibilities).subscribe(successFn, errorFn);
     }
 
     makeExternalReservation = () => {

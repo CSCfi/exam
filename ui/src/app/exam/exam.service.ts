@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
-import * as moment from 'moment';
+import { parseISO } from 'date-fns';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -282,5 +282,5 @@ export class ExamService {
     };
 
     private hasEffectiveEnrolments = (exam: Exam) =>
-        exam.examEnrolments.some((ee) => ee.reservation && moment(ee.reservation.endAt) > moment());
+        exam.examEnrolments.some((ee) => ee.reservation && parseISO(ee.reservation.endAt) > new Date());
 }

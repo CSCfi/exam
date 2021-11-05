@@ -102,7 +102,7 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
         } else if (event.nextId === 3) {
             this.state.go('staff.examEditor.publication', params);
         } else if (event.nextId === 4) {
-            this.state.go('estaff.xamEditor.assessments', params);
+            this.state.go('staff.examEditor.assessments', params);
         } else if (event.nextId === 5) {
             this.state.go('staff.examEditor.questionReview', params);
         } else if (event.nextId === 6) {

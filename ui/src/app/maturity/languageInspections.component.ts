@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
+import { addDays } from 'date-fns';
 import * as _ from 'lodash';
-import * as moment from 'moment';
 
 import { LanguageService } from '../utility/language/language.service';
 import { LanguageInspectionService } from './languageInspections.service';
@@ -22,7 +22,6 @@ import { LanguageInspectionService } from './languageInspections.service';
 import type { OnInit } from '@angular/core';
 import type { QueryParams } from './languageInspections.service';
 import type { LanguageInspection } from './maturity.model';
-
 export interface LanguageInspectionData extends LanguageInspection {
     ownerAggregate: string;
     studentName: string;
@@ -55,8 +54,7 @@ export class LanguageInspectionsComponent implements OnInit {
             params.start = this.startDate.getTime() + tzOffset;
         }
         if (this.endDate) {
-            const m = moment(this.endDate).add(1, 'days');
-            params.end = Date.parse(m.format());
+            params.end = addDays(this.endDate, 1).getTime();
         }
         const refreshAll = _.isEmpty(params);
         this.LanguageInspection.query(params).subscribe((resp: LanguageInspection[]) => {

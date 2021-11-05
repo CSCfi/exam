@@ -171,7 +171,7 @@ export const STAFF_STATES: Ng2StateDeclaration[] = [
                 token: 'reviews',
                 deps: [ReviewListService, Transition, 'collaborative'],
                 resolveFn: (reviewList: ReviewListService, transition: Transition, collaborative: boolean) =>
-                    reviewList.getReviews(transition.params().id, collaborative),
+                    reviewList.getReviews$(transition.params().id, collaborative),
             },
         ],
     },
@@ -206,7 +206,7 @@ export const STAFF_STATES: Ng2StateDeclaration[] = [
                 token: 'reviews',
                 deps: [ReviewListService, Transition, 'collaborative'],
                 resolveFn: (reviewList: ReviewListService, transition: Transition, collaborative: boolean) =>
-                    reviewList.getReviews(transition.params().id, collaborative),
+                    reviewList.getReviews$(transition.params().id, collaborative),
             },
         ],
     },
