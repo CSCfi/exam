@@ -18,10 +18,12 @@ package controllers
 import impl.ExternalCourseHandler
 import io.ebean.Ebean
 import models.{Course, Role, User}
+import org.joda.time.DateTime
 
 import javax.inject.Inject
 import play.api.mvc.{Action, AnyContent, InjectedController, Result}
 import security.Authenticator
+import util.config.ConfigReader
 import util.scala.JavaJsonResultProducer
 
 import scala.compat.java8.FutureConverters._
@@ -29,7 +31,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 
-class CourseController @Inject()(externalApi: ExternalCourseHandler)
+class CourseController @Inject()(externalApi: ExternalCourseHandler, configReader: ConfigReader)
     extends InjectedController
     with Authenticator
     with JavaJsonResultProducer {
@@ -45,10 +47,19 @@ class CourseController @Inject()(externalApi: ExternalCourseHandler)
           Ebean
             .find(classOf[Course])
             .where
+            .disjunction()
+            .isNull("endDate")
+            .gt("endDate", DateTime.now())
+            .endJunction()
             .ilike("name", s"%$x%")
             .orderBy("code")
             .findList
-        }.map(_.asScala.toResult(OK))
+            .asScala
+            .filter(c =>
+              c.getStartDate == null || configReader
+                .getCourseValidityDate(new DateTime(c.getStartDate))
+                .isBeforeNow)
+        }.map(_.toResult(OK))
       case (Some("name"), Some(_)) =>
         throw new IllegalArgumentException("Too short criteria")
       case _ =>
