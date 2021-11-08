@@ -82,3 +82,6 @@ Using CI specific protractor configuration.
 ## More information
 For more information see [official installation instructions](https://wiki.eduuni.fi/display/CSCEXAM/Asennusohjeet) (in Finnish only)
 
+
+
+moj :D
