@@ -15,7 +15,7 @@
         </div>
     </div>
     <div class="col mt-2">
-        <course-picker *ngIf="exam.course" [course]="exam.course" (onUpdate)="setCourse($event)"></course-picker>
+        <course-picker [course]="exam.course" (onUpdate)="setCourse($event)"></course-picker>
     </div>
 </div>
 <!-- Course scope and organization name elements -> 3 rows -->

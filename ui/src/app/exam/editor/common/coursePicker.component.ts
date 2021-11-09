@@ -30,7 +30,7 @@ import type { Observable } from 'rxjs';
     templateUrl: './coursePicker.component.html',
 })
 export class CoursePickerComponent implements OnInit {
-    @Input() course!: Course;
+    @Input() course?: Course;
     @Output() onUpdate = new EventEmitter<Course>();
 
     nameFilter = '';
