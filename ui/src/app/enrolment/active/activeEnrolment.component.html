@@ -38,8 +38,11 @@
                         <small *ngIf="enrolment.exam?.anonymous || enrolment.collaborativeExam?.anonymous"
                             >({{ 'sitnet_anonymous_review' | translate }})</small
                         >
-                        <small *ngIf="enrolment.exam && enrolment.exam.implementation !== 'AQUARIUM'"
+                        <small *ngIf="enrolment.exam && enrolment.exam.implementation === 'CLIENT_AUTH'"
                             >({{ 'sitnet_examination_type_seb' | translate }})</small
+                        >
+                        <small *ngIf="enrolment.exam && enrolment.exam.implementation === 'WHATEVER'"
+                            >({{ 'sitnet_examination_type_home_exam' | translate }})</small
                         >
                     </div>
                 </div>
