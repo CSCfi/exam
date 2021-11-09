@@ -60,6 +60,7 @@ import { TagPickerComponent } from './tags/tagPicker.component';
         WeightedMultipleChoiceOptionEditorComponent,
         TagPickerComponent,
     ],
+    bootstrap: [QuestionSelectorComponent],
     providers: [LibraryService, QuestionService],
 })
 export class QuestionModule {}
