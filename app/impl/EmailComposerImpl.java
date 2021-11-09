@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
+import models.Course;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamExecutionType;
@@ -263,7 +264,8 @@ class EmailComposerImpl implements EmailComposer {
                 Map<String, String> stringValues = new HashMap<>();
                 stringValues.put("exam_link", String.format("%s/exams/%d/regular/4", hostName, e.getKey().getId()));
                 stringValues.put("exam_name", e.getKey().getName());
-                stringValues.put("course_code", e.getKey().getCourse().getCode().split("_")[0]);
+                Course course = e.getKey().getCourse();
+                stringValues.put("course_code", course == null ? "" : course.getCode().split("_")[0]);
                 String summary = messaging.get(
                     lang,
                     "email.weekly.report.review.summary",
@@ -1047,7 +1049,10 @@ class EmailComposerImpl implements EmailComposer {
                     ExamEnrolment first = t._2.get(0);
                     DateTime date = first.getReservation() != null
                         ? adjustDST(first.getReservation().getStartAt())
-                        : first.getExaminationEventConfiguration().getExaminationEvent().getStart();
+                        : new DateTime(
+                            first.getExaminationEventConfiguration().getExaminationEvent().getStart(),
+                            timeZone
+                        );
                     stringValues.put(
                         "enrolments",
                         messaging.get(lang, "email.template.enrolment.first", t._2.size(), DTF.print(date))

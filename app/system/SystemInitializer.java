@@ -261,7 +261,7 @@ class SystemInitializer {
                             try {
                                 composer.composeWeeklySummary(t);
                             } catch (RuntimeException e) {
-                                logger.error("Failed to send email for {}", t.getEmail());
+                                logger.error("Failed to send email for {}", t.getEmail(), e);
                             }
                         });
                         // Reschedule
