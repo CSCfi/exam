@@ -93,12 +93,12 @@ export abstract class GradingBaseComponent {
     protected initLanguages = () => {
         const exam = this.getExam();
         const lang = this.Assessment.pickExamLanguage(exam);
-        if (!exam.answerLanguage) {
+        if (!exam.answerLanguage && lang) {
             exam.answerLanguage = lang.code;
         }
         this.Language.getExamLanguages$().subscribe((languages) => {
             this.languages = languages.map((language) => {
-                if (lang.code === language.code) {
+                if (lang?.code === language.code) {
                     this.selections.language = language;
                 }
                 return language;
