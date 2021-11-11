@@ -275,7 +275,7 @@ export interface ExamImpl {
     examType: ExamType;
     executionType: ExamExecutionType;
     examEnrolments: ExamEnrolment[];
-    examParticipations: ExamParticipation[];
+    examParticipation?: ExamParticipation;
     gradeScale?: GradeScale;
     autoEvaluationConfig?: AutoEvaluationConfig;
     children: Exam[];

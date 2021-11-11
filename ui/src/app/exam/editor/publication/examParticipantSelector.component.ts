@@ -15,20 +15,18 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as _ from 'lodash';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { EnrolmentService } from '../../../enrolment/enrolment.service';
 
-import type { Exam } from '../../exam.model';
+import type { Exam, ExamParticipation } from '../../exam.model';
 import type { OnInit } from '@angular/core';
 import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { Observable } from 'rxjs';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import type { User } from '../../../session/session.service';
-
 @Component({
     selector: 'exam-participant-selector',
     templateUrl: './examParticipantSelector.component.html',
@@ -41,7 +39,10 @@ export class ExamParticipantSelectorComponent implements OnInit {
     constructor(private http: HttpClient, private translate: TranslateService, private Enrolment: EnrolmentService) {}
 
     ngOnInit() {
-        this.participants = _.flatten(this.exam.children.map((c) => c.examEnrolments)).map((e) => e.user);
+        this.participants = this.exam.children
+            .map((c) => c.examParticipation)
+            .filter((p): p is ExamParticipation => p !== undefined)
+            .map((p) => p.user);
     }
 
     private findUsers$ = (criteria: string) =>
