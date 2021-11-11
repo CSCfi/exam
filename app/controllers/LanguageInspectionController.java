@@ -24,6 +24,7 @@ import controllers.base.BaseController;
 import impl.EmailComposer;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
+import io.ebean.FetchConfig;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
@@ -62,7 +63,7 @@ public class LanguageInspectionController extends BaseController {
             .fetch("exam.course")
             .fetch("exam.creator", "firstName, lastName, email, userIdentifier")
             .fetch("exam.parent.examOwners", "firstName, lastName, email, userIdentifier")
-            .fetch("exam.examLanguages")
+            .fetch("exam.examLanguages", new FetchConfig().query())
             .fetch("statement")
             .fetch("creator", "firstName, lastName, email, userIdentifier")
             .fetch("assignee", "firstName, lastName, email, userIdentifier")
