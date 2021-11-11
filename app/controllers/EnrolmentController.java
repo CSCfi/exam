@@ -86,7 +86,7 @@ public class EnrolmentController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
-    public Result enrollExamList(String code) {
+    public Result listEnrolledExams(String code) {
         List<Exam> exams = Ebean
             .find(Exam.class)
             .fetch("creator", "firstName, lastName")
@@ -120,7 +120,7 @@ public class EnrolmentController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
-    public Result enrollExamInfo(String code, Long id) {
+    public Result getEnrolledExamInfo(String code, Long id) {
         Exam exam = Ebean
             .find(Exam.class)
             .fetch("course")
@@ -424,20 +424,20 @@ public class EnrolmentController extends BaseController {
                 .find(User.class)
                 .where()
                 .or()
-                .eq("email", email.get())
-                .eq("eppn", email.get()) // CSCEXAM-34
+                .ieq("email", email.get())
+                .ieq("eppn", email.get()) // CSCEXAM-34
                 .endOr()
                 .findList();
             if (users.isEmpty()) {
                 // Pre-enrolment
                 // Check that we will not create duplicate enrolments for same email address
-                ExamEnrolment enrolment = Ebean
+                List<ExamEnrolment> enrolments = Ebean
                     .find(ExamEnrolment.class)
                     .where()
                     .eq("exam.id", eid)
-                    .eq("preEnrolledUserEmail", email.get())
-                    .findOne();
-                if (enrolment == null) {
+                    .ieq("preEnrolledUserEmail", email.get())
+                    .findList();
+                if (enrolments.isEmpty()) {
                     user = new User();
                     user.setEmail(email.get());
                 } else {

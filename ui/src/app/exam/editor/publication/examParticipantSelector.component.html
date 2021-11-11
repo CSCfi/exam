@@ -38,7 +38,7 @@
                 </button>
             </li>
             <!-- Students that have finished the exam -->
-            <li class="marl10" *ngFor="let participant of participants">
+            <li class="marl10 text-muted" *ngFor="let participant of participants">
                 {{ participant.firstName }} {{ participant.lastName }}
                 <span *ngIf="participant.userIdentifier">({{ participant.userIdentifier }})</span>
             </li>
