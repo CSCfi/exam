@@ -20,6 +20,9 @@ import * as toast from 'toastr';
 import { EnrolmentService } from '../../../enrolment/enrolment.service';
 import { Exam } from '../../exam.model';
 
+import type { User } from '../../../session/session.service';
+
+import type { ExamParticipation } from '../../exam.model';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 @Component({
     selector: 'exam-pre-participant-selector',
@@ -28,9 +31,17 @@ import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 export class ExamPreParticipantSelectorComponent {
     @Input() exam: Exam;
 
+    participants: User[] = [];
     newPreParticipant: { email?: string } = { email: '' };
 
     constructor(private translate: TranslateService, private http: HttpClient, private Enrolment: EnrolmentService) {}
+
+    ngOnInit() {
+        this.participants = this.exam.children
+            .map((c) => c.examParticipation)
+            .filter((p): p is ExamParticipation => p !== undefined)
+            .map((p) => p.user);
+    }
 
     addPreParticipant = () => {
         const exists =

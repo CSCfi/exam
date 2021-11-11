@@ -602,6 +602,8 @@ public class ExamController extends BaseController {
             .fetch("children", "id")
             .fetch("children.examEnrolments", "id")
             .fetch("children.examEnrolments.user", "firstName, lastName, userIdentifier")
+            .fetch("children.examParticipation", "id")
+            .fetch("children.examParticipation.user", "firstName, lastName, userIdentifier")
             .fetch("creditType")
             .fetch("attachment")
             .fetch("softwares")
