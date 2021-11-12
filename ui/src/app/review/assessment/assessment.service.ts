@@ -75,14 +75,14 @@ export class AssessmentService {
     isReadOnly = (exam: Exam) => ['GRADED_LOGGED', 'ARCHIVED', 'ABORTED', 'REJECTED'].indexOf(exam?.state) > -1;
     isGraded = (exam: Exam) => exam?.state === 'GRADED';
 
-    pickExamLanguage = (exam: Exam): ExamLanguage => {
+    pickExamLanguage = (exam: Exam): ExamLanguage | null => {
         const lang = exam.answerLanguage;
         if (lang) {
             return { code: lang, name: '' };
         } else if (exam.examLanguages.length === 1) {
             return exam.examLanguages[0];
         }
-        throw Error('No Exam Language to pick!');
+        return null;
     };
 
     checkCredit<T extends Exam>(exam: T, silent = false) {
