@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 
 export interface ExamName {
     id: number;
@@ -14,6 +14,12 @@ export interface ExamName {
 export enum FileType {
     JSON = 'json',
     XLSX = 'xlsx',
+}
+
+export enum UserRole {
+    TEACHER = 'TEACHER',
+    STUDENT = 'STUDENT',
+    ADMIN = 'ADMIN',
 }
 
 @Injectable()

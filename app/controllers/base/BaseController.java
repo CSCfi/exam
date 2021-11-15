@@ -101,16 +101,16 @@ public class BaseController extends Controller {
             String name2 = rawFilter.split(" ")[1];
             result =
                 result
-                    .disjunction()
-                    .conjunction()
+                    .or()
+                    .and()
                     .ilike(fnField, String.format("%%%s%%", name1))
                     .ilike(lnField, String.format("%%%s%%", name2))
-                    .endJunction()
-                    .conjunction()
+                    .endAnd()
+                    .and()
                     .ilike(fnField, String.format("%%%s%%", name2))
                     .ilike(lnField, String.format("%%%s%%", name1))
-                    .endJunction()
-                    .endJunction();
+                    .endAnd()
+                    .endOr();
         } else {
             result = result.ilike(fnField, condition).ilike(lnField, condition);
         }

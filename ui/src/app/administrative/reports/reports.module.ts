@@ -15,7 +15,6 @@ import { StudentsReportComponent } from './categories/studentsReport.component';
 import { TeachersReportComponent } from './categories/teachersReport.component';
 import { ReportsComponent } from './reports.component';
 import { ReportsService } from './reports.service';
-import { UserResourceService } from './userResource.service';
 
 @NgModule({
     imports: [UtilityModule, CommonModule, TranslateModule, FacilityModule, NgbModule],
@@ -30,6 +29,6 @@ import { UserResourceService } from './userResource.service';
         TeachersReportComponent,
         ReportsComponent,
     ],
-    providers: [ReportsService, UserResourceService, DatePipe],
+    providers: [ReportsService, DatePipe],
 })
 export class ReportsModule {}

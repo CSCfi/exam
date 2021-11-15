@@ -149,7 +149,7 @@ export class SessionService implements OnDestroy {
     }
 
     logout(): void {
-        this.http.post<{ logoutUrl: string }>('/app/logout', {}).subscribe((resp) => {
+        this.http.delete<{ logoutUrl: string }>('/app/session', {}).subscribe((resp) => {
             this.webStorageService.remove('EXAM_USER');
             // delete this.user;
             this.onLogoutSuccess(resp);
@@ -194,7 +194,7 @@ export class SessionService implements OnDestroy {
     }
 
     checkSession = () => {
-        this.http.get('/app/checkSession', { responseType: 'text' }).subscribe(
+        this.http.get('/app/session', { responseType: 'text' }).subscribe(
             (resp) => {
                 if (resp === 'alarm') {
                     toastr.warning(
@@ -204,7 +204,7 @@ export class SessionService implements OnDestroy {
                             timeOut: 0,
                             preventDuplicates: true,
                             onclick: () => {
-                                this.http.put('/app/extendSession', {}).subscribe(
+                                this.http.put('/app/session', {}).subscribe(
                                     () => {
                                         toastr.info(this.i18n.instant('sitnet_session_extended'), '', {
                                             timeOut: 1000,
@@ -291,7 +291,7 @@ export class SessionService implements OnDestroy {
 
     login$ = (username: string, password: string): Observable<User> =>
         this.http
-            .post<User>('/app/login', {
+            .post<User>('/app/session', {
                 username: username,
                 password: password,
             })
