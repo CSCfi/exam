@@ -89,9 +89,11 @@ export class DatePickerComponent implements OnInit {
         const now = new Date();
         const d = this.initialDate !== null ? new Date(this.initialDate) : now;
         this.today = new NgbDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+        const date = new NgbDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
         if (!this.initiallyEmpty) {
-            this.startDate = this.date = new NgbDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
+            this.date = date;
         }
+        this.startDate = date;
     }
 
     transform(value: NgbDate | null): Date | null {
@@ -100,6 +102,8 @@ export class DatePickerComponent implements OnInit {
     }
 
     dateChange() {
+        const now = new Date();
+        this.startDate = this.date || new NgbDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
         this.onUpdate.emit({ date: this.transform(this.date) });
     }
 

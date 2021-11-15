@@ -15,7 +15,7 @@
  *
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
@@ -30,7 +30,7 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
     selector: 'reservation-details',
     templateUrl: './reservationDetails.component.html',
 })
-export class ReservationDetailsComponent {
+export class ReservationDetailsComponent implements OnChanges {
     @Input() reservations: AnyReservation[] = [];
     @Input() isAdminView = false;
 
@@ -44,7 +44,7 @@ export class ReservationDetailsComponent {
         private Reservation: ReservationService,
     ) {}
 
-    ngOnInit() {
+    ngOnChanges() {
         // This is terrible but modeling these is a handful. Maybe we can move some reservation types to different views.
         this.fixedReservations = this.reservations as ReservationDetail[];
     }

@@ -117,12 +117,12 @@ export class CalendarComponent implements OnInit {
                     this.reservationWindowSize = resp.value;
                     this.reservationWindowEndDate = addDays(new Date(), resp.value);
                     this.minDate = [new Date(), new Date(this.examInfo.examActiveStartDate as string)].reduce((a, b) =>
-                        a < b ? a : b,
+                        a > b ? a : b,
                     );
                     this.maxDate = [
                         this.reservationWindowEndDate,
                         new Date(this.examInfo.examActiveEndDate as string),
-                    ].reduce((a, b) => (a > b ? a : b));
+                    ].reduce((a, b) => (a < b ? a : b));
                 }),
                 switchMap(() => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit')),
                 tap((resp) => (this.isInteroperable = resp.isExamVisitSupported)),
