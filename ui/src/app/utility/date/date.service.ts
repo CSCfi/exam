@@ -49,6 +49,12 @@ export class DateTimeService {
         return new Date(now.setDate(now.getDate() + distance));
     }
 
+    getDateForMonth(ordinal: number): Date {
+        const now = new Date();
+        const distance = ordinal - now.getMonth();
+        return new Date(now.setMonth(now.getMonth() + distance));
+    }
+
     getWeekdayNames(): string[] {
         const lang = this.translate.currentLang;
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();

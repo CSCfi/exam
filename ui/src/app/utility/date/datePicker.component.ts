@@ -13,11 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Injectable, Input, Output } from '@angular/core';
-import { NgbDate, NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDate, NgbDateParserFormatter, NgbDatepickerI18n } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
+
+import { DateTimeService } from './date.service';
 
 import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import type { OnInit } from '@angular/core';
-
 @Injectable()
 export class DatePickerFormatter extends NgbDateParserFormatter {
     readonly DELIMITER = '.';
@@ -36,10 +38,34 @@ export class DatePickerFormatter extends NgbDateParserFormatter {
     }
 }
 
+@Injectable()
+export class DatePickerI18n extends NgbDatepickerI18n {
+    constructor(private translate: TranslateService, private DateTime: DateTimeService) {
+        super();
+    }
+
+    private getTranslation = (options: Intl.DateTimeFormatOptions, ord: number, fn: (n: number) => Date): string => {
+        const lang = this.translate.currentLang;
+        const locale = `${lang.toLowerCase()}-${lang.toUpperCase()}`;
+        return fn(ord).toLocaleDateString(locale, options);
+    };
+
+    getWeekdayShortName = (weekday: number): string =>
+        this.getTranslation({ weekday: 'short' }, weekday, this.DateTime.getDateForWeekday);
+    getMonthShortName = (month: number): string =>
+        this.getTranslation({ month: 'short' }, month - 1, this.DateTime.getDateForMonth);
+    getMonthFullName = (month: number): string =>
+        this.getTranslation({ month: 'long' }, month - 1, this.DateTime.getDateForMonth);
+    getDayAriaLabel = (date: NgbDateStruct): string => new Date(date.year, date.month - 1, date.day).toISOString();
+    getWeekdayLabel = (weekday: number): string => this.getWeekdayShortName(weekday);
+}
 @Component({
     selector: 'date-picker',
     templateUrl: './datePicker.component.html',
-    providers: [{ provide: NgbDateParserFormatter, useClass: DatePickerFormatter }],
+    providers: [
+        { provide: NgbDateParserFormatter, useClass: DatePickerFormatter },
+        { provide: NgbDatepickerI18n, useClass: DatePickerI18n },
+    ],
 })
 export class DatePickerComponent implements OnInit {
     @Input() initialDate: Date | string | number | null = null;
