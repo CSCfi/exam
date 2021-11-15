@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
-import * as _ from 'lodash';
+import { isObject } from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
 
@@ -69,7 +69,7 @@ export class CollaborativeExamSearchComponent implements OnInit {
 
     updateExamList(exams: CollaborativeExam[]) {
         this.exams = exams.map((e) =>
-            _.assign(e, {
+            Object.assign(e, {
                 reservationMade: false,
                 alreadyEnrolled: false,
                 noTrialsLeft: false,
@@ -82,7 +82,7 @@ export class CollaborativeExamSearchComponent implements OnInit {
         );
         this.exams.forEach((e) => {
             this.Enrolment.getEnrolments(e.id, true).subscribe((enrolments) => {
-                e.reservationMade = enrolments.some((e) => _.isObject(e.reservation));
+                e.reservationMade = enrolments.some((e) => isObject(e.reservation));
                 e.alreadyEnrolled = enrolments.length > 0;
             });
         });

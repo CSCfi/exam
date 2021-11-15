@@ -203,7 +203,7 @@ public class IntegrationTestCase {
     protected void login(String eppn, Map<String, String> headers) {
         HAKA_HEADERS.put("eppn", eppn);
         headers.forEach(HAKA_HEADERS::put);
-        Result result = request(Helpers.POST, "/app/login", null, HAKA_HEADERS, false);
+        Result result = request(Helpers.POST, "/app/session", null, HAKA_HEADERS, false);
         this.session = result.session();
         assertThat(result.status()).isEqualTo(Http.Status.OK);
         JsonNode user = Json.parse(contentAsString(result));
@@ -211,7 +211,7 @@ public class IntegrationTestCase {
     }
 
     protected void logout() {
-        request(Helpers.POST, "/app/logout", null);
+        request(Helpers.DELETE, "/app/session", null);
         this.session = new Http.Session();
     }
 

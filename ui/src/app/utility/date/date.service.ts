@@ -16,7 +16,7 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { format, parseISO, roundToNearestMinutes } from 'date-fns';
 import { format as formatTz, utcToZonedTime } from 'date-fns-tz';
-import * as _ from 'lodash';
+import { range } from 'lodash';
 
 @Injectable()
 export class DateTimeService {
@@ -53,7 +53,7 @@ export class DateTimeService {
         const lang = this.translate.currentLang;
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
         const options: Intl.DateTimeFormatOptions = { weekday: 'short' };
-        return _.range(1, 7)
+        return range(1, 7)
             .concat(0)
             .map((d) => this.getDateForWeekday(d).toLocaleDateString(locale, options));
     }

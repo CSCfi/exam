@@ -18,7 +18,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { format, parseISO } from 'date-fns';
-import * as _ from 'lodash';
+import { isBoolean, isEmpty } from 'lodash';
 import { throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -367,7 +367,7 @@ export class ExamPublicationComponent implements OnInit {
             errors.push('sitnet_exam_has_no_questions');
         }
 
-        const allSectionsNamed = this.exam.examSections.every((section) => !_.isEmpty(section.name));
+        const allSectionsNamed = this.exam.examSections.every((section) => !isEmpty(section.name));
         if (!allSectionsNamed) {
             errors.push('sitnet_exam_contains_unnamed_sections');
         }
@@ -376,7 +376,7 @@ export class ExamPublicationComponent implements OnInit {
             errors.push('sitnet_no_participants');
         }
 
-        if (this.exam.executionType.type === 'MATURITY' && !_.isBoolean(this.exam.subjectToLanguageInspection)) {
+        if (this.exam.executionType.type === 'MATURITY' && !isBoolean(this.exam.subjectToLanguageInspection)) {
             errors.push('sitnet_language_inspection_setting_not_chosen');
         }
 

@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import * as _ from 'lodash';
+import { isInteger, isNumber } from 'lodash';
 
 import { QuestionService } from '../../../question/question.service';
 
@@ -52,11 +52,11 @@ export class PrintedMultiChoiceComponent {
     calculateWeightedMaxPoints = () => this.Question.calculateWeightedMaxPoints(this.sectionQuestion);
 
     calculateMultiChoiceMaxPoints = () =>
-        _.isInteger(this.sectionQuestion.maxScore)
+        isInteger(this.sectionQuestion.maxScore)
             ? this.sectionQuestion.maxScore
             : this.sectionQuestion.maxScore.toFixed(2);
 
     getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
 
-    hasForcedScore = () => _.isNumber(this.sectionQuestion.forcedScore);
+    hasForcedScore = () => isNumber(this.sectionQuestion.forcedScore);
 }

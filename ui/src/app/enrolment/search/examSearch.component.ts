@@ -15,14 +15,13 @@
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import * as _ from 'lodash';
+import { isObject } from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import type { OnInit } from '@angular/core';
 import type { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
-
 @Component({
     selector: 'exam-search',
     templateUrl: './examSearch.component.html',
@@ -104,7 +103,7 @@ export class ExamSearchComponent implements OnInit {
                     exam.reservationMade = false;
                 } else {
                     exam.alreadyEnrolled = true;
-                    exam.reservationMade = enrolments.some((e) => _.isObject(e.reservation));
+                    exam.reservationMade = enrolments.some((e) => isObject(e.reservation));
                 }
             });
         });

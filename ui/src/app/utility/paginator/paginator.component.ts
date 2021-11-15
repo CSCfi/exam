@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import * as _ from 'lodash';
+import { range as _range } from 'lodash';
 
 import type { OnChanges, SimpleChanges } from '@angular/core';
 @Component({
@@ -67,7 +67,7 @@ export class PaginatorComponent implements OnChanges {
 
     nextPageDisabled = () => (this.currentPage === this.pageCount ? 'disabled' : '');
 
-    range = () => _.range(0, this.pageCount + 1);
+    range = () => _range(0, this.pageCount + 1);
 
     setPage = (n: number) => {
         this.currentPage = n;

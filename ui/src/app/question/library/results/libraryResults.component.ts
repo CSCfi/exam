@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as _ from 'lodash';
+import { isNumber, isString } from 'lodash';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../../session/session.service';
@@ -197,9 +197,9 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     };
 
     showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
-        if (_.isNumber(scoreColumnValue)) {
+        if (isNumber(scoreColumnValue)) {
             return scoreColumnValue;
-        } else if (_.isString(scoreColumnValue) && scoreColumnValue !== '') {
+        } else if (isString(scoreColumnValue) && scoreColumnValue !== '') {
             return this.translate.instant(scoreColumnValue);
         } else {
             return '';
