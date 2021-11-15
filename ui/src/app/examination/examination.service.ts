@@ -42,7 +42,7 @@ export class ExaminationService {
 
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
         const url = isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + hash;
-        return this.http.get<void>('/app/checkSession').pipe(
+        return this.http.get<void>('/app/session').pipe(
             switchMap(() =>
                 this.http.get<Examination>(isCollaboration ? url.replace('/app/', '/integration/iop/') : url),
             ),
