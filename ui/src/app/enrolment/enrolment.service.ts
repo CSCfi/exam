@@ -17,7 +17,7 @@ import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as _ from 'lodash';
+import { isObject } from 'lodash';
 import { forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -32,7 +32,6 @@ import type { Exam, ExaminationEventConfiguration } from '../exam/exam.model';
 import type { ExamRoom } from '../reservation/reservation.model';
 import type { User } from '../session/session.service';
 import type { EnrolmentInfo, ExamEnrolment, ReviewedExam } from './enrolment.model';
-
 @Injectable()
 export class EnrolmentService {
     constructor(
@@ -176,7 +175,7 @@ export class EnrolmentService {
                     map((resp) => {
                         if (resp.length > 0) {
                             ei.alreadyEnrolled = true;
-                            ei.reservationMade = resp.some((e) => _.isObject(e.reservation));
+                            ei.reservationMade = resp.some((e) => isObject(e.reservation));
                         }
                         return ei;
                     }),
@@ -193,7 +192,7 @@ export class EnrolmentService {
             map((resp) => {
                 if (resp.length > 0) {
                     info.alreadyEnrolled = true;
-                    info.reservationMade = resp.some((e) => _.isObject(e.reservation));
+                    info.reservationMade = resp.some((e) => isObject(e.reservation));
                 } else {
                     info.alreadyEnrolled = info.reservationMade = false;
                 }

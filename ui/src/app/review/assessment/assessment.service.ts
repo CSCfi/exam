@@ -17,7 +17,6 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
-import * as _ from 'lodash';
 import { from, noop, of, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -314,7 +313,7 @@ export class AssessmentService {
 
     getErrors = (exam: Exam) => {
         const messages: string[] = [];
-        if (!_.get(exam.grade, 'id') && !exam.gradeless) {
+        if (!exam.grade?.id && !exam.gradeless) {
             messages.push('sitnet_participation_unreviewed');
         }
         if (!exam.creditType?.type) {

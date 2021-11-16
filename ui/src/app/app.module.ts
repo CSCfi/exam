@@ -12,11 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import './assets/styles/main.scss';
-import '@angular/localize';
-import 'bootstrap-icons/font/bootstrap-icons.css';
-import 'toastr/toastr.scss';
-
 import { CommonModule, Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 import { LOCALE_ID, NgModule } from '@angular/core';

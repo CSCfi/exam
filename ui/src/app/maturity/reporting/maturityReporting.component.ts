@@ -14,7 +14,7 @@
  */
 import { Component } from '@angular/core';
 import { formatISO, startOfMonth } from 'date-fns';
-import * as _ from 'lodash';
+import { range } from 'lodash';
 
 import { WindowRef } from '../../utility/window/window.service';
 import { LanguageInspectionService } from '../languageInspections.service';
@@ -39,9 +39,9 @@ export class MaturityReportingComponent implements OnInit {
     constructor(private LanguageInspection: LanguageInspectionService, private Window: WindowRef) {}
 
     ngOnInit() {
-        this.months = _.range(1, 13).map((m) => ({ id: m, label: m.toString() }));
+        this.months = range(1, 13).map((m) => ({ id: m, label: m.toString() }));
         const year = new Date().getFullYear();
-        this.years = _.range(0, 20).map((n) => ({ id: year - n, label: (year - n).toString() }));
+        this.years = range(0, 20).map((n) => ({ id: year - n, label: (year - n).toString() }));
         this.query();
     }
 

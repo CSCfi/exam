@@ -18,7 +18,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
 import { eachDayOfInterval, format, min, startOfDay } from 'date-fns';
-import * as _ from 'lodash';
+import { countBy } from 'lodash';
 
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
@@ -132,7 +132,7 @@ export class ExamSummaryComponent {
         const grades: string[] = this.reviews
             .filter((r) => r.exam.gradedTime)
             .map((r) => (r.exam.grade ? r.exam.grade.name : this.translate.instant('sitnet_no_grading')));
-        this.gradeDistribution = _.countBy(grades);
+        this.gradeDistribution = countBy(grades);
         this.gradeDistributionData = Object.values(this.gradeDistribution);
         this.gradeDistributionLabels = Object.keys(this.gradeDistribution).map(this.CommonExam.getExamGradeDisplayName);
     };
@@ -493,7 +493,7 @@ export class ExamSummaryComponent {
     };
 
     calcSectionMaxAndAverages = () => {
-        const parentSectionMaxScores: _.Dictionary<number> = this.exam.examSections.reduce(
+        const parentSectionMaxScores: Record<string, number> = this.exam.examSections.reduce(
             (obj, current) => ({
                 ...obj,
                 [current.name]: this.Exam.getSectionMaxScore(current),
@@ -510,17 +510,17 @@ export class ExamSummaryComponent {
                 const prevMax = obj[current.name] || 0;
                 const newMax = this.Exam.getSectionMaxScore(current);
                 return { ...obj, [current.name]: Math.max(prevMax, newMax) };
-            }, {} as _.Dictionary<number>);
+            }, {} as Record<string, number>);
 
         const sectionMaxScores = { ...childSectionMaxScores, ...parentSectionMaxScores };
 
-        const sectionTotalScores: _.Dictionary<number[]> = childExamSections.reduce((obj, curr) => {
+        const sectionTotalScores: Record<string, number[]> = childExamSections.reduce((obj, curr) => {
             const { name } = curr;
             const max = sectionMaxScores[name] || 0;
             const score = Math.min(this.Exam.getSectionTotalScore(curr), max);
             const scores = obj[name] || [];
             return { ...obj, [name]: [...scores, score] };
-        }, {} as _.Dictionary<number[]>);
+        }, {} as Record<string, number[]>);
 
         this.sectionScores = Object.keys(sectionMaxScores).reduce(
             (obj, name) => ({

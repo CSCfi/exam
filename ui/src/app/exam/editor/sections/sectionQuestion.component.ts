@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import * as _ from 'lodash';
+import { merge } from 'lodash';
 import { noop, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -30,7 +30,6 @@ import { FileService } from '../../../utility/file/file.service';
 
 import type { Observable } from 'rxjs';
 import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from '../../exam.model';
-
 @Component({
     selector: 'section-question',
     templateUrl: './sectionQuestion.component.html',
@@ -117,7 +116,7 @@ export class SectionQuestionComponent {
                 })
                 .subscribe(
                     (resp) => {
-                        this.sectionQuestion = _.merge(this.sectionQuestion, resp);
+                        this.sectionQuestion = merge(this.sectionQuestion, resp);
                         // Collaborative exam question handling.
                         if (!this.collaborative) {
                             return;
@@ -169,7 +168,7 @@ export class SectionQuestionComponent {
                     (esq: ExamSectionQuestion) => {
                         toast.info(this.translate.instant('sitnet_question_saved'));
                         // apply changes back to scope
-                        this.sectionQuestion = _.merge(this.sectionQuestion, esq);
+                        this.sectionQuestion = merge(this.sectionQuestion, esq);
                     },
                     (err) => toast.error(err),
                 );

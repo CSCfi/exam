@@ -15,7 +15,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, TransitionService, UIRouterGlobals } from '@uirouter/core';
-import * as _ from 'lodash';
+import { clone } from 'lodash';
 import * as toast from 'toastr';
 
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
@@ -82,16 +82,16 @@ export class QuestionComponent implements OnInit {
         this.currentOwners = [];
         if (this.newQuestion) {
             this.question = this.Question.getQuestionDraft();
-            this.currentOwners = _.clone(this.question.questionOwners);
+            this.currentOwners = clone(this.question.questionOwners);
         } else if (this.questionDraft && this.collaborative) {
             this.question = { ...this.questionDraft, examSectionQuestions: [] };
-            this.currentOwners = _.clone(this.question.questionOwners);
+            this.currentOwners = clone(this.question.questionOwners);
             this.window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         } else {
             this.Question.getQuestion(this.questionId || this.state.params.id).subscribe(
                 (question: ReverseQuestion) => {
                     this.question = question;
-                    this.currentOwners = _.clone(this.question.questionOwners);
+                    this.currentOwners = clone(this.question.questionOwners);
                     this.window.nativeWindow.onbeforeunload = () =>
                         this.translate.instant('sitnet_unsaved_data_may_be_lost');
                 },

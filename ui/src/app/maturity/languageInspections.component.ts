@@ -14,7 +14,7 @@
  */
 import { Component } from '@angular/core';
 import { addDays } from 'date-fns';
-import * as _ from 'lodash';
+import { isEmpty } from 'lodash';
 
 import { LanguageService } from '../utility/language/language.service';
 import { LanguageInspectionService } from './languageInspections.service';
@@ -56,10 +56,10 @@ export class LanguageInspectionsComponent implements OnInit {
         if (this.endDate) {
             params.end = addDays(this.endDate, 1).getTime();
         }
-        const refreshAll = _.isEmpty(params);
+        const refreshAll = isEmpty(params);
         this.LanguageInspection.query(params).subscribe((resp: LanguageInspection[]) => {
             const inspections: LanguageInspectionData[] = resp.map((i) =>
-                _.assign(i, {
+                Object.assign(i, {
                     ownerAggregate: i.exam.parent
                         ? i.exam.parent.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join(', ')
                         : '',

@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Directive } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
 import { addMinutes, endOfDay, parseISO, startOfDay } from 'date-fns';
-import * as _ from 'lodash';
+import { isNumber, isObject } from 'lodash';
 import { forkJoin } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -125,7 +125,7 @@ export class ReservationComponentBase {
     // TODO: check this out
     private createParams = (input: Selection) => {
         const params: Selection = { ...input };
-        if (params.examId && !_.isNumber(parseInt(params.examId as string))) {
+        if (params.examId && !isNumber(parseInt(params.examId as string))) {
             params.externalRef = params.examId as string;
             delete params.examId;
         }
@@ -139,11 +139,11 @@ export class ReservationComponentBase {
     };
 
     private isLocalTransfer = (reservation: AnyReservation): reservation is LocalTransferExamReservation =>
-        !reservation.enrolment || _.isObject(reservation.enrolment.externalExam);
+        !reservation.enrolment || isObject(reservation.enrolment.externalExam);
     private isRemoteTransfer = (reservation: AnyReservation): reservation is RemoteTransferExamReservation =>
-        _.isObject(reservation.externalReservation);
+        isObject(reservation.externalReservation);
     private isCollaborative = (reservation: AnyReservation): reservation is CollaborativeExamReservation =>
-        _.isObject(reservation.enrolment?.collaborativeExam);
+        isObject(reservation.enrolment?.collaborativeExam);
 
     query() {
         if (this.somethingSelected(this.selection)) {

@@ -117,6 +117,13 @@ import { QuestionReviewService } from './questions/questionReview.service';
         QuestionReviewComponent,
         QuestionReviewsComponent,
     ],
+    bootstrap: [
+        InspectionCommentDialogComponent,
+        ArchiveDownloadComponent,
+        SpeedReviewFeedbackComponent,
+        AbortedExamsComponent,
+        NoShowsComponent,
+    ],
     providers: [
         AssessmentService,
         CollaborativeAssesmentService,

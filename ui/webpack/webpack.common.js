@@ -10,6 +10,7 @@ const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
  * Base configuration object for Webpack
  */
 const config = {
+    entry: ['./src/polyfills.ts'],
     optimization: {
         usedExports: true,
     },

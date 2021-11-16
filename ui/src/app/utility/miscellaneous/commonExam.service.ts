@@ -14,7 +14,7 @@
  */
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as _ from 'lodash';
+import { isNumber } from 'lodash';
 
 import { ReviewedExam } from '../../enrolment/enrolment.model';
 
@@ -117,7 +117,7 @@ export class CommonExamService {
         return this.hasCustomCredit(exam) ? exam.customCredit : courseCredit;
     };
 
-    hasCustomCredit = (exam: Exam | ReviewedExam) => _.isNumber(exam.customCredit) && exam.customCredit >= 0;
+    hasCustomCredit = (exam: Exam | ReviewedExam) => isNumber(exam.customCredit) && exam.customCredit >= 0;
 
     getExamImplementationTranslation = (impl: Implementation) => {
         switch (impl) {
