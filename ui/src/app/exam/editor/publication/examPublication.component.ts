@@ -389,4 +389,10 @@ export class ExamPublicationComponent implements OnInit {
         }
         return errors.map((e) => this.translate.instant(e));
     }
+
+    sortByString(prop: ExaminationEventConfiguration[]): Array<ExaminationEventConfiguration> {
+        return prop.sort((a, b) => {
+            return Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start);
+        });
+    }
 }
