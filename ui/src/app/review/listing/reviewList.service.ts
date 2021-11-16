@@ -15,7 +15,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as _ from 'lodash';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -52,13 +51,10 @@ export class ReviewListService {
             return true;
         }
         const s = filter.toLowerCase();
-        const name =
-            _.get(review, 'examParticipation.user.firstName', '') +
-            ' ' +
-            _.get(review, 'examParticipation.user.lastName', '');
+        const name = `${review.examParticipation.user.firstName || ''} ${review.examParticipation.user.lastName || ''}`;
         return (
             name.toLowerCase().indexOf(s) > -1 ||
-            _.get(review, 'examParticipation.user.email', '').toLowerCase().indexOf(s) > -1
+            (review.examParticipation.user.email || ' ').toLowerCase().indexOf(s) > -1
         );
     };
 

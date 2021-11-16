@@ -15,7 +15,7 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
-import * as _ from 'lodash';
+import { cloneDeep, isNumber } from 'lodash';
 import { forkJoin } from 'rxjs';
 import * as toast from 'toastr';
 
@@ -99,7 +99,7 @@ export class QuestionAssessmentComponent {
                             (a) => a.id === answer.id,
                         );
                         if (this.reviews[currentReviewIndex].answers[currentAnswerIndex]) {
-                            this.reviews[currentReviewIndex].answers[currentAnswerIndex] = _.cloneDeep(answer);
+                            this.reviews[currentReviewIndex].answers[currentAnswerIndex] = cloneDeep(answer);
                         }
                     }
                 }
@@ -115,17 +115,17 @@ export class QuestionAssessmentComponent {
     };
 
     saveAssessments = (answers: ReviewQuestion[]) =>
-        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = _.cloneDeep(this.reviews)));
+        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = cloneDeep(this.reviews)));
 
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
 
     setSelectedReview = (review: QuestionReview) => {
         this.selectedReview = { ...review, expanded: true };
         this.assessedAnswers = this.selectedReview.answers.filter(
-            (a) => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
+            (a) => a.essayAnswer && isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
         );
         this.unassessedAnswers = this.selectedReview.answers.filter(
-            (a) => !a.essayAnswer || (!_.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
+            (a) => !a.essayAnswer || (!isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
         );
         this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);
     };

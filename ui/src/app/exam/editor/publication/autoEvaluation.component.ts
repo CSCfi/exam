@@ -14,7 +14,7 @@
  */
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import * as _ from 'lodash';
+import { cloneDeep } from 'lodash';
 
 import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { ExamService } from '../../exam.service';
@@ -80,7 +80,7 @@ export class AutoEvaluationComponent implements OnInit {
             const releaseType = this.selectedReleaseType();
             this.config = {
                 releaseType: releaseType ? releaseType.name : this.autoevaluation.releaseTypes[0].name,
-                gradeEvaluations: this.exam.gradeScale.grades.map((g) => ({ grade: _.cloneDeep(g), percentage: 0 })),
+                gradeEvaluations: this.exam.gradeScale.grades.map((g) => ({ grade: cloneDeep(g), percentage: 0 })),
                 amountDays: 0,
                 releaseDate: new Date(),
             };

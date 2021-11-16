@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as _ from 'lodash';
+import { isEmpty, isInteger } from 'lodash';
 import { forkJoin, throwError } from 'rxjs';
 import { catchError, defaultIfEmpty, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -42,7 +42,7 @@ export class ExaminationService {
 
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
         const url = isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + hash;
-        return this.http.get<void>('/app/checkSession').pipe(
+        return this.http.get<void>('/app/session').pipe(
             switchMap(() =>
                 this.http.get<Examination>(isCollaboration ? url.replace('/app/', '/integration/iop/') : url),
             ),
@@ -106,7 +106,7 @@ export class ExaminationService {
             case 'EssayQuestion':
                 return esq.essayAnswer && (allowEmpty || (esq.essayAnswer.answer && esq.essayAnswer.answer.length > 0));
             case 'ClozeTestQuestion':
-                return esq.clozeTestAnswer && (allowEmpty || !_.isEmpty(esq.clozeTestAnswer.answer));
+                return esq.clozeTestAnswer && (allowEmpty || !isEmpty(esq.clozeTestAnswer.answer));
             default:
                 return false;
         }
@@ -152,7 +152,7 @@ export class ExaminationService {
                 break;
             case 'ClozeTestQuestion': {
                 const clozeTestAnswer = sq.clozeTestAnswer;
-                isAnswered = clozeTestAnswer && !_.isEmpty(clozeTestAnswer.answer);
+                isAnswered = clozeTestAnswer && !isEmpty(clozeTestAnswer.answer);
                 break;
             }
             case 'ClaimChoiceQuestion':
@@ -208,7 +208,7 @@ export class ExaminationService {
             .map((esq) => esq.derivedMaxScore)
             .reduce((acc, current) => acc + current, 0);
 
-        return _.isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
+        return isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
     };
 
     abort$ = (hash: string): Observable<void> => {

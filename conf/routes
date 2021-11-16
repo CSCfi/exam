@@ -1,16 +1,14 @@
 GET           /                                                        controllers.base.FrontendRouterController.index()
 
 ############### Session interface ############
-GET           /app/checkSession                                        controllers.SessionController.checkSession(request: Request)
-PUT           /app/extendSession                                       controllers.SessionController.extendSession(request: Request)
-POST          /app/login                                               controllers.SessionController.login(request: Request)
-POST          /app/logout                                              controllers.SessionController.logout(request: Request)
+GET           /app/session                                             controllers.SessionController.checkSession(request: Request)
+PUT           /app/session                                             controllers.SessionController.extendSession(request: Request)
+POST          /app/session                                             controllers.SessionController.login(request: Request)
+DELETE        /app/session                                             controllers.SessionController.logout(request: Request)
 
 ############### User interface ###############
-GET           /app/users/:id                                           controllers.UserController.getUser(id: Long)
 GET           /app/users/byrole/:role                                  controllers.UserController.getUsersByRole(role: String)
 GET           /app/users/filter/:role/:eid                             controllers.UserController.getExamInspectorsByRoleFilter(role: String, eid: Long, q: String)
-GET           /app/users/exam/owners/:role/:eid                        controllers.UserController.getExamOwnersByRoleFilter(role: String, eid: Long, q: String)
 GET           /app/users/question/owners/:role                         controllers.UserController.getQuestionOwnersByRoleFilter(role: String, q: String, qid: java.util.Optional[java.lang.Long], request: Request)
 PUT           /app/users/agreement                                     controllers.UserController.updateUserAgreementAccepted(request: Request)
 PUT           /app/user/lang                                           controllers.UserController.updateLanguage(request: Request)

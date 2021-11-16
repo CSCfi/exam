@@ -93,6 +93,8 @@ import { PrintoutListingComponent } from './printout/printoutListing.component';
         PublicationErrorDialogComponent,
         PublicationRevocationDialogComponent,
         ExaminationEventDialogComponent,
+        ExamMaterialComponent,
+        ExaminationTypeSelectorComponent,
     ],
     providers: [ExamService, CoursePickerService, CollaborativeExamService, ExamTabService],
 })

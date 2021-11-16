@@ -18,8 +18,8 @@ import { RoomService } from '../../facility/rooms/room.service';
 import { ExamRoom } from '../../reservation/reservation.model';
 import { User } from '../../session/session.service';
 import { Option } from '../../utility/select/dropDownSelect.component';
-import { ReportsService } from './reports.service';
-import { UserResourceService, UserRole } from './userResource.service';
+import { UserService } from '../../utility/user/user.service';
+import { ReportsService, UserRole } from './reports.service';
 
 import type { OnInit } from '@angular/core';
 @Component({
@@ -54,11 +54,7 @@ import type { OnInit } from '@angular/core';
     `,
 })
 export class ReportsComponent implements OnInit {
-    constructor(
-        private reports: ReportsService,
-        private room: RoomService,
-        private userResource: UserResourceService,
-    ) {}
+    constructor(private Users: UserService, private Reports: ReportsService, private room: RoomService) {}
 
     rooms: Option<ExamRoom, number>[] = [];
     examNames: Option<string, number>[] = [];
@@ -74,7 +70,7 @@ export class ReportsComponent implements OnInit {
             }));
         });
 
-        this.reports.examNames().subscribe((resp) => {
+        this.Reports.examNames().subscribe((resp) => {
             this.examNames = resp.map((en) => ({
                 id: en.id,
                 label: `${en.course.code} - ${en.name}`,
@@ -82,7 +78,7 @@ export class ReportsComponent implements OnInit {
             }));
         });
 
-        this.userResource.usersByRole(UserRole.TEACHER).subscribe((resp) => {
+        this.Users.listUsersByRole$(UserRole.TEACHER).subscribe((resp) => {
             this.teachers = resp.map((t) => ({
                 id: t.id,
                 label: t.name as string,
@@ -90,7 +86,7 @@ export class ReportsComponent implements OnInit {
             }));
         });
 
-        this.userResource.usersByRole(UserRole.STUDENT).subscribe((resp) => {
+        this.Users.listUsersByRole$(UserRole.STUDENT).subscribe((resp) => {
             this.students = resp.map((t) => ({
                 id: t.id,
                 label: t.name as string,

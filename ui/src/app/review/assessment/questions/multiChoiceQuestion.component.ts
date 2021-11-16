@@ -16,7 +16,7 @@ import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as _ from 'lodash';
+import { isInteger, isNumber } from 'lodash';
 import * as toast from 'toastr';
 
 import { QuestionService } from '../../../question/question.service';
@@ -67,7 +67,7 @@ export class MultiChoiceQuestionComponent {
         }
     }
 
-    hasForcedScore = () => _.isNumber(this.sectionQuestion.forcedScore);
+    hasForcedScore = () => isNumber(this.sectionQuestion.forcedScore);
 
     scoreWeightedMultipleChoiceAnswer = (ignoreForcedScore: boolean) => {
         if (this.sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
@@ -91,7 +91,7 @@ export class MultiChoiceQuestionComponent {
     };
 
     displayMaxScore = () =>
-        _.isInteger(this.sectionQuestion.maxScore)
+        isInteger(this.sectionQuestion.maxScore)
             ? this.sectionQuestion.maxScore
             : this.sectionQuestion.maxScore.toFixed(2);
 

@@ -106,7 +106,7 @@ import { WindowRef } from './window/window.service';
         MaxDirective,
         OrderByPipe,
     ],
-    bootstrap: [ConfirmationDialogComponent],
+    bootstrap: [ConfirmationDialogComponent, AttachmentSelectorComponent],
     providers: [
         AttachmentService,
         ConfirmationDialogService,

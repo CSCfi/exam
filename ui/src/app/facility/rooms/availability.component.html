@@ -39,12 +39,14 @@
     </div>
 
     <div class="student-exam-row bottom-row">
-        <booking-calendar
-            *ngIf="room"
-            (onNeedMoreEvents)="refresh($event)"
-            [room]="room"
-            [events]="events"
-            [visible]="true"
-        ></booking-calendar>
+        <div class="col-md-12">
+            <booking-calendar
+                *ngIf="room"
+                (onNeedMoreEvents)="refresh($event)"
+                [room]="room"
+                [events]="events"
+                [visible]="true"
+            ></booking-calendar>
+        </div>
     </div>
 </div>

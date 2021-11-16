@@ -16,7 +16,7 @@ import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as _ from 'lodash';
+import { isInteger, isNumber } from 'lodash';
 import * as toast from 'toastr';
 
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
@@ -65,7 +65,7 @@ export class ClozeTestComponent {
         }
     }
 
-    hasForcedScore = () => _.isNumber(this.sectionQuestion.forcedScore);
+    hasForcedScore = () => isNumber(this.sectionQuestion.forcedScore);
 
     downloadQuestionAttachment = () => {
         if (this.collaborative && this.sectionQuestion.question.attachment?.externalId) {
@@ -82,7 +82,7 @@ export class ClozeTestComponent {
         const score = this.sectionQuestion.clozeTestAnswer?.score;
         if (score) {
             const value = (score.correctAnswers * max) / (score.correctAnswers + score.incorrectAnswers);
-            return _.isInteger(value) ? value : value.toFixed(2);
+            return isInteger(value) ? value : value.toFixed(2);
         }
         return 0;
     };
