@@ -22,7 +22,7 @@ type AvailableSlot = Slot & { availableMachines: number };
 
 @Component({
     selector: 'calendar-slot-picker',
-    template: ` <div class="row student-enrolment-wrapper details-view" [ngClass]="selectedRoom ? '' : 'notactive'">
+    template: `<div class="row student-enrolment-wrapper details-view" [ngClass]="selectedRoom ? '' : 'notactive'">
         <div class="col-md-12">
             <div class="row">
                 <span class="col-md-11 col-9">
@@ -119,7 +119,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                             (click)="selectRoom(room)"
                             tabindex="0"
                             (ngEnter)="selectRoom(room)"
-                            ngbPopover="{{ outOfServiceGate(room, getDescription(room).toString()) }}"
+                            ngbPopover="{{ outOfServiceGate(room, getDescription(room)) }}"
                             popoverTitle="{{ outOfServiceGate(room, 'sitnet_instructions' | translate) }}"
                             container="body"
                             triggers="mouseenter:mouseleave"
