@@ -119,8 +119,8 @@ type AvailableSlot = Slot & { availableMachines: number };
                             (click)="selectRoom(room)"
                             tabindex="0"
                             (ngEnter)="selectRoom(room)"
-                            ngbPopover="{{ getDescription(room) }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            ngbPopover="{{ outOfServiceGate(room, getDescription(room)) }}"
+                            popoverTitle="{{ outOfServiceGate(room, 'sitnet_instructions' | translate) }}"
                             container="body"
                             triggers="mouseenter:mouseleave"
                         >
@@ -313,10 +313,19 @@ export class SlotPickerComponent {
     };
 
     getDescription(room: ExamRoom): string {
+        const status = room.statusComment ? ': ' + room.statusComment : '';
+        return this.translate.instant('sitnet_room_out_of_service') + status;
+    }
+
+    /**
+     * Tests if the selected room is out of service and returns given array (for rendering), If selected room is out of service it returns Undefined.
+     * @param room
+     * @param text
+     */
+    outOfServiceGate(room: ExamRoom, text: string) {
         if (room.outOfService) {
-            const status = room.statusComment ? ': ' + room.statusComment : '';
-            return this.translate.instant('sitnet_room_out_of_service') + status;
+            return text;
         }
-        return room.name;
+        return undefined;
     }
 }
