@@ -117,11 +117,7 @@
                     (click)="removeExaminationEvent(config)"
                     class="text text-danger pointer"
                 >
-                    <i
-                        title="{{ 'sitnet_remove' | translate }}"
-                        class="bi-x rounded-right background-gray"
-                        style="padding: 6px 6px"
-                    ></i
+                    <i title="{{ 'sitnet_remove' | translate }}" class="bi-x rounded-right background-gray pad6"></i
                 ></span>
 
                 <span *ngIf="config.examEnrolments.length > 0" class="ml-2 text text-muted">
