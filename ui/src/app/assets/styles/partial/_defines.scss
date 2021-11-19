@@ -242,6 +242,10 @@ $sitnet-background: #ffffff;
   color: $sitnet-ready;
 }
 
+.background-gray{
+background: gainsboro;
+}
+
 .sitnet-horizontal-line {
   background-color: $sitnet-common-light;
   height: 0.15em;
@@ -476,6 +480,16 @@ $sitnet-icon-size: 32px;
   font-weight: normal;
 }
 
+.examination-event-list-item{
+  background: #00A34B;
+  color: #FFFFFF;
+  font-variant-numeric: tabular-nums !important;
+  padding: 6px 12px;
+  &:hover{
+    background: #2c7639;
+  }
+}
+
 .icon_fix {
   margin-left: 1em;
   line-height: 1.8em;
@@ -564,6 +578,10 @@ $sitnet-icon-size: 32px;
 
 .pad5 {
   padding: 5px;
+}
+
+.pad6{
+  padding: 6px;
 }
 
 .pad30 {
