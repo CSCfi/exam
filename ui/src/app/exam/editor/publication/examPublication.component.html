@@ -100,17 +100,24 @@
         </button>
     </div>
     <div class="col-md-6 justify-content-center">
-        <ul class="list-inline">
-            <li *ngFor="let config of exam.examinationEventConfigurations" class="list-inline-item">
-                <span (click)="modifyExaminationEvent(config)" class="pointer">{{
-                    config.examinationEvent.start | date
-                }}</span>
+        <ul class="list-inline padt20">
+            <li
+                *ngFor="let config of sortByString(exam.examinationEventConfigurations)"
+                class="list-inline-item marb20"
+            >
+                <span
+                    title="{{ 'sitnet_edit' | translate }}"
+                    (click)="modifyExaminationEvent(config)"
+                    class="pointer examination-event-list-item rounded-left"
+                >
+                    {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}<i class="bi-pencil marl5"></i>
+                </span>
                 <span
                     *ngIf="config.examEnrolments.length === 0"
                     (click)="removeExaminationEvent(config)"
                     class="text text-danger pointer"
                 >
-                    <i title="{{ 'sitnet_remove' | translate }}" class="ml-2 bi-x"></i
+                    <i title="{{ 'sitnet_remove' | translate }}" class="bi-x rounded-right background-gray pad6"></i
                 ></span>
 
                 <span *ngIf="config.examEnrolments.length > 0" class="ml-2 text text-muted">
