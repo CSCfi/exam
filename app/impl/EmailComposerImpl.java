@@ -789,6 +789,7 @@ class EmailComposerImpl implements EmailComposer {
         Lang lang = getLang(student);
 
         boolean isMaturity = exam.getExecutionType().getType().equals(ExamExecutionType.Type.MATURITY.toString());
+        boolean isAquarium = exam.getImplementation().toString().equals(Exam.Implementation.AQUARIUM.toString());
         String templatePrefix = String.format("email.template%s.", isMaturity ? ".maturity" : "");
 
         String subject = messaging.get(
@@ -796,7 +797,12 @@ class EmailComposerImpl implements EmailComposer {
             templatePrefix + "participant.notification.subject",
             String.format("%s (%s)", exam.getName(), exam.getCourse().getCode().split("_")[0])
         );
-        String title = messaging.get(lang, templatePrefix + "participant.notification.title");
+        String title = messaging.get(
+            lang,
+            isAquarium
+                ? templatePrefix + "participant.notification.title"
+                : "email.template.participant.notification.title.examination.event"
+        );
 
         String examInfo = messaging.get(
             lang,
@@ -804,15 +810,29 @@ class EmailComposerImpl implements EmailComposer {
             String.format("%s (%s)", exam.getName(), exam.getCourse().getCode().split("_")[0])
         );
         String teacherName = messaging.get(lang, "email.template.participant.notification.teacher", getTeachers(exam));
-        String examPeriod = messaging.get(
-            lang,
-            "email.template.participant.notification.exam.period",
-            String.format(
-                "%s - %s",
-                DF.print(new DateTime(exam.getExamActiveStartDate())),
-                DF.print(new DateTime(exam.getExamActiveEndDate()))
+        DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
+        String events = exam
+            .getExaminationEventConfigurations()
+            .stream()
+            .map(c -> c.getExaminationEvent().getStart())
+            .sorted()
+            .map(dtf::print)
+            .collect(Collectors.joining(", "));
+        String examPeriod = isAquarium
+            ? messaging.get(
+                lang,
+                "email.template.participant.notification.exam.period",
+                String.format(
+                    "%s - %s",
+                    DF.print(new DateTime(exam.getExamActiveStartDate())),
+                    DF.print(new DateTime(exam.getExamActiveEndDate()))
+                )
             )
-        );
+            : messaging.get(
+                lang,
+                "email.template.participant.notification.exam.events",
+                String.format("%s (%s)", events, timeZone)
+            );
         String examDuration = messaging.get(
             lang,
             "email.template.participant.notification.exam.duration",
