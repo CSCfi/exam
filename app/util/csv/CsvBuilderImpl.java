@@ -17,8 +17,12 @@ package util.csv;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
+import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvValidationException;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
@@ -102,9 +106,40 @@ public class CsvBuilderImpl implements CsvBuilder {
         return file;
     }
 
+    private CSVReader detectDelimiter(File csvFile) throws IOException, CsvException {
+        final int GRADES_FIRST_ROW_COLUMN_COUNT = 6;
+
+        // Init parsed with colon file
+        CSVParser parserColon = new CSVParserBuilder().withSeparator(',').build();
+        CSVReader readerColon = new CSVReaderBuilder(new FileReader(csvFile)).withCSVParser(parserColon).build();
+        String[] recordFirstRowColon = readerColon.readNext();
+
+        // Init parsed with semicolon file
+        CSVParser parserSemicolon = new CSVParserBuilder().withSeparator(';').build();
+        CSVReader readerSemicolon = new CSVReaderBuilder(new FileReader(csvFile))
+            .withCSVParser(parserSemicolon)
+            .build();
+        String[] recordFirstRowSemiColon = readerSemicolon.readNext();
+
+        // Test all; return if valid; return null
+        if (recordFirstRowColon.length == GRADES_FIRST_ROW_COLUMN_COUNT) {
+            return readerColon;
+        } else if (recordFirstRowSemiColon.length == GRADES_FIRST_ROW_COLUMN_COUNT) {
+            return readerSemicolon;
+        } else {
+            logger.warn("Invalid column count");
+            return null;
+        }
+    }
+
     @Override
-    public void parseGrades(File csvFile, User user, Role.Name role) throws IOException, CsvValidationException {
-        CSVReader reader = new CSVReader(new FileReader(csvFile));
+    public void parseGrades(File csvFile, User user, Role.Name role) throws IOException, CsvException {
+        CSVReader reader = detectDelimiter(csvFile);
+        if (reader == null) {
+            logger.warn("Cannot read grades");
+            return;
+        }
+
         String[] records;
         while ((records = reader.readNext()) != null) {
             if (records.length < 2) {
