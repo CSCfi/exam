@@ -1,7 +1,7 @@
 # --- !Ups
 
-ALTER TABLE attachment ALTER COLUMN file_name TYPE TEXT using file_name;
-ALTER TABLE attachment ALTER COLUMN file_path TYPE TEXT using file_path;
+ALTER TABLE attachment ALTER COLUMN file_name TYPE TEXT;
+ALTER TABLE attachment ALTER COLUMN file_path TYPE TEXT;
 
 # --- !Downs
 
