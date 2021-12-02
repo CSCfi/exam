@@ -725,10 +725,11 @@ public class ReviewController extends BaseController {
         }
         File tarball = File.createTempFile(eid.toString(), ".tar.gz");
         try (
-            ArchiveOutputStream aos = new TarArchiveOutputStream(
+            TarArchiveOutputStream aos = new TarArchiveOutputStream(
                 new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(tarball)))
             )
         ) {
+            aos.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
             createArchive(prototype, aos, startDate, endDate);
             if (aos.getBytesWritten() == 0) {
                 return notFound("sitnet_no_attachments_to_archive");

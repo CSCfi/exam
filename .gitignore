@@ -14,3 +14,4 @@ default-create-all.sql
 *.sc
 .bloop
 .metals
+*.DS_Store
