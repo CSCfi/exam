@@ -45,13 +45,7 @@ public interface CalendarHandler {
         Collection<Integer> aids
     );
 
-    Reservation createReservation(
-        DateTime start,
-        DateTime end,
-        ExamMachine machine,
-        User user,
-        Collection<Long> sectionIds
-    );
+    Reservation createReservation(DateTime start, DateTime end, ExamMachine machine, User user);
 
     LocalDate getEndSearchDate(LocalDate searchDate, LocalDate examEnd);
     int getReservationWindowSize();

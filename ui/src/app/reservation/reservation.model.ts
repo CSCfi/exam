@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { ExamSection } from '../exam/exam.model';
 import type { Address, WorkingHour } from '../facility/rooms/room.service';
 import type { User } from '../session/session.service';
 
@@ -99,7 +98,6 @@ export interface ExternalReservation {
 
 export interface Reservation {
     id: number;
-    noShow: boolean;
     enrolment: ExamEnrolment;
     externalRef?: string;
     externalReservation?: ExternalReservation;
@@ -108,6 +106,4 @@ export interface Reservation {
     startAt: string;
     endAt: string;
     user: User;
-    retrialPermitted: boolean;
-    optionalSections: ExamSection[];
 }

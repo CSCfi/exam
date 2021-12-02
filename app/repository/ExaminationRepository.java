@@ -56,7 +56,7 @@ public class ExaminationRepository {
             // TODO: support for optional sections in BYOD exams
             Set<Long> ids = reservation == null
                 ? Collections.emptySet()
-                : reservation.getOptionalSections().stream().map(ExamSection::getId).collect(Collectors.toSet());
+                : enrolment.getOptionalSections().stream().map(ExamSection::getId).collect(Collectors.toSet());
             Exam studentExam = prototype.copyForStudent(user, isCollaborative, ids);
             studentExam.setState(Exam.State.STUDENT_STARTED);
             studentExam.setCreator(user);

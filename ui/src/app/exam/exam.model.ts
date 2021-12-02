@@ -338,7 +338,11 @@ export interface ExamParticipation {
 }
 
 export function isParticipation(event: ExamParticipation | ExamEnrolment): event is ExamParticipation {
-    return event.reservation !== undefined && event.reservation.noShow === undefined;
+    return (
+        event.reservation !== null &&
+        event.reservation !== undefined &&
+        event.reservation.enrolment.noShow === undefined // FIXME: check this
+    );
 }
 
 export enum ClaimChoiceOptionType {

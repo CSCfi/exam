@@ -62,16 +62,14 @@
             />
             <span class="padl10 notice-text">{{ 'sitnet_exam_no_previous_participations' | translate }}</span>
         </span>
-        <div
-            class="col-md-12 padl0"
-            [hidden]="participations.length === 0"
-            *ngFor="let participation of participations"
-        >
-            <r-participation [participation]="participation" [collaborative]="collaborative"></r-participation>
-        </div>
-        <div class="col-md-12 padl0" [hidden]="noShows.length === 0" *ngFor="let noShow of noShows">
-            <r-participation [participation]="noShow" [collaborative]="collaborative"></r-participation>
-        </div>
+    </div>
+
+    <div [hidden]="participations.length === 0" *ngFor="let participation of participations">
+        <r-participation [participation]="participation" [collaborative]="collaborative"></r-participation>
+    </div>
+
+    <div [hidden]="noShows.length === 0" *ngFor="let noShow of noShows">
+        <r-no-show [enrolment]="noShow" [collaborative]="collaborative"></r-no-show>
     </div>
 
     <div class="detail-row marb20" *ngIf="exam.instruction">
