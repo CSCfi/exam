@@ -150,11 +150,11 @@ public class ReviewController extends BaseController {
         }
         List<ExamEnrolment> enrolments = Ebean
             .find(ExamEnrolment.class)
-            .fetch("reservation", "startAt, endAt, noShow")
+            .fetch("reservation", "startAt, endAt")
             .where()
             .eq("user", exam.getCreator())
             .eq("exam", exam.getParent())
-            .eq("reservation.noShow", true)
+            .eq("noShow", true)
             .orderBy("reservation.endAt")
             .findList();
         return writeAnonymousResult(request, ok(enrolments), exam.isAnonymous());
@@ -220,7 +220,8 @@ public class ReviewController extends BaseController {
             "examSections(name, sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
             "languageInspection(*), examLanguages(*), examFeedback(*), grade(name), " +
             "parent(name, examActiveStartDate, examActiveEndDate, course(code, name), examOwners(firstName, lastName, email)), " +
-            "examParticipation(*, user(id, firstName, lastName, email, userIdentifier), reservation(retrialPermitted))" +
+            "examParticipation(*, user(id, firstName, lastName, email, userIdentifier)), " +
+            "examEnrolments(retrialPermitted)" +
             ")"
         );
         Query<Exam> query = Ebean.find(Exam.class);
@@ -470,7 +471,7 @@ public class ReviewController extends BaseController {
             .fetch("exam.grade", "id, name")
             .where()
             .eq("exam.id", eid)
-            .eq("reservation.noShow", true)
+            .eq("noShow", true)
             .orderBy("reservation.endAt")
             .findList();
         final Result result = ok(enrolments);

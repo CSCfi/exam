@@ -84,8 +84,8 @@ public class EnrolmentRepository {
             .fetch("reservation", "startAt, endAt, externalRef")
             .fetch("reservation.externalReservation")
             .fetch("reservation.externalReservation.mailAddress")
-            .fetch("reservation.optionalSections")
-            .fetch("reservation.optionalSections.examMaterials")
+            .fetch("optionalSections")
+            .fetch("optionalSections.examMaterials")
             .fetch("reservation.machine", "name")
             .fetch(
                 "reservation.machine.room",

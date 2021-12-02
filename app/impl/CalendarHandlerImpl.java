@@ -204,13 +204,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     @Override
-    public Reservation createReservation(
-        DateTime start,
-        DateTime end,
-        ExamMachine machine,
-        User user,
-        Collection<Long> sectionIds
-    ) {
+    public Reservation createReservation(DateTime start, DateTime end, ExamMachine machine, User user) {
         Reservation reservation = new Reservation();
         reservation.setEndAt(end);
         reservation.setStartAt(start);
@@ -221,10 +215,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         if (start.minusDays(1).isBeforeNow()) {
             reservation.setReminderSent(true);
         }
-        if (!sectionIds.isEmpty()) {
-            Set<ExamSection> sections = Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
-            reservation.setOptionalSections(sections);
-        }
+
         return reservation;
     }
 
@@ -453,10 +444,6 @@ public class CalendarHandlerImpl implements CalendarHandler {
         reservation.setStartAt(start);
         reservation.setUser(user);
         reservation.setExternalRef(node.get("id").asText());
-        Set<ExamSection> sections = sectionIds.isEmpty()
-            ? Collections.emptySet()
-            : Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
-        reservation.setOptionalSections(sections);
 
         // If this is due in less than a day, make sure we won't send a reminder
         if (start.minusDays(1).isBeforeNow()) {
@@ -492,6 +479,10 @@ public class CalendarHandlerImpl implements CalendarHandler {
         Ebean.save(reservation);
         enrolment.setReservation(reservation);
         enrolment.setReservationCanceled(false);
+        Set<ExamSection> sections = sectionIds.isEmpty()
+            ? Collections.emptySet()
+            : Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
+        enrolment.setOptionalSections(sections);
         Ebean.save(enrolment);
 
         // Finally nuke the old reservation if any
