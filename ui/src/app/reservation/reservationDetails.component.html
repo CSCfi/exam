@@ -175,7 +175,11 @@
                     [disabled]="!r.enrolment.exam.trialCount || r.retrialPermitted"
                     class="btn btn-sm btn-primary pull-left"
                 >
-                    {{ 'sitnet_permit_retrial' | translate }}
+                    {{
+                        !r.enrolment.exam.trialCount || r.retrialPermitted
+                            ? ('sitnet_retrial_permitted' | translate)
+                            : ('sitnet_permit_retrial' | translate)
+                    }}
                 </button>
             </td>
             <td class="reservation-search" *ngIf="isAdminView">
