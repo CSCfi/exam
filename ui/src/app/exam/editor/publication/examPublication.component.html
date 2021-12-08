@@ -161,8 +161,8 @@
                         id="hourValue"
                         name="examDuration-hours"
                         type="number"
-                        max=23
-                        min=0
+                        [max]="23"
+                        [min]="0"
                         class="wdt50 time-display"
                         [value]="hourValue"
                         (change)="setHourValue($event)"
@@ -174,8 +174,8 @@
                         id="minuteValue"
                         name="examDuration-minutes"
                         type="number"
-                        max=59
-                        min=0
+                        [max]="59"
+                        [min]="0"
                         class="wdt50 time-display"
                         [value]="minuteValue"
                         (change)="setMinuteValue($event)"
