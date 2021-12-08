@@ -118,7 +118,7 @@ export class ReservationComponentBase {
         this.initOptions();
         this.query();
         this.stateOptions = this.examStates.map((s) => {
-            return { id: s, label: `sitnet_exam_status_${s.toLowerCase()}` };
+            return { id: s, value: s, label: `sitnet_exam_status_${s.toLowerCase()}` };
         });
     }
 

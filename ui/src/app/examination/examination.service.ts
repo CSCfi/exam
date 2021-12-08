@@ -92,11 +92,11 @@ export class ExaminationService {
                 answerObj.objectVersion = a.objectVersion;
                 return esq;
             }),
-            catchError((resp) => {
-                if (resp.error) {
-                    toast.error(resp);
+            catchError((err) => {
+                if (!canFail) {
+                    toast.error(err);
                 }
-                return throwError(resp);
+                return throwError(err);
             }),
         );
     };
