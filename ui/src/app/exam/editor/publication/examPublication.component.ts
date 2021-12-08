@@ -157,7 +157,7 @@ export class ExamPublicationComponent implements OnInit {
 
     updateExam = () => this.updateExam$().subscribe();
 
-    setExamDuration = (hours: number, minutes: number) => {
+    setExamDuration = (hours: number | undefined, minutes: number | undefined) => {
         // Fix undefined values
         const fixHour = hours || 0;
         const fixMinutes = minutes || 0;
