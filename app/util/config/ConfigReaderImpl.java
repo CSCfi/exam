@@ -55,6 +55,16 @@ public class ConfigReaderImpl implements ConfigReader {
     }
 
     @Override
+    public Integer getExamMaxDuration() {
+        return ConfigFactory.load().getInt("sitnet.exam.maxDuration");
+    }
+
+    @Override
+    public Integer getExamMinDuration() {
+        return ConfigFactory.load().getInt("sitnet.exam.minDuration");
+    }
+
+    @Override
     public Map<Role, List<String>> getRoleMapping() {
         Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne();
         Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findOne();

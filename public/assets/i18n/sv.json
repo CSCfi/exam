@@ -140,6 +140,8 @@
   "sitnet_write_message": "Skriv följebrev",
   "sitnet_message": "Följebrev",
   "sitnet_minutes": "minuter",
+  "sitnet_hours": "timmar",
+  "sitnet_between": "Mellan",
   "sitnet_multiplechoice_question_correct": "Rätt alternativ",
   "sitnet_multiplechoice_question_incorrect": "Fel",
   "sitnet_name": "Namn",

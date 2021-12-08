@@ -148,12 +148,56 @@
             <button
                 class="btn btn-publish"
                 [ngClass]="checkDuration(duration)"
-                (click)="setExamDuration(duration)"
+                (click)="setExamDuration(0, duration)"
                 [disabled]="!user.isAdmin && exam.hasEnrolmentsInEffect"
             >
                 {{ duration }}
             </button>
         </span>
+        <span *ngIf="exam.implementation !== 'AQUARIUM' || null" class="wdt400">
+            <div class="mart10">
+                <div class="mart10">
+                    <input
+                        id="hourValue"
+                        name="examDuration-hours"
+                        type="number"
+                        max="23"
+                        min="0"
+                        class="wdt50 time-display"
+                        [value]="hourValue"
+                        (change)="setHourValue($event)"
+                    />
+                    <label for="hourValue">{{ 'sitnet_hours' | translate }}</label>
+                </div>
+                <div class="mart10">
+                    <input
+                        id="minuteValue"
+                        name="examDuration-minutes"
+                        type="number"
+                        max="59"
+                        min="0"
+                        class="wdt50 time-display"
+                        [value]="minuteValue"
+                        (change)="setMinuteValue($event)"
+                    />
+                    <label for="minuteValue">{{ 'sitnet_minutes' | translate }}</label>
+                </div>
+                <button
+                    class="btn btn-primary green border-green mart10"
+                    (click)="setExamDuration(hourValue, minuteValue)"
+                >
+                    {{ 'sitnet_save' | translate }}
+                </button>
+            </div>
+            <div class="info">
+                {{ 'sitnet_between' | translate }}: {{ toHoursAndMinutes(minDuration) }} -
+                {{ toHoursAndMinutes(maxDuration) }}
+            </div>
+        </span>
+        <div class="marl50">
+            {{ 'sitnet_saved' | translate }} {{ ('sitnet_exam_duration' | translate).toLowerCase() }}:
+            {{ toHoursAndMinutes(exam.duration) }}
+        </div>
     </div>
 </div>
 

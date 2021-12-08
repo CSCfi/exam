@@ -140,6 +140,8 @@
   "sitnet_write_message": "Kirjoita saateviesti",
   "sitnet_message": "Saateviesti",
   "sitnet_minutes": "minuuttia",
+  "sitnet_hours": "tuntia",
+  "sitnet_between": "Väliltä",
   "sitnet_multiplechoice_question_correct": "Oikein",
   "sitnet_multiplechoice_question_incorrect": "Väärin",
   "sitnet_name": "Nimi",

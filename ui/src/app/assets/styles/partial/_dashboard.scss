@@ -1531,6 +1531,10 @@
     border-radius: 4px;
   }
 
+  .wdt50 {
+    width: 50px;
+  }
+
   .wdt100 {
     width: 100px;
     border-bottom-right-radius: 4px;
@@ -1871,6 +1875,14 @@
     border: 1px solid $sitnet-border-color;
     border-radius: 4px;
     margin-bottom: 30px;
+  }
+
+  .time-display {
+    padding: 5px;
+    border: 1px solid #9e9e9e;
+    border-radius: 4px;
+    vertical-align: bottom;
+    margin-right: 10px;
   }
 
   .speed-review-title {
