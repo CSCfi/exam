@@ -160,10 +160,11 @@
                     <input
                         id="hourValue"
                         name="examDuration-hours"
+                        class="wdt50 time-display"
                         type="number"
+                        [(ngModel)]="hourValue"
                         [max]="23"
                         [min]="0"
-                        class="wdt50 time-display"
                         [value]="hourValue"
                         (change)="setHourValue($event)"
                     />
@@ -173,10 +174,11 @@
                     <input
                         id="minuteValue"
                         name="examDuration-minutes"
+                        class="wdt50 time-display"
                         type="number"
+                        [(ngModel)]="minuteValue"
                         [max]="59"
                         [min]="0"
-                        class="wdt50 time-display"
                         [value]="minuteValue"
                         (change)="setMinuteValue($event)"
                     />
