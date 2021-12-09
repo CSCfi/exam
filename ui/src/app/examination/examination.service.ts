@@ -17,8 +17,8 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as _ from 'lodash';
-import { forkJoin, throwError } from 'rxjs';
-import { catchError, defaultIfEmpty, map, switchMap, tap } from 'rxjs/operators';
+import { concat, throwError } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { WindowRef } from '../utility/window/window.service';
@@ -113,7 +113,6 @@ export class ExaminationService {
                     if (!canFail) {
                         toast.info(this.translate.instant('sitnet_answer_saved'));
                     }
-                    // this.setQuestionColors(esq);
                 }
                 answerObj.objectVersion = a.objectVersion;
                 return esq;
@@ -144,16 +143,16 @@ export class ExaminationService {
         autosave: boolean,
         allowEmpty: boolean,
         canFail: boolean,
-    ): Observable<ExaminationQuestion[]> => {
+    ) => {
         const questions = section.sectionQuestions.filter((esq) => this.isTextualAnswer(esq, allowEmpty));
         const tasks = questions.map((q) => this.saveTextualAnswer$(q, hash, autosave, canFail));
-        return forkJoin(tasks).pipe(defaultIfEmpty([]));
+        return concat(...tasks);
     };
 
-    saveAllTextualAnswersOfExam$ = (exam: Examination, canFail: boolean): Observable<ExaminationQuestion[][]> =>
-        forkJoin(
-            exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, canFail)),
-        ).pipe(defaultIfEmpty([]));
+    saveAllTextualAnswersOfExam$ = (exam: Examination, canFail: boolean) =>
+        concat(
+            ...exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, canFail)),
+        );
 
     private stripHtml = (text: string) => {
         if (text && text.indexOf('math-tex') === -1) {
