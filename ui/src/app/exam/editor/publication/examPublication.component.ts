@@ -50,9 +50,9 @@ export class ExamPublicationComponent implements OnInit {
     autoEvaluation: { enabled: boolean } = { enabled: false };
     examDurations: number[] = [];
     visibleParticipantSelector = 'participant';
-    timeValue: number | undefined;
-    hourValue: number | undefined;
-    minuteValue: number | undefined;
+    timeValue?: number;
+    hourValue?: number;
+    minuteValue?: number;
     maxDuration = 300; //DEFAULT
     minDuration = 1; //DEFAULT
 
@@ -157,7 +157,7 @@ export class ExamPublicationComponent implements OnInit {
 
     updateExam = () => this.updateExam$().subscribe();
 
-    setExamDuration = (hours: number | undefined, minutes: number | undefined) => {
+    setExamDuration = (hours?: number, minutes?: number) => {
         // Fix undefined values
         const fixHour = hours || 0;
         const fixMinutes = minutes || 0;
@@ -166,8 +166,7 @@ export class ExamPublicationComponent implements OnInit {
             toast.warning(this.translate.instant('DIALOGS_ERROR'));
             return null;
         }
-        this.exam.duration = duration;
-        this.updateExam$().subscribe();
+        this.updateExam$().subscribe(() => (this.exam.duration = duration));
     };
 
     setHourValue = (event: Event) => {

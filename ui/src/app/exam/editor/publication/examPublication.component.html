@@ -165,7 +165,6 @@
                         [(ngModel)]="hourValue"
                         [max]="23"
                         [min]="0"
-                        [value]="hourValue"
                         (change)="setHourValue($event)"
                     />
                     <label for="hourValue">{{ 'sitnet_hours' | translate }}</label>
@@ -179,7 +178,6 @@
                         [(ngModel)]="minuteValue"
                         [max]="59"
                         [min]="0"
-                        [value]="minuteValue"
                         (change)="setMinuteValue($event)"
                     />
                     <label for="minuteValue">{{ 'sitnet_minutes' | translate }}</label>
