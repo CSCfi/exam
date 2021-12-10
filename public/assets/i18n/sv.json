@@ -270,6 +270,7 @@
   "sitnet_error_unauthenticated": "Fel i användarnamnet eller lösenordet",
   "sitnet_error_role_not_found": "Rollen finns inte",
   "sitnet_error_invalid_session": "Fel i sessionen",
+  "sitnet_invalid_start_date_picked": "Invalid Examination date SV",
   "sitnet_feedback": "Respons",
   "sitnet_characters": "tecken",
   "sitnet_questions_new_essay": "Ny essäfråga",

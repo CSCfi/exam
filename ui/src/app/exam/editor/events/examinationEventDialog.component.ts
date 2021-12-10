@@ -28,11 +28,14 @@ import type { OnInit } from '@angular/core';
 export class ExaminationEventDialogComponent implements OnInit {
     @Input() config?: ExaminationEventConfiguration;
     @Input() requiresPassword = false;
+    @Input() examMaxDate?: number;
     start = new Date();
     description = '';
     password?: string;
     hasEnrolments = false;
     pwdInputType = 'password';
+    now = new Date();
+    maxDateValidator?: Date;
 
     constructor(public activeModal: NgbActiveModal, private translate: TranslateService) {}
 
@@ -43,14 +46,25 @@ export class ExaminationEventDialogComponent implements OnInit {
             this.password = this.config.settingsPassword;
             this.hasEnrolments = this.config.examEnrolments.length > 0;
         }
+        this.maxDateValidator = this.examMaxDate
+            ? new Date(this.now.getFullYear(), this.now.getMonth() + this.examMaxDate + 1, this.now.getDate())
+            : undefined;
     }
 
     togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');
-    onStartDateChange = (event: { date: Date }) => (this.start = event.date);
+    onStartDateChange = (event: { date: Date }) => {
+        if (this.maxDateValidator && this.maxDateValidator > event.date) {
+            this.start = event.date;
+        }
+    };
 
     ok() {
         if (!this.start) {
             toast.error(this.translate.instant('sitnet_no_examination_start_date_picked'));
+        }
+        if (this.maxDateValidator && this.maxDateValidator < this.start) {
+            toast.error(this.translate.instant('sitnet_invalid_start_date_picked'));
+            return;
         }
         this.activeModal.close({
             config: {

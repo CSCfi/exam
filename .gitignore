@@ -15,3 +15,4 @@ default-create-all.sql
 .bloop
 .metals
 *.DS_Store
+*package-lock.json

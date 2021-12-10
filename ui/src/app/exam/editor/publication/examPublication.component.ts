@@ -50,6 +50,7 @@ export class ExamPublicationComponent implements OnInit {
     autoEvaluation: { enabled: boolean } = { enabled: false };
     examDurations: number[] = [];
     visibleParticipantSelector = 'participant';
+    examMaxDate?: number;
 
     constructor(
         private http: HttpClient,
@@ -70,6 +71,10 @@ export class ExamPublicationComponent implements OnInit {
         this.autoEvaluation = { enabled: !!this.exam.autoEvaluationConfig };
         this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe(
             (data) => (this.examDurations = data.examDurations),
+            (error) => toast.error(error),
+        );
+        this.http.get<{ maxDate: number }>('/app/settings/maxDate').subscribe(
+            (data) => (this.examMaxDate = data.maxDate),
             (error) => toast.error(error),
         );
         this.Tabs.notifyTabChange(3);
@@ -250,6 +255,7 @@ export class ExamPublicationComponent implements OnInit {
             size: 'lg',
         });
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
+        modalRef.componentInstance.examMaxDate = this.examMaxDate;
         modalRef.result.then((data: ExaminationEventConfiguration) => {
             this.Exam.addExaminationEvent$(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
                 this.exam.examinationEventConfigurations.push(config);
@@ -265,6 +271,7 @@ export class ExamPublicationComponent implements OnInit {
         });
         modalRef.componentInstance.config = configuration;
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
+        modalRef.componentInstance.examMaxDate = this.examMaxDate;
         modalRef.result.then((data: ExaminationEventConfiguration) => {
             this.Exam.updateExaminationEvent$(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
                 (config: ExaminationEventConfiguration) => {

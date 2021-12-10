@@ -49,6 +49,11 @@ public class ConfigReaderImpl implements ConfigReader {
     }
 
     @Override
+    public Integer getExamMaxDate() {
+        return ConfigFactory.load().getInt("sitnet.exam.maxDate");
+    }
+
+    @Override
     public List<Integer> getExamDurations() {
         String[] durations = ConfigFactory.load().getString("sitnet.exam.durations").split(",");
         return Arrays.stream(durations).map(Integer::parseInt).collect(Collectors.toList());

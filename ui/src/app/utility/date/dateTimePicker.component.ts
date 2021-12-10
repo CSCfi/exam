@@ -22,6 +22,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                 <date-picker
                     [disabled]="disabled"
                     [initialDate]="initialTime"
+                    [examMaxDate]="examMaxDate"
                     (onUpdate)="onDateUpdate($event)"
                 ></date-picker>
             </div>
@@ -43,6 +44,7 @@ export class DateTimePickerComponent {
     @Input() hourStep = 0;
     @Input() minuteStep = 0;
     @Input() disabled = false;
+    @Input() examMaxDate?: number;
     @Output() onUpdate = new EventEmitter<{ date: Date }>();
 
     date: Date = new Date();
