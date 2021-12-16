@@ -10,7 +10,7 @@ public interface ConfigReader {
     DateTimeZone getDefaultTimeZone();
     String getHostName();
     Integer getMaxFileSize();
-    Integer getExamMaxDate();
+    String getExamMaxDate();
     List<Integer> getExamDurations();
     Map<Role, List<String>> getRoleMapping();
     boolean isCourseGradeScaleOverridable();

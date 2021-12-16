@@ -49,8 +49,10 @@ public class ConfigReaderImpl implements ConfigReader {
     }
 
     @Override
-    public Integer getExamMaxDate() {
-        return ConfigFactory.load().getInt("sitnet.exam.maxDate");
+    public String getExamMaxDate() {
+        DateTime newDate = new DateTime(0);
+        Period period = Period.parse(ConfigFactory.load().getString("sitnet.exam.maxDate"));
+        return newDate.plus(period).toString();
     }
 
     @Override

@@ -50,7 +50,7 @@ export class ExamPublicationComponent implements OnInit {
     autoEvaluation: { enabled: boolean } = { enabled: false };
     examDurations: number[] = [];
     visibleParticipantSelector = 'participant';
-    examMaxDate?: number;
+    examMaxDate?: Date;
 
     constructor(
         private http: HttpClient,
@@ -73,7 +73,7 @@ export class ExamPublicationComponent implements OnInit {
             (data) => (this.examDurations = data.examDurations),
             (error) => toast.error(error),
         );
-        this.http.get<{ maxDate: number }>('/app/settings/maxDate').subscribe(
+        this.http.get<{ maxDate: Date }>('/app/settings/maxDate').subscribe(
             (data) => (this.examMaxDate = data.maxDate),
             (error) => toast.error(error),
         );

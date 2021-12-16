@@ -44,7 +44,7 @@ export class DateTimePickerComponent {
     @Input() hourStep = 0;
     @Input() minuteStep = 0;
     @Input() disabled = false;
-    @Input() examMaxDate?: number;
+    @Input() examMaxDate?: string;
     @Output() onUpdate = new EventEmitter<{ date: Date }>();
 
     date: Date = new Date();

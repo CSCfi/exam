@@ -28,7 +28,7 @@ import type { OnInit } from '@angular/core';
 export class ExaminationEventDialogComponent implements OnInit {
     @Input() config?: ExaminationEventConfiguration;
     @Input() requiresPassword = false;
-    @Input() examMaxDate?: number;
+    @Input() examMaxDate?: string;
     start = new Date();
     description = '';
     password?: string;
@@ -46,9 +46,10 @@ export class ExaminationEventDialogComponent implements OnInit {
             this.password = this.config.settingsPassword;
             this.hasEnrolments = this.config.examEnrolments.length > 0;
         }
-        this.maxDateValidator = this.examMaxDate
-            ? new Date(this.now.getFullYear(), this.now.getMonth() + this.examMaxDate + 1, this.now.getDate())
-            : undefined;
+        if (this.examMaxDate) {
+            const maxDate = new Date(Date.parse(this.examMaxDate)).getTime() - new Date(0).getTime();
+            this.maxDateValidator = new Date(this.now.getTime() + maxDate);
+        }
     }
 
     togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');

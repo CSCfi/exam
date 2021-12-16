@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import models.GeneralSettings;
 import models.Language;
 import models.User;
+import org.joda.time.DateTime;
 import play.Environment;
 import play.data.DynamicForm;
 import play.libs.Json;
@@ -147,7 +148,7 @@ public class SettingsController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExamMaxDate() {
         ObjectNode node = Json.newObject();
-        node.put("maxDate", configReader.getExamMaxDate());
+        node.put("maxDate", configReader.getExamMaxDate().toString());
         return ok(Json.toJson(node));
     }
 

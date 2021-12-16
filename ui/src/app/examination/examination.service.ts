@@ -17,8 +17,8 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { isEmpty, isInteger } from 'lodash';
-import { forkJoin, throwError } from 'rxjs';
-import { catchError, defaultIfEmpty, map, switchMap, tap } from 'rxjs/operators';
+import { concat, throwError } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { WindowRef } from '../utility/window/window.service';
@@ -26,7 +26,6 @@ import { WindowRef } from '../utility/window/window.service';
 import type { Observable } from 'rxjs';
 import type { ClozeTestAnswer, EssayAnswer } from '../exam/exam.model';
 import type { ExaminationQuestion, Examination, ExaminationSection } from './examination.model';
-
 @Injectable()
 export class ExaminationService {
     isExternal = false;
@@ -87,7 +86,6 @@ export class ExaminationService {
                     if (!canFail) {
                         toast.info(this.translate.instant('sitnet_answer_saved'));
                     }
-                    // this.setQuestionColors(esq);
                 }
                 answerObj.objectVersion = a.objectVersion;
                 return esq;
@@ -118,16 +116,16 @@ export class ExaminationService {
         autosave: boolean,
         allowEmpty: boolean,
         canFail: boolean,
-    ): Observable<ExaminationQuestion[]> => {
+    ) => {
         const questions = section.sectionQuestions.filter((esq) => this.isTextualAnswer(esq, allowEmpty));
         const tasks = questions.map((q) => this.saveTextualAnswer$(q, hash, autosave, canFail));
-        return forkJoin(tasks).pipe(defaultIfEmpty([] as ExaminationQuestion[]));
+        return concat(...tasks);
     };
 
-    saveAllTextualAnswersOfExam$ = (exam: Examination, canFail: boolean): Observable<ExaminationQuestion[][]> =>
-        forkJoin(
-            exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, canFail)),
-        ).pipe(defaultIfEmpty([] as ExaminationQuestion[][]));
+    saveAllTextualAnswersOfExam$ = (exam: Examination, canFail: boolean) =>
+        concat(
+            ...exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, canFail)),
+        );
 
     private stripHtml = (text: string) => {
         if (text && text.indexOf('math-tex') === -1) {

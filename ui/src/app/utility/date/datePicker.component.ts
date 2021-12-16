@@ -75,7 +75,7 @@ export class DatePickerComponent implements OnInit {
     @Input() modelOptions: Record<string, string> = {};
     @Input() disabled = false;
     @Input() optional = true;
-    @Input() examMaxDate?: number;
+    @Input() examMaxDate?: string;
 
     @Output() onUpdate = new EventEmitter<{ date: Date | null }>();
     @Output() onExtraAction = new EventEmitter<{ date: Date | null }>();
@@ -95,7 +95,8 @@ export class DatePickerComponent implements OnInit {
         const date = new NgbDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
 
         if (this.examMaxDate) {
-            const maxDateInit = new Date(now.setMonth(now.getMonth() + this.examMaxDate));
+            const maxDate = new Date(Date.parse(this.examMaxDate)).getTime() - new Date(0).getTime();
+            const maxDateInit = new Date(now.getTime() + maxDate);
             this.maxDateStruct = {
                 day: maxDateInit.getDate(),
                 month: maxDateInit.getMonth() + 1,

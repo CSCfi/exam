@@ -6,7 +6,7 @@ import * as toast from 'toastr';
 import type { OnInit } from '@angular/core';
 export interface AppConfig {
     eula: string;
-    examMaxDate: number;
+    examMaxDate: string;
     examDurations: number[];
     expirationPeriod: string;
     anonymousReviewEnabled: boolean;
