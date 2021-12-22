@@ -129,7 +129,7 @@ export class LibrarySearchComponent implements OnInit {
             .subscribe();
     };
 
-    listExams = (): Observable<Exam[]> => {
+    listExams$ = (): Observable<Exam[]> => {
         const exams = this.exams.filter((e) => e.filtered);
         return this.Library.listExams(this.getCourseIds(), this.getSectionIds(), this.getTagIds()).pipe(
             tap((resp) => {
@@ -151,7 +151,7 @@ export class LibrarySearchComponent implements OnInit {
         const tags = this.tags.filter((_) => _.filtered && !_.isSectionTag);
         const sections = tags.filter((_) => _.filtered && _.isSectionTag);
         if (this.getExamIds().length === 0) {
-            this.listExams().subscribe(() => this.doListTags(tags, sections));
+            this.listExams$().subscribe(() => this.doListTags(tags, sections));
         } else {
             return this.doListTags(tags, sections);
         }
