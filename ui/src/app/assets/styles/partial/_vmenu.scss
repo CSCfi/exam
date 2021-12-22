@@ -113,7 +113,7 @@
     background-color: $sitnet-light-grey_new;
     color: $sitnet-dark-grey;
     top: 162px;
-    bottom: 40px;
+    bottom: 105px;
     overflow-y: auto;
     width: 17.125em;
 
@@ -138,7 +138,6 @@
     background-color: $sitnet-medium-green-new;
     color: $sitnet-dark-grey;
     display: block;
-    height: 40px;
     position: fixed;
     bottom: 0;
     width: 17.125em;
@@ -196,16 +195,13 @@
 
   .user {
 
-    position: fixed;
     bottom: 60px;
     color: white;
   }
 
   .user-name {
     background-color: $sitnet-light-grey_new;
-    display: inline-block;
     padding: 1.5em 1em 1em;
-    position: relative;
     left: 0;
     font-size: 1em;
     font-family: $sitnet-family-helvetica;
