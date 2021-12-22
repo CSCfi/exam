@@ -127,8 +127,8 @@
             </ul>
         </div>
 
-        <div class="nav-user" [hidden]="!user">
-            <div class="user">
+        <div class="nav-footer">
+            <div class="user" [hidden]="!user">
                 <div class="user-name">
                     <div class="user-logo">
                         <img src="/assets/assets/images/icon_menu_user.png" alt="User logo" />
@@ -140,9 +140,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="nav-footer">
             <div class="locale-bar">
                 <span class="locale-item">
                     <a (click)="switchLanguage('fi')" tabindex="0" (keyup.enter)="switchLanguage('fi')">FI</a>
