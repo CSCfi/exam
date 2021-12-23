@@ -721,6 +721,7 @@
   "sitnet_archived_teacher_exams_title": "Arkistoidut tentit",
   "sitnet_participations_assessed": "Suorituksia yhteensä",
   "sitnet_expired_exams": "Tentit, joiden voimassaoloaika päättynyt",
+  "sitnet_expired": "Vanhentunut",
   "sitnet_edit_exam_question": "Muokkaa tenttikysymystä",
   "sitnet_question_text": "Kysymysteksti",
   "sitnet_exam_question_edit_instructions": "Tämä kysymys on käytössä useammassa tentissä. Muutokset kysymystekstiin, vastausvaihtoehtoihin ja liitetiedostoon päivittyvät seuraaviin tentteihin. Vastausvaihtoehtojen pisteet ja kysymykseen liittyvä ohjeistus eivät päivity.",

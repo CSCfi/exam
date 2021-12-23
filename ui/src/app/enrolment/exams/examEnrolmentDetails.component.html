@@ -25,9 +25,12 @@
         </div>
         <div class="col-md-3 col-6" *ngIf="!exam.alreadyEnrolled && !exam.noTrialsLeft">
             <div class="student-message-dialog-button-save">
-                <button class="btn btn-success" (click)="enrollForExam()">
+                <button class="btn btn-success" [disabled]="getExpiration()" (click)="enrollForExam()">
                     {{ 'sitnet_enroll_to_exam' | translate }}
                 </button>
+                <div class="text-danger marl10" *ngIf="getExpiration()">
+                    {{ 'sitnet_exam' | translate }} {{ 'sitnet_expired' | translate | lowercase }}!
+                </div>
             </div>
         </div>
         <div class="student-details-indicator col-md-3 col-6" *ngIf="exam.alreadyEnrolled && exam.reservationMade">
