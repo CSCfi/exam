@@ -600,4 +600,15 @@ public class EnrolmentController extends BaseController {
             );
         return ok();
     }
+
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    public Result permitRetrial(Long id) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class, id);
+        if (enrolment == null) {
+            return notFound("sitnet_not_found");
+        }
+        enrolment.setRetrialPermitted(true);
+        enrolment.update();
+        return ok();
+    }
 }

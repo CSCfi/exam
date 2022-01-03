@@ -38,7 +38,6 @@ public class ReservationPollerActor extends AbstractActor {
 
     @Override
     public Receive createReceive() {
-        // TODO: how about BYOD examinations and no-shows
         return receiveBuilder()
             .match(
                 String.class,

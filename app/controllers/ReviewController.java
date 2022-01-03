@@ -151,6 +151,7 @@ public class ReviewController extends BaseController {
         List<ExamEnrolment> enrolments = Ebean
             .find(ExamEnrolment.class)
             .fetch("reservation", "startAt, endAt")
+            .fetch("examinationEventConfiguration.examinationEvent", "start")
             .where()
             .eq("user", exam.getCreator())
             .eq("exam", exam.getParent())
@@ -466,6 +467,7 @@ public class ReviewController extends BaseController {
             .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
             .fetch("exam.executionType")
             .fetch("reservation")
+            .fetch("examinationEventConfiguration.examinationEvent")
             .fetch("user", "id, firstName, lastName, email, userIdentifier")
             .fetch("exam.course", "code, credits")
             .fetch("exam.grade", "id, name")

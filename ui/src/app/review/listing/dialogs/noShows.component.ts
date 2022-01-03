@@ -15,32 +15,26 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-import type { Reservation } from '../../../reservation/reservation.model';
-import type { Exam } from '../../../exam/exam.model';
-import type { User } from '../../../session/session.service';
-
-interface NoShow {
-    exam: Exam;
-    displayName: string | number;
-    user: User;
-    reservation: Reservation;
-}
+import { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import { SessionService } from '../../../session/session.service';
 
 @Component({
     selector: 'no-shows-component',
     templateUrl: './noShows.component.html',
 })
 export class NoShowsComponent {
-    @Input() noShows: NoShow[] = [];
+    @Input() noShows: (ExamEnrolment & { displayName: string })[] = [];
 
     noShowPredicate = 'reservation.startAt';
     reverse = false;
 
-    constructor(private modal: NgbActiveModal) {}
+    constructor(private modal: NgbActiveModal, private Session: SessionService) {}
 
     //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
     ngOnInit() {
-        this.noShows.forEach((r) => (r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id));
+        this.noShows.forEach(
+            (r) => (r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id.toString()),
+        );
     }
 
     cancel = () => this.modal.dismiss();

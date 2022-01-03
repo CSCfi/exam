@@ -19,11 +19,11 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { AnyReservation } from './reservation.base.component';
 import { ReservationService } from './reservation.service';
 
 import type { Reservation } from './reservation.model';
-
 type ReservationDetail = Reservation & { org: { name: string; code: string }; userAggregate: string };
 
 @Component({
@@ -63,10 +63,10 @@ export class ReservationDetailsComponent implements OnChanges {
             .catch((err) => toast.error(err));
     }
 
-    permitRetrial(reservation: Reservation) {
-        this.http.put(`/app/reservations/${reservation.id}`, {}).subscribe(
+    permitRetrial(enrolment: ExamEnrolment) {
+        this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe(
             () => {
-                reservation.enrolment.retrialPermitted = true;
+                enrolment.retrialPermitted = true;
                 toast.info(this.translate.instant('sitnet_retrial_permitted'));
             },
             (err) => toast.error(err),
