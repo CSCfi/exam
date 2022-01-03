@@ -605,7 +605,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         Reservation created = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(created).isNotNull();
-        assertThat(created.getOptionalSections()).hasSize(1);
+        assertThat(created.getEnrolment().getOptionalSections()).hasSize(1);
         ExternalReservation external = created.getExternalReservation();
         assertThat(external).isNotNull();
         assertThat(external.getRoomInstructionEN()).isEqualTo("information in English here");

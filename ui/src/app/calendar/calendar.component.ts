@@ -174,7 +174,7 @@ export class CalendarComponent implements OnInit {
             this.translate.instant('sitnet_confirm_external_reservation'),
         ).result.then(() =>
             this.state.go('externalCalendar', {
-                id: this.state.params.id,
+                id: this.uiRouter.params.id,
                 selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id),
                 isCollaborative: this.isCollaborative,
             }),

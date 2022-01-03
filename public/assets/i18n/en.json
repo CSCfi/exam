@@ -723,6 +723,7 @@
   "sitnet_archived_teacher_exams_title": "Archived exams",
   "sitnet_participations_assessed": "Assessed exams.",
   "sitnet_expired_exams": "Expired exams.",
+  "sitnet_expired": "Expired EN",
   "sitnet_edit_exam_question": "Edit the question.",
   "sitnet_question_text": "Question text",
   "sitnet_exam_question_edit_instructions": "This question is used in several exams. The changes made in the question text, answer options (excluding points) and attachments will be updated in the following exams. Points for the answer options and the question instructions will not be updated.",

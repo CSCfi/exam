@@ -723,6 +723,7 @@
   "sitnet_archived_teacher_exams_title": "Arkiverade tentamina",
   "sitnet_participations_assessed": "Prestationer sammanlagt",
   "sitnet_expired_exams": "Stängda tentamen",
+  "sitnet_expired": "Expired SV",
   "sitnet_edit_exam_question": "Redigera tentamensfråga",
   "sitnet_question_text": "Frågans text",
   "sitnet_exam_question_edit_instructions": "Denna fråga används i flera tentamina. Ändringar i frågetexten, svarsalternativen och bilaga uppdateras i följande tentamina. Poäng för svarsalternativen och frågeinstruktioner uppdateras inte.",

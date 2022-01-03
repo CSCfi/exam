@@ -293,7 +293,7 @@
                 [MathJax]="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction || ''"
             ></div>
         </div>
-        <div class="row mt-2" *ngIf="enrolment.reservation && enrolment.reservation.optionalSections.length > 0">
+        <div class="row mt-2" *ngIf="enrolment.reservation && enrolment.optionalSections.length > 0">
             <div class="col-12">
                 <a
                     class="infolink pointer"
@@ -317,7 +317,7 @@
                 </a>
                 <div
                     class="student-exam-row-infobox"
-                    *ngIf="enrolment.reservation && enrolment.reservation.optionalSections.length > 0"
+                    *ngIf="enrolment.reservation && enrolment.optionalSections.length > 0"
                     [hidden]="!showMaterials"
                 >
                     <div *ngFor="let section of enrolment.exam.examSections" class="marb20">
@@ -340,7 +340,7 @@
                             </div>
                         </div>
                     </div>
-                    <div *ngFor="let section of enrolment.reservation.optionalSections" class="marb20">
+                    <div *ngFor="let section of enrolment.optionalSections" class="marb20">
                         <div class="row">
                             <div class="col-12">
                                 <strong

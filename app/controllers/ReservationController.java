@@ -134,12 +134,12 @@ public class ReservationController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result permitRetrial(Long id) {
-        Reservation reservation = Ebean.find(Reservation.class, id);
-        if (reservation == null) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation.id", id).findOne();
+        if (enrolment == null) {
             return notFound("sitnet_not_found");
         }
-        reservation.setRetrialPermitted(true);
-        reservation.update();
+        enrolment.setRetrialPermitted(true);
+        enrolment.update();
         return ok();
     }
 
@@ -369,6 +369,7 @@ public class ReservationController extends BaseController {
     ) {
         ExpressionList<Reservation> query = Ebean
             .find(Reservation.class)
+            .fetch("enrolment", "noShow")
             .fetch("user", "id, firstName, lastName, email, userIdentifier")
             .fetch("enrolment.exam", "id, name, state, trialCount, implementation")
             .fetch("enrolment.externalExam", "id, externalRef, finished")

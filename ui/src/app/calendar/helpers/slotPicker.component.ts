@@ -125,7 +125,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                             triggers="mouseenter:mouseleave"
                         >
                             <div ngbDropdownItem [disabled]="room.outOfService" role="menuitem">
-                                <a> {{ room.name | slice: 0:30 }}</a>
+                                <a> {{ room.name }}</a>
                             </div>
                         </li>
                     </ul>

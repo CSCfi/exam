@@ -52,7 +52,7 @@ export class ReservationDetailsComponent implements OnChanges {
     printExamState = (reservation: Reservation) => this.Reservation.printExamState(reservation);
 
     getStateClass = (reservation: Reservation) =>
-        reservation.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase();
+        reservation.enrolment.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase();
 
     removeReservation(reservation: ReservationDetail) {
         this.Reservation.cancelReservation(reservation)
@@ -66,7 +66,7 @@ export class ReservationDetailsComponent implements OnChanges {
     permitRetrial(reservation: Reservation) {
         this.http.put(`/app/reservations/${reservation.id}`, {}).subscribe(
             () => {
-                reservation.retrialPermitted = true;
+                reservation.enrolment.retrialPermitted = true;
                 toast.info(this.translate.instant('sitnet_retrial_permitted'));
             },
             (err) => toast.error(err),
