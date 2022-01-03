@@ -547,6 +547,7 @@
   "sitnet_last_login": "Senast online",
   "sitnet_at_least_one_role_required": "Rollen kan inte tas bort. Användaren måste ha åtminstone en roll.",
   "sitnet_copy": "Kopiera",
+  "sitnet_custom": "Custom SV",
   "sitnet_copy_question": "Kopiera frågan?",
   "sitnet_load_answer_attachments": "Ladda upp bilagor",
   "sitnet_no_attachments_to_archive": "Inga bilagor hittades.",

@@ -154,7 +154,15 @@
                 {{ duration }}
             </button>
         </span>
-        <span *ngIf="exam.implementation !== 'AQUARIUM' || null" class="wdt400">
+        <button class="btn btn-primary green border-green marl30" (click)="toggleCustomTimeField()">
+            {{ 'sitnet_custom' | translate }} {{ ('sitnet_exam_time' | translate).toLowerCase() }}
+            <img
+                class="{{ showCustomTimeField && 'rotate90' }}"
+                src="/assets/assets/images/icon_right_white.png"
+                alt="exam"
+            />
+        </button>
+        <span *ngIf="showCustomTimeField" class="wdt400">
             <div class="mart10">
                 <div class="mart10">
                     <input
@@ -189,12 +197,12 @@
                     {{ 'sitnet_save' | translate }}
                 </button>
             </div>
-            <div class="info">
+            <div>
                 {{ 'sitnet_between' | translate }}: {{ toHoursAndMinutes(minDuration) }} -
                 {{ toHoursAndMinutes(maxDuration) }}
             </div>
         </span>
-        <div class="marl50">
+        <div class="marl50 mart10">
             {{ 'sitnet_saved' | translate }} {{ ('sitnet_exam_duration' | translate).toLowerCase() }}:
             {{ toHoursAndMinutes(exam.duration) }}
         </div>

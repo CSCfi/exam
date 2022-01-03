@@ -55,6 +55,7 @@ export class ExamPublicationComponent implements OnInit {
     minuteValue?: number;
     maxDuration = 300; //DEFAULT
     minDuration = 1; //DEFAULT
+    showCustomTimeField = false;
 
     constructor(
         private http: HttpClient,
@@ -103,6 +104,10 @@ export class ExamPublicationComponent implements OnInit {
                 .subscribe((date) => this.exam.examinationDates.push(date));
         }
     };
+
+    toggleCustomTimeField() {
+        this.showCustomTimeField = !this.showCustomTimeField;
+    }
 
     removeExaminationDate = (date: ExaminationDate) => {
         this.http.delete(`/app/exam/${this.exam.id}/examinationdate/${date.id}`).subscribe(() => {

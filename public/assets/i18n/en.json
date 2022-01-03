@@ -547,6 +547,7 @@
   "sitnet_last_login": "Last login",
   "sitnet_at_least_one_role_required": "You cannot remove the role. At least one role has to be admitted.",
   "sitnet_copy": "Copy",
+  "sitnet_custom": "Custom",
   "sitnet_copy_question": "Do you want to make a copy of this question?",
   "sitnet_load_answer_attachments": "Download attachments",
   "sitnet_no_attachments_to_archive": "No attachments available",
