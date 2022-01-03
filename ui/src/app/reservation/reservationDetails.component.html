@@ -171,7 +171,7 @@
                 </button>
                 <button
                     *ngIf="r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.implementation === 'AQUARIUM'"
-                    (click)="permitRetrial(r)"
+                    (click)="permitRetrial(r.enrolment)"
                     [disabled]="!r.enrolment.exam.trialCount || r.enrolment.retrialPermitted"
                     class="btn btn-sm btn-primary pull-left"
                 >

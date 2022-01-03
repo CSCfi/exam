@@ -76,11 +76,18 @@ public class NoShowHandlerImpl implements NoShowHandler {
         return ee.getCollaborativeExam() != null && ee.getExam() == null;
     }
 
+    private boolean isNoShow(ExamEnrolment enrolment) {
+        return (
+            (enrolment.getReservation() != null && enrolment.getReservation().getExternalRef() == null) ||
+            enrolment.getExaminationEventConfiguration() != null
+        );
+    }
+
     @Override
     public void handleNoShows(List<ExamEnrolment> noShows) {
         Stream<ExamEnrolment> locals = noShows
             .stream()
-            .filter(ns -> ns.getReservation() != null && ns.getReservation().getExternalRef() == null)
+            .filter(this::isNoShow)
             .filter(ns -> isLocal(ns) || isCollaborative(ns));
         locals.forEach(this::handleNoShowAndNotify);
 
