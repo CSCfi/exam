@@ -49,7 +49,7 @@
         <div class="col-md-2">
             <strong>{{ 'sitnet_examination_location' | translate }}:</strong>
         </div>
-        <div class="col-md-4" *ngIf="reservation.machine.room">
+        <div class="col-md-4" *ngIf="reservation?.machine?.room">
             {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
         </div>
         <div class="col-md-4" *ngIf="!reservation?.machine?.room">N/A</div>
@@ -161,13 +161,13 @@
         <div class="col-md-3">
             <strong>{{ 'sitnet_teachers_comment' | translate }}:</strong>
         </div>
-        <div class="col-md-9" [MathJax]="exam.examFeedback.comment"></div>
+        <div class="col-md-9" [MathJax]="exam.examFeedback?.comment"></div>
     </div>
-    <div class="row" *ngIf="exam.examFeedback.attachment">
+    <div class="row" *ngIf="exam.examFeedback?.attachment">
         <div class="col-md-3">
             <strong>{{ 'sitnet_feedback_attachment' | translate }}:</strong>
         </div>
-        <div class="col-md-9" *ngIf="exam.examFeedback.attachment">
+        <div class="col-md-9" *ngIf="exam.examFeedback?.attachment">
             {{ exam.examFeedback.attachment.fileName }}
         </div>
     </div>
