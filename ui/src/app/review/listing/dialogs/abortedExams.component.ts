@@ -46,7 +46,7 @@ export class AbortedExamsComponent {
 
     permitRetrial = (reservation: Reservation) => {
         this.http.put(`/app/reservations/${reservation.id}`, {}).subscribe(() => {
-            reservation.retrialPermitted = true;
+            reservation.enrolment.retrialPermitted = true;
             toast.info(this.translate.instant('sitnet_retrial_permitted'));
         });
     };

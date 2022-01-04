@@ -15,12 +15,10 @@
 import { Component, Input } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
 
-import { isParticipation } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
 import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { WindowRef } from '../../../utility/window/window.service';
 
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import type { ExamParticipation } from '../../../exam/exam.model';
 
 @Component({
@@ -28,7 +26,7 @@ import type { ExamParticipation } from '../../../exam/exam.model';
     templateUrl: './participation.component.html',
 })
 export class ParticipationComponent {
-    @Input() participation!: ExamEnrolment | ExamParticipation;
+    @Input() participation!: ExamParticipation;
     @Input() collaborative = false;
 
     constructor(
@@ -38,36 +36,20 @@ export class ParticipationComponent {
         private Window: WindowRef,
     ) {}
 
-    started = '';
-
-    ngOnInit() {
-        if (isParticipation(this.participation)) {
-            this.started = this.participation.started;
-        } else {
-            this.started = this.participation.examinationEventConfiguration
-                ? this.participation.examinationEventConfiguration.examinationEvent.start
-                : this.participation.reservation?.startAt || '';
-        }
-    }
-
     viewAnswers = () => {
         const url = this.collaborative
-            ? `/assessments/collaborative/${this.state.params.id}/${(this.participation as ExamParticipation)._id}`
+            ? `/assessments/collaborative/${this.state.params.id}/${this.participation._id}`
             : `/assessments/${this.participation.exam?.id}`;
         this.Window.nativeWindow.open(url, '_blank');
     };
 
-    hideGrade = () => this.participation?.reservation?.noShow || !this.participation.exam?.grade;
+    hideGrade = () => !this.participation.exam?.grade;
 
     hideAnswerLink = () => {
         const anonymous =
             (this.participation.collaborativeExam && this.participation.collaborativeExam.anonymous) ||
             this.participation.exam?.anonymous;
-        return (
-            this.participation.exam?.state === 'ABORTED' ||
-            this.participation?.reservation?.noShow ||
-            (anonymous && !this.Session.getUser().isAdmin)
-        );
+        return this.participation.exam?.state === 'ABORTED' || (anonymous && !this.Session.getUser().isAdmin);
     };
 
     translateGrade = () => {

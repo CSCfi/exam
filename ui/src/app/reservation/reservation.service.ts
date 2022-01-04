@@ -35,10 +35,9 @@ export class ReservationService {
     ) {}
 
     printExamState = (reservation: {
-        noShow: boolean;
-        enrolment: { exam: { state: string }; collaborativeExam: { state: string } };
+        enrolment: { exam: { state: string }; collaborativeExam: { state: string }; noShow: boolean };
     }) =>
-        reservation.noShow
+        reservation.enrolment.noShow
             ? 'NO_SHOW'
             : reservation.enrolment.exam
             ? reservation.enrolment.exam.state

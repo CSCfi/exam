@@ -97,12 +97,12 @@
                     <td class="table-column-10" *ngIf="review.examParticipation.exam.executionType.type === 'PUBLIC'">
                         <div *ngIf="review.examParticipation.exam.trialCount && review.examParticipation.reservation">
                             <button
-                                [disabled]="review.examParticipation.reservation.retrialPermitted"
+                                [disabled]="review.examParticipation.reservation.enrolment.retrialPermitted"
                                 (click)="permitRetrial(review.examParticipation.reservation)"
                                 class="btn btn-sm btn-primary"
                             >
                                 {{
-                                    review.examParticipation.reservation.retrialPermitted
+                                    review.examParticipation.reservation.enrolment.retrialPermitted
                                         ? ('sitnet_retrial_permitted' | translate)
                                         : ('sitnet_permit_retrial' | translate)
                                 }}

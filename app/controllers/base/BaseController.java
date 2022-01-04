@@ -33,8 +33,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import models.Exam;
+import models.ExamEnrolment;
 import models.ExamParticipation;
-import models.Reservation;
 import models.Role;
 import models.User;
 import play.Logger;
@@ -118,29 +118,32 @@ public class BaseController extends Controller {
     }
 
     private void handleNoShow(User user, Long examId) {
-        List<Reservation> reservations = Ebean
-            .find(Reservation.class)
-            .fetch("enrolment")
-            .fetch("enrolment.exam")
+        List<ExamEnrolment> enrolments = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("reservation")
+            .fetch("exam")
             .where()
             .eq("user", user)
             .eq("noShow", false)
-            .lt("endAt", new Date())
+            .or()
+            .lt("reservation.endAt", new Date())
+            .lt("examinationEventConfiguration.examinationEvent.start", new Date()) // FIXME: exam period
+            .endOr()
             // Either a) exam id matches and exam state is published OR
             //        b) collaborative exam id matches and exam is NULL
             .or()
             .and()
-            .eq("enrolment.exam.id", examId)
-            .eq("enrolment.exam.state", Exam.State.PUBLISHED)
+            .eq("exam.id", examId)
+            .eq("exam.state", Exam.State.PUBLISHED)
             .endAnd()
             .and()
-            .eq("enrolment.collaborativeExam.id", examId)
-            .isNull("enrolment.exam")
+            .eq("collaborativeExam.id", examId)
+            .isNull("exam")
             .endAnd()
             .endOr()
-            .isNull("externalReservation")
+            .isNull("reservation.externalReservation")
             .findList();
-        noShowHandler.handleNoShows(reservations);
+        noShowHandler.handleNoShows(enrolments);
     }
 
     protected boolean isAllowedToParticipate(Exam exam, User user) {
@@ -158,7 +161,7 @@ public class BaseController extends Controller {
             .ne("exam.state", Exam.State.DELETED)
             .or()
             .isNull("reservation")
-            .ne("reservation.retrialPermitted", true)
+            .ne("reservation.enrolment.retrialPermitted", true)
             .endOr()
             .findList()
             .stream()

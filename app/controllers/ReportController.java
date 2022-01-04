@@ -99,7 +99,7 @@ public class ReportController extends BaseController {
             .isNotNull("externalExam.started")
             .endOr()
             .isNotNull("reservation.machine")
-            .ne("reservation.noShow", true)
+            .ne("noShow", true)
             .findList()
             .stream()
             .filter(ee -> applyEnrolmentFilter(ee, dept, start, end))
