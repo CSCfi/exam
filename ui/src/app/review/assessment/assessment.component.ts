@@ -98,8 +98,8 @@ export class AssessmentComponent {
 
     print = () => {
         const url = this.collaborative
-            ? `/print/exam/${this.routing.params.id}/${this.routing.params.ref}`
-            : `/print/exam/${this.exam.id}`;
+            ? `/staff/print/exam/${this.routing.params.id}/${this.routing.params.ref}`
+            : `/staff/print/exam/${this.exam.id}`;
         this.Window.nativeWindow.open(url, '_blank');
     };
 
