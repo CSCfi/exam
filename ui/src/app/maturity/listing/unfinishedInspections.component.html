@@ -49,7 +49,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <table class="table table-striped exams-table">
+        <table class="table table-striped exams-table" [hidden]="hideItems">
             <thead>
                 <tr>
                     <th class="with-top">
@@ -137,13 +137,7 @@
             </thead>
 
             <tbody>
-                <tr
-                    *ngFor="
-                        let inspection of filteredInspections
-                            | orderBy: sorting.predicate:sorting.reverse:'case-insensitive'
-                            | slice: currentPage * pageSize:currentPage * pageSize + pageSize
-                    "
-                >
+                <tr *ngFor="let inspection of filteredInspections | orderBy: sorting.predicate:sorting.reverse">
                     <td>
                         {{ inspection.exam.course.code }}
                     </td>
