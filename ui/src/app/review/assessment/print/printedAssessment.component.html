@@ -49,7 +49,7 @@
         <div class="col-md-2">
             <strong>{{ 'sitnet_examination_location' | translate }}:</strong>
         </div>
-        <div class="col-md-4" *ngIf="reservation?.machine.room">
+        <div class="col-md-4" *ngIf="reservation?.machine?.room">
             {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
         </div>
         <div class="col-md-4" *ngIf="!reservation?.machine.room">N/A</div>
@@ -118,7 +118,7 @@
     </div>
 
     <!-- Sections -->
-    <div class="row">
+    <div class="row firefox-print-fix">
         <div
             class="top-margin-1 col-md-12"
             *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let index = index"
@@ -128,7 +128,7 @@
     </div>
 
     <!-- Grading -->
-    <div class="row mt-3">
+    <div class="row firefox-print-fix mt-3">
         <div class="col-md-12">
             <h4>
                 {{ 'sitnet_comments' | translate }}
@@ -136,44 +136,44 @@
         </div>
     </div>
     <!-- Total score -->
-    <div class="row">
+    <div class="row firefox-print-fix">
         <div class="col-md-3">
             <strong>{{ 'sitnet_total_score' | translate }}:</strong>
         </div>
         <div class="col-md-9">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
     </div>
 
-    <div class="row" *ngIf="questionSummary.accepted > 0">
+    <div class="row firefox-print-fix" *ngIf="questionSummary.accepted > 0">
         <div class="col-md-3">
             <strong>{{ 'sitnet_approved' | translate }}:</strong>
         </div>
         <div class="col-md-9">{{ questionSummary.accepted }}</div>
     </div>
 
-    <div class="row" *ngIf="questionSummary.rejected > 0">
+    <div class="row firefox-print-fix" *ngIf="questionSummary.rejected > 0">
         <div class="col-md-3">
             <strong>{{ 'sitnet_rejected' | translate }}:</strong>
         </div>
         <div class="col-md-9">{{ questionSummary.rejected }}</div>
     </div>
 
-    <div class="row">
+    <div class="row firefox-print-fix">
         <div class="col-md-3">
             <strong>{{ 'sitnet_teachers_comment' | translate }}:</strong>
         </div>
-        <div class="col-md-9" [MathJax]="exam.examFeedback.comment"></div>
+        <div class="col-md-9" [MathJax]="exam.examFeedback?.comment"></div>
     </div>
-    <div class="row" *ngIf="exam.examFeedback.attachment">
+    <div class="row firefox-print-fix" *ngIf="exam.examFeedback?.attachment">
         <div class="col-md-3">
             <strong>{{ 'sitnet_feedback_attachment' | translate }}:</strong>
         </div>
-        <div class="col-md-9" *ngIf="exam.examFeedback.attachment">
-            {{ exam.examFeedback.attachment.fileName }}
+        <div class="col-md-9" *ngIf="exam.examFeedback?.attachment">
+            {{ exam.examFeedback.attachment?.fileName }}
         </div>
     </div>
 
     <div *ngIf="getTeacherCount() > 0">
-        <div class="row">
+        <div class="row firefox-print-fix">
             <div class="col-md-3">
                 <strong>{{ 'sitnet_exam_owners' | translate }}:</strong>
             </div>
@@ -183,7 +183,7 @@
                 </span>
             </div>
         </div>
-        <div class="row">
+        <div class="row firefox-print-fix">
             <div class="col-md-3">
                 <strong
                     >{{ 'sitnet_exam_instructor' | translate }} ({{ 'sitnet_inspection_status' | translate }}):</strong
@@ -199,32 +199,32 @@
             </div>
         </div>
     </div>
-    <div class="row mt-3">
+    <div class="row firefox-print-fix mt-3">
         <div class="col-md-12">
             <h4>
                 {{ 'sitnet_grading_info' | translate }}
             </h4>
         </div>
     </div>
-    <div class="row">
+    <div class="row firefox-print-fix">
         <div class="col-md-3">
             <strong>{{ 'sitnet_exam_grade' | translate }}:</strong>
         </div>
         <div class="col-md-9">{{ getGrade() }}</div>
     </div>
-    <div class="row">
+    <div class="row firefox-print-fix">
         <div class="col-md-3">
             <strong>{{ 'sitnet_exam_choose_credit_type' | translate }}:</strong>
         </div>
         <div class="col-md-9">{{ getCreditType() }}</div>
     </div>
-    <div class="row">
+    <div class="row firefox-print-fix">
         <div class="col-md-3">
             <strong>{{ 'sitnet_exam_record_language' | translate }}:</strong>
         </div>
         <div class="col-md-9">{{ getLanguage() }}</div>
     </div>
-    <div class="row">
+    <div class="row firefox-print-fix">
         <div class="col-md-3">
             <strong>{{ 'sitnet_exam_credit' | translate }} (op):</strong>
         </div>
