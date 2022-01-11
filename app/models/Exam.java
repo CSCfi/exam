@@ -89,6 +89,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         DELETED, // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
         @EnumValue("12")
         REJECTED, // EXAM NOT QUALIFIED FOR REGISTRATION
+        @EnumValue("13")
+        INITIALIZED, // EXAM PREPARED SO THAT IT IS READY FOR TAKING WHEN EXAMINATION STARTS
     }
 
     public enum Implementation {
@@ -312,7 +314,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     private String externalRef;
 
     private double toFixed(double val) {
-        return Double.valueOf(df.format(val));
+        return Double.parseDouble(df.format(val));
     }
 
     public Double getTotalScore() {
@@ -847,7 +849,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     @Transient
     public boolean isPrivate() {
-        return (!executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString()) && !isPrintout());
+        return (
+            !executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString()) &&
+            !isPrintout() &&
+            (implementation == null || implementation.toString().equals(Implementation.AQUARIUM.toString()))
+        );
     }
 
     @Transient

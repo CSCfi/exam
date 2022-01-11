@@ -113,3 +113,13 @@ blockquote {
   padding-left: 1em;
 }
 
+@-moz-document url-prefix() {
+  .firefox-print-fix{
+    .row{
+      overflow: visible !important;
+      display: block !important;
+    }
+  }
+}
+
+
