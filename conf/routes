@@ -78,6 +78,7 @@ POST          /app/exam/record/export/report/:id                       controlle
 
 
 ############### Student exam execution interface ###############
+POST          /app/student/exam/:hash                                  controllers.ExaminationController.initializeExam(hash: String, request: Request)
 GET           /app/student/exam/:hash                                  controllers.ExaminationController.startExam(hash: String, request: Request)
 PUT           /app/student/exam/:hash                                  controllers.ExaminationController.turnExam(hash: String, request: Request)
 PUT           /app/student/exam/abort/:hash                            controllers.ExaminationController.abortExam(hash: String, request: Request)

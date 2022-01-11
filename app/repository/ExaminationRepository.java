@@ -8,6 +8,7 @@ import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.text.PathProperties;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -22,6 +23,8 @@ import models.ExamRoom;
 import models.Reservation;
 import models.User;
 import models.json.CollaborativeExam;
+import models.questions.ClozeTestAnswer;
+import models.questions.Question;
 import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import play.Logger;
@@ -58,7 +61,7 @@ public class ExaminationRepository {
                 ? Collections.emptySet()
                 : enrolment.getOptionalSections().stream().map(ExamSection::getId).collect(Collectors.toSet());
             Exam studentExam = prototype.copyForStudent(user, isCollaborative, ids);
-            studentExam.setState(Exam.State.STUDENT_STARTED);
+            studentExam.setState(Exam.State.INITIALIZED);
             studentExam.setCreator(user);
             if (!isCollaborative) {
                 studentExam.setParent(prototype);
@@ -68,31 +71,73 @@ public class ExaminationRepository {
             enrolment.setExam(studentExam);
             enrolment.save();
 
-            ExamParticipation examParticipation = new ExamParticipation();
-            examParticipation.setUser(user);
-            examParticipation.setExam(studentExam);
-            examParticipation.setCollaborativeExam(enrolment.getCollaborativeExam());
-            examParticipation.setReservation(reservation);
-            if (enrolment.getExaminationEventConfiguration() != null) {
-                examParticipation.setExaminationEvent(
-                    enrolment.getExaminationEventConfiguration().getExaminationEvent()
-                );
-            }
-            DateTime now = DateTime.now();
-            if (enrolment.getExaminationEventConfiguration() == null) {
-                now =
-                    reservation == null
-                        ? DateTimeUtils.adjustDST(DateTime.now())
-                        : DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
-            }
-            examParticipation.setStarted(now);
-            examParticipation.save();
             txn.commit();
             result = Optional.of(studentExam);
         } finally {
             txn.end();
         }
         return result;
+    }
+
+    public void processClozeTestQuestions(Exam exam) {
+        Set<Question> questionsToHide = new HashSet<>();
+        exam
+            .getExamSections()
+            .stream()
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
+            .forEach(
+                esq -> {
+                    ClozeTestAnswer answer = esq.getClozeTestAnswer();
+                    if (answer == null) {
+                        answer = new ClozeTestAnswer();
+                    }
+                    answer.setQuestion(esq);
+                    esq.setClozeTestAnswer(answer);
+                    esq.update();
+                    questionsToHide.add(esq.getQuestion());
+                }
+            );
+        questionsToHide.forEach(q -> q.setQuestion(null));
+    }
+
+    public CompletionStage<Exam> createFinalExam(Exam clone, User user, ExamEnrolment enrolment) {
+        return CompletableFuture.supplyAsync(
+            () -> {
+                clone.setState(Exam.State.STUDENT_STARTED);
+                clone.save();
+                clone.setCloned(false);
+                clone.setDerivedMaxScores();
+                processClozeTestQuestions(clone);
+                if (clone.getExamParticipation() == null) {
+                    Reservation reservation = enrolment.getReservation();
+                    ExamParticipation examParticipation = new ExamParticipation();
+                    examParticipation.setUser(user);
+                    examParticipation.setExam(clone);
+                    examParticipation.setCollaborativeExam(enrolment.getCollaborativeExam());
+                    examParticipation.setReservation(reservation);
+                    if (enrolment.getExaminationEventConfiguration() != null) {
+                        examParticipation.setExaminationEvent(
+                            enrolment.getExaminationEventConfiguration().getExaminationEvent()
+                        );
+                    }
+                    DateTime now = DateTime.now();
+                    if (enrolment.getExaminationEventConfiguration() == null) {
+                        now =
+                            reservation == null
+                                ? DateTimeUtils.adjustDST(DateTime.now())
+                                : DateTimeUtils.adjustDST(
+                                    DateTime.now(),
+                                    enrolment.getReservation().getMachine().getRoom()
+                                );
+                    }
+                    examParticipation.setStarted(now);
+                    examParticipation.save();
+                }
+                return clone;
+            },
+            ec
+        );
     }
 
     public CompletionStage<Optional<CollaborativeExam>> getCollaborativeExam(String hash) {
@@ -173,7 +218,12 @@ public class ExaminationRepository {
         return false;
     }
 
-    public CompletionStage<Optional<ExamEnrolment>> findEnrolment(User user, Exam prototype, CollaborativeExam ce) {
+    public CompletionStage<Optional<ExamEnrolment>> findEnrolment(
+        User user,
+        Exam prototype,
+        CollaborativeExam ce,
+        boolean allowFuture
+    ) {
         return CompletableFuture.supplyAsync(
             () -> {
                 List<ExamEnrolment> enrolments = db
@@ -194,7 +244,7 @@ public class ExaminationRepository {
                     .endOr()
                     .findList()
                     .stream()
-                    .filter(this::isInEffect)
+                    .filter(e -> allowFuture || isInEffect(e))
                     .collect(Collectors.toList());
 
                 if (enrolments.size() > 1) {

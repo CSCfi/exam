@@ -89,6 +89,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         DELETED, // EXAM MARKED AS DELETED AND HIDDEN FROM END USERS
         @EnumValue("12")
         REJECTED, // EXAM NOT QUALIFIED FOR REGISTRATION
+        @EnumValue("13")
+        INITIALIZED, // EXAM PREPARED SO THAT IT IS READY FOR TAKING WHEN EXAMINATION STARTS
     }
 
     public enum Implementation {
