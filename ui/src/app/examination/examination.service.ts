@@ -18,7 +18,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { isEmpty, isInteger } from 'lodash';
 import { concat, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, last, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { WindowRef } from '../utility/window/window.service';
@@ -125,7 +125,7 @@ export class ExaminationService {
     saveAllTextualAnswersOfExam$ = (exam: Examination, canFail: boolean) =>
         concat(
             ...exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, canFail)),
-        );
+        ).pipe(last());
 
     private stripHtml = (text: string) => {
         if (text && text.indexOf('math-tex') === -1) {
