@@ -1006,5 +1006,6 @@
   "sitnet_examination_time_distribution": "Suoritusmäärät ajallisesti",
   "sitnet_pieces": "kpl",
   "sitnet_question_score_statistics": "Kysymyskohtaiset tilastot",
-  "sitnet_question_approval_statistics": "Vastausten hyväksymisaste"
+  "sitnet_question_approval_statistics": "Vastausten hyväksymisaste",
+  "sitnet_exam_period_over": "Tenttiperiodi on päättynyt"
 }

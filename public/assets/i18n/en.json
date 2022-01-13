@@ -1006,5 +1006,6 @@
   "sitnet_examination_time_distribution": "Distribution of attainments in the exam period.",
   "sitnet_pieces": "pcs",
   "sitnet_question_score_statistics": "Statistics per question.",
-  "sitnet_question_approval_statistics": "The approval rate of answers."
+  "sitnet_question_approval_statistics": "The approval rate of answers.",
+  "sitnet_exam_period_over": "Exam period is over"
 }

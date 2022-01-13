@@ -1006,5 +1006,6 @@
   "sitnet_examination_time_distribution": "Tidsmässig fördelning av prestationerna",
   "sitnet_pieces": "st.",
   "sitnet_question_score_statistics": "Statistik per fråga",
-  "sitnet_question_approval_statistics": "Andelen godkända svar"
+  "sitnet_question_approval_statistics": "Andelen godkända svar",
+  "sitnet_exam_period_over": "Tentamens perioden är över"
 }
