@@ -1007,6 +1007,7 @@
   "sitnet_pieces": "pcs",
   "sitnet_question_score_statistics": "Statistics per question.",
   "sitnet_question_approval_statistics": "The approval rate of answers.",
+  "sitnet_exam_period_over": "Exam period is over"
   "sitnet_no_examinations_to_grade": "No exams waiting for assessment",
   "sitnet_csv_uploaded_successfully": "CSV file uploaded successfully",
   "sitnet_csv_uploading_failed": "CSV file upload failed"
