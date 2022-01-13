@@ -40,7 +40,7 @@ public class ReportAPIController extends BaseController {
             .where()
             .ne("exam.state", Exam.State.PUBLISHED)
             .isNotNull("reservation.machine")
-            .ne("reservation.noShow", true);
+            .ne("noShow", true);
 
         if (start.isPresent()) {
             DateTime startDate = ISODateTimeFormat.dateTimeParser().parseDateTime(start.get());

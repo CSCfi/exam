@@ -152,7 +152,7 @@ public class CalendarController extends BaseController {
         Optional<ExamEnrolment> enrolment = Ebean
             .find(ExamEnrolment.class)
             .fetch("reservation")
-            .fetch("reservation.optionalSections")
+            .fetch("optionalSections")
             .where()
             .eq("user.id", user.getId())
             .eq("exam.id", id)
@@ -228,7 +228,7 @@ public class CalendarController extends BaseController {
 
             // We are good to go :)
             Reservation oldReservation = enrolment.getReservation();
-            Reservation reservation = calendarHandler.createReservation(start, end, machine.get(), user, sectionIds);
+            Reservation reservation = calendarHandler.createReservation(start, end, machine.get(), user);
 
             // Nuke the old reservation if any
             if (oldReservation != null) {
@@ -242,7 +242,7 @@ public class CalendarController extends BaseController {
                             if (updatedEnrolment == null) {
                                 return wrapAsPromise(notFound());
                             }
-                            return makeNewReservation(updatedEnrolment, reservation, user);
+                            return makeNewReservation(updatedEnrolment, reservation, user, sectionIds);
                         });
                 } else {
                     enrolment.setReservation(null);
@@ -250,7 +250,7 @@ public class CalendarController extends BaseController {
                     oldReservation.delete();
                 }
             }
-            final CompletionStage<Result> result = makeNewReservation(enrolment, reservation, user);
+            final CompletionStage<Result> result = makeNewReservation(enrolment, reservation, user, sectionIds);
             Ebean.commitTransaction();
             return result;
         } finally {
@@ -259,10 +259,19 @@ public class CalendarController extends BaseController {
         }
     }
 
-    private CompletionStage<Result> makeNewReservation(ExamEnrolment enrolment, Reservation reservation, User user) {
+    private CompletionStage<Result> makeNewReservation(
+        ExamEnrolment enrolment,
+        Reservation reservation,
+        User user,
+        Collection<Long> sectionIds
+    ) {
         Ebean.save(reservation);
         enrolment.setReservation(reservation);
         enrolment.setReservationCanceled(false);
+        if (!sectionIds.isEmpty()) {
+            Set<ExamSection> sections = Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
+            enrolment.setOptionalSections(sections);
+        }
         Ebean.save(enrolment);
         Exam exam = enrolment.getExam();
         // Send some emails asynchronously

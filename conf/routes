@@ -78,6 +78,7 @@ POST          /app/exam/record/export/report/:id                       controlle
 
 
 ############### Student exam execution interface ###############
+POST          /app/student/exam/:hash                                  controllers.ExaminationController.initializeExam(hash: String, request: Request)
 GET           /app/student/exam/:hash                                  controllers.ExaminationController.startExam(hash: String, request: Request)
 PUT           /app/student/exam/:hash                                  controllers.ExaminationController.turnExam(hash: String, request: Request)
 PUT           /app/student/exam/abort/:hash                            controllers.ExaminationController.abortExam(hash: String, request: Request)
@@ -105,6 +106,7 @@ GET           /app/student/exam/:eid/info                              controlle
 GET           /app/student/exams                                       controllers.StudentActionsController.listAvailableExams(filter: java.util.Optional[String], request: Request)
 GET           /app/student/enrolments/:eid                             controllers.StudentActionsController.getEnrolment(eid: Long, request: Request)
 GET           /app/student/enrolments/:eid/configFile                  controllers.StudentActionsController.getExamConfigFile(eid: Long, request: Request)
+PUT           /app/enrolments/:id/retrial                              controllers.EnrolmentController.permitRetrial(id: Long)
 
 ############### Section interface ###############
 
@@ -220,7 +222,6 @@ GET           /app/reservations/exams                                  controlle
 GET           /app/reservations                                        controllers.ReservationController.getReservations(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], roomId: java.util.Optional[java.lang.Long], machineId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[String], end: java.util.Optional[String], externalRef: java.util.Optional[String], request: Request)
 GET           /app/events                                              controllers.ReservationController.getExaminationEvents(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[String], end: java.util.Optional[String], request: Request)
 DELETE        /app/reservations/:id                                    controllers.ReservationController.removeReservation(id: Long, request: Request)
-PUT           /app/reservations/:id                                    controllers.ReservationController.permitRetrial(id: Long)
 GET           /app/reservations/:id/machines                           controllers.ReservationController.findAvailableMachines(id: Long)
 PUT           /app/reservations/:id/machine                            controllers.ReservationController.updateMachine(id: Long, request: Request)
 

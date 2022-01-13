@@ -305,7 +305,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
     public Result addNoShow(String ref) {
         return getPrototype(ref)
             .map(e -> {
-                noShowHandler.handleNoShowAndNotify(e.getReservation());
+                noShowHandler.handleNoShowAndNotify(e);
                 return ok();
             })
             .orElse(notFound());

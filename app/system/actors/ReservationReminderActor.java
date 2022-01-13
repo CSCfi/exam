@@ -52,8 +52,8 @@ public class ReservationReminderActor extends AbstractActor {
                     DateTime tomorrow = now.plusDays(1);
                     Ebean
                         .find(Reservation.class)
-                        .fetch("optionalSections")
-                        .fetch("optionalSections.examMaterials")
+                        .fetch("enrolment.optionalSections")
+                        .fetch("enrolment.optionalSections.examMaterials")
                         .fetch("enrolment")
                         .fetch("enrolment.exam.examSections")
                         .fetch("enrolment.exam.examSections.examMaterials")
