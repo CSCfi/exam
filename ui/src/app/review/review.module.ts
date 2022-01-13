@@ -24,6 +24,7 @@ import { CollaborativeAssesmentService } from './assessment/collaborativeAssessm
 import { FeedbackComponent } from './assessment/feedback/feedback.component';
 import { StatementComponent } from './assessment/feedback/statement.component';
 import { GeneralInfoComponent } from './assessment/general/generalInfo.component';
+import { NoShowComponent } from './assessment/general/noShow.component';
 import { ParticipationComponent } from './assessment/general/participation.component';
 import { GradingComponent } from './assessment/grading/grading.component';
 import { InspectionComponent } from './assessment/grading/inspection.component';
@@ -94,6 +95,7 @@ import { QuestionReviewService } from './questions/questionReview.service';
         ExamSectionComponent,
         GeneralInfoComponent,
         ParticipationComponent,
+        NoShowComponent,
         InspectionCommentDialogComponent,
         InspectionCommentsComponent,
         MaturityGradingComponent,

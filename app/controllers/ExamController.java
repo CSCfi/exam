@@ -436,6 +436,7 @@ public class ExamController extends BaseController {
             .fetch("attachment", "fileName")
             .fetch("examOwners", "firstName, lastName")
             .fetch("examInspections.user", "firstName, lastName")
+            .fetch("softwares")
             .where()
             .idEq(id)
             .findOne();

@@ -118,7 +118,7 @@ export class ReservationComponentBase {
         this.initOptions();
         this.query();
         this.stateOptions = this.examStates.map((s) => {
-            return { id: s, label: `sitnet_exam_status_${s.toLowerCase()}` };
+            return { id: s, value: s, label: `sitnet_exam_status_${s.toLowerCase()}` };
         });
     }
 
@@ -166,8 +166,7 @@ export class ReservationComponentBase {
                             };
                         });
                         const allEvents: Partial<Reservation>[] = reservations;
-                        allEvents.concat(events);
-                        return allEvents as Reservation[]; // FIXME: this is wrong(?) <- don't know how to model anymore with strict checking
+                        return allEvents.concat(events) as Reservation[]; // FIXME: this is wrong(?) <- don't know how to model anymore with strict checking
                     }),
                     map((reservations: Reservation[]) =>
                         reservations.map((r) => ({

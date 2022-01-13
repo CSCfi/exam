@@ -132,17 +132,6 @@ public class ReservationController extends BaseController {
         return ok(Json.toJson(asJson(teachers)));
     }
 
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
-    public Result permitRetrial(Long id) {
-        Reservation reservation = Ebean.find(Reservation.class, id);
-        if (reservation == null) {
-            return notFound("sitnet_not_found");
-        }
-        reservation.setRetrialPermitted(true);
-        reservation.update();
-        return ok();
-    }
-
     @Restrict({ @Group("ADMIN") })
     public CompletionStage<Result> removeReservation(long id, Http.Request request) throws NotFoundException {
         DynamicForm df = formFactory.form().bindFromRequest(request);
@@ -369,6 +358,7 @@ public class ReservationController extends BaseController {
     ) {
         ExpressionList<Reservation> query = Ebean
             .find(Reservation.class)
+            .fetch("enrolment", "noShow")
             .fetch("user", "id, firstName, lastName, email, userIdentifier")
             .fetch("enrolment.exam", "id, name, state, trialCount, implementation")
             .fetch("enrolment.externalExam", "id, externalRef, finished")

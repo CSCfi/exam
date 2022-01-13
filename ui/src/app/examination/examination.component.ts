@@ -15,6 +15,8 @@
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
+import { of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 
 import { EnrolmentService } from '../enrolment/enrolment.service';
 import { SessionService } from '../session/session.service';
@@ -79,9 +81,15 @@ export class ExaminationComponent {
 
     timedOut = () =>
         // Save all textual answers regardless of empty or not
-        this.Examination.saveAllTextualAnswersOfExam$(this.exam, true).subscribe(() =>
-            this.logout('sitnet_exam_time_is_up', true),
-        );
+        this.Examination.saveAllTextualAnswersOfExam$(this.exam)
+            .pipe(
+                catchError((err) => {
+                    if (err) console.log(err);
+                    return of(err);
+                }),
+                finalize(() => this.logout('sitnet_exam_time_is_up', true)),
+            )
+            .subscribe();
 
     private logout = (msg: string, canFail: boolean) =>
         this.Examination.logout(msg, this.exam.hash, this.exam.implementation === 'CLIENT_AUTH', canFail);

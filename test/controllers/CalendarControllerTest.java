@@ -222,9 +222,9 @@ public class CalendarControllerTest extends IntegrationTestCase {
         reservation.setStartAt(DateTime.now().minusMinutes(30));
         reservation.setEndAt(DateTime.now().minusMinutes(5));
         reservation.setMachine(room.getExamMachines().get(0));
-        reservation.setNoShow(true);
         reservation.save();
         enrolment.setReservation(reservation);
+        enrolment.setNoShow(true);
         enrolment.update();
 
         ExamEnrolment newEnrolment = new ExamEnrolment();

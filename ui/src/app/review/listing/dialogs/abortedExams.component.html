@@ -61,13 +61,13 @@
                     <td *ngIf="showId()">{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
                     <td class="table-column-examname">
                         {{ review.displayName }}
-                        <span *ngIf="review.examParticipation.user.userIdentifier"
-                            ><br />({{ review.examParticipation.user.userIdentifier }})</span
+                        <span *ngIf="review.examParticipation.user?.userIdentifier"
+                            ><br />({{ review.examParticipation.user?.userIdentifier }})</span
                         >
                     </td>
                     <td class="table-column-25">
-                        <a class="pointer" href="mailto:{{ review.examParticipation.user.email }}">
-                            {{ review.examParticipation.user.email }}</a
+                        <a class="pointer" href="mailto:{{ review.examParticipation.user?.email }}">
+                            {{ review.examParticipation.user?.email }}</a
                         >
                     </td>
                     <td
@@ -97,11 +97,33 @@
                     <td class="table-column-10" *ngIf="review.examParticipation.exam.executionType.type === 'PUBLIC'">
                         <div *ngIf="review.examParticipation.exam.trialCount && review.examParticipation.reservation">
                             <button
-                                [disabled]="review.examParticipation.reservation.retrialPermitted"
-                                (click)="permitRetrial(review.examParticipation.reservation)"
+                                [disabled]="review.examParticipation.reservation.enrolment.retrialPermitted"
+                                (click)="permitRetrial(review.examParticipation.reservation.enrolment)"
                                 class="btn btn-sm btn-primary"
                             >
-                                {{ 'sitnet_permit_retrial' | translate }}
+                                {{
+                                    review.examParticipation.reservation.enrolment.retrialPermitted
+                                        ? ('sitnet_retrial_permitted' | translate)
+                                        : ('sitnet_permit_retrial' | translate)
+                                }}
+                            </button>
+                        </div>
+                        <div
+                            *ngIf="
+                                review.examParticipation.exam.trialCount &&
+                                review.examParticipation.exam.examEnrolments[0]
+                            "
+                        >
+                            <button
+                                [disabled]="review.examParticipation.exam.examEnrolments[0].retrialPermitted"
+                                (click)="permitRetrial(review.examParticipation.exam.examEnrolments[0])"
+                                class="btn btn-sm btn-primary"
+                            >
+                                {{
+                                    review.examParticipation.exam.examEnrolments[0].retrialPermitted
+                                        ? ('sitnet_retrial_permitted' | translate)
+                                        : ('sitnet_permit_retrial' | translate)
+                                }}
                             </button>
                         </div>
                         <div *ngIf="!review.examParticipation.exam.trialCount" class="text-muted">
@@ -119,7 +141,7 @@
     <div class="row padl0 padr0 marb20 marr30 mart20 d-flex justify-content-end">
         <div class="review-attachment-button make-inline">
             <a class="pointer preview" (click)="cancel()">
-                {{ 'sitnet_button_cancel' | translate }}
+                {{ 'sitnet_button_ok' | translate }}
             </a>
         </div>
     </div>
