@@ -245,10 +245,14 @@ export class SpeedReviewComponent {
 
     importGrades = () => {
         this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv')
-            .then((result) =>
-                this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload),
-            )
-            .catch(noop);
+            .then((result) => {
+                this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload);
+                toast.success(`${this.translate.instant('sitnet_csv_uploaded_successfully')}`);
+            })
+            .catch(() => {
+                toast.error(`${this.translate.instant('sitnet_csv_uploading_failed')}`);
+                return noop;
+            });
     };
 
     createGradingTemplate = () => {
