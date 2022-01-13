@@ -131,8 +131,10 @@
                 </td>
                 <td class="table-column-10">{{ review.duration + ' min' }}</td>
                 <td class="table-column-10">
-                    {{ review.started | applyDst | date: 'dd.MM.yyyy' }} {{ 'sitnet_clock_short' | translate }}
-                    {{ review.started | applyDst | date: 'HH:mm' }} - {{ review.ended | applyDst | date: 'HH:mm' }}
+                    {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                    {{ 'sitnet_clock_short' | translate }}
+                    {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
+                    {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
                 </td>
                 <td class="table-column-15">
                     {{ 'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
