@@ -22,7 +22,9 @@
             </div>
         </div>
 
-        <div class="col-md-12 padl30 mart20" *ngIf="examReviews && examReviews.length === 0">N/A</div>
+        <div class="col-md-12 padl30 mart20 padb30" *ngIf="examReviews && examReviews.length === 0">
+            {{ 'sitnet_no_examinations_to_grade' | translate }}
+        </div>
 
         <div *ngIf="examReviews && examReviews.length > 0">
             <div class="col-md-12 padl0 padr0 mart40 overflow-x-scroll">
