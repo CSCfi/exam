@@ -122,9 +122,9 @@ export class ExaminationService {
         return concat(...tasks);
     };
 
-    saveAllTextualAnswersOfExam$ = (exam: Examination, canFail: boolean) =>
+    saveAllTextualAnswersOfExam$ = (exam: Examination) =>
         concat(
-            ...exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, canFail)),
+            ...exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, true)),
         );
 
     private stripHtml = (text: string) => {

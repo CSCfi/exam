@@ -16,6 +16,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
+import { of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { EnrolmentService } from '../../enrolment/enrolment.service';
@@ -27,7 +29,6 @@ import { ExaminationService } from '../examination.service';
 
 import type { Examination, ExaminationSection } from '../examination.model';
 import type { ExamRoom } from '../../reservation/reservation.model';
-
 @Component({
     selector: 'examination-toolbar',
     templateUrl: './examinationToolbar.component.html',
@@ -76,14 +77,22 @@ export class ExaminationToolbarComponent {
         );
         dialog.result.then(() =>
             // Save all textual answers regardless of empty or not
-            this.Examination.saveAllTextualAnswersOfExam$(this.exam, false).subscribe(() =>
-                this.Examination.logout(
-                    'sitnet_exam_returned',
-                    this.exam.hash,
-                    this.exam.implementation === 'CLIENT_AUTH',
-                    false,
-                ),
-            ),
+            this.Examination.saveAllTextualAnswersOfExam$(this.exam)
+                .pipe(
+                    catchError((err) => {
+                        if (err) console.log(err);
+                        return of(err);
+                    }),
+                    finalize(() =>
+                        this.Examination.logout(
+                            'sitnet_exam_returned',
+                            this.exam.hash,
+                            this.exam.implementation === 'CLIENT_AUTH',
+                            false,
+                        ),
+                    ),
+                )
+                .subscribe(),
         );
     };
 
