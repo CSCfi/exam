@@ -1007,7 +1007,7 @@
   "sitnet_pieces": "kpl",
   "sitnet_question_score_statistics": "Kysymyskohtaiset tilastot",
   "sitnet_question_approval_statistics": "Vastausten hyväksymisaste",
-  "sitnet_exam_period_over": "Tenttiperiodi on päättynyt"
+  "sitnet_exam_period_over": "Tenttiperiodi on päättynyt",
   "sitnet_no_examinations_to_grade": "Ei arvioimattomia suorituksia",
   "sitnet_csv_uploaded_successfully": "CSV tiedoston tuonti onnistui",
   "sitnet_csv_uploading_failed": "CSV tiedoston tuonti epäonnistui"
