@@ -1007,7 +1007,7 @@
   "sitnet_pieces": "st.",
   "sitnet_question_score_statistics": "Statistik per fråga",
   "sitnet_question_approval_statistics": "Andelen godkända svar",
-  "sitnet_exam_period_over": "Tentamens perioden är över"
+  "sitnet_exam_period_over": "Tentamens perioden är över",
   "sitnet_no_examinations_to_grade": "Inga outvärderade prestationer",
   "sitnet_csv_uploaded_successfully": "CSV-filen har laddats upp",
   "sitnet_csv_uploading_failed": "Uppladdning av CSV-fil misslyckades"
