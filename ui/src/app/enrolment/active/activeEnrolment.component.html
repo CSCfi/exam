@@ -100,20 +100,18 @@
                         <div *ngIf="enrolment.exam">
                             <teacher-list [exam]="enrolment.exam"></teacher-list>
                         </div>
-                        <div *ngIf="enrolment.exam" class="mart10">
+                        <button
+                            *ngIf="enrolment.exam"
+                            class="mart10 flex-middle pointer border rounded hover-grey"
+                            (click)="addEnrolmentInformation()"
+                        >
                             <img
-                                class="padr10"
+                                class="padr10 padt4"
                                 alt="edit message to teacher"
                                 src="/assets/assets/images/icon_message.png"
                             />
-                            <a
-                                class="infolink pointer"
-                                (click)="addEnrolmentInformation()"
-                                tabindex="0"
-                                (keyup.enter)="addEnrolmentInformation()"
-                                >{{ 'sitnet_student_edit' | translate }}</a
-                            >
-                        </div>
+                            <div class="infolink">{{ 'sitnet_student_edit' | translate }}</div>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -222,13 +220,9 @@
                     <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_seb_file' | translate }}:</div>
                     <div class="col-6 col-sm-6 col-md-10 col-lg-10">
                         <span class="marr20">
-                            <a
-                                tabindex="0"
-                                (keyup.enter)="downloadSebFile()"
-                                (click)="downloadSebFile()"
-                                class="text text-success"
-                                ><strong>{{ 'sitnet_download' | translate }}</strong></a
-                            >
+                            <button tabindex="0" (click)="downloadSebFile()" class="text text-success">
+                                <strong>{{ 'sitnet_download' | translate }}</strong>
+                            </button>
                         </span>
                     </div>
                 </div>
@@ -237,12 +231,7 @@
 
         <div class="row mart20" *ngIf="enrolment.reservation">
             <div class="col-6 col-md-2 infolink">
-                <a
-                    class="infolink pointer"
-                    (click)="showGuide = !showGuide"
-                    tabindex="0"
-                    (keyup.enter)="showGuide = !showGuide"
-                >
+                <button class="infolink pointer" (click)="showGuide = !showGuide" tabindex="0">
                     {{ 'sitnet_room_guidance' | translate }}
                     <img
                         class="arrow_icon"
@@ -256,7 +245,7 @@
                         alt="hide guidance"
                         src="/assets/assets/images/arrow_down.png"
                     />
-                </a>
+                </button>
             </div>
             <div class="col-6 col-md-10" [hidden]="!showGuide">
                 {{ getRoomInstruction() }}
@@ -265,12 +254,11 @@
 
         <div class="row mt-2">
             <div class="col-6 col-md-2">
-                <a
-                    class="infolink pointer"
+                <button
+                    class="infolink pointer border rounded"
                     [hidden]="!enrolment.exam?.enrollInstruction && !enrolment.collaborativeExam?.enrollInstruction"
                     (click)="showInstructions = !showInstructions"
                     tabindex="0"
-                    (keyup.enter)="showInstructions = !showInstructions"
                 >
                     {{ 'sitnet_view_instructions' | translate }}
                     <img
@@ -285,7 +273,7 @@
                         alt="hide instructions"
                         src="/assets/assets/images/arrow_down.png"
                     />
-                </a>
+                </button>
             </div>
             <div
                 class="col-6 col-md-10"
@@ -295,12 +283,7 @@
         </div>
         <div class="row mt-2" *ngIf="enrolment.reservation && enrolment.optionalSections.length > 0">
             <div class="col-12">
-                <a
-                    class="infolink pointer"
-                    (click)="showMaterials = !showMaterials"
-                    tabindex="0"
-                    (keyup.enter)="showMaterials = !showMaterials"
-                >
+                <button class="infolink pointer" (click)="showMaterials = !showMaterials" tabindex="0">
                     {{ 'sitnet_selected_sections' | translate }}
                     <img
                         class="arrow_icon"
@@ -314,7 +297,7 @@
                         alt="hide materials"
                         src="/assets/assets/images/arrow_down.png"
                     />
-                </a>
+                </button>
                 <div
                     class="student-exam-row-infobox"
                     *ngIf="enrolment.reservation && enrolment.optionalSections.length > 0"
@@ -388,13 +371,9 @@
                     "
                     class="student-message-dialog-button-save"
                 >
-                    <a
-                        class="link-button pointer"
-                        (click)="makeReservation()"
-                        tabindex="0"
-                        (keyup.enter)="makeReservation()"
-                        >{{ 'sitnet_student_new_reservation' | translate }}</a
-                    >
+                    <button class="link-button pointer" (click)="makeReservation()" tabindex="0">
+                        {{ 'sitnet_student_new_reservation' | translate }}
+                    </button>
                 </div>
                 <div
                     *ngIf="
@@ -404,13 +383,9 @@
                     "
                     class="student-message-dialog-button-save"
                 >
-                    <a
-                        class="link-button pointer"
-                        (click)="makeReservation()"
-                        tabindex="0"
-                        (keyup.enter)="makeReservation()"
-                        >{{ 'sitnet_student_new_reservation' | translate }}</a
-                    >
+                    <button class="link-button pointer" (click)="makeReservation()" tabindex="0">
+                        {{ 'sitnet_student_new_reservation' | translate }}
+                    </button>
                 </div>
             </div>
         </div>

@@ -50,12 +50,11 @@ type AvailableSlot = Slot & { availableMachines: number };
                 <div class="col-md-12" [hidden]="isExternal">
                     <div class="row">
                         <span class="col-md-12">
-                            <a
-                                class="infolink pointer"
+                            <button
+                                class="infolink pointer border rounded"
                                 *ngIf="!disabled"
                                 tabindex="0"
                                 (click)="showAccessibilityMenu = !showAccessibilityMenu"
-                                (keyup.enter)="showAccessibilityMenu = !showAccessibilityMenu"
                             >
                                 {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                                 <img
@@ -70,7 +69,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                                     alt="hide accessibility selection"
                                     src="/assets/assets/images/arrow_down.png"
                                 />
-                            </a>
+                            </button>
                             <span *ngIf="disabled" class="text text-muted">
                                 {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                             </span>

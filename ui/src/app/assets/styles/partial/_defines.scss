@@ -589,6 +589,14 @@ $sitnet-icon-size: 32px;
   padding-bottom: 30px !important;
 }
 
+.padt4 {
+  padding-top: 4px !important;
+}
+
+.padt8 {
+  padding-top: 8px !important;
+}
+
 .padt20 {
   padding-top: 20px !important;
 }
@@ -880,4 +888,17 @@ $sitnet-icon-size: 32px;
 
 .flex-grow {
   flex-grow: 1;
+}
+
+.hover-grey:hover {
+  background-color: $sitnet-grey;
+}
+
+.flex{
+  display: flex;
+}
+.flex-middle{
+  display: flex;
+  justify-content: center;
+  align-content: center;
 }

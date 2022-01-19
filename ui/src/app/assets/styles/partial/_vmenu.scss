@@ -230,26 +230,20 @@
     cursor: pointer;
     font-size: 1em;
     font-family: $sitnet-family-helvetica;
-    color: $sitnet-text;
     font-weight: 300;
     letter-spacing: 1px;
     display: inline-block;
 
-    a {
       color:$sitnet-language-link-text;
-      display: block;
       padding: 0.5em;
       margin-left: 1.5em;
       background-color: transparent;
       border:0px;
       text-decoration: none;
 
-    }
-    
-    a:active {
-      font-weight: bold;
-    }
-
+  }
+  .locale-item:active .locale-item:hover {
+    font-weight: bold;
   }
 
   .minimize .locale-item {
@@ -258,10 +252,8 @@
   }
 
   .locale-item:hover {
-    a {
       color: $sitnet-language-link-text;
       font-weight: bold;
-    }
   }
 
   @media print {
