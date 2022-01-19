@@ -518,6 +518,10 @@ $sitnet-icon-size: 32px;
 
 }
 
+.width-100{
+ width: 100%;
+}
+
 .width15 {
   width: 15%;
   max-width: 15%;
@@ -901,4 +905,9 @@ $sitnet-icon-size: 32px;
   display: flex;
   justify-content: center;
   align-content: center;
+}
+
+.flex-align-l{
+  display: flex;
+  align-content: flex-start;
 }
