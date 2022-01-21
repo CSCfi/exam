@@ -1,4 +1,7 @@
 <nav aria-label="side navigation" *ngIf="user" id="vmenu" class="hidden-print">
+    <a class="skip-main" id="skip-button-main" [href]="getSkipLinkPath('#mainView')">{{
+        'sitnet-skip-to-content' | translate
+    }}</a>
     <div class="nav-container">
         <div class="nav-header">
             <div class="logo">

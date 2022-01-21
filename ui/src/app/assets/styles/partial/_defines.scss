@@ -911,3 +911,45 @@ $sitnet-icon-size: 32px;
   display: flex;
   align-content: flex-start;
 }
+
+button.skip-main {
+  left:-999px;
+  display:flex;
+  position:absolute;
+  top:auto;
+  z-index:-999;
+
+  background-color: $sitnet-light-grey;
+  border: $sitnet-dark-grey;
+  border-radius: 4px;
+  color: $sitnet-black;
+}
+button.skip-main:focus, button.skip-main:active {
+  white-space: nowrap;
+  margin: 20px;
+  padding: 0 5px !important;
+  left: auto;
+  top: auto;
+  z-index:999;
+}
+a.skip-main {
+  left:-999px;
+  display:flex;
+  position:absolute;
+  top:auto;
+  z-index:-999;
+
+  background-color: $sitnet-light-grey;
+  border: $sitnet-dark-grey;
+  border-radius: 4px;
+  color: $sitnet-black;
+}
+a.skip-main:focus, a.skip-main:active {
+  white-space: nowrap;
+  margin: 20px;
+  padding: 0 5px !important;
+  left: auto;
+  top: auto;
+  z-index:999;
+}
+
