@@ -48,6 +48,9 @@
                             link.name | translate
                         }}</span>
                     </a>
+                    <a class="skip" id="skip-button" [hidden]="!isActive(link)" [href]="getSkipLinkPath('#mainView')">{{
+                        'sitnet-skip-to-content' | translate
+                    }}</a>
                     <ul class="submenu" [hidden]="!link.submenu.hidden">
                         <li
                             *ngFor="let subitem of link.submenu.items"
@@ -64,6 +67,13 @@
                                     {{ subitem.name | translate }}
                                 </div>
                             </a>
+                            <a
+                                class="skip"
+                                id="skip-button"
+                                [hidden]="!isActive(subitem)"
+                                [href]="getSkipLinkPath('#mainView')"
+                                >{{ 'sitnet-skip-to-content' | translate }}</a
+                            >
                         </li>
                     </ul>
                 </li>

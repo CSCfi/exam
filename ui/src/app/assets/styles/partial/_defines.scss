@@ -939,15 +939,34 @@ a.skip-main {
   top:auto;
   z-index:-999;
 
+  margin: 20px;
+  padding: 0 5px !important;
+  white-space: nowrap;
   background-color: $sitnet-light-grey;
   border: $sitnet-dark-grey;
   border-radius: 4px;
   color: $sitnet-black;
 }
 a.skip-main:focus, a.skip-main:active {
+  left: auto;
+  top: auto;
+  z-index:999;
+}
+.skip {
+  left:-999px;
+  display:flex;
+  position:absolute;
+  top:auto;
+  z-index:-999;
+  display:flex;
+
+  margin: 5px;
   white-space: nowrap;
-  margin: 20px;
-  padding: 0 5px !important;
+  background-color: $sitnet-light-grey;
+  border: $sitnet-dark-grey;
+  color: $sitnet-black;
+}
+.skip:focus, .skip:active {
   left: auto;
   top: auto;
   z-index:999;
