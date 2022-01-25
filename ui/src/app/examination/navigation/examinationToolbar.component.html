@@ -68,7 +68,7 @@
     <div class="col-md-12">
         <ul class="list-muted">
             <li
-                tabindex="0"
+                tabindex="1"
                 class="row align-items-center pointer phase-box"
                 [ngClass]="!activeSection ? '' : 'notactive'"
                 (click)="selectGuidePage()"
@@ -78,7 +78,7 @@
             </li>
 
             <li
-                tabindex="0"
+                tabindex="1"
                 class="row d-flex align-items-center pointer phase-box"
                 *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let i = index"
                 [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
