@@ -1010,5 +1010,8 @@
   "sitnet_exam_period_over": "Exam period is over",
   "sitnet_no_examinations_to_grade": "No exams waiting for assessment",
   "sitnet_csv_uploaded_successfully": "CSV file uploaded successfully",
-  "sitnet_csv_uploading_failed": "CSV file upload failed"
+  "sitnet_csv_uploading_failed": "CSV file upload failed",
+  "sitnet_event_capacity": "Kapasiteetti EN",
+  "sitnet_error_max_capacity_exceeded": "Yhtäaikaisten tenttitilaisuuksien maksimikapasiteetti ylitetty EN",
+  "sitnet_error_max_enrolments_reached": "Tilaisuuteen ei voida ottaa enempää osallistujia EN"
 }

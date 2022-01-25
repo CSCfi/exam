@@ -1010,5 +1010,8 @@
   "sitnet_exam_period_over": "Tentamens perioden är över",
   "sitnet_no_examinations_to_grade": "Inga outvärderade prestationer",
   "sitnet_csv_uploaded_successfully": "CSV-filen har laddats upp",
-  "sitnet_csv_uploading_failed": "Uppladdning av CSV-fil misslyckades"
+  "sitnet_csv_uploading_failed": "Uppladdning av CSV-fil misslyckades",
+  "sitnet_event_capacity": "Kapasiteetti SV",
+  "sitnet_error_max_capacity_exceeded": "Yhtäaikaisten tenttitilaisuuksien maksimikapasiteetti ylitetty SV",
+  "sitnet_error_max_enrolments_reached": "Tilaisuuteen ei voida ottaa enempää osallistujia SV"
 }
