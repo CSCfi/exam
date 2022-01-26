@@ -78,7 +78,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     }
 
     getSkipLinkPath = (skipTarget: string) => {
-        return `${this.Session.getUser().isStudent ? '' : '/staff'}${this.routing.current.url}${skipTarget}`;
+        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
     };
 
     isActive = (link: Link): boolean => link.state === this.routing.current.name;

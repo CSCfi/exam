@@ -7,28 +7,28 @@
         <li *ngIf="enrolment.reservation" ngbDropdownItem>
             <a
                 *ngIf="enrolment.reservation.machine && enrolment.collaborativeExam"
-                class="infolink-light"
+                class="infolink-light border rounded"
                 uiSref="collaborativeCalendar"
                 [uiParams]="{ id: enrolment.collaborativeExam.id }"
                 >{{ 'sitnet_student_change_reservation' | translate }}
             </a>
             <a
                 *ngIf="enrolment.reservation.machine && !enrolment.collaborativeExam"
-                class="infolink-light"
+                class="infolink-light border rounded"
                 uiSref="calendar"
                 [uiParams]="{ id: enrolment.exam.id }"
                 >{{ 'sitnet_student_change_reservation' | translate }}
             </a>
             <a
                 *ngIf="enrolment.reservation.externalReservation && enrolment.exam"
-                class="infolink-light"
+                class="infolink-light border rounded"
                 uiSref="externalCalendar"
                 [uiParams]="{ id: enrolment.exam.id }"
                 >{{ 'sitnet_student_change_reservation' | translate }}
             </a>
             <a
                 *ngIf="enrolment.reservation.externalReservation && enrolment.collaborativeExam"
-                class="infolink-light"
+                class="infolink-light border rounded"
                 uiSref="externalCalendar"
                 [uiParams]="{ id: enrolment.collaborativeExam.id, isCollaborative: true }"
                 >{{ 'sitnet_student_change_reservation' | translate }}
@@ -36,7 +36,7 @@
         </li>
         <!-- enrolment with examination event, allow changing -->
         <li *ngIf="enrolment.examinationEventConfiguration && hasUpcomingAlternativeEvents()" ngbDropdownItem>
-            <button class="infolink-light pointer" (click)="makeReservation()" tabindex="0">
+            <button class="infolink-light pointer border rounded" (click)="makeReservation()" tabindex="0">
                 {{ 'sitnet_student_change_reservation' | translate }}
             </button>
         </li>
@@ -44,7 +44,7 @@
         <li *ngIf="enrolment.reservation" ngbDropdownItem>
             <button
                 *ngIf="enrolment.reservation"
-                class="infolink-light-alert pointer"
+                class="infolink-light-alert pointer border rounded"
                 tabindex="0"
                 (click)="removeReservation()"
             >
@@ -53,7 +53,7 @@
         </li>
         <!-- enrolment with examination event, allow event removal -->
         <li *ngIf="enrolment.examinationEventConfiguration" ngbDropdownItem>
-            <button class="infolink-light-alert pointer" tabindex="0" (click)="removeReservation()">
+            <button class="infolink-light-alert pointer border rounded" tabindex="0" (click)="removeReservation()">
                 {{ 'sitnet_student_remove_reservation' | translate }}
             </button>
         </li>
@@ -66,7 +66,7 @@
             "
             ngbDropdownItem
         >
-            <button tabindex="0" (click)="removeEnrolment()" class="infolink-light-alert pointer">
+            <button tabindex="0" (click)="removeEnrolment()" class="infolink-light-alert pointer border rounded">
                 {{ 'sitnet_student_remove_enrolment' | translate }}
             </button>
         </li>
@@ -77,7 +77,7 @@
             "
             ngbDropdownItem
         >
-            <button (click)="makeReservation()" tabindex="0" class="infolink-light pointer">
+            <button (click)="makeReservation()" tabindex="0" class="infolink-light pointer border rounded">
                 {{ 'sitnet_student_new_reservation' | translate }}
             </button>
         </li>
@@ -92,7 +92,7 @@
         >
             <button
                 [hidden]="enrolment.exam.executionType.type !== 'PUBLIC'"
-                class="infolink-light pointer"
+                class="infolink-light pointer border rounded"
                 (click)="makeReservation()"
                 tabindex="0"
             >
