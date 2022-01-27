@@ -5,3 +5,13 @@
 .booking-calendar-container {
     margin-left: 50px;
 }
+.overflow-x-auto {
+    overflow-x: auto;
+    @media (max-width: $sitnet-mobile) {
+        padding-left: -25px;
+        padding-right: -25px;
+    }
+}
+    .calendar-minw{
+            min-width: 875px;
+    }

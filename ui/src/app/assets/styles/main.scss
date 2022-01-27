@@ -45,6 +45,8 @@ p, li {
 
   @media (max-width: $sitnet-mobile) {
     margin-left: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   @media print {

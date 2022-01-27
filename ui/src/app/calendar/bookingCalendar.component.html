@@ -34,18 +34,19 @@
             <span class="sr-only">Loading...</span>
         </div>
     </ng-template>
-
-    <div *ngIf="visible">
-        <mwl-calendar-week-view
-            [viewDate]="viewDate"
-            [events]="events"
-            [dayStartHour]="minHour"
-            [dayEndHour]="maxHour"
-            [locale]="locale"
-            [weekStartsOn]="weekStartsOn"
-            [excludeDays]="hiddenDays"
-            (eventClicked)="eventClicked($event.event)"
-        >
-        </mwl-calendar-week-view>
+    <div class="overflow-x-auto">
+        <div *ngIf="visible" class="calendar-minw">
+            <mwl-calendar-week-view
+                [viewDate]="viewDate"
+                [events]="events"
+                [dayStartHour]="minHour"
+                [dayEndHour]="maxHour"
+                [locale]="locale"
+                [weekStartsOn]="weekStartsOn"
+                [excludeDays]="hiddenDays"
+                (eventClicked)="eventClicked($event.event)"
+            >
+            </mwl-calendar-week-view>
+        </div>
     </div>
 </div>
