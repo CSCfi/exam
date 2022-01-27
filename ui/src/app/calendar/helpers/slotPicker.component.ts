@@ -83,7 +83,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                             </div>
                             <div class="row" [hidden]="!showAccessibilityMenu">
                                 <div class="col-md-12 calendar-accs-checkboxes">
-                                    <span class="marr10" *ngFor="let accessibility of accessibilities">
+                                    <span class="marr10 accs-list" *ngFor="let accessibility of accessibilities">
                                         <input
                                             aria-label="search for accessibility criteria"
                                             type="checkbox"
