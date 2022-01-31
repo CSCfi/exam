@@ -47,7 +47,7 @@ type AvailableSlot = Slot & { availableMachines: number };
             </div>
             <div class="row mt-2 mb-2">
                 <!-- todo: make this a component -->
-                <div class="col-md-12" [hidden]="isExternal">
+                <div class="col-md-12 mart10 marb20" [hidden]="isExternal">
                     <div class="row">
                         <span class="col-md-12">
                             <a

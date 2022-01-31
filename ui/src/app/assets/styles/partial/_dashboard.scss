@@ -17,6 +17,11 @@
     }  
   }
 
+  .mar-lr-0{
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   .student-enrolment-wrapper {
     border-radius: 4px;
     background: white;
@@ -24,8 +29,10 @@
     border-left: $sitnet-medium-green-new 4px solid;
     margin-left: 1.4em;
     margin-right: 1.4em;
+    margin-bottom: 25px;
     @media (max-width: $sitnet-mobile) {
       padding: 5px;
+      margin-bottom: 5px;
     }
     padding: 30px;
 
@@ -96,8 +103,6 @@
 
   .question-review-info {
     @extend .row;
-    margin-left: 1.4em;
-    margin-right: 1.4em;
     margin-bottom: 10px;
 
     img {
@@ -126,7 +131,6 @@
   }
 
   .essay-question-review-wrapper {
-    margin-right: -15px;
     padding-bottom: 30px;
   }
 
@@ -730,7 +734,6 @@
       margin-right: 20px;
       @media (max-width: $sitnet-mobile) {
         padding: 10px;
-        margin-right: 10px;
       }
     }
   }

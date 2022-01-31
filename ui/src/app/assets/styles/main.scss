@@ -105,6 +105,19 @@ p, li {
   font-weight: normal;
 }
 
+.student-message-dialog-buttons{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  @media (max-width: $sitnet-mobile) {
+    justify-content: center;
+    div{
+      width: auto;
+      min-width: auto;
+    }
+  }
+}
+
 .student-message-dialog-button-save {
   float:right;
 
@@ -113,7 +126,7 @@ p, li {
     font-family: $sitnet-family-helvetica;
     background-color: $sitnet-green-new;
     border: 1px solid #133b17;
-    min-width: 180px;
+    min-width: 150px;
     padding-top: 11px;
     padding-bottom: 11px;
     margin-left: 10px;
@@ -168,7 +181,7 @@ p, li {
     font-family: $sitnet-family-helvetica;
     background-color: #808080;
     border: 1px solid #6B6B6B;
-    width: 150px;
+    min-width: 150px;
     padding-top: 11px;
     padding-bottom: 11px;
 
@@ -192,6 +205,7 @@ p, li {
 .student-details-title-wrap {
   margin-left: 2.5em;
   display: inline-block;
+  margin-top: 25px;
   margin-bottom: 30px;
 
   img {
@@ -222,7 +236,7 @@ p, li {
   &.subtitle { margin-bottom: 0px; }
 
   @media (max-width: $sitnet-mobile) {
-    margin-left: 0em;
+    margin-left: 1em;
   }
 
 }
@@ -370,6 +384,16 @@ p, li {
 .calendar-accs-checkboxes {
   display: inline-block;
   padding-right:10px;
+  @media (max-width: $sitnet-mobile) {
+  input[type=checkbox]
+  {
+    margin: 10px;
+    -ms-transform: scale(2); /* IE */
+    -moz-transform: scale(2); /* FF */
+    -webkit-transform: scale(2); /* Safari and Chrome */
+    -o-transform: scale(2); /* Opera */
+  }
+  }
 }
 
 .accs-list{
