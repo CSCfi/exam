@@ -402,6 +402,9 @@
     a {
       background-color: $sitnet-light-grey_new;
       border-left:3px solid $sitnet-green-new;
+      @media (max-width: $sitnet-mobile) {
+        border:3px solid $sitnet-green-new;
+      }
       text-decoration: none;
       padding-left: 1.5em;
       font-family:$sitnet-family-helvetica;
