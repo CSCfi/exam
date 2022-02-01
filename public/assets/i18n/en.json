@@ -1013,5 +1013,6 @@
   "sitnet_csv_uploading_failed": "CSV file upload failed",
   "sitnet_event_capacity": "Kapasiteetti EN",
   "sitnet_error_max_capacity_exceeded": "Yhtäaikaisten tenttitilaisuuksien maksimikapasiteetti ylitetty EN",
-  "sitnet_error_max_enrolments_reached": "Tilaisuuteen ei voida ottaa enempää osallistujia EN"
+  "sitnet_error_max_enrolments_reached": "Tilaisuuteen ei voida ottaa enempää osallistujia EN",
+  "sitnet-skip-to-content": "Skip to content"
 }

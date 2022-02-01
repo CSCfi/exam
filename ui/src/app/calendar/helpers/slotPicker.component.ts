@@ -50,12 +50,11 @@ type AvailableSlot = Slot & { availableMachines: number };
                 <div class="col-md-12" [hidden]="isExternal">
                     <div class="row">
                         <span class="col-md-12">
-                            <a
-                                class="infolink pointer"
+                            <button
+                                class="infolink pointer border rounded"
                                 *ngIf="!disabled"
                                 tabindex="0"
                                 (click)="showAccessibilityMenu = !showAccessibilityMenu"
-                                (keyup.enter)="showAccessibilityMenu = !showAccessibilityMenu"
                             >
                                 {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                                 <img
@@ -70,7 +69,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                                     alt="hide accessibility selection"
                                     src="/assets/assets/images/arrow_down.png"
                                 />
-                            </a>
+                            </button>
                             <span *ngIf="disabled" class="text text-muted">
                                 {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                             </span>
@@ -100,35 +99,31 @@ type AvailableSlot = Slot & { availableMachines: number };
                 </div>
             </div>
             <div class="row mart10">
-                <div class="col student-exam-row-title" ngbDropdown>
+                <div class="dropdown" ngbDropdown>
                     <button
                         ngbDropdownToggle
                         class="btn btn-outline-dark"
                         type="button"
                         id="dropDownMenu1"
+                        aria-expanded="true"
                         [disabled]="(isExternal && !organisation) || disabled"
                     >
-                        {{ 'sitnet_room' | translate }}&nbsp;
+                        {{ 'sitnet_room' | translate }}
                         <span class="caret"></span>
                     </button>
-                    <ul class="student-select-room" ngbDropdownMenu aria-labelledby="dropDownMenu1">
-                        <li
+                    <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
+                        <button
+                            ngbDropdownItem
                             *ngFor="let room of rooms"
-                            [hidden]="room.filtered"
                             role="presentation"
                             (click)="selectRoom(room)"
-                            tabindex="0"
-                            (ngEnter)="selectRoom(room)"
-                            ngbPopover="{{ outOfServiceGate(room, getDescription(room)) }}"
-                            popoverTitle="{{ outOfServiceGate(room, 'sitnet_instructions' | translate) }}"
-                            container="body"
-                            triggers="mouseenter:mouseleave"
+                            title="{{ room.name }}"
                         >
                             <div ngbDropdownItem [disabled]="room.outOfService" role="menuitem">
                                 <a> {{ room.name }}</a>
                             </div>
-                        </li>
-                    </ul>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="row mart10" *ngIf="selectedRoom">

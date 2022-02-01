@@ -39,19 +39,14 @@
     <div *ngIf="exam.implementation !== 'CLIENT_AUTH' && sq.essayAnswer?.attachment?.fileName" class="col-md-9 mt-2">
         <span class="float-right">
             <span class="pr-2 filename-text">{{ sq.essayAnswer?.attachment?.fileName | uppercase }}</span>
-            <a
-                tabindex="0"
-                class="pointer green_button"
-                (click)="removeQuestionAnswerAttachment()"
-                (keyup.enter)="removeQuestionAnswerAttachment()"
-            >
+            <button tabindex="0" class="pointer green_button" (click)="removeQuestionAnswerAttachment()">
                 {{ 'sitnet_remove_answer_attachment' | translate }}
                 <img
                     src="/assets/assets/images/icon_attachment.svg"
                     alt="attachment"
                     onerror="this.onerror=null;this.src='/assets/assets/images/icon_attachment.png';"
                 />
-            </a>
+            </button>
         </span>
     </div>
 </div>
@@ -66,13 +61,7 @@
             <div class="filename-text" *ngIf="!sq.essayAnswer.attachment?.fileName">
                 {{ 'sitnet_no_attachment' | translate }}
             </div>
-            <button
-                tabindex="0"
-                class="pointer btn btn-success"
-                [disabled]="isPreview"
-                (click)="selectFile()"
-                (keyup.enter)="selectFile()"
-            >
+            <button tabindex="0" class="pointer btn btn-success" [disabled]="isPreview" (click)="selectFile()">
                 {{ 'sitnet_upload_answer_attachment' | translate }}
                 <img
                     src="/assets/assets/images/icon_attachment.svg"
