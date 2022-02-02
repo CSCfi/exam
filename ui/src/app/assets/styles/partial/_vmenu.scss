@@ -113,6 +113,8 @@
 
     .mobile-menu {
       float:right;
+      background: none;
+      border: none;
 
       img {
         padding-top: 30px;
@@ -245,14 +247,11 @@
     cursor: pointer;
     font-size: 1em;
     font-family: $sitnet-family-helvetica;
-    color: $sitnet-text;
     font-weight: 300;
     letter-spacing: 1px;
     display: inline-block;
 
-    a {
       color:$sitnet-language-link-text;
-      display: block;
       padding: 0.5em;
       margin-left: 1.5em;
       background-color: transparent;
@@ -262,12 +261,9 @@
         border: 3px solid #00000000;
       }
 
-    }
-    
-    a:active {
-      font-weight: bold;
-    }
-
+  }
+  .locale-item:active .locale-item:hover {
+    font-weight: bold;
   }
 
   .minimize .locale-item {
@@ -276,14 +272,12 @@
   }
 
   .locale-item:hover {
-    a {
       color: $sitnet-language-link-text;
       font-weight: bold;
       @media (max-width: $sitnet-mobile) {
         border-radius: 50px;
         border: 3px solid $sitnet-white;
       }
-    }
   }
 
   @media print {
@@ -344,7 +338,6 @@
       text-align:left;
       margin: 0 30px;
     }
-    a:active
 
     li {
 

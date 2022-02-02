@@ -53,7 +53,6 @@
                     role="presentation"
                     (click)="filter.ordering = 'exam.name'; filter.reverse = false"
                     tabindex="0"
-                    (keyup.enter)="filter.ordering = 'exam.name'; filter.reverse = false"
                 >
                     {{ 'sitnet_exam_name_ascending' | translate }}
                 </button>
@@ -62,7 +61,6 @@
                     role="presentation"
                     (click)="filter.ordering = 'exam.name'; filter.reverse = true"
                     tabindex="0"
-                    (keyup.enter)="filter.ordering = 'exam.name'; filter.reverse = true"
                 >
                     {{ 'sitnet_exam_name_descending' | translate }}
                 </button>
@@ -71,7 +69,6 @@
                     role="presentation"
                     (click)="filter.ordering = 'ended'; filter.reverse = false"
                     tabindex="0"
-                    (keyup.enter)="filter.ordering = 'ended'; filter.reverse = false"
                 >
                     {{ 'sitnet_exam_participation_descending' | translate }}
                 </button>
@@ -80,7 +77,6 @@
                     role="presentation"
                     (click)="filter.ordering = 'ended'; filter.reverse = true"
                     tabindex="0"
-                    (keyup.enter)="filter.ordering = 'ended'; filter.reverse = true"
                 >
                     {{ 'sitnet_exam_participation_ascending' | translate }}
                 </button>
