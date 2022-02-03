@@ -1011,5 +1011,5 @@
   "sitnet_no_examinations_to_grade": "No exams waiting for assessment",
   "sitnet_csv_uploaded_successfully": "CSV file uploaded successfully",
   "sitnet_csv_uploading_failed": "CSV file upload failed",
-  "sitnet-skip-to-content": "Skip to content"
+  "sitnet_skip_to_content": "Skip to content"
 }

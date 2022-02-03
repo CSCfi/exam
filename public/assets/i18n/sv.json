@@ -1011,5 +1011,5 @@
   "sitnet_no_examinations_to_grade": "Inga outvärderade prestationer",
   "sitnet_csv_uploaded_successfully": "CSV-filen har laddats upp",
   "sitnet_csv_uploading_failed": "Uppladdning av CSV-fil misslyckades",
-  "sitnet-skip-to-content": "Skip to content SV"
+  "sitnet_skip_to_content": "Skip to content SV"
 }
