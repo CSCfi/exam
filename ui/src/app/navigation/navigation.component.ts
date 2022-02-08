@@ -77,6 +77,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
+    getSkipLinkPath = (skipTarget: string) => {
+        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
+    };
+
     isActive = (link: Link): boolean => link.state === this.routing.current.name;
 
     openMenu = () => (this.mobileMenuOpen = !this.mobileMenuOpen);
