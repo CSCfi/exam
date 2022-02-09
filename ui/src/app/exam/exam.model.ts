@@ -228,6 +228,7 @@ export interface ExaminationEvent {
     id?: number;
     start: string;
     description: string;
+    capacity: number;
     examinationEventConfiguration: ExaminationEventConfiguration;
 }
 

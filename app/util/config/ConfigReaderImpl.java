@@ -181,4 +181,9 @@ public class ConfigReaderImpl implements ConfigReader {
     public String getHomeOrganisationRef() {
         return ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
     }
+
+    @Override
+    public Integer getMaxByodExaminationParticipantCount() {
+        return ConfigFactory.load().getInt("sitnet.byod.maxConcurrentParticipants");
+    }
 }
