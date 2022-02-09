@@ -19,6 +19,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import io.ebean.Ebean;
+import io.ebean.ExpressionList;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -37,6 +38,7 @@ import sanitizers.Attrs;
 import sanitizers.ExaminationDateSanitizer;
 import sanitizers.ExaminationEventSanitizer;
 import util.config.ByodConfigHandler;
+import util.config.ConfigReader;
 
 public class ExaminationEventController extends BaseController {
 
@@ -44,6 +46,9 @@ public class ExaminationEventController extends BaseController {
 
     @Inject
     ByodConfigHandler byodConfigHandler;
+
+    @Inject
+    ConfigReader configReader;
 
     // PRINTOUT EXAM RELATED -->
     @With(ExaminationDateSanitizer.class)
@@ -72,6 +77,29 @@ public class ExaminationEventController extends BaseController {
     }
 
     // <--
+    private DateTime getEventEnding(ExaminationEvent ee) {
+        ExaminationEventConfiguration config = ee.getExaminationEventConfigurations().isEmpty()
+            ? null
+            : ee.getExaminationEventConfigurations().iterator().next();
+        if (config == null) {
+            return ee.getStart();
+        }
+        DateTime dt = ee.getStart().plusMinutes(config.getExam().getDuration());
+        return dt;
+    }
+
+    private int getParticipantUpperBound(DateTime start, DateTime end, Long id) {
+        ExpressionList<ExaminationEvent> el = Ebean.find(ExaminationEvent.class).where().le("start", end);
+        if (id != null) {
+            el = el.ne("id", id);
+        }
+        return el
+            .findSet()
+            .stream()
+            .filter(ee -> !getEventEnding(ee).isBefore(start))
+            .mapToInt(ExaminationEvent::getCapacity)
+            .sum();
+    }
 
     @With(ExaminationEventSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
@@ -88,12 +116,19 @@ public class ExaminationEventController extends BaseController {
         if (start.isBeforeNow()) {
             return forbidden("start occasion in the past");
         }
+        DateTime end = start.plusMinutes(exam.getDuration());
+        int ub = getParticipantUpperBound(start, end, null);
+        int capacity = request.attrs().get(Attrs.CAPACITY);
+        if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {
+            return forbidden("sitnet_error_max_capacity_exceeded");
+        }
         String password = request.attrs().get(Attrs.SETTINGS_PASSWORD);
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH && password == null) {
             return forbidden("no password provided");
         }
         ee.setStart(start);
         ee.setDescription(request.attrs().get(Attrs.DESCRIPTION));
+        ee.setCapacity(request.attrs().get(Attrs.CAPACITY));
         ee.save();
         eec.setExaminationEvent(ee);
         eec.setExam(exam);
@@ -102,7 +137,7 @@ public class ExaminationEventController extends BaseController {
             encryptSettingsPassword(eec, password);
         }
         eec.save();
-        // Pass back the plaintext password so it can be shown to user
+        // Pass back the plaintext password, so it can be shown to user
         eec.setSettingsPassword(request.attrs().get(Attrs.SETTINGS_PASSWORD));
         return ok(eec);
     }
@@ -110,6 +145,7 @@ public class ExaminationEventController extends BaseController {
     @With(ExaminationEventSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result updateExaminationEvent(Long eid, Long eecid, Http.Request request) {
+        Exam exam = Ebean.find(Exam.class, eid);
         Optional<ExaminationEventConfiguration> oeec = Ebean
             .find(ExaminationEventConfiguration.class)
             .where()
@@ -126,14 +162,22 @@ public class ExaminationEventController extends BaseController {
         if (eec.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH && password == null) {
             return forbidden("no password provided");
         }
+        DateTime start = request.attrs().get(Attrs.START_DATE);
         if (!hasEnrolments) {
-            DateTime start = request.attrs().get(Attrs.START_DATE);
             if (start.isBeforeNow()) {
                 return forbidden("start occasion in the past");
             }
             ee.setStart(start);
         }
+        DateTime end = start.plusMinutes(exam.getDuration());
+        int ub = getParticipantUpperBound(start, end, ee.getId());
+        int capacity = request.attrs().get(Attrs.CAPACITY);
+        if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {
+            return forbidden("sitnet_error_max_capacity_exceeded");
+        }
+        ee.setCapacity(capacity);
         ee.setDescription(request.attrs().get(Attrs.DESCRIPTION));
+
         ee.update();
         if (password == null) {
             return ok(eec);

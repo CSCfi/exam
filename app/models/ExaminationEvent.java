@@ -36,6 +36,8 @@ public class ExaminationEvent extends GeneratedIdentityModel {
 
     private String description;
 
+    private int capacity;
+
     @OneToMany(mappedBy = "examinationEvent")
     @JsonBackReference
     private Set<ExaminationEventConfiguration> examinationEventConfigurations;
@@ -54,6 +56,14 @@ public class ExaminationEvent extends GeneratedIdentityModel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
     }
 
     public Set<ExaminationEventConfiguration> getExaminationEventConfigurations() {
