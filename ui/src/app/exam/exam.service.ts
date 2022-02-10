@@ -91,7 +91,7 @@ export class ExamService {
             implementation: exam.implementation,
         };
         Object.assign(data, overrides);
-        const url = collaborative ? '/integration/iop/exams' : '/app/exams';
+        const url = collaborative ? '/app/iop/exams' : '/app/exams';
         return this.http.put<Exam>(`${url}/${exam.id}`, data);
     };
 
@@ -106,7 +106,7 @@ export class ExamService {
         );
 
     refreshGradeScales$ = (isCollaborative: boolean): Observable<GradeScale[]> => {
-        const url = isCollaborative ? '/integration/iop/gradescales' : '/app/gradescales';
+        const url = isCollaborative ? '/app/iop/gradescales' : '/app/gradescales';
         return this.http.get<GradeScale[]>(url).pipe(
             map((resp) =>
                 resp.map((gs) =>
@@ -226,7 +226,7 @@ export class ExamService {
     };
 
     getResource = (url: string, collaborative = false) =>
-        collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
+        collaborative ? url.replace('/app/exams/', '/app/iop/exams/') : url;
 
     isAllowedToUnpublishOrRemove = (exam: Exam, collaborative = false) => {
         if (collaborative) {

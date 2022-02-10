@@ -38,7 +38,7 @@ export class CollaborativeExamOwnerSelectorComponent {
     addOwner = () => {
         const exists = this.exam.examOwners.some((o) => o.email === this.newOwner.email);
         if (!exists) {
-            this.http.post<User>(`/integration/iop/exams/${this.exam.id}/owners`, this.newOwner).subscribe(
+            this.http.post<User>(`/app/iop/exams/${this.exam.id}/owners`, this.newOwner).subscribe(
                 (user) => {
                     this.exam.examOwners.push(user);
                     delete this.newOwner.email;
@@ -49,7 +49,7 @@ export class CollaborativeExamOwnerSelectorComponent {
     };
 
     removeOwner = (id: number) => {
-        this.http.delete(`/integration/iop/exams/${this.exam.id}/owners/${id}`).subscribe(
+        this.http.delete(`/app/iop/exams/${this.exam.id}/owners/${id}`).subscribe(
             () => (this.exam.examOwners = this.exam.examOwners.filter((o) => o.id !== id)),
             (resp) => toast.error(resp.data),
         );
