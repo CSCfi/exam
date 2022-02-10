@@ -550,7 +550,7 @@ class EmailComposerImpl implements EmailComposer {
             fromUser.getEmail()
         );
         String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getCode().split("_")[0]);
-        String linkToInspection = String.format("%s/staff/assessments/%d", hostName, exam.getId());
+        String linkToInspection = String.format("%s/staff/exams/%d/regular/4", hostName, exam.getId());
 
         Map<String, String> values = new HashMap<>();
 
