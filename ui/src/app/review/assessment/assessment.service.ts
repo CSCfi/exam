@@ -204,7 +204,7 @@ export class AssessmentService {
         if (!question.essayAnswer?.evaluatedScore) {
             return throwError({ data: 'sitnet_error_score_input' });
         }
-        const url = `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}`;
+        const url = `/app/iop/reviews/${examId}/${examRef}/question/${question.id}`;
         return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });
     };
 
@@ -256,7 +256,7 @@ export class AssessmentService {
         return this.http.put<void>(url, { forcedScore: question.forcedScore });
     };
     saveCollaborativeForcedScore = (question: ExamSectionQuestion, examId: number, examRef: string, rev: string) => {
-        const url = `/integration/iop/reviews/${examId}/${examRef}/question/${question.id}/force`;
+        const url = `/app/iop/reviews/${examId}/${examRef}/question/${question.id}/force`;
         return this.http.put<{ rev: string }>(url, { forcedScore: question.forcedScore, rev: rev });
     };
 

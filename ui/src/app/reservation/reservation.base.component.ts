@@ -311,7 +311,7 @@ export class ReservationComponentBase {
             this.http.get<Exam[]>('/app/reservations/exams'),
         ];
         if (this.isInteroperable && this.isAdminView()) {
-            examObservables.push(this.http.get<CollaborativeExam[]>('/integration/iop/exams'));
+            examObservables.push(this.http.get<CollaborativeExam[]>('/app/iop/exams'));
         }
         forkJoin(examObservables)
             .pipe(
