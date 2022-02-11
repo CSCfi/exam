@@ -250,11 +250,16 @@ export class ExamPublicationComponent implements OnInit {
             size: 'lg',
         });
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
-        modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.addExaminationEvent$(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
-                this.exam.examinationEventConfigurations.push(config);
-            });
-        });
+        modalRef.result
+            .then((data: ExaminationEventConfiguration) => {
+                this.Exam.addExaminationEvent$(this.exam.id, data).subscribe(
+                    (config: ExaminationEventConfiguration) => {
+                        this.exam.examinationEventConfigurations.push(config);
+                    },
+                    (err) => toast.error(err),
+                );
+            })
+            .catch((err) => toast.error(err));
     };
 
     modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
@@ -265,16 +270,20 @@ export class ExamPublicationComponent implements OnInit {
         });
         modalRef.componentInstance.config = configuration;
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
-        modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.updateExaminationEvent$(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
-                (config: ExaminationEventConfiguration) => {
-                    const index = this.exam.examinationEventConfigurations.indexOf(configuration);
-                    console.log(index);
-                    this.exam.examinationEventConfigurations.splice(index, 1, config);
-                    console.log(this.exam.examinationEventConfigurations[0].settingsPassword);
-                },
-            );
-        });
+        modalRef.result
+            .then((data: ExaminationEventConfiguration) => {
+                this.Exam.updateExaminationEvent$(
+                    this.exam.id,
+                    Object.assign(data, { id: configuration.id }),
+                ).subscribe(
+                    (config: ExaminationEventConfiguration) => {
+                        const index = this.exam.examinationEventConfigurations.indexOf(configuration);
+                        this.exam.examinationEventConfigurations.splice(index, 1, config);
+                    },
+                    (err) => toast.error(err),
+                );
+            })
+            .catch((err) => toast.error(err));
     };
 
     removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
@@ -293,10 +302,10 @@ export class ExamPublicationComponent implements OnInit {
                             1,
                         );
                     },
-                    (resp) => toast.error(resp),
+                    (err) => toast.error(err),
                 ),
             )
-            .catch((err) => toast.error(err.data));
+            .catch((err) => toast.error(err));
     };
 
     private isAllowedToUnpublishOrRemove = () =>
