@@ -33,6 +33,7 @@ import models.ExamStartingHour;
 import models.MailAddress;
 import models.Reservation;
 import models.User;
+import models.calendar.MaintenancePeriod;
 import models.iop.ExternalReservation;
 import models.json.CollaborativeExam;
 import models.sections.ExamSection;
@@ -97,9 +98,18 @@ public class CalendarHandlerImpl implements CalendarHandler {
                 .findList();
             // Resolve eligible machines based on software and accessibility requirements
             List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
+            // Maintenance periods
+            List<Interval> periods = Ebean
+                .find(MaintenancePeriod.class)
+                .where()
+                .gt("endsAt", searchDate.toDate())
+                .findList()
+                .stream()
+                .map(p -> new Interval(p.getStartsAt(), p.getEndsAt()))
+                .collect(Collectors.toList());
             LocalDate endOfSearch = getEndSearchDate(searchDate, new LocalDate(exam.getExamActiveEndDate()));
             while (!searchDate.isAfter(endOfSearch)) {
-                Set<TimeSlot> timeSlots = getExamSlots(user, room, exam, searchDate, reservations, machines);
+                Set<TimeSlot> timeSlots = getExamSlots(user, room, exam, searchDate, reservations, machines, periods);
                 if (!timeSlots.isEmpty()) {
                     slots.addAll(timeSlots);
                 }
@@ -127,13 +137,23 @@ public class CalendarHandlerImpl implements CalendarHandler {
             aids,
             reservation.getEnrolment().getExam()
         );
+        // Maintenance periods
+        List<Interval> periods = Ebean
+            .find(MaintenancePeriod.class)
+            .where()
+            .gt("endsAt", searchDate.toDate())
+            .findList()
+            .stream()
+            .map(p -> new Interval(p.getStartsAt(), p.getEndsAt()))
+            .collect(Collectors.toList());
         Set<TimeSlot> slots = getExamSlots(
             reservation.getUser(),
             reservation.getMachine().getRoom(),
             reservation.getEnrolment().getExam(),
             searchDate,
             reservations,
-            machines
+            machines,
+            periods
         );
         return slots.stream().anyMatch(s -> s.interval.contains(reservation.toInterval()));
     }
@@ -310,10 +330,14 @@ public class CalendarHandlerImpl implements CalendarHandler {
         Exam exam,
         LocalDate date,
         Collection<Reservation> reservations,
-        Collection<ExamMachine> machines
+        Collection<ExamMachine> machines,
+        Collection<Interval> maintenancePeriods
     ) {
         Integer examDuration = exam.getDuration();
-        Collection<Interval> examSlots = gatherSuitableSlots(room, date, examDuration);
+        Collection<Interval> examSlots = gatherSuitableSlots(room, date, examDuration)
+            .stream()
+            .filter(slot -> maintenancePeriods.stream().noneMatch(p -> p.overlaps(slot)))
+            .collect(Collectors.toList());
         Map<Interval, Optional<Integer>> map = examSlots
             .stream()
             .collect(
@@ -421,7 +445,30 @@ public class CalendarHandlerImpl implements CalendarHandler {
                     LinkedHashMap::new
                 )
             );
-            return handleReservations(map, reservations, exam, null, user);
+            List<Interval> periods = Ebean
+                .find(MaintenancePeriod.class)
+                .where()
+                .gt("endsAt", searchDate.toDate())
+                .findList()
+                .stream()
+                .map(p -> new Interval(p.getStartsAt(), p.getEndsAt()))
+                .collect(Collectors.toList());
+            // Filter out slots that overlap a local maintenance period
+            Map<Interval, Optional<Integer>> map2 = map
+                .entrySet()
+                .stream()
+                .filter(e -> periods.stream().noneMatch(m -> m.overlaps(e.getKey())))
+                .collect(
+                    Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (u, v) -> {
+                            throw new IllegalStateException(String.format("Duplicate key %s", u));
+                        },
+                        LinkedHashMap::new
+                    )
+                );
+            return handleReservations(map2, reservations, exam, null, user);
         }
         return Collections.emptySet();
     }

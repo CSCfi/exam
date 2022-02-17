@@ -22,6 +22,7 @@ import { RoomListComponent } from './rooms/roomList.component';
 import { SettingsResourceService } from './rooms/settingsResource';
 import { ExceptionDialogComponent } from './schedule/exceptionDialog.component';
 import { ExceptionListComponent } from './schedule/exceptionList.component';
+import { MaintenancePeriodDialogComponent } from './schedule/maintenancePeriodDialog.component';
 import { OpenHoursComponent } from './schedule/openHours.component';
 import { StartingTimeComponent } from './schedule/startingTime.component';
 
@@ -43,6 +44,7 @@ import { StartingTimeComponent } from './schedule/startingTime.component';
         ExamRoomsAdminTabsComponent,
         ExceptionDialogComponent,
         ExceptionListComponent,
+        MaintenancePeriodDialogComponent,
         OpenHoursComponent,
         StartingTimeComponent,
         ExceptionListAllComponent,
@@ -52,7 +54,7 @@ import { StartingTimeComponent } from './schedule/startingTime.component';
         RoomListComponent,
         AddressComponent,
     ],
-    bootstrap: [ExceptionDialogComponent],
+    bootstrap: [ExceptionDialogComponent, MaintenancePeriodDialogComponent],
     providers: [SettingsResourceService, InteroperabilityResourceService, RoomService],
     exports: [ExamRoomsAdminTabsComponent],
 })

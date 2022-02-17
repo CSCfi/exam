@@ -68,7 +68,6 @@ DELETE        /app/exam/:eid/examinationevents/:eecid                   controll
 ############### Question review interface ###############
 GET           /app/exam/:id/questions                                  controllers.QuestionReviewController.getEssays(id: Long, ids: java.util.Optional[LongList], request: Request)
 
-
 ############### Exam record interface ###############
 POST          /app/exam/record                                         controllers.ExamRecordController.addExamRecord(request: Request)
 POST          /app/exam/register                                       controllers.ExamRecordController.registerExamWithoutRecord(request: Request)
@@ -445,6 +444,12 @@ GET           /app/reports/exams                                       controlle
 GET           /app/reports/reservations                                controllers.ReportController.getReservations(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 GET           /app/reports/responses                                   controllers.ReportController.getResponses(dept: java.util.Optional[String], start: java.util.Optional[String], end: java.util.Optional[String])
 POST          /app/reports/questionreport/:id                          controllers.ReportController.exportExamQuestionScoresAsExcel(id: Long, request: Request)
+
+################# Maintenance period interface ##################
+GET           /app/maintenance                                         controllers.MaintenancePeriodController.listMaintenancePeriods
+POST          /app/maintenance                                         controllers.MaintenancePeriodController.createMaintenancePeriod(request: Request)
+PUT           /app/maintenance/:id                                     controllers.MaintenancePeriodController.updateMaintenancePeriod(id: Long, request: Request)
+DELETE        /app/maintenance/:id                                     controllers.MaintenancePeriodController.removeMaintenancePeriod(id: Long)
 
 ########################################################
 GET           /assets/assets/images/nav/*file                          controllers.assets.NavbarAssets.at(path="/public", file)
