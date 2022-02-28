@@ -1014,5 +1014,9 @@
   "sitnet_event_capacity": "Kapasiteetti SV",
   "sitnet_error_max_capacity_exceeded": "Yhtäaikaisten tenttitilaisuuksien maksimikapasiteetti ylitetty SV",
   "sitnet_error_max_enrolments_reached": "Tilaisuuteen ei voida ottaa enempää osallistujia SV",
-  "sitnet-skip-to-content": "Skip to content SV"
+  "sitnet-skip-to-content": "Skip to content SV",
+  "sitnet_byod_exam_search": "Omakonetentin tilaisuudet SV",
+  "sitnet_byod_exams": "Omakonetentit SV",
+  "sitnet_byod_exam_search_description": "Voit hakea omakonetenttitilaisuuksia rajaamalla halutun ajanjakson. 1. Valitse molemmat päivämäärät 2. Rajaa hakua tekstikentällä SV",
+  "sitnet_participants": "Osallistujamäärä SV"
 }

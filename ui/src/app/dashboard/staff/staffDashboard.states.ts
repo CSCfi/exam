@@ -39,6 +39,7 @@ import { SoftwareComponent } from '../../software/software.component';
 import { AdminDashboardComponent } from './admin/adminDashboard.component';
 import { StaffDashboardComponent } from './staffDashboard.component';
 import { TeacherDashboardComponent } from './teacher/teacherDashboard.component';
+import { ByodExamEventSearchComponent } from '../../exam/search/byodExamEventSearch.component';
 
 import type { Ng2StateDeclaration } from '@uirouter/angular';
 import type { Exam } from '../../exam/exam.model';
@@ -251,6 +252,11 @@ export const STAFF_STATES: Ng2StateDeclaration[] = [
         name: 'staff.collaborativeExams',
         url: '/exams/collaborative',
         component: CollaborativeExamListingComponent,
+    },
+    {
+        name: 'staff.byodExams',
+        url: '/exams/byod',
+        component: ByodExamEventSearchComponent,
     },
     {
         name: 'staff.assessment',

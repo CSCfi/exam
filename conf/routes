@@ -64,6 +64,7 @@ GET           /app/exam/printouts                                      controlle
 POST          /app/exam/:eid/examinationevents                          controllers.ExaminationEventController.insertExaminationEvent(eid: Long, request: Request)
 PUT           /app/exam/:eid/examinationevents/:eecid                   controllers.ExaminationEventController.updateExaminationEvent(eid: Long, eecid: Long, request: Request)
 DELETE        /app/exam/:eid/examinationevents/:eecid                   controllers.ExaminationEventController.removeExaminationEvent(eid: Long, eecid: Long)
+GET           /app/examinationevents                                    controllers.ExaminationEventController.listExaminationEvents(start: java.util.Optional[String], end: java.util.Optional[String])
 
 ############### Question review interface ###############
 GET           /app/exam/:id/questions                                  controllers.QuestionReviewController.getEssays(id: Long, ids: java.util.Optional[LongList], request: Request)

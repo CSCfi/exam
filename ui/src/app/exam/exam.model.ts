@@ -234,6 +234,7 @@ export interface ExaminationEvent {
 
 export interface ExaminationEventConfiguration {
     id?: number;
+    exam?: Exam;
     settingsPassword?: string;
     examinationEvent: ExaminationEvent;
     examEnrolments: ExamEnrolment[];

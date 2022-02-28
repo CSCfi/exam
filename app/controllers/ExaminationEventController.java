@@ -20,6 +20,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
+import io.ebean.text.PathProperties;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -30,6 +31,7 @@ import models.ExaminationEvent;
 import models.ExaminationEventConfiguration;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -249,5 +251,26 @@ public class ExaminationEventController extends BaseController {
             logger.error("unable to set settings password", e);
             throw new RuntimeException(e);
         }
+    }
+
+    @Restrict({ @Group("ADMIN") })
+    public Result listExaminationEvents(Optional<String> start, Optional<String> end) {
+        PathProperties pp = PathProperties.parse(
+            "(*, exam(*, course(*), examOwners(*)), examinationEvent(*), examEnrolments(*))"
+        );
+        ExpressionList<ExaminationEventConfiguration> query = Ebean
+            .find(ExaminationEventConfiguration.class)
+            .apply(pp)
+            .where();
+        if (start.isPresent()) {
+            DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
+            query = query.ge("examinationEvent.start", startDate.toDate());
+        }
+        if (end.isPresent()) {
+            DateTime endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser());
+            query = query.lt("examinationEvent.start", endDate.toDate());
+        }
+        Set<ExaminationEventConfiguration> exams = query.where().eq("exam.state", Exam.State.PUBLISHED).findSet();
+        return ok(exams);
     }
 }
