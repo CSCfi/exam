@@ -271,6 +271,6 @@ public class ExaminationEventController extends BaseController {
             query = query.lt("examinationEvent.start", endDate.toDate());
         }
         Set<ExaminationEventConfiguration> exams = query.where().eq("exam.state", Exam.State.PUBLISHED).findSet();
-        return ok(exams);
+        return ok(exams, pp);
     }
 }

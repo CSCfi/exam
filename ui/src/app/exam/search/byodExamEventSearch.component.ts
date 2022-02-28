@@ -66,7 +66,7 @@ export class ByodExamEventSearchComponent implements OnInit {
         if (this.endDate) {
             params.end = addDays(this.endDate, 1).toISOString();
         }
-        this.httpQuery(params).subscribe((resp: ExaminationEventConfiguration[]) => {
+        this.httpQuery$(params).subscribe((resp: ExaminationEventConfiguration[]) => {
             this.processedEvents = resp
                 .map((i: ExaminationEventConfiguration) =>
                     Object.assign(i, {
@@ -89,10 +89,8 @@ export class ByodExamEventSearchComponent implements OnInit {
         });
     };
 
-    httpQuery = (
-        params: { start?: string; end?: string } | { month?: string },
-    ): Observable<ExaminationEventConfiguration[]> =>
-        this.http.get<ExaminationEventConfiguration[]>('/app/examinationevents', { params: params as HttpParams });
+    httpQuery$ = (params: { start?: string; end?: string }): Observable<ExaminationEventConfiguration[]> =>
+        this.http.get<ExaminationEventConfiguration[]>('/app/examinationevents', { params: params });
 
     startDateChanged = (event: { date: Date | null }) => {
         this.startDate = event.date;

@@ -1018,5 +1018,6 @@
   "sitnet_byod_exam_search": "Omakonetentin tilaisuudet SV",
   "sitnet_byod_exams": "Omakonetentit SV",
   "sitnet_byod_exam_search_description": "Voit hakea omakonetenttitilaisuuksia rajaamalla halutun ajanjakson. 1. Valitse molemmat päivämäärät 2. Rajaa hakua tekstikentällä SV",
-  "sitnet_participants": "Osallistujamäärä SV"
+  "sitnet_participants": "Osallistujamäärä SV",
+  "sitnet_byod_only": "Näytä vain omakonetenttien varaukset SV"
 }
