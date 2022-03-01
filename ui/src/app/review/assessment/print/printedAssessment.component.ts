@@ -96,7 +96,7 @@ export class PrintedAssessmentComponent {
             } else {
                 this.http
                     .get<ExamParticipation[]>(
-                        `/integration/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
+                        `/app/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
                     )
                     .subscribe(this.handleParticipations);
             }
@@ -133,8 +133,7 @@ export class PrintedAssessmentComponent {
         this.Window.nativeWindow.setTimeout(() => this.Window.nativeWindow.print(), 2000);
     };
 
-    private getResource = (path: string) =>
-        this.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`;
+    private getResource = (path: string) => (this.collaborative ? `/app/iop/reviews/${path}` : `/app/review/${path}`);
 
     translateGrade = (participation: PreviousParticipation) =>
         !participation.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(participation.exam.grade.name);

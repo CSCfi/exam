@@ -237,8 +237,8 @@ export class SlotPickerComponent {
         const room = this.selectedRoom as ExamRoom;
         if (this.isExternal && this.organisation) {
             const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.uiRouter.params.id}/external/calendar/${room._id}`
-                : `/integration/iop/calendar/${this.uiRouter.params.id}/${room._id}`;
+                ? `/app/iop/exams/${this.uiRouter.params.id}/external/calendar/${room._id}`
+                : `/app/iop/calendar/${this.uiRouter.params.id}/${room._id}`;
             return this.http.get<AvailableSlot[]>(url, {
                 params: {
                     org: this.organisation._id,
@@ -247,7 +247,7 @@ export class SlotPickerComponent {
             });
         } else {
             const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.uiRouter.params.id}/calendar/${room.id}`
+                ? `/app/iop/exams/${this.uiRouter.params.id}/calendar/${room.id}`
                 : `/app/calendar/${this.uiRouter.params.id}/${room.id}`;
             const params = new HttpParams({
                 fromObject: { day: date, aids: accessibilityIds.map((i) => i.toString()) },
