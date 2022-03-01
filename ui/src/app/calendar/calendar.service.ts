@@ -18,6 +18,7 @@ import { StateService } from '@uirouter/core';
 import { addHours, parseISO } from 'date-fns';
 import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 
+import { MaintenancePeriod } from '../exam/exam.model';
 import { SessionService } from '../session/session.service';
 import { DateTimeService } from '../utility/date/date.service';
 
@@ -161,6 +162,8 @@ export class CalendarService {
             description: event.outOfService ? 'sitnet_closed' : 'sitnet_open',
         };
     }
+
+    listMaintenancePeriods$ = () => this.http.get<MaintenancePeriod[]>('/app/maintenance');
 
     getExceptionHours(
         room: ExamRoom,
