@@ -145,6 +145,9 @@ export class SessionService implements OnDestroy {
             else if (user.loginRole === 'TEACHER') state = 'staff.teacher';
             else state = 'staff.admin';
             this.state.go(state);
+        } else if (this.routing.current.name === '') {
+            // Hackish but will have to try
+            this.windowRef.nativeWindow.location.reload();
         }
     }
 
