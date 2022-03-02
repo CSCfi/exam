@@ -7,7 +7,9 @@ import { addHours, format, startOfWeek } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
 import * as toast from 'toastr';
 
+import { MaintenancePeriod } from '../../exam/exam.model';
 import { DateTimeService } from '../../utility/date/date.service';
+import { CalendarService } from '../calendar.service';
 
 import type { Organisation } from '../calendar.component';
 import type { SimpleChanges } from '@angular/core';
@@ -98,7 +100,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                     </div>
                 </div>
             </div>
-            <div class="row mart10">
+            <div class="row ml-1 mt-3">
                 <div class="dropdown" ngbDropdown>
                     <button
                         ngbDropdownToggle
@@ -128,7 +130,11 @@ type AvailableSlot = Slot & { availableMachines: number };
             </div>
             <div class="row mart10" *ngIf="selectedRoom">
                 <div class="col-md-12">
-                    <calendar-selected-room [room]="selectedRoom" [viewStart]="currentWeek"></calendar-selected-room>
+                    <calendar-selected-room
+                        [room]="selectedRoom"
+                        [viewStart]="currentWeek"
+                        [maintenancePeriods]="maintenancePeriods"
+                    ></calendar-selected-room>
                 </div>
             </div>
             <div class="row mart10" *ngIf="selectedRoom">
@@ -174,6 +180,7 @@ export class SlotPickerComponent {
     }>();
 
     rooms: FilterableRoom[] = [];
+    maintenancePeriods: MaintenancePeriod[] = [];
     selectedRoom?: ExamRoom;
     accessibilities: FilterableAccessibility[] = [];
     showAccessibilityMenu = false;
@@ -184,6 +191,7 @@ export class SlotPickerComponent {
         private http: HttpClient,
         private translate: TranslateService,
         private uiRouter: UIRouterGlobals,
+        private Calendar: CalendarService,
         private DateTime: DateTimeService,
     ) {}
 
@@ -195,6 +203,7 @@ export class SlotPickerComponent {
             const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false })).filter((r) => r.name);
             this.rooms = rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
         });
+        this.Calendar.listMaintenancePeriods$().subscribe((periods) => (this.maintenancePeriods = periods));
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -228,8 +237,8 @@ export class SlotPickerComponent {
         const room = this.selectedRoom as ExamRoom;
         if (this.isExternal && this.organisation) {
             const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.uiRouter.params.id}/external/calendar/${room._id}`
-                : `/integration/iop/calendar/${this.uiRouter.params.id}/${room._id}`;
+                ? `/app/iop/exams/${this.uiRouter.params.id}/external/calendar/${room._id}`
+                : `/app/iop/calendar/${this.uiRouter.params.id}/${room._id}`;
             return this.http.get<AvailableSlot[]>(url, {
                 params: {
                     org: this.organisation._id,
@@ -238,7 +247,7 @@ export class SlotPickerComponent {
             });
         } else {
             const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.uiRouter.params.id}/calendar/${room.id}`
+                ? `/app/iop/exams/${this.uiRouter.params.id}/calendar/${room.id}`
                 : `/app/calendar/${this.uiRouter.params.id}/${room.id}`;
             const params = new HttpParams({
                 fromObject: { day: date, aids: accessibilityIds.map((i) => i.toString()) },

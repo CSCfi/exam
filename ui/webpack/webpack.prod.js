@@ -18,7 +18,7 @@ common.module.rules.push(tsloader);
 
 module.exports = merge(common, {
     entry: ['./src/env/prod/main.ts'],
-    // devtool: 'source-map',
+    devtool: 'source-map',
     mode: 'production',
     output: {
         filename: '[name].[contenthash].js',

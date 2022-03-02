@@ -1019,5 +1019,8 @@
   "sitnet_byod_exams": "Omakonetentit",
   "sitnet_byod_exam_search_description": "Voit hakea omakonetenttitilaisuuksia rajaamalla halutun ajanjakson. 1. Valitse molemmat päivämäärät 2. Rajaa hakua tekstikentällä",
   "sitnet_participants": "Osallistujamäärä",
-  "sitnet_byod_only": "Näytä vain omakonetenttien varaukset"
+  "sitnet_byod_only": "Näytä vain omakonetenttien varaukset",
+  "sitnet_description": "Kuvaus",
+  "sitnet_maintenance_period": "Huoltokatko",
+  "sitnet_maintenance_periods": "Huoltokatkot"
 }

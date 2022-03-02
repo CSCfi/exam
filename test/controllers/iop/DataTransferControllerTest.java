@@ -107,7 +107,7 @@ public class DataTransferControllerTest extends IntegrationTestCase {
             .valueToTree(questions.stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet()));
         questions.forEach(q -> an.add(q.getId()));
         ObjectNode body = Json.newObject().put("type", "QUESTION").put("orgRef", ORG_REF).set("ids", an);
-        Result result = request(Helpers.POST, "/integration/iop/export", body);
+        Result result = request(Helpers.POST, "/app/iop/export", body);
         assertThat(result.status()).isEqualTo(201);
     }
 
@@ -131,7 +131,7 @@ public class DataTransferControllerTest extends IntegrationTestCase {
             .valueToTree(List.of(question).stream().map(GeneratedIdentityModel::getId).collect(Collectors.toSet()));
         an.add(question.getId());
         ObjectNode body = Json.newObject().put("type", "QUESTION").put("orgRef", ORG_REF).set("ids", an);
-        Result result = request(Helpers.POST, "/integration/iop/export", body);
+        Result result = request(Helpers.POST, "/app/iop/export", body);
         DataTransferAttachmentServlet.waiter.await(10000, 1);
         assertThat(result.status()).isEqualTo(201);
     }

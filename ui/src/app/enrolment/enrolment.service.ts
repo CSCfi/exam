@@ -22,13 +22,15 @@ import { forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { CollaborativeParticipation } from '../exam/collaborative/collaborativeExam.service';
+import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
 import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
 
 import type { Observable } from 'rxjs';
-import type { Exam, ExaminationEventConfiguration } from '../exam/exam.model';
+import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from '../exam/exam.model';
 import type { ExamRoom } from '../reservation/reservation.model';
 import type { User } from '../session/session.service';
 import type { EnrolmentInfo, ExamEnrolment, ReviewedExam } from './enrolment.model';
@@ -40,6 +42,7 @@ export class EnrolmentService {
         private State: StateService,
         private ngbModal: NgbModal,
         private Confirmation: ConfirmationDialogService,
+        private Session: SessionService,
     ) {}
 
     private getMaturityInstructions = (exam: Exam): Observable<string> => {
@@ -56,7 +59,7 @@ export class EnrolmentService {
     };
 
     private getResource = (path: string, collaborative: boolean) =>
-        (collaborative ? '/integration/iop/enrolments/' : '/app/enrolments/') + path;
+        (collaborative ? '/app/iop/enrolments/' : '/app/enrolments/') + path;
 
     selectExaminationEvent = (exam: Exam, enrolment: ExamEnrolment, nextState?: string) => {
         const modalRef = this.ngbModal.open(SelectExaminationEventDialogComponent, {
@@ -107,7 +110,7 @@ export class EnrolmentService {
         };
         const errorFn = (resp: { data: string }) => toast.error(resp.data);
         const url = externalRef
-            ? `/integration/iop/reservations/external/${externalRef}`
+            ? `/app/iop/reservations/external/${externalRef}`
             : `/app/calendar/reservation/${enrolment.reservation.id}`;
 
         dialog.result.then(() => this.http.delete(url).subscribe(successFn, errorFn));
@@ -226,6 +229,18 @@ export class EnrolmentService {
             switchMap(this.checkEnrolments),
         );
 
+    listStudentParticipations$ = (): Observable<CollaborativeParticipation[]> =>
+        this.http.get<CollaborativeParticipation[]>('/app/iop/student/finishedExams');
+
+    searchExams$ = (searchTerm: string): Observable<CollaborativeExam[]> => {
+        const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? encodeURIComponent(searchTerm) : '');
+        // This path is used to search from student view only
+        const path = this.Session.getUser().isStudent
+            ? `/app/iop/enrolment/search${paramStr}`
+            : `/app/iop/exams/search${paramStr}`;
+        return this.http.get<CollaborativeExam[]>(path);
+    };
+
     removeEnrolment = (enrolment: ExamEnrolment) => this.http.delete<void>(`/app/enrolments/${enrolment.id}`);
 
     addEnrolmentInformation = (enrolment: ExamEnrolment): void => {
@@ -263,7 +278,7 @@ export class EnrolmentService {
     };
 
     setCommentRead$(examId: string, examRef: string, revision: string) {
-        const url = `/integration/iop/reviews/${examId}/${examRef}/comment`;
+        const url = `/app/iop/reviews/${examId}/${examRef}/comment`;
         return this.http.post(url, { rev: revision });
     }
 

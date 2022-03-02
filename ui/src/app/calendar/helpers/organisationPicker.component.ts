@@ -86,7 +86,7 @@ export class OrganisationPickerComponent {
 
     ngOnInit() {
         this.http
-            .get<Organisation[]>('/integration/iop/organisations')
+            .get<Organisation[]>('/app/iop/organisations')
             .subscribe(
                 (resp) => (this.organisations = resp.filter((org) => !org.homeOrg && org.facilities.length > 0)),
             );

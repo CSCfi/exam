@@ -23,6 +23,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -36,9 +37,7 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
     @JsonBackReference
     private Exam exam;
 
-    @ManyToOne
-    @JoinColumn(name = "examination_event_id")
-    @JsonBackReference
+    @OneToOne
     private ExaminationEvent examinationEvent;
 
     @OneToMany(mappedBy = "examinationEventConfiguration")

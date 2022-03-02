@@ -353,3 +353,10 @@ export enum ClaimChoiceOptionType {
     IncorrectOption = 'IncorrectOption',
     SkipOption = 'SkipOption',
 }
+
+export type MaintenancePeriod = {
+    id?: number;
+    startsAt: string;
+    endsAt: string;
+    description: string;
+};
