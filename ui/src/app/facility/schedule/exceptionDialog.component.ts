@@ -6,7 +6,6 @@ import * as toast from 'toastr';
 
 @Component({
     templateUrl: './exceptionDialog.component.html',
-    selector: 'exception-dialog',
 })
 export class ExceptionDialogComponent {
     dateOptions = {

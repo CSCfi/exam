@@ -77,7 +77,7 @@ export class GeneralInfoComponent {
         if (this.collaborative) {
             this.http
                 .get<ExamParticipation[]>(
-                    `/integration/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
+                    `/app/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
                 )
                 .subscribe(this.handleParticipations);
         } else {

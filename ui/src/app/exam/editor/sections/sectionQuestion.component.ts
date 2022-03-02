@@ -93,8 +93,7 @@ export class SectionQuestionComponent {
             }
         });
 
-    private getResource = (url: string) =>
-        this.collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
+    private getResource = (url: string) => (this.collaborative ? url.replace('/app/exams/', '/app/iop/exams/') : url);
 
     private openBaseQuestionEditor = () => {
         const modal = this.modal.open(BaseQuestionEditorComponent, {
@@ -127,7 +126,7 @@ export class SectionQuestionComponent {
                         }
                         if (attachment.modified && attachment.file) {
                             this.Files.upload(
-                                '/integration/iop/attachment/question',
+                                '/app/iop/attachment/question',
                                 attachment.file,
                                 { examId: this.examId.toString(), questionId: this.sectionQuestion.id.toString() },
                                 this.sectionQuestion.question,

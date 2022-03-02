@@ -76,7 +76,7 @@ export class FeedbackComponent {
         this.Attachment.selectFile(false, {}).then((res: FileResult) => {
             if (this.collaborative) {
                 this._saveCollaborativeFeedback$().subscribe(() => {
-                    const url = `/integration/iop/attachment/exam/${this.routing.params.id}/${this.routing.params.ref}/feedback`;
+                    const url = `/app/iop/attachment/exam/${this.routing.params.id}/${this.routing.params.ref}/feedback`;
                     this._upload(res, url);
                 });
             } else {
@@ -100,7 +100,7 @@ export class FeedbackComponent {
 
     removeFeedbackAttachment = () => {
         if (this.collaborative) {
-            this.Attachment.removeExternalFeedbackAttachment(
+            this.Attachment.removeCollaborativeExamFeedbackAttachment(
                 this.routing.params.id,
                 this.routing.params.ref,
                 this.participation,
