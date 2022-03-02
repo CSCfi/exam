@@ -7,6 +7,7 @@ import { cloneDeep } from 'lodash';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { MaintenancePeriod } from '../../exam/exam.model';
 import { DateTimeService } from '../../utility/date/date.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { ExceptionDialogComponent } from '../schedule/exceptionDialog.component';
@@ -313,4 +314,10 @@ export class RoomService {
             }),
         );
     };
+
+    listMaintenancePeriods$ = () => this.http.get<MaintenancePeriod[]>('/app/maintenance');
+    createMaintenancePeriod$ = (period: MaintenancePeriod) =>
+        this.http.post<MaintenancePeriod>('/app/maintenance', period);
+    updateMaintenancePeriod$ = (period: MaintenancePeriod) => this.http.put(`/app/maintenance/${period.id}`, period);
+    removeMaintenancePeriod$ = (period: MaintenancePeriod) => this.http.delete(`/app/maintenance/${period.id}`);
 }

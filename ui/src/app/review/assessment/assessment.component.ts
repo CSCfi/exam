@@ -134,7 +134,7 @@ export class AssessmentComponent {
                     state,
                     this.participation._rev as string,
                 );
-                const url = `/integration/iop/reviews/${this.routing.params.id}/${this.routing.params.ref}`;
+                const url = `/app/iop/reviews/${this.routing.params.id}/${this.routing.params.ref}`;
                 this.http.put<{ rev: string }>(url, review).subscribe((resp) => {
                     this.participation._rev = resp.rev;
                     this.exam.state = state;
@@ -143,6 +143,5 @@ export class AssessmentComponent {
         }
     };
 
-    private getResource = (path: string) =>
-        this.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`;
+    private getResource = (path: string) => (this.collaborative ? `/app/iop/reviews/${path}` : `/app/review/${path}`);
 }

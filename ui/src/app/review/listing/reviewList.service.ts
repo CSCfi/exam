@@ -164,7 +164,7 @@ export class ReviewListService {
                 rev: review._rev,
             };
             if (examId) {
-                const url = `/integration/iop/reviews/${examId}/${review._id}/record`;
+                const url = `/app/iop/reviews/${examId}/${review._id}/record`;
                 return this.http
                     .put<ExamParticipation & { rev: string }>(url, examToRecord)
                     .pipe(map((resp) => ({ ...review, _rev: resp.rev })));
@@ -185,5 +185,5 @@ export class ReviewListService {
         this.http.get<ExamParticipation[]>(this.getResource(examId, collaborative)).toPromise();
 
     private getResource = (examId: number, collaborative: boolean) =>
-        collaborative ? `/integration/iop/reviews/${examId}` : `/app/reviews/${examId}`;
+        collaborative ? `/app/iop/reviews/${examId}` : `/app/reviews/${examId}`;
 }

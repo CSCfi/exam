@@ -18,7 +18,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import type { ExaminationEventConfiguration } from '../../exam.model';
+import type { ExaminationEventConfiguration, MaintenancePeriod } from '../../exam.model';
 import type { OnInit } from '@angular/core';
 
 @Component({
@@ -27,6 +27,7 @@ import type { OnInit } from '@angular/core';
 })
 export class ExaminationEventDialogComponent implements OnInit {
     @Input() config?: ExaminationEventConfiguration;
+    @Input() maintenancePeriods: MaintenancePeriod[] = [];
     @Input() requiresPassword = false;
     start = new Date();
     description = '';

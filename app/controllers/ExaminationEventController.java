@@ -20,6 +20,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
+import io.ebean.text.PathProperties;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -28,8 +29,11 @@ import models.Exam;
 import models.ExaminationDate;
 import models.ExaminationEvent;
 import models.ExaminationEventConfiguration;
+import models.calendar.MaintenancePeriod;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.LocalDate;
+import org.joda.time.format.ISODateTimeFormat;
 import play.Logger;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -78,14 +82,11 @@ public class ExaminationEventController extends BaseController {
 
     // <--
     private DateTime getEventEnding(ExaminationEvent ee) {
-        ExaminationEventConfiguration config = ee.getExaminationEventConfigurations().isEmpty()
-            ? null
-            : ee.getExaminationEventConfigurations().iterator().next();
+        ExaminationEventConfiguration config = ee.getExaminationEventConfiguration();
         if (config == null) {
             return ee.getStart();
         }
-        DateTime dt = ee.getStart().plusMinutes(config.getExam().getDuration());
-        return dt;
+        return ee.getStart().plusMinutes(config.getExam().getDuration());
     }
 
     private int getParticipantUpperBound(DateTime start, DateTime end, Long id) {
@@ -99,6 +100,15 @@ public class ExaminationEventController extends BaseController {
             .filter(ee -> !getEventEnding(ee).isBefore(start))
             .mapToInt(ExaminationEvent::getCapacity)
             .sum();
+    }
+
+    private boolean isWithinMaintenancePeriod(Interval interval) {
+        return Ebean
+            .find(MaintenancePeriod.class)
+            .findSet()
+            .stream()
+            .map(p -> new Interval(p.getStartsAt(), p.getEndsAt()))
+            .anyMatch(i -> i.overlaps(interval));
     }
 
     @With(ExaminationEventSanitizer.class)
@@ -117,6 +127,9 @@ public class ExaminationEventController extends BaseController {
             return forbidden("start occasion in the past");
         }
         DateTime end = start.plusMinutes(exam.getDuration());
+        if (isWithinMaintenancePeriod(new Interval(start, end))) {
+            return forbidden("conflicts with maintenance period");
+        }
         int ub = getParticipantUpperBound(start, end, null);
         int capacity = request.attrs().get(Attrs.CAPACITY);
         if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {
@@ -152,7 +165,7 @@ public class ExaminationEventController extends BaseController {
             .idEq(eecid)
             .eq("exam.id", eid)
             .findOneOrEmpty();
-        if (oeec.isEmpty()) {
+        if (exam == null || oeec.isEmpty()) {
             return notFound("event not found");
         }
         ExaminationEventConfiguration eec = oeec.get();
@@ -170,6 +183,9 @@ public class ExaminationEventController extends BaseController {
             ee.setStart(start);
         }
         DateTime end = start.plusMinutes(exam.getDuration());
+        if (isWithinMaintenancePeriod(new Interval(start, end))) {
+            return forbidden("conflicts with maintenance period");
+        }
         int ub = getParticipantUpperBound(start, end, ee.getId());
         int capacity = request.attrs().get(Attrs.CAPACITY);
         if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {
@@ -249,5 +265,26 @@ public class ExaminationEventController extends BaseController {
             logger.error("unable to set settings password", e);
             throw new RuntimeException(e);
         }
+    }
+
+    @Restrict({ @Group("ADMIN") })
+    public Result listExaminationEvents(Optional<String> start, Optional<String> end) {
+        PathProperties pp = PathProperties.parse(
+            "(*, exam(*, course(*), examOwners(*)), examinationEvent(*), examEnrolments(*))"
+        );
+        ExpressionList<ExaminationEventConfiguration> query = Ebean
+            .find(ExaminationEventConfiguration.class)
+            .apply(pp)
+            .where();
+        if (start.isPresent()) {
+            DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
+            query = query.ge("examinationEvent.start", startDate.toDate());
+        }
+        if (end.isPresent()) {
+            DateTime endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser());
+            query = query.lt("examinationEvent.start", endDate.toDate());
+        }
+        Set<ExaminationEventConfiguration> exams = query.where().eq("exam.state", Exam.State.PUBLISHED).findSet();
+        return ok(exams, pp);
     }
 }

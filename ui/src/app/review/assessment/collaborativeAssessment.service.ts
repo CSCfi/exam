@@ -56,7 +56,7 @@ export class CollaborativeAssesmentService {
         participation: ExamParticipation,
     ): Observable<ExamParticipation> => {
         if (participation.exam.state === 'GRADED_LOGGED') {
-            const url = `/integration/iop/reviews/${examId}/${examRef}/info`;
+            const url = `/app/iop/reviews/${examId}/${examRef}/info`;
             return this.http.put<{ rev: string }>(url, { assessmentInfo: participation.exam.assessmentInfo }).pipe(
                 tap(() => toast.info(this.translate.instant('sitnet_saved'))),
                 map((data) => {
@@ -69,7 +69,7 @@ export class CollaborativeAssesmentService {
     };
 
     sendEmailMessage$ = (examId: number, examRef: string, message: string): Observable<void> => {
-        const url = `/integration/iop/reviews/${examId}/${examRef}/mail`;
+        const url = `/app/iop/reviews/${examId}/${examRef}/mail`;
         return this.http.post<void>(url, { msg: message });
     };
 
@@ -78,7 +78,7 @@ export class CollaborativeAssesmentService {
             rev: participation._rev,
             comment: participation.exam.examFeedback?.comment,
         };
-        const url = `/integration/iop/reviews/${examId}/${examRef}/comment`;
+        const url = `/app/iop/reviews/${examId}/${examRef}/comment`;
         return this.http.put<{ rev: string }>(url, payload).pipe(
             tap(() => toast.info(this.translate.instant('sitnet_comment_added'))),
             map((data) => {
@@ -110,7 +110,7 @@ export class CollaborativeAssesmentService {
         examId: number,
         examRef: string,
     ) => {
-        const url = `/integration/iop/reviews/${examId}/${examRef}`;
+        const url = `/app/iop/reviews/${examId}/${examRef}`;
         this.http.put<{ rev: string }>(url, payload).subscribe(
             (data) => {
                 participation._rev = data.rev;
@@ -167,7 +167,7 @@ export class CollaborativeAssesmentService {
 
     private sendToRegistry = (payload: Payload, examId: number, ref: string, participation: ExamParticipation) => {
         payload.state = 'GRADED_LOGGED';
-        const url = `/integration/iop/reviews/${examId}/${ref}/record`;
+        const url = `/app/iop/reviews/${examId}/${ref}/record`;
         this.http.put<{ rev: string }>(url, payload).subscribe(
             (data) => {
                 participation._rev = data.rev;
@@ -183,7 +183,7 @@ export class CollaborativeAssesmentService {
         this.saveFeedback$(examId, ref, participation).subscribe(
             () => {
                 payload.rev = participation._rev as string;
-                const url = `/integration/iop/reviews/${examId}/${ref}`;
+                const url = `/app/iop/reviews/${examId}/${ref}`;
                 this.http.put<{ rev: string }>(url, payload).subscribe(
                     (data) => {
                         payload.rev = participation._rev = data.rev;

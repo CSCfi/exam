@@ -39,7 +39,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
 
 @NgModule({
     imports: [BrowserAnimationsModule, NgbModule, UIRouterModule, UtilityModule],
-    exports: [ActiveEnrolmentComponent],
+    exports: [ActiveEnrolmentComponent, ExamSearchResultComponent],
     declarations: [
         ActiveEnrolmentComponent,
         EnrolmentDetailsComponent,

@@ -17,7 +17,6 @@ import { isObject } from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
 
-import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
 import { EnrolmentService } from '../enrolment.service';
 
 import type { OnInit } from '@angular/core';
@@ -34,7 +33,7 @@ export class CollaborativeExamSearchComponent implements OnInit {
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
 
-    constructor(private Enrolment: EnrolmentService, private CollaborativeExam: CollaborativeExamService) {
+    constructor(private Enrolment: EnrolmentService) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(this.doSearch);
@@ -59,7 +58,7 @@ export class CollaborativeExamSearchComponent implements OnInit {
         this.filter.text = text;
         this.loader = { loading: true };
 
-        this.CollaborativeExam.searchExams$(text)
+        this.Enrolment.searchExams$(text)
             .pipe(
                 tap((exams) => this.updateExamList(exams)),
                 finalize(() => (this.loader = { loading: false })),

@@ -45,12 +45,12 @@ export class AttachmentService {
 
     private questionAttachmentApi = (id: number) => `/app/attachment/question/${id}`;
     private collaborativeQuestionAttachmentApi = (eid: number, qid: number) =>
-        `/integration/iop/attachment/exam/${eid}/question/${qid}`;
+        `/app/iop/collab/attachment/exam/${eid}/question/${qid}`;
     private answerAttachmentApi = (qid: number) => `/app/attachment/question/${qid}/answer`;
     private externalAnswerAttachmentApi = (qid: number, hash: string) =>
         `/app/iop/attachment/question/${qid}/answer/${hash}`;
     private examAttachmentApi = (id: number) => `/app/attachment/exam/${id}`;
-    private collaborativeExamAttachmentApi = (id: number) => `/integration/iop/attachment/exam/${id}`;
+    private collaborativeExamAttachmentApi = (id: number) => `/app/iop/collab/attachment/exam/${id}`;
     private feedbackAttachmentApi = (id: number) => `/app/attachment/exam/${id}/feedback`;
     private statementAttachmentApi = (id: number) => `/app/attachment/exam/${id}/statement`;
 
@@ -58,7 +58,7 @@ export class AttachmentService {
         return external
             ? url.replace('/app/', '/app/iop/')
             : collaborative
-            ? url.replace('/app/', '/integration/iop/')
+            ? url.replace('/app/', '/app/iop/collab/')
             : url;
     }
 
@@ -146,13 +146,13 @@ export class AttachmentService {
         });
     }
 
-    removeExternalFeedbackAttachment = (id: string, ref: string, participation: ExamParticipation) => {
+    removeCollaborativeExamFeedbackAttachment = (id: string, ref: string, participation: ExamParticipation) => {
         const dialog = this.dialogs.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_are_you_sure'),
         );
         dialog.result.then(() => {
-            this.http.delete<{ rev: string }>(`/integration/iop/attachment/exam/${id}/${ref}/feedback`).subscribe(
+            this.http.delete<{ rev: string }>(`/app/iop/collab/attachment/exam/${id}/${ref}/feedback`).subscribe(
                 (resp) => {
                     toast.info(this.translate.instant('sitnet_attachment_removed'));
                     participation._rev = resp.rev;
@@ -197,7 +197,7 @@ export class AttachmentService {
     downloadCollaborativeQuestionAttachment(examId: number, sq: ExamSectionQuestion) {
         if (sq.question.attachment && sq.question.attachment.externalId) {
             this.Files.download(
-                `/integration/iop/attachment/exam/${examId}/question/${sq.id}`,
+                `/app/iop/collab/attachment/exam/${examId}/question/${sq.id}`,
                 sq.question.attachment.fileName,
             );
         }
@@ -213,7 +213,7 @@ export class AttachmentService {
     }
 
     downloadCollaborativeAttachment(id: string, fileName: string) {
-        this.Files.download(`/integration/iop/attachment/${id}`, fileName);
+        this.Files.download(`/app/iop/collab/attachment/${id}`, fileName);
     }
 
     downloadExamAttachment(exam: Exam, collaborative = false) {

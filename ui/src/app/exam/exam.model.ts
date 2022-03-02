@@ -235,6 +235,7 @@ export interface ExaminationEvent {
 export interface ExaminationEventConfiguration {
     id?: number;
     settingsPassword?: string;
+    exam: Exam;
     examinationEvent: ExaminationEvent;
     examEnrolments: ExamEnrolment[];
 }
@@ -352,3 +353,10 @@ export enum ClaimChoiceOptionType {
     IncorrectOption = 'IncorrectOption',
     SkipOption = 'SkipOption',
 }
+
+export type MaintenancePeriod = {
+    id?: number;
+    startsAt: string;
+    endsAt: string;
+    description: string;
+};
