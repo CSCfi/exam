@@ -11,6 +11,8 @@ public interface ConfigReader {
     String getHostName();
     Integer getMaxFileSize();
     List<Integer> getExamDurations();
+    Integer getExamMaxDuration();
+    Integer getExamMinDuration();
     Map<Role, List<String>> getRoleMapping();
     boolean isCourseGradeScaleOverridable();
     boolean isEnrolmentPermissionCheckActive();

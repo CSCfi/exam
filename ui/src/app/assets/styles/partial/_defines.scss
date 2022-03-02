@@ -495,6 +495,10 @@ $sitnet-icon-size: 32px;
   line-height: 1.8em;
 }
 
+.rotate90 {
+  transform: rotate(90deg);
+}
+
 .light-table {
   border: 0;
   font-size: 0.9em;

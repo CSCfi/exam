@@ -18,7 +18,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { format, parseISO } from 'date-fns';
-import { isBoolean, isEmpty } from 'lodash';
+import { isBoolean, isEmpty, toNumber } from 'lodash';
 import { throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -57,6 +57,12 @@ export class ExamPublicationComponent implements OnInit {
     examDurations: number[] = [];
     maintenancePeriods: MaintenancePeriod[] = [];
     visibleParticipantSelector = 'participant';
+    timeValue?: number;
+    hourValue?: number;
+    minuteValue?: number;
+    maxDuration = 300; //DEFAULT
+    minDuration = 1; //DEFAULT
+    showCustomTimeField = false;
 
     constructor(
         private http: HttpClient,
@@ -77,6 +83,14 @@ export class ExamPublicationComponent implements OnInit {
         this.autoEvaluation = { enabled: !!this.exam.autoEvaluationConfig };
         this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe(
             (data) => (this.examDurations = data.examDurations),
+            (error) => toast.error(error),
+        );
+        this.http.get<{ maxDuration: number }>('/app/settings/maxDuration').subscribe(
+            (data) => (this.maxDuration = data.maxDuration),
+            (error) => toast.error(error),
+        );
+        this.http.get<{ minDuration: number }>('/app/settings/minDuration').subscribe(
+            (data) => (this.minDuration = data.minDuration),
             (error) => toast.error(error),
         );
         if (this.exam.implementation !== 'AQUARIUM') {
@@ -102,6 +116,10 @@ export class ExamPublicationComponent implements OnInit {
                 .subscribe((date) => this.exam.examinationDates.push(date));
         }
     };
+
+    toggleCustomTimeField() {
+        this.showCustomTimeField = !this.showCustomTimeField;
+    }
 
     removeExaminationDate = (date: ExaminationDate) => {
         this.http.delete(`/app/exam/${this.exam.id}/examinationdate/${date.id}`).subscribe(() => {
@@ -156,11 +174,33 @@ export class ExamPublicationComponent implements OnInit {
 
     updateExam = () => this.updateExam$().subscribe();
 
-    setExamDuration = (duration: number) => {
-        this.exam.duration = duration;
-        this.updateExam$().subscribe();
+    setExamDuration = (hours?: number, minutes?: number) => {
+        // Fix undefined values
+        const fixHour = hours || 0;
+        const fixMinutes = minutes || 0;
+        const duration = fixHour * 60 + fixMinutes;
+        if (duration < this.minDuration || duration > this.maxDuration) {
+            toast.warning(this.translate.instant('DIALOGS_ERROR'));
+            return null;
+        }
+        this.updateExam$().subscribe(() => (this.exam.duration = duration));
     };
 
+    setHourValue = (event: Event) => {
+        this.hourValue = toNumber((event.target as HTMLInputElement).value);
+    };
+    setMinuteValue = (event: Event) => {
+        this.minuteValue = toNumber((event.target as HTMLInputElement).value);
+    };
+
+    toHoursAndMinutes = (minutes: number): string => {
+        const hours = minutes / 60;
+        const fullHours = Math.floor(hours);
+        const spareMinutes = Math.round((hours - fullHours) * 60);
+        const hourString = fullHours + ' ' + this.translate.instant('sitnet_hours');
+        const minuteString = spareMinutes + ' ' + this.translate.instant('sitnet_minutes');
+        return (fullHours > 0 ? hourString : '') + ' ' + (spareMinutes > 0 ? minuteString : '') + ' (' + minutes + ')';
+    };
     checkDuration = (duration: number) => (this.exam.duration === duration ? 'btn-primary' : '');
 
     range = (min: number, max: number, step = 1) => {

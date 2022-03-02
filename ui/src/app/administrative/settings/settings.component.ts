@@ -7,6 +7,8 @@ import type { OnInit } from '@angular/core';
 export interface AppConfig {
     eula: string;
     examDurations: number[];
+    examMaxDuration: number;
+    examMinDuration: number;
     expirationPeriod: string;
     anonymousReviewEnabled: boolean;
     hasCourseSearchIntegration: boolean;
