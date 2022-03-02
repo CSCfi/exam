@@ -28,7 +28,9 @@ import models.Exam;
 import models.ExaminationDate;
 import models.ExaminationEvent;
 import models.ExaminationEventConfiguration;
+import models.calendar.MaintenancePeriod;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import play.Logger;
 import play.mvc.Http;
@@ -78,14 +80,11 @@ public class ExaminationEventController extends BaseController {
 
     // <--
     private DateTime getEventEnding(ExaminationEvent ee) {
-        ExaminationEventConfiguration config = ee.getExaminationEventConfigurations().isEmpty()
-            ? null
-            : ee.getExaminationEventConfigurations().iterator().next();
+        ExaminationEventConfiguration config = ee.getExaminationEventConfiguration();
         if (config == null) {
             return ee.getStart();
         }
-        DateTime dt = ee.getStart().plusMinutes(config.getExam().getDuration());
-        return dt;
+        return ee.getStart().plusMinutes(config.getExam().getDuration());
     }
 
     private int getParticipantUpperBound(DateTime start, DateTime end, Long id) {
@@ -99,6 +98,15 @@ public class ExaminationEventController extends BaseController {
             .filter(ee -> !getEventEnding(ee).isBefore(start))
             .mapToInt(ExaminationEvent::getCapacity)
             .sum();
+    }
+
+    private boolean isWithinMaintenancePeriod(Interval interval) {
+        return Ebean
+            .find(MaintenancePeriod.class)
+            .findSet()
+            .stream()
+            .map(p -> new Interval(p.getStartsAt(), p.getEndsAt()))
+            .anyMatch(i -> i.overlaps(interval));
     }
 
     @With(ExaminationEventSanitizer.class)
@@ -117,6 +125,9 @@ public class ExaminationEventController extends BaseController {
             return forbidden("start occasion in the past");
         }
         DateTime end = start.plusMinutes(exam.getDuration());
+        if (isWithinMaintenancePeriod(new Interval(start, end))) {
+            return forbidden("conflicts with maintenance period");
+        }
         int ub = getParticipantUpperBound(start, end, null);
         int capacity = request.attrs().get(Attrs.CAPACITY);
         if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {
@@ -152,7 +163,7 @@ public class ExaminationEventController extends BaseController {
             .idEq(eecid)
             .eq("exam.id", eid)
             .findOneOrEmpty();
-        if (oeec.isEmpty()) {
+        if (exam == null || oeec.isEmpty()) {
             return notFound("event not found");
         }
         ExaminationEventConfiguration eec = oeec.get();
@@ -170,6 +181,9 @@ public class ExaminationEventController extends BaseController {
             ee.setStart(start);
         }
         DateTime end = start.plusMinutes(exam.getDuration());
+        if (isWithinMaintenancePeriod(new Interval(start, end))) {
+            return forbidden("conflicts with maintenance period");
+        }
         int ub = getParticipantUpperBound(start, end, ee.getId());
         int capacity = request.attrs().get(Attrs.CAPACITY);
         if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {

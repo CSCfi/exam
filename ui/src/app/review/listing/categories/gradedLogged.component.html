@@ -261,7 +261,7 @@
 <div *ngIf="view.toggle && view.filtered.length > 0">
     <!-- Buttons -->
     <div class="padl0 padr0 marb20 w-100 d-flex justify-content-between align-items-center">
-        <div *ngIf="!collaborative">
+        <div>
             <div class="speed-review-csv mb-2">
                 <a class="pointer" (click)="printSelected(false)">{{ 'sitnet_print_selected_to_file' | translate }}</a>
             </div>
@@ -270,7 +270,7 @@
             </div>
         </div>
 
-        <div *ngIf="!collaborative">
+        <div>
             <div class="review-attachment-button make-inline">
                 <a class="pointer" (click)="archiveSelected()">
                     {{ 'sitnet_archive_selected' | translate }}

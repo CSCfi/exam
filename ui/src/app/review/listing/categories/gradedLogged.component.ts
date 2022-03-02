@@ -103,7 +103,7 @@ export class GradedLoggedReviewsComponent {
         if (selection.length == 0) {
             return;
         }
-        let url = this.collaborative ? '/integration/iop/reviews/' : '/app/exam/record/export/';
+        let url = this.collaborative ? '/app/iop/reviews/' : '/app/exam/record/export/';
         if (asReport) {
             url += 'report/';
         }

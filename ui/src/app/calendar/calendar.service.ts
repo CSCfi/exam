@@ -18,6 +18,7 @@ import { StateService } from '@uirouter/core';
 import { addHours, parseISO } from 'date-fns';
 import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 
+import { MaintenancePeriod } from '../exam/exam.model';
 import { SessionService } from '../session/session.service';
 import { DateTimeService } from '../utility/date/date.service';
 
@@ -67,14 +68,12 @@ export class CalendarService {
 
     private reserveInternal$ = (slot: Slot, accs: Accessibility[], collaborative: boolean): Observable<void> => {
         slot.aids = accs.map((item) => item.id);
-        const url = collaborative ? '/integration/iop/calendar/reservation' : '/app/calendar/reservation';
+        const url = collaborative ? '/app/iop/calendar/reservation' : '/app/calendar/reservation';
         return this.http.post<void>(url, slot);
     };
 
     private reserveExternal$ = (slot: Slot, collaborative = false) => {
-        const url = collaborative
-            ? '/integration/iop/calendar/external/reservation'
-            : '/integration/iop/reservations/external';
+        const url = collaborative ? '/app/iop/calendar/external/reservation' : '/app/iop/reservations/external';
         return this.http.post<void>(url, slot);
     };
 
@@ -163,6 +162,8 @@ export class CalendarService {
             description: event.outOfService ? 'sitnet_closed' : 'sitnet_open',
         };
     }
+
+    listMaintenancePeriods$ = () => this.http.get<MaintenancePeriod[]>('/app/maintenance');
 
     getExceptionHours(
         room: ExamRoom,
