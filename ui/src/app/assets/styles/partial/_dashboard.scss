@@ -17,6 +17,36 @@
     }  
   }
 
+  .mar-lr-0{
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .search-list-wrapper {
+    padding: 3em;
+    @media (max-width: $sitnet-mobile) {
+    padding: 5px;
+    }
+  }
+
+  .student-enrolment-result-wrapper {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: repeat(3, auto);
+    gap: 15px;
+    border-radius: 4px;
+    border: 2px solid #EDEDED;
+    border-left: $sitnet-medium-green-new 4px solid;
+    padding: 30px;
+    margin-bottom: 6px;
+    @media (max-width: $sitnet-mobile) {
+      grid-template-columns: auto 1fr;
+      grid-template-rows: repeat(3, auto);
+      gap: 5px;
+      padding: 5px;
+    }
+  }
+
   .student-enrolment-wrapper {
     border-radius: 4px;
     background: white;
@@ -24,8 +54,10 @@
     border-left: $sitnet-medium-green-new 4px solid;
     margin-left: 1.4em;
     margin-right: 1.4em;
+    margin-bottom: 25px;
     @media (max-width: $sitnet-mobile) {
-      padding: 10px;
+      padding: 5px;
+      margin-bottom: 5px;
     }
     padding: 30px;
 
@@ -96,8 +128,6 @@
 
   .question-review-info {
     @extend .row;
-    margin-left: 1.4em;
-    margin-right: 1.4em;
     margin-bottom: 10px;
 
     img {
@@ -126,7 +156,6 @@
   }
 
   .essay-question-review-wrapper {
-    margin-right: -15px;
     padding-bottom: 30px;
   }
 
@@ -730,7 +759,6 @@
       margin-right: 20px;
       @media (max-width: $sitnet-mobile) {
         padding: 10px;
-        margin-right: 10px;
       }
     }
   }

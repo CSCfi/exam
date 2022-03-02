@@ -1,6 +1,6 @@
 <nav aria-label="side navigation" *ngIf="user" id="vmenu" class="hidden-print">
     <a class="skip-main" id="skip-button-main" [href]="getSkipLinkPath('#mainView')">{{
-        'sitnet-skip-to-content' | translate
+        'sitnet_skip_to_content' | translate
     }}</a>
     <div class="nav-container">
         <div class="nav-header">
@@ -49,7 +49,7 @@
                         }}</span>
                     </a>
                     <a class="skip" id="skip-button" [hidden]="!isActive(link)" [href]="getSkipLinkPath('#mainView')">{{
-                        'sitnet-skip-to-content' | translate
+                        'sitnet_skip_to_content' | translate
                     }}</a>
                     <ul class="submenu" [hidden]="!link.submenu.hidden">
                         <li
@@ -72,7 +72,7 @@
                                 id="skip-button"
                                 [hidden]="!isActive(subitem)"
                                 [href]="getSkipLinkPath('#mainView')"
-                                >{{ 'sitnet-skip-to-content' | translate }}</a
+                                >{{ 'sitnet_skip_to_content' | translate }}</a
                             >
                         </li>
                     </ul>
