@@ -19,7 +19,7 @@ import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import { format, parseISO } from 'date-fns';
 import * as toast from 'toastr';
 
-import { InteroperabilityResourceService } from './interoperabilityResource.service';
+import { InteroperabilityService } from './interoperability.service';
 import { RoomService } from './room.service';
 import { SettingsResourceService } from './settingsResource';
 
@@ -46,7 +46,7 @@ export class RoomComponent implements OnInit {
         private routing: UIRouterGlobals,
         private roomService: RoomService,
         private settings: SettingsResourceService,
-        private interoperability: InteroperabilityResourceService,
+        private interoperability: InteroperabilityService,
     ) {}
 
     ngOnInit() {
@@ -152,7 +152,7 @@ export class RoomComponent implements OnInit {
     };
 
     updateInteroperability = () => {
-        this.interoperability.updateFacility(this.room).subscribe(
+        this.interoperability.updateFacility$(this.room).subscribe(
             (data) => {
                 this.room.externalRef = data.externalRef;
                 this.room.availableForExternals = data.externalRef !== null;

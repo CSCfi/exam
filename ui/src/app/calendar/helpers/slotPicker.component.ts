@@ -7,7 +7,9 @@ import { addHours, format, startOfWeek } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
 import * as toast from 'toastr';
 
+import { MaintenancePeriod } from '../../exam/exam.model';
 import { DateTimeService } from '../../utility/date/date.service';
+import { CalendarService } from '../calendar.service';
 
 import type { Organisation } from '../calendar.component';
 import type { SimpleChanges } from '@angular/core';
@@ -47,15 +49,14 @@ type AvailableSlot = Slot & { availableMachines: number };
             </div>
             <div class="row mt-2 mb-2">
                 <!-- todo: make this a component -->
-                <div class="col-md-12" [hidden]="isExternal">
+                <div class="col-md-12 mart10 marb20" [hidden]="isExternal">
                     <div class="row">
                         <span class="col-md-12">
-                            <a
-                                class="infolink pointer"
+                            <button
+                                class="infolink pointer border rounded"
                                 *ngIf="!disabled"
                                 tabindex="0"
                                 (click)="showAccessibilityMenu = !showAccessibilityMenu"
-                                (keyup.enter)="showAccessibilityMenu = !showAccessibilityMenu"
                             >
                                 {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                                 <img
@@ -70,7 +71,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                                     alt="hide accessibility selection"
                                     src="/assets/assets/images/arrow_down.png"
                                 />
-                            </a>
+                            </button>
                             <span *ngIf="disabled" class="text text-muted">
                                 {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                             </span>
@@ -83,7 +84,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                             </div>
                             <div class="row" [hidden]="!showAccessibilityMenu">
                                 <div class="col-md-12 calendar-accs-checkboxes">
-                                    <span class="marr10" *ngFor="let accessibility of accessibilities">
+                                    <span class="marr10 accs-list" *ngFor="let accessibility of accessibilities">
                                         <input
                                             aria-label="search for accessibility criteria"
                                             type="checkbox"
@@ -99,41 +100,41 @@ type AvailableSlot = Slot & { availableMachines: number };
                     </div>
                 </div>
             </div>
-            <div class="row mart10">
-                <div class="col student-exam-row-title" ngbDropdown>
+            <div class="row ml-1 mt-3">
+                <div class="dropdown" ngbDropdown>
                     <button
                         ngbDropdownToggle
                         class="btn btn-outline-dark"
                         type="button"
                         id="dropDownMenu1"
+                        aria-expanded="true"
                         [disabled]="(isExternal && !organisation) || disabled"
                     >
-                        {{ 'sitnet_room' | translate }}&nbsp;
+                        {{ 'sitnet_room' | translate }}
                         <span class="caret"></span>
                     </button>
-                    <ul class="student-select-room" ngbDropdownMenu aria-labelledby="dropDownMenu1">
-                        <li
+                    <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
+                        <button
+                            ngbDropdownItem
                             *ngFor="let room of rooms"
-                            [hidden]="room.filtered"
                             role="presentation"
                             (click)="selectRoom(room)"
-                            tabindex="0"
-                            (ngEnter)="selectRoom(room)"
-                            ngbPopover="{{ outOfServiceGate(room, getDescription(room)) }}"
-                            popoverTitle="{{ outOfServiceGate(room, 'sitnet_instructions' | translate) }}"
-                            container="body"
-                            triggers="mouseenter:mouseleave"
+                            title="{{ room.name }}"
                         >
                             <div ngbDropdownItem [disabled]="room.outOfService" role="menuitem">
                                 <a> {{ room.name }}</a>
                             </div>
-                        </li>
-                    </ul>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="row mart10" *ngIf="selectedRoom">
                 <div class="col-md-12">
-                    <calendar-selected-room [room]="selectedRoom" [viewStart]="currentWeek"></calendar-selected-room>
+                    <calendar-selected-room
+                        [room]="selectedRoom"
+                        [viewStart]="currentWeek"
+                        [maintenancePeriods]="maintenancePeriods"
+                    ></calendar-selected-room>
                 </div>
             </div>
             <div class="row mart10" *ngIf="selectedRoom">
@@ -179,6 +180,7 @@ export class SlotPickerComponent {
     }>();
 
     rooms: FilterableRoom[] = [];
+    maintenancePeriods: MaintenancePeriod[] = [];
     selectedRoom?: ExamRoom;
     accessibilities: FilterableAccessibility[] = [];
     showAccessibilityMenu = false;
@@ -189,6 +191,7 @@ export class SlotPickerComponent {
         private http: HttpClient,
         private translate: TranslateService,
         private uiRouter: UIRouterGlobals,
+        private Calendar: CalendarService,
         private DateTime: DateTimeService,
     ) {}
 
@@ -200,6 +203,7 @@ export class SlotPickerComponent {
             const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false })).filter((r) => r.name);
             this.rooms = rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
         });
+        this.Calendar.listMaintenancePeriods$().subscribe((periods) => (this.maintenancePeriods = periods));
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -233,8 +237,8 @@ export class SlotPickerComponent {
         const room = this.selectedRoom as ExamRoom;
         if (this.isExternal && this.organisation) {
             const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.uiRouter.params.id}/external/calendar/${room._id}`
-                : `/integration/iop/calendar/${this.uiRouter.params.id}/${room._id}`;
+                ? `/app/iop/exams/${this.uiRouter.params.id}/external/calendar/${room._id}`
+                : `/app/iop/calendar/${this.uiRouter.params.id}/${room._id}`;
             return this.http.get<AvailableSlot[]>(url, {
                 params: {
                     org: this.organisation._id,
@@ -243,7 +247,7 @@ export class SlotPickerComponent {
             });
         } else {
             const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.uiRouter.params.id}/calendar/${room.id}`
+                ? `/app/iop/exams/${this.uiRouter.params.id}/calendar/${room.id}`
                 : `/app/calendar/${this.uiRouter.params.id}/${room.id}`;
             const params = new HttpParams({
                 fromObject: { day: date, aids: accessibilityIds.map((i) => i.toString()) },

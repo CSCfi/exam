@@ -18,7 +18,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import type { ExaminationEventConfiguration } from '../../exam.model';
+import type { ExaminationEventConfiguration, MaintenancePeriod } from '../../exam.model';
 import type { OnInit } from '@angular/core';
 
 @Component({
@@ -27,9 +27,11 @@ import type { OnInit } from '@angular/core';
 })
 export class ExaminationEventDialogComponent implements OnInit {
     @Input() config?: ExaminationEventConfiguration;
+    @Input() maintenancePeriods: MaintenancePeriod[] = [];
     @Input() requiresPassword = false;
     start = new Date();
     description = '';
+    capacity = 0;
     password?: string;
     hasEnrolments = false;
     pwdInputType = 'password';
@@ -40,6 +42,7 @@ export class ExaminationEventDialogComponent implements OnInit {
         if (this.config) {
             this.start = new Date(this.config.examinationEvent.start);
             this.description = this.config.examinationEvent.description;
+            this.capacity = this.config.examinationEvent.capacity;
             this.password = this.config.settingsPassword;
             this.hasEnrolments = this.config.examEnrolments.length > 0;
         }
@@ -52,14 +55,16 @@ export class ExaminationEventDialogComponent implements OnInit {
         if (!this.start) {
             toast.error(this.translate.instant('sitnet_no_examination_start_date_picked'));
         }
-        this.activeModal.close({
-            config: {
-                examinationEvent: {
-                    start: this.start,
-                    description: this.description,
-                },
-                settingsPassword: this.password,
+        const config = {
+            examinationEvent: {
+                start: this.start,
+                description: this.description,
+                capacity: this.capacity,
             },
+            settingsPassword: this.password,
+        };
+        this.activeModal.close({
+            config: config,
         });
     }
 

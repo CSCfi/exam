@@ -42,9 +42,7 @@ export class ExaminationService {
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
         const url = isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + hash;
         return this.http.get<void>('/app/session').pipe(
-            switchMap(() =>
-                this.http.get<Examination>(isCollaboration ? url.replace('/app/', '/integration/iop/') : url),
-            ),
+            switchMap(() => this.http.get<Examination>(isCollaboration ? url.replace('/app/', '/app/iop/') : url)),
             tap((e) => {
                 if (e.cloned) {
                     // we came here with a reference to the parent exam so do not render page just yet,
@@ -122,9 +120,9 @@ export class ExaminationService {
         return concat(...tasks);
     };
 
-    saveAllTextualAnswersOfExam$ = (exam: Examination, canFail: boolean) =>
+    saveAllTextualAnswersOfExam$ = (exam: Examination) =>
         concat(
-            ...exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, canFail)),
+            ...exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, true)),
         );
 
     private stripHtml = (text: string) => {

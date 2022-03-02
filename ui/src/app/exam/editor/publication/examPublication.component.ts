@@ -36,7 +36,13 @@ import { PublicationRevocationDialogComponent } from './publicationRevocationDia
 import type { OnInit } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { User } from '../../../session/session.service';
-import type { Exam, AutoEvaluationConfig, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
+import type {
+    Exam,
+    AutoEvaluationConfig,
+    ExaminationDate,
+    ExaminationEventConfiguration,
+    MaintenancePeriod,
+} from '../../exam.model';
 @Component({
     selector: 'exam-publication',
     templateUrl: './examPublication.component.html',
@@ -49,6 +55,7 @@ export class ExamPublicationComponent implements OnInit {
     hostName: string;
     autoEvaluation: { enabled: boolean } = { enabled: false };
     examDurations: number[] = [];
+    maintenancePeriods: MaintenancePeriod[] = [];
     visibleParticipantSelector = 'participant';
     timeValue?: number;
     hourValue?: number;
@@ -86,6 +93,11 @@ export class ExamPublicationComponent implements OnInit {
             (data) => (this.minDuration = data.minDuration),
             (error) => toast.error(error),
         );
+        if (this.exam.implementation !== 'AQUARIUM') {
+            this.http
+                .get<MaintenancePeriod[]>('/app/maintenance')
+                .subscribe((periods) => (this.maintenancePeriods = periods));
+        }
         this.Tabs.notifyTabChange(3);
     }
 
@@ -290,11 +302,17 @@ export class ExamPublicationComponent implements OnInit {
             size: 'lg',
         });
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
-        modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.addExaminationEvent$(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
-                this.exam.examinationEventConfigurations.push(config);
-            });
-        });
+        modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
+        modalRef.result
+            .then((data: ExaminationEventConfiguration) => {
+                this.Exam.addExaminationEvent$(this.exam.id, data).subscribe(
+                    (config: ExaminationEventConfiguration) => {
+                        this.exam.examinationEventConfigurations.push(config);
+                    },
+                    (err) => toast.error(err),
+                );
+            })
+            .catch((err) => toast.error(err));
     };
 
     modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
@@ -305,16 +323,21 @@ export class ExamPublicationComponent implements OnInit {
         });
         modalRef.componentInstance.config = configuration;
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
-        modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.updateExaminationEvent$(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
-                (config: ExaminationEventConfiguration) => {
-                    const index = this.exam.examinationEventConfigurations.indexOf(configuration);
-                    console.log(index);
-                    this.exam.examinationEventConfigurations.splice(index, 1, config);
-                    console.log(this.exam.examinationEventConfigurations[0].settingsPassword);
-                },
-            );
-        });
+        modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
+        modalRef.result
+            .then((data: ExaminationEventConfiguration) => {
+                this.Exam.updateExaminationEvent$(
+                    this.exam.id,
+                    Object.assign(data, { id: configuration.id }),
+                ).subscribe(
+                    (config: ExaminationEventConfiguration) => {
+                        const index = this.exam.examinationEventConfigurations.indexOf(configuration);
+                        this.exam.examinationEventConfigurations.splice(index, 1, config);
+                    },
+                    (err) => toast.error(err),
+                );
+            })
+            .catch((err) => toast.error(err));
     };
 
     removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
@@ -333,10 +356,10 @@ export class ExamPublicationComponent implements OnInit {
                             1,
                         );
                     },
-                    (resp) => toast.error(resp),
+                    (err) => toast.error(err),
                 ),
             )
-            .catch((err) => toast.error(err.data));
+            .catch((err) => toast.error(err));
     };
 
     private isAllowedToUnpublishOrRemove = () =>

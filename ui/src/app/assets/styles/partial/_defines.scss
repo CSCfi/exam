@@ -522,6 +522,10 @@ $sitnet-icon-size: 32px;
 
 }
 
+.width-100{
+ width: 100%;
+}
+
 .width15 {
   width: 15%;
   max-width: 15%;
@@ -591,6 +595,14 @@ $sitnet-icon-size: 32px;
 .pad30 {
   padding-top: 30px !important;
   padding-bottom: 30px !important;
+}
+
+.padt4 {
+  padding-top: 4px !important;
+}
+
+.padt8 {
+  padding-top: 8px !important;
 }
 
 .padt20 {
@@ -885,3 +897,82 @@ $sitnet-icon-size: 32px;
 .flex-grow {
   flex-grow: 1;
 }
+
+.hover-grey:hover {
+  background-color: $sitnet-grey;
+}
+
+.flex{
+  display: flex;
+}
+.flex-middle{
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+
+.flex-align-l{
+  display: flex;
+  align-content: flex-start;
+}
+
+button.skip-main {
+  left:-999px;
+  display:flex;
+  position:absolute;
+  top:auto;
+  z-index:-999;
+
+  background-color: $sitnet-light-grey;
+  border: $sitnet-dark-grey;
+  border-radius: 4px;
+  color: $sitnet-black;
+}
+button.skip-main:focus, button.skip-main:active {
+  white-space: nowrap;
+  margin: 20px;
+  padding: 0 5px !important;
+  left: auto;
+  top: auto;
+  z-index:999;
+}
+a.skip-main {
+  left:-999px;
+  display:flex;
+  position:absolute;
+  top:auto;
+  z-index:-999;
+
+  margin: 20px;
+  padding: 0 5px !important;
+  white-space: nowrap;
+  background-color: $sitnet-light-grey;
+  border: $sitnet-dark-grey;
+  border-radius: 4px;
+  color: $sitnet-black;
+}
+a.skip-main:focus, a.skip-main:active {
+  left: auto;
+  top: auto;
+  z-index:999;
+}
+.skip {
+  left:-999px;
+  display:flex;
+  position:absolute;
+  top:auto;
+  z-index:-999;
+  display:flex;
+
+  margin: 5px;
+  white-space: nowrap;
+  background-color: $sitnet-light-grey;
+  border: $sitnet-dark-grey;
+  color: $sitnet-black;
+}
+.skip:focus, .skip:active {
+  left: auto;
+  top: auto;
+  z-index:999;
+}
+

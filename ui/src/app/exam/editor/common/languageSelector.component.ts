@@ -48,7 +48,7 @@ export class LanguageSelectorComponent implements OnInit {
     isSelected = (lang: ExamLanguage) => this.exam.examLanguages.map((el) => el.code).indexOf(lang.code) > -1;
 
     updateExamLanguage = (lang: ExamLanguage) => {
-        const resource = this.collaborative ? '/integration/iop/exams' : '/app/exams';
+        const resource = this.collaborative ? '/app/iop/exams' : '/app/exams';
         this.http.put(`${resource}/${this.exam.id}/language/${lang.code}`, {}).subscribe(
             () => {
                 if (this.isSelected(lang)) {

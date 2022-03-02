@@ -33,4 +33,5 @@ public interface ConfigReader {
     String getSettingsPasswordEncryptionKey();
     String getQuitPassword();
     String getHomeOrganisationRef();
+    Integer getMaxByodExaminationParticipantCount();
 }

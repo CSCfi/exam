@@ -3,15 +3,16 @@
         <div class="row">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_machine_softwares' | translate }}
-                <sup
-                    ><img
+                <sup>
+                    <img
                         ngbPopover="{{ 'sitnet_exam_software_description' | translate }}"
                         popoverTitle="{{ 'sitnet_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                         src="/assets/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
-                /></sup>
+                    />
+                </sup>
             </div>
             <div class="col-md-9">
                 <div class="dropdown" ngbDropdown>

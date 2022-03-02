@@ -83,10 +83,18 @@
                             type="checkbox"
                             value=""
                             [(ngModel)]="externalReservationsOnly"
-                            (change)="externalReservationFilterClicked()"
+                            (change)="updateQuery()"
                         />
                         <strong class="reservation-search-titles">
                             {{ 'sitnet_external_reservations_only' | translate }}
+                        </strong>
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" value="" [(ngModel)]="byodExamsOnly" (change)="updateQuery()" />
+                        <strong class="reservation-search-titles">
+                            {{ 'sitnet_byod_only' | translate }}
                         </strong>
                     </label>
                 </div>

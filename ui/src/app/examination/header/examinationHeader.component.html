@@ -14,31 +14,10 @@
                 <course-code *ngIf="exam.course" [course]="exam.course"></course-code>
             </div>
             <div class="language-selector">
-                <a
-                    tabindex="0"
-                    class="exam-clock-text"
-                    (click)="switchLanguage('fi')"
-                    (keyup.enter)="switchLanguage('fi')"
-                >
-                    FI
-                </a>
-                <a
-                    tabindex="0"
-                    class="exam-clock-text"
-                    (click)="switchLanguage('sv')"
-                    (keyup.enter)="switchLanguage('sv')"
-                >
-                    SV
-                </a>
-                <a
-                    tabindex="0"
-                    class="exam-clock-text"
-                    (click)="switchLanguage('en')"
-                    (keyup.enter)="switchLanguage('en')"
-                >
-                    EN
-                </a>
-                <span class="exam-header-title divider"></span>
+                <button tabindex="1" class="green_button marl10" (click)="switchLanguage('fi')">FI</button>
+                <button tabindex="1" class="green_button marl10" (click)="switchLanguage('sv')">SV</button>
+                <button tabindex="1" class="green_button marl10" (click)="switchLanguage('en')">EN</button>
+                <div class="divider-free"></div>
             </div>
             <examination-clock *ngIf="!isPreview" [examHash]="exam.hash" (onTimeout)="notifyTimeout()">
             </examination-clock>

@@ -1009,5 +1009,21 @@
   "sitnet_examination_time_distribution": "Distribution of attainments in the exam period.",
   "sitnet_pieces": "pcs",
   "sitnet_question_score_statistics": "Statistics per question.",
-  "sitnet_question_approval_statistics": "The approval rate of answers."
+  "sitnet_question_approval_statistics": "The approval rate of answers.",
+  "sitnet_exam_period_over": "Exam period is over",
+  "sitnet_no_examinations_to_grade": "No exams waiting for assessment",
+  "sitnet_csv_uploaded_successfully": "CSV file uploaded successfully",
+  "sitnet_csv_uploading_failed": "CSV file upload failed",
+  "sitnet_skip_to_content": "Skip to content",
+  "sitnet_event_capacity": "Kapasiteetti EN",
+  "sitnet_error_max_capacity_exceeded": "Yhtäaikaisten tenttitilaisuuksien maksimikapasiteetti ylitetty EN",
+  "sitnet_error_max_enrolments_reached": "Tilaisuuteen ei voida ottaa enempää osallistujia EN",
+  "sitnet_byod_exam_search": "Omakonetentin tilaisuudet EN",
+  "sitnet_byod_exams": "Omakonetentit EN",
+  "sitnet_byod_exam_search_description": "Voit hakea omakonetenttitilaisuuksia rajaamalla halutun ajanjakson. 1. Valitse molemmat päivämäärät 2. Rajaa hakua tekstikentällä EN",
+  "sitnet_participants": "Osallistujamäärä EN",
+  "sitnet_byod_only": "Näytä vain omakonetenttien varaukset EN",
+  "sitnet_description": "Kuvaus EN",
+  "sitnet_maintenance_period": "Huoltokatko EN",
+  "sitnet_maintenance_periods": "Huoltokatkot EN"
 }
