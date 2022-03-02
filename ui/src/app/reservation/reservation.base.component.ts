@@ -27,7 +27,7 @@ import { ReservationService } from './reservation.service';
 
 import type { Observable } from 'rxjs';
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { CollaborativeExam, Exam, Implementation } from '../exam/exam.model';
+import type { CollaborativeExam, Exam, ExamImpl, Implementation } from '../exam/exam.model';
 import type { User } from '../session/session.service';
 import type { Option } from '../utility/select/dropDownSelect.component';
 import type { ExamMachine, ExamRoom, Reservation } from './reservation.model';
@@ -96,6 +96,7 @@ export class ReservationComponentBase {
     reservations: AnyReservation[] = [];
     isInteroperable = false;
     externalReservationsOnly = false;
+    byodExamsOnly = false;
 
     constructor(
         private http: HttpClient,
@@ -254,9 +255,14 @@ export class ReservationComponentBase {
                 )
                 .subscribe(
                     (reservations) => {
-                        this.reservations = reservations.filter(
-                            (r) => r.externalReservation || !this.externalReservationsOnly,
-                        );
+                        this.reservations = reservations
+                            .filter((r) => r.externalReservation || !this.externalReservationsOnly)
+                            .filter(
+                                (r) =>
+                                    (!r.externalUserRef &&
+                                        (r.enrolment.exam as ExamImpl).implementation !== 'AQUARIUM') ||
+                                    !this.byodExamsOnly,
+                            );
                     },
                     (err) => toast.error(err),
                 );
@@ -365,7 +371,7 @@ export class ReservationComponentBase {
         this.query();
     }
 
-    externalReservationFilterClicked() {
+    updateQuery() {
         this.query();
     }
 

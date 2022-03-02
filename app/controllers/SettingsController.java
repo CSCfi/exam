@@ -153,6 +153,20 @@ public class SettingsController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    public Result getExamMaxDuration() {
+        ObjectNode node = Json.newObject();
+        node.put("maxDuration", configReader.getExamMaxDuration());
+        return ok(Json.toJson(node));
+    }
+
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    public Result getExamMinDuration() {
+        ObjectNode node = Json.newObject();
+        node.put("minDuration", configReader.getExamMinDuration());
+        return ok(Json.toJson(node));
+    }
+
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result isExamGradeScaleOverridable() {
         ObjectNode node = Json.newObject();
         node.put("overridable", configReader.isCourseGradeScaleOverridable());

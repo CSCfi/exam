@@ -53,6 +53,7 @@ import { ExamService } from './exam.service';
 import { ExamListingComponent } from './listing/examList.component';
 import { PrintoutComponent } from './printout/printout.component';
 import { PrintoutListingComponent } from './printout/printoutListing.component';
+import { ByodExamEventSearchComponent } from './search/byodExamEventSearch.component';
 
 @NgModule({
     imports: [NgbModule, UtilityModule, ReviewModule, DragDropModule, UIRouterModule, QuestionModule],
@@ -87,6 +88,7 @@ import { PrintoutListingComponent } from './printout/printoutListing.component';
         PrintoutComponent,
         PrintoutListingComponent,
         ExaminationTypeSelectorComponent,
+        ByodExamEventSearchComponent,
     ],
     bootstrap: [
         PublicationDialogComponent,
