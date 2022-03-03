@@ -12,16 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
+import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { addDays } from 'date-fns';
+import { Observable } from 'rxjs';
+
+import { ExaminationEventConfiguration } from '../exam.model';
 
 import type { OnInit } from '@angular/core';
-
-import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
-
-import { addDays } from 'date-fns';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { ExaminationEventConfiguration } from '../exam.model';
 
 @Component({
     selector: 'byod-exam-event-search',
