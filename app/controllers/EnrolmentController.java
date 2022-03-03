@@ -70,6 +70,8 @@ public class EnrolmentController extends BaseController {
 
     private final ActorSystem actor;
 
+    private final ConfigReader configReader;
+
     @Inject
     public EnrolmentController(
         EmailComposer emailComposer,
@@ -83,6 +85,7 @@ public class EnrolmentController extends BaseController {
         this.externalReservationHandler = externalReservationHandler;
         this.actor = actor;
         this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
+        this.configReader = configReader;
     }
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
@@ -544,17 +547,23 @@ public class EnrolmentController extends BaseController {
             return notFound("enrolment not found");
         }
         ExamEnrolment enrolment = oee.get();
-        Optional<ExaminationEventConfiguration> config = Ebean
+        Optional<ExaminationEventConfiguration> optionalConfig = Ebean
             .find(ExaminationEventConfiguration.class)
+            .fetch("examEnrolments")
             .where()
             .idEq(configId)
             .gt("examinationEvent.start", DateTime.now())
             .eq("exam", enrolment.getExam())
             .findOneOrEmpty();
-        if (config.isEmpty()) {
+        if (optionalConfig.isEmpty()) {
             return notFound("config not found");
         }
-        enrolment.setExaminationEventConfiguration(config.get());
+        ExaminationEventConfiguration config = optionalConfig.get();
+        ExaminationEvent event = config.getExaminationEvent();
+        if (config.getExamEnrolments().size() + 1 > event.getCapacity()) {
+            return forbidden("sitnet_error_max_enrolments_reached");
+        }
+        enrolment.setExaminationEventConfiguration(config);
         enrolment.update();
         actor
             .scheduler()
@@ -598,6 +607,17 @@ public class EnrolmentController extends BaseController {
                 },
                 actor.dispatcher()
             );
+        return ok();
+    }
+
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    public Result permitRetrial(Long id) {
+        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class, id);
+        if (enrolment == null) {
+            return notFound("sitnet_not_found");
+        }
+        enrolment.setRetrialPermitted(true);
+        enrolment.update();
         return ok();
     }
 }

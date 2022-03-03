@@ -59,8 +59,7 @@ export class SectionComponent {
         this.section.sectionQuestions.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
     }
 
-    private getResource = (url: string) =>
-        this.collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
+    private getResource = (url: string) => (this.collaborative ? url.replace('/app/exams/', '/app/iop/exams/') : url);
 
     private getSectionPayload = () => ({
         id: this.section.id,
@@ -101,7 +100,7 @@ export class SectionComponent {
 
     private insertExamQuestion = (question: Question, seq: number) => {
         const resource = this.collaborative
-            ? `/integration/iop/exams/${this.examId}/sections/${this.section.id}/questions`
+            ? `/app/iop/exams/${this.examId}/sections/${this.section.id}/questions`
             : `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
         const data = { sequenceNumber: seq, question: this.collaborative ? question : undefined };
         this.http.post<ExamSection | ExamSectionQuestion>(resource, data).subscribe(
@@ -137,7 +136,7 @@ export class SectionComponent {
 
         if (attachment.modified && attachment.file) {
             this.Files.upload(
-                '/integration/iop/attachment/question',
+                '/app/iop/attachment/question',
                 attachment.file,
                 { examId: this.examId.toString(), questionId: data.id.toString() },
                 question,

@@ -11,15 +11,12 @@
                 {{ 'sitnet_clock_hidden' | translate }}
             </span>
         </span>
-        <span>
+        <button tabindex="1" (click)="showRemainingTime = !showRemainingTime" class="border-none background-none">
             <img
-                tabindex="0"
-                (click)="showRemainingTime = !showRemainingTime"
-                (keyup.enter)="showRemainingTime = !showRemainingTime"
                 src="/assets/assets/images/icon_clock.svg"
                 alt="clock"
                 onerror="this.onerror=null;this.src='/assets/assets/images/icon_clock.png';"
             />
-        </span>
+        </button>
     </div>
 </div>

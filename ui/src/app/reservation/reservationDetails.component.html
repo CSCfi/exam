@@ -161,7 +161,7 @@
                 <button
                     *ngIf="
                         r.enrolment.exam.state === 'PUBLISHED' &&
-                        !r.noShow &&
+                        !r.enrolment.noShow &&
                         r.enrolment.exam.implementation === 'AQUARIUM'
                     "
                     (click)="removeReservation(r)"
@@ -171,12 +171,12 @@
                 </button>
                 <button
                     *ngIf="r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.implementation === 'AQUARIUM'"
-                    (click)="permitRetrial(r)"
-                    [disabled]="!r.enrolment.exam.trialCount || r.retrialPermitted"
+                    (click)="permitRetrial(r.enrolment)"
+                    [disabled]="!r.enrolment.exam.trialCount || r.enrolment.retrialPermitted"
                     class="btn btn-sm btn-primary pull-left"
                 >
                     {{
-                        !r.enrolment.exam.trialCount || r.retrialPermitted
+                        !r.enrolment.exam.trialCount || r.enrolment.retrialPermitted
                             ? ('sitnet_retrial_permitted' | translate)
                             : ('sitnet_permit_retrial' | translate)
                     }}
@@ -186,7 +186,7 @@
                 <button
                     *ngIf="
                         r.enrolment.exam.state === 'PUBLISHED' &&
-                        !r.noShow &&
+                        !r.enrolment.noShow &&
                         !r.externalReservation &&
                         r.enrolment.exam.implementation === 'AQUARIUM'
                     "

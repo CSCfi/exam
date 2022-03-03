@@ -8,6 +8,8 @@ export interface AppConfig {
     eula: string;
     examMaxDate: string;
     examDurations: number[];
+    examMaxDuration: number;
+    examMinDuration: number;
     expirationPeriod: string;
     anonymousReviewEnabled: boolean;
     hasCourseSearchIntegration: boolean;

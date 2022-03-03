@@ -4,15 +4,7 @@ node_modules
 project/project
 project/metals.sbt
 target
-*.idea
 public/bundles
-*.iml
-.vscode
 default-drop-all.sql
 default-create-all.sql
 /data/
-*.sc
-.bloop
-.metals
-*.DS_Store
-*package-lock.json

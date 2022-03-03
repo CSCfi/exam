@@ -136,6 +136,13 @@ export class NavigationService {
                             submenu: { hidden: true, items: [] },
                         },
                         {
+                            state: 'staff.byodExams',
+                            visible: interoperable,
+                            name: 'sitnet_byod_exams',
+                            iconPng: 'icon_admin_exams.png',
+                            submenu: { hidden: true, items: [] },
+                        },
+                        {
                             state: 'staff.library',
                             visible: true,
                             name: 'sitnet_library_new',

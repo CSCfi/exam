@@ -228,11 +228,14 @@ export interface ExaminationEvent {
     id?: number;
     start: string;
     description: string;
+    capacity: number;
+    examinationEventConfiguration: ExaminationEventConfiguration;
 }
 
 export interface ExaminationEventConfiguration {
     id?: number;
     settingsPassword?: string;
+    exam: Exam;
     examinationEvent: ExaminationEvent;
     examEnrolments: ExamEnrolment[];
 }
@@ -338,7 +341,11 @@ export interface ExamParticipation {
 }
 
 export function isParticipation(event: ExamParticipation | ExamEnrolment): event is ExamParticipation {
-    return event.reservation !== undefined && event.reservation.noShow === undefined;
+    return (
+        event.reservation !== null &&
+        event.reservation !== undefined &&
+        event.reservation.enrolment.noShow === undefined // FIXME: check this
+    );
 }
 
 export enum ClaimChoiceOptionType {
@@ -346,3 +353,10 @@ export enum ClaimChoiceOptionType {
     IncorrectOption = 'IncorrectOption',
     SkipOption = 'SkipOption',
 }
+
+export type MaintenancePeriod = {
+    id?: number;
+    startsAt: string;
+    endsAt: string;
+    description: string;
+};

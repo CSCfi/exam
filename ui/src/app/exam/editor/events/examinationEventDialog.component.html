@@ -7,8 +7,15 @@
             </h1>
         </div>
         <form class="modal-body" #eventForm="ngForm" name="eventForm">
-            <div *ngIf="hasEnrolments" class="text text-danger form-text">
+            <div *ngIf="hasEnrolments" class="alert alert-warning form-text">
                 {{ 'sitnet_enrolments_exist_for_examination_event' | translate }}
+            </div>
+            <div *ngIf="maintenancePeriods.length > 0" class="alert alert-warning form-text mb-2">
+                {{ 'sitnet_maintenance_periods' | translate }}
+                <div *ngFor="let period of maintenancePeriods | orderBy: 'startsAt'">
+                    {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
+                    {{ period.description }}
+                </div>
             </div>
             <label for="dtpicker">{{ 'sitnet_begin' | translate }}:</label>
             <date-time-picker
@@ -31,6 +38,18 @@
                     [(ngModel)]="description"
                 ></textarea>
             </div>
+            <div class="form-group">
+                <label for="capacity">{{ 'sitnet_event_capacity' | translate }}:</label>
+                <input
+                    id="capacity"
+                    name="capacity"
+                    class="form-control"
+                    required
+                    type="number"
+                    step="1"
+                    [(ngModel)]="capacity"
+                />
+            </div>
             <div *ngIf="requiresPassword" class="form-group">
                 <label for="password">{{ 'sitnet_settings_password' | translate }}:</label>
                 <div id="password" class="input-group wdth-30">
@@ -48,7 +67,7 @@
                             type="button"
                             (click)="togglePasswordInputType()"
                         >
-                            <i [ngClass]="pwdInputType === 'text' ? 'bi-unlock' : 'bi-lock'"></i>
+                            <i [ngClass]="pwdInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
                         </button>
                     </div>
                 </div>

@@ -299,7 +299,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
 
         Reservation r = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF_2).findOne();
         assertThat(r).isNotNull();
-        assertThat(r.isNoShow()).isTrue();
+        assertThat(r.getEnrolment().isNoShow()).isTrue();
     }
 
     @Test

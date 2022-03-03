@@ -206,7 +206,7 @@ public class StudentActionsController extends CollaborationController {
             .where()
             .eq("user", user)
             .isNull("exam.parent")
-            .eq("reservation.noShow", true);
+            .eq("noShow", true);
         if (filter != null) {
             String condition = String.format("%%%s%%", filter);
             noShows =

@@ -15,7 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import { addHours, format, parseISO } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
 import * as toast from 'toastr';
@@ -44,7 +44,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Session: SessionService,
         private Window: WindowRef,
@@ -63,9 +63,9 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     };
 
     ngOnInit() {
-        if (this.state.params.id) {
+        if (this.routing.params.id && this.routing.params.hash) {
             this.isUpcoming = true;
-            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.state.params.id}`).subscribe(
+            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.routing.params.id}`).subscribe(
                 (enrolment) => {
                     this.setOccasion(enrolment.reservation);
                     this.enrolment = enrolment;
@@ -76,6 +76,9 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                         const code = this.translate.currentLang.toUpperCase();
                         this.roomInstructions = this.getRoomInstructions(code, room);
                     }
+                    this.http
+                        .post<void>(`/app/student/exam/${this.routing.params.hash}`, {})
+                        .subscribe(() => console.log(`exam ${this.routing.params.hash} prepared ok`));
                 },
                 (err) => toast.error(err.data),
             );

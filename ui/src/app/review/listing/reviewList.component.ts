@@ -138,4 +138,11 @@ export class ReviewListComponent {
         });
         modalRef.componentInstance.noShows = this.noShows;
     };
+
+    abortedExamsToBeFreed = (): number => {
+        if (this.exam.trialCount) {
+            return this.abortedExams.filter((x) => !x.examParticipation.exam.examEnrolments[0].retrialPermitted).length;
+        }
+        return 0;
+    };
 }
