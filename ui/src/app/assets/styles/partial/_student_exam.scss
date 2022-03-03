@@ -402,11 +402,10 @@
   }
 
   .attachment-button {
-    display: inline-block;
+    max-height: 40px;
   }
 
   .attachment-name {
-    display: inline-block;
     font-family:$sitnet-family-helvetica;
     font-size:12px;
     color:#555555;
