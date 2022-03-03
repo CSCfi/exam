@@ -77,6 +77,8 @@ export class ExaminationEventDialogComponent implements OnInit {
                     description: this.description,
                 },
                 settingsPassword: this.password,
+            },
+        });
         const config = {
             examinationEvent: {
                 start: this.start,
