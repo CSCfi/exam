@@ -6,6 +6,7 @@ import * as toast from 'toastr';
 import type { OnInit } from '@angular/core';
 export interface AppConfig {
     eula: string;
+    examMaxDate: string;
     examDurations: number[];
     examMaxDuration: number;
     examMinDuration: number;

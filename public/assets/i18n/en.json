@@ -272,6 +272,7 @@
   "sitnet_error_unauthenticated": "Unknown user or wrong password",
   "sitnet_error_role_not_found": "The user role could not be found",
   "sitnet_error_invalid_session": "Invalid session",
+  "sitnet_invalid_start_date_picked": "Invalid start date picked EN",
   "sitnet_feedback": "Feedback",
   "sitnet_characters": "characters",
   "sitnet_questions_new_essay": "New essay question",

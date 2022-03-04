@@ -272,6 +272,7 @@
   "sitnet_error_unauthenticated": "Tuntematon käyttäjätunnus tai väärä salasana",
   "sitnet_error_role_not_found": "Käyttäjäroolia ei löytynyt",
   "sitnet_error_invalid_session": "Virheellinen istunto",
+  "sitnet_invalid_start_date_picked": "Virheellinen päivämäärä FI",
   "sitnet_feedback": "Palaute",
   "sitnet_characters": "merkkiä",
   "sitnet_questions_new_essay": "Uusi esseekysymys",

@@ -415,6 +415,7 @@ PUT           /app/settings/deadline                                   controlle
 GET           /app/settings/reservationWindow                          controllers.SettingsController.getReservationWindowSize
 PUT           /app/settings/reservationWindow                          controllers.SettingsController.setReservationWindowSize(request: Request)
 GET           /app/settings/hostname                                   controllers.SettingsController.getHostname
+GET           /app/settings/maxDate                                    controllers.SettingsController.getExamMaxDate
 GET           /app/settings/durations                                  controllers.SettingsController.getExamDurations
 GET           /app/settings/maxDuration                                controllers.SettingsController.getExamMaxDuration
 GET           /app/settings/minDuration                                controllers.SettingsController.getExamMinDuration

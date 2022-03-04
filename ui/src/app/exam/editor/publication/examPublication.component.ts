@@ -57,6 +57,7 @@ export class ExamPublicationComponent implements OnInit {
     examDurations: number[] = [];
     maintenancePeriods: MaintenancePeriod[] = [];
     visibleParticipantSelector = 'participant';
+    examMaxDate?: Date;
     timeValue?: number;
     hourValue?: number;
     minuteValue?: number;
@@ -83,6 +84,10 @@ export class ExamPublicationComponent implements OnInit {
         this.autoEvaluation = { enabled: !!this.exam.autoEvaluationConfig };
         this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe(
             (data) => (this.examDurations = data.examDurations),
+            (error) => toast.error(error),
+        );
+        this.http.get<{ maxDate: Date }>('/app/settings/maxDate').subscribe(
+            (data) => (this.examMaxDate = data.maxDate),
             (error) => toast.error(error),
         );
         this.http.get<{ maxDuration: number }>('/app/settings/maxDuration').subscribe(
@@ -302,6 +307,12 @@ export class ExamPublicationComponent implements OnInit {
             size: 'lg',
         });
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
+        modalRef.componentInstance.examMaxDate = this.examMaxDate;
+        modalRef.result.then((data: ExaminationEventConfiguration) => {
+            this.Exam.addExaminationEvent$(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
+                this.exam.examinationEventConfigurations.push(config);
+            });
+        });
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
         modalRef.result
             .then((data: ExaminationEventConfiguration) => {
@@ -323,6 +334,17 @@ export class ExamPublicationComponent implements OnInit {
         });
         modalRef.componentInstance.config = configuration;
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
+        modalRef.componentInstance.examMaxDate = this.examMaxDate;
+        modalRef.result.then((data: ExaminationEventConfiguration) => {
+            this.Exam.updateExaminationEvent$(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
+                (config: ExaminationEventConfiguration) => {
+                    const index = this.exam.examinationEventConfigurations.indexOf(configuration);
+                    console.log(index);
+                    this.exam.examinationEventConfigurations.splice(index, 1, config);
+                    console.log(this.exam.examinationEventConfigurations[0].settingsPassword);
+                },
+            );
+        });
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
         modalRef.result
             .then((data: ExaminationEventConfiguration) => {

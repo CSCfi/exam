@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import models.GeneralSettings;
 import models.Language;
 import models.User;
+import org.joda.time.DateTime;
 import play.Environment;
 import play.data.DynamicForm;
 import play.libs.Json;
@@ -141,6 +142,13 @@ public class SettingsController extends BaseController {
     public Result getMaxFilesize() {
         ObjectNode node = Json.newObject();
         node.put("filesize", configReader.getMaxFileSize());
+        return ok(Json.toJson(node));
+    }
+
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    public Result getExamMaxDate() {
+        ObjectNode node = Json.newObject();
+        node.put("maxDate", configReader.getExamMaxDate().toString());
         return ok(Json.toJson(node));
     }
 
