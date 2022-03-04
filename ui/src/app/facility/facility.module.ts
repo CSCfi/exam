@@ -14,6 +14,7 @@ import { ExamRoomsAdminTabsComponent } from './examRoomsAdminTabs.component';
 import { MachineModule } from './machines/machines.module';
 import { AvailabilityComponent } from './rooms/availability.component';
 import { ExceptionListAllComponent } from './rooms/exceptionListAll.component';
+import { InteroperabilityService } from './rooms/interoperability.service';
 import { MultiRoomComponent } from './rooms/multiRoom.component';
 import { RoomComponent } from './rooms/room.component';
 import { RoomService } from './rooms/room.service';
@@ -54,7 +55,7 @@ import { StartingTimeComponent } from './schedule/startingTime.component';
         AddressComponent,
     ],
     bootstrap: [ExceptionDialogComponent, MaintenancePeriodDialogComponent],
-    providers: [SettingsResourceService, RoomService],
+    providers: [SettingsResourceService, RoomService, InteroperabilityService],
     exports: [ExamRoomsAdminTabsComponent],
 })
 export class FacilityModule {}
