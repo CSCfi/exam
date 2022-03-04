@@ -41,6 +41,7 @@ import { CollaborativeExamOwnerSelectorComponent } from './editor/publication/co
 import { ExamParticipantSelectorComponent } from './editor/publication/examParticipantSelector.component';
 import { ExamPreParticipantSelectorComponent } from './editor/publication/examPreParticipantSelector.component';
 import { ExamPublicationComponent } from './editor/publication/examPublication.component';
+import { OrganisationSelectorComponent } from './editor/publication/organisationSelector.component';
 import { PublicationDialogComponent } from './editor/publication/publicationDialog.component';
 import { PublicationErrorDialogComponent } from './editor/publication/publicationErrorDialog.component';
 import { PublicationRevocationDialogComponent } from './editor/publication/publicationRevocationDialog.component';
@@ -72,6 +73,7 @@ import { ByodExamEventSearchComponent } from './search/byodExamEventSearch.compo
         ExamOwnerSelectorComponent,
         ExamInspectorSelectorComponent,
         CollaborativeExamOwnerSelectorComponent,
+        OrganisationSelectorComponent,
         CollaborativeExamListingComponent,
         PublicationDialogComponent,
         PublicationErrorDialogComponent,

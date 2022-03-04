@@ -12,6 +12,7 @@ import io.ebean.text.PathProperties;
 import io.vavr.control.Either;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -30,6 +31,7 @@ import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
+import util.config.ConfigReader;
 import util.json.JsonDeserializer;
 
 public class CollaborationController extends BaseController {
@@ -44,6 +46,9 @@ public class CollaborationController extends BaseController {
 
     @Inject
     protected CollaborativeExamLoader examLoader;
+
+    @Inject
+    protected ConfigReader configReader;
 
     private static final Logger.ALogger logger = Logger.of(CollaborationController.class);
 
@@ -100,7 +105,7 @@ public class CollaborationController extends BaseController {
         // Save references to documents that we don't have locally yet
         StreamSupport
             .stream(root.spliterator(), false)
-            .filter(node -> !locals.keySet().contains(node.get("_id").asText()))
+            .filter(node -> !locals.containsKey(node.get("_id").asText()))
             .forEach(node -> {
                 String ref = node.get("_id").asText();
                 String rev = node.get("_rev").asText();
@@ -123,7 +128,13 @@ public class CollaborationController extends BaseController {
         return examLoader.uploadExam(ce, content, sender, body, pp);
     }
 
-    boolean isAuthorizedToView(Exam exam, User user) {
+    boolean isAuthorizedToView(Exam exam, User user, String homeOrg) {
+        if (exam.getOrganisations() != null) {
+            String[] organisations = exam.getOrganisations().split(";");
+            if (!Arrays.asList(organisations).contains(homeOrg)) {
+                return false;
+            }
+        }
         return (
             user.getLoginRole() == Role.Name.ADMIN ||
             (

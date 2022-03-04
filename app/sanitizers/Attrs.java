@@ -68,4 +68,5 @@ public enum Attrs {
     public static final TypedKey<String> DESCRIPTION = TypedKey.create("description");
     public static final TypedKey<Integer> CAPACITY = TypedKey.create("capacity");
     public static final TypedKey<Exam.Implementation> EXAM_IMPL = TypedKey.create("implementation");
+    public static final TypedKey<String> ORGANISATIONS = TypedKey.create("organisations");
 }

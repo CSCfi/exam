@@ -51,6 +51,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> addSection(Long examId, Http.Request request) {
+        String homeOrg = configReader.getHomeOrganisationRef();
         return findCollaborativeExam(examId)
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -58,7 +59,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                     .thenComposeAsync(result -> {
                         if (result.isPresent()) {
                             Exam exam = result.get();
-                            if (isAuthorizedToView(exam, user)) {
+                            if (isAuthorizedToView(exam, user, homeOrg)) {
                                 ExamSection section = createDraft(exam, user);
                                 exam.getExamSections().add(section);
                                 return uploadExam(ce, exam, user, section, null);
@@ -80,11 +81,12 @@ public class CollaborativeExamSectionController extends CollaborationController 
         return findCollaborativeExam(examId)
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                String homeOrg = configReader.getHomeOrganisationRef();
                 return downloadExam(ce)
                     .thenComposeAsync(result -> {
                         if (result.isPresent()) {
                             Exam exam = result.get();
-                            if (isAuthorizedToView(exam, user)) {
+                            if (isAuthorizedToView(exam, user, homeOrg)) {
                                 Optional<Result> err = updater.apply(exam, user);
                                 if (err.isPresent()) {
                                     return wrapAsPromise(err.get());
@@ -389,11 +391,12 @@ public class CollaborativeExamSectionController extends CollaborationController 
         return findCollaborativeExam(examId)
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                String homeOrg = configReader.getHomeOrganisationRef();
                 return downloadExam(ce)
                     .thenComposeAsync(result -> {
                         if (result.isPresent()) {
                             Exam exam = result.get();
-                            if (isAuthorizedToView(exam, user)) {
+                            if (isAuthorizedToView(exam, user, homeOrg)) {
                                 Optional<ExamSection> section = exam
                                     .getExamSections()
                                     .stream()

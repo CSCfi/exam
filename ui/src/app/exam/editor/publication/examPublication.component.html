@@ -306,6 +306,9 @@
 <!-- Collaborative exam owners -->
 <collaborative-exam-owner-selector *ngIf="collaborative" [exam]="exam"> </collaborative-exam-owner-selector>
 
+<!-- Collaborative exam organisations -->
+<exam-organisation-selector *ngIf="collaborative" [exam]="exam"></exam-organisation-selector>
+
 <!-- Link to enrolment -->
 <div class="row marr30" *ngIf="exam.executionType.type === 'PUBLIC' && !collaborative">
     <div class="col-md-12 mart40">

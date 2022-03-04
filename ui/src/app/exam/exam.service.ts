@@ -88,6 +88,7 @@ export class ExamService {
             objectVersion: exam.objectVersion,
             attachment: exam.attachment,
             anonymous: exam.anonymous,
+            organisations: exam.organisations,
             implementation: exam.implementation,
         };
         Object.assign(data, overrides);
