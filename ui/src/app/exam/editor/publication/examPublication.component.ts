@@ -308,11 +308,6 @@ export class ExamPublicationComponent implements OnInit {
         });
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
         modalRef.componentInstance.examMaxDate = this.examMaxDate;
-        modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.addExaminationEvent$(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
-                this.exam.examinationEventConfigurations.push(config);
-            });
-        });
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
         modalRef.result
             .then((data: ExaminationEventConfiguration) => {
@@ -335,16 +330,6 @@ export class ExamPublicationComponent implements OnInit {
         modalRef.componentInstance.config = configuration;
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
         modalRef.componentInstance.examMaxDate = this.examMaxDate;
-        modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.updateExaminationEvent$(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
-                (config: ExaminationEventConfiguration) => {
-                    const index = this.exam.examinationEventConfigurations.indexOf(configuration);
-                    console.log(index);
-                    this.exam.examinationEventConfigurations.splice(index, 1, config);
-                    console.log(this.exam.examinationEventConfigurations[0].settingsPassword);
-                },
-            );
-        });
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
         modalRef.result
             .then((data: ExaminationEventConfiguration) => {
