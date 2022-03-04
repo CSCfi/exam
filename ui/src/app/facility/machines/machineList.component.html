@@ -1,11 +1,10 @@
 <div class="detail-row p-3" [hidden]="room.state === 'INACTIVE'">
     <h5 class="ml-3">
-        <a (click)="toggleShow()">
+        <span class="pointer user-select-none" (click)="toggleShow()">
             <i [hidden]="!showMachines" class="bi-chevron-down fa-stack-1x"></i>
             <i [hidden]="showMachines" class="bi-chevron-right fa-stack-1x"></i>
-        </a>
-
-        {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp;
+            {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp;
+        </span>
         <span
             triggers="mouseenter:mouseleave"
             popoverTitle="{{ 'sitnet_instructions' | translate }}"
@@ -46,7 +45,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let machine of room.examMachines">
+            <tr *ngFor="let machine of room.examMachines | orderBy: 'name'">
                 <td>
                     <a
                         [ngClass]="{ 'text-danger': !machine.name }"
