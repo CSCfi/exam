@@ -32,12 +32,12 @@
         </form>
     </div>
 </div>
-<div class="row">
+<div class="row mt-2">
     <div class="col-md-3 exam-basic-title"></div>
     <div class="col-md-9">
-        <ul class="list-inline mart10">
+        <ul class="list-group list-group-horizontal">
             <!-- Owners for the exam -->
-            <li class="marl10" *ngFor="let owner of exam.examOwners">
+            <li class="list-group-item" *ngFor="let owner of exam.examOwners">
                 {{ owner.email }}
                 <button
                     class="reviewer-remove"

@@ -317,6 +317,7 @@ export interface ExamImpl {
     examInspections: ExamInspection[];
     examinationEventConfigurations: ExaminationEventConfiguration[];
     totalScore: number;
+    organisations?: string;
 }
 
 export interface Exam extends ExamImpl {

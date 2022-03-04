@@ -1026,5 +1026,7 @@
   "sitnet_byod_only": "Näytä vain omakonetenttien varaukset",
   "sitnet_description": "Kuvaus",
   "sitnet_maintenance_period": "Huoltokatko",
-  "sitnet_maintenance_periods": "Huoltokatkot"
+  "sitnet_maintenance_periods": "Huoltokatkot",
+  "sitnet_exam_organisations": "Osallistujaorganisaatiot",
+  "sitnet_exam_organisations_description": "Yhteistentin tiedot näkyvät vain näille organisaatioille. Yhteistentin luonut taho on automaattisesti näiden joukossa."
 }

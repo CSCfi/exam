@@ -34,14 +34,7 @@ import type { User } from './session/session.service';
         </div>
         <div *ngIf="user">
             <navigation [hidden]="hideNavBar"></navigation>
-            <main
-                id="mainView"
-                class="container-fluid pad0"
-                [ngClass]="{
-                    'vmenu-on': !hideNavBar && !user?.isAdmin,
-                    'vmenu-on-admin': user?.isAdmin
-                }"
-            >
+            <main id="mainView" class="container-fluid pad0" [ngClass]="{ 'vmenu-on': !hideNavBar }">
                 <ui-view></ui-view>
             </main>
         </div>

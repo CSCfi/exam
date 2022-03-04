@@ -54,15 +54,6 @@ p, li {
   }
 }
 
-.vmenu-on-admin { // TODO: is this still relevant?
-  width: auto;
-  margin-left: 275px;
-
-  @media (max-width: $sitnet-mobile) {
-    margin-left: 0;
-  }
-}
-
 .vmenu-off {
   width: auto;
   margin-left: 50px;
