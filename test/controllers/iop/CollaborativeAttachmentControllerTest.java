@@ -45,7 +45,7 @@ import play.test.Helpers;
 public class CollaborativeAttachmentControllerTest
     extends BaseCollaborativeAttachmentControllerTest<CollaborativeExam> {
 
-    private final String baseURL = "/integration/iop/attachment";
+    private final String baseURL = "/app/iop/collab/attachment";
 
     @Test
     @RunAsTeacher

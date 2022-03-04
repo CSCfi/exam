@@ -48,11 +48,9 @@
         </div>
     </div>
 
-    <div [@listAnimation]="exams.length">
-        <div class="row ml-2 mr-2 mt-1" *ngFor="let exam of exams">
-            <div class="col-md-12">
-                <exam-search-result [exam]="exam"></exam-search-result>
-            </div>
+    <div [@listAnimation]="exams.length" class="search-list-wrapper">
+        <div class="" *ngFor="let exam of exams">
+            <exam-search-result [exam]="exam"></exam-search-result>
         </div>
     </div>
 </div>

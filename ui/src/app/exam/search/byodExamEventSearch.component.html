@@ -1,0 +1,155 @@
+<div id="dashboard overflow-auto">
+    <div>
+        <div class="student-details-title-wrap padtop padleft">
+            <div class="student-exam-search-title">{{ 'sitnet_byod_exam_search' | translate }}</div>
+        </div>
+    </div>
+
+    <div>
+        <div class="student-details-title-wrap padleft">
+            <span class="form-group">
+                <img class="nopad" src="/assets/assets/images/icon_info.png" alt="info-icon" /> &nbsp;
+                <span>
+                    {{ 'sitnet_byod_exam_search_description' | translate }}
+                </span>
+            </span>
+        </div>
+    </div>
+    <div class="top-row marb20 padt20">
+        <div class="col-md-12">
+            <!-- Start & End time datepickers -->
+            <div class="row">
+                <div class="marr20">
+                    <span class="exam-basic-selecttitle">&nbsp;</span>
+                    <div class="input-group">
+                        <input
+                            [(ngModel)]="filterText"
+                            (ngModelChange)="query()"
+                            class="form-control hgt40"
+                            placeholder="{{ 'sitnet_search' | translate }}"
+                            ngbPopover="{{ 'sitnet_maturity_search_description' | translate }}"
+                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        />
+
+                        <div class="input-group-append search">
+                            <img class="nopad" src="/assets/assets/images/icon_search.png" width="49" height="40" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="marr20">
+                    <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
+                    <date-picker
+                        [optional]="true"
+                        [initiallyEmpty]="true"
+                        (onUpdate)="startDateChanged($event)"
+                    ></date-picker>
+                </div>
+                <div class="marr20">
+                    <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
+                    <date-picker
+                        [optional]="true"
+                        [initiallyEmpty]="true"
+                        (onUpdate)="endDateChanged($event)"
+                    ></date-picker>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-auto max-vw-100">
+        <table class="table table-striped exams-table">
+            <thead>
+                <tr>
+                    <th class="with-top">
+                        <table-sort
+                            by="examinationEvent.id"
+                            text="sitnet_code"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('examinationEvent.id')"
+                        >
+                        </table-sort>
+                    </th>
+                    <th class="with-top">
+                        <table-sort
+                            by="exam.name"
+                            text="sitnet_exam_name"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('exam.name')"
+                        >
+                        </table-sort>
+                    </th>
+                    <th class="with-top">
+                        <table-sort
+                            by="exam.creator.firstName"
+                            text="sitnet_teachers"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('exam.creator.firstName')"
+                        >
+                        </table-sort>
+                    </th>
+                    <th class="with-top">
+                        <table-sort
+                            by="examinationEvent.start"
+                            text="sitnet_date"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('examinationEvent.start')"
+                        >
+                        </table-sort>
+                    </th>
+                    <th class="with-top">
+                        <table-sort
+                            by="examEnrolments.length"
+                            text="sitnet_participants"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('examEnrolments.length')"
+                        >
+                        </table-sort>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let event of processedEvents | orderBy: sorting.predicate:sorting.reverse">
+                    <!-- 1 -->
+                    <td>
+                        {{ event.examinationEvent?.id }}
+                    </td>
+                    <!-- 2 -->
+                    <td>
+                        <a
+                            class="infolink"
+                            uiSref="enrolments"
+                            [uiParams]="{ id: event.exam.id, code: event.exam.course?.code }"
+                        >
+                            {{ event.exam.name }}
+                        </a>
+                    </td>
+                    <!-- 3 -->
+                    <td>
+                        {{
+                            event.exam?.creator
+                                ? event.exam?.creator?.firstName + ' ' + event.exam?.creator?.lastName
+                                : '–'
+                        }}
+                    </td>
+                    <!-- 4 -->
+                    <td>
+                        {{ event.examinationEvent?.start | date: 'dd.MM.yyyy hh:mm' }} -
+                        {{ getEventEndTime(event.examinationEvent?.start, event.exam?.duration) | date: 'hh:mm' }}
+                    </td>
+                    <!-- 5 -->
+                    <td>
+                        {{ event.examEnrolments?.length }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -103,7 +103,7 @@ export class CalendarComponent implements OnInit {
         }
 
         const url = this.isCollaborative
-            ? `/integration/iop/exams/${this.uiRouter.params.id}/info`
+            ? `/app/iop/exams/${this.uiRouter.params.id}/info`
             : `/app/student/exam/${this.uiRouter.params.id}/info`;
         this.http
             .get<ExamInfo>(url)
@@ -174,7 +174,7 @@ export class CalendarComponent implements OnInit {
             this.translate.instant('sitnet_confirm_external_reservation'),
         ).result.then(() =>
             this.state.go('externalCalendar', {
-                id: this.state.params.id,
+                id: this.uiRouter.params.id,
                 selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id),
                 isCollaborative: this.isCollaborative,
             }),
@@ -212,7 +212,7 @@ export class CalendarComponent implements OnInit {
 
     sectionSelectionOk = () => this.examInfo.examSections.some((es) => !es.optional || es.selected);
 
-    confirmReservation() {
+    confirmReservation = () => {
         const room = this.reservation?.room;
         if (!room || !this.reservation || this.confirming) {
             return;
@@ -239,7 +239,7 @@ export class CalendarComponent implements OnInit {
                 },
             )
             .add(() => (this.confirming = false));
-    }
+    };
 
     setOrganisation(org: Organisation) {
         this.selectedOrganisation = org;

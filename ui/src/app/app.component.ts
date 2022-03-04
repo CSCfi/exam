@@ -36,7 +36,7 @@ import type { User } from './session/session.service';
             <navigation [hidden]="hideNavBar"></navigation>
             <main
                 id="mainView"
-                class="container-fluid"
+                class="container-fluid pad0"
                 [ngClass]="{
                     'vmenu-on': !hideNavBar && !user?.isAdmin,
                     'vmenu-on-admin': user?.isAdmin

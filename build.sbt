@@ -5,11 +5,11 @@ import scala.util.Properties
 
 name := "exam"
 
-version := "6.0.1"
+version := "6.1.0"
 
 licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
-scalaVersion := "2.13.6"
+scalaVersion := "2.13.7"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 

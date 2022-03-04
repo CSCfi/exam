@@ -33,6 +33,9 @@ export class EnrolmentDetailsComponent {
         private Enrolment: EnrolmentService,
         private DateTime: DateTimeService,
     ) {}
+    getExpiration = (): boolean => {
+        return new Date(this.exam.examActiveEndDate || 0) < new Date();
+    };
 
     enrollForExam = () => this.Enrolment.checkAndEnroll(this.exam).subscribe();
 

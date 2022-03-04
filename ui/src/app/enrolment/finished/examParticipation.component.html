@@ -82,12 +82,12 @@
             </div>
         </div>
         <div class="row mt-2">
-            <div class="col-md-12" *ngIf="participation.reservation?.noShow">
+            <div class="col-md-12" *ngIf="participation.reservation?.enrolment?.noShow">
                 <div class="row">
                     <div class="col-md-12 text-danger">{{ 'sitnet_no_show' | translate }}</div>
                 </div>
             </div>
-            <div class="col-md-12" *ngIf="!participation.reservation?.noShow && !reviewedExam">
+            <div class="col-md-12" *ngIf="!participation.reservation?.enrolment?.noShow && !reviewedExam">
                 <div class="row">
                     <div class="col-md-12 text-muted">{{ 'sitnet_no_comments' | translate }}</div>
                 </div>

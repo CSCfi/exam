@@ -102,16 +102,22 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         config.save();
     }
 
+    private Exam prepareExamination() {
+        Result result1 = get("/app/student/exam/" + exam.getHash());
+        assertThat(result1.status()).isEqualTo(200);
+        JsonNode node1 = Json.parse(contentAsString(result1));
+        String hash = deserialize(Exam.class, node1).getHash();
+        // ROUND 2 with updated hash
+        Result result2 = get("/app/student/exam/" + hash);
+        JsonNode node2 = Json.parse(contentAsString(result2));
+        return deserialize(Exam.class, node2);
+    }
+
     @Test
     @RunAsStudent
     public void testCreateStudentExam() throws Exception {
         // Execute
-        Result result = get("/app/student/exam/" + exam.getHash());
-        assertThat(result.status()).isEqualTo(200);
-
-        // Verify
-        JsonNode node = Json.parse(contentAsString(result));
-        Exam studentExam = deserialize(Exam.class, node);
+        Exam studentExam = prepareExamination();
         assertThat(studentExam.getName()).isEqualTo(exam.getName());
         assertThat(studentExam.getCourse().getId()).isEqualTo(exam.getCourse().getId());
         assertThat(studentExam.getInstruction()).isEqualTo(exam.getInstruction());
@@ -138,9 +144,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testAnswerMultiChoiceQuestion() throws Exception {
-        Result result = get("/app/student/exam/" + exam.getHash());
-        JsonNode node = Json.parse(contentAsString(result));
-        Exam studentExam = deserialize(Exam.class, node);
+        Exam studentExam = prepareExamination();
         ExamSectionQuestion question = Ebean
             .find(ExamSectionQuestion.class)
             .where()
@@ -150,12 +154,11 @@ public class ExaminationControllerTest extends IntegrationTestCase {
             .get(0);
         Iterator<ExamSectionQuestionOption> it = question.getOptions().iterator();
         ExamSectionQuestionOption option = it.next();
-        result =
-            request(
-                Helpers.POST,
-                String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
-                createMultipleChoiceAnswerData(option)
-            );
+        Result result = request(
+            Helpers.POST,
+            String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
+            createMultipleChoiceAnswerData(option)
+        );
         assertThat(result.status()).isEqualTo(200);
 
         // Change answer
@@ -181,9 +184,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testAnswerMultiChoiceQuestionWrongIP() throws Exception {
         // Setup
-        Result result = get("/app/student/exam/" + exam.getHash());
-        JsonNode node = Json.parse(contentAsString(result));
-        Exam studentExam = deserialize(Exam.class, node);
+        Exam studentExam = prepareExamination();
         ExamSectionQuestion question = Ebean
             .find(ExamSectionQuestion.class)
             .where()
@@ -198,21 +199,18 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         machine.update();
 
         // Execute
-        result =
-            request(
-                Helpers.POST,
-                String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
-                createMultipleChoiceAnswerData(option)
-            );
+        Result result = request(
+            Helpers.POST,
+            String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
+            createMultipleChoiceAnswerData(option)
+        );
         assertThat(result.status()).isEqualTo(403);
     }
 
     @Test
     @RunAsStudent
     public void testAnswerClozeTestQuestionInvalidJson() throws Exception {
-        Result result = get("/app/student/exam/" + exam.getHash());
-        JsonNode node = Json.parse(contentAsString(result));
-        Exam studentExam = deserialize(Exam.class, node);
+        Exam studentExam = prepareExamination();
         ExamSectionQuestion question = Ebean
             .find(ExamSectionQuestion.class)
             .where()
@@ -221,12 +219,11 @@ public class ExaminationControllerTest extends IntegrationTestCase {
             .findList()
             .get(0);
         String answer = "{\"foo\": \"bar";
-        result =
-            request(
-                Helpers.POST,
-                String.format("/app/student/exam/%s/clozetest/%d", studentExam.getHash(), question.getId()),
-                Json.newObject().put("answer", answer).put("objectVersion", 1L)
-            );
+        Result result = request(
+            Helpers.POST,
+            String.format("/app/student/exam/%s/clozetest/%d", studentExam.getHash(), question.getId()),
+            Json.newObject().put("answer", answer).put("objectVersion", 1L)
+        );
         assertThat(result.status()).isEqualTo(400);
     }
 
@@ -234,9 +231,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testDoExamAndAutoEvaluate() throws Exception {
         setAutoEvaluationConfig();
-        Result result = get("/app/student/exam/" + exam.getHash());
-        JsonNode node = Json.parse(contentAsString(result));
-        final Exam studentExam = deserialize(Exam.class, node);
+        Exam studentExam = prepareExamination();
         studentExam
             .getExamSections()
             .stream()
@@ -305,7 +300,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                         break;
                 }
             });
-        result = request(Helpers.PUT, String.format("/app/student/exam/%s", studentExam.getHash()), null);
+        Result result = request(Helpers.PUT, String.format("/app/student/exam/%s", studentExam.getHash()), null);
         assertThat(result.status()).isEqualTo(200);
         Exam turnedExam = Ebean.find(Exam.class, studentExam.getId());
         assertThat(turnedExam.getGrade()).isNotNull();
@@ -319,9 +314,8 @@ public class ExaminationControllerTest extends IntegrationTestCase {
             Ebean.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
         );
         exam.update();
-        Result result = get("/app/student/exam/" + exam.getHash());
-        JsonNode node = Json.parse(contentAsString(result));
-        return deserialize(Exam.class, node);
+        // Execute
+        return prepareExamination();
     }
 
     @Test
@@ -429,9 +423,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     @Test
     @RunAsStudent
     public void testClaimChoiceQuestionOptionOrderAndAnswerSkip() throws Exception {
-        Result result = get("/app/student/exam/" + exam.getHash());
-        JsonNode node = Json.parse(contentAsString(result));
-        Exam studentExam = deserialize(Exam.class, node);
+        Exam studentExam = prepareExamination();
         ExamSectionQuestion question = Ebean
             .find(ExamSectionQuestion.class)
             .where()
@@ -448,12 +440,11 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         assertThat(options.get(1).getOption().getClaimChoiceType()).isEqualTo(ClaimChoiceOptionType.IncorrectOption);
         assertThat(options.get(2).getOption().getClaimChoiceType()).isEqualTo(ClaimChoiceOptionType.SkipOption);
 
-        result =
-            request(
-                Helpers.POST,
-                String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
-                createMultipleChoiceAnswerData(options.get(2))
-            );
+        Result result = request(
+            Helpers.POST,
+            String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
+            createMultipleChoiceAnswerData(options.get(2))
+        );
         assertThat(result.status()).isEqualTo(200);
     }
 }

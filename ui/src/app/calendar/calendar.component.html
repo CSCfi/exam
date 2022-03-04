@@ -1,10 +1,8 @@
 <div id="dashboard">
-    <div class="row mt-4 ml-2">
-        <div class="col-md-12 mt-2">
-            <div class="student-details-title-wrap">
-                <history-back></history-back>
-                <h1 class="student-exam-details-title">{{ 'sitnet_calendar' | translate }}</h1>
-            </div>
+    <div class="col-md-12 mt-2">
+        <div class="student-details-title-wrap">
+            <history-back></history-back>
+            <h1 class="student-exam-details-title">{{ 'sitnet_calendar' | translate }}</h1>
         </div>
     </div>
 
@@ -50,8 +48,8 @@
 
     <!-- Reservation confirmation -->
 
-    <div class="row mart10 marb20">
-        <div class="col-md-8 col-12">
+    <div class="row mart10 marb20 mar-lr-0">
+        <div class="col-md-8 col-12 pad0">
             <div class="row student-enrolment-wrapper details-view" [ngClass]="reservation ? '' : 'notactive'">
                 <div class="col-md-12">
                     <div class="row">
@@ -130,7 +128,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 col-12">
+        <div class="col-md-4 col-12 pad0 mar-">
             <div class="row mart20 marb10 marr10 marl10 align-items-center">
                 <div class="col-md-12">
                     <button
@@ -139,7 +137,6 @@
                         style="width: 100%; line-height: 1.5; border-radius: 3px"
                         (click)="confirmReservation()"
                         tabindex="0"
-                        (keyup.enter)="confirmReservation()"
                     >
                         {{ 'sitnet_student_confirm_reservation' | translate }}
                     </button>

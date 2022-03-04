@@ -27,7 +27,7 @@ import { ReservationService } from './reservation.service';
 
 import type { Observable } from 'rxjs';
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { CollaborativeExam, Exam, Implementation } from '../exam/exam.model';
+import type { CollaborativeExam, Exam, ExamImpl, Implementation } from '../exam/exam.model';
 import type { User } from '../session/session.service';
 import type { Option } from '../utility/select/dropDownSelect.component';
 import type { ExamMachine, ExamRoom, Reservation } from './reservation.model';
@@ -96,6 +96,7 @@ export class ReservationComponentBase {
     reservations: AnyReservation[] = [];
     isInteroperable = false;
     externalReservationsOnly = false;
+    byodExamsOnly = false;
 
     constructor(
         private http: HttpClient,
@@ -166,8 +167,7 @@ export class ReservationComponentBase {
                             };
                         });
                         const allEvents: Partial<Reservation>[] = reservations;
-                        allEvents.concat(events);
-                        return allEvents as Reservation[]; // FIXME: this is wrong(?) <- don't know how to model anymore with strict checking
+                        return allEvents.concat(events) as Reservation[]; // FIXME: this is wrong(?) <- don't know how to model anymore with strict checking
                     }),
                     map((reservations: Reservation[]) =>
                         reservations.map((r) => ({
@@ -255,9 +255,14 @@ export class ReservationComponentBase {
                 )
                 .subscribe(
                     (reservations) => {
-                        this.reservations = reservations.filter(
-                            (r) => r.externalReservation || !this.externalReservationsOnly,
-                        );
+                        this.reservations = reservations
+                            .filter((r) => r.externalReservation || !this.externalReservationsOnly)
+                            .filter(
+                                (r) =>
+                                    (!r.externalUserRef &&
+                                        (r.enrolment.exam as ExamImpl).implementation !== 'AQUARIUM') ||
+                                    !this.byodExamsOnly,
+                            );
                     },
                     (err) => toast.error(err),
                 );
@@ -312,7 +317,7 @@ export class ReservationComponentBase {
             this.http.get<Exam[]>('/app/reservations/exams'),
         ];
         if (this.isInteroperable && this.isAdminView()) {
-            examObservables.push(this.http.get<CollaborativeExam[]>('/integration/iop/exams'));
+            examObservables.push(this.http.get<CollaborativeExam[]>('/app/iop/exams'));
         }
         forkJoin(examObservables)
             .pipe(
@@ -366,7 +371,7 @@ export class ReservationComponentBase {
         this.query();
     }
 
-    externalReservationFilterClicked() {
+    updateQuery() {
         this.query();
     }
 

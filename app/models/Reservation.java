@@ -17,13 +17,10 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
@@ -31,7 +28,6 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import models.iop.ExternalReservation;
-import models.sections.ExamSection;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
@@ -49,10 +45,6 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
     @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime endAt;
 
-    private boolean noShow;
-
-    private boolean retrialPermitted;
-
     private boolean reminderSent;
 
     @OneToOne(mappedBy = "reservation")
@@ -68,14 +60,6 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
     @JoinColumn(name = "user_id")
     @JsonBackReference
     private User user;
-
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-        name = "reservation_optional_exam_section",
-        joinColumns = @JoinColumn(name = "reservation_id"),
-        inverseJoinColumns = @JoinColumn(name = "exam_section_id")
-    )
-    private Set<ExamSection> optionalSections;
 
     private String externalRef;
 
@@ -100,22 +84,6 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
         this.endAt = endAt;
     }
 
-    public boolean isNoShow() {
-        return noShow;
-    }
-
-    public void setNoShow(boolean noShow) {
-        this.noShow = noShow;
-    }
-
-    public boolean isRetrialPermitted() {
-        return retrialPermitted;
-    }
-
-    public void setRetrialPermitted(boolean retrialPermitted) {
-        this.retrialPermitted = retrialPermitted;
-    }
-
     public boolean isReminderSent() {
         return reminderSent;
     }
@@ -138,14 +106,6 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public Set<ExamSection> getOptionalSections() {
-        return optionalSections;
-    }
-
-    public void setOptionalSections(Set<ExamSection> optionalSections) {
-        this.optionalSections = optionalSections;
     }
 
     public ExamEnrolment getEnrolment() {

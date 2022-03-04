@@ -17,10 +17,10 @@ package impl;
 
 import com.google.inject.ImplementedBy;
 import java.util.List;
-import models.Reservation;
+import models.ExamEnrolment;
 
 @ImplementedBy(NoShowHandlerImpl.class)
 public interface NoShowHandler {
-    void handleNoShows(List<Reservation> noShows);
-    void handleNoShowAndNotify(Reservation reservation);
+    void handleNoShows(List<ExamEnrolment> noShows);
+    void handleNoShowAndNotify(ExamEnrolment reservation);
 }

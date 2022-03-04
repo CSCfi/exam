@@ -22,7 +22,9 @@
             </div>
         </div>
 
-        <div class="col-md-12 padl30 mart20" *ngIf="examReviews && examReviews.length === 0">N/A</div>
+        <div class="col-md-12 padl30 mart20 padb30" *ngIf="examReviews && examReviews.length === 0">
+            {{ 'sitnet_no_examinations_to_grade' | translate }}
+        </div>
 
         <div *ngIf="examReviews && examReviews.length > 0">
             <div class="col-md-12 padl0 padr0 mart40 overflow-x-scroll">
@@ -183,7 +185,7 @@
         <!-- Buttons -->
         <div class="padl15 padr15 marb20 d-flex justify-content-between">
             <div>
-                <div class="speed-review-csv mb-1">
+                <div class="speed-review-csv ml-3 mb-1">
                     <a class="pointer" (click)="importGrades()">{{ 'sitnet_import_grades_from_csv' | translate }}</a>
                     <sup>
                         <img
@@ -197,7 +199,7 @@
                     </sup>
                 </div>
 
-                <div class="speed-review-csv mart0">
+                <div class="speed-review-csv ml-3">
                     <a class="pointer" (click)="createGradingTemplate()">{{
                         'sitnet_create_grading_template' | translate
                     }}</a>

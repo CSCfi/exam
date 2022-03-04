@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import models.GeneralSettings;
 import models.Language;
 import models.User;
+import org.joda.time.DateTime;
 import play.Environment;
 import play.data.DynamicForm;
 import play.libs.Json;
@@ -145,10 +146,31 @@ public class SettingsController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    public Result getExamMaxDate() {
+        ObjectNode node = Json.newObject();
+        node.put("maxDate", configReader.getExamMaxDate().toString());
+        return ok(Json.toJson(node));
+    }
+
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExamDurations() {
         ObjectNode node = Json.newObject();
         ArrayNode durations = node.putArray("examDurations");
         configReader.getExamDurations().forEach(durations::add);
+        return ok(Json.toJson(node));
+    }
+
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    public Result getExamMaxDuration() {
+        ObjectNode node = Json.newObject();
+        node.put("maxDuration", configReader.getExamMaxDuration());
+        return ok(Json.toJson(node));
+    }
+
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    public Result getExamMinDuration() {
+        ObjectNode node = Json.newObject();
+        node.put("minDuration", configReader.getExamMinDuration());
         return ok(Json.toJson(node));
     }
 

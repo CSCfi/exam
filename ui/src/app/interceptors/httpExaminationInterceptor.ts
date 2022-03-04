@@ -62,13 +62,14 @@ export class ExaminationInterceptor implements HttpInterceptor {
                         this.WrongLocation.displayWrongUserAgent(wrongUserAgent); // Show warning notice on screen
                     } else if (enrolmentId) {
                         // Go to waiting room
+                        parts = enrolmentId.split(':::');
                         this.ExaminationStatus.notifyUpcomingExamination();
-                        const id = enrolmentId === 'none' ? '' : enrolmentId;
+                        const id = enrolmentId === 'none' ? '' : parts[1];
                         if (enrolmentId === 'none') {
                             // No upcoming exams
                             this.state.go('waitingRoomNoExam');
                         } else {
-                            this.state.go('waitingRoom', { id: id });
+                            this.state.go('waitingRoom', { id: id, hash: parts[0] });
                         }
                     } else if (hash) {
                         // Start/continue exam

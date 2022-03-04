@@ -14,24 +14,22 @@
 <!-- RETURN -->
 <div class="row" [hidden]="isPreview">
     <div class="col-md-12 ml-2">
-        <div class="pointer" tabindex="0" (click)="turnExam()" (keyup.enter)="turnExam()">
-            <a class="green_button save-and-exit">{{ 'sitnet_save_and_return_exam' | translate }}</a>
-        </div>
+        <button class="green_button save-and-exit" (click)="turnExam()">
+            {{ 'sitnet_save_and_return_exam' | translate }}
+        </button>
     </div>
 </div>
 
 <!-- ABORT -->
 <div class="row mt-3" [hidden]="isPreview">
     <div class="col-md-12 ml-2 mt-3">
-        <div class="pointer" tabindex="0" (click)="abortExam()" (keyup.enter)="abortExam()">
-            <a class="grey-button abort-and-exit">
-                <img
-                    src="/assets/assets/images/icon_exit.svg"
-                    alt="abort exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_exit.png';"
-                /><span class="pl-2 abort-and-exit">{{ 'sitnet_abort_exam' | translate }}</span>
-            </a>
-        </div>
+        <button class="grey-button abort-and-exit text-nowrap" (click)="abortExam()">
+            <img
+                src="/assets/assets/images/icon_exit.svg"
+                alt="abort exam"
+                onerror="this.onerror=null;this.src='/assets/assets/images/icon_exit.png';"
+            /><span class="pl-2 abort-and-exit">{{ 'sitnet_abort_exam' | translate }}</span>
+        </button>
     </div>
 </div>
 
@@ -48,26 +46,22 @@
 </div>
 
 <!-- ATTACHMENT -->
-<div class="row ml-3 mt-3 align-items-center" [hidden]="!exam.attachment">
-    <div class="col-md-6">
-        <div
-            class="pointer attachment-button"
-            tabindex="0"
-            (click)="downloadExamAttachment()"
-            (keyup.enter)="downloadExamAttachment()"
-        >
-            <div class="green_button">
-                {{ 'sitnet_exam_attachment' | translate }}
-                <img
-                    src="/assets/assets/images/icon_attachment.svg"
-                    alt="attachment"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_attachment.png';"
-                />
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="attachment-name">{{ exam.attachment?.fileName | uppercase }}</div>
+<div class="row ml-3 mt-3 align-items-center overflow-hidden flex-nowrap" [hidden]="!exam.attachment">
+    <button
+        class="pointer attachment-button green_button text-nowrap"
+        [title]="exam.attachment?.fileName"
+        tabindex="0"
+        (click)="downloadExamAttachment()"
+    >
+        {{ 'sitnet_exam_attachment' | translate }}
+        <img
+            src="/assets/assets/images/icon_attachment.svg"
+            alt="attachment"
+            onerror="this.onerror=null;this.src='/assets/assets/images/icon_attachment.png';"
+        />
+    </button>
+    <div class="attachment-name pl-1" [title]="exam.attachment?.fileName">
+        {{ exam.attachment?.fileName | uppercase }}
     </div>
 </div>
 
@@ -75,22 +69,22 @@
     <div class="col-md-12">
         <ul class="list-muted">
             <li
-                tabindex="0"
+                tabindex="1"
                 class="row align-items-center pointer phase-box"
                 [ngClass]="!activeSection ? '' : 'notactive'"
                 (click)="selectGuidePage()"
-                (keyup.enter)="selectGuidePage()"
+                (keydown.enter)="selectGuidePage()"
             >
                 <div class="col-md-12">{{ 'sitnet_exam_guide' | translate }}</div>
             </li>
 
             <li
-                tabindex="0"
+                tabindex="1"
                 class="row d-flex align-items-center pointer phase-box"
                 *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let i = index"
                 [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
                 (click)="selectSection(section)"
-                (keyup.enter)="selectSection(section)"
+                (keydown.enter)="selectSection(section)"
                 ngbPopover="{{ section.name }}: {{ 'sitnet_question_status_answered' | translate }}
                  {{ getQuestionAmount(section, 'answered') }}, {{ 'sitnet_questions_total' | translate }}
                  {{ getQuestionAmount(section, 'total') }}"
@@ -162,11 +156,10 @@
 
 <!-- MATURITY INSTRUCTIONS -->
 <div class="row">
-    <div
+    <button
         class="col-md-12"
         tabindex="0"
         (click)="showMaturityInstructions()"
-        (keyup.enter)="showMaturityInstructions()"
         [hidden]="exam.executionType.type !== 'MATURITY'"
     >
         <div class="row pointer d-flex align-items-center m-0">
@@ -181,16 +174,11 @@
                 {{ 'sitnet_maturity_instructions' | translate }}
             </div>
         </div>
-    </div>
+    </button>
 </div>
 <div class="row" [hidden]="!isPreview">
     <div class="col-md-12">
-        <div
-            tabindex="0"
-            class="row pointer d-flex align-items-center m-0"
-            (click)="exitPreview()"
-            (keyup.enter)="exitPreview()"
-        >
+        <button tabindex="0" class="row pointer d-flex align-items-center m-0" (click)="exitPreview()">
             <a class="mr-2">
                 <img
                     src="/assets/assets/images/icon_info.svg"
@@ -201,6 +189,6 @@
             <div class="question-text question-type-text info">
                 {{ 'sitnet_exit_preview' | translate }}
             </div>
-        </div>
+        </button>
     </div>
 </div>
