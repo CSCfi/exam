@@ -75,20 +75,10 @@ export class ExaminationEventDialogComponent implements OnInit {
                 examinationEvent: {
                     start: this.start,
                     description: this.description,
+                    capacity: this.capacity,
                 },
                 settingsPassword: this.password,
             },
-        });
-        const config = {
-            examinationEvent: {
-                start: this.start,
-                description: this.description,
-                capacity: this.capacity,
-            },
-            settingsPassword: this.password,
-        };
-        this.activeModal.close({
-            config: config,
         });
     }
 
