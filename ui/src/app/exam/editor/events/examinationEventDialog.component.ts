@@ -32,7 +32,7 @@ export class ExaminationEventDialogComponent implements OnInit {
     @Input() examMaxDate?: string;
     start = new Date();
     description = '';
-    capacity = 0;
+    capacity = 1;
     password?: string;
     hasEnrolments = false;
     pwdInputType = 'password';
