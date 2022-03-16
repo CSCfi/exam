@@ -5,8 +5,9 @@ import static org.fest.assertions.Assertions.assertThat;
 import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.icegreen.greenmail.junit.GreenMailRule;
-import com.icegreen.greenmail.util.ServerSetup;
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit4.GreenMailRule;
+import com.icegreen.greenmail.util.ServerSetupTest;
 import helpers.AttachmentServlet;
 import helpers.RemoteServerHelper;
 import io.ebean.Ebean;
@@ -68,17 +69,18 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     private static final String HASH = "7cf002da-4263-4843-99b1-e8af51e"; // Has to match with the externalRef in test json file
     private static Path testUpload;
     private static Server server;
-    private static File testImage = getTestFile("test_files/test_image.png");
+    private static final File testImage = getTestFile("test_files/test_image.png");
     private static AttachmentServlet attachmentServlet;
 
     private Exam exam;
     private ExamEnrolment enrolment;
-    private Reservation reservation = new Reservation();
+    private final Reservation reservation = new Reservation();
 
     private final Application app = new GuiceApplicationBuilder().build();
 
     @Rule
-    public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
+    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
+        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     public static class EnrolmentServlet extends HttpServlet {
 

@@ -8,9 +8,10 @@ import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.icegreen.greenmail.junit.GreenMailRule;
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit4.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
-import com.icegreen.greenmail.util.ServerSetup;
+import com.icegreen.greenmail.util.ServerSetupTest;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import java.util.ArrayList;
@@ -47,12 +48,13 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     private Exam exam;
     private User user;
 
-    private ExamEnrolment enrolment = new ExamEnrolment();
+    private final ExamEnrolment enrolment = new ExamEnrolment();
     private ExamMachine machine;
-    private Reservation reservation = new Reservation();
+    private final Reservation reservation = new Reservation();
 
     @Rule
-    public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
+    public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
+        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     @Override
     @Before

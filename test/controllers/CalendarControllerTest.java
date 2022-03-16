@@ -5,9 +5,10 @@ import static play.test.Helpers.contentAsString;
 
 import base.IntegrationTestCase;
 import base.RunAsStudent;
-import com.icegreen.greenmail.junit.GreenMailRule;
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit4.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
-import com.icegreen.greenmail.util.ServerSetup;
+import com.icegreen.greenmail.util.ServerSetupTest;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import java.util.ArrayList;
@@ -42,7 +43,8 @@ public class CalendarControllerTest extends IntegrationTestCase {
     private Reservation reservation;
 
     @Rule
-    public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
+    public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
+        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     private void setWorkingHours() {
         String[] dates = { "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" };
