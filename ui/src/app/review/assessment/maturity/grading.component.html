@@ -14,12 +14,7 @@
 </div>
 
 <!-- inspector comments -->
-<r-inspection-comments
-    [exam]="exam"
-    [addingDisabled]="!isOwnerOrAdmin() || !examForm.valid"
-    [addingVisible]="!isMaturityRejection()"
->
-</r-inspection-comments>
+<r-inspection-comments [exam]="exam" [addingVisible]="!isMaturityRejection()"> </r-inspection-comments>
 
 <!-- language inspection - inspector -->
 <div class="detail-row mart20" *ngIf="hasGoneThroughLanguageInspection()">
