@@ -23,7 +23,6 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
-import com.opencsv.exceptions.CsvValidationException;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import java.io.File;
@@ -39,6 +38,7 @@ import models.Comment;
 import models.Exam;
 import models.ExamRecord;
 import models.Grade;
+import models.GradeScale;
 import models.Role;
 import models.User;
 import models.dto.ExamScore;
@@ -175,11 +175,12 @@ public class CsvBuilderImpl implements CsvBuilder {
                 continue;
             }
             String gradeName = records[1];
+            GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
             List<Grade> grades = Ebean
                 .find(Grade.class)
                 .where()
                 .eq("name", gradeName)
-                .eq("gradeScale", exam.getGradeScale())
+                .eq("gradeScale", scale)
                 .findList();
             if (grades.isEmpty()) {
                 logger.warn("No grade found with name {}", gradeName);
