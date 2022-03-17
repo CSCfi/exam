@@ -17,12 +17,7 @@
 <div class="main-row">
     <span class="col-md-12">
         <div class="review-attachment-button exam-questions-buttons mr-2">
-            <button
-                class="btn btn-link"
-                *ngIf="addingVisible"
-                [disabled]="addingDisabled"
-                (click)="addInspectionComment()"
-            >
+            <button class="btn btn-link" *ngIf="addingVisible" (click)="addInspectionComment()">
                 {{ 'sitnet_inspection_comment_title' | translate }}
             </button>
         </div>

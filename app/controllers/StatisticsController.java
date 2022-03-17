@@ -342,6 +342,7 @@ public class StatisticsController extends BaseController {
             .gt("reservation.endAt", start)
             .lt("reservation.startAt", end)
             .eq("reservation.machine.room.id", roomId)
+            .isNotNull("exam")
             .findList();
 
         Workbook wb = new XSSFWorkbook();

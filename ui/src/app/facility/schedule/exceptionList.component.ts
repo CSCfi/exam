@@ -17,16 +17,16 @@ import { format, parseISO } from 'date-fns';
 
 import { RoomService } from '../rooms/room.service';
 
-import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
 @Component({
     templateUrl: './exceptionList.component.html',
     selector: 'exception-list',
 })
 export class ExceptionListComponent {
-    @Input() room!: ExamRoom;
+    @Input() exceptions: ExceptionWorkingHours[] = [];
     @Input() hideButton = false;
     @Input() hideTitle = false;
-    @Input() filter: (exception: ExceptionWorkingHours) => boolean = () => false;
+    @Input() filter: (exception: ExceptionWorkingHours) => boolean = () => true;
     @Output() onCreate = new EventEmitter<ExceptionWorkingHours>();
     @Output() onDelete = new EventEmitter<ExceptionWorkingHours>();
 
