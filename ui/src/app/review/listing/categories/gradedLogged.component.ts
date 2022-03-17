@@ -50,7 +50,7 @@ export class GradedLoggedReviewsComponent {
 
     private init = () => {
         this.view = {
-            ...this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'started'),
+            ...this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'displayedGradingTime'),
             reverse: true,
         };
         this.selections = { all: false, page: false };
