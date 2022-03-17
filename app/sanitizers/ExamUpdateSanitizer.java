@@ -86,6 +86,7 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
             );
         request = SanitizingHelper.sanitizeOptional("internalRef", body, String.class, Attrs.REFERENCE, request);
         request = SanitizingHelper.sanitizeOptional("anonymous", body, Boolean.class, Attrs.ANONYMOUS, request);
+        request = SanitizingHelper.sanitizeOptional("organisations", body, String.class, Attrs.ORGANISATIONS, request);
         request =
             SanitizingHelper.sanitizeOptional("settingsPassword", body, String.class, Attrs.SETTINGS_PASSWORD, request);
         if (body.has("examType")) {

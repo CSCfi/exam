@@ -156,6 +156,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         Optional<String> instruction = request.attrs().getOptional(Attrs.INSTRUCTION);
         Optional<String> enrollInstruction = request.attrs().getOptional(Attrs.ENROLMENT_INFORMATION);
         Optional<String> examType = request.attrs().getOptional(Attrs.TYPE);
+        Optional<String> organisations = request.attrs().getOptional(Attrs.ORGANISATIONS);
         Integer trialCount = request.attrs().getOptional(Attrs.TRIAL_COUNT).orElse(null);
         Boolean expanded = request.attrs().getOptional(Attrs.EXPANDED).orElse(false);
         Boolean requiresLanguageInspection = request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).orElse(null);
@@ -171,6 +172,18 @@ public class ExamUpdaterImpl implements ExamUpdater {
         answerLanguage.ifPresent(exam::setAnswerLanguage);
         instruction.ifPresent(exam::setInstruction);
         enrollInstruction.ifPresent(exam::setEnrollInstruction);
+        if (exam.getState() != Exam.State.PUBLISHED) {
+            if (organisations.isPresent()) {
+                String homeOrg = configReader.getHomeOrganisationRef();
+                String updated = organisations.get();
+                if (!updated.contains(homeOrg)) {
+                    updated = String.format("%s;%s", homeOrg, updated);
+                }
+                exam.setOrganisations(updated);
+            } else {
+                exam.setOrganisations(null);
+            }
+        }
         examType.ifPresent(type -> {
             ExamType eType = Ebean.find(ExamType.class).where().eq("type", type).findOne();
 

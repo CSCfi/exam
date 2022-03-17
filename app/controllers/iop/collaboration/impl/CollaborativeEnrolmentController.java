@@ -6,6 +6,7 @@ import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
 import io.vavr.control.Either;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -30,7 +31,13 @@ public class CollaborativeEnrolmentController extends CollaborationController {
 
     private static final Logger.ALogger logger = Logger.of(CollaborativeEnrolmentController.class);
 
-    private boolean isEnrollable(Exam exam) {
+    private boolean isEnrollable(Exam exam, String homeOrg) {
+        if (exam.getOrganisations() != null) {
+            String[] organisations = exam.getOrganisations().split(";");
+            if (!Arrays.asList(organisations).contains(homeOrg)) {
+                return false;
+            }
+        }
         return (
             exam.getState() == Exam.State.PUBLISHED &&
             exam.getExecutionType().getType().equals(ExamExecutionType.Type.PUBLIC.toString()) &&
@@ -39,7 +46,8 @@ public class CollaborativeEnrolmentController extends CollaborationController {
     }
 
     private Either<Result, Exam> checkExam(Exam exam, User user) {
-        if (exam == null || !isEnrollable(exam)) {
+        String homeOrg = configReader.getHomeOrganisationRef();
+        if (exam == null || !isEnrollable(exam, homeOrg)) {
             return Either.left(notFound("sitnet_error_exam_not_found"));
         }
         if (!isAllowedToParticipate(exam, user)) {
@@ -56,6 +64,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         }
 
         WSRequest request = wsClient.url(url.get().toString());
+        String homeOrg = configReader.getHomeOrganisationRef();
         Function<WSResponse, Result> onSuccess = response ->
             findExamsToProcess(response)
                 .map(items -> {
@@ -63,7 +72,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                         .entrySet()
                         .stream()
                         .map(e -> e.getKey().getExam(e.getValue()))
-                        .filter(this::isEnrollable)
+                        .filter(e -> isEnrollable(e, homeOrg))
                         .collect(Collectors.toList());
 
                     return ok(
@@ -91,6 +100,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         }
 
         WSRequest request = wsClient.url(url.get().toString());
+        String homeOrg = configReader.getHomeOrganisationRef();
         Function<WSResponse, Result> onSuccess = response ->
             findExamsToProcess(response)
                 .map(items -> {
@@ -98,7 +108,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                         .entrySet()
                         .stream()
                         .map(e -> e.getKey().getExam(e.getValue()))
-                        .filter(this::isEnrollable)
+                        .filter(e -> isEnrollable(e, homeOrg))
                         .collect(Collectors.toList());
 
                     return ok(
@@ -232,7 +242,8 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                     return notFound("sitnet_error_exam_not_found");
                 }
                 Exam exam = result.get();
-                if (!isEnrollable(exam)) {
+                String homeOrg = configReader.getHomeOrganisationRef();
+                if (!isEnrollable(exam, homeOrg)) {
                     return notFound("sitnet_error_exam_not_found");
                 }
                 if (isAllowedToParticipate(exam, user)) {

@@ -112,6 +112,7 @@ public class CollaborativeExamController extends CollaborationController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         WSRequest wsRequest = wsClient.url(url.get().toString());
+        String homeOrg = configReader.getHomeOrganisationRef();
 
         Function<WSResponse, Result> onSuccess = response ->
             findExamsToProcess(response)
@@ -120,7 +121,7 @@ public class CollaborativeExamController extends CollaborationController {
                         .entrySet()
                         .stream()
                         .map(e -> e.getKey().getExam(e.getValue()))
-                        .filter(e -> isAuthorizedToView(e, user))
+                        .filter(e -> isAuthorizedToView(e, user, homeOrg))
                         .map(this::serialize)
                         .collect(Collectors.toList());
 
@@ -145,6 +146,7 @@ public class CollaborativeExamController extends CollaborationController {
 
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         WSRequest wsRequest = wsClient.url(url.get().toString());
+        String homeOrg = configReader.getHomeOrganisationRef();
 
         Function<WSResponse, Result> onSuccess = response ->
             findExamsToProcess(response)
@@ -153,7 +155,7 @@ public class CollaborativeExamController extends CollaborationController {
                         .entrySet()
                         .stream()
                         .map(e -> e.getKey().getExam(e.getValue()))
-                        .filter(e -> isAuthorizedToView(e, user))
+                        .filter(e -> isAuthorizedToView(e, user, homeOrg))
                         .map(this::serialize)
                         .collect(Collectors.toList());
 
@@ -165,6 +167,7 @@ public class CollaborativeExamController extends CollaborationController {
     }
 
     private CompletionStage<Result> getExam(Long id, Consumer<Exam> postProcessor, User user) {
+        String homeOrg = configReader.getHomeOrganisationRef();
         return findCollaborativeExam(id)
             .map(ce ->
                 downloadExam(ce)
@@ -173,7 +176,7 @@ public class CollaborativeExamController extends CollaborationController {
                             return notFound("sitnet_error_exam_not_found");
                         }
                         Exam exam = result.get();
-                        if (!isAuthorizedToView(exam, user)) {
+                        if (!isAuthorizedToView(exam, user, homeOrg)) {
                             return notFound("sitnet_error_exam_not_found");
                         }
                         postProcessor.accept(exam);
@@ -251,6 +254,7 @@ public class CollaborativeExamController extends CollaborationController {
     @With(ExamUpdateSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> updateExam(Long id, Http.Request request) {
+        String homeOrg = configReader.getHomeOrganisationRef();
         return findCollaborativeExam(id)
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -258,7 +262,7 @@ public class CollaborativeExamController extends CollaborationController {
                     .thenComposeAsync(result -> {
                         if (result.isPresent()) {
                             Exam exam = result.get();
-                            if (isAuthorizedToView(exam, user)) {
+                            if (isAuthorizedToView(exam, user, homeOrg)) {
                                 Exam.State previousState = exam.getState();
                                 Optional<Result> error = Stream
                                     .of(

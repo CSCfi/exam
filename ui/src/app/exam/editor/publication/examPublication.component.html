@@ -154,53 +154,55 @@
                 {{ duration }}
             </button>
         </span>
-        <button class="btn btn-primary green border-green marl30" (click)="toggleCustomTimeField()">
-            {{ 'sitnet_custom' | translate }} {{ ('sitnet_exam_time' | translate).toLowerCase() }}
-            <img
-                class="{{ showCustomTimeField && 'rotate90' }}"
-                src="/assets/assets/images/icon_right_white.png"
-                alt="exam"
-            />
-        </button>
-        <span *ngIf="showCustomTimeField" class="wdt400">
-            <div class="mart10">
+        <span *ngIf="exam.implementation === 'WHATEVER'">
+            <button class="btn btn-primary green border-green marl30" (click)="toggleCustomTimeField()">
+                {{ 'sitnet_custom' | translate }} {{ ('sitnet_exam_time' | translate).toLowerCase() }}
+                <img
+                    class="{{ showCustomTimeField && 'rotate90' }}"
+                    src="/assets/assets/images/icon_right_white.png"
+                    alt="exam"
+                />
+            </button>
+            <span *ngIf="showCustomTimeField" class="wdt400">
                 <div class="mart10">
-                    <input
-                        id="hourValue"
-                        name="examDuration-hours"
-                        class="wdt50 time-display"
-                        type="number"
-                        [(ngModel)]="hourValue"
-                        [max]="23"
-                        [min]="0"
-                        (change)="setHourValue($event)"
-                    />
-                    <label for="hourValue">{{ 'sitnet_hours' | translate }}</label>
+                    <div class="mart10">
+                        <input
+                            id="hourValue"
+                            name="examDuration-hours"
+                            class="wdt50 time-display"
+                            type="number"
+                            [(ngModel)]="hourValue"
+                            [max]="23"
+                            [min]="0"
+                            (change)="setHourValue($event)"
+                        />
+                        <label for="hourValue">{{ 'sitnet_hours' | translate }}</label>
+                    </div>
+                    <div class="mart10">
+                        <input
+                            id="minuteValue"
+                            name="examDuration-minutes"
+                            class="wdt50 time-display"
+                            type="number"
+                            [(ngModel)]="minuteValue"
+                            [max]="59"
+                            [min]="0"
+                            (change)="setMinuteValue($event)"
+                        />
+                        <label for="minuteValue">{{ 'sitnet_minutes' | translate }}</label>
+                    </div>
+                    <button
+                        class="btn btn-primary green border-green mart10"
+                        (click)="setExamDuration(hourValue, minuteValue)"
+                    >
+                        {{ 'sitnet_save' | translate }}
+                    </button>
                 </div>
-                <div class="mart10">
-                    <input
-                        id="minuteValue"
-                        name="examDuration-minutes"
-                        class="wdt50 time-display"
-                        type="number"
-                        [(ngModel)]="minuteValue"
-                        [max]="59"
-                        [min]="0"
-                        (change)="setMinuteValue($event)"
-                    />
-                    <label for="minuteValue">{{ 'sitnet_minutes' | translate }}</label>
+                <div>
+                    {{ 'sitnet_between' | translate }}: {{ toHoursAndMinutes(minDuration) }} -
+                    {{ toHoursAndMinutes(maxDuration) }}
                 </div>
-                <button
-                    class="btn btn-primary green border-green mart10"
-                    (click)="setExamDuration(hourValue, minuteValue)"
-                >
-                    {{ 'sitnet_save' | translate }}
-                </button>
-            </div>
-            <div>
-                {{ 'sitnet_between' | translate }}: {{ toHoursAndMinutes(minDuration) }} -
-                {{ toHoursAndMinutes(maxDuration) }}
-            </div>
+            </span>
         </span>
         <div class="marl50 mart10">
             {{ 'sitnet_saved' | translate }} {{ ('sitnet_exam_duration' | translate).toLowerCase() }}:
@@ -305,6 +307,9 @@
 
 <!-- Collaborative exam owners -->
 <collaborative-exam-owner-selector *ngIf="collaborative" [exam]="exam"> </collaborative-exam-owner-selector>
+
+<!-- Collaborative exam organisations -->
+<exam-organisation-selector *ngIf="collaborative" [exam]="exam"></exam-organisation-selector>
 
 <!-- Link to enrolment -->
 <div class="row marr30" *ngIf="exam.executionType.type === 'PUBLIC' && !collaborative">

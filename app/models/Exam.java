@@ -259,6 +259,8 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     private String assessmentInfo;
 
+    private String organisations;
+
     public User getGradedByUser() {
         return gradedByUser;
     }
@@ -613,6 +615,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public String getAssessmentInfo() {
         return assessmentInfo;
+    }
+
+    public String getOrganisations() {
+        return organisations;
+    }
+
+    public void setOrganisations(String organisations) {
+        this.organisations = organisations;
     }
 
     public void setAssessmentInfo(String assessmentInfo) {

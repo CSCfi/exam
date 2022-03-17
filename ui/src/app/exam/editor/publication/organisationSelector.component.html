@@ -1,0 +1,56 @@
+<div class="row mt-2">
+    <div class="col-md-3 exam-basic-title">
+        {{ 'sitnet_exam_organisations' | translate }}
+        <sup>
+            <img
+                ngbPopover="{{ 'sitnet_exam_organisations_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+                src="/assets/assets/images/icon_tooltip.svg"
+                alt="exam organisations"
+                onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png'"
+            />
+        </sup>
+    </div>
+    <div class="col-md-9" ngbDropdown>
+        <button
+            ngbDropdownToggle
+            [disabled]="exam.state === 'PUBLISHED'"
+            class="btn btn-outline-dark"
+            type="button"
+            id="dropDownMenu21"
+            aria-haspopup="true"
+            aria-expanded="true"
+        >
+            {{ 'sitnet_faculty_name' | translate }}&nbsp;
+        </button>
+        <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu21">
+            <li *ngFor="let org of organisations" role="presentation">
+                <button [disabled]="org.filtered" ngbDropdownItem (click)="addOrganisation(org)" role="menuitem">
+                    {{ org.code }} ({{ org.name }})
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row mt-2" *ngIf="selectedOrganisations.length > 0">
+    <div class="col-md-9 offset-md-3">
+        <ul class="list-group list-group-horizontal">
+            <li class="list-group-item" *ngFor="let org of selectedOrganisations">
+                {{ org.name }} ({{ org.code }})
+                <button
+                    class="reviewer-remove"
+                    [disabled]="exam.state === 'PUBLISHED'"
+                    (click)="removeOrganisation(org)"
+                >
+                    <img
+                        [hidden]="exam.state === 'PUBLISHED'"
+                        src="/assets/assets/images/icon_remove.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_remove.png'"
+                    />
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
