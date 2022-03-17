@@ -50,7 +50,7 @@
                             [predicate]="abortedPredicate"
                             by="examParticipation.reservation.trialCount"
                             text="sitnet_trial"
-                            (click)="setPredicate('examParticipation.reservation.trialCount')"
+                            (click)="setPredicate('examParticipation.exam.examEnrolments[0].trialCount')"
                         ></table-sort>
                     </th>
                 </tr>
@@ -95,19 +95,6 @@
                         {{ 'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
                     </td>
                     <td class="table-column-10" *ngIf="review.examParticipation.exam.executionType.type === 'PUBLIC'">
-                        <div *ngIf="review.examParticipation.exam.trialCount && review.examParticipation.reservation">
-                            <button
-                                [disabled]="review.examParticipation.reservation.enrolment.retrialPermitted"
-                                (click)="permitRetrial(review.examParticipation.reservation.enrolment)"
-                                class="btn btn-sm btn-primary"
-                            >
-                                {{
-                                    review.examParticipation.reservation.enrolment.retrialPermitted
-                                        ? ('sitnet_retrial_permitted' | translate)
-                                        : ('sitnet_permit_retrial' | translate)
-                                }}
-                            </button>
-                        </div>
                         <div
                             *ngIf="
                                 review.examParticipation.exam.trialCount &&
