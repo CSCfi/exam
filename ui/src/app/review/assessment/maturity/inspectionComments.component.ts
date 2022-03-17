@@ -28,7 +28,6 @@ import type { User } from '../../../session/session.service';
 })
 export class InspectionCommentsComponent {
     @Input() exam!: Exam;
-    @Input() addingDisabled = false;
     @Input() addingVisible = false;
 
     constructor(private modal: NgbModal, private http: HttpClient) {}
