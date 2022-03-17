@@ -10,9 +10,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.icegreen.greenmail.junit.GreenMailRule;
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit4.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
-import com.icegreen.greenmail.util.ServerSetup;
+import com.icegreen.greenmail.util.ServerSetupTest;
 import com.typesafe.config.ConfigFactory;
 import helpers.AttachmentServlet;
 import helpers.RemoteServerHelper;
@@ -70,7 +71,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     private ExamEnrolment enrolment;
 
     @Rule
-    public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
+    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
+        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     public static class SlotServlet extends HttpServlet {
 

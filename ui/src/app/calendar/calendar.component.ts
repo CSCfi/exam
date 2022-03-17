@@ -93,7 +93,8 @@ export class CalendarComponent implements OnInit {
             .forEach((es) => {
                 es.selected =
                     (data?.optionalSections && data.optionalSections.map((os) => os.id).indexOf(es.id) > -1) ||
-                    (this.uiRouter.params.selected && this.uiRouter.params.selected.indexOf(es.id) > -1);
+                    (this.uiRouter.params.selected &&
+                        this.uiRouter.params.selected.map((p: string) => parseInt(p)).indexOf(es.id) > -1);
             });
     };
 

@@ -268,6 +268,8 @@ public class CalendarController extends BaseController {
         Ebean.save(reservation);
         enrolment.setReservation(reservation);
         enrolment.setReservationCanceled(false);
+        enrolment.getOptionalSections().clear();
+        enrolment.update();
         if (!sectionIds.isEmpty()) {
             Set<ExamSection> sections = Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
             enrolment.setOptionalSections(sections);
