@@ -36,6 +36,9 @@ export class CollaborativeParticipationsComponent implements OnInit {
     ngOnInit() {
         this.Enrolment.listStudentParticipations$().subscribe(
             (participations: CollaborativeParticipation[]) => {
+                participations
+                    .filter((p) => typeof p.ended == 'number')
+                    .forEach((p) => (p.ended = new Date(p.ended).toISOString()));
                 this.originals = participations;
                 this.search('');
             },
