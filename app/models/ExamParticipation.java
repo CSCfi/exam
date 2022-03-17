@@ -23,7 +23,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import models.json.CollaborativeExam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -151,11 +150,6 @@ public class ExamParticipation extends GeneratedIdentityModel {
 
     public void setSentForReview(DateTime sentForReview) {
         this.sentForReview = sentForReview;
-    }
-
-    @Transient
-    public boolean isProcessed() {
-        return (exam != null && exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED));
     }
 
     @Override
