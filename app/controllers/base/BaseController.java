@@ -34,7 +34,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import models.Exam;
 import models.ExamEnrolment;
-import models.ExamParticipation;
 import models.Role;
 import models.User;
 import play.Logger;
@@ -152,24 +151,20 @@ public class BaseController extends Controller {
         if (trialCount == null) {
             return true;
         }
-        List<ExamParticipation> trials = Ebean
-            .find(ExamParticipation.class)
-            .fetch("exam")
+        List<ExamEnrolment> trials = Ebean
+            .find(ExamEnrolment.class)
             .where()
             .eq("user", user)
             .eq("exam.parent.id", exam.getId())
             .ne("exam.state", Exam.State.DELETED)
-            .or()
-            .isNull("reservation")
-            .ne("reservation.enrolment.retrialPermitted", true)
-            .endOr()
+            .ne("retrialPermitted", true)
             .findList()
             .stream()
-            .sorted(Comparator.comparing(ExamParticipation::getStarted).reversed())
+            .sorted(Comparator.comparing(ExamEnrolment::getId).reversed())
             .collect(Collectors.toList());
 
         if (trials.size() >= trialCount) {
-            return trials.stream().limit(trialCount).anyMatch(ExamParticipation::isProcessed);
+            return trials.stream().limit(trialCount).anyMatch(ExamEnrolment::isProcessed);
         }
         return true;
     }
