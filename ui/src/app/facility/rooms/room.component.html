@@ -163,7 +163,7 @@
 
     <exception-list
         *ngIf="room"
-        [room]="room"
+        [exceptions]="room.calendarExceptionEvents"
         (onCreate)="addException($event)"
         (onDelete)="deleteException($event)"
     ></exception-list>
