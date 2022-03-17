@@ -35,6 +35,19 @@ import type {
     GradeScale,
     Implementation,
 } from './exam.model';
+
+export type ExaminationEventConfigurationInput = {
+    id?: number;
+    config: {
+        examinationEvent: {
+            start: string;
+            description: string;
+            capacity: number;
+        };
+        settingsPassword?: string;
+    };
+};
+
 type SectionContainer = { examSections: ExamSection[] };
 @Injectable()
 export class ExamService {
@@ -259,13 +272,13 @@ export class ExamService {
 
     addExaminationEvent$ = (
         examId: number,
-        config: ExaminationEventConfiguration,
+        config: ExaminationEventConfigurationInput,
     ): Observable<ExaminationEventConfiguration> =>
         this.http.post<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents`, config);
 
     updateExaminationEvent$ = (
         examId: number,
-        config: ExaminationEventConfiguration,
+        config: ExaminationEventConfigurationInput,
     ): Observable<ExaminationEventConfiguration> =>
         this.http.put<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents/${config.id}`, config);
 
