@@ -87,14 +87,16 @@ export class RoomComponent implements OnInit {
 
     addException = (exception: ExceptionWorkingHours) => {
         this.roomService.addException([this.room.id], exception).then((data) => {
-            this.roomService.formatExceptionEvent(data);
-            this.room.calendarExceptionEvents.push(data);
+            this.room.calendarExceptionEvents = [...this.room.calendarExceptionEvents, data];
         });
     };
 
     deleteException = (exception: ExceptionWorkingHours) => {
         this.roomService.deleteException(this.room.id, exception.id).then(() => {
-            this.remove(this.room.calendarExceptionEvents, exception);
+            this.room.calendarExceptionEvents = this.room.calendarExceptionEvents.splice(
+                this.room.calendarExceptionEvents.indexOf(exception),
+                1,
+            );
         });
     };
 
@@ -162,11 +164,6 @@ export class RoomComponent implements OnInit {
                 toast.error(err.data.message);
             },
         );
-    };
-
-    private remove = (arr: unknown[], item: unknown) => {
-        const index = arr.indexOf(item);
-        arr.splice(index, 1);
     };
 
     private setSelected = (day: Weekday, slots: number[]) => {

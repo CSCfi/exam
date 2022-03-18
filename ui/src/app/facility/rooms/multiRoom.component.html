@@ -20,7 +20,7 @@
                 <b>{{ room.name || 'sitnet_no_name' | translate }}</b>
             </div>
             <exception-list
-                [room]="room"
+                [exceptions]="room.calendarExceptionEvents"
                 (onCreate)="addException($event)"
                 (onDelete)="deleteException($event)"
                 [filter]="massEditedExceptionFilter"
