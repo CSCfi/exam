@@ -18,14 +18,16 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import { ExamService } from '../../exam.service';
+
 import type { ExaminationEventConfiguration, MaintenancePeriod } from '../../exam.model';
 import type { OnInit } from '@angular/core';
-
 @Component({
     selector: 'examination-event-dialog',
     templateUrl: './examinationEventDialog.component.html',
 })
 export class ExaminationEventDialogComponent implements OnInit {
+    @Input() examId = 0;
     @Input() config?: ExaminationEventConfiguration;
     @Input() maintenancePeriods: MaintenancePeriod[] = [];
     @Input() requiresPassword = false;
@@ -39,7 +41,7 @@ export class ExaminationEventDialogComponent implements OnInit {
     now = new Date();
     maxDateValidator?: Date;
 
-    constructor(public activeModal: NgbActiveModal, private translate: TranslateService) {}
+    constructor(public activeModal: NgbActiveModal, private translate: TranslateService, private Exam: ExamService) {}
 
     ngOnInit() {
         if (this.config) {
@@ -70,16 +72,32 @@ export class ExaminationEventDialogComponent implements OnInit {
             toast.error(this.translate.instant('sitnet_invalid_start_date_picked'));
             return;
         }
-        this.activeModal.close({
+        const config = {
             config: {
                 examinationEvent: {
-                    start: this.start,
+                    start: this.start.toISOString(),
                     description: this.description,
                     capacity: this.capacity,
                 },
                 settingsPassword: this.password,
             },
-        });
+        };
+        if (!this.config) {
+            // new config
+            this.Exam.addExaminationEvent$(this.examId, config).subscribe(
+                (response: ExaminationEventConfiguration) => {
+                    this.activeModal.close(response);
+                },
+                (err) => toast.error(err),
+            );
+        } else {
+            this.Exam.updateExaminationEvent$(this.examId, { ...config, id: this.config.id }).subscribe(
+                (response: ExaminationEventConfiguration) => {
+                    this.activeModal.close(response);
+                },
+                (err) => toast.error(err),
+            );
+        }
     }
 
     cancel = () => this.activeModal.dismiss();

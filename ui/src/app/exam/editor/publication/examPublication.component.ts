@@ -309,15 +309,9 @@ export class ExamPublicationComponent implements OnInit {
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
         modalRef.componentInstance.examMaxDate = this.examMaxDate;
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
+        modalRef.componentInstance.examId = this.exam.id;
         modalRef.result
-            .then((data: ExaminationEventConfiguration) => {
-                this.Exam.addExaminationEvent$(this.exam.id, data).subscribe(
-                    (config: ExaminationEventConfiguration) => {
-                        this.exam.examinationEventConfigurations.push(config);
-                    },
-                    (err) => toast.error(err),
-                );
-            })
+            .then((data: ExaminationEventConfiguration) => this.exam.examinationEventConfigurations.push(data))
             .catch((err) => toast.error(err));
     };
 
@@ -331,18 +325,11 @@ export class ExamPublicationComponent implements OnInit {
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
         modalRef.componentInstance.examMaxDate = this.examMaxDate;
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
+        modalRef.componentInstance.examId = this.exam.id;
         modalRef.result
-            .then((data: ExaminationEventConfiguration) => {
-                this.Exam.updateExaminationEvent$(
-                    this.exam.id,
-                    Object.assign(data, { id: configuration.id }),
-                ).subscribe(
-                    (config: ExaminationEventConfiguration) => {
-                        const index = this.exam.examinationEventConfigurations.indexOf(configuration);
-                        this.exam.examinationEventConfigurations.splice(index, 1, config);
-                    },
-                    (err) => toast.error(err),
-                );
+            .then((config: ExaminationEventConfiguration) => {
+                const index = this.exam.examinationEventConfigurations.indexOf(configuration);
+                this.exam.examinationEventConfigurations.splice(index, 1, config);
             })
             .catch((err) => toast.error(err));
     };

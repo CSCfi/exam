@@ -202,6 +202,11 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
         );
     }
 
+    @Transient
+    public boolean isProcessed() {
+        return (exam != null && exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED));
+    }
+
     @Override
     public int compareTo(@Nonnull ExamEnrolment other) {
         if (reservation == null && other.reservation == null) {
