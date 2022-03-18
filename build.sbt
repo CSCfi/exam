@@ -9,7 +9,7 @@ version := "6.1.0"
 
 licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
-scalaVersion := "2.13.7"
+scalaVersion := "2.13.8"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
@@ -22,33 +22,34 @@ libraryDependencies += filters
 libraryDependencies += guice
 
 // JAXB (missing in JDK 11 and above)
-libraryDependencies += "com.sun.xml.bind" % "jaxb-core"  % "2.3.0"
-libraryDependencies += "com.sun.xml.bind" % "jaxb-impl"  % "2.3.0"
-libraryDependencies += "javax.xml.bind"   % "jaxb-api"   % "2.3.0"
+libraryDependencies += "com.sun.xml.bind" % "jaxb-core"  % "3.0.2"
+libraryDependencies += "com.sun.xml.bind" % "jaxb-impl"  % "3.0.2"
+libraryDependencies += "javax.xml.bind"   % "jaxb-api"   % "2.3.1"
 libraryDependencies += "javax.activation" % "activation" % "1.1.1"
 
 libraryDependencies += "be.objectify"             %% "deadbolt-java"        % "2.8.1"
 libraryDependencies += "com.networknt"            % "json-schema-validator" % "1.0.45"
-libraryDependencies += "com.google.code.gson"     % "gson"                  % "2.8.5"
-libraryDependencies += "com.opencsv"              % "opencsv"               % "5.5.1"
+libraryDependencies += "com.google.code.gson"     % "gson"                  % "2.9.0"
+libraryDependencies += "com.opencsv"              % "opencsv"               % "5.6"
 libraryDependencies += "io.vavr"                  % "vavr"                  % "0.10.4"
 libraryDependencies += "net.sf.biweekly"          % "biweekly"              % "0.6.6"
 libraryDependencies += "org.apache.commons"       % "commons-compress"      % "1.21"
 libraryDependencies += "org.apache.commons"       % "commons-email"         % "1.5"
-libraryDependencies += "org.apache.poi"           % "poi"                   % "5.0.0"
-libraryDependencies += "org.apache.poi"           % "poi-ooxml"             % "5.0.0"
+libraryDependencies += "org.apache.poi"           % "poi"                   % "5.2.0"
+libraryDependencies += "org.apache.poi"           % "poi-ooxml"             % "5.2.0"
 libraryDependencies += "org.cryptonode.jncryptor" % "jncryptor"             % "1.2.0"
-libraryDependencies += "org.jsoup"                % "jsoup"                 % "1.14.2"
-libraryDependencies += "org.postgresql"           % "postgresql"            % "42.2.23"
-libraryDependencies += "com.icegreen"             % "greenmail"             % "1.5.7" % "test"
-libraryDependencies += "com.jayway.jsonpath"      % "json-path"             % "2.6.0" % "test"
+libraryDependencies += "org.jsoup"                % "jsoup"                 % "1.14.3"
+libraryDependencies += "org.postgresql"           % "postgresql"            % "42.3.3"
+libraryDependencies += "com.icegreen"             % "greenmail"             % "1.6.7" % "test"
+libraryDependencies += "com.icegreen"             % "greenmail-junit4"      % "1.6.7" % "test"
+libraryDependencies += "com.jayway.jsonpath"      % "json-path"             % "2.7.0" % "test"
 libraryDependencies += "net.jodah"                % "concurrentunit"        % "0.4.6" % "test"
-libraryDependencies += "org.eclipse.jetty"        % "jetty-server"          % "11.0.6" % "test"
-libraryDependencies += "org.eclipse.jetty"        % "jetty-servlet"         % "11.0.6" % "test"
+libraryDependencies += "org.eclipse.jetty"        % "jetty-server"          % "11.0.8" % "test"
+libraryDependencies += "org.eclipse.jetty"        % "jetty-servlet"         % "11.0.8" % "test"
 libraryDependencies += "org.easytesting"          % "fest-assert"           % "1.4" % "test"
-libraryDependencies += "org.yaml"                 % "snakeyaml"             % "1.29" % "test"
+libraryDependencies += "org.yaml"                 % "snakeyaml"             % "1.30" % "test"
 
-dependencyOverrides += "org.slf4j" % "slf4j-api" % "1.7.30"
+dependencyOverrides += "org.slf4j" % "slf4j-api" % "1.7.36"
 
 javacOptions += "-Xlint:unchecked"
 javacOptions += "-Xlint:deprecation"
