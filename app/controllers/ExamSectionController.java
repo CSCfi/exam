@@ -120,14 +120,6 @@ public class ExamSectionController extends BaseController implements SectionQues
         }
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             exam.getExamSections().remove(section);
-            exam.update();
-            // clear parent id from children
-            for (ExamSectionQuestion examSectionQuestion : section.getSectionQuestions()) {
-                for (Question question : examSectionQuestion.getQuestion().getChildren()) {
-                    question.setParent(null);
-                    question.update();
-                }
-            }
             // Decrease sequences for the entries above the inserted one
             int seq = section.getSequenceNumber();
             for (ExamSection es : exam.getExamSections()) {
@@ -137,6 +129,7 @@ public class ExamSectionController extends BaseController implements SectionQues
                     es.update();
                 }
             }
+            section.delete();
             return ok();
         } else {
             return forbidden("sitnet_error_access_forbidden");
@@ -396,7 +389,7 @@ public class ExamSectionController extends BaseController implements SectionQues
         if (section.isLotteryOn() && section.getLotteryItemCount() > section.getSectionQuestions().size()) {
             section.setLotteryItemCount(section.getSectionQuestions().size());
         }
-        section.update();
+        sectionQuestion.delete();
         return ok(section);
     }
 
