@@ -49,6 +49,7 @@ public class ReservationPollerActor extends AbstractActor {
                         .fetch("exam")
                         .fetch("collaborativeExam")
                         .fetch("externalExam")
+                        .fetch("reservation")
                         .where()
                         .eq("noShow", false)
                         .or()
