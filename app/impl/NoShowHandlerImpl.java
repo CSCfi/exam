@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamInspection;
+import models.Reservation;
 import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
@@ -69,7 +70,7 @@ public class NoShowHandlerImpl implements NoShowHandler {
     }
 
     private boolean isLocal(ExamEnrolment ee) {
-        return (ee.getExam() != null && ee.getExam().getState() == Exam.State.PUBLISHED);
+        return (ee.getExam() != null && ee.getExam().hasState(Exam.State.PUBLISHED, Exam.State.INITIALIZED));
     }
 
     private boolean isCollaborative(ExamEnrolment ee) {
@@ -116,13 +117,15 @@ public class NoShowHandlerImpl implements NoShowHandler {
         if (exam != null && exam.isPrivate()) {
             // For no-shows with private examinations we remove the reservation so student can re-reserve.
             // This is needed because student is not able to re-enroll by himself.
+            Reservation reservation = enrolment.getReservation();
             enrolment.setReservation(null);
             enrolment.update();
-            enrolment.getReservation().delete();
-        } else {
-            enrolment.setNoShow(true);
-            enrolment.update();
+            if (reservation != null) {
+                reservation.delete();
+            }
         }
+        enrolment.setNoShow(true);
+        enrolment.update();
         logger.info("Marked enrolment {} as no-show", enrolment.getId());
 
         String examName = exam == null ? enrolment.getCollaborativeExam().getName() : enrolment.getExam().getName();
