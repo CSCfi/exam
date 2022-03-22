@@ -59,7 +59,11 @@
                                 </sup>
                             </div>
                             <div class="col">
-                                <language-selector [exam]="exam" [collaborative]="collaborative"></language-selector>
+                                <language-selector
+                                    [exam]="exam"
+                                    [collaborative]="collaborative"
+                                    [disabled]="collaborative && !user.isAdmin"
+                                ></language-selector>
                             </div>
                         </div>
                     </div>

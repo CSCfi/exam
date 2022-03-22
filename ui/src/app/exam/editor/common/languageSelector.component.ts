@@ -29,6 +29,7 @@ import type { Exam, ExamLanguage } from '../../exam.model';
 export class LanguageSelectorComponent implements OnInit {
     @Input() exam!: Exam;
     @Input() collaborative = false;
+    @Input() disabled = false;
 
     examLanguages: ExamLanguage[] = [];
 
