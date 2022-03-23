@@ -126,7 +126,7 @@ export class SectionQuestionComponent {
                         }
                         if (attachment.modified && attachment.file) {
                             this.Files.upload(
-                                '/app/iop/attachment/question',
+                                '/app/iop/collab/attachment/question',
                                 attachment.file,
                                 { examId: this.examId.toString(), questionId: this.sectionQuestion.id.toString() },
                                 this.sectionQuestion.question,
