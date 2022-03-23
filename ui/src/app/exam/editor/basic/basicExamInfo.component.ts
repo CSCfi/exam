@@ -179,7 +179,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
 
     selectAttachmentFile = () => {
         this.Attachment.selectFile(true, {}).then((data) => {
-            const url = this.collaborative ? '/app/iop/attachment/exam' : '/app/attachment/exam';
+            const url = this.collaborative ? '/app/iop/collab/attachment/exam' : '/app/attachment/exam';
             this.Files.upload(url, data.$value.attachmentFile, { examId: this.exam.id.toString() }, this.exam);
         });
     };

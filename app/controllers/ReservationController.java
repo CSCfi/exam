@@ -398,7 +398,7 @@ public class ReservationController extends BaseController {
         if (state.isPresent()) {
             switch (state.get()) {
                 case "NO_SHOW":
-                    query = query.eq("noShow", true);
+                    query = query.eq("enrolment.noShow", true);
                     break;
                 case "EXTERNAL_UNFINISHED":
                     query = query.isNotNull("externalUserRef").isNull("enrolment.externalExam.finished");
@@ -409,7 +409,7 @@ public class ReservationController extends BaseController {
                 default:
                     query = query.eq("enrolment.exam.state", Exam.State.valueOf(state.get()));
                     if (state.get().equals(Exam.State.PUBLISHED.toString())) {
-                        query = query.eq("noShow", false);
+                        query = query.eq("enrolment.noShow", false);
                     }
                     break;
             }
