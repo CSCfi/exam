@@ -150,7 +150,7 @@ export class MaturityService {
     };
 
     private getNextStateName = (exam: Exam): StateName => {
-        if (!this.isGraded(exam)) {
+        if (!exam.grade && !exam.gradeless) {
             return StateName.NOT_REVIEWED;
         }
         if (this.isMissingFeedback(exam)) {
