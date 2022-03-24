@@ -180,6 +180,7 @@ export class SpeedReviewComponent {
                 ).length > 0
             );
         }
+        return false;
     };
 
     pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);

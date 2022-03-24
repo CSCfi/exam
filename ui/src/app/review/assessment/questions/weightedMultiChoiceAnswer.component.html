@@ -2,7 +2,7 @@
     <div *ngIf="option.answered">
         <div *ngIf="option.score >= 0" class="exam-answered-correct">
             <div class="make-inline pull-left">
-                <img src="/assets/assets/images/icon_correct_answer_checkbox_green.svg" alt="exam" />
+                <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="exam" />
             </div>
             <div class="make-inline middle-column">
                 <span class="exam-question-option-text" [MathJax]="option.option.option"></span>
@@ -13,7 +13,7 @@
         </div>
         <div *ngIf="option.score < 0" class="exam-answered-wrong">
             <div class="make-inline pull-left">
-                <img src="/assets/assets/images/icon_wrong_answer_checkbox_red.svg" alt="exam" />
+                <img src="/assets/images/icon_wrong_answer_checkbox_red.svg" alt="exam" />
             </div>
             <div class="make-inline middle-column">
                 <span class="exam-question-option-text" [MathJax]="option.option.option"></span>
@@ -27,9 +27,9 @@
         <div class="exam-not-answered">
             <div class="make-inline pull-left">
                 <div *ngIf="option.score >= 0">
-                    <img src="/assets/assets/images/icon_correct_answer_checkbox_green.svg" alt="exam" />
+                    <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="exam" />
                 </div>
-                <img *ngIf="option.score < 0" src="/assets/assets/images/icon_wrong_answer_checkbox.png" alt="exam" />
+                <img *ngIf="option.score < 0" src="/assets/images/icon_wrong_answer_checkbox.png" alt="exam" />
             </div>
             <div class="make-inline middle-column">
                 <span class="exam-question-option-text" [MathJax]="option.option.option"></span>

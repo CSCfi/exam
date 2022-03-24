@@ -3,11 +3,11 @@
         <div>
             <img
                 *ngIf="getAssessedAnswerCount() === review.answers.length"
-                src="/assets/assets/images/icon_question_type_ready.png"
+                src="/assets/images/icon_question_type_ready.png"
             />
             <img
                 *ngIf="getAssessedAnswerCount() !== review.answers.length"
-                src="/assets/assets/images/icon_question_type_ready_grey.png"
+                src="/assets/images/icon_question_type_ready_grey.png"
             />
 
             <span class="vcenter marl10">
@@ -40,15 +40,15 @@
         >
             <img
                 *ngIf="!review.expanded"
-                src="/assets/assets/images/icon_list_show_right.svg"
+                src="/assets/images/icon_list_show_right.svg"
                 alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"
+                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
             />
             <img
                 *ngIf="review.expanded"
-                src="/assets/assets/images/icon_list_show_down.svg"
+                src="/assets/images/icon_list_show_down.svg"
                 alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
+                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
             />
         </a>
     </div>
@@ -56,9 +56,9 @@
     <div *ngIf="review.expanded">
         <img
             *ngIf="review.question.defaultAnswerInstructions && review.question.defaultAnswerInstructions.length > 0"
-            src="/assets/assets/images/icon_info.png"
+            src="/assets/images/icon_info.png"
             alt="exam"
-            onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'"
+            onerror="this.onerror=null;this.src='/assets/images/icon_info.png'"
         />
         <span
             *ngIf="review.question.defaultAnswerInstructions && review.question.defaultAnswerInstructions.length > 0"

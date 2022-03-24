@@ -345,6 +345,7 @@ export class ExamSummaryComponent {
                                     if (Math.floor(label) === label) {
                                         return label;
                                     }
+                                    return 0;
                                 },
                             },
                         },

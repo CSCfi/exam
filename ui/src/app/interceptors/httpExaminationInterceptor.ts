@@ -76,7 +76,6 @@ export class ExaminationInterceptor implements HttpInterceptor {
                         this.ExaminationStatus.notfityStartOfExamination();
                         this.state.go('examination', { hash: hash });
                     }
-                    return response;
                 }
             }),
         );

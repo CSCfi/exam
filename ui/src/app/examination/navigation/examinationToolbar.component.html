@@ -4,9 +4,9 @@
     <div class="col-md-12 ml-2 right-column-box">
         <div class="info-column bot-border">
             <img
-                src="/assets/assets/images/icon_user.svg"
+                src="/assets/images/icon_user.svg"
                 alt="user info"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_user.png';"
+                onerror="this.onerror=null;this.src='/assets/images/icon_user.png';"
             /><span class="user-span">{{ displayUser() }}</span>
         </div>
     </div>
@@ -25,9 +25,9 @@
     <div class="col-md-12 ml-2 mt-3">
         <button class="grey-button abort-and-exit text-nowrap" (click)="abortExam()">
             <img
-                src="/assets/assets/images/icon_exit.svg"
+                src="/assets/images/icon_exit.svg"
                 alt="abort exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_exit.png';"
+                onerror="this.onerror=null;this.src='/assets/images/icon_exit.png';"
             /><span class="pl-2 abort-and-exit">{{ 'sitnet_abort_exam' | translate }}</span>
         </button>
     </div>
@@ -55,9 +55,9 @@
     >
         {{ 'sitnet_exam_attachment' | translate }}
         <img
-            src="/assets/assets/images/icon_attachment.svg"
+            src="/assets/images/icon_attachment.svg"
             alt="attachment"
-            onerror="this.onerror=null;this.src='/assets/assets/images/icon_attachment.png';"
+            onerror="this.onerror=null;this.src='/assets/images/icon_attachment.png';"
         />
     </button>
     <div class="attachment-name pl-1" [title]="exam.attachment?.fileName">
@@ -97,9 +97,9 @@
                         *ngIf="getQuestionAmount(section, 'answered') === getQuestionAmount(section, 'total')"
                     >
                         <img
-                            src="/assets/assets/images/icon_question_type_ready_grey.png"
+                            src="/assets/images/icon_question_type_ready_grey.png"
                             alt="all questions answered"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_question_type_ready_grey.png';"
+                            onerror="this.onerror=null;this.src='/assets/images/icon_question_type_ready_grey.png';"
                         />
                     </div>
                     <div
@@ -107,9 +107,9 @@
                         *ngIf="getQuestionAmount(section, 'answered') !== getQuestionAmount(section, 'total')"
                     >
                         <img
-                            src="/assets/assets/images/icon_question_type_waiting.svg"
+                            src="/assets/images/icon_question_type_waiting.svg"
                             alt="unanswered questions remain"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_question_type_waiting.png';"
+                            onerror="this.onerror=null;this.src='/assets/images/icon_question_type_waiting.png';"
                         />
                     </div>
                 </div>
@@ -142,9 +142,9 @@
         >
             <a class="mr-2">
                 <img
-                    src="/assets/assets/images/icon_info.svg"
+                    src="/assets/images/icon_info.svg"
                     alt="room guidance"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_info.png';"
                 />
             </a>
             <div class="question-text question-type-text info">
@@ -165,9 +165,9 @@
         <div class="row pointer d-flex align-items-center m-0">
             <a class="mr-2">
                 <img
-                    src="/assets/assets/images/icon_info.svg"
+                    src="/assets/images/icon_info.svg"
                     alt="maturity instructions"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_info.png';"
                 />
             </a>
             <div class="col question-text question-type-text info">
@@ -181,9 +181,9 @@
         <button tabindex="0" class="row pointer d-flex align-items-center m-0" (click)="exitPreview()">
             <a class="mr-2">
                 <img
-                    src="/assets/assets/images/icon_info.svg"
+                    src="/assets/images/icon_info.svg"
                     alt="exit preview"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_info.png';"
                 />
             </a>
             <div class="question-text question-type-text info">

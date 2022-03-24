@@ -152,7 +152,7 @@ export class ClaimChoiceEditorComponent {
     updateOptionTypes = () => {
         this.question.options.forEach((opt, index) => {
             if (opt.claimChoiceType === 'SkipOption') {
-                return opt;
+                return;
             }
             if (opt.defaultScore === undefined) {
                 this.question.options[index].correctOption = false;
