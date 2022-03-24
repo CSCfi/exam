@@ -101,7 +101,7 @@ export class RoomStatisticsComponent {
 
     private groupByMonths = () => {
         if (Object.keys(this.participations).length === 0) {
-            return [];
+            return;
         }
         const months: Date[] = [];
         const limits = this.getMinAndMaxDates();

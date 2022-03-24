@@ -44,14 +44,14 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     @Output() onUpdate = new EventEmitter<void>();
 
     message: { text?: string } = { text: '' };
-    selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null } = {
+    override selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null } = {
         grade: null,
         type: null,
         language: null,
     };
-    grades: SelectableGrade[] = [];
-    creditTypes: (ExamType & { name: string })[] = [];
-    languages: (ExamLanguage & { name: string })[] = [];
+    override grades: SelectableGrade[] = [];
+    override creditTypes: (ExamType & { name: string })[] = [];
+    override languages: (ExamLanguage & { name: string })[] = [];
 
     constructor(
         private translate: TranslateService,

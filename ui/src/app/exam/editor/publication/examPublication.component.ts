@@ -186,7 +186,7 @@ export class ExamPublicationComponent implements OnInit {
         const duration = fixHour * 60 + fixMinutes;
         if (duration < this.minDuration || duration > this.maxDuration) {
             toast.warning(this.translate.instant('DIALOGS_ERROR'));
-            return null;
+            return;
         }
         this.updateExam$().subscribe(() => (this.exam.duration = duration));
     };

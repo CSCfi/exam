@@ -116,5 +116,7 @@ export class ExaminationComponent {
         if (i >= 0) {
             return this.exam.examSections[i];
         }
+        throw Error("invalid index");
+        
     };
 }

@@ -133,6 +133,7 @@ export class ExaminationToolbarComponent {
                 section.sectionQuestions.length - section.sectionQuestions.filter(this.Examination.isAnswered).length
             );
         }
+        return 0;
     };
 
     displayRoomInstructions = () => {
@@ -148,6 +149,7 @@ export class ExaminationToolbarComponent {
                     return this.room.roomInstructionEN;
             }
         }
+        return '';
     };
 
     showMaturityInstructions = () => this.Enrolment.showMaturityInstructions({ exam: this.exam });

@@ -44,16 +44,16 @@
             <img
                 *ngIf="!sectionQuestion.expanded"
                 (click)="(!sectionQuestion.expanded)"
-                src="/assets/assets/images/icon_list_show_right.svg"
+                src="/assets/images/icon_list_show_right.svg"
                 alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"
+                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
             />
             <img
                 *ngIf="sectionQuestion.expanded"
                 (click)="(sectionQuestion.expanded)"
-                src="/assets/assets/images/icon_list_show_down.svg"
+                src="/assets/images/icon_list_show_down.svg"
                 alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
+                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
             />
         </a>
     </div>
@@ -69,10 +69,10 @@
 
     <div *ngIf="sectionQuestion.expanded" class="marl10 mt-2">
         <img
-            src="/assets/assets/images/icon_info.png"
+            src="/assets/images/icon_info.png"
             *ngIf="sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0"
             alt="exam"
-            onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'"
+            onerror="this.onerror=null;this.src='/assets/images/icon_info.png'"
         />
         <span
             *ngIf="sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0"
@@ -87,16 +87,16 @@
                 *ngFor="let option of sectionQuestion.options"
             >
                 <img
-                    src="/assets/assets/images/icon_correct_answer.png"
+                    src="/assets/images/icon_correct_answer.png"
                     *ngIf="option.option.correctOption"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer.png'"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer.png'"
                 />
                 <img
-                    src="/assets/assets/images/icon_wrong_answer.png"
+                    src="/assets/images/icon_wrong_answer.png"
                     *ngIf="!option.option.correctOption"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.png'"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                 />
                 <span class="exam-question-option-text pl-2">{{ option.option.option }}</span>
             </li>
@@ -106,16 +106,16 @@
                 *ngFor="let option of sectionQuestion.options"
             >
                 <img
-                    src="/assets/assets/images/icon_correct_answer_checkbox.png"
+                    src="/assets/images/icon_correct_answer_checkbox.png"
                     *ngIf="option.score >= 0"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_correct_answer_checkbox.png'"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer_checkbox.png'"
                 />
                 <img
-                    src="/assets/assets/images/icon_wrong_answer_checkbox.png"
+                    src="/assets/images/icon_wrong_answer_checkbox.png"
                     *ngIf="option.score < 0"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer_checkbox.png'"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer_checkbox.png'"
                 />
                 <span class="exam-question-option-text pl-2">{{ option.option.option }}</span>
                 <span class="exam-question-option-text pl-2"
@@ -128,22 +128,22 @@
                 *ngFor="let option of sectionQuestion.options | orderBy: 'option.id'"
             >
                 <img
-                    src="/assets/assets/images/icon_correct_answer_radio.png"
+                    src="/assets/images/icon_correct_answer_radio.png"
                     *ngIf="determineClaimOptionType(option) == 'CorrectOption'"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.png'"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                 />
                 <img
-                    src="/assets/assets/images/icon_wrong_answer_radio.png"
+                    src="/assets/images/icon_wrong_answer_radio.png"
                     *ngIf="determineClaimOptionType(option) == 'IncorrectOption'"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.png'"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                 />
                 <img
-                    src="/assets/assets/images/icon_wrong_answer.png"
+                    src="/assets/images/icon_wrong_answer.png"
                     *ngIf="determineClaimOptionType(option) == 'SkipOption'"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_wrong_answer.png'"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                 />
                 <span class="exam-question-option-text pl-2">{{ option.option.option }}</span>
                 <span class="exam-question-option-text pl-2"

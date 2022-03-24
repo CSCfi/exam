@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Exam</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!-- Customized libraries, not directly usable with npm/webpack -->
+  <script src="/assets/components/vendor/ckeditor/ckeditor.js" type="application/javascript"></script>
+  <script src="/assets/components/vendor/MathJax-2.6-latest/MathJax.js?config=TeX-AMS_HTML"
+          type="application/javascript">
+  </script>
+  <script>
+      if (window.CKEDITOR) {
+          CKEDITOR.env.isCompatible = true;
+          CKEDITOR.cacheForceReload = Date.now();
+          CKEDITOR.on('dialogDefinition', function (ev) {
+              <!-- links to have a default target of '_blank' -->
+              if (ev.data.name === 'link') {
+                  var def = ev.data.definition;
+                  def.removeContents('advanced');
+                  var field = def.getContents('target').get('linkTargetType');
+                  field['default'] = '_blank';
+              }
+          });
+      }
+  </script>
+</head>
+<body>
+  <app></app>
+</body>
+</html>

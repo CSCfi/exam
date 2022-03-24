@@ -6,15 +6,15 @@
                 <a class="float-right" (click)="reviewExpanded = !reviewExpanded">
                     <img
                         *ngIf="!reviewExpanded"
-                        src="/assets/assets/images/icon_list_show_right.svg"
+                        src="/assets/images/icon_list_show_right.svg"
                         alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"
+                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
                     />
                     <img
                         *ngIf="reviewExpanded"
-                        src="/assets/assets/images/icon_list_show_down.svg"
+                        src="/assets/images/icon_list_show_down.svg"
                         alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
+                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
                     />
                 </a>
                 <!-- grade -->
@@ -52,9 +52,9 @@
             <!-- question instructions -->
             <div *ngIf="reviewExpanded && sectionQuestion.answerInstructions" class="padl0 mart20 marb20 notice-text">
                 <img
-                    src="/assets/assets/images/icon_info.svg"
+                    src="/assets/images/icon_info.svg"
                     alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_info.png'"
                 />
                 <span class="padl10">{{ 'sitnet_instructions' | translate }}:</span>
                 <span [innerHtml]="sectionQuestion.answerInstructions"></span>
