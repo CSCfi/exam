@@ -27,6 +27,7 @@ import { ExamService } from '../../exam.service';
 import { ExamTabService } from '../examTabs.service';
 
 import type { OnDestroy, OnInit } from '@angular/core';
+import type { User } from '../../../session/session.service';
 import type { Exam, ExamType, GradeScale } from '../../exam.model';
 
 @Component({
@@ -43,6 +44,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
     examTypes: (ExamType & { name: string })[] = [];
     gradeScales: GradeScale[] = [];
     pwdInputType = 'password';
+    user: User;
 
     unsubscribe = new Subject<unknown>();
 
@@ -61,6 +63,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
             this.refreshExamTypes();
             this.refreshGradeScales();
         });
+        this.user = this.Session.getUser();
     }
 
     ngOnInit() {
@@ -176,7 +179,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
 
     selectAttachmentFile = () => {
         this.Attachment.selectFile(true, {}).then((data) => {
-            const url = this.collaborative ? '/app/iop/attachment/exam' : '/app/attachment/exam';
+            const url = this.collaborative ? '/app/iop/collab/attachment/exam' : '/app/attachment/exam';
             this.Files.upload(url, data.$value.attachmentFile, { examId: this.exam.id.toString() }, this.exam);
         });
     };
