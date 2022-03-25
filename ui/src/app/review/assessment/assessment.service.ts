@@ -255,7 +255,7 @@ export class AssessmentService {
         const url = `/app/review/examquestion/${question.id}/score/force`;
         return this.http.put<void>(url, { forcedScore: question.forcedScore });
     };
-    saveCollaborativeForcedScore = (question: ExamSectionQuestion, examId: number, examRef: string, rev: string) => {
+    saveCollaborativeForcedScore$ = (question: ExamSectionQuestion, examId: number, examRef: string, rev: string) => {
         const url = `/app/iop/reviews/${examId}/${examRef}/question/${question.id}/force`;
         return this.http.put<{ rev: string }>(url, { forcedScore: question.forcedScore, rev: rev });
     };
