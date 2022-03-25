@@ -201,7 +201,7 @@ export class AssessmentService {
         examRef: string,
         rev: string,
     ): Observable<{ rev: string }> => {
-        if (!question.essayAnswer?.evaluatedScore) {
+        if (!question.essayAnswer || isNaN(question.essayAnswer?.evaluatedScore as number)) {
             return throwError({ data: 'sitnet_error_score_input' });
         }
         const url = `/app/iop/reviews/${examId}/${examRef}/question/${question.id}`;
