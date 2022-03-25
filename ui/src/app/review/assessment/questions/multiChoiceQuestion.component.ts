@@ -15,7 +15,7 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import { isInteger, isNumber } from 'lodash';
 import * as toast from 'toastr';
 
@@ -41,7 +41,7 @@ export class MultiChoiceQuestionComponent {
     _score: number | null = null;
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Assessment: AssessmentService,
         private Attachment: AttachmentService,
@@ -103,10 +103,10 @@ export class MultiChoiceQuestionComponent {
 
     insertForcedScore = () => {
         if (this.collaborative && this.participation._rev) {
-            this.Assessment.saveCollaborativeForcedScore(
+            this.Assessment.saveCollaborativeForcedScore$(
                 this.sectionQuestion,
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
                 this.participation._rev,
             ).subscribe(
                 (resp) => {

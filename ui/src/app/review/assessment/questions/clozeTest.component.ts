@@ -87,7 +87,7 @@ export class ClozeTestComponent {
 
     insertForcedScore = () =>
         this.collaborative
-            ? this.Assessment.saveCollaborativeForcedScore(
+            ? this.Assessment.saveCollaborativeForcedScore$(
                   this.sectionQuestion,
                   this.state.params.id,
                   this.state.params.ref,
