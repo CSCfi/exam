@@ -31,8 +31,8 @@ export class FixedPrecisionValidatorDirective {
     }
 
     private toFixed = () => {
-        if (!this.ngModel) {
-            return '0';
+        if (this.ngModel == null || this.ngModel == undefined) {
+            return '';
         }
         const re = /^-?[0-9]+(\.[0-9]{1,2})?$/i;
         if (!this.ngModel.toString().match(re)) {

@@ -808,7 +808,7 @@ public class ReviewController extends BaseController {
             .find(ExamParticipation.class)
             .fetch(
                 "exam",
-                "state, name, additionalInfo, gradedTime, assessmentInfo, subjectToLanguageInspection, answerLanguage, customCredit"
+                "state, name, additionalInfo, gradedTime, gradeless, assessmentInfo, subjectToLanguageInspection, answerLanguage, customCredit"
             )
             .fetch("exam.course")
             .fetch("exam.course.organisation")
