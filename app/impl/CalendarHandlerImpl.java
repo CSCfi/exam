@@ -165,16 +165,17 @@ public class CalendarHandlerImpl implements CalendarHandler {
     @Override
     public LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException {
         int windowSize = getReservationWindowSize();
-
-        int offset = room != null
-            ? DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now())
-            : configReader.getDefaultTimeZone().getOffset(DateTime.now());
+        DateTimeZone dtz = room != null
+            ? DateTimeZone.forID(room.getLocalTimezone())
+            : configReader.getDefaultTimeZone();
+        int startOffset = dtz.getOffset((exam.getExamActiveStartDate()));
+        int offset = dtz.getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
 
         LocalDate examEndDate = new DateTime(exam.getExamActiveEndDate()).plusMillis(offset).toLocalDate();
         LocalDate searchEndDate = reservationWindowDate.isBefore(examEndDate) ? reservationWindowDate : examEndDate;
-        LocalDate examStartDate = new DateTime(exam.getExamActiveStartDate()).plusMillis(offset).toLocalDate();
+        LocalDate examStartDate = new DateTime(exam.getExamActiveStartDate()).plusMillis(startOffset).toLocalDate();
         LocalDate searchDate = day.equals("") ? now : ISODateTimeFormat.dateTimeParser().parseLocalDate(day);
         searchDate = searchDate.withDayOfWeek(1);
         if (searchDate.isBefore(now)) {
