@@ -136,7 +136,7 @@ export class MaturityService {
 
     isAwaitingInspection = (exam: Exam) => exam.languageInspection && !exam.languageInspection.finishedAt;
 
-    isGraded = (exam: Exam) => exam.grade;
+    isGraded = (exam: Exam) => exam.grade || exam.gradeless;
 
     saveInspectionStatement$ = (exam: Exam) => {
         const inspection = exam.languageInspection as LanguageInspection;

@@ -530,6 +530,8 @@ public class CalendarHandlerImpl implements CalendarHandler {
         Set<ExamSection> sections = sectionIds.isEmpty()
             ? Collections.emptySet()
             : Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
+        enrolment.getOptionalSections().clear();
+        enrolment.update();
         enrolment.setOptionalSections(sections);
         Ebean.save(enrolment);
 

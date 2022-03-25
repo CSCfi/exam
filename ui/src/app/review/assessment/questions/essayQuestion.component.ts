@@ -15,7 +15,7 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as toast from 'toastr';
 
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
@@ -42,7 +42,7 @@ export class EssayQuestionComponent {
     _score: number | undefined = undefined;
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Assessment: AssessmentService,
         private Attachment: AttachmentService,
@@ -92,8 +92,8 @@ export class EssayQuestionComponent {
         if (this.collaborative) {
             return this.Assessment.saveCollaborativeEssayScore$(
                 this.sectionQuestion as ExaminationQuestion,
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
                 this.participation._rev as string,
             ).subscribe((resp) => {
                 toast.info(this.translate.instant('sitnet_graded'));
