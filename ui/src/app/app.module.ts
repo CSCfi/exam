@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { CommonModule, Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
 import { LOCALE_ID, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -75,8 +75,6 @@ export function HttpLoaderFactory(http: HttpClient) {
             deps: [SessionService],
             useFactory: (srv: SessionService) => srv.getLocale(),
         },
-        Location,
-        { provide: LocationStrategy, useClass: PathLocationStrategy },
     ],
     bootstrap: [AppComponent],
 })

@@ -2,9 +2,7 @@ public
 conf/local.conf
 node_modules
 project/project
-project/metals.sbt
 target
-public/bundles
 default-drop-all.sql
 default-create-all.sql
 /data/
