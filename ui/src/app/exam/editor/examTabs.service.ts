@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
+import type { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 
-import type { Observable } from 'rxjs';
 export type UpdateProps = {
     code: string | null;
     name: string | null;

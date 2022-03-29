@@ -1,14 +1,13 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import type { MaintenancePeriod } from '../../exam/exam.model';
 
 @Component({
     templateUrl: './maintenancePeriodDialog.component.html',
 })
-export class MaintenancePeriodDialogComponent {
+export class MaintenancePeriodDialogComponent implements OnInit {
     @Input() period?: MaintenancePeriod;
     dateOptions = {
         'starting-day': 1,
@@ -18,7 +17,11 @@ export class MaintenancePeriodDialogComponent {
     endsAt = new Date();
     description = '';
 
-    constructor(private translate: TranslateService, private activeModal: NgbActiveModal) {}
+    constructor(
+        private translate: TranslateService,
+        private activeModal: NgbActiveModal,
+        private toast: ToastrService,
+    ) {}
 
     ngOnInit() {
         if (this.period) {
@@ -30,7 +33,7 @@ export class MaintenancePeriodDialogComponent {
 
     ok = () => {
         if (this.endsAt <= this.startsAt) {
-            toast.error(this.translate.instant('sitnet_endtime_before_starttime'));
+            this.toast.error(this.translate.instant('sitnet_endtime_before_starttime'));
             return;
         }
         this.activeModal.close({

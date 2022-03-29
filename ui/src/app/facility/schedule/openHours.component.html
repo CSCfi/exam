@@ -2,7 +2,7 @@
     <table style="display: inline-block">
         <thead>
             <tr *ngFor="let time of times; index as i">
-                <th style="vertical-align: bottom" [ngClass]="{ light: i % 2 == 1 }">{{ time }}</th>
+                <th style="vertical-align: bottom" [ngClass]="{ light: i % 2 === 1 }">{{ time }}</th>
             </tr>
         </thead>
     </table>

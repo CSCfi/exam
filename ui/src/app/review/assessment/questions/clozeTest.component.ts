@@ -12,28 +12,26 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { isInteger, isNumber } from 'lodash';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../assessment.service';
-
-import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-cloze-test',
     templateUrl: './clozeTest.component.html',
 })
-export class ClozeTestComponent {
+export class ClozeTestComponent implements OnInit {
     @Input() participation!: ExamParticipation;
     @Input() sectionQuestion!: ExamSectionQuestion;
     @Input() isScorable = false;
     @Input() collaborative = false;
-    @Output() onScore = new EventEmitter<string>();
+    @Output() scored = new EventEmitter<string>();
     @ViewChild('forcedPoints', { static: false }) form?: NgForm;
 
     reviewExpanded = true;
@@ -42,6 +40,7 @@ export class ClozeTestComponent {
     constructor(
         private state: StateService,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Assessment: AssessmentService,
         private Attachment: AttachmentService,
     ) {}
@@ -93,10 +92,10 @@ export class ClozeTestComponent {
                   this.state.params.ref,
                   this.participation._rev as string,
               ).subscribe((resp) => {
-                  toast.info(this.translate.instant('sitnet_graded'));
-                  this.onScore.emit(resp.rev);
+                  this.toast.info(this.translate.instant('sitnet_graded'));
+                  this.scored.emit(resp.rev);
               })
             : this.Assessment.saveForcedScore(this.sectionQuestion).subscribe(() =>
-                  toast.info(this.translate.instant('sitnet_graded')),
+                  this.toast.info(this.translate.instant('sitnet_graded')),
               );
 }

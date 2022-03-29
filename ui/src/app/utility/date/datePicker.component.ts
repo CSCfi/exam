@@ -12,14 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Injectable, Input, Output } from '@angular/core';
+import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDate, NgbDateParserFormatter, NgbDatepickerI18n } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-
 import { DateTimeService } from './date.service';
 
-import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import type { OnInit } from '@angular/core';
 @Injectable()
 export class DatePickerFormatter extends NgbDateParserFormatter {
     readonly DELIMITER = '.';
@@ -77,8 +76,8 @@ export class DatePickerComponent implements OnInit {
     @Input() optional = true;
     @Input() examMaxDate?: string;
 
-    @Output() onUpdate = new EventEmitter<{ date: Date | null }>();
-    @Output() onExtraAction = new EventEmitter<{ date: Date | null }>();
+    @Output() updated = new EventEmitter<{ date: Date | null }>();
+    @Output() extraActionHappened = new EventEmitter<{ date: Date | null }>();
 
     date: NgbDate | null = null;
     showWeeks = true;
@@ -123,10 +122,10 @@ export class DatePickerComponent implements OnInit {
     dateChange() {
         const now = new Date();
         this.startDate = this.date || new NgbDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
-        this.onUpdate.emit({ date: this.transform(this.date) });
+        this.updated.emit({ date: this.transform(this.date) });
     }
 
     extraClicked() {
-        this.onExtraAction.emit({ date: this.transform(this.date) });
+        this.extraActionHappened.emit({ date: this.transform(this.date) });
     }
 }

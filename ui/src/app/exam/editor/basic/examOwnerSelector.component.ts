@@ -13,15 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import type { OnInit } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { Observable } from 'rxjs';
 import type { User } from '../../../session/session.service';
 import type { Exam } from '../../exam.model';
 
@@ -40,7 +39,7 @@ export class ExamOwnerSelectorComponent implements OnInit {
         email?: string;
     };
 
-    constructor(private http: HttpClient, private translate: TranslateService) {
+    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {
         this.newOwner = {};
     }
 
@@ -60,7 +59,7 @@ export class ExamOwnerSelectorComponent implements OnInit {
             ),
             take(15),
             catchError((err) => {
-                toast.error(err.data);
+                this.toast.error(err.data);
                 return throwError(err);
             }),
         );
@@ -79,22 +78,22 @@ export class ExamOwnerSelectorComponent implements OnInit {
                     delete this.newOwner.name;
                     delete this.newOwner.id;
                 },
-                (err) => toast.error(err.data),
+                (err) => this.toast.error(err.data),
             );
         } else {
-            toast.error(this.translate.instant('sitnet_teacher_not_found'));
+            this.toast.error(this.translate.instant('sitnet_teacher_not_found'));
         }
     };
 
     removeOwner = (id: number) =>
         this.http.delete(`/app/exam/${this.exam.id}/owner/${id}`).subscribe(
             () => this.getExamOwners(),
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err.data),
         );
 
     private getExamOwners = () =>
         this.http.get<User[]>(`/app/exam/${this.exam.id}/owners`).subscribe(
             (owners) => (this.examOwners = owners),
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err.data),
         );
 }

@@ -187,7 +187,7 @@
                     <td colspan="9">&nbsp;</td>
                     <td *ngIf="user.isAdmin"></td>
                 </tr>
-                <tr *ngIf="questions.length == 0">
+                <tr *ngIf="questions.length === 0">
                     <td colspan="10">{{ 'sitnet_exam_library_no_results' | translate }}</td>
                 </tr>
             </tbody>
@@ -196,7 +196,7 @@
     <div class="col-md-12" *ngIf="questions.length > pageSize">
         <paginator
             [items]="questions"
-            (onSelectPage)="pageSelected($event)"
+            (pageSelected)="pageSelected($event)"
             [pageSize]="pageSize"
             [currentPage]="currentPage"
         >

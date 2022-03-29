@@ -1,16 +1,14 @@
-import { Component } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash';
+import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { SessionService } from '../../session/session.service';
-import { PermissionType, UserManagementService } from './users.service';
-
-import type { OnInit } from '@angular/core';
 import type { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
 import type { Permission } from './users.service';
+import { PermissionType, UserManagementService } from './users.service';
 
 interface PermissionOption extends Permission {
     name?: string;
@@ -36,7 +34,7 @@ interface UserWithOptions extends User {
     templateUrl: './users.component.html',
     selector: 'users',
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
     users: UserWithOptions[] = [];
     filteredUsers: UserWithOptions[] = [];
     pageSize = 30;
@@ -54,6 +52,7 @@ export class UsersComponent implements OnInit {
 
     constructor(
         private translate: TranslateService,
+        private toast: ToastrService,
         private session: SessionService,
         private userManagement: UserManagementService,
     ) {
@@ -66,7 +65,7 @@ export class UsersComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 
@@ -224,7 +223,7 @@ export class UsersComponent implements OnInit {
             },
             (err) => {
                 this.loader.loading = false;
-                toast.error(this.translate.instant(err.data));
+                this.toast.error(this.translate.instant(err));
             },
         );
     };

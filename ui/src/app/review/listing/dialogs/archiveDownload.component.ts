@@ -16,7 +16,7 @@ import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
-import * as toast from 'toastr';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'archive-download',
@@ -25,7 +25,7 @@ import * as toast from 'toastr';
 export class ArchiveDownloadComponent {
     params: { startDate: Date | null; endDate: Date | null } = { startDate: new Date(), endDate: new Date() };
 
-    constructor(private modal: NgbActiveModal, private translate: TranslateService) {}
+    constructor(private modal: NgbActiveModal, private translate: TranslateService, private toast: ToastrService) {}
 
     startDateChanged = (event: { date: Date | null }) => (this.params.startDate = event.date);
 
@@ -40,7 +40,7 @@ export class ArchiveDownloadComponent {
             end = this.params.endDate;
         }
         if (start && end && end < start) {
-            toast.error(this.translate.instant('sitnet_endtime_before_starttime'));
+            this.toast.error(this.translate.instant('sitnet_endtime_before_starttime'));
         } else if (start && end) {
             this.modal.close({
                 $value: {

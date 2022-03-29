@@ -15,15 +15,13 @@
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
 import { noop } from 'rxjs';
-import * as toast from 'toastr';
-
+import type { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
+import type { Examination } from '../../../examination/examination.model';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
-
-import type { ExamParticipation } from '../../../exam/exam.model';
-import type { Examination } from '../../../examination/examination.model';
 
 @Component({
     selector: 'r-toolbar',
@@ -39,6 +37,7 @@ export class ToolbarComponent {
         private state: StateService,
         private routing: UIRouterGlobals,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Exam: ExamService,
@@ -75,7 +74,7 @@ export class ToolbarComponent {
             );
         } else {
             this.Assessment.createExamRecord$(this.exam, true).subscribe(() => {
-                toast.info(this.translate.instant('sitnet_review_recorded'));
+                this.toast.info(this.translate.instant('sitnet_review_recorded'));
                 const state = this.getExitState();
                 this.state.go(state.name as string, state.params);
             }, noop);
@@ -84,7 +83,7 @@ export class ToolbarComponent {
 
     rejectMaturity = () =>
         this.Assessment.rejectMaturity$(this.exam).subscribe(() => {
-            toast.info(this.translate.instant('sitnet_maturity_rejected'));
+            this.toast.info(this.translate.instant('sitnet_maturity_rejected'));
             const state = this.getExitState();
             this.state.go(state.name as string, state.params);
         });

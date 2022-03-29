@@ -17,7 +17,7 @@
     <div *ngIf="examInfo && hasOptionalSections()" class="mart10">
         <calendar-optional-sections
             [examInfo]="examInfo"
-            (onSelection)="onSectionSelection($event)"
+            (selected)="onSectionSelection($event)"
         ></calendar-optional-sections>
     </div>
     <!-- Phase 3: Organisation picker -->
@@ -25,7 +25,7 @@
         <calendar-organisation-picker
             [sequenceNumber]="getSequenceNumber('organization')"
             [disabled]="!sectionSelectionOk()"
-            (onSelection)="setOrganisation($event)"
+            (selected)="setOrganisation($event)"
             (onCancel)="makeInternalReservation()"
         ></calendar-organisation-picker>
     </div>
@@ -41,7 +41,7 @@
             [maxDate]="maxDate"
             [disabled]="!sectionSelectionOk()"
             (onCancel)="makeExternalReservation()"
-            (onEventSelected)="createReservation($event)"
+            (selected)="createReservation($event)"
         >
         </calendar-slot-picker>
     </div>

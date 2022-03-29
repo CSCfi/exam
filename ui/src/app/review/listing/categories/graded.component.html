@@ -261,7 +261,7 @@
     <div class="col-md-12" *ngIf="view.filtered.length > view.pageSize">
         <paginator
             [items]="view.filtered"
-            (onSelectPage)="pageSelected($event)"
+            (pageSelected)="pageSelected($event)"
             [pageSize]="view.pageSize"
             [currentPage]="view.page"
         >

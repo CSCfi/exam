@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-
 import type { ExamSection } from '../../../exam/exam.model';
 
 @Component({

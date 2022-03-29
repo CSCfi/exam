@@ -46,7 +46,7 @@
                         [examTypes]="executionTypes"
                         [extraColumnNames]="getActiveExtraColumns"
                         [extraColumnValues]="getActiveExtraColumnValues"
-                        (onFilterChange)="search($event)"
+                        (filtered)="search($event)"
                     >
                     </exam-list-category>
                 </ng-template>
@@ -66,7 +66,7 @@
                         [extraColumnNames]="getFinishedExtraColumns"
                         [extraColumnValues]="getFinishedExtraColumnValues"
                         [examTypes]="executionTypes"
-                        (onFilterChange)="search($event)"
+                        (filtered)="search($event)"
                     >
                     </exam-list-category>
                 </ng-template>
@@ -86,7 +86,7 @@
                         [extraColumnNames]="getArchivedExtraColumns"
                         [extraColumnValues]="getArchivedExtraColumnValues"
                         [examTypes]="executionTypes"
-                        (onFilterChange)="search($event)"
+                        (filtered)="search($event)"
                     >
                     </exam-list-category>
                 </ng-template>
@@ -104,7 +104,7 @@
                         defaultPredicate="examActiveEndDate"
                         [defaultReverse]="true"
                         [examTypes]="executionTypes"
-                        (onFilterChange)="search($event)"
+                        (filtered)="search($event)"
                     >
                     </exam-list-category>
                 </ng-template>

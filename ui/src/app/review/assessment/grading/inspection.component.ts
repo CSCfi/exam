@@ -13,13 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import type { ExamInspection } from '../../../exam/exam.model';
 import type { User } from '../../../session/session.service';
-import type { OnInit } from '@angular/core';
 
 @Component({
     selector: 'r-inspection',
@@ -29,11 +28,11 @@ export class InspectionComponent implements OnInit {
     @Input() inspection!: ExamInspection;
     @Input() user!: User;
     @Input() disabled = false;
-    @Output() onInspection = new EventEmitter<void>();
+    @Output() inspected = new EventEmitter<void>();
 
     reviewStatuses: { key: boolean; value: string }[] = [];
 
-    constructor(private http: HttpClient, private translate: TranslateService) {}
+    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
 
     ngOnInit() {
         this.reviewStatuses = [
@@ -52,10 +51,10 @@ export class InspectionComponent implements OnInit {
         if (this.inspection.user.id === this.user.id) {
             this.http.put(`/app/exams/inspection/${this.inspection.id}`, { ready: this.inspection.ready }).subscribe(
                 () => {
-                    toast.info(this.translate.instant('sitnet_exam_updated'));
-                    this.onInspection.emit();
+                    this.toast.info(this.translate.instant('sitnet_exam_updated'));
+                    this.inspected.emit();
                 },
-                (err) => toast.error(err.data),
+                (err) => this.toast.error(err.data),
             );
         }
     };

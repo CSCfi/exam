@@ -13,12 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
-import type { OnInit } from '@angular/core';
-import type { ExamRoom, ExamMachine } from '../../reservation/reservation.model';
+import { ToastrService } from 'ngx-toastr';
+import type { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './machineList.component.html',
@@ -29,7 +28,7 @@ export class MachineListComponent implements OnInit {
 
     showMachines = false;
 
-    constructor(private http: HttpClient, private translate: TranslateService) {}
+    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
 
     ngOnInit() {
         this.showMachines = false;
@@ -45,9 +44,9 @@ export class MachineListComponent implements OnInit {
     addNewMachine = () =>
         this.http.post<ExamMachine>(`/app/machines/${this.room.id}`, {}).subscribe(
             (resp) => {
-                toast.info(this.translate.instant('sitnet_machine_added'));
+                this.toast.info(this.translate.instant('sitnet_machine_added'));
                 this.room.examMachines.push(resp);
             },
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err.data),
         );
 }

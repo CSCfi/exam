@@ -28,7 +28,7 @@
                         [initialTime]="startsAt"
                         [hourStep]="1"
                         [minuteStep]="15"
-                        (onUpdate)="onStartDateChange($event)"
+                        (updated)="onStartDateChange($event)"
                     >
                     </date-time-picker>
                 </div>
@@ -39,7 +39,7 @@
                         [initialTime]="endsAt"
                         [hourStep]="1"
                         [minuteStep]="15"
-                        (onUpdate)="onEndDateChange($event)"
+                        (updated)="onEndDateChange($event)"
                     >
                     </date-time-picker>
                 </div>

@@ -13,20 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { isNumber, isString } from 'lodash';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { Question } from '../../../exam/exam.model';
+import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import { LibraryService } from '../library.service';
-
-import type { Question } from '../../../exam/exam.model';
-import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import type { User } from '../../../session/session.service';
 import type { LibraryQuestion } from '../library.service';
+import { LibraryService } from '../library.service';
 
 type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
@@ -38,8 +36,8 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     @Input() questions: Question[] = [];
     @Input() disableLinks = false;
     @Input() tableClass = '';
-    @Output() onSelection = new EventEmitter<number[]>();
-    @Output() onCopy = new EventEmitter<LibraryQuestion>();
+    @Output() selected = new EventEmitter<number[]>();
+    @Output() copied = new EventEmitter<LibraryQuestion>();
 
     user: User;
     allSelected = false;
@@ -52,6 +50,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private Library: LibraryService,
         private Attachment: AttachmentService,
@@ -85,7 +84,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
 
     questionSelected = () => {
         const selections = this.fixedQuestions.filter((q) => q.selected).map((q) => q.id);
-        this.onSelection.emit(selections);
+        this.selected.emit(selections);
     };
 
     deleteQuestion = (question: SelectableQuestion) => {
@@ -96,7 +95,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         dialog.result.then(() =>
             this.http.delete(`/app/questions/${question.id}`).subscribe(() => {
                 this.questions.splice(this.questions.indexOf(question), 1);
-                toast.info(this.translate.instant('sitnet_question_removed'));
+                this.toast.info(this.translate.instant('sitnet_question_removed'));
             }),
         );
     };
@@ -109,7 +108,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         dialog.result.then(() =>
             this.http.post<SelectableQuestion>(`/app/question/${question.id}`, {}).subscribe((copy) => {
                 this.questions.splice(this.questions.indexOf(question), 0, copy);
-                this.onCopy.emit(copy);
+                this.copied.emit(copy);
             }),
         );
     };

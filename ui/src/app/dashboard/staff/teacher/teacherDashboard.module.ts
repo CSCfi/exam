@@ -15,7 +15,6 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
-
 import { ReservationModule } from '../../../reservation/reservation.module';
 import { UtilityModule } from '../../../utility/utility.module';
 import { ExamListCategoryComponent } from './categories/examListCategory.component';

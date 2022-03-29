@@ -16,16 +16,15 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
+import type { Exam, ExamParticipation, Feedback, SelectableGrade } from '../../exam/exam.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
 import { AssessmentService } from './assessment.service';
 
-import type { Observable } from 'rxjs';
-import type { Exam, ExamParticipation, Feedback, SelectableGrade } from '../../exam/exam.model';
 interface Payload {
     id: number;
     state: string;
@@ -45,6 +44,7 @@ export class CollaborativeAssesmentService {
         private translate: TranslateService,
         private state: StateService,
         private routing: UIRouterGlobals,
+        private toast: ToastrService,
         private windowRef: WindowRef,
         private dialogs: ConfirmationDialogService,
         private Assessment: AssessmentService,
@@ -58,7 +58,7 @@ export class CollaborativeAssesmentService {
         if (participation.exam.state === 'GRADED_LOGGED') {
             const url = `/app/iop/reviews/${examId}/${examRef}/info`;
             return this.http.put<{ rev: string }>(url, { assessmentInfo: participation.exam.assessmentInfo }).pipe(
-                tap(() => toast.info(this.translate.instant('sitnet_saved'))),
+                tap(() => this.toast.info(this.translate.instant('sitnet_saved'))),
                 map((data) => {
                     participation._rev = data.rev;
                     return participation;
@@ -80,7 +80,7 @@ export class CollaborativeAssesmentService {
         };
         const url = `/app/iop/reviews/${examId}/${examRef}/comment`;
         return this.http.put<{ rev: string }>(url, payload).pipe(
-            tap(() => toast.info(this.translate.instant('sitnet_comment_added'))),
+            tap(() => this.toast.info(this.translate.instant('sitnet_comment_added'))),
             map((data) => {
                 participation._rev = data.rev;
                 return participation;
@@ -117,21 +117,21 @@ export class CollaborativeAssesmentService {
                 this.saveFeedback$(examId, examRef, participation).subscribe(
                     () => {
                         if (newState === 'REVIEW_STARTED') {
-                            messages.forEach((msg) => toast.warning(this.translate.instant(msg)));
+                            messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
                             this.windowRef.nativeWindow.setTimeout(
-                                () => toast.info(this.translate.instant('sitnet_review_saved')),
+                                () => this.toast.info(this.translate.instant('sitnet_review_saved')),
                                 1000,
                             );
                         } else {
-                            toast.info(this.translate.instant('sitnet_review_graded'));
+                            this.toast.info(this.translate.instant('sitnet_review_graded'));
                             const state = this.Assessment.getExitStateById(this.routing.params.id, true);
                             this.state.go(state.name as string, state.params);
                         }
                     },
-                    (resp) => toast.error(resp),
+                    (resp) => this.toast.error(resp),
                 );
             },
-            (resp) => toast.error(resp),
+            (resp) => this.toast.error(resp),
         );
     };
 
@@ -140,7 +140,7 @@ export class CollaborativeAssesmentService {
             if (participation.exam.state !== 'GRADED') {
                 // Just save feedback and leave
                 this.saveFeedback$(id, ref, participation).subscribe(() => {
-                    toast.info(this.translate.instant('sitnet_saved'));
+                    this.toast.info(this.translate.instant('sitnet_saved'));
                     const state = this.Assessment.getExitStateById(this.routing.params.id, true);
                     this.state.go(state.name as string, state.params);
                 });
@@ -171,11 +171,11 @@ export class CollaborativeAssesmentService {
         this.http.put<{ rev: string }>(url, payload).subscribe(
             (data) => {
                 participation._rev = data.rev;
-                toast.info(this.translate.instant('sitnet_review_recorded'));
+                this.toast.info(this.translate.instant('sitnet_review_recorded'));
                 const state = this.Assessment.getExitStateById(this.routing.params.id, true);
                 this.state.go(state.name as string, state.params);
             },
-            (resp) => toast.error(resp),
+            (resp) => this.toast.error(resp),
         );
     };
 
@@ -188,14 +188,14 @@ export class CollaborativeAssesmentService {
                     (data) => {
                         payload.rev = participation._rev = data.rev;
                         if (participation.exam.state !== 'GRADED') {
-                            toast.info(this.translate.instant('sitnet_review_graded'));
+                            this.toast.info(this.translate.instant('sitnet_review_graded'));
                         }
                         this.sendToRegistry(payload, examId, ref, participation);
                     },
-                    (resp) => toast.error(resp),
+                    (resp) => this.toast.error(resp),
                 );
             },
-            (resp) => toast.error(resp),
+            (resp) => this.toast.error(resp),
         );
     };
 
@@ -205,7 +205,7 @@ export class CollaborativeAssesmentService {
         }
         const messages = this.Assessment.getErrors(participation.exam);
         if (messages.length > 0) {
-            messages.forEach((msg) => toast.error(this.translate.instant(msg)));
+            messages.forEach((msg) => this.toast.error(this.translate.instant(msg)));
         } else {
             const dialogNote = participation.exam.gradeless
                 ? this.translate.instant('sitnet_confirm_archiving_without_grade')

@@ -2,7 +2,6 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-
 import { FacilityModule } from '../../facility/facility.module';
 import { UtilityModule } from '../../utility/utility.module';
 import { AnswersReportComponent } from './categories/answersReport.component';

@@ -18,22 +18,21 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { isObject } from 'lodash';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
 import { CollaborativeParticipation } from '../exam/collaborative/collaborativeExam.service';
+import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from '../exam/exam.model';
+import type { ExamRoom } from '../reservation/reservation.model';
+import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
 import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
-
-import type { Observable } from 'rxjs';
-import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from '../exam/exam.model';
-import type { ExamRoom } from '../reservation/reservation.model';
-import type { User } from '../session/session.service';
 import type { EnrolmentInfo, ExamEnrolment, ReviewedExam } from './enrolment.model';
+
 @Injectable()
 export class EnrolmentService {
     constructor(
@@ -41,6 +40,7 @@ export class EnrolmentService {
         private http: HttpClient,
         private State: StateService,
         private ngbModal: NgbModal,
+        private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private Session: SessionService,
     ) {}
@@ -87,10 +87,10 @@ export class EnrolmentService {
         ).result.then(() => {
             this.http.delete(`/app/enrolments/${enrolment.id}/examination`).subscribe(
                 () => {
-                    toast.info(this.translate.instant('sitnet_examination_event_removed'));
+                    this.toast.info(this.translate.instant('sitnet_examination_event_removed'));
                     delete enrolment.examinationEventConfiguration;
                 },
-                (err) => toast.error(err.data),
+                (err) => this.toast.error(err.data),
             );
         });
     };
@@ -108,7 +108,7 @@ export class EnrolmentService {
             delete enrolment.reservation;
             enrolment.reservationCanceled = true;
         };
-        const errorFn = (resp: { data: string }) => toast.error(resp.data);
+        const errorFn = (resp: { data: string }) => this.toast.error(resp.data);
         const url = externalRef
             ? `/app/iop/reservations/external/${externalRef}`
             : `/app/calendar/reservation/${enrolment.reservation.id}`;
@@ -123,7 +123,7 @@ export class EnrolmentService {
             })
             .pipe(
                 tap((enrolment) => {
-                    toast.success(
+                    this.toast.success(
                         this.translate.instant('sitnet_you_have_enrolled_to_exam') +
                             '<br/>' +
                             this.translate.instant('sitnet_remember_exam_machine_reservation'),
@@ -145,7 +145,7 @@ export class EnrolmentService {
                 resp.length == 0 ? this.enroll(exam, collaborative) : throwError('sitnet_already_enrolled'),
             ),
             catchError((err) => {
-                toast.error(err);
+                this.toast.error(err);
                 return throwError(err);
             }),
         );
@@ -154,7 +154,7 @@ export class EnrolmentService {
         const data = { uid: student.id, email: student.email };
         return this.http
             .post<ExamEnrolment>(`/app/enrolments/student/${exam.id}`, data)
-            .pipe(tap(() => toast.success(this.translate.instant('sitnet_student_enrolled_to_exam'))));
+            .pipe(tap(() => this.toast.success(this.translate.instant('sitnet_student_enrolled_to_exam'))));
     };
 
     getEnrolmentInfo = (code: string, id: number): Observable<EnrolmentInfo> =>
@@ -252,10 +252,10 @@ export class EnrolmentService {
         modalRef.result.then((information: string) => {
             this.http.put(`/app/enrolments/${enrolment.id}`, { information: information }).subscribe(
                 () => {
-                    toast.success(this.translate.instant('sitnet_saved'));
+                    this.toast.success(this.translate.instant('sitnet_saved'));
                     enrolment.information = information;
                 },
-                (err) => toast.error(err),
+                (err) => this.toast.error(err),
             );
         });
     };
@@ -292,7 +292,7 @@ export class EnrolmentService {
         });
         modalRef.componentInstance.instructions = enrolment.exam.enrollInstruction;
         modalRef.componentInstance.title = 'sitnet_instructions';
-        modalRef.result.catch((err) => toast.error(err));
+        modalRef.result.catch((err) => this.toast.error(err));
     };
 
     showMaturityInstructions = (enrolment: { exam: Exam }) => {
@@ -303,7 +303,7 @@ export class EnrolmentService {
             });
             modalRef.componentInstance.instructions = instructions;
             modalRef.componentInstance.title = 'sitnet_maturity_instructions';
-            modalRef.result.catch((err) => toast.error(err));
+            modalRef.result.catch((err) => this.toast.error(err));
         });
     };
 

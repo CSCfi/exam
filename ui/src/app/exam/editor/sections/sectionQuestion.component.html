@@ -129,19 +129,19 @@
             >
                 <img
                     src="/assets/images/icon_correct_answer_radio.png"
-                    *ngIf="determineClaimOptionType(option) == 'CorrectOption'"
+                    *ngIf="determineClaimOptionType(option) === 'CorrectOption'"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                 />
                 <img
                     src="/assets/images/icon_wrong_answer_radio.png"
-                    *ngIf="determineClaimOptionType(option) == 'IncorrectOption'"
+                    *ngIf="determineClaimOptionType(option) === 'IncorrectOption'"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                 />
                 <img
                     src="/assets/images/icon_wrong_answer.png"
-                    *ngIf="determineClaimOptionType(option) == 'SkipOption'"
+                    *ngIf="determineClaimOptionType(option) === 'SkipOption'"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                 />

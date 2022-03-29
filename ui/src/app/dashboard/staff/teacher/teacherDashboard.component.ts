@@ -13,19 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { StateService } from '@uirouter/core';
-
+import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
+import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { ExtraColumnName } from './categories/examListCategory.component';
 import { ExamSearchPipe } from './examSearch.pipe';
-import { TeacherDashboardService } from './teacherDashboard.service';
-
-import type { OnInit } from '@angular/core';
-import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
-import type { User } from '../../../session/session.service';
 import type { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teacherDashboard.service';
+import { TeacherDashboardService } from './teacherDashboard.service';
 
 @Component({
     selector: 'teacher-dashboard',

@@ -12,21 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
-
+import { Component, Input, OnInit } from '@angular/core';
+import type { EssayAnswer } from '../../exam/exam.model';
+import type { AnsweredQuestion } from '../../utility/attachment/attachment.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { FileService } from '../../utility/file/file.service';
-import { ExaminationService } from '../examination.service';
-
 import type { Examination, ExaminationQuestion } from '../examination.model';
-import type { AnsweredQuestion } from '../../utility/attachment/attachment.service';
-import type { EssayAnswer } from '../../exam/exam.model';
+import { ExaminationService } from '../examination.service';
 
 @Component({
     selector: 'examination-essay-question',
     templateUrl: './examinationEssayQuestion.component.html',
 })
-export class ExaminationEssayQuestionComponent {
+export class ExaminationEssayQuestionComponent implements OnInit {
     @Input() sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
     @Input() exam!: Examination;
     @Input() isPreview = false;

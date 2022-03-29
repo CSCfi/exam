@@ -13,10 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-
+import type { ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
-import type { ReviewQuestion } from '../../review.model';
 @Component({
     selector: 'essay-answers',
     template: `
@@ -47,7 +46,7 @@ export class EssayAnswerListComponent {
     @Input() editable = false;
     @Input() isPremature = false;
     @Input() actionText = '';
-    @Output() onAssessed = new EventEmitter<ReviewQuestion[]>();
+    @Output() assessed = new EventEmitter<ReviewQuestion[]>();
 
     constructor(private QuestionReview: QuestionReviewService) {}
 
@@ -63,12 +62,12 @@ export class EssayAnswerListComponent {
             a.selected = true;
         });
 
-        this.onAssessed.emit(this.answers.filter(this.QuestionReview.isAssessed));
+        this.assessed.emit(this.answers.filter(this.QuestionReview.isAssessed));
     };
 
     assessEssay = (answer: ReviewQuestion) => {
         if (this.QuestionReview.isAssessed(answer)) {
-            this.onAssessed.emit([answer]);
+            this.assessed.emit([answer]);
         }
     };
 }

@@ -7,7 +7,7 @@
     *ngIf="unfinished"
     categoryTitle="sitnet_in_progress"
     [reviews]="unfinished"
-    (onSelection)="questionSelected($event)"
+    (selected)="questionSelected($event)"
 >
 </question-flow-category>
 <question-flow-category
@@ -15,6 +15,6 @@
     categoryTitle="sitnet_all_finished"
     [reviews]="finished"
     [allDone]="true"
-    (onSelection)="questionSelected($event)"
+    (selected)="questionSelected($event)"
 >
 </question-flow-category>

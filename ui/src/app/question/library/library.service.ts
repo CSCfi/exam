@@ -15,12 +15,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
+import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
+import type { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
 
-import type { Observable } from 'rxjs';
-import type { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
 export interface LibraryQuestion extends ReverseQuestion {
     icon: string;
     displayedMaxScore: number | string;

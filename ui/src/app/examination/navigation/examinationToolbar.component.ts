@@ -13,32 +13,31 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
-import * as toast from 'toastr';
-
 import { EnrolmentService } from '../../enrolment/enrolment.service';
+import type { ExamRoom } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
+import type { Examination, ExaminationSection } from '../examination.model';
 import { ExaminationService } from '../examination.service';
 
-import type { Examination, ExaminationSection } from '../examination.model';
-import type { ExamRoom } from '../../reservation/reservation.model';
 @Component({
     selector: 'examination-toolbar',
     templateUrl: './examinationToolbar.component.html',
 })
-export class ExaminationToolbarComponent {
+export class ExaminationToolbarComponent implements OnInit {
     @Input() exam!: Examination;
     @Input() activeSection?: ExaminationSection;
     @Input() isPreview = false;
     @Input() isCollaborative = false;
-    @Output() onPageSelect = new EventEmitter<{ page: { id?: number; type: string } }>();
+    @Output() pageSelected = new EventEmitter<{ page: { id?: number; type: string } }>();
 
     room?: ExamRoom;
 
@@ -47,6 +46,7 @@ export class ExaminationToolbarComponent {
         private state: StateService,
         private routing: UIRouterGlobals,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Window: WindowRef,
         private Confirmation: ConfirmationDialogService,
         private Session: SessionService,
@@ -104,24 +104,24 @@ export class ExaminationToolbarComponent {
         dialog.result.then(() =>
             this.Examination.abort$(this.exam.hash).subscribe(
                 () => {
-                    toast.info(this.translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
+                    this.toast.info(this.translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
                     this.Window.nativeWindow.onbeforeunload = null;
                     this.state.go('examinationLogout', {
                         reason: 'aborted',
                         quitLinkEnabled: this.exam.implementation === 'CLIENT_AUTH',
                     });
                 },
-                (err) => toast.error(err.data),
+                (err) => this.toast.error(err.data),
             ),
         );
     };
 
     downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.isCollaborative);
 
-    selectGuidePage = () => this.onPageSelect.emit({ page: { type: 'guide' } });
+    selectGuidePage = () => this.pageSelected.emit({ page: { type: 'guide' } });
 
     selectSection = (section: ExaminationSection) =>
-        this.onPageSelect.emit({ page: { id: section.id, type: 'section' } });
+        this.pageSelected.emit({ page: { id: section.id, type: 'section' } });
 
     getQuestionAmount = (section: ExaminationSection, type: string) => {
         if (type === 'total') {

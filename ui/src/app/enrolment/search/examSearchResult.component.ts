@@ -14,11 +14,10 @@
  */
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
-
+import type { Exam } from '../../exam/exam.model';
+import type { CollaborativeExamInfo, EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
-import type { Exam } from '../../exam/exam.model';
-import type { EnrolmentInfo, CollaborativeExamInfo } from '../enrolment.model';
 @Component({
     selector: 'exam-search-result',
     templateUrl: './examSearchResult.component.html',

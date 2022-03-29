@@ -16,21 +16,19 @@ import { registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { StateService } from '@uirouter/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
 import { ExaminationStatusService } from './examination/examinationStatus.service';
-import { SessionService } from './session/session.service';
-import { WindowRef } from './utility/window/window.service';
-
 import type { User } from './session/session.service';
+import { SessionService } from './session/session.service';
+
 @Component({
     selector: 'app',
     template: `
         <div *ngIf="!user && devLoginRequired">
-            <dev-login (onLoggedIn)="setUser($event)"></dev-login>
+            <dev-login (loggedIn)="setUser($event)"></dev-login>
         </div>
         <div *ngIf="user">
             <navigation [hidden]="hideNavBar"></navigation>
@@ -40,14 +38,13 @@ import type { User } from './session/session.service';
         </div>
     `,
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
     user?: User;
     hideNavBar = false;
     devLoginRequired = false;
     private ngUnsubscribe = new Subject();
 
     constructor(
-        private Window: WindowRef,
         private state: StateService,
         private Session: SessionService,
         private ExaminationStatus: ExaminationStatusService,
@@ -94,7 +91,7 @@ export class AppComponent {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 

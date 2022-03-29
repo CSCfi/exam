@@ -12,17 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/angular';
-import * as toast from 'toastr';
-
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { MachineService } from './machines.service';
-
-import type { OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import type { Software } from '../../exam/exam.model';
 import type { ExamMachine } from '../../reservation/reservation.model';
+import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { MachineService } from './machines.service';
 
 interface SoftwareWithClass extends Software {
     class: string;
@@ -42,6 +40,7 @@ export class MachineComponent implements OnInit {
         private translate: TranslateService,
         private state: StateService,
         private routing: UIRouterGlobals,
+        private toast: ToastrService,
     ) {}
 
     ngOnInit() {
@@ -63,7 +62,7 @@ export class MachineComponent implements OnInit {
                 });
             },
             (error) => {
-                toast.error(error.data);
+                this.toast.error(error.data);
             },
         );
     }
@@ -76,11 +75,11 @@ export class MachineComponent implements OnInit {
         dialog.result.then(() => {
             this.machines.removeMachine(machine.id).subscribe(
                 () => {
-                    toast.info(this.translate.instant('sitnet_machine_removed'));
+                    this.toast.info(this.translate.instant('sitnet_machine_removed'));
                     this.state.go('staff.rooms');
                 },
                 (error) => {
-                    toast.error(error.data);
+                    this.toast.error(error.data);
                 },
             );
         });
@@ -92,15 +91,15 @@ export class MachineComponent implements OnInit {
                 software.class = response.turnedOn === true ? 'btn-info' : 'btn-default';
             },
             (error) => {
-                toast.error(error.data);
+                this.toast.error(error.data);
             },
         );
     };
 
     updateMachine = (cb?: () => void) =>
         this.machines.updateMachine(this.machine).subscribe(
-            () => toast.info(this.translate.instant('sitnet_machine_updated')),
-            (error) => toast.error(error),
+            () => this.toast.info(this.translate.instant('sitnet_machine_updated')),
+            (error) => this.toast.error(error),
             () => {
                 if (cb) cb();
             },

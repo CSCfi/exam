@@ -12,27 +12,25 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import type { OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
 import { catchError, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
 import { SessionService } from '../../../session/session.service';
+import type { Exam, ExamMaterial, ExamSection } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { ExamTabService } from '../examTabs.service';
-
-import type { CdkDragDrop } from '@angular/cdk/drag-drop';
-import type { OnChanges, SimpleChanges } from '@angular/core';
-import type { Exam, ExamMaterial, ExamSection } from '../../exam.model';
 
 @Component({
     selector: 'sections',
     templateUrl: './sectionsList.component.html',
 })
-export class SectionsListComponent implements OnChanges {
+export class SectionsListComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;
     @Input() collaborative = false;
 
@@ -42,6 +40,7 @@ export class SectionsListComponent implements OnChanges {
         private http: HttpClient,
         private translate: TranslateService,
         private State: StateService,
+        private toast: ToastrService,
         private Exam: ExamService,
         private Session: SessionService,
         private Tabs: ExamTabService,
@@ -72,9 +71,9 @@ export class SectionsListComponent implements OnChanges {
             this.Exam.reorderSections$(from, to, this.exam, this.collaborative).subscribe(
                 () => {
                     moveItemInArray(this.exam.examSections, from, to);
-                    toast.info(this.translate.instant('sitnet_sections_reordered'));
+                    this.toast.info(this.translate.instant('sitnet_sections_reordered'));
                 },
-                (err) => toast.error(err),
+                (err) => this.toast.error(err),
             );
         }
     };
@@ -83,10 +82,10 @@ export class SectionsListComponent implements OnChanges {
         this.Exam.addSection$(this.exam, this.collaborative)
             .pipe(
                 tap((es) => {
-                    toast.success(this.translate.instant('sitnet_section_added'));
+                    this.toast.success(this.translate.instant('sitnet_section_added'));
                     this.exam.examSections.push(es);
                 }),
-                catchError((resp) => toast.error(resp)),
+                catchError(async (resp) => this.toast.error(resp)),
             )
             .subscribe();
     };
@@ -95,10 +94,10 @@ export class SectionsListComponent implements OnChanges {
         this.Exam.updateExam$(this.exam, {}, this.collaborative).pipe(
             tap(() => {
                 if (!silent) {
-                    toast.info(this.translate.instant('sitnet_exam_saved'));
+                    this.toast.info(this.translate.instant('sitnet_exam_saved'));
                 }
             }),
-            catchError((resp) => toast.error(this.translate.instant(resp))),
+            catchError(async (resp) => this.toast.error(this.translate.instant(resp))),
         );
 
     previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
@@ -110,10 +109,10 @@ export class SectionsListComponent implements OnChanges {
             .delete(this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`, this.collaborative))
             .subscribe(
                 () => {
-                    toast.info(this.translate.instant('sitnet_section_removed'));
+                    this.toast.info(this.translate.instant('sitnet_section_removed'));
                     this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
                 },
-                (resp) => toast.error(resp.data),
+                (resp) => this.toast.error(resp.data),
             );
     };
 

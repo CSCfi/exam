@@ -15,9 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { isNumber } from 'lodash';
-
 import type { Observable } from 'rxjs';
-
 import type { User } from '../../session/session.service';
 import type { QuestionReview, ReviewQuestion } from '../review.model';
 

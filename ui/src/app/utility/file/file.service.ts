@@ -12,13 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { HttpResponse } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as FileSaver from 'file-saver';
-import * as toast from 'toastr';
-
-import type { HttpResponse } from '@angular/common/http';
+import { ToastrService } from 'ngx-toastr';
 import type { Attachment, EssayAnswer } from '../../exam/exam.model';
 
 type Container = { attachment?: Attachment; objectVersion?: number };
@@ -26,7 +25,7 @@ type Container = { attachment?: Attachment; objectVersion?: number };
 @Injectable()
 export class FileService {
     maxFileSize = 0;
-    constructor(private http: HttpClient, private translate: TranslateService) {}
+    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
 
     download(url: string, filename: string, params?: Record<string, string | string[]>, post?: boolean) {
         const method = post ? 'POST' : 'GET';
@@ -48,7 +47,7 @@ export class FileService {
                 },
                 (resp) => {
                     console.log('error ' + JSON.stringify(resp));
-                    toast.error(resp.body || resp);
+                    this.toast.error(resp.body || resp);
                 },
             );
     }
@@ -79,7 +78,7 @@ export class FileService {
                     callback();
                 }
             })
-            .catch((resp) => toast.error(this.translate.instant(resp.data)));
+            .catch((resp) => this.toast.error(this.translate.instant(resp.data)));
     }
 
     private isAttachment = (obj: EssayAnswer | Attachment): obj is Attachment => obj.objectVersion === undefined;
@@ -90,7 +89,7 @@ export class FileService {
                 parent.objectVersion = resp.objectVersion;
                 parent.attachment = !this.isAttachment(resp) ? resp.attachment : resp;
             })
-            .catch((resp) => toast.error(this.translate.instant(resp.data)));
+            .catch((resp) => this.toast.error(this.translate.instant(resp.data)));
     }
 
     private saveFile(data: string, fileName: string, contentType: string) {
@@ -118,7 +117,7 @@ export class FileService {
 
     private isFileTooBig(file: File): boolean {
         if (file.size > this.maxFileSize) {
-            toast.error(this.translate.instant('sitnet_file_too_large'));
+            this.toast.error(this.translate.instant('sitnet_file_too_large'));
             return true;
         }
         return false;

@@ -12,18 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
-import * as toast from 'toastr';
-
-import { SessionService } from '../../session/session.service';
-import { RoomService } from './room.service';
-
-import type { OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import type { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
 import type { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
 import type { Address } from './room.service';
+import { RoomService } from './room.service';
 
 interface RoomWithAddressVisibility extends ExamRoom {
     addressVisible: boolean;
@@ -40,6 +38,7 @@ export class RoomListComponent implements OnInit {
 
     constructor(
         private state: StateService,
+        private toast: ToastrService,
         private session: SessionService,
         private room: RoomService,
         private translate: TranslateService,
@@ -78,12 +77,10 @@ export class RoomListComponent implements OnInit {
     createExamRoom = () => {
         this.room.getDraft$().subscribe(
             (room) => {
-                toast.info(this.translate.instant('sitnet_room_draft_created'));
+                this.toast.info(this.translate.instant('sitnet_room_draft_created'));
                 this.state.go('staff.room', { id: room.id });
             },
-            function (error) {
-                toast.error(error.data);
-            },
+            (error) => this.toast.error(error.data),
         );
     };
 

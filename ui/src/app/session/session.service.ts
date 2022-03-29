@@ -13,21 +13,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnDestroy } from '@angular/core';
 import { Inject, Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
+import type { Observable, Unsubscribable } from 'rxjs';
 import { defer, from, interval, of, Subject, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import * as toastr from 'toastr';
-
 import { WindowRef } from '../utility/window/window.service';
 import { EulaDialogComponent } from './eula/eulaDialog.component';
 import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
 
-import type { OnDestroy } from '@angular/core';
-import type { Observable, Unsubscribable } from 'rxjs';
 export interface Role {
     name: string;
     displayName?: string;
@@ -63,10 +62,10 @@ interface Env {
 export class SessionService implements OnDestroy {
     private PING_INTERVAL: number = 30 * 1000;
     private sessionCheckSubscription?: Unsubscribable;
-    private userChangeSubscription = new Subject<User>();
+    private userChangeSubscription = new Subject<User | undefined>();
     private devLogoutSubscription = new Subject<void>();
 
-    public userChange$: Observable<User>;
+    public userChange$: Observable<User | undefined>;
     public devLogoutChange$: Observable<void>;
 
     constructor(
@@ -76,6 +75,7 @@ export class SessionService implements OnDestroy {
         private routing: UIRouterGlobals,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
         private modal: NgbModal,
+        private toast: ToastrService,
         private windowRef: WindowRef,
     ) {
         this.userChange$ = this.userChangeSubscription.asObservable();
@@ -119,7 +119,7 @@ export class SessionService implements OnDestroy {
     private onLogoutSuccess(data: { logoutUrl: string }): void {
         this.userChangeSubscription.next(undefined);
 
-        toastr.success(this.i18n.instant('sitnet_logout_success'));
+        this.toast.success(this.i18n.instant('sitnet_logout_success'));
         this.windowRef.nativeWindow.onbeforeunload = () => null;
         const location = this.windowRef.nativeWindow.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
@@ -133,7 +133,6 @@ export class SessionService implements OnDestroy {
             // DEV logout
             this.devLogoutSubscription.next();
         }
-        this.windowRef.nativeWindow.setTimeout(toastr.clear, 300);
     }
 
     private redirect(user: User): void {
@@ -156,7 +155,7 @@ export class SessionService implements OnDestroy {
             this.webStorageService.remove('EXAM_USER');
             // delete this.user;
             this.onLogoutSuccess(resp);
-        }, toastr.error);
+        }, this.toast.error);
     }
 
     getLocale = () => {
@@ -179,7 +178,7 @@ export class SessionService implements OnDestroy {
                     this.webStorageService.set('EXAM_USER', user);
                     this.translate(lang);
                 },
-                () => toastr.error('failed to switch language'),
+                () => this.toast.error('failed to switch language'),
             );
         }
     }
@@ -197,27 +196,28 @@ export class SessionService implements OnDestroy {
     }
 
     checkSession = () => {
-        this.http.get('/app/session', { responseType: 'text' }).subscribe(
-            (resp) => {
+        this.http.get('/app/session', { responseType: 'text' }).subscribe({
+            next: (resp) => {
                 if (resp === 'alarm') {
-                    toastr.warning(
-                        this.i18n.instant('sitnet_continue_session'),
-                        this.i18n.instant('sitnet_session_will_expire_soon'),
-                        {
-                            timeOut: 0,
-                            preventDuplicates: true,
-                            onclick: () => {
-                                this.http.put('/app/session', {}).subscribe(
-                                    () => {
-                                        toastr.info(this.i18n.instant('sitnet_session_extended'), '', {
+                    this.toast
+                        .warning(
+                            this.i18n.instant('sitnet_continue_session'),
+                            this.i18n.instant('sitnet_session_will_expire_soon'),
+                            {
+                                timeOut: 0,
+                            },
+                        )
+                        .onTap.subscribe({
+                            next: () =>
+                                this.http.put<void>('/app/session', {}).subscribe({
+                                    next: () => {
+                                        this.toast.info(this.i18n.instant('sitnet_session_extended'), '', {
                                             timeOut: 1000,
                                         });
                                     },
-                                    (resp) => toastr.error(resp),
-                                );
-                            },
-                        },
-                    );
+                                    error: (resp) => this.toast.error(resp),
+                                }),
+                        });
                 } else if (resp === 'no_session') {
                     if (this.sessionCheckSubscription) {
                         this.sessionCheckSubscription.unsubscribe();
@@ -225,8 +225,8 @@ export class SessionService implements OnDestroy {
                     this.logout();
                 }
             },
-            (resp) => toastr.error(resp),
-        );
+            error: (resp) => this.toast.error(resp),
+        });
     };
 
     private openUserAgreementModal$(user: User): Observable<User> {
@@ -242,10 +242,7 @@ export class SessionService implements OnDestroy {
     }
 
     private openRoleSelectModal$(user: User): Observable<User> {
-        const modalRef = this.modal.open(SelectRoleDialogComponent, {
-            backdrop: 'static',
-            keyboard: false,
-        });
+        const modalRef = this.modal.open(SelectRoleDialogComponent);
         modalRef.componentInstance.user = user;
         return from(modalRef.result).pipe(
             switchMap((role: Role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
@@ -305,16 +302,15 @@ export class SessionService implements OnDestroy {
                     this.webStorageService.set('EXAM_USER', u);
                     this.restartSessionCheck();
                     this.userChangeSubscription.next(u);
-                    const welcome = () => {
-                        if (u) {
-                            toastr.success(`${this.i18n.instant('sitnet_welcome')} ${u.firstName} ${u.lastName}`);
-                        }
-                    };
-                    this.windowRef.nativeWindow.setTimeout(welcome, 2000);
+                    if (u) {
+                        this.toast.success(this.i18n.instant('sitnet_welcome'), `${u.firstName} ${u.lastName}`, {
+                            timeOut: 2000,
+                        });
+                    }
                     this.redirect(u);
                 }),
                 catchError((resp) => {
-                    if (resp) toastr.error(this.i18n.instant(resp));
+                    if (resp) this.toast.error(this.i18n.instant(resp));
                     this.logout();
                     return throwError(resp);
                 }),

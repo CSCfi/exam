@@ -13,13 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { map } from 'rxjs/operators';
-
 import { FileService } from '../../utility/file/file.service';
 import { WindowRef } from '../../utility/window/window.service';
-
 import type { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuestion } from '../exam.model';
 
 type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & { ord: number })[] };
@@ -28,7 +26,7 @@ type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & {
     selector: 'printout',
     templateUrl: './printout.component.html',
 })
-export class PrintoutComponent {
+export class PrintoutComponent implements OnInit {
     exam!: Printout;
 
     constructor(

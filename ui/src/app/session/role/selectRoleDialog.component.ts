@@ -15,13 +15,12 @@
  */
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-
 import type { User } from '../session.service';
 
 @Component({
     selector: 'role-selector-dialog',
     template: `
-        <div id="sitnet-dialog">
+        <div>
             <div class="modal-header">
                 <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'sitnet_select_role' | translate }}</h4>
             </div>

@@ -15,12 +15,11 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { ExamRoom } from '../../../reservation/reservation.model';
 import { FileService } from '../../../utility/file/file.service';
 import { Option } from '../../../utility/select/dropDownSelect.component';
 
-import type { ExamRoom } from '../../../reservation/reservation.model';
 @Component({
     template: `
         <div class="top-row">
@@ -35,19 +34,19 @@ import type { ExamRoom } from '../../../reservation/reservation.model';
                     id="roomPick"
                     *ngIf="rooms"
                     [options]="rooms"
-                    (onSelect)="roomSelected($event)"
+                    (optionSelected)="roomSelected($event)"
                 ></dropdown-select>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
+                    <date-picker (updated)="startDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
+                    <date-picker (updated)="endDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-lg-2 mb-2">
@@ -76,7 +75,12 @@ export class RoomsReportComponent {
     startDate: Date | null = null;
     endDate: Date | null = null;
 
-    constructor(private translate: TranslateService, private datePipe: DatePipe, private files: FileService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private datePipe: DatePipe,
+        private files: FileService,
+    ) {}
 
     roomSelected = (event?: Option<ExamRoom, number>) => {
         this.room = event?.id;
@@ -88,7 +92,7 @@ export class RoomsReportComponent {
         if (this.room) {
             this.files.download(`/app/statistics/resbydate/${this.room}/${f}/${t}`, `reservations_${f}_${t}.xlsx`);
         } else {
-            toast.error(this.translate.instant('sitnet_choose_room'));
+            this.toast.error(this.translate.instant('sitnet_choose_room'));
         }
     };
 

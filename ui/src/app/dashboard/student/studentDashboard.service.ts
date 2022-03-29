@@ -16,13 +16,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { addHours, format, parseISO } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
-import { map } from 'rxjs/operators';
-
-import { DateTimeService } from '../../utility/date/date.service';
-
 import type { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import type { ExamEnrolment } from '../../enrolment/enrolment.model';
 import type { Reservation } from '../../reservation/reservation.model';
+import { DateTimeService } from '../../utility/date/date.service';
+
 interface Occasion {
     startAt: string;
     endAt: string;

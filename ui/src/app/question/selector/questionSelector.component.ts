@@ -16,8 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import type { ExamSection, Question } from '../../exam/exam.model';
 
 @Component({
@@ -31,17 +30,22 @@ export class QuestionSelectorComponent {
     questions: Question[] = [];
     selections: number[] = [];
 
-    constructor(private modal: NgbActiveModal, private http: HttpClient, private translate: TranslateService) {}
+    constructor(
+        private modal: NgbActiveModal,
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     resultsUpdated = (event: Question[]) => (this.questions = event);
     questionSelected = (event: number[]) => (this.selections = event);
-    questionCopied = () => toast.info(this.translate.instant('sitnet_question_copied'));
+    questionCopied = () => this.toast.info(this.translate.instant('sitnet_question_copied'));
     cancel = () => this.modal.dismiss();
 
     addQuestions = () => {
         // check that at least one has been selected
         if (this.selections.length === 0) {
-            toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
+            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
             return;
         }
 
@@ -56,11 +60,11 @@ export class QuestionSelectorComponent {
                         const insertedSectionQuestions = resp.sectionQuestions.filter((esq) =>
                             this.selections.includes(esq.question.id),
                         );
-                        toast.info(this.translate.instant('sitnet_question_added'));
+                        this.toast.info(this.translate.instant('sitnet_question_added'));
                         this.modal.close(insertedSectionQuestions);
                     },
                     (err) => {
-                        toast.error(err.data);
+                        this.toast.error(err.data);
                         this.cancel();
                     },
                 );

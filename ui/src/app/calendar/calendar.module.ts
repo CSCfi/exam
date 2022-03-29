@@ -17,7 +17,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
 import * as ac from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
-
 import { UtilityModule } from '../utility/utility.module';
 import { BookingCalendarComponent } from './bookingCalendar.component';
 import { CalendarComponent } from './calendar.component';

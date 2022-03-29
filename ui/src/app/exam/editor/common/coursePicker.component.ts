@@ -12,18 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { CoursePickerService } from './coursePicker.service';
-
 import type { Course } from '../../exam.model';
-import type { OnInit } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { Observable } from 'rxjs';
+import { CoursePickerService } from './coursePicker.service';
 
 @Component({
     selector: 'course-picker',
@@ -31,7 +29,7 @@ import type { Observable } from 'rxjs';
 })
 export class CoursePickerComponent implements OnInit {
     @Input() course?: Course;
-    @Output() onUpdate = new EventEmitter<Course>();
+    @Output() updated = new EventEmitter<Course>();
 
     nameFilter = '';
     codeFilter = '';
@@ -40,7 +38,11 @@ export class CoursePickerComponent implements OnInit {
         code: { isOn: false },
     };
 
-    constructor(private translate: TranslateService, private Course: CoursePickerService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Course: CoursePickerService,
+    ) {}
 
     ngOnInit() {
         this.nameFilter = this.course ? this.course.name : '';
@@ -48,7 +50,7 @@ export class CoursePickerComponent implements OnInit {
     }
 
     private showError = (term: string) =>
-        toast.error(`${this.translate.instant('sitnet_course_not_found')} ( ${term}  )`);
+        this.toast.error(`${this.translate.instant('sitnet_course_not_found')} ( ${term}  )`);
 
     private getCourses$ = (category: 'name' | 'code', text$: Observable<string>): Observable<Course[]> =>
         text$.pipe(
@@ -77,7 +79,7 @@ export class CoursePickerComponent implements OnInit {
     onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
         this.codeFilter = event.item.code.split('_')[0];
         this.nameFilter = event.item.name;
-        this.onUpdate.emit(event.item);
+        this.updated.emit(event.item);
     };
 
     private toggleLoadingIcon = (filter: 'name' | 'code', isOn: boolean) => (this.loader[filter].isOn = isOn);

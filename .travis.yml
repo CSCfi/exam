@@ -22,9 +22,11 @@ before_script:
   - nvm install 14
   - nvm use 14
   - rm -rf ui/node_modules
-  - npm --prefix ui install
+  - cd ui
+  - npm install
 script:
-  - npm --prefix ui run build
+  - npm run build
+  - cd ..
   - sbt test
 
 before_cache:

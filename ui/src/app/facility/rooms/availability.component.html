@@ -42,7 +42,7 @@
         <div class="col-md-12">
             <booking-calendar
                 *ngIf="room"
-                (onNeedMoreEvents)="refresh($event)"
+                (moreEventsNeeded)="refresh($event)"
                 [room]="room"
                 [events]="events"
                 [visible]="true"

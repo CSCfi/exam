@@ -14,14 +14,12 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-
+import type { Observable } from 'rxjs';
+import type { ReviewedExam } from '../../enrolment/enrolment.model';
 import { SessionService } from '../../session/session.service';
+import type { CollaborativeExam, Exam, ExamParticipation } from '../exam.model';
 import { CollaborativeExamState } from '../exam.model';
 
-import type { Observable } from 'rxjs';
-
-import type { CollaborativeExam, ExamParticipation, Exam } from '../exam.model';
-import type { ReviewedExam } from '../../enrolment/enrolment.model';
 export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exam: ReviewedExam } & {
     examId: string;
     _id: string;
@@ -63,5 +61,5 @@ export class CollaborativeExamService {
         }
     };
 
-    download$ = (id: number) => this.http.get<Exam>(`/app/iop/exams/${id}`).toPromise();
+    download$ = (id: number) => this.http.get<Exam>(`/app/iop/exams/${id}`);
 }

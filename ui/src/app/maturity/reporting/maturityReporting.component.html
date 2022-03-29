@@ -22,14 +22,14 @@
                         id="month"
                         class="input-group mr-2"
                         [options]="months"
-                        (onSelect)="monthChanged($event)"
+                        (optionSelected)="monthChanged($event)"
                     ></dropdown-select>
                     <label for="year" class="mr-2">{{ 'sitnet_year' | translate }}:</label>
                     <dropdown-select
                         id="year"
                         class="input-group"
                         [options]="years"
-                        (onSelect)="yearChanged($event)"
+                        (optionSelected)="yearChanged($event)"
                     ></dropdown-select>
                 </form>
             </div>

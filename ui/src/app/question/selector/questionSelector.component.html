@@ -10,7 +10,7 @@
         </div>
 
         <!-- search bar and search parameters -->
-        <library-search (onUpdate)="resultsUpdated($event)"></library-search>
+        <library-search (updated)="resultsUpdated($event)"></library-search>
 
         <div class="row">
             <div class="col-md-12 padl0 padr0 marb20">
@@ -27,8 +27,8 @@
         <!-- resulting table with questions -->
         <library-results
             [questions]="questions"
-            (onSelection)="questionSelected($event)"
-            (onCopy)="questionCopied()"
+            (selected)="questionSelected($event)"
+            (copied)="questionCopied()"
             tableClass="library-table"
             [disableLinks]="true"
         ></library-results>

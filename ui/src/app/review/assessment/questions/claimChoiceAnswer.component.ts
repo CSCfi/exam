@@ -13,10 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-
-import { QuestionService } from '../../../question/question.service';
-
 import type { ExamSectionQuestion, ExamSectionQuestionOption } from '../../../exam/exam.model';
+import { QuestionService } from '../../../question/question.service';
 
 @Component({
     selector: 'r-claim-choice-answer',

@@ -13,26 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
 import { from, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { ExaminationTypeSelectorComponent } from '../editor/common/examinationTypeSelector.component';
+import type { Exam, Implementation } from '../exam.model';
 import { ExamService } from '../exam.service';
 
-import type { Exam, Implementation } from '../exam.model';
 type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
 
 @Component({
     selector: 'exam-list',
     templateUrl: './examList.component.html',
 })
-export class ExamListingComponent {
+export class ExamListingComponent implements OnInit, OnDestroy {
     activeId = 0;
     views = [
         { view: 'PUBLISHED', showExpired: false },
@@ -53,12 +52,13 @@ export class ExamListingComponent {
         private state: StateService,
         private http: HttpClient,
         private modal: NgbModal,
+        private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private Exam: ExamService,
     ) {}
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 
@@ -107,10 +107,10 @@ export class ExamListingComponent {
             )
             .subscribe(
                 (resp) => {
-                    toast.success(this.translate.instant('sitnet_exam_copied'));
+                    this.toast.success(this.translate.instant('sitnet_exam_copied'));
                     this.state.go('staff.examEditor.basic', { id: resp.id });
                 },
-                (err) => toast.error(err),
+                (err) => this.toast.error(err),
             );
 
     deleteExam = (exam: ExamListExam) => {
@@ -121,10 +121,10 @@ export class ExamListingComponent {
         dialog.result.then(() => {
             this.http.delete(`/app/exams/${exam.id}`).subscribe(
                 () => {
-                    toast.success(this.translate.instant('sitnet_exam_removed'));
+                    this.toast.success(this.translate.instant('sitnet_exam_removed'));
                     this.exams.splice(this.exams.indexOf(exam), 1);
                 },
-                (err) => toast.error(err),
+                (err) => this.toast.error(err),
             );
         });
     };

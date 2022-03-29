@@ -13,15 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { ExaminationEventConfiguration, MaintenancePeriod } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
-import type { ExaminationEventConfiguration, MaintenancePeriod } from '../../exam.model';
-import type { OnInit } from '@angular/core';
 @Component({
     selector: 'examination-event-dialog',
     templateUrl: './examinationEventDialog.component.html',
@@ -41,7 +40,12 @@ export class ExaminationEventDialogComponent implements OnInit {
     now = new Date();
     maxDateValidator?: Date;
 
-    constructor(public activeModal: NgbActiveModal, private translate: TranslateService, private Exam: ExamService) {}
+    constructor(
+        public activeModal: NgbActiveModal,
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Exam: ExamService,
+    ) {}
 
     ngOnInit() {
         if (this.config) {
@@ -66,10 +70,10 @@ export class ExaminationEventDialogComponent implements OnInit {
 
     ok() {
         if (!this.start) {
-            toast.error(this.translate.instant('sitnet_no_examination_start_date_picked'));
+            this.toast.error(this.translate.instant('sitnet_no_examination_start_date_picked'));
         }
         if (this.maxDateValidator && this.maxDateValidator < this.start) {
-            toast.error(this.translate.instant('sitnet_invalid_start_date_picked'));
+            this.toast.error(this.translate.instant('sitnet_invalid_start_date_picked'));
             return;
         }
         const config = {
@@ -88,14 +92,14 @@ export class ExaminationEventDialogComponent implements OnInit {
                 (response: ExaminationEventConfiguration) => {
                     this.activeModal.close(response);
                 },
-                (err) => toast.error(err),
+                (err) => this.toast.error(err),
             );
         } else {
             this.Exam.updateExaminationEvent$(this.examId, { ...config, id: this.config.id }).subscribe(
                 (response: ExaminationEventConfiguration) => {
                     this.activeModal.close(response);
                 },
-                (err) => toast.error(err),
+                (err) => this.toast.error(err),
             );
         }
     }

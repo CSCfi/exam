@@ -15,10 +15,8 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TransitionService } from '@uirouter/core';
-
-import { WindowRef } from '../../utility/window/window.service';
-
 import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
+import { WindowRef } from '../../utility/window/window.service';
 import type { QuestionDraft } from '../question.service';
 
 @Component({
@@ -29,8 +27,8 @@ import type { QuestionDraft } from '../question.service';
                 <question
                     [newQuestion]="newQuestion"
                     [questionId]="questionId"
-                    (onSave)="onSave($event)"
-                    (onCancel)="cancel()"
+                    (saved)="onSave($event)"
+                    (cancelled)="cancel()"
                     [questionDraft]="questionDraft"
                     [collaborative]="collaborative"
                     [lotteryOn]="lotteryOn"

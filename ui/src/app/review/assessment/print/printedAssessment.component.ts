@@ -13,30 +13,29 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { AfterViewInit, Component, Input } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
 import { parseISO, roundToNearestMinutes } from 'date-fns';
-
+import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
+import type { QuestionAmounts } from '../../../question/question.service';
 import { QuestionService } from '../../../question/question.service';
+import type { Reservation } from '../../../reservation/reservation.model';
+import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { DateTimeService } from '../../../utility/date/date.service';
 import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../assessment.service';
 
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../../exam/exam.model';
-import type { QuestionAmounts } from '../../../question/question.service';
-import type { Reservation } from '../../../reservation/reservation.model';
-import type { User } from '../../../session/session.service';
 type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
     selector: 'printed-assessment',
     templateUrl: './printedAssessment.component.html',
 })
-export class PrintedAssessmentComponent {
+export class PrintedAssessmentComponent implements AfterViewInit {
     @Input() collaborative = false;
     questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
     exam!: Exam;

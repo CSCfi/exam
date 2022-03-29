@@ -9,7 +9,8 @@
     <!-- examination dates -->
     <div class="col-md-3 exam-basic-title padl0">{{ 'sitnet_examination_dates' | translate }}</div>
     <div class="col-md-4">
-        <date-picker [extra]="true" extraText="sitnet_add" (onExtraAction)="addExaminationDate($event)"> </date-picker>
+        <date-picker [extra]="true" extraText="sitnet_add" (extraActionHappened)="addExaminationDate($event)">
+        </date-picker>
     </div>
 </div>
 <div class="row mt-2" [hidden]="exam.executionType.type !== 'PRINTOUT'">
@@ -61,11 +62,11 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <date-picker [initialDate]="exam.examActiveStartDate" (onUpdate)="startDateChanged($event)">
+                    <date-picker [initialDate]="exam.examActiveStartDate" (updated)="startDateChanged($event)">
                     </date-picker>
                 </div>
                 <div class="col-md-3">
-                    <date-picker [initialDate]="exam.examActiveEndDate" (onUpdate)="endDateChanged($event)">
+                    <date-picker [initialDate]="exam.examActiveEndDate" (updated)="endDateChanged($event)">
                     </date-picker>
                 </div>
                 <div class="col-md-3" [hidden]="!exam.hasEnrolmentsInEffect">
@@ -341,9 +342,9 @@
 <div *ngIf="canBeAutoEvaluated()">
     <auto-evaluation
         [exam]="exam"
-        (onDisabled)="autoEvaluationDisabled()"
-        (onEnabled)="autoEvaluationEnabled()"
-        (onUpdate)="autoEvaluationConfigChanged($event)"
+        (disabled)="autoEvaluationDisabled()"
+        (enabled)="autoEvaluationEnabled()"
+        (updated)="autoEvaluationConfigChanged($event)"
     >
     </auto-evaluation>
 </div>

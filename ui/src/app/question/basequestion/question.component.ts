@@ -12,26 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, TransitionService, UIRouterGlobals } from '@uirouter/core';
 import { clone } from 'lodash';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
+import type { User } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
-import { QuestionService } from '../question.service';
-
-import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
-import type { OnInit } from '@angular/core';
-import type { User } from '../../session/session.service';
 import type { QuestionDraft } from '../question.service';
+import { QuestionService } from '../question.service';
 
 @Component({
     selector: 'question',
     templateUrl: './question.component.html',
 })
-export class QuestionComponent implements OnInit {
+export class QuestionComponent implements OnInit, OnDestroy {
     @Input() newQuestion = false;
     @Input() questionId = 0;
     @Input() questionDraft!: Question;
@@ -41,8 +39,8 @@ export class QuestionComponent implements OnInit {
     @Input() sectionQuestion!: ExamSectionQuestion;
     @Input() nextState?: string;
 
-    @Output() onSave = new EventEmitter<Question | QuestionDraft>();
-    @Output() onCancel = new EventEmitter<void>();
+    @Output() saved = new EventEmitter<Question | QuestionDraft>();
+    @Output() cancelled = new EventEmitter<void>();
 
     currentOwners: User[] = [];
     question!: ReverseQuestion | QuestionDraft;
@@ -53,6 +51,7 @@ export class QuestionComponent implements OnInit {
         private routing: UIRouterGlobals,
         private transition: TransitionService,
         private translate: TranslateService,
+        private toast: ToastrService,
         private window: WindowRef,
         private dialogs: ConfirmationDialogService,
         private Question: QuestionService,
@@ -95,7 +94,7 @@ export class QuestionComponent implements OnInit {
                     this.window.nativeWindow.onbeforeunload = () =>
                         this.translate.instant('sitnet_unsaved_data_may_be_lost');
                 },
-                (error) => toast.error(error),
+                (error) => this.toast.error(error),
             );
         }
     }
@@ -122,31 +121,31 @@ export class QuestionComponent implements OnInit {
             this.clearListeners();
             if (this.nextState) {
                 this.state.go(this.nextState);
-            } else if (this.onSave) {
-                this.onSave.emit(q);
+            } else if (this.saved) {
+                this.saved.emit(q);
             }
         };
 
         if (this.collaborative) {
             fn(this.question);
         } else if (this.newQuestion) {
-            this.Question.createQuestion(this.question as QuestionDraft).then(fn, (error) => toast.error(error));
+            this.Question.createQuestion(this.question as QuestionDraft).then(fn, (error) => this.toast.error(error));
         } else {
             this.Question.updateQuestion(this.question as Question).then(
                 () => fn(this.question),
-                (error) => toast.error(error),
+                (error) => this.toast.error(error),
             );
         }
     };
 
     cancel = () => {
-        toast.info(this.translate.instant('sitnet_canceled'));
+        this.toast.info(this.translate.instant('sitnet_canceled'));
         // Call off the event listener so it won't ask confirmation now that we are going away
         this.clearListeners();
         if (this.nextState) {
             this.state.go(this.nextState);
-        } else if (this.onSave) {
-            this.onCancel.emit();
+        } else if (this.cancelled) {
+            this.cancelled.emit();
         }
     };
 }

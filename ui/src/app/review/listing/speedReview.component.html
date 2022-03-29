@@ -175,7 +175,7 @@
             <div *ngIf="examReviews.length > pageSize">
                 <paginator
                     [items]="examReviews"
-                    (onSelectPage)="pageSelected($event)"
+                    (pageSelected)="pageSelected($event)"
                     [pageSize]="pageSize"
                     [currentPage]="currentPage"
                 ></paginator>

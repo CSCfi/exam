@@ -41,7 +41,7 @@
                         {{ user.firstName }} {{ user.lastName }} ({{ user.email }})
                         <button
                             class="reviewer-remove"
-                            [disabled]="examOwners.length == 1"
+                            [disabled]="examOwners.length === 1"
                             (click)="removeOwner(user.id)"
                             title="{{ 'sitnet_remove' | translate }}"
                         >

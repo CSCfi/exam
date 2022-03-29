@@ -12,25 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
-
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import type { Exam, ExamParticipation, ExamSection } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
-
-import type { Exam, ExamParticipation, ExamSection } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-exam-section',
     templateUrl: './examSection.component.html',
 })
-export class ExamSectionComponent {
+export class ExamSectionComponent implements OnInit, AfterViewInit {
     @Input() section!: ExamSection;
     @Input() isScorable = false;
     @Input() index = 0;
     @Input() exam!: Exam;
     @Input() participation!: ExamParticipation;
     @Input() collaborative = false;
-    @Output() onScore = new EventEmitter<string>();
+    @Output() scored = new EventEmitter<string>();
 
     selectionEvaluatedAmounts: { accepted: number; rejected: number } = { accepted: 0, rejected: 0 };
 
@@ -45,7 +43,7 @@ export class ExamSectionComponent {
     }
 
     scoreSet = (revision: string) => {
-        this.onScore.emit(revision);
+        this.scored.emit(revision);
         this.selectionEvaluatedAmounts = this.Question.getQuestionAmountsBySection(this.section);
     };
 

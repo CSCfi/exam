@@ -13,16 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import { SessionService } from '../../../session/session.service';
+import type { Course, Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
-import type { OnInit } from '@angular/core';
-import type { Course, Exam } from '../../exam.model';
 @Component({
     selector: 'course-selection',
     templateUrl: './courseSelection.component.html',
@@ -34,6 +33,7 @@ export class CourseSelectionComponent implements OnInit {
         private translate: TranslateService,
         private state: StateService,
         private http: HttpClient,
+        private toast: ToastrService,
         private Exam: ExamService,
         private Session: SessionService,
     ) {}
@@ -46,24 +46,24 @@ export class CourseSelectionComponent implements OnInit {
 
     updateExamName = () =>
         this.Exam.updateExam$(this.exam).subscribe(
-            () => toast.info(this.translate.instant('sitnet_exam_saved')),
+            () => this.toast.info(this.translate.instant('sitnet_exam_saved')),
             (error) => {
                 if (error.data) {
                     const msg = error.data.message || error.data;
-                    toast.error(this.translate.instant(msg));
+                    this.toast.error(this.translate.instant(msg));
                 }
             },
         );
 
     onCourseSelected = (course: Course) =>
         this.http.put(`/app/exams/${this.exam.id}/course/${course.id}`, {}).subscribe(() => {
-            toast.success(this.translate.instant('sitnet_exam_associated_with_course'));
+            this.toast.success(this.translate.instant('sitnet_exam_associated_with_course'));
             this.exam.course = course;
         });
 
     cancelNewExam = () =>
         this.http.delete(`/app/exams/${this.exam.id}`).subscribe(() => {
-            toast.success(this.translate.instant('sitnet_exam_removed'));
+            this.toast.success(this.translate.instant('sitnet_exam_removed'));
             const state = this.Session.getUser()?.isAdmin ? 'staff.admin' : 'staff.teacher';
             this.state.go(state);
         });

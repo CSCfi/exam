@@ -13,19 +13,28 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { format, parseISO } from 'date-fns';
 import { isBoolean, isEmpty, toNumber } from 'lodash';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
+import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../../utility/window/window.service';
+import type {
+    AutoEvaluationConfig,
+    Exam,
+    ExaminationDate,
+    ExaminationEventConfiguration,
+    MaintenancePeriod,
+} from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { ExaminationEventDialogComponent } from '../events/examinationEventDialog.component';
 import { ExamTabService } from '../examTabs.service';
@@ -33,16 +42,6 @@ import { PublicationDialogComponent } from './publicationDialog.component';
 import { PublicationErrorDialogComponent } from './publicationErrorDialog.component';
 import { PublicationRevocationDialogComponent } from './publicationRevocationDialog.component';
 
-import type { OnInit } from '@angular/core';
-import type { Observable } from 'rxjs';
-import type { User } from '../../../session/session.service';
-import type {
-    Exam,
-    AutoEvaluationConfig,
-    ExaminationDate,
-    ExaminationEventConfiguration,
-    MaintenancePeriod,
-} from '../../exam.model';
 @Component({
     selector: 'exam-publication',
     templateUrl: './examPublication.component.html',
@@ -70,6 +69,7 @@ export class ExamPublicationComponent implements OnInit {
         private translate: TranslateService,
         private state: StateService,
         private modal: NgbModal,
+        private toast: ToastrService,
         private windowRef: WindowRef,
         private Session: SessionService,
         private Exam: ExamService,
@@ -84,19 +84,19 @@ export class ExamPublicationComponent implements OnInit {
         this.autoEvaluation = { enabled: !!this.exam.autoEvaluationConfig };
         this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe(
             (data) => (this.examDurations = data.examDurations),
-            (error) => toast.error(error),
+            (error) => this.toast.error(error),
         );
         this.http.get<{ maxDate: Date }>('/app/settings/maxDate').subscribe(
             (data) => (this.examMaxDate = data.maxDate),
-            (error) => toast.error(error),
+            (error) => this.toast.error(error),
         );
         this.http.get<{ maxDuration: number }>('/app/settings/maxDuration').subscribe(
             (data) => (this.maxDuration = data.maxDuration),
-            (error) => toast.error(error),
+            (error) => this.toast.error(error),
         );
         this.http.get<{ minDuration: number }>('/app/settings/minDuration').subscribe(
             (data) => (this.minDuration = data.minDuration),
-            (error) => toast.error(error),
+            (error) => this.toast.error(error),
         );
         if (this.exam.implementation !== 'AQUARIUM') {
             this.http
@@ -167,11 +167,11 @@ export class ExamPublicationComponent implements OnInit {
         return this.Exam.updateExam$(this.exam, config, this.collaborative).pipe(
             tap(() => {
                 if (!silent) {
-                    toast.info(this.translate.instant('sitnet_exam_saved'));
+                    this.toast.info(this.translate.instant('sitnet_exam_saved'));
                 }
             }),
             catchError((err) => {
-                toast.error(err);
+                this.toast.error(err);
                 return throwError(err);
             }),
         );
@@ -185,7 +185,7 @@ export class ExamPublicationComponent implements OnInit {
         const fixMinutes = minutes || 0;
         const duration = fixHour * 60 + fixMinutes;
         if (duration < this.minDuration || duration > this.maxDuration) {
-            toast.warning(this.translate.instant('DIALOGS_ERROR'));
+            this.toast.warning(this.translate.instant('DIALOGS_ERROR'));
             return;
         }
         this.updateExam$().subscribe(() => (this.exam.duration = duration));
@@ -262,10 +262,10 @@ export class ExamPublicationComponent implements OnInit {
                         const text = this.isDraftCollaborativeExam()
                             ? 'sitnet_exam_saved_and_pre_published'
                             : 'sitnet_exam_saved_and_published';
-                        toast.success(this.translate.instant(text));
+                        this.toast.success(this.translate.instant(text));
                         this.state.go(this.user.isAdmin ? 'staff.admin' : 'staff.teacher');
                     },
-                    (err) => toast.error(err.data),
+                    (err) => this.toast.error(err.data),
                 );
             });
         }
@@ -286,14 +286,14 @@ export class ExamPublicationComponent implements OnInit {
                         state: this.collaborative ? 'PRE_PUBLISHED' : 'DRAFT',
                     }).subscribe(
                         () => {
-                            toast.success(this.translate.instant('sitnet_exam_unpublished'));
+                            this.toast.success(this.translate.instant('sitnet_exam_unpublished'));
                             this.exam.state = 'DRAFT';
                         },
-                        (err) => toast.error(err.data),
+                        (err) => this.toast.error(err.data),
                     ),
                 );
         } else {
-            toast.warning(this.translate.instant('sitnet_unpublish_not_possible'));
+            this.toast.warning(this.translate.instant('sitnet_unpublish_not_possible'));
         }
     };
 
@@ -312,7 +312,7 @@ export class ExamPublicationComponent implements OnInit {
         modalRef.componentInstance.examId = this.exam.id;
         modalRef.result
             .then((data: ExaminationEventConfiguration) => this.exam.examinationEventConfigurations.push(data))
-            .catch((err) => toast.error(err));
+            .catch((err) => this.toast.error(err));
     };
 
     modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
@@ -331,7 +331,7 @@ export class ExamPublicationComponent implements OnInit {
                 const index = this.exam.examinationEventConfigurations.indexOf(configuration);
                 this.exam.examinationEventConfigurations.splice(index, 1, config);
             })
-            .catch((err) => toast.error(err));
+            .catch((err) => this.toast.error(err));
     };
 
     removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
@@ -350,10 +350,10 @@ export class ExamPublicationComponent implements OnInit {
                             1,
                         );
                     },
-                    (err) => toast.error(err),
+                    (err) => this.toast.error(err),
                 ),
             )
-            .catch((err) => toast.error(err));
+            .catch((err) => this.toast.error(err));
     };
 
     private isAllowedToUnpublishOrRemove = () =>

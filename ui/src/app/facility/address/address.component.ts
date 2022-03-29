@@ -15,11 +15,9 @@
 import { Component, Input, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
-import { RoomService } from '../rooms/room.service';
-
+import { ToastrService } from 'ngx-toastr';
 import type { Address } from '../rooms/room.service';
+import { RoomService } from '../rooms/room.service';
 
 @Component({
     templateUrl: './address.component.html',
@@ -29,7 +27,7 @@ export class AddressComponent {
     @Input() address!: Address;
     @ViewChild('addressForm', { static: false }) addressForm?: NgForm;
 
-    constructor(private room: RoomService, private translate: TranslateService) {}
+    constructor(private room: RoomService, private toast: ToastrService, private translate: TranslateService) {}
 
     validateAndUpdateAddress = () => {
         if (this.addressForm?.valid) {
@@ -40,10 +38,10 @@ export class AddressComponent {
     updateAddress = () => {
         this.room.updateAddress$(this.address).subscribe(
             () => {
-                toast.info(this.translate.instant('sitnet_room_address_updated'));
+                this.toast.info(this.translate.instant('sitnet_room_address_updated'));
             },
             (error) => {
-                toast.error(error.data);
+                this.toast.error(error.data);
             },
         );
     };

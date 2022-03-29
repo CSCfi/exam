@@ -17,13 +17,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { AnyReservation } from './reservation.base.component';
+import type { Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
 
-import type { Reservation } from './reservation.model';
 type ReservationDetail = Reservation & { org: { name: string; code: string }; userAggregate: string };
 
 @Component({
@@ -41,6 +40,7 @@ export class ReservationDetailsComponent implements OnChanges {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Reservation: ReservationService,
     ) {}
 
@@ -58,18 +58,18 @@ export class ReservationDetailsComponent implements OnChanges {
         this.Reservation.cancelReservation(reservation)
             .then(() => {
                 this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
-                toast.info(this.translate.instant('sitnet_reservation_removed'));
+                this.toast.info(this.translate.instant('sitnet_reservation_removed'));
             })
-            .catch((err) => toast.error(err));
+            .catch((err) => this.toast.error(err));
     }
 
     permitRetrial(enrolment: ExamEnrolment) {
         this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe(
             () => {
                 enrolment.retrialPermitted = true;
-                toast.info(this.translate.instant('sitnet_retrial_permitted'));
+                this.toast.info(this.translate.instant('sitnet_retrial_permitted'));
             },
-            (err) => toast.error(err),
+            (err) => this.toast.error(err),
         );
     }
 

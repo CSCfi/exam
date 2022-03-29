@@ -17,15 +17,13 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
 import { parseISO } from 'date-fns';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import * as toast from 'toastr';
-
 import { QuestionService } from '../question/question.service';
 import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { CommonExamService } from '../utility/miscellaneous/commonExam.service';
-
-import type { Observable } from 'rxjs';
 import type {
     Exam,
     ExamExecutionType,
@@ -55,6 +53,7 @@ export class ExamService {
         private translate: TranslateService,
         private State: StateService,
         private http: HttpClient,
+        private toast: ToastrService,
         private CommonExam: CommonExamService,
         private Question: QuestionService,
         private Session: SessionService,
@@ -72,10 +71,10 @@ export class ExamService {
     createExam = (executionType: string, examinationType: Implementation = 'AQUARIUM') => {
         this.http.post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType }).subscribe(
             (response) => {
-                toast.info(this.translate.instant('sitnet_exam_added'));
+                this.toast.info(this.translate.instant('sitnet_exam_added'));
                 this.State.go('staff.courseSelector', { id: response.id });
             },
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err.data),
         );
     };
 
@@ -228,14 +227,14 @@ export class ExamService {
             dialog.result.then(() =>
                 this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe(
                     () => {
-                        toast.success(this.translate.instant('sitnet_exam_removed'));
+                        this.toast.success(this.translate.instant('sitnet_exam_removed'));
                         this.State.go('dashboard');
                     },
-                    (err) => toast.error(err),
+                    (err) => this.toast.error(err),
                 ),
             );
         } else {
-            toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));
+            this.toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));
         }
     };
 
@@ -285,15 +284,10 @@ export class ExamService {
     removeExaminationEvent$ = (examId: number, config: ExaminationEventConfiguration) =>
         this.http.delete<void>(`/app/exam/${examId}/examinationevents/${config.id}`);
 
-    downloadExam = (id: number) => {
-        return this.http
+    downloadExam$ = (id: number) =>
+        this.http
             .get<Exam>(`/app/exams/${id}`)
-            .toPromise()
-            .then((exam: Exam) => {
-                exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
-                return exam;
-            });
-    };
+            .pipe(map((exam) => ({ ...exam, hasEnrolmentsInEffect: this.hasEffectiveEnrolments(exam) })));
 
     private hasEffectiveEnrolments = (exam: Exam) =>
         exam.examEnrolments.some((ee) => ee.reservation && parseISO(ee.reservation.endAt) > new Date());

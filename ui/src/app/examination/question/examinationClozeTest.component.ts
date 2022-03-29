@@ -13,10 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-
-import { ExaminationService } from '../examination.service';
-
 import type { ExaminationQuestion } from '../examination.model';
+import { ExaminationService } from '../examination.service';
 
 @Component({
     selector: 'examination-cloze-test',

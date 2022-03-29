@@ -13,10 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
-
-import type { QueryParams } from '../statistics.component';
 import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import type { QueryParams } from '../statistics.component';
 
 interface Reservation {
     noShow: boolean;

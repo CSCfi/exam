@@ -12,29 +12,27 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
 import { isInteger, isNumber } from 'lodash';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../assessment.service';
-
-import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-multi-choice-question',
     templateUrl: './multiChoiceQuestion.component.html',
 })
-export class MultiChoiceQuestionComponent {
+export class MultiChoiceQuestionComponent implements OnInit {
     @Input() sectionQuestion!: ExamSectionQuestion;
     @Input() participation!: ExamParticipation;
     @Input() isScorable = false;
     @Input() collaborative = false;
-    @Output() onScore = new EventEmitter<string>();
+    @Output() scored = new EventEmitter<string>();
     @ViewChild('forcedPoints', { static: false }) form?: NgForm;
 
     reviewExpanded = true;
@@ -43,6 +41,7 @@ export class MultiChoiceQuestionComponent {
     constructor(
         private routing: UIRouterGlobals,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Assessment: AssessmentService,
         private Attachment: AttachmentService,
         private Question: QuestionService,
@@ -110,15 +109,15 @@ export class MultiChoiceQuestionComponent {
                 this.participation._rev,
             ).subscribe(
                 (resp) => {
-                    toast.info(this.translate.instant('sitnet_graded'));
-                    this.onScore.emit(resp.rev);
+                    this.toast.info(this.translate.instant('sitnet_graded'));
+                    this.scored.emit(resp.rev);
                 },
-                (err) => toast.error(err.data),
+                (err) => this.toast.error(err.data),
             );
         } else {
             this.Assessment.saveForcedScore(this.sectionQuestion).subscribe(
-                () => toast.info(this.translate.instant('sitnet_graded')),
-                (err) => toast.error(err.data),
+                () => this.toast.info(this.translate.instant('sitnet_graded')),
+                (err) => this.toast.error(err.data),
             );
         }
     };

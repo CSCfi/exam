@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import type { Organisation } from '../calendar.component';
 
 @Component({
@@ -21,11 +20,7 @@ import type { Organisation } from '../calendar.component';
                     </span>
                     <span class="col-md-1 col-3">
                         <span class="calendar-phase-icon float-right" *ngIf="selectedOrganisation">
-                            <img
-                                class="arrow_icon"
-                                src="/assets/assets/images/icon-phase.png"
-                                alt="choose institution"
-                            />
+                            <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="choose institution" />
                         </span>
                     </span>
                 </div>
@@ -73,11 +68,11 @@ import type { Organisation } from '../calendar.component';
         </div>
     `,
 })
-export class OrganisationPickerComponent {
+export class OrganisationPickerComponent implements OnInit {
     @Input() sequenceNumber = 0;
     @Input() disabled = false;
-    @Output() onSelection = new EventEmitter<Organisation>();
-    @Output() onCancel = new EventEmitter<void>();
+    @Output() selected = new EventEmitter<Organisation>();
+    @Output() cancelled = new EventEmitter<void>();
 
     organisations: Organisation[] = [];
     selectedOrganisation?: Organisation;
@@ -96,8 +91,8 @@ export class OrganisationPickerComponent {
         this.organisations.forEach((o) => (o.filtered = false));
         organisation.filtered = true;
         this.selectedOrganisation = organisation;
-        this.onSelection.emit(organisation);
+        this.selected.emit(organisation);
     };
 
-    makeInternalReservation = () => this.onCancel.emit();
+    makeInternalReservation = () => this.cancelled.emit();
 }

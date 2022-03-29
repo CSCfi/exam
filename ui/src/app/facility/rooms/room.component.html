@@ -164,8 +164,8 @@
     <exception-list
         *ngIf="room"
         [exceptions]="room.calendarExceptionEvents"
-        (onCreate)="addException($event)"
-        (onDelete)="deleteException($event)"
+        (created)="addException($event)"
+        (removed)="deleteException($event)"
     ></exception-list>
 
     <div class="top-row">

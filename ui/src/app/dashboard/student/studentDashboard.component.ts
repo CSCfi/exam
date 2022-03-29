@@ -12,17 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-
+import type { ExamEnrolment } from '../../enrolment/enrolment.model';
 import { EnrolmentService } from '../../enrolment/enrolment.service';
+import type { Exam } from '../../exam/exam.model';
 import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../utility/date/date.service';
+import type { DashboardEnrolment } from './studentDashboard.service';
 import { StudentDashboardService } from './studentDashboard.service';
 
-import type { OnInit } from '@angular/core';
-import type { ExamEnrolment } from '../../enrolment/enrolment.model';
-import type { Exam } from '../../exam/exam.model';
-import type { DashboardEnrolment } from './studentDashboard.service';
 @Component({
     selector: 'student-dashboard',
     templateUrl: './studentDashboard.component.html',

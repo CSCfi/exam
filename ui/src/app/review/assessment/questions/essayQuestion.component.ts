@@ -12,30 +12,28 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
-import * as toast from 'toastr';
-
-import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { AssessmentService } from '../assessment.service';
-
+import { ToastrService } from 'ngx-toastr';
 import type { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import type { ExaminationQuestion } from '../../../examination/examination.model';
+import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import type { ReviewQuestion } from '../../review.model';
+import { AssessmentService } from '../assessment.service';
 
 @Component({
     selector: 'r-essay-question',
     templateUrl: './essayQuestion.component.html',
 })
-export class EssayQuestionComponent {
+export class EssayQuestionComponent implements OnInit {
     @Input() participation!: ExamParticipation;
     @Input() exam!: Exam;
     @Input() sectionQuestion!: ExamSectionQuestion;
     @Input() isScorable = false;
     @Input() collaborative = false;
-    @Output() onScore = new EventEmitter<string>();
+    @Output() scored = new EventEmitter<string>();
     @ViewChild('essayPoints', { static: false }) form?: NgForm;
 
     reviewExpanded = true;
@@ -44,6 +42,7 @@ export class EssayQuestionComponent {
     constructor(
         private routing: UIRouterGlobals,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Assessment: AssessmentService,
         private Attachment: AttachmentService,
     ) {}
@@ -96,12 +95,12 @@ export class EssayQuestionComponent {
                 this.routing.params.ref,
                 this.participation._rev as string,
             ).subscribe((resp) => {
-                toast.info(this.translate.instant('sitnet_graded'));
-                this.onScore.emit(resp.rev);
+                this.toast.info(this.translate.instant('sitnet_graded'));
+                this.scored.emit(resp.rev);
             });
         } else {
             return this.Assessment.saveEssayScore$(this.sectionQuestion as ExaminationQuestion).subscribe(() => {
-                toast.info(this.translate.instant('sitnet_graded')), this.onScore.emit();
+                this.toast.info(this.translate.instant('sitnet_graded')), this.scored.emit();
             });
         }
     };

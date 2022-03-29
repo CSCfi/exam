@@ -43,7 +43,7 @@
                     <date-picker
                         [optional]="true"
                         [initiallyEmpty]="true"
-                        (onUpdate)="startDateChanged($event)"
+                        (updated)="startDateChanged($event)"
                     ></date-picker>
                 </div>
                 <div class="marr20">
@@ -51,7 +51,7 @@
                     <date-picker
                         [optional]="true"
                         [initiallyEmpty]="true"
-                        (onUpdate)="endDateChanged($event)"
+                        (updated)="endDateChanged($event)"
                     ></date-picker>
                 </div>
             </div>

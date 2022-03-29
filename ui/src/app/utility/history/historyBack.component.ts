@@ -14,14 +14,13 @@
  *
  */
 import { Component } from '@angular/core';
-
 import { WindowRef } from '../window/window.service';
 
 @Component({
     selector: 'history-back',
     template: `
         <a (click)="goBack($event)" tabindex="0" (keydown)="onKeyDown($event)">
-            <img class="pointer arrow_icon" src="/assets/assets/images/icon_history.png" alt="go back" />
+            <img class="pointer arrow_icon" src="/assets/images/icon_history.png" alt="go back" />
         </a>
     `,
 })

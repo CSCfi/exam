@@ -14,12 +14,11 @@
  */
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
-
 import { DateTimeService } from '../../utility/date/date.service';
 import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
+import type { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
-import type { EnrolmentInfo } from '../enrolment.model';
 @Component({
     selector: 'enrolment-details',
     templateUrl: './examEnrolmentDetails.component.html',

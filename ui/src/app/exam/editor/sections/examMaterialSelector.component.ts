@@ -13,32 +13,30 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { distinctUntilChanged, map } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { ExamMaterialComponent } from './examMaterial.component';
-
 import type { SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import type { ExamSection, ExamMaterial } from '../../exam.model';
+import { distinctUntilChanged, map } from 'rxjs/operators';
+import type { ExamMaterial, ExamSection } from '../../exam.model';
+import { ExamMaterialComponent } from './examMaterial.component';
 
 @Component({
     selector: 'exam-material-selector',
     templateUrl: './examMaterialSelector.component.html',
 })
-export class ExamMaterialSelectorComponent {
+export class ExamMaterialSelectorComponent implements OnInit {
     @Input() section!: ExamSection;
     @Input() allMaterials: ExamMaterial[] = [];
-    @Output() onChanges = new EventEmitter<void>();
+    @Output() changed = new EventEmitter<void>();
 
     materials: ExamMaterial[] = [];
     selectedMaterial?: ExamMaterial;
     filter = '';
 
-    constructor(private http: HttpClient, private modal: NgbModal) {}
+    constructor(private http: HttpClient, private modal: NgbModal, private toast: ToastrService) {}
 
     private filterOutExisting = () => {
         this.materials = this.allMaterials.filter(
@@ -80,7 +78,7 @@ export class ExamMaterialSelectorComponent {
                 this.filterOutExisting();
                 this.filter = '';
             },
-            (err) => toast.error(err),
+            (err) => this.toast.error(err),
         );
     };
 
@@ -90,7 +88,7 @@ export class ExamMaterialSelectorComponent {
                 this.section.examMaterials.splice(this.section.examMaterials.indexOf(material), 1);
                 this.filterOutExisting();
             },
-            (err) => toast.error(err),
+            (err) => this.toast.error(err),
         );
     };
 
@@ -103,7 +101,7 @@ export class ExamMaterialSelectorComponent {
             })
             .result.then(() =>
                 // this.filterOutExisting();
-                this.onChanges.emit(),
+                this.changed.emit(),
             );
     };
 }

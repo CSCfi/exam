@@ -13,18 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import type { ExamMaterial } from '../../exam.model';
 
 @Component({
     selector: 'exam-material',
     templateUrl: './examMaterial.component.html',
 })
-export class ExamMaterialComponent {
-    constructor(private activeModal: NgbActiveModal, private http: HttpClient) {}
+export class ExamMaterialComponent implements OnInit {
+    constructor(private activeModal: NgbActiveModal, private http: HttpClient, private toast: ToastrService) {}
 
     materials: ExamMaterial[] = [];
     filteredMaterials: ExamMaterial[] = [];
@@ -52,7 +51,7 @@ export class ExamMaterialComponent {
                 this.newMaterial = {};
                 this.materialsChanged = true;
             },
-            (err) => toast.error(err),
+            (err) => this.toast.error(err),
         );
     };
 
@@ -63,7 +62,7 @@ export class ExamMaterialComponent {
                 this.filterMaterials();
                 this.materialsChanged = true;
             },
-            (err) => toast.error(err),
+            (err) => this.toast.error(err),
         );
     };
 

@@ -19,8 +19,8 @@
             <reviewed-inspections
                 *ngIf="processedInspections"
                 [inspections]="processedInspections"
-                (onEndDateChange)="endDateChanged($event)"
-                (onStartDateChange)="startDateChanged($event)"
+                (endDateChanged)="endDateChanged($event)"
+                (startDateChanged)="startDateChanged($event)"
             >
             </reviewed-inspections>
         </div>

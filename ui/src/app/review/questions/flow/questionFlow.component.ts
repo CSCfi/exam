@@ -12,20 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-
+import type { SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { SessionService } from '../../../session/session.service';
+import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
-import type { SimpleChanges } from '@angular/core';
-import type { QuestionReview } from '../../review.model';
 @Component({
     selector: 'question-flow',
     templateUrl: './questionFlow.component.html',
 })
-export class QuestionFlowComponent {
+export class QuestionFlowComponent implements OnInit, OnChanges {
     @Input() reviews: QuestionReview[] = [];
-    @Output() onSelection = new EventEmitter<number>();
+    @Output() selected = new EventEmitter<number>();
 
     unfinished: QuestionReview[] = [];
     finished: QuestionReview[] = [];
@@ -52,6 +51,6 @@ export class QuestionFlowComponent {
 
     questionSelected = (review: QuestionReview) => {
         this.unfinished.concat(this.finished).forEach((r) => (r.selected = r.question.id === review.question.id));
-        this.onSelection.emit(this.reviews.indexOf(review));
+        this.selected.emit(this.reviews.indexOf(review));
     };
 }

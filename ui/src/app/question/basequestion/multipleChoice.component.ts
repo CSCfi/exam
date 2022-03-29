@@ -12,17 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionDraft, QuestionService } from '../question.service';
 
-import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 @Component({
     selector: 'multiple-choice-editor',
     template: `
-        <div class="row mt-2" *ngIf="question.type == 'WeightedMultipleChoiceQuestion'">
+        <div class="row mt-2" *ngIf="question.type === 'WeightedMultipleChoiceQuestion'">
             <div class="col-md-6">
                 <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
                 <br /><span>
@@ -36,7 +35,7 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
                 {{ 'sitnet_word_points' | translate | uppercase }}
             </div>
         </div>
-        <div class="row mt-2" *ngIf="question.type == 'MultipleChoiceQuestion'">
+        <div class="row mt-2" *ngIf="question.type === 'MultipleChoiceQuestion'">
             <div class="col-md-6">
                 <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
                 <br /><span>
@@ -69,7 +68,7 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
                 ></wmc-option-editor>
             </div>
         </div>
-        <div *ngIf="question.type == 'WeightedMultipleChoiceQuestion'" class="row mt-3">
+        <div *ngIf="question.type === 'WeightedMultipleChoiceQuestion'" class="row mt-3">
             <div class="col-md-12 question-option-title">
                 {{ 'sitnet_max_score' | translate | uppercase }}:
                 {{ calculateDefaultMaxPoints() }}
@@ -85,13 +84,13 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
         </div>
     `,
 })
-export class MultipleChoiceEditorComponent {
+export class MultipleChoiceEditorComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;
     @Input() showWarning = false;
     @Input() lotteryOn = false;
     @Input() allowOptionRemoval = false;
 
-    constructor(private translate: TranslateService, private Question: QuestionService) {}
+    constructor(private translate: TranslateService, private toast: ToastrService, private Question: QuestionService) {}
 
     ngOnInit() {
         if (this.question.type === 'WeightedMultipleChoiceQuestion') {
@@ -100,7 +99,7 @@ export class MultipleChoiceEditorComponent {
     }
     addNewOption = () => {
         if (this.lotteryOn) {
-            toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
             return;
         }
         const option: MultipleChoiceOption = {

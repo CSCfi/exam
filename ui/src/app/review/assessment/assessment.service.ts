@@ -16,21 +16,20 @@ import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import type { StateDeclaration } from '@uirouter/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { from, noop, of, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
+import type { ReviewedExam } from '../../enrolment/enrolment.model';
+import type { Exam, ExamLanguage, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
 import { isRealGrade } from '../../exam/exam.model';
 import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
 import { WindowRef } from '../../utility/window/window.service';
 
-import type { Observable } from 'rxjs';
-import type { Exam, ExamSectionQuestion, Feedback, ExamLanguage } from '../../exam/exam.model';
-import type { ReviewedExam } from '../../enrolment/enrolment.model';
-import type { StateDeclaration } from '@uirouter/core';
 type Payload = {
     id: number;
     state: string;
@@ -50,6 +49,7 @@ export class AssessmentService {
         private state: StateService,
         private routing: UIRouterGlobals,
         @Inject(DOCUMENT) private document: Document,
+        private toast: ToastrService,
         private windowRef: WindowRef,
         private Confirmation: ConfirmationDialogService,
         private Session: SessionService,
@@ -64,7 +64,7 @@ export class AssessmentService {
         return this.http.put<Feedback>(`/app/review/${exam.id}/comment`, data).pipe(
             tap((comment) => {
                 if (!silent) {
-                    toast.info(this.translate.instant('sitnet_comment_updated'));
+                    this.toast.info(this.translate.instant('sitnet_comment_updated'));
                 }
                 Object.assign(exam.examFeedback, { id: comment.id });
             }),
@@ -88,7 +88,7 @@ export class AssessmentService {
         const valid = this.Exam.hasCustomCredit(exam);
         if (!valid) {
             if (!silent) {
-                toast.error(this.translate.instant('sitnet_not_a_valid_custom_credit'));
+                this.toast.error(this.translate.instant('sitnet_not_a_valid_custom_credit'));
             }
             // Reset to default
             exam.customCredit = exam.course ? exam.course.credits : 0;
@@ -164,7 +164,7 @@ export class AssessmentService {
         }
         const messages = this.getErrors(exam);
         if (messages.length > 0) {
-            messages.forEach((msg) => toast.error(this.translate.instant(msg)));
+            messages.forEach((msg) => this.toast.error(this.translate.instant(msg)));
             return of();
         } else {
             let dialogNote, res: string;
@@ -212,7 +212,7 @@ export class AssessmentService {
         if (exam.state === 'GRADED_LOGGED' || exam.state === 'ARCHIVED') {
             return this.http
                 .put<void>(`/app/review/${exam.id}/info`, { assessmentInfo: exam.assessmentInfo })
-                .pipe(tap(() => toast.info(this.translate.instant('sitnet_saved'))));
+                .pipe(tap(() => this.toast.info(this.translate.instant('sitnet_saved'))));
         }
         return of();
     };
@@ -222,7 +222,7 @@ export class AssessmentService {
             if (exam.state !== 'GRADED') {
                 // Just save feedback and leave
                 this.saveFeedback$(exam).subscribe(() => {
-                    toast.info(this.translate.instant('sitnet_saved'));
+                    this.toast.info(this.translate.instant('sitnet_saved'));
                     const state = this.getExitState(exam);
                     this.state.go(state.name as string, state.params);
                 });
@@ -295,18 +295,18 @@ export class AssessmentService {
                 switchMap(() => this.saveFeedback$(exam)),
                 tap(() => {
                     if (newState === 'REVIEW_STARTED') {
-                        messages.forEach((msg) => toast.warning(this.translate.instant(msg)));
+                        messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
                         this.windowRef.nativeWindow.setTimeout(
-                            () => toast.info(this.translate.instant('sitnet_review_saved')),
+                            () => this.toast.info(this.translate.instant('sitnet_review_saved')),
                             1000,
                         );
                     } else {
-                        toast.info(this.translate.instant('sitnet_review_graded'));
+                        this.toast.info(this.translate.instant('sitnet_review_graded'));
                         const state = this.getExitState(exam);
                         this.state.go(state.name as string, state.params);
                     }
                 }),
-                catchError((resp) => toast.error(resp)),
+                catchError(async (resp) => this.toast.error(resp)),
             )
             .subscribe();
     };
@@ -333,7 +333,7 @@ export class AssessmentService {
             switchMap(() => this.http.put(`/app/review/${exam.id}`, payload)),
             tap(() => {
                 if (exam.state !== 'GRADED') {
-                    toast.info(this.translate.instant('sitnet_review_graded'));
+                    this.toast.info(this.translate.instant('sitnet_review_graded'));
                 }
             }),
             switchMap(() => this.sendToRegistry$(payload, res)),

@@ -17,19 +17,17 @@ import { Injectable } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import { addHours, parseISO } from 'date-fns';
 import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
-
-import { MaintenancePeriod } from '../exam/exam.model';
-import { SessionService } from '../session/session.service';
-import { DateTimeService } from '../utility/date/date.service';
-
 import type { Observable } from 'rxjs';
-
+import { MaintenancePeriod } from '../exam/exam.model';
 import type {
     Accessibility,
     DefaultWorkingHours,
     ExamRoom,
     ExceptionWorkingHours,
 } from '../reservation/reservation.model';
+import { SessionService } from '../session/session.service';
+import { DateTimeService } from '../utility/date/date.service';
+
 type WeekdayNames = Record<string, { ord: number; name: string }>;
 
 export interface Slot {

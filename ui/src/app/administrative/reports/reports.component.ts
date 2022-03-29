@@ -12,8 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-
 import { RoomService } from '../../facility/rooms/room.service';
 import { ExamRoom } from '../../reservation/reservation.model';
 import { User } from '../../session/session.service';
@@ -21,7 +21,6 @@ import { Option } from '../../utility/select/dropDownSelect.component';
 import { UserService } from '../../utility/user/user.service';
 import { ReportsService, UserRole } from './reports.service';
 
-import type { OnInit } from '@angular/core';
 @Component({
     selector: 'reports',
     template: `

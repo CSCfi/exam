@@ -82,19 +82,19 @@
             >
                 <option *ngFor="let type of questionTypes" value="{{ type.type }}">{{ type.name | translate }}</option>
             </select>
-            <span *ngIf="question.type == 'EssayQuestion'">
+            <span *ngIf="question.type === 'EssayQuestion'">
                 {{ 'sitnet_toolbar_essay_question' | translate }}
             </span>
-            <span *ngIf="question.type == 'ClozeTestQuestion'">
+            <span *ngIf="question.type === 'ClozeTestQuestion'">
                 {{ 'sitnet_toolbar_cloze_test_question' | translate }}
             </span>
-            <span *ngIf="question.type == 'MultipleChoiceQuestion'">
+            <span *ngIf="question.type === 'MultipleChoiceQuestion'">
                 {{ 'sitnet_toolbar_multiplechoice_question' | translate }}
             </span>
-            <span *ngIf="question.type == 'WeightedMultipleChoiceQuestion'">
+            <span *ngIf="question.type === 'WeightedMultipleChoiceQuestion'">
                 {{ 'sitnet_toolbar_weighted_multiplechoice_question' | translate }}
             </span>
-            <span *ngIf="question.type == 'ClaimChoiceQuestion'">
+            <span *ngIf="question.type === 'ClaimChoiceQuestion'">
                 {{ 'sitnet_toolbar_claim_choice_question' | translate }}
             </span>
         </div>
@@ -131,16 +131,16 @@
 
         <div class="row">
             <!-- Evaluation -->
-            <div class="col-md-12 mart40 wide-column" *ngIf="question.type == 'EssayQuestion'">
+            <div class="col-md-12 mart40 wide-column" *ngIf="question.type === 'EssayQuestion'">
                 <div class="review-list-title">{{ 'sitnet_comments' | translate }}</div>
             </div>
             <!-- Multiple choices -->
             <div
                 class="col-md-12 mart40 wide-column marb20"
                 *ngIf="
-                    question.type == 'MultipleChoiceQuestion' ||
-                    question.type == 'WeightedMultipleChoiceQuestion' ||
-                    question.type == 'ClaimChoiceQuestion'
+                    question.type === 'MultipleChoiceQuestion' ||
+                    question.type === 'WeightedMultipleChoiceQuestion' ||
+                    question.type === 'ClaimChoiceQuestion'
                 "
             >
                 <div class="review-list-title">{{ 'sitnet_question_options' | translate }}</div>
@@ -175,7 +175,7 @@
         </div>
 
         <!-- Evaluation type - not allowed if question is in use in other published exam. -->
-        <div class="row" *ngIf="question.type == 'EssayQuestion'">
+        <div class="row" *ngIf="question.type === 'EssayQuestion'">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_evaluation_type' | translate }}
             </div>
@@ -198,9 +198,9 @@
         <div
             class="row mt-2"
             *ngIf="
-                question.type == 'MultipleChoiceQuestion' ||
-                question.type == 'ClozeTestQuestion' ||
-                question.defaultEvaluationType == 'Points'
+                question.type === 'MultipleChoiceQuestion' ||
+                question.type === 'ClozeTestQuestion' ||
+                question.defaultEvaluationType === 'Points'
             "
         >
             <div class="col-md-3 exam-basic-title">

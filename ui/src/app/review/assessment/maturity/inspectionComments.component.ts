@@ -17,11 +17,10 @@ import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-
-import { InspectionCommentDialogComponent } from './dialogs/inspectionCommentDialog.component';
-
 import type { Exam } from '../../../exam/exam.model';
 import type { User } from '../../../session/session.service';
+import { InspectionCommentDialogComponent } from './dialogs/inspectionCommentDialog.component';
+
 @Component({
     selector: 'r-inspection-comments',
     templateUrl: './inspectionComments.component.html',

@@ -13,18 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import type { OnInit } from '@angular/core';
 import type { ExamParticipation } from '../../exam/exam.model';
+
 @Component({
     selector: 'exam-participations',
     templateUrl: './examParticipations.component.html',
 })
-export class ExamParticipationsComponent implements OnInit {
+export class ExamParticipationsComponent implements OnInit, OnDestroy {
     filter = { ordering: 'ended', reverse: true, text: '' };
     pageSize = 10;
     currentPage = 0;
@@ -33,7 +33,7 @@ export class ExamParticipationsComponent implements OnInit {
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
 
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private toast: ToastrService) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(this.doSearch);
@@ -44,7 +44,7 @@ export class ExamParticipationsComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 
@@ -59,7 +59,7 @@ export class ExamParticipationsComponent implements OnInit {
                 );
                 this.participations = data;
             },
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err),
         );
     };
 

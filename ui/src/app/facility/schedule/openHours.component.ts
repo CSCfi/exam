@@ -12,14 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-
 import { DateTimeService } from '../../utility/date/date.service';
-import { RoomService } from '../rooms/room.service';
-
-import type { OnInit } from '@angular/core';
 import type { Week } from '../rooms/room.service';
+import { RoomService } from '../rooms/room.service';
 
 @Component({
     templateUrl: './openHours.component.html',
@@ -27,7 +25,7 @@ import type { Week } from '../rooms/room.service';
 })
 export class OpenHoursComponent implements OnInit {
     @Input() week: Week = {};
-    @Output() onSelect = new EventEmitter();
+    @Output() selected = new EventEmitter();
 
     weekdayNames: string[] = [];
     times: string[] = [];
@@ -102,6 +100,6 @@ export class OpenHoursComponent implements OnInit {
             }
         }
 
-        this.onSelect.emit();
+        this.selected.emit();
     };
 }

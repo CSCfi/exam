@@ -112,7 +112,7 @@
                                     [answers]="unassessedAnswers"
                                     [editable]="true"
                                     actionText="sitnet_move_to_assessed"
-                                    (onAssessed)="saveAssessments($event)"
+                                    (assessed)="saveAssessments($event)"
                                 >
                                 </essay-answers>
                             </ng-template>
@@ -127,7 +127,7 @@
                                     [answers]="assessedAnswers"
                                     [editable]="true"
                                     actionText="sitnet_grade_exams"
-                                    (onAssessed)="saveAssessments($event)"
+                                    (assessed)="saveAssessments($event)"
                                 >
                                 </essay-answers>
                             </ng-template>
@@ -155,8 +155,7 @@
         <!-- END OF RIGHT COL -->
 
         <div class="col-md-4 p-0">
-            <question-flow *ngIf="reviews" [reviews]="reviews" (onSelection)="questionSelected($event)">
-            </question-flow>
+            <question-flow *ngIf="reviews" [reviews]="reviews" (selected)="questionSelected($event)"> </question-flow>
         </div>
     </div>
 </div>

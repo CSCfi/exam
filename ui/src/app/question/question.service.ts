@@ -17,16 +17,10 @@ import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { isNumber } from 'lodash';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { map } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { SessionService } from '../session/session.service';
-import { AttachmentService } from '../utility/attachment/attachment.service';
-import { FileService } from '../utility/file/file.service';
-import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
-
-import type { Observable } from 'rxjs';
 import type {
     Exam,
     ExamSection,
@@ -36,6 +30,11 @@ import type {
     Question,
     ReverseQuestion,
 } from '../exam/exam.model';
+import { SessionService } from '../session/session.service';
+import { AttachmentService } from '../utility/attachment/attachment.service';
+import { FileService } from '../utility/file/file.service';
+import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
+
 export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
 export type QuestionAmounts = {
     accepted: number;
@@ -49,6 +48,7 @@ export class QuestionService {
         private http: HttpClient,
         private translate: TranslateService,
         private modal: NgbModal,
+        private toast: ToastrService,
         private Session: SessionService,
         private Files: FileService,
         private Attachment: AttachmentService,
@@ -290,7 +290,7 @@ export class QuestionService {
         return new Promise<Question>((resolve, reject) => {
             this.http.post<Question>(this.questionsApi(), body).subscribe(
                 (response) => {
-                    toast.info(this.translate.instant('sitnet_question_added'));
+                    this.toast.info(this.translate.instant('sitnet_question_added'));
                     if (question.attachment && question.attachment.file && question.attachment.modified) {
                         this.Files.upload(
                             '/app/attachment/question',
@@ -312,7 +312,7 @@ export class QuestionService {
         const body = this.getQuestionData(question);
         return new Promise<Question>((resolve) => {
             this.http.put<Question>(this.questionsApi(question.id), body).subscribe((response) => {
-                toast.info(this.translate.instant('sitnet_question_saved'));
+                this.toast.info(this.translate.instant('sitnet_question_saved'));
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
                     this.Files.upload(
                         '/app/attachment/question',

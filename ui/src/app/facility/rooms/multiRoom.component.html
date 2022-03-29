@@ -21,8 +21,8 @@
             </div>
             <exception-list
                 [exceptions]="room.calendarExceptionEvents"
-                (onCreate)="addException($event)"
-                (onDelete)="deleteException($event)"
+                (created)="addException($event)"
+                (removed)="deleteException($event)"
                 [filter]="massEditedExceptionFilter"
                 [hideButton]="true"
                 [hideTitle]="true"

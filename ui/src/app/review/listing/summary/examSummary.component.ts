@@ -13,26 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
 import { eachDayOfInterval, format, min, startOfDay } from 'date-fns';
 import { countBy } from 'lodash';
-
+import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import type { Exam, ExamParticipation, Question } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
 import { FileService } from '../../../utility/file/file.service';
 import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
+import type { Review } from '../../review.model';
 import { AbortedExamsComponent } from '../dialogs/abortedExams.component';
 import { NoShowsComponent } from '../dialogs/noShows.component';
 import { ReviewListService } from '../reviewList.service';
 
-import type { Exam } from '../../../exam/exam.model';
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-
-import type { ExamParticipation, Question } from '../../../exam/exam.model';
-import type { Review } from '../../review.model';
 type QuestionData = {
     question: string;
     max: number;
@@ -45,7 +42,7 @@ type QuestionData = {
     selector: 'exam-summary',
     templateUrl: './examSummary.component.html',
 })
-export class ExamSummaryComponent {
+export class ExamSummaryComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;
     @Input() reviews: ExamParticipation[] = [];
     @Input() collaborative = false;

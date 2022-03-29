@@ -12,29 +12,27 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 import { noop } from 'rxjs';
-import * as toast from 'toastr';
-
 import { QuestionService } from '../../../question/question.service';
 import { QuestionSelectorComponent } from '../../../question/selector/questionSelector.component';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
+import type { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
 import { ExamService } from '../../exam.service';
-
-import type { CdkDragDrop } from '@angular/cdk/drag-drop';
-import type { ExamSection, ExamMaterial, ExamSectionQuestion, Question } from '../../exam.model';
 
 @Component({
     selector: 'section',
     encapsulation: ViewEncapsulation.None,
     templateUrl: './section.component.html',
 })
-export class SectionComponent {
+export class SectionComponent implements OnInit {
     @Input() section!: ExamSection;
     @Input() index = 0;
     @Input() examId = 0;
@@ -42,13 +40,14 @@ export class SectionComponent {
     @Input() collaborative = false;
     @Input() materials: ExamMaterial[] = [];
 
-    @Output() onDelete = new EventEmitter<ExamSection>();
-    @Output() onMaterialsChanged = new EventEmitter<void>();
+    @Output() remvoed = new EventEmitter<ExamSection>();
+    @Output() materialsChanged = new EventEmitter<void>();
 
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
         private modal: NgbModal,
+        private toast: ToastrService,
         private dialogs: ConfirmationDialogService,
         private Question: QuestionService,
         private Files: FileService,
@@ -91,7 +90,7 @@ export class SectionComponent {
             .subscribe(
                 () => {
                     if (!silent) {
-                        toast.info(this.translate.instant('sitnet_section_updated'));
+                        this.toast.info(this.translate.instant('sitnet_section_updated'));
                     }
                 },
                 () => (this.section.optional = !this.section.optional),
@@ -124,7 +123,7 @@ export class SectionComponent {
                 });
                 this.section.sectionQuestions = [...this.section.sectionQuestions, newSectionQuestion];
             },
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err.data),
         );
     };
 
@@ -162,9 +161,9 @@ export class SectionComponent {
                     () => {
                         this.section.sectionQuestions.splice(0, this.section.sectionQuestions.length);
                         this.section.lotteryOn = false;
-                        toast.info(this.translate.instant('sitnet_all_questions_removed'));
+                        this.toast.info(this.translate.instant('sitnet_all_questions_removed'));
                     },
-                    (resp) => toast.error(resp.data),
+                    (resp) => this.toast.error(resp.data),
                 );
         });
     };
@@ -174,7 +173,7 @@ export class SectionComponent {
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_section'),
         );
-        dialog.result.then(() => this.onDelete.emit(this.section));
+        dialog.result.then(() => this.remvoed.emit(this.section));
     };
 
     renameSection = () => this.updateSection(false);
@@ -183,7 +182,7 @@ export class SectionComponent {
     lotteryDisabled = () =>
         !this.section.sectionQuestions || this.section.sectionQuestions.length < 2 || !this.questionPointsMatch();
 
-    materialsChanged = () => this.onMaterialsChanged.emit();
+    onMaterialsChanged = () => this.materialsChanged.emit();
 
     toggleLottery = () => {
         if (this.lotteryDisabled()) {
@@ -191,7 +190,7 @@ export class SectionComponent {
             return;
         }
         if (!this.questionPointsMatch()) {
-            toast.error(this.translate.instant('sitnet_error_lottery_points_not_match'));
+            this.toast.error(this.translate.instant('sitnet_error_lottery_points_not_match'));
             this.section.lotteryOn = false;
             return;
         }
@@ -205,18 +204,18 @@ export class SectionComponent {
                     if (!this.section.lotteryOn) {
                         this.section.lotteryItemCount = 0;
                     }
-                    toast.info(this.translate.instant('sitnet_section_updated'));
+                    this.toast.info(this.translate.instant('sitnet_section_updated'));
                 },
-                (resp) => toast.error(resp.data),
+                (resp) => this.toast.error(resp.data),
             );
     };
 
     updateLotteryCount = () => {
         if (!this.section.lotteryItemCount) {
-            toast.warning(this.translate.instant('sitnet_warn_lottery_count'));
+            this.toast.warning(this.translate.instant('sitnet_warn_lottery_count'));
             this.section.lotteryItemCount = 1;
         } else if (this.section.lotteryItemCount > this.section.sectionQuestions.length) {
-            toast.warning(this.translate.instant('sitnet_warn_lottery_count'));
+            this.toast.warning(this.translate.instant('sitnet_warn_lottery_count'));
             this.section.lotteryItemCount = this.section.sectionQuestions.length;
         } else {
             this.updateSection(false);
@@ -232,7 +231,7 @@ export class SectionComponent {
                     to: to,
                 })
                 .subscribe(() => {
-                    toast.info(this.translate.instant('sitnet_questions_reordered'));
+                    this.toast.info(this.translate.instant('sitnet_questions_reordered'));
                     moveItemInArray(this.section.sectionQuestions, from, to);
                 });
         }
@@ -240,7 +239,7 @@ export class SectionComponent {
 
     addNewQuestion = () => {
         if (this.section.lotteryOn) {
-            toast.error(this.translate.instant('sitnet_error_drop_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('sitnet_error_drop_disabled_lottery_on'));
             return;
         }
         this.openBaseQuestionEditor();
@@ -254,7 +253,7 @@ export class SectionComponent {
             .subscribe(
                 (resp) => {
                     this.section.sectionQuestions.splice(this.section.sectionQuestions.indexOf(sq), 1);
-                    toast.info(this.translate.instant('sitnet_question_removed'));
+                    this.toast.info(this.translate.instant('sitnet_question_removed'));
                     if (this.section.sectionQuestions.length < 2 && this.section.lotteryOn) {
                         // turn off lottery
                         this.section.lotteryOn = false;
@@ -264,13 +263,13 @@ export class SectionComponent {
                         this.section.lotteryItemCount = resp.lotteryItemCount;
                     }
                 },
-                (resp) => toast.error(resp.data),
+                (resp) => this.toast.error(resp.data),
             );
     };
 
     openLibrary = () => {
         if (this.section.lotteryOn) {
-            toast.error(this.translate.instant('sitnet_error_drop_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('sitnet_error_drop_disabled_lottery_on'));
             return;
         }
         const modal = this.modal.open(QuestionSelectorComponent, {

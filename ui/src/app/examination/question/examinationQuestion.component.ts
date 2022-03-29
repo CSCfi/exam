@@ -12,14 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { ChangeDetectorRef, Component, Input } from '@angular/core';
-
-import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { ExaminationService } from '../examination.service';
-
-import type { EssayAnswer } from '../../exam/exam.model';
-import type { Examination, ExaminationQuestion } from '../examination.model';
 import type { AfterViewInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import type { EssayAnswer } from '../../exam/exam.model';
+import { AttachmentService } from '../../utility/attachment/attachment.service';
+import type { Examination, ExaminationQuestion } from '../examination.model';
+import { ExaminationService } from '../examination.service';
 
 type ClozeTestAnswer = { [key: string]: string };
 
@@ -27,7 +25,7 @@ type ClozeTestAnswer = { [key: string]: string };
     selector: 'examination-question',
     templateUrl: './examinationQuestion.component.html',
 })
-export class ExaminationQuestionComponent implements AfterViewInit {
+export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
     @Input() exam!: Examination;
     @Input() question!: ExaminationQuestion;
     @Input() isPreview = false;

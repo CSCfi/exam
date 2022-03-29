@@ -13,24 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Directive } from '@angular/core';
+import { Directive, OnInit } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
 import { addMinutes, endOfDay, parseISO, startOfDay } from 'date-fns';
 import { isNumber, isObject } from 'lodash';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { forkJoin } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { SessionService } from '../session/session.service';
-import { OrderByPipe } from '../utility/sorting/orderBy.pipe';
-import { ReservationService } from './reservation.service';
-
-import type { Observable } from 'rxjs';
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { CollaborativeExam, Exam, ExamImpl, Implementation } from '../exam/exam.model';
 import type { User } from '../session/session.service';
+import { SessionService } from '../session/session.service';
 import type { Option } from '../utility/select/dropDownSelect.component';
+import { OrderByPipe } from '../utility/sorting/orderBy.pipe';
 import type { ExamMachine, ExamRoom, Reservation } from './reservation.model';
+import { ReservationService } from './reservation.service';
+
 interface Selection {
     [data: string]: string;
 }
@@ -67,7 +66,7 @@ export type AnyReservation =
     | CollaborativeExamReservation;
 
 @Directive()
-export class ReservationComponentBase {
+export class ReservationComponentBase implements OnInit {
     examId: string;
     user: User;
     startDate: Date | null = new Date();
@@ -101,6 +100,7 @@ export class ReservationComponentBase {
     constructor(
         private http: HttpClient,
         private routing: UIRouterGlobals,
+        private toast: ToastrService,
         private orderPipe: OrderByPipe,
         private Session: SessionService,
         private Reservation: ReservationService,
@@ -264,7 +264,7 @@ export class ReservationComponentBase {
                                     !this.byodExamsOnly,
                             );
                     },
-                    (err) => toast.error(err),
+                    (err) => this.toast.error(err),
                 );
         }
     }
@@ -279,7 +279,7 @@ export class ReservationComponentBase {
                     return { id: s.id, value: s, label: s.name };
                 });
             },
-            (resp) => toast.error(resp.data),
+            (resp) => this.toast.error(resp.data),
         );
         this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit').subscribe((resp) => {
             this.isInteroperable = resp.isExamVisitSupported;
@@ -292,7 +292,7 @@ export class ReservationComponentBase {
                     const teachers = this.orderPipe.transform(resp, 'lastName');
                     this.teacherOptions = teachers.map((t) => ({ id: t.id, value: t, label: t.name }));
                 },
-                (resp) => toast.error(resp.data),
+                (resp) => this.toast.error(resp.data),
             );
 
             this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe(
@@ -304,7 +304,7 @@ export class ReservationComponentBase {
                         this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
                     });
                 },
-                (err) => toast.error(err.data),
+                (err) => this.toast.error(err.data),
             );
         }
     }

@@ -13,23 +13,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
 import { from, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
-import * as toast from 'toastr';
-
 import { ExaminationTypeSelectorComponent } from '../../../../exam/editor/common/examinationTypeSelector.component';
+import type { Exam, ExamExecutionType } from '../../../../exam/exam.model';
 import { ExamService } from '../../../../exam/exam.service';
 import { SessionService } from '../../../../session/session.service';
 import { DateTimeService } from '../../../../utility/date/date.service';
 import { ConfirmationDialogService } from '../../../../utility/dialogs/confirmationDialog.service';
 import { CommonExamService } from '../../../../utility/miscellaneous/commonExam.service';
 
-import type { OnInit } from '@angular/core';
-import type { Exam, ExamExecutionType } from '../../../../exam/exam.model';
 export interface ExtraColumnName {
     text: string;
     property: string;
@@ -44,14 +43,14 @@ type ExecutionType = ExamExecutionType & { examinationTypes: { type: string; nam
     selector: 'exam-list-category',
     templateUrl: './examListCategory.component.html',
 })
-export class ExamListCategoryComponent implements OnInit {
+export class ExamListCategoryComponent implements OnInit, OnDestroy {
     @Input() items: Exam[] = [];
     @Input() examTypes: ExecutionType[] = [];
     @Input() extraColumnNames: () => ExtraColumnName[] = () => [];
     @Input() extraColumnValues: (exam: Exam) => ExtraColumnValue[] = () => [];
     @Input() defaultPredicate = '';
     @Input() defaultReverse = false;
-    @Output() onFilterChange = new EventEmitter<string>();
+    @Output() filtered = new EventEmitter<string>();
 
     userId: number;
     pageSize = 10;
@@ -66,6 +65,7 @@ export class ExamListCategoryComponent implements OnInit {
         private state: StateService,
         private routing: UIRouterGlobals,
         private modal: NgbModal,
+        private toast: ToastrService,
         private Dialog: ConfirmationDialogService,
         private Exam: ExamService,
         private CommonExam: CommonExamService,
@@ -77,14 +77,14 @@ export class ExamListCategoryComponent implements OnInit {
             .subscribe((text) => {
                 this.filterText = text;
                 this.state.go('staff.teacher', { tab: this.state.params.tab, filter: this.filterText });
-                this.onFilterChange.emit(this.filterText);
+                this.filtered.emit(this.filterText);
             });
         this.userId = this.Session.getUser().id;
         this.filterText = this.routing.params.filter;
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 
@@ -126,10 +126,10 @@ export class ExamListCategoryComponent implements OnInit {
             )
             .subscribe(
                 (resp) => {
-                    toast.success(this.translate.instant('sitnet_exam_copied'));
+                    this.toast.success(this.translate.instant('sitnet_exam_copied'));
                     this.state.go('staff.examEditor.basic', { id: resp.id, collaborative: 'false' });
                 },
-                (err) => toast.error(err.data),
+                (err) => this.toast.error(err.data),
             );
 
     deleteExam = (exam: Exam) => {
@@ -140,10 +140,10 @@ export class ExamListCategoryComponent implements OnInit {
         dialog.result.then(() => {
             this.http.delete(`/app/exams/${exam.id}`).subscribe(
                 () => {
-                    toast.success(this.translate.instant('sitnet_exam_removed'));
+                    this.toast.success(this.translate.instant('sitnet_exam_removed'));
                     this.items.splice(this.items.indexOf(exam), 1);
                 },
-                (err) => toast.error(err),
+                (err) => this.toast.error(err),
             );
         });
     };

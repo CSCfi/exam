@@ -13,11 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
-
-import { ExamService } from '../../exam.service';
-
+import { Component, Input, OnInit } from '@angular/core';
 import type { Exam } from '../../exam.model';
+import { ExamService } from '../../exam.service';
 
 type Organisation = {
     _id: string;
@@ -31,7 +29,7 @@ type Organisation = {
     selector: 'exam-organisation-selector',
     templateUrl: './organisationSelector.component.html',
 })
-export class OrganisationSelectorComponent {
+export class OrganisationSelectorComponent implements OnInit {
     @Input() exam!: Exam;
 
     organisations: Organisation[] = [];

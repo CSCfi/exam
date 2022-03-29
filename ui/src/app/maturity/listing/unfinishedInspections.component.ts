@@ -1,12 +1,10 @@
+import type { OnChanges } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-
-import { SessionService } from '../../session/session.service';
-import { LanguageInspectionService } from '../languageInspections.service';
-
-import type { OnChanges } from '@angular/core';
 import type { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
 import type { LanguageInspectionData } from '../languageInspections.component';
+import { LanguageInspectionService } from '../languageInspections.service';
 import type { LanguageInspection } from '../maturity.model';
 
 /*

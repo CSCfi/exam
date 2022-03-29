@@ -12,22 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../../assessment/assessment.service';
-
 import type { ReviewQuestion } from '../../review.model';
 
 @Component({
     selector: 'essay-answer',
     templateUrl: './essayAnswer.component.html',
 })
-export class EssayAnswerComponent {
+export class EssayAnswerComponent implements OnInit {
     @Input() answer!: ReviewQuestion;
     @Input() editable = false;
     @Input() action = '';
-    @Output() onSelection = new EventEmitter<ReviewQuestion>();
+    @Output() selected = new EventEmitter<ReviewQuestion>();
 
     name = '';
 
@@ -47,7 +45,7 @@ export class EssayAnswerComponent {
     getCharacterCount = () => this.Assessment.countCharacters(this.answer.essayAnswer.answer);
 
     saveScore = () => {
-        this.onSelection.emit(this.answer);
+        this.selected.emit(this.answer);
         this.answer.selected = false;
     };
 

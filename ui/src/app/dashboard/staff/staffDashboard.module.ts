@@ -14,7 +14,6 @@
  */
 import { NgModule } from '@angular/core';
 import { UIRouterModule } from '@uirouter/angular';
-
 import { AdministrativeModule } from '../../administrative/administrative.module';
 import { ExamModule } from '../../exam/exam.module';
 import { ExaminationModule } from '../../examination/examination.module';

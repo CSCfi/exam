@@ -16,13 +16,12 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import { SessionService } from '../../../session/session.service';
-
 import type { Exam } from '../../../exam/exam.model';
+import { SessionService } from '../../../session/session.service';
 import type { Review } from '../../review.model';
+
 @Component({
     selector: 'aborted-exams',
     templateUrl: './abortedExams.component.html',
@@ -38,6 +37,7 @@ export class AbortedExamsComponent {
         private modal: NgbActiveModal,
         private translate: TranslateService,
         private http: HttpClient,
+        private toast: ToastrService,
         private Session: SessionService,
     ) {}
 
@@ -46,7 +46,7 @@ export class AbortedExamsComponent {
     permitRetrial = (enrolment: ExamEnrolment) => {
         this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe(() => {
             enrolment.retrialPermitted = true;
-            toast.info(this.translate.instant('sitnet_retrial_permitted'));
+            this.toast.info(this.translate.instant('sitnet_retrial_permitted'));
         });
     };
 

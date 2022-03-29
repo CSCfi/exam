@@ -14,8 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import { FileService } from '../../../utility/file/file.service';
 import { Option } from '../../../utility/select/dropDownSelect.component';
 
@@ -33,7 +32,7 @@ import { Option } from '../../../utility/select/dropDownSelect.component';
                     id="enrolment"
                     *ngIf="examNames"
                     [options]="examNames"
-                    (onSelect)="enrolmentSelected($event)"
+                    (optionSelected)="enrolmentSelected($event)"
                 ></dropdown-select>
             </div>
             <div class="col-lg-2 mb-2">
@@ -59,13 +58,13 @@ export class EnrolmentsReportComponent {
     @Input() examNames: Option<string, number>[] = [];
     enrolment?: number;
 
-    constructor(private translate: TranslateService, private files: FileService) {}
+    constructor(private translate: TranslateService, private toast: ToastrService, private files: FileService) {}
 
     getExamEnrolments = () => {
         if (this.enrolment) {
             this.files.download(`/app/statistics/examenrollments/${this.enrolment}`, 'exam_enrolments.xlsx');
         } else {
-            toast.error(this.translate.instant('sitnet_choose_exam'));
+            this.toast.error(this.translate.instant('sitnet_choose_exam'));
         }
     };
 

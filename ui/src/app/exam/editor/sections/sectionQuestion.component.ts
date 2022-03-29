@@ -17,19 +17,18 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { merge } from 'lodash';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { noop, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import * as toast from 'toastr';
-
 import { BaseQuestionEditorComponent } from '../../../question/examquestion/baseQuestionEditor.component';
 import { ExamQuestionEditorComponent } from '../../../question/examquestion/examQuestionEditor.component';
 import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
-
-import type { Observable } from 'rxjs';
 import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from '../../exam.model';
+
 @Component({
     selector: 'section-question',
     templateUrl: './sectionQuestion.component.html',
@@ -40,12 +39,13 @@ export class SectionQuestionComponent {
     @Input() collaborative = false;
     @Input() section!: ExamSection;
     @Input() examId = 0;
-    @Output() onDelete = new EventEmitter<ExamSectionQuestion>();
+    @Output() removed = new EventEmitter<ExamSectionQuestion>();
 
     constructor(
         private http: HttpClient,
         private modal: NgbModal,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private Question: QuestionService,
         private Attachment: AttachmentService,
@@ -71,7 +71,7 @@ export class SectionQuestionComponent {
         this.Confirmation.open(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_question'),
-        ).result.then(() => this.onDelete.emit(this.sectionQuestion));
+        ).result.then(() => this.removed.emit(this.sectionQuestion));
 
     private getQuestionDistribution(): Observable<boolean> {
         if (this.collaborative) {
@@ -140,9 +140,7 @@ export class SectionQuestionComponent {
                             });
                         }
                     },
-                    (resp) => {
-                        toast.error(resp.data);
-                    },
+                    (resp) => this.toast.error(resp.data),
                 );
         });
     };
@@ -163,14 +161,11 @@ export class SectionQuestionComponent {
                     data.examQuestion,
                     this.examId,
                     this.section.id,
-                ).subscribe(
-                    (esq: ExamSectionQuestion) => {
-                        toast.info(this.translate.instant('sitnet_question_saved'));
-                        // apply changes back to scope
-                        this.sectionQuestion = merge(this.sectionQuestion, esq);
-                    },
-                    (err) => toast.error(err),
-                );
+                ).subscribe((esq: ExamSectionQuestion) => {
+                    this.toast.info(this.translate.instant('sitnet_question_saved'));
+                    // apply changes back to scope
+                    this.sectionQuestion = merge(this.sectionQuestion, esq);
+                }, this.toast.error);
             })
             .catch(noop);
     };

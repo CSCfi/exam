@@ -13,20 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnDestroy, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
 import { addHours, format, parseISO } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { ExamRoom, Reservation } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../utility/date/date.service';
 import { WindowRef } from '../../utility/window/window.service';
-
-import type { OnDestroy, OnInit } from '@angular/core';
-import type { ExamRoom, Reservation } from '../../reservation/reservation.model';
 import type { ExamEnrolment } from '../enrolment.model';
+
 type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
 type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     reservation: WaitingReservation;
@@ -46,6 +45,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         private http: HttpClient,
         private routing: UIRouterGlobals,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Session: SessionService,
         private Window: WindowRef,
         private DateTime: DateTimeService,
@@ -80,7 +80,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                         .post<void>(`/app/student/exam/${this.routing.params.hash}`, {})
                         .subscribe(() => console.log(`exam ${this.routing.params.hash} prepared ok`));
                 },
-                (err) => toast.error(err.data),
+                (err) => this.toast.error(err),
             );
         }
     }

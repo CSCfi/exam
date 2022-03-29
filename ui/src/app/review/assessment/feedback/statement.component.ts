@@ -13,13 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-
+import type { Exam } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
+import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 import { FileService } from '../../../utility/file/file.service';
 import { MaturityService } from '../maturity/maturity.service';
 
-import type { Exam } from '../../../exam/exam.model';
-import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 @Component({
     selector: 'r-statement',
     templateUrl: './statement.component.html',

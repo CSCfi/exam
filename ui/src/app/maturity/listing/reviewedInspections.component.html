@@ -54,7 +54,7 @@
                     <date-picker
                         [optional]="true"
                         [initiallyEmpty]="true"
-                        (onUpdate)="startDateChanged($event)"
+                        (updated)="onStartDateChanged($event)"
                     ></date-picker>
                 </div>
                 <div class="col-md-2">
@@ -62,7 +62,7 @@
                     <date-picker
                         [optional]="true"
                         [initiallyEmpty]="true"
-                        (onUpdate)="endDateChanged($event)"
+                        (updated)="onEndDateChanged($event)"
                     ></date-picker>
                 </div>
             </div>
@@ -262,7 +262,7 @@
     <div [hidden]="filteredInspections.length <= pageSize">
         <paginator
             [items]="filteredInspections"
-            (onSelectPage)="pageSelected($event)"
+            (pageSelected)="pageSelected($event)"
             [pageSize]="pageSize"
             [currentPage]="currentPage"
         ></paginator>

@@ -15,12 +15,11 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { User } from '../../../session/session.service';
 import { FileService } from '../../../utility/file/file.service';
 import { Option } from '../../../utility/select/dropDownSelect.component';
 
-import type { User } from '../../../session/session.service';
 @Component({
     template: `
         <div class="top-row">
@@ -35,19 +34,19 @@ import type { User } from '../../../session/session.service';
                     id="teacher"
                     *ngIf="teachers"
                     [options]="teachers"
-                    (onSelect)="teacherSelected($event)"
+                    (optionSelected)="teacherSelected($event)"
                 ></dropdown-select>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (onUpdate)="answerStartDateChanged($event)"></date-picker>
+                    <date-picker (updated)="answerStartDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (onUpdate)="answerEndDateChanged($event)"></date-picker>
+                    <date-picker (updated)="answerEndDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-lg-2 mb-2">
@@ -75,7 +74,12 @@ export class TeachersReportComponent {
     answerStartDate: Date | null = null;
     answerEndDate: Date | null = null;
 
-    constructor(private datePipe: DatePipe, private translate: TranslateService, private files: FileService) {}
+    constructor(
+        private datePipe: DatePipe,
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private files: FileService,
+    ) {}
 
     getTeacherExamsByDate = () => {
         const f = this.datePipe.transform(this.answerStartDate || new Date(), 'dd.MM.yyyy');
@@ -86,7 +90,7 @@ export class TeachersReportComponent {
                 `teacherexams_${f}_${t}.xlsx`,
             );
         } else {
-            toast.error(this.translate.instant('sitnet_choose_teacher'));
+            this.toast.error(this.translate.instant('sitnet_choose_teacher'));
         }
     };
 

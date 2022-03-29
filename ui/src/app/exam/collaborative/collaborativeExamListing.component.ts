@@ -12,20 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, finalize, takeUntil, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
+import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
+import type { CollaborativeExam } from '../exam.model';
 import { CollaborativeExamState } from '../exam.model';
 import { CollaborativeExamService } from './collaborativeExam.service';
 
-import type { OnInit } from '@angular/core';
-import type { User } from '../../session/session.service';
-import type { CollaborativeExam } from '../exam.model';
 enum ListingView {
     PUBLISHED = 'PUBLISHED',
     EXPIRED = 'EXPIRED',
@@ -43,7 +42,7 @@ interface ListedCollaborativeExam extends CollaborativeExam {
     selector: 'collaborative-exam-listing',
     templateUrl: './collaborativeExamListing.component.html',
 })
-export class CollaborativeExamListingComponent implements OnInit {
+export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     exams: ListedCollaborativeExam[] = [];
     user: User;
     view: ListingView;
@@ -58,6 +57,7 @@ export class CollaborativeExamListingComponent implements OnInit {
     constructor(
         private state: StateService,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Session: SessionService,
         private CollaborativeExam: CollaborativeExamService,
     ) {
@@ -75,12 +75,12 @@ export class CollaborativeExamListingComponent implements OnInit {
                 toast.info(this.translate.instant('sitnet_exam_created'));
                 this.state.go('staff.examEditor.basic', { id: exam.id, collaborative: 'collaborative' });
             },
-            (err) => toast.error(err),
+            (err) => this.toast.error(err),
         );
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 

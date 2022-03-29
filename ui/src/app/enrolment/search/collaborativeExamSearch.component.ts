@@ -12,21 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { isObject } from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
-
-import { EnrolmentService } from '../enrolment.service';
-
-import type { OnInit } from '@angular/core';
 import type { CollaborativeExam } from '../../exam/exam.model';
 import type { CollaborativeExamInfo } from '../enrolment.model';
+import { EnrolmentService } from '../enrolment.service';
+
 @Component({
     selector: 'collaborative-exam-search',
     templateUrl: './collaborativeExamSearch.component.html',
 })
-export class CollaborativeExamSearchComponent implements OnInit {
+export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
     exams: CollaborativeExamInfo[] = [];
     filter = { text: '' };
     loader = { loading: false };
@@ -45,7 +44,7 @@ export class CollaborativeExamSearchComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 

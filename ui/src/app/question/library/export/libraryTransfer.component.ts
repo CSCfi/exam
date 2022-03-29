@@ -13,11 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
+import { ToastrService } from 'ngx-toastr';
 
-import type { OnInit } from '@angular/core';
 type Organisation = {
     _id: string;
     name: string;
@@ -35,7 +35,7 @@ export class LibraryTransferComponent implements OnInit {
     organisation?: Organisation;
     showOrganisationSelection = false;
 
-    constructor(private http: HttpClient, private translate: TranslateService) {}
+    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
 
     ngOnInit() {
         this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {
@@ -45,7 +45,7 @@ export class LibraryTransferComponent implements OnInit {
 
     transfer = () => {
         if (this.selections.length == 0) {
-            toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
+            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
         } else {
             this.http
                 .post('/app/iop/export', {
@@ -54,8 +54,8 @@ export class LibraryTransferComponent implements OnInit {
                     ids: this.selections,
                 })
                 .subscribe(
-                    () => toast.info(this.translate.instant('sitnet_questions_transferred')),
-                    (err) => toast.error(err.data),
+                    () => this.toast.info(this.translate.instant('sitnet_questions_transferred')),
+                    (err) => this.toast.error(err.data),
                 );
         }
     };

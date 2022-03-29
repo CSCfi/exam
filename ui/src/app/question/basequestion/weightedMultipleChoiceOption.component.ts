@@ -14,11 +14,10 @@
  */
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionDraft } from '../question.service';
 
-import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 @Component({
     selector: 'wmc-option-editor',
     template: `
@@ -66,14 +65,14 @@ export class WeightedMultipleChoiceOptionEditorComponent {
     @Input() question!: Question | QuestionDraft;
     @Input() lotteryOn = false;
 
-    constructor(private translate: TranslateService) {}
+    constructor(private translate: TranslateService, private toast: ToastrService) {}
 
     removeOption = () => {
         const hasCorrectAnswer = this.question.options.some((o) => o !== this.option && o.defaultScore > 0);
         if (hasCorrectAnswer) {
             this.question.options.splice(this.question.options.indexOf(this.option), 1);
         } else {
-            toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
+            this.toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
         }
     };
 }

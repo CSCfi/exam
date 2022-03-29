@@ -1,12 +1,11 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { addWeeks } from 'date-fns';
-
 import { MaintenancePeriod } from '../../exam/exam.model';
-import { CalendarService } from '../calendar.service';
-
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import type { OpeningHours } from '../calendar.service';
+import { CalendarService } from '../calendar.service';
+
 @Component({
     selector: 'calendar-selected-room',
     template: `
@@ -66,7 +65,7 @@ import type { OpeningHours } from '../calendar.service';
         </div>
     `,
 })
-export class SelectedRoomComponent {
+export class SelectedRoomComponent implements OnInit, OnChanges {
     @Input() room!: ExamRoom;
     @Input() maintenancePeriods: MaintenancePeriod[] = [];
     @Input() viewStart = new Date();

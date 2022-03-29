@@ -12,19 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnDestroy, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import * as toastr from 'toastr';
-
 import { ExaminationStatusService } from '../examination/examinationStatus.service';
+import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
+import type { Link } from './navigation.service';
 import { NavigationService } from './navigation.service';
 
-import type { OnDestroy, OnInit } from '@angular/core';
-import type { User } from '../session/session.service';
-import type { Link } from './navigation.service';
 @Component({
     selector: 'navigation',
     templateUrl: './navigation.component.html',
@@ -33,12 +32,13 @@ export class NavigationComponent implements OnInit, OnDestroy {
     appVersion = '';
     links: Link[] = [];
     mobileMenuOpen = false;
-    user: User;
+    user?: User;
     isInteroperable = false;
     private ngUnsubscribe = new Subject();
 
     constructor(
         private routing: UIRouterGlobals,
+        private toast: ToastrService,
         private Navigation: NavigationService,
         private Session: SessionService,
         private ExaminationStatus: ExaminationStatusService,
@@ -51,7 +51,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.ExaminationStatus.wrongLocation$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             this.getLinks(false);
         });
-        this.Session.userChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((user: User) => {
+        this.Session.userChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe((user: User | undefined) => {
             this.user = user;
             this.getLinks(true);
         });
@@ -62,7 +62,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
         if (this.user && this.user.isAdmin) {
             this.Navigation.getAppVersion().subscribe(
                 (resp) => (this.appVersion = resp.appVersion),
-                (e) => toastr.error(e),
+                (e) => this.toast.error(e),
             );
             this.getLinks(true);
         } else if (this.user) {
@@ -73,7 +73,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 
@@ -94,7 +94,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
                     this.isInteroperable = resp.isExamCollaborationSupported;
                     this.links = this.Navigation.getLinks(this.isInteroperable);
                 },
-                (e) => toastr.error(e),
+                (e) => this.toast.error(e),
             );
         } else {
             this.links = this.Navigation.getLinks(false);

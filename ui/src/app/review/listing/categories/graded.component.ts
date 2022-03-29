@@ -12,34 +12,34 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import type { SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
-import * as toast from 'toastr';
-
+import type { Exam } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
-import { ReviewListService } from '../reviewList.service';
-
-import type { Exam } from '../../../exam/exam.model';
-import type { SimpleChanges } from '@angular/core';
 import type { Review } from '../../review.model';
 import type { ReviewListView } from '../reviewList.service';
+import { ReviewListService } from '../reviewList.service';
+
 @Component({
     selector: 'rl-graded',
     templateUrl: './graded.component.html',
 })
-export class GradedReviewsComponent {
+export class GradedReviewsComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;
     @Input() reviews: Review[] = [];
     @Input() collaborative = false;
-    @Output() onRegistered = new EventEmitter<Review[]>();
+    @Output() registered = new EventEmitter<Review[]>();
     view!: ReviewListView;
     selections: { all: boolean; page: boolean } = { all: false, page: false };
 
     constructor(
         private translate: TranslateService,
+        private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private ReviewList: ReviewListService,
         private CommonExam: CommonExamService,
@@ -78,8 +78,8 @@ export class GradedReviewsComponent {
         ).result.then(() =>
             forkJoin(selection.map((s) => this.ReviewList.sendToRegistry$(s.examParticipation, examId))).subscribe(
                 () => {
-                    this.onRegistered.emit(selection);
-                    toast.info(this.translate.instant('sitnet_results_send_ok'));
+                    this.registered.emit(selection);
+                    this.toast.info(this.translate.instant('sitnet_results_send_ok'));
                 },
             ),
         );

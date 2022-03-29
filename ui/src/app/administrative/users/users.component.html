@@ -263,7 +263,10 @@
                                         [disabled]="user.removablePermissions.length === 0"
                                     >
                                         <i *ngIf="user.removablePermissions.length > 0" class="text-danger bi-dash"></i>
-                                        <i *ngIf="user.removablePermissions.length == 0" class="text-muted bi-dash"></i>
+                                        <i
+                                            *ngIf="user.removablePermissions.length === 0"
+                                            class="text-muted bi-dash"
+                                        ></i>
                                     </button>
                                     <ul
                                         ngbDropdownMenu
@@ -295,7 +298,7 @@
             <div *ngIf="filteredUsers && filteredUsers.length > pageSize">
                 <paginator
                     [items]="filteredUsers"
-                    (onSelectPage)="pageSelected($event)"
+                    (pageSelected)="pageSelected($event)"
                     [pageSize]="pageSize"
                     [currentPage]="currentPage"
                 ></paginator>

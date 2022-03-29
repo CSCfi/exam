@@ -73,7 +73,7 @@
             [participation]="participation"
             [exam]="exam"
             [collaborative]="collaborative"
-            (onScore)="scoreSet($event)"
+            (scored)="scoreSet($event)"
             [index]="index + 1"
             [isScorable]="(!isGraded() || isOwnerOrAdmin()) && !isReadOnly()"
         >

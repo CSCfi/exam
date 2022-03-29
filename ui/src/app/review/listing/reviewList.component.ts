@@ -13,24 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-
+import type { ExamEnrolment } from '../../enrolment/enrolment.model';
 import { ExamTabService } from '../../exam/editor/examTabs.service';
+import type { Exam, ExamParticipation } from '../../exam/exam.model';
+import type { Review } from '../review.model';
 import { AbortedExamsComponent } from './dialogs/abortedExams.component';
 import { NoShowsComponent } from './dialogs/noShows.component';
 import { ReviewListService } from './reviewList.service';
-
-import type { Exam } from '../../exam/exam.model';
-import type { ExamEnrolment } from '../../enrolment/enrolment.model';
-import type { ExamParticipation } from '../../exam/exam.model';
-import type { Review } from '../review.model';
 
 @Component({
     selector: 'review-list',
     templateUrl: './reviewList.component.html',
 })
-export class ReviewListComponent {
+export class ReviewListComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;
     @Input() collaborative = false;
     @Input() reviews: ExamParticipation[] = [];

@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-
 import { SessionModule } from '../session/session.module';
 import { UtilityModule } from '../utility/utility.module';
 import { ReportsModule } from './reports/reports.module';

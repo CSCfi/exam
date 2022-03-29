@@ -12,18 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { formatISO, startOfMonth } from 'date-fns';
 import { range } from 'lodash';
-
+import type { Attachment } from '../../exam/exam.model';
+import type { Option } from '../../utility/select/dropDownSelect.component';
 import { WindowRef } from '../../utility/window/window.service';
 import { LanguageInspectionService } from '../languageInspections.service';
-
-import type { Attachment } from '../../exam/exam.model';
-
-import type { OnInit } from '@angular/core';
 import type { LanguageInspection } from '../maturity.model';
-import type { Option } from '../../utility/select/dropDownSelect.component';
 
 @Component({
     selector: 'maturity-reporting',

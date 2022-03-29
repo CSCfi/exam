@@ -12,15 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { orderBy } from 'lodash';
-import * as toast from 'toastr';
-
-import { RoomService } from './room.service';
-
-import type { OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import type { Week } from './room.service';
+import { RoomService } from './room.service';
 
 @Component({
     templateUrl: './exceptionListAll.component.html',
@@ -31,7 +29,7 @@ export class ExceptionListAllComponent implements OnInit {
     rooms: ExamRoom[] = [];
     roomIds: number[] = [];
 
-    constructor(private room: RoomService) {
+    constructor(private toast: ToastrService, private room: RoomService) {
         this.week = this.room.getWeek();
     }
 
@@ -69,9 +67,7 @@ export class ExceptionListAllComponent implements OnInit {
                 this.rooms = orderBy(rooms, 'name', 'asc').filter(this.massEditedRoomFilter);
                 this.roomIds = this.getRoomIds();
             },
-            (error) => {
-                toast.error(error.data);
-            },
+            (error) => this.toast.error(error.data),
         );
     };
 

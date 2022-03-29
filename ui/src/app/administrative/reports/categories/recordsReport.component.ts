@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
-
 import { FileService } from '../../../utility/file/file.service';
 
 @Component({
@@ -28,13 +27,13 @@ import { FileService } from '../../../utility/file/file.service';
             <div class="col-lg-5 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
+                    <date-picker (updated)="startDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-lg-5 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
+                    <date-picker (updated)="endDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-lg-2 mb-2">

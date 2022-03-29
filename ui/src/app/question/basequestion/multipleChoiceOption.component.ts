@@ -14,11 +14,9 @@
  */
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
-import { QuestionDraft, QuestionService } from '../question.service';
-
+import { ToastrService } from 'ngx-toastr';
 import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
+import { QuestionDraft, QuestionService } from '../question.service';
 
 @Component({
     selector: 'mc-option-editor',
@@ -65,7 +63,7 @@ export class MultipleChoiceOptionEditorComponent {
     @Input() question!: Question | QuestionDraft;
     @Input() allowRemoval = false;
 
-    constructor(private translate: TranslateService, private Question: QuestionService) {}
+    constructor(private translate: TranslateService, private toast: ToastrService, private Question: QuestionService) {}
 
     correctAnswerToggled = () => this.Question.toggleCorrectOption(this.option, this.question.options);
 
@@ -74,7 +72,7 @@ export class MultipleChoiceOptionEditorComponent {
         if (hasCorrectAnswer) {
             this.question.options.splice(this.question.options.indexOf(this.option), 1);
         } else {
-            toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
+            this.toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
         }
     };
 }

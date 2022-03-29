@@ -13,13 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import { LanguageService } from '../../../utility/language/language.service';
-
-import type { OnInit } from '@angular/core';
 import type { Exam, ExamLanguage } from '../../exam.model';
 
 @Component({
@@ -33,7 +31,12 @@ export class LanguageSelectorComponent implements OnInit {
 
     examLanguages: ExamLanguage[] = [];
 
-    constructor(private http: HttpClient, private translate: TranslateService, private Language: LanguageService) {}
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Language: LanguageService,
+    ) {}
 
     ngOnInit() {
         this.Language.getExamLanguages$().subscribe((languages: ExamLanguage[]) => {
@@ -58,9 +61,9 @@ export class LanguageSelectorComponent implements OnInit {
                 } else {
                     this.exam.examLanguages.push(lang);
                 }
-                toast.info(this.translate.instant('sitnet_exam_language_updated'));
+                this.toast.info(this.translate.instant('sitnet_exam_language_updated'));
             },
-            (resp) => toast.error(resp.data),
+            (resp) => this.toast.error(resp.data),
         );
     };
 }

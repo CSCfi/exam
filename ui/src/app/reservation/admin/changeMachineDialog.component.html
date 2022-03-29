@@ -6,7 +6,7 @@
         <strong>{{ 'sitnet_exam_machine' | translate }}</strong>
         <dropdown-select
             [options]="availableMachineOptions"
-            (onSelect)="machineChanged($event)"
+            (optionSelected)="machineChanged($event)"
             (limitTo)="(0)"
         ></dropdown-select>
     </div>

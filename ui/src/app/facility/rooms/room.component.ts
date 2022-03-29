@@ -12,20 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import { format, parseISO } from 'date-fns';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import { InteroperabilityService } from './interoperability.service';
+import type { Week, Weekday, WeekdayBlock } from './room.service';
 import { RoomService } from './room.service';
 import { SettingsResourceService } from './settingsResource';
 
-import type { OnInit } from '@angular/core';
-import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import type { Week, Weekday, WeekdayBlock } from './room.service';
 @Component({
     templateUrl: './room.component.html',
     selector: 'room',
@@ -44,6 +43,7 @@ export class RoomComponent implements OnInit {
         private translate: TranslateService,
         private state: StateService,
         private routing: UIRouterGlobals,
+        private toast: ToastrService,
         private roomService: RoomService,
         private settings: SettingsResourceService,
         private interoperability: InteroperabilityService,
@@ -61,7 +61,7 @@ export class RoomComponent implements OnInit {
                 room.availableForExternals = room.externalRef !== null;
                 this.room = room;
                 if (!this.roomService.isAnyExamMachines(this.room)) {
-                    toast.warning(this.translate.instant('sitnet_room_has_no_machines_yet'));
+                    this.toast.warning(this.translate.instant('sitnet_room_has_no_machines_yet'));
                 }
                 this.room.calendarExceptionEvents.forEach((event) => {
                     this.roomService.formatExceptionEvent(event);
@@ -72,7 +72,7 @@ export class RoomComponent implements OnInit {
                 });
             },
             (error) => {
-                toast.error(error.data);
+                this.toast.error(error.data);
             },
         );
     }
@@ -125,30 +125,30 @@ export class RoomComponent implements OnInit {
     updateRoom = () => {
         this.roomService.updateRoom(this.room).subscribe(
             () => {
-                toast.info(this.translate.instant('sitnet_room_updated'));
+                this.toast.info(this.translate.instant('sitnet_room_updated'));
             },
             (error) => {
-                toast.error(error.data);
+                this.toast.error(error.data);
             },
         );
     };
 
     saveRoom = () => {
         if (!this.roomService.isSomethingSelected(this.week)) {
-            toast.error(this.translate.instant('sitnet_room_must_have_default_opening_hours'));
+            this.toast.error(this.translate.instant('sitnet_room_must_have_default_opening_hours'));
             return;
         }
 
         if (!this.roomService.isAnyExamMachines(this.room))
-            toast.error(this.translate.instant('sitnet_dont_forget_to_add_machines') + ' ' + this.room.name);
+            this.toast.error(this.translate.instant('sitnet_dont_forget_to_add_machines') + ' ' + this.room.name);
 
         this.roomService.updateRoom(this.room).subscribe(
             () => {
-                toast.info(this.translate.instant('sitnet_room_saved'));
+                this.toast.info(this.translate.instant('sitnet_room_saved'));
                 this.state.go('staff.rooms');
             },
             (error) => {
-                toast.error(error.data);
+                this.toast.error(error.data);
             },
         );
     };
@@ -161,7 +161,7 @@ export class RoomComponent implements OnInit {
             },
             (err) => {
                 this.room.availableForExternals = !this.room.availableForExternals;
-                toast.error(err.data.message);
+                this.toast.error(err.data.message);
             },
         );
     };

@@ -15,10 +15,8 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TransitionService } from '@uirouter/core';
-
-import { WindowRef } from '../../utility/window/window.service';
-
 import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
+import { WindowRef } from '../../utility/window/window.service';
 
 // This component is used for editing distributed exam questions.
 @Component({
@@ -29,8 +27,8 @@ import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
                 <exam-question
                     *ngIf="examQuestion"
                     [examQuestion]="examQuestion"
-                    (onSave)="onSave($event)"
-                    (onCancel)="cancel()"
+                    (saved)="save($event)"
+                    (cancelled)="cancel()"
                     [lotteryOn]="lotteryOn"
                 ></exam-question>
             </div>
@@ -51,6 +49,6 @@ export class ExamQuestionEditorComponent {
         });
     }
 
-    onSave = (event: { question: Question; examQuestion: ExamSectionQuestion }) => this.modal.close(event);
+    save = (event: { question: Question; examQuestion: ExamSectionQuestion }) => this.modal.close(event);
     cancel = () => this.modal.dismiss();
 }

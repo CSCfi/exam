@@ -10,7 +10,7 @@
 
     <div class="top-row">
         <div class="col-md-12" *ngFor="let enrolment of userEnrolments | orderBy: 'startAtAggregate'">
-            <active-enrolment [enrolment]="enrolment" (onRemoval)="enrolmentRemoved($event)"></active-enrolment>
+            <active-enrolment [enrolment]="enrolment" (removed)="enrolmentRemoved($event)"></active-enrolment>
         </div>
         <div *ngIf="userEnrolments?.length === 0" style="padding-left: 30px">
             <span class="form-group">

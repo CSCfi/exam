@@ -18,13 +18,12 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { parseISO } from 'date-fns';
 import { noop } from 'rxjs';
-
+import type { Exam } from '../exam/exam.model';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
-
-import type { Exam } from '../exam/exam.model';
 import type { ExamMachine, Reservation } from './reservation.model';
+
 @Injectable()
 export class ReservationService {
     constructor(

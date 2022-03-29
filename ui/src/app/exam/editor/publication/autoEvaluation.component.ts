@@ -12,15 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { cloneDeep } from 'lodash';
-
 import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
+import type { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
-import type { OnInit, SimpleChanges } from '@angular/core';
-import type { Exam, AutoEvaluationConfig, Grade, GradeEvaluation } from '../../exam.model';
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
 
 type AutoEvaluationConfigurationTemplate = {
@@ -34,9 +33,9 @@ type AutoEvaluationConfigurationTemplate = {
 })
 export class AutoEvaluationComponent implements OnInit {
     @Input() exam!: Exam;
-    @Output() onEnabled = new EventEmitter<void>();
-    @Output() onDisabled = new EventEmitter<void>();
-    @Output() onUpdate = new EventEmitter<{ config: AutoEvaluationConfig }>();
+    @Output() enabled = new EventEmitter<void>();
+    @Output() disabled = new EventEmitter<void>();
+    @Output() updated = new EventEmitter<{ config: AutoEvaluationConfig }>();
     @ViewChild('gradesForm', { static: false }) gradesForm?: NgForm;
 
     autoevaluation: AutoEvaluationConfigurationTemplate;
@@ -71,8 +70,8 @@ export class AutoEvaluationComponent implements OnInit {
         }
     };
 
-    disable = () => this.onDisabled.emit();
-    enable = () => this.onEnabled.emit();
+    disable = () => this.disabled.emit();
+    enable = () => this.enabled.emit();
 
     private prepareAutoEvaluationConfig = () => {
         this.autoevaluation.enabled = !!this.exam.autoEvaluationConfig;
@@ -102,7 +101,7 @@ export class AutoEvaluationComponent implements OnInit {
         }
         const rt = this.selectedReleaseType();
         this.config.releaseType = rt ? rt.name : undefined;
-        this.onUpdate.emit({ config: this.config });
+        this.updated.emit({ config: this.config });
     };
 
     selectedReleaseType = () => this.autoevaluation.releaseTypes.find((rt) => rt.filtered);
@@ -123,10 +122,10 @@ export class AutoEvaluationComponent implements OnInit {
     releaseDateChanged = (event: { date: Date | null }) => {
         if (!this.config) return;
         this.config.releaseDate = event.date;
-        this.onUpdate.emit({ config: this.config });
+        this.updated.emit({ config: this.config });
     };
 
     propertyChanged = () => {
-        if (this.config && this.gradesForm?.valid) this.onUpdate.emit({ config: this.config });
+        if (this.config && this.gradesForm?.valid) this.updated.emit({ config: this.config });
     };
 }

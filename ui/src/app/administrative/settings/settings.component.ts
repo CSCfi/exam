@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
+import { ToastrService } from 'ngx-toastr';
 
-import type { OnInit } from '@angular/core';
 export interface AppConfig {
     eula: string;
     examMaxDate: string;
@@ -36,12 +36,12 @@ export class SettingsComponent implements OnInit {
     config!: AppConfig;
     attributes: string[] = [];
 
-    constructor(private translate: TranslateService, private http: HttpClient) {}
+    constructor(private translate: TranslateService, private http: HttpClient, private toast: ToastrService) {}
 
     private onSuccess = () =>
-        toast.info(this.translate.instant('sitnet_settings') + ' ' + this.translate.instant('sitnet_updated'));
+        this.toast.info(this.translate.instant('sitnet_settings') + ' ' + this.translate.instant('sitnet_updated'));
 
-    private onError = (error: string) => toast.error(error);
+    private onError = (error: string) => this.toast.error(error);
 
     ngOnInit() {
         this.http.get<AppConfig>('/app/config').subscribe((resp) => {

@@ -13,18 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, Input, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { noop, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
+import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
+import type { Exam, ExamParticipation } from '../../exam/exam.model';
 import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
+import type { ReviewedExam } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
-import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
-import type { OnInit } from '@angular/core';
-import type { Exam, ExamParticipation } from '../../exam/exam.model';
-import type { ReviewedExam } from '../enrolment.model';
 type Scores = {
     maxScore: number;
     totalScore: number;
@@ -36,7 +35,7 @@ type Scores = {
     selector: 'exam-participation',
     templateUrl: './examParticipation.component.html',
 })
-export class ExamParticipationComponent implements OnInit {
+export class ExamParticipationComponent implements OnInit, OnDestroy {
     @Input() participation!: ExamParticipation | CollaborativeParticipation;
     @Input() collaborative = false;
 
@@ -76,7 +75,7 @@ export class ExamParticipationComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 

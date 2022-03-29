@@ -206,7 +206,7 @@
                         {{ 'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
                     </td>
                 </tr>
-                <tr *ngIf="view.filtered.length == 0">
+                <tr *ngIf="view.filtered.length === 0">
                     <td *ngIf="showId()" colspan="8">{{ 'sitnet_review_no_result' | translate }}</td>
                     <td *ngIf="!showId()" colspan="7">{{ 'sitnet_review_no_result' | translate }}</td>
                 </tr>
@@ -226,7 +226,7 @@
         <paginator
             [items]="view.filtered"
             [pageSize]="view.pageSize"
-            (onSelectPage)="pageSelected($event)"
+            (pageSelected)="pageSelected($event)"
             [currentPage]="view.page"
         >
         </paginator>

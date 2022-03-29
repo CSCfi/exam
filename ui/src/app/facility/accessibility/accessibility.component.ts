@@ -12,14 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
-import { AccessibilityService } from './accessibility.service';
-
-import type { OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import type { Accessibility } from '../../reservation/reservation.model';
+import { AccessibilityService } from './accessibility.service';
 
 @Component({
     templateUrl: './accessibility.component.html',
@@ -30,7 +28,11 @@ export class AccessibilityComponent implements OnInit {
     accessibilities: Accessibility[] = [];
     showName = false;
 
-    constructor(private translate: TranslateService, private accessibilityService: AccessibilityService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private accessibilityService: AccessibilityService,
+    ) {}
 
     ngOnInit() {
         this.newItem = { name: '' };
@@ -46,18 +48,18 @@ export class AccessibilityComponent implements OnInit {
     add = () =>
         this.accessibilityService.addAccessibility(this.newItem).subscribe((resp) => {
             this.accessibilities.push(resp);
-            toast.info(this.translate.instant('sitnet_accessibility_added'));
+            this.toast.info(this.translate.instant('sitnet_accessibility_added'));
             this.initItem();
         });
 
     update = (accessibility: Accessibility) =>
         this.accessibilityService.updateAccessibility(accessibility).subscribe(() => {
-            toast.info(this.translate.instant('sitnet_accessibility_updated'));
+            this.toast.info(this.translate.instant('sitnet_accessibility_updated'));
         });
 
     remove = (accessibility: Accessibility) =>
         this.accessibilityService.removeAccessibility(accessibility.id).subscribe(() => {
             this.accessibilities.splice(this.accessibilities.indexOf(accessibility), 1);
-            toast.info(this.translate.instant('sitnet_accessibility_removed'));
+            this.toast.info(this.translate.instant('sitnet_accessibility_removed'));
         });
 }

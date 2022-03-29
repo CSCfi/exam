@@ -14,7 +14,6 @@
  */
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
 import { UtilityModule } from '../utility/utility.module';
 import { DevLoginComponent } from './dev/devLogin.component';
 import { EulaDialogComponent } from './eula/eulaDialog.component';

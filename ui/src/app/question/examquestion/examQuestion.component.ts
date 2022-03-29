@@ -13,16 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { TransitionService } from '@uirouter/core';
-import * as toast from 'toastr';
-
-import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { WindowRef } from '../../utility/window/window.service';
-import { QuestionService } from '../question.service';
-
+import { ToastrService } from 'ngx-toastr';
 import type {
     ExamSectionQuestion,
     ExamSectionQuestionOption,
@@ -30,17 +24,21 @@ import type {
     Question,
     ReverseQuestion,
 } from '../../exam/exam.model';
+import { AttachmentService } from '../../utility/attachment/attachment.service';
+import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { WindowRef } from '../../utility/window/window.service';
+import { QuestionService } from '../question.service';
 
 // This component depicts a distributed exam question
 @Component({
     selector: 'exam-question',
     templateUrl: './examQuestion.component.html',
 })
-export class ExamQuestionComponent {
+export class ExamQuestionComponent implements OnInit {
     @Input() examQuestion!: ExamSectionQuestion;
     @Input() lotteryOn = false;
-    @Output() onSave = new EventEmitter<{ question: Question; examQuestion: ExamSectionQuestion }>();
-    @Output() onCancel = new EventEmitter<void>();
+    @Output() saved = new EventEmitter<{ question: Question; examQuestion: ExamSectionQuestion }>();
+    @Output() cancelled = new EventEmitter<void>();
 
     question?: ReverseQuestion;
     transitionWatcher?: unknown;
@@ -53,6 +51,7 @@ export class ExamQuestionComponent {
         private http: HttpClient,
         private transition: TransitionService,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Question: QuestionService,
         private Window: WindowRef,
         private Attachment: AttachmentService,
@@ -83,7 +82,7 @@ export class ExamQuestionComponent {
 
     save = () => {
         this.Window.nativeWindow.onbeforeunload = null;
-        this.onSave.emit({
+        this.saved.emit({
             question: this.question as ReverseQuestion,
             examQuestion: this.examQuestion as ExamSectionQuestion,
         });
@@ -91,7 +90,7 @@ export class ExamQuestionComponent {
 
     cancel = () => {
         this.Window.nativeWindow.onbeforeunload = null;
-        this.onCancel.emit();
+        this.cancelled.emit();
     };
 
     private init = () =>
@@ -116,7 +115,7 @@ export class ExamQuestionComponent {
 
     removeOption = (selectedOption: ExamSectionQuestionOption) => {
         if (this.lotteryOn) {
-            toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
             return;
         }
 
@@ -131,13 +130,13 @@ export class ExamQuestionComponent {
         if (!this.isInPublishedExam || hasCorrectAnswer) {
             this.examQuestion.options.splice(this.examQuestion.options.indexOf(selectedOption), 1);
         } else {
-            toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
+            this.toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
         }
     };
 
     addNewOption = () => {
         if (this.lotteryOn) {
-            toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
             return;
         }
         const newOption: ExamSectionQuestionOption = {

@@ -15,20 +15,24 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
-
 import type { Course, Exam } from '../../exam.model';
+
 @Component({
     selector: 'exam-course',
     templateUrl: './examCourse.component.html',
 })
 export class ExamCourseComponent {
     @Input() exam!: Exam;
-    @Output() onUpdate = new EventEmitter<Course>();
+    @Output() updated = new EventEmitter<Course>();
 
-    constructor(private http: HttpClient, private translate: TranslateService, private Exam: CommonExamService) {}
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Exam: CommonExamService,
+    ) {}
 
     displayGradeScale = () =>
         this.exam.course && this.exam.course.gradeScale
@@ -37,8 +41,8 @@ export class ExamCourseComponent {
 
     setCourse = (course: Course) =>
         this.http.put(`/app/exams/${this.exam.id}/course/${course.id}`, {}).subscribe(() => {
-            toast.success(this.translate.instant('sitnet_exam_associated_with_course'));
+            this.toast.success(this.translate.instant('sitnet_exam_associated_with_course'));
             this.exam.course = course;
-            this.onUpdate.emit(course);
+            this.updated.emit(course);
         });
 }

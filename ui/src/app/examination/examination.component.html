@@ -25,7 +25,7 @@
                 *ngIf="exam"
                 [exam]="exam"
                 [activeSection]="activeSection"
-                (onSelect)="selectNewPage($event)"
+                (selected)="selectNewPage($event)"
             >
             </examination-navigation>
         </div>
@@ -38,7 +38,7 @@
                 [exam]="exam"
                 [activeSection]="activeSection"
                 [isPreview]="isPreview"
-                (onPageSelect)="selectNewPage($event)"
+                (pageSelected)="selectNewPage($event)"
                 [isCollaborative]="isCollaborative"
             >
             </examination-toolbar>

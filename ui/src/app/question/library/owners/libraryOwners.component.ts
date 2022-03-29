@@ -12,19 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
-import * as toast from 'toastr';
-
+import type { User } from '../../../session/session.service';
 import { UserService } from '../../../utility/user/user.service';
 import { QuestionService } from '../../question.service';
 
-import type { OnInit } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { Observable } from 'rxjs';
-import type { User } from '../../../session/session.service';
 @Component({
     selector: 'library-owner-selection',
     template: ` <div class="make-inline">
@@ -66,7 +65,12 @@ export class LibraryOwnersComponent implements OnInit {
     teachers: User[] = [];
     selectedTeacherId?: number;
 
-    constructor(private translate: TranslateService, private Question: QuestionService, private User: UserService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Question: QuestionService,
+        private User: UserService,
+    ) {}
 
     ngOnInit() {
         this.User.listUsersByRole$('TEACHER').subscribe((users: User[]) => {
@@ -86,8 +90,8 @@ export class LibraryOwnersComponent implements OnInit {
             map((text) => (text.length < 2 ? [] : this.filterByName(this.teachers, text))),
             take(8),
             catchError((err) => {
-                toast.error(err.data);
-                return throwError(err);
+                this.toast.error(err.data);
+                return throwError(() => new Error(err));
             }),
         );
 
@@ -98,23 +102,23 @@ export class LibraryOwnersComponent implements OnInit {
     addOwnerForSelected = () => {
         // check that atleast one has been selected
         if (this.selections.length === 0) {
-            toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
+            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
             return;
         }
         if (!this.selectedTeacherId) {
-            toast.warning(this.translate.instant('sitnet_add_question_owner'));
+            this.toast.warning(this.translate.instant('sitnet_add_question_owner'));
             return;
         }
 
         this.Question.addOwnerForQuestions$(this.selectedTeacherId, this.selections).subscribe(
             () => {
-                toast.info(this.translate.instant('sitnet_question_owner_added'));
+                this.toast.info(this.translate.instant('sitnet_question_owner_added'));
                 this.selected.emit({
                     user: this.teachers.find((t) => t.id === this.selectedTeacherId) as User,
                     selections: this.selections,
                 });
             },
-            () => toast.info(this.translate.instant('sitnet_update_failed')),
+            () => this.toast.info(this.translate.instant('sitnet_update_failed')),
         );
     };
 }

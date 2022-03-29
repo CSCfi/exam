@@ -16,7 +16,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
-
 import { QuestionModule } from '../question/question.module';
 import { ReviewModule } from '../review/review.module';
 import { UtilityModule } from '../utility/utility.module';

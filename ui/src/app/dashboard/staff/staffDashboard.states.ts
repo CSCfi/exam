@@ -1,5 +1,6 @@
+import type { Ng2StateDeclaration } from '@uirouter/angular';
 import { Transition } from '@uirouter/angular';
-
+import { firstValueFrom } from 'rxjs';
 import { ReportsComponent } from '../../administrative/reports/reports.component';
 import { SettingsComponent } from '../../administrative/settings/settings.component';
 import { StatisticsComponent } from '../../administrative/statistics/statistics.component';
@@ -12,10 +13,12 @@ import { NewExamComponent } from '../../exam/editor/creation/newExam.component';
 import { ExamTabsComponent } from '../../exam/editor/examTabs.component';
 import { ExamPublicationComponent } from '../../exam/editor/publication/examPublication.component';
 import { SectionsListComponent } from '../../exam/editor/sections/sectionsList.component';
+import type { Exam } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { ExamListingComponent } from '../../exam/listing/examList.component';
 import { PrintoutComponent } from '../../exam/printout/printout.component';
 import { PrintoutListingComponent } from '../../exam/printout/printoutListing.component';
+import { ByodExamEventSearchComponent } from '../../exam/search/byodExamEventSearch.component';
 import { ExaminationComponent } from '../../examination/examination.component';
 import { ExamRoomsAdminTabsComponent } from '../../facility/examRoomsAdminTabs.component';
 import { MachineComponent } from '../../facility/machines/machine.component';
@@ -39,10 +42,7 @@ import { SoftwareComponent } from '../../software/software.component';
 import { AdminDashboardComponent } from './admin/adminDashboard.component';
 import { StaffDashboardComponent } from './staffDashboard.component';
 import { TeacherDashboardComponent } from './teacher/teacherDashboard.component';
-import { ByodExamEventSearchComponent } from '../../exam/search/byodExamEventSearch.component';
 
-import type { Ng2StateDeclaration } from '@uirouter/angular';
-import type { Exam } from '../../exam/exam.model';
 export const STAFF_STATES: Ng2StateDeclaration[] = [
     { name: 'staff', url: '/staff', component: StaffDashboardComponent },
     { name: 'staff.teacher', url: '/dashboard/teacher', component: TeacherDashboardComponent },
@@ -92,7 +92,9 @@ export const STAFF_STATES: Ng2StateDeclaration[] = [
                 ) => {
                     const id = transition.params().id;
                     const isCollab = transition.params().collaborative == 'collaborative';
-                    return isCollab ? collabService.download$(id) : examService.downloadExam(id);
+                    return isCollab
+                        ? firstValueFrom(collabService.download$(id))
+                        : firstValueFrom(examService.downloadExam$(id));
                 },
             },
             {
@@ -171,8 +173,8 @@ export const STAFF_STATES: Ng2StateDeclaration[] = [
             {
                 token: 'reviews',
                 deps: [ReviewListService, Transition, 'collaborative'],
-                resolveFn: (reviewList: ReviewListService, transition: Transition, collaborative: boolean) =>
-                    reviewList.getReviews$(transition.params().id, collaborative),
+                resolveFn: async (reviewList: ReviewListService, transition: Transition, collaborative: boolean) =>
+                    await firstValueFrom(reviewList.getReviews$(transition.params().id, collaborative)),
             },
         ],
     },

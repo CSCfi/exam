@@ -14,9 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-
 import type { Observable } from 'rxjs';
-
 import type { Exam, ExamLanguage } from '../../exam/exam.model';
 
 export interface IsoLang {

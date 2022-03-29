@@ -13,27 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { ClozeTestAnswer, ExamParticipation } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
+import type { Examination } from '../../examination/examination.model';
+import type { QuestionAmounts } from '../../question/question.service';
 import { QuestionService } from '../../question/question.service';
+import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import { WindowRef } from '../../utility/window/window.service';
 import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborativeAssessment.service';
 
-import type { Examination } from '../../examination/examination.model';
-import type { ClozeTestAnswer, ExamParticipation } from '../../exam/exam.model';
-import type { QuestionAmounts } from '../../question/question.service';
-import type { User } from '../../session/session.service';
-
 @Component({
     selector: 'assessment',
     templateUrl: './assessment.component.html',
 })
-export class AssessmentComponent {
+export class AssessmentComponent implements OnInit {
     @Input() collaborative = false;
 
     questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
@@ -47,6 +45,7 @@ export class AssessmentComponent {
         private state: StateService,
         private routing: UIRouterGlobals,
         private http: HttpClient,
+        private toast: ToastrService,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Question: QuestionService,
@@ -85,7 +84,7 @@ export class AssessmentComponent {
                 this.exam = exam;
                 this.participation = participation;
             },
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err.data),
         );
     }
 

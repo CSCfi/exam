@@ -14,15 +14,14 @@
  */
 /// <reference types="ckeditor" />
 import { DOCUMENT } from '@angular/common';
+import type { AfterViewChecked, AfterViewInit, OnDestroy } from '@angular/core';
 import { Component, ElementRef, forwardRef, Inject, Input, NgZone, ViewChild } from '@angular/core';
+import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { debounce } from 'lodash';
-
 import { WindowRef } from '../window/window.service';
 
-import type { AfterViewChecked, AfterViewInit, OnDestroy } from '@angular/core';
-import type { ControlValueAccessor } from '@angular/forms';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let CKEDITOR: any;
 

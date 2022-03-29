@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-
 import type { Course } from '../../exam/exam.model';
 
 @Component({

@@ -14,12 +14,10 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import * as toast from 'toastr';
-
-import { SessionService } from '../../../session/session.service';
-
-import type { Exam } from '../../exam.model';
+import { ToastrService } from 'ngx-toastr';
 import type { User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
+import type { Exam } from '../../exam.model';
 
 @Component({
     selector: 'collaborative-exam-owner-selector',
@@ -31,7 +29,7 @@ export class CollaborativeExamOwnerSelectorComponent {
     user: User;
     newOwner: { email: string | undefined } = { email: undefined };
 
-    constructor(private http: HttpClient, private Session: SessionService) {
+    constructor(private http: HttpClient, private toast: ToastrService, private Session: SessionService) {
         this.user = this.Session.getUser();
     }
 
@@ -43,7 +41,7 @@ export class CollaborativeExamOwnerSelectorComponent {
                     this.exam.examOwners.push(user);
                     delete this.newOwner.email;
                 },
-                (resp) => toast.error(resp.data),
+                (resp) => this.toast.error(resp.data),
             );
         }
     };
@@ -51,7 +49,7 @@ export class CollaborativeExamOwnerSelectorComponent {
     removeOwner = (id: number) => {
         this.http.delete(`/app/iop/exams/${this.exam.id}/owners/${id}`).subscribe(
             () => (this.exam.examOwners = this.exam.examOwners.filter((o) => o.id !== id)),
-            (resp) => toast.error(resp.data),
+            (resp) => this.toast.error(resp.data),
         );
     };
 }

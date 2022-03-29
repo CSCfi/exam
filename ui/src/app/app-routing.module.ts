@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import type { Ng2StateDeclaration, UIRouter } from '@uirouter/angular';
 import { UIRouterModule } from '@uirouter/angular';
-
 import { AppComponent } from './app.component';
 import { CalendarComponent } from './calendar/calendar.component';
 import { StudentDashboardComponent } from './dashboard/student/studentDashboard.component';
@@ -29,7 +29,6 @@ import { ExaminationComponent } from './examination/examination.component';
 import { ExaminationLogoutComponent } from './examination/logout/examinationLogout.component';
 import { LogoutComponent } from './session/logout/logout.component';
 
-import type { UIRouter, Ng2StateDeclaration } from '@uirouter/angular';
 function uiRouterConfigFn(router: UIRouter) {
     // Configure the initial state
     // If the browser URL doesn't matches any state when the router starts,

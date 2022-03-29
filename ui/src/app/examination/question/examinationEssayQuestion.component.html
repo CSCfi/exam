@@ -29,7 +29,7 @@
 
 <div class="row mt-3">
     <div class="col-md-3 question-type-text">
-        <span *ngIf="sq.evaluationType == 'Selection'">
+        <span *ngIf="sq.evaluationType === 'Selection'">
             {{ 'sitnet_evaluation_select' | translate }}
         </span>
         <span *ngIf="sq.evaluationType !== 'Selection'">

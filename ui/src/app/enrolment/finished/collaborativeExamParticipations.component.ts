@@ -13,17 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { ChangeDetectorRef, Component } from '@angular/core';
-
+import type { OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
+import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
 import { EnrolmentService } from '../enrolment.service';
 
-import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
-import type { OnInit } from '@angular/core';
 @Component({
     selector: 'collaborative-exam-participations',
     templateUrl: './examParticipations.component.html',
 })
-export class CollaborativeParticipationsComponent implements OnInit {
+export class CollaborativeParticipationsComponent implements OnInit, AfterViewInit {
     collaborative = true;
     originals: CollaborativeParticipation[] = [];
     participations: CollaborativeParticipation[] = [];
@@ -31,7 +31,11 @@ export class CollaborativeParticipationsComponent implements OnInit {
     currentPage = 0;
     filter = { ordering: 'ended', reverse: true, text: '' };
 
-    constructor(private changeDetector: ChangeDetectorRef, private Enrolment: EnrolmentService) {}
+    constructor(
+        private changeDetector: ChangeDetectorRef,
+        private toast: ToastrService,
+        private Enrolment: EnrolmentService,
+    ) {}
 
     ngOnInit() {
         this.Enrolment.listStudentParticipations$().subscribe(
@@ -42,7 +46,7 @@ export class CollaborativeParticipationsComponent implements OnInit {
                 this.originals = participations;
                 this.search('');
             },
-            (err) => toastr.error(err.data),
+            (err) => this.toast.error(err),
         );
     }
 

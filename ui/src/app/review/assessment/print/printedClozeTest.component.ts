@@ -14,7 +14,6 @@
  */
 import { Component, Input } from '@angular/core';
 import { isNumber } from 'lodash';
-
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({

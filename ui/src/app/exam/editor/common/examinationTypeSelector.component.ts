@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgbAccordion, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-
 import { ExamService } from '../../exam.service';
 
 export type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
@@ -32,7 +31,7 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
                         </ng-template>
                     </ngb-panel>
                     <ngb-panel
-                        [disabled]="!selectedType || selectedType.examinationTypes.length == 0"
+                        [disabled]="!selectedType || selectedType.examinationTypes.length === 0"
                         id="toggle-2"
                         title="{{ 'sitnet_examination_type' | translate }}"
                     >
@@ -54,7 +53,7 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
         </div>
     `,
 })
-export class ExaminationTypeSelectorComponent {
+export class ExaminationTypeSelectorComponent implements OnInit {
     executionTypes: ExamConfig[] = [];
     selectedType!: ExamConfig;
 

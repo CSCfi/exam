@@ -12,18 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
-
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { WindowRef } from '../../utility/window/window.service';
-import { ExaminationService } from '../examination.service';
-
 import type { Examination, ExaminationSection } from '../examination.model';
+import { ExaminationService } from '../examination.service';
 
 @Component({
     selector: 'examination-section',
     templateUrl: './examinationSection.component.html',
 })
-export class ExaminationSectionComponent {
+export class ExaminationSectionComponent implements OnInit, OnDestroy {
     @Input() exam!: Examination;
     @Input() section!: ExaminationSection;
     @Input() index?: number;

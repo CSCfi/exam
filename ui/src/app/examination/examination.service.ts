@@ -17,15 +17,14 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { isEmpty, isInteger } from 'lodash';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { concat, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { WindowRef } from '../utility/window/window.service';
-
-import type { Observable } from 'rxjs';
 import type { ClozeTestAnswer, EssayAnswer } from '../exam/exam.model';
-import type { ExaminationQuestion, Examination, ExaminationSection } from './examination.model';
+import { WindowRef } from '../utility/window/window.service';
+import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
+
 @Injectable()
 export class ExaminationService {
     isExternal = false;
@@ -34,6 +33,7 @@ export class ExaminationService {
         private state: StateService,
         private http: HttpClient,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Window: WindowRef,
     ) {}
 
@@ -82,7 +82,7 @@ export class ExaminationService {
                     esq.autosaved = new Date();
                 } else {
                     if (!canFail) {
-                        toast.info(this.translate.instant('sitnet_answer_saved'));
+                        this.toast.info(this.translate.instant('sitnet_answer_saved'));
                     }
                 }
                 answerObj.objectVersion = a.objectVersion;
@@ -90,9 +90,9 @@ export class ExaminationService {
             }),
             catchError((err) => {
                 if (!canFail) {
-                    toast.error(err);
+                    this.toast.error(err);
                 }
-                return throwError(err);
+                return throwError(() => new Error(err));
             }),
         );
     };
@@ -183,11 +183,11 @@ export class ExaminationService {
             const url = this.getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
             this.http.post(url, { oids: ids }).subscribe(
                 () => {
-                    toast.info(this.translate.instant('sitnet_answer_saved'));
+                    this.toast.info(this.translate.instant('sitnet_answer_saved'));
                     sq.options.forEach((o) => (o.answered = ids.indexOf(o.id as number) > -1));
                     this.setQuestionColors(sq);
                 },
-                (resp) => toast.error(resp),
+                (resp) => this.toast.error(resp),
             );
         } else {
             this.setQuestionColors(sq);
@@ -214,13 +214,13 @@ export class ExaminationService {
 
     logout = (msg: string, hash: string, quitLinkEnabled: boolean, canFail: boolean) => {
         const ok = () => {
-            toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
+            this.toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
             this.Window.nativeWindow.onbeforeunload = null;
             this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
         };
         const url = this.getResource('/app/student/exam/' + hash);
         this.http.put<void>(url, {}).subscribe(ok, (resp) => {
-            if (!canFail) toast.error(this.translate.instant(resp));
+            if (!canFail) this.toast.error(this.translate.instant(resp));
             else ok();
         });
     };

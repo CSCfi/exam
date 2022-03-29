@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { range as _range } from 'lodash';
 
-import type { OnChanges, SimpleChanges } from '@angular/core';
 @Component({
     selector: 'paginator',
     template: `
@@ -32,7 +32,7 @@ export class PaginatorComponent implements OnChanges {
     @Input() items: unknown[] = [];
     @Input() pageSize = 1;
     @Input() currentPage = 0;
-    @Output() onSelectPage = new EventEmitter<{ page: number }>();
+    @Output() pageSelected = new EventEmitter<{ page: number }>();
 
     pageCount = 0;
 
@@ -41,7 +41,7 @@ export class PaginatorComponent implements OnChanges {
             this.pageCount = Math.ceil(this.items.length / this.pageSize) - 1;
             // Go to first page always when the underlying collection gets modified
             this.currentPage = 0;
-            this.onSelectPage.emit({ page: 0 });
+            this.pageSelected.emit({ page: 0 });
         }
     }
 
@@ -50,7 +50,7 @@ export class PaginatorComponent implements OnChanges {
     previousPage = () => {
         if (this.currentPage > 0) {
             this.currentPage--;
-            this.onSelectPage.emit({ page: this.currentPage });
+            this.pageSelected.emit({ page: this.currentPage });
         }
     };
 
@@ -61,7 +61,7 @@ export class PaginatorComponent implements OnChanges {
     nextPage = () => {
         if (this.currentPage < this.pageCount) {
             this.currentPage++;
-            this.onSelectPage.emit({ page: this.currentPage });
+            this.pageSelected.emit({ page: this.currentPage });
         }
     };
 
@@ -71,6 +71,6 @@ export class PaginatorComponent implements OnChanges {
 
     setPage = (n: number) => {
         this.currentPage = n;
-        this.onSelectPage.emit({ page: n });
+        this.pageSelected.emit({ page: n });
     };
 }

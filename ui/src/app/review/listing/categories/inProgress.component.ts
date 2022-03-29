@@ -12,24 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { noop } from 'rxjs';
-
-import { SessionService } from '../../../session/session.service';
-import { FileService } from '../../../utility/file/file.service';
-import { ArchiveDownloadComponent } from '../dialogs/archiveDownload.component';
-import { ReviewListService } from '../reviewList.service';
-
 import type { Exam } from '../../../exam/exam.model';
 import type { User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
+import { FileService } from '../../../utility/file/file.service';
 import type { Review } from '../../review.model';
+import { ArchiveDownloadComponent } from '../dialogs/archiveDownload.component';
 import type { ReviewListView } from '../reviewList.service';
+import { ReviewListService } from '../reviewList.service';
+
 @Component({
     selector: 'rl-in-progress',
     templateUrl: './inProgress.component.html',
 })
-export class InProgressReviewsComponent {
+export class InProgressReviewsComponent implements OnInit {
     @Input() exam!: Exam;
     @Input() reviews: Review[] = [];
     @Input() collaborative = false;

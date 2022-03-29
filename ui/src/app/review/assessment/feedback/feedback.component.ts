@@ -14,15 +14,13 @@
  */
 import { Component, Input } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
-
+import type { ExamParticipation } from '../../../exam/exam.model';
+import type { Examination } from '../../../examination/examination.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
+import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 import { FileService } from '../../../utility/file/file.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
-
-import type { ExamParticipation } from '../../../exam/exam.model';
-import type { Examination } from '../../../examination/examination.model';
-import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 
 @Component({
     selector: 'r-feedback',

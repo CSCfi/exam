@@ -11,11 +11,11 @@
         <div class="p-4 row">
             <div class="col-md-2 pt-1 reservation-search-titles">
                 <strong>{{ 'sitnet_begin' | translate }}</strong>
-                <date-picker (onUpdate)="startDateChanged($event)"></date-picker>
+                <date-picker (updated)="startDateChanged($event)"></date-picker>
             </div>
             <div class="col-md-2 pt-1 reservation-search-titles">
                 <strong>{{ 'sitnet_end' | translate }}</strong>
-                <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
+                <date-picker (updated)="endDateChanged($event)"></date-picker>
             </div>
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{ 'sitnet_student' | translate }}</strong>
@@ -23,7 +23,7 @@
                     *ngIf="studentOptions"
                     [fullWidth]="true"
                     [options]="studentOptions"
-                    (onSelect)="studentChanged($event)"
+                    (optionSelected)="studentChanged($event)"
                 >
                 </dropdown-select>
             </div>
@@ -33,7 +33,7 @@
                     *ngIf="examOptions"
                     [fullWidth]="true"
                     [options]="examOptions"
-                    (onSelect)="examChanged($event)"
+                    (optionSelected)="examChanged($event)"
                 >
                 </dropdown-select>
             </div>
@@ -43,7 +43,7 @@
                     *ngIf="stateOptions"
                     [fullWidth]="true"
                     [options]="stateOptions"
-                    (onSelect)="stateChanged($event)"
+                    (optionSelected)="stateChanged($event)"
                 >
                 </dropdown-select>
             </div>

@@ -13,9 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-
 import { DateTimeService } from '../../utility/date/date.service';
-
 import type { Examination } from '../examination.model';
 
 @Component({

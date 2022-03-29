@@ -12,19 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-
 import type { SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import type { Examination, ExaminationSection, NavigationPage } from '../examination.model';
 
 @Component({
     selector: 'examination-navigation',
     templateUrl: './examinationNavigation.component.html',
 })
-export class ExaminationNavigationComponent {
+export class ExaminationNavigationComponent implements OnInit, OnChanges {
     @Input() exam!: Examination;
     @Input() activeSection?: ExaminationSection;
-    @Output() onSelect = new EventEmitter<{ page: Partial<NavigationPage> }>();
+    @Output() selected = new EventEmitter<{ page: Partial<NavigationPage> }>();
 
     pages: Partial<NavigationPage>[] = [];
     next!: Partial<NavigationPage>;
@@ -67,6 +66,6 @@ export class ExaminationNavigationComponent {
 
     private prevPageIndex = () => this.activePageIndex() - 1;
 
-    nextPage = () => this.onSelect.emit({ page: this.next });
-    previousPage = () => this.onSelect.emit({ page: this.prev });
+    nextPage = () => this.selected.emit({ page: this.next });
+    previousPage = () => this.selected.emit({ page: this.prev });
 }

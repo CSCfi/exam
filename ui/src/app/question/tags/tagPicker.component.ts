@@ -14,14 +14,13 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { from } from 'rxjs';
-import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
-
-import { QuestionDraft } from '../question.service';
-
 import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { Observable } from 'rxjs';
+import { from } from 'rxjs';
+import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 import type { Question, Tag } from '../../exam/exam.model';
+import { QuestionDraft } from '../question.service';
+
 @Component({
     selector: 'tag-picker',
     templateUrl: './tagPicker.component.html',

@@ -86,18 +86,16 @@ public class ExaminationRepository {
             .stream()
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
-            .forEach(
-                esq -> {
-                    ClozeTestAnswer answer = esq.getClozeTestAnswer();
-                    if (answer == null) {
-                        answer = new ClozeTestAnswer();
-                    }
-                    answer.setQuestion(esq);
-                    esq.setClozeTestAnswer(answer);
-                    esq.update();
-                    questionsToHide.add(esq.getQuestion());
+            .forEach(esq -> {
+                ClozeTestAnswer answer = esq.getClozeTestAnswer();
+                if (answer == null) {
+                    answer = new ClozeTestAnswer();
                 }
-            );
+                answer.setQuestion(esq);
+                esq.setClozeTestAnswer(answer);
+                esq.update();
+                questionsToHide.add(esq.getQuestion());
+            });
         questionsToHide.forEach(q -> q.setQuestion(null));
     }
 

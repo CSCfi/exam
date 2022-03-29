@@ -13,26 +13,30 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import { EnrolmentService } from '../../../enrolment/enrolment.service';
 import { User } from '../../../session/session.service';
-
 import type { Exam, ExamParticipation } from '../../exam.model';
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+
 @Component({
     selector: 'exam-pre-participant-selector',
     templateUrl: './examPreParticipantSelector.component.html',
 })
-export class ExamPreParticipantSelectorComponent {
+export class ExamPreParticipantSelectorComponent implements OnInit {
     @Input() exam!: Exam;
 
     participants: User[] = [];
     newPreParticipant: { email?: string } = { email: '' };
 
-    constructor(private translate: TranslateService, private http: HttpClient, private Enrolment: EnrolmentService) {}
+    constructor(
+        private translate: TranslateService,
+        private http: HttpClient,
+        private toast: ToastrService,
+        private Enrolment: EnrolmentService,
+    ) {}
 
     ngOnInit() {
         this.participants = this.exam.children
@@ -50,7 +54,7 @@ export class ExamPreParticipantSelectorComponent {
                     this.exam.examEnrolments.push(enrolment);
                     delete this.newPreParticipant.email;
                 },
-                (error) => toast.error(error),
+                (error) => this.toast.error(error),
             );
         }
     };
@@ -59,9 +63,9 @@ export class ExamPreParticipantSelectorComponent {
         this.http.delete(`/app/enrolments/student/${id}`).subscribe(
             () => {
                 this.exam.examEnrolments = this.exam.examEnrolments.filter((ee) => ee.id !== id);
-                toast.info(this.translate.instant('sitnet_participant_removed'));
+                this.toast.info(this.translate.instant('sitnet_participant_removed'));
             },
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err.data),
         );
     };
 

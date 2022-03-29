@@ -13,25 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
 import { parseISO, roundToNearestMinutes } from 'date-fns';
-
+import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import type { Exam, ExamParticipation } from '../../../exam/exam.model';
+import type { Reservation } from '../../../reservation/reservation.model';
+import type { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { DateTimeService } from '../../../utility/date/date.service';
 
-import type { Exam } from '../../../exam/exam.model';
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import type { ExamParticipation } from '../../../exam/exam.model';
-import type { Reservation } from '../../../reservation/reservation.model';
-import type { User } from '../../../session/session.service';
 export type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
     selector: 'r-general-info',
     templateUrl: './generalInfo.component.html',
 })
-export class GeneralInfoComponent {
+export class GeneralInfoComponent implements OnInit {
     @Input() exam!: Exam;
     @Input() participation!: Participation;
     @Input() collaborative = false;

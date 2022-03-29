@@ -12,17 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Output } from '@angular/core';
-import { tap } from 'rxjs/operators';
-
-import { SessionService } from '../../../session/session.service';
-import { LibraryService } from '../library.service';
-
 import type { OnInit } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import type { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import type { Course, Exam, ExamSection, Tag } from '../../../exam/exam.model';
 import type { User } from '../../../session/session.service';
+import { SessionService } from '../../../session/session.service';
 import type { LibraryQuestion } from '../library.service';
+import { LibraryService } from '../library.service';
+
 interface Filterable<T> {
     id: number;
     filtered: boolean;
@@ -36,7 +35,7 @@ interface Filterable<T> {
     templateUrl: './librarySearch.component.html',
 })
 export class LibrarySearchComponent implements OnInit {
-    @Output() onUpdate: EventEmitter<LibraryQuestion[]> = new EventEmitter<LibraryQuestion[]>();
+    @Output() updated: EventEmitter<LibraryQuestion[]> = new EventEmitter<LibraryQuestion[]>();
 
     filter = { owner: '', text: '' };
     limitations = { exam: '', course: '', tag: '' };
@@ -86,7 +85,7 @@ export class LibrarySearchComponent implements OnInit {
     applySearchFilter = () => {
         let results = this.Library.applyFreeSearchFilter(this.filter.text, this.questions);
         results = this.Library.applyOwnerSearchFilter(this.filter.owner, results);
-        this.onUpdate.emit(results);
+        this.updated.emit(results);
         this.saveFilters();
     };
 
@@ -102,11 +101,11 @@ export class LibrarySearchComponent implements OnInit {
                 if (this.filter.text || this.filter.owner) {
                     this.applySearchFilter();
                 } else {
-                    this.onUpdate.emit(questions);
+                    this.updated.emit(questions);
                 }
             });
         } else {
-            this.query().subscribe((resp) => this.onUpdate.emit(resp));
+            this.query().subscribe((resp) => this.updated.emit(resp));
         }
     }
 

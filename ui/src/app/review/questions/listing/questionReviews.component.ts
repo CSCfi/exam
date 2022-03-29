@@ -12,19 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { StateService } from '@uirouter/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import { ExamTabService } from '../../../exam/editor/examTabs.service';
+import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
-import type { QuestionReview } from '../../review.model';
 @Component({
     selector: 'question-reviews',
     templateUrl: './questionReviews.component.html',
 })
-export class QuestionReviewsComponent {
+export class QuestionReviewsComponent implements OnInit {
     @Input() examId = 0;
     reviews: QuestionReview[] = [];
     selectedReviews: number[] = [];
@@ -32,6 +31,7 @@ export class QuestionReviewsComponent {
 
     constructor(
         private state: StateService,
+        private toast: ToastrService,
         private QuestionReview: QuestionReviewService,
         private Tabs: ExamTabService,
     ) {}
@@ -39,7 +39,7 @@ export class QuestionReviewsComponent {
     ngOnInit() {
         this.QuestionReview.getReviews$(this.examId).subscribe(
             (resp) => (this.reviews = resp),
-            (err) => toast.error(err),
+            (err) => this.toast.error(err),
         );
         this.Tabs.notifyTabChange(5);
     }

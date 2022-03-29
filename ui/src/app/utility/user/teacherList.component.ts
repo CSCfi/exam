@@ -12,11 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
-
-import type { User } from '../../session/session.service';
-import type { ExamInspection } from '../../exam/exam.model';
 import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import type { ExamInspection } from '../../exam/exam.model';
+import type { User } from '../../session/session.service';
 
 type Personnel = { examInspections: ExamInspection[]; examOwners: User[] };
 @Component({

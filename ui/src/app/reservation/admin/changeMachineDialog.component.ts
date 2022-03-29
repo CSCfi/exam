@@ -15,16 +15,14 @@
  *
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
-import type { Reservation } from '../reservation.model';
-
-import type { OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import type { Option } from '../../utility/select/dropDownSelect.component';
-import type { ExamMachine } from '../reservation.model';
+import type { ExamMachine, Reservation } from '../reservation.model';
+
 @Component({
     selector: 'change-machine-dialog',
     templateUrl: './changeMachineDialog.component.html',
@@ -35,7 +33,12 @@ export class ChangeMachineDialogComponent implements OnInit {
     selection?: ExamMachine;
     availableMachineOptions: Option<ExamMachine, number>[] = [];
 
-    constructor(public activeModal: NgbActiveModal, private http: HttpClient, private translate: TranslateService) {}
+    constructor(
+        public activeModal: NgbActiveModal,
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     ngOnInit() {
         this.http.get<ExamMachine[]>(`/app/reservations/${this.reservation.id}/machines`).subscribe(
@@ -57,10 +60,10 @@ export class ChangeMachineDialogComponent implements OnInit {
             .put<ExamMachine>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection?.id })
             .subscribe(
                 (resp) => {
-                    toast.info(this.translate.instant('sitnet_updated'));
+                    this.toast.info(this.translate.instant('sitnet_updated'));
                     this.activeModal.close(resp);
                 },
-                (err) => toast.error(err.data),
+                (err) => this.toast.error(err.data),
             );
 
     cancel = () => this.activeModal.dismiss();

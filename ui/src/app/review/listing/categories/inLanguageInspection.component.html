@@ -157,7 +157,7 @@
                 </td>
                 <td class="table-column-15">{{ review.examParticipation.exam.gradedTime | date: 'dd.MM.yyyy' }}</td>
             </tr>
-            <tr *ngIf="view.filtered.length == 0">
+            <tr *ngIf="view.filtered.length === 0">
                 <td *ngIf="showId()" class="table-column-examname" colspan="9">
                     {{ 'sitnet_review_no_result' | translate }}
                 </td>
@@ -179,7 +179,7 @@
         <paginator
             [items]="view.filtered"
             [pageSize]="view.pageSize"
-            (onSelectPage)="pageSelected($event)"
+            (pageSelected)="pageSelected($event)"
             [currentPage]="view.page"
         >
         </paginator>

@@ -12,12 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
 import { addHours, formatISO, parseISO } from 'date-fns';
-
 import { DateTimeService } from './date.service';
 
-import type { PipeTransform } from '@angular/core';
 @Pipe({ name: 'applyDst' })
 export class ApplyDstPipe implements PipeTransform {
     constructor(private DateTime: DateTimeService) {}

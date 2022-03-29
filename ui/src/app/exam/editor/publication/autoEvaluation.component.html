@@ -137,7 +137,7 @@
             <div class="row" *ngIf="selectedReleaseType()?.name === 'GIVEN_DATE'">
                 <div class="col-md-6">
                     <date-picker
-                        (onUpdate)="releaseDateChanged($event)"
+                        (updated)="releaseDateChanged($event)"
                         [initialDate]="config ? config.releaseDate : null"
                     ></date-picker>
                 </div>

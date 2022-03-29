@@ -12,24 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { MaintenancePeriod } from '../exam/exam.model';
+import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
 import { WindowRef } from '../utility/window/window.service';
 import { RoomService } from './rooms/room.service';
 import { MaintenancePeriodDialogComponent } from './schedule/maintenancePeriodDialog.component';
 
-import type { MaintenancePeriod } from '../exam/exam.model';
-import type { User } from '../session/session.service';
 @Component({
     templateUrl: './examRoomsAdminTabs.component.html',
     selector: 'exam-rooms-admin-tabs',
 })
-export class ExamRoomsAdminTabsComponent {
+export class ExamRoomsAdminTabsComponent implements OnInit {
     user: User;
     maintenancePeriods: MaintenancePeriod[] = [];
 
@@ -39,6 +38,7 @@ export class ExamRoomsAdminTabsComponent {
         private session: SessionService,
         private window: WindowRef,
         private state: StateService,
+        private toast: ToastrService,
         private room: RoomService,
     ) {
         this.user = this.session.getUser();
@@ -51,11 +51,11 @@ export class ExamRoomsAdminTabsComponent {
     createExamRoom = () => {
         this.room.getDraft$().subscribe(
             (room) => {
-                toast.info(this.translate.instant('sitnet_room_draft_created'));
+                this.toast.info(this.translate.instant('sitnet_room_draft_created'));
                 this.state.go('staff.room', { id: room.id });
             },
             (error) => {
-                toast.error(error.data);
+                this.toast.error(error.data);
             },
         );
     };
@@ -70,13 +70,13 @@ export class ExamRoomsAdminTabsComponent {
             .then((res: MaintenancePeriod) => {
                 this.room.createMaintenancePeriod$(res).subscribe(
                     (mp) => {
-                        toast.info(this.translate.instant('sitnet_created'));
+                        this.toast.info(this.translate.instant('sitnet_created'));
                         this.maintenancePeriods.push(mp);
                     },
-                    (err) => toast.error(err),
+                    (err) => this.toast.error(err),
                 );
             })
-            .catch((err) => toast.error(err));
+            .catch((err) => this.toast.error(err));
     };
 
     updatePeriod = (period: MaintenancePeriod) => {
@@ -90,23 +90,23 @@ export class ExamRoomsAdminTabsComponent {
             .then((res: MaintenancePeriod) => {
                 this.room.updateMaintenancePeriod$(res).subscribe(
                     () => {
-                        toast.info(this.translate.instant('sitnet_updated'));
+                        this.toast.info(this.translate.instant('sitnet_updated'));
                         const index = this.maintenancePeriods.indexOf(res);
                         this.maintenancePeriods.splice(index, 1, res);
                     },
-                    (err) => toast.error(err),
+                    (err) => this.toast.error(err),
                 );
             })
-            .catch((err) => toast.error(err));
+            .catch((err) => this.toast.error(err));
     };
 
     removePeriod = (period: MaintenancePeriod) => {
         this.room.removeMaintenancePeriod$(period).subscribe(
             () => {
-                toast.info(this.translate.instant('sitnet_removed'));
+                this.toast.info(this.translate.instant('sitnet_removed'));
                 this.maintenancePeriods.splice(this.maintenancePeriods.indexOf(period), 1);
             },
-            (err) => toast.error(err),
+            (err) => this.toast.error(err),
         );
     };
 

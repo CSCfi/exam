@@ -16,16 +16,15 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
 import { from, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
+import type { Exam } from '../../../exam/exam.model';
+import type { LanguageInspection } from '../../../maturity/maturity.model';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { AssessmentService } from '../assessment.service';
 
-import type { Exam } from '../../../exam/exam.model';
-import type { LanguageInspection } from '../../../maturity/maturity.model';
 type State = {
     id: number;
     name: StateName;
@@ -124,6 +123,7 @@ export class MaturityService {
         private http: HttpClient,
         private state: StateService,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private Assessment: AssessmentService,
         private Session: SessionService,
@@ -187,7 +187,7 @@ export class MaturityService {
         switch (state) {
             case StateName.REJECT_STRAIGHTAWAY:
                 this.Assessment.rejectMaturity$(exam).subscribe(() => {
-                    toast.info(this.translate.instant('sitnet_maturity_rejected'));
+                    this.toast.info(this.translate.instant('sitnet_maturity_rejected'));
                     const state = this.Assessment.getExitState(exam);
                     this.state.go(state.name as string, state.params);
                 });
@@ -220,12 +220,12 @@ export class MaturityService {
                 switchMap(() => this.http.put(`app/review/${exam.id}`, this.Assessment.getPayload(exam, 'GRADED'))),
                 switchMap(() => this.http.post('/app/inspection', { examId: exam.id })),
                 catchError((err) => {
-                    toast.error(err.data);
+                    this.toast.error(err.data);
                     return throwError(err);
                 }),
             )
             .subscribe(() => {
-                toast.info(this.translate.instant('sitnet_sent_for_language_inspection'));
+                this.toast.info(this.translate.instant('sitnet_sent_for_language_inspection'));
                 const state = this.Assessment.getExitState(exam);
                 this.state.go(state.name as string, state.params);
             });
@@ -250,10 +250,10 @@ export class MaturityService {
             )
             .subscribe(() => {
                 if (reject) {
-                    toast.info(this.translate.instant('sitnet_maturity_rejected'));
+                    this.toast.info(this.translate.instant('sitnet_maturity_rejected'));
                     this.state.go('staff.languageInspections');
                 } else {
-                    toast.info(this.translate.instant('sitnet_review_recorded'));
+                    this.toast.info(this.translate.instant('sitnet_review_recorded'));
                     this.state.go('staff.languageInspections');
                 }
             });

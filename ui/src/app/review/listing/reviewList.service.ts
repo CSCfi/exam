@@ -15,11 +15,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import type { Observable } from 'rxjs';
 import type { ExamParticipation } from '../../exam/exam.model';
 import type { Review } from '../review.model';
 
@@ -38,7 +37,7 @@ export type ReviewListView = {
 
 @Injectable()
 export class ReviewListService {
-    constructor(private http: HttpClient, private translate: TranslateService) {}
+    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
         if (review.user) return `${review.user.lastName} ${review.user.firstName}`;
@@ -145,7 +144,7 @@ export class ReviewListService {
     getSelectedReviews = (items: Review[]) => {
         const objects = items.filter((i) => i.selected);
         if (objects.length === 0) {
-            toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
+            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
         }
         return objects;
     };
@@ -173,7 +172,7 @@ export class ReviewListService {
                 return this.http.post<ExamParticipation>(resource, examToRecord);
             }
         } else {
-            toast.error(this.translate.instant('sitnet_failed_to_record_review'));
+            this.toast.error(this.translate.instant('sitnet_failed_to_record_review'));
             return of();
         }
     };
@@ -182,7 +181,7 @@ export class ReviewListService {
     sendToRegistry$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'GRADED_LOGGED', examId);
 
     getReviews$ = (examId: number, collaborative = false) =>
-        this.http.get<ExamParticipation[]>(this.getResource(examId, collaborative)).toPromise();
+        this.http.get<ExamParticipation[]>(this.getResource(examId, collaborative));
 
     private getResource = (examId: number, collaborative: boolean) =>
         collaborative ? `/app/iop/reviews/${examId}` : `/app/reviews/${examId}`;

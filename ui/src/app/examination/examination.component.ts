@@ -12,23 +12,22 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
-
 import { EnrolmentService } from '../enrolment/enrolment.service';
 import { SessionService } from '../session/session.service';
 import { WindowRef } from '../utility/window/window.service';
+import type { Examination, ExaminationSection, NavigationPage } from './examination.model';
 import { ExaminationService } from './examination.service';
 
-import type { Examination, ExaminationSection, NavigationPage } from './examination.model';
 @Component({
     selector: 'examination',
     templateUrl: './examination.component.html',
 })
-export class ExaminationComponent {
+export class ExaminationComponent implements OnInit, OnDestroy {
     @Input() isCollaborative = false;
     exam!: Examination;
     activeSection?: ExaminationSection;
@@ -116,7 +115,6 @@ export class ExaminationComponent {
         if (i >= 0) {
             return this.exam.examSections[i];
         }
-        throw Error("invalid index");
-        
+        throw Error('invalid index');
     };
 }

@@ -13,19 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
 import { addHours, format, parseISO } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { ExamMachine, ExamRoom, Reservation } from '../../reservation/reservation.model';
 import { DateTimeService } from '../../utility/date/date.service';
+import type { ExamEnrolment } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
-import type { OnInit } from '@angular/core';
-import type { ExamMachine, ExamRoom, Reservation } from '../../reservation/reservation.model';
-import type { ExamEnrolment } from '../enrolment.model';
 @Component({
     selector: 'wrong-location',
     templateUrl: './wrongLocation.component.html',
@@ -44,6 +43,7 @@ export class WrongLocationComponent implements OnInit {
         private http: HttpClient,
         private routing: UIRouterGlobals,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Enrolment: EnrolmentService,
         private DateTime: DateTimeService,
     ) {}
@@ -77,7 +77,7 @@ export class WrongLocationComponent implements OnInit {
                         .get<ExamMachine>(`/app/machines/${this.routing.params.mid}`)
                         .subscribe((machine) => (this.currentMachine = machine));
                 },
-                (err) => toast.error(err.data),
+                (err) => this.toast.error(err),
             );
         }
     }

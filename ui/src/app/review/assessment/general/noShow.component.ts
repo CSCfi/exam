@@ -12,8 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
-
+import { Component, Input, OnInit } from '@angular/core';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
 @Component({
@@ -29,7 +28,7 @@ import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
             </div>
         </div>`,
 })
-export class NoShowComponent {
+export class NoShowComponent implements OnInit {
     @Input() enrolment!: ExamEnrolment;
     @Input() collaborative = false;
 

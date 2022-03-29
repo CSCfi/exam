@@ -16,18 +16,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { FileService } from '../file/file.service';
-import { AttachmentSelectorComponent } from './dialogs/attachmentSelector.component';
-
+import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import type { ReviewedExam } from '../../enrolment/enrolment.model';
 import type { Exam, ExamParticipation, ExamSectionQuestion, Question } from '../../exam/exam.model';
 import type { Examination } from '../../examination/examination.model';
 import type { ReviewQuestion } from '../../review/review.model';
+import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { FileService } from '../file/file.service';
 import type { FileResult } from './dialogs/attachmentSelector.component';
+import { AttachmentSelectorComponent } from './dialogs/attachmentSelector.component';
 
 export interface AnsweredQuestion {
     id: number;
@@ -40,6 +38,7 @@ export class AttachmentService {
         private http: HttpClient,
         private modal: NgbModal,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Files: FileService,
     ) {}
 
@@ -104,11 +103,11 @@ export class AttachmentService {
         dialog.result.then(() => {
             this.http.delete<{ objectVersion?: number }>(url, {}).subscribe(
                 (resp) => {
-                    toast.info(this.translate.instant('sitnet_attachment_removed'));
+                    this.toast.info(this.translate.instant('sitnet_attachment_removed'));
                     question.essayAnswer.objectVersion = resp?.objectVersion ? resp.objectVersion : 0;
                     delete question.essayAnswer.attachment;
                 },
-                (err) => toast.error(err),
+                (err) => this.toast.error(err),
             );
         });
     }
@@ -122,10 +121,10 @@ export class AttachmentService {
             const api = collaborative ? this.collaborativeExamAttachmentApi : this.examAttachmentApi;
             this.http.delete(api(exam.id)).subscribe(
                 () => {
-                    toast.info(this.translate.instant('sitnet_attachment_removed'));
+                    this.toast.info(this.translate.instant('sitnet_attachment_removed'));
                     delete exam.attachment;
                 },
-                (err) => toast.error(err),
+                (err) => this.toast.error(err),
             );
         });
     }
@@ -138,10 +137,10 @@ export class AttachmentService {
         dialog.result.then(() => {
             this.http.delete(this.feedbackAttachmentApi(exam.id)).subscribe(
                 () => {
-                    toast.info(this.translate.instant('sitnet_attachment_removed'));
+                    this.toast.info(this.translate.instant('sitnet_attachment_removed'));
                     delete exam.examFeedback?.attachment;
                 },
-                (err) => toast.error(err),
+                (err) => this.toast.error(err),
             );
         });
     }
@@ -154,11 +153,11 @@ export class AttachmentService {
         dialog.result.then(() => {
             this.http.delete<{ rev: string }>(`/app/iop/collab/attachment/exam/${id}/${ref}/feedback`).subscribe(
                 (resp) => {
-                    toast.info(this.translate.instant('sitnet_attachment_removed'));
+                    this.toast.info(this.translate.instant('sitnet_attachment_removed'));
                     participation._rev = resp.rev;
                     delete participation.exam.examFeedback?.attachment;
                 },
-                (resp) => toast.error(resp),
+                (resp) => this.toast.error(resp),
             );
         });
     };
@@ -171,10 +170,10 @@ export class AttachmentService {
         dialog.result.then(() => {
             this.http.delete(this.statementAttachmentApi(exam.id)).subscribe(
                 () => {
-                    toast.info(this.translate.instant('sitnet_attachment_removed'));
+                    this.toast.info(this.translate.instant('sitnet_attachment_removed'));
                     delete exam.languageInspection?.statement.attachment;
                 },
-                (err) => toast.error(err),
+                (err) => this.toast.error(err),
             );
         });
     }

@@ -12,20 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { StateService } from '@uirouter/core';
+import type { CalendarEvent } from 'calendar-utils';
 import { format } from 'date-fns';
-import * as toast from 'toastr';
-
-import { CalendarService } from '../../calendar/calendar.service';
-import { RoomService } from './room.service';
-
-import type { OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
+import type { SlotMeta } from '../../calendar/bookingCalendar.component';
 import type { OpeningHours } from '../../calendar/calendar.service';
+import { CalendarService } from '../../calendar/calendar.service';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import type { Availability } from './room.service';
-import type { SlotMeta } from '../../calendar/bookingCalendar.component';
-import type { CalendarEvent } from 'calendar-utils';
+import { RoomService } from './room.service';
+
 @Component({
     templateUrl: './availability.component.html',
     selector: 'availability',
@@ -43,7 +42,12 @@ export class AvailabilityComponent implements OnInit {
     room!: ExamRoom;
     events: CalendarEvent<SlotMeta>[] = [];
 
-    constructor(private state: StateService, private roomService: RoomService, private calendar: CalendarService) {}
+    constructor(
+        private state: StateService,
+        private toast: ToastrService,
+        private roomService: RoomService,
+        private calendar: CalendarService,
+    ) {}
 
     ngOnInit() {
         this.roomService.getRoom$(this.state.params.id).subscribe((room) => {
@@ -77,7 +81,7 @@ export class AvailabilityComponent implements OnInit {
                 meta: { availableMachines: 0 },
             }));
         };
-        const errorFn = (resp: string) => toast.error(resp);
+        const errorFn = (resp: string) => this.toast.error(resp);
         this.query$(format(event.date, 'yyyy-MM-dd')).subscribe(successFn, errorFn);
     };
 }

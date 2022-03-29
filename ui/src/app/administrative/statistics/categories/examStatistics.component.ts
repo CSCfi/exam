@@ -1,8 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
-
-import type { QueryParams } from '../statistics.component';
 import type { OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import type { QueryParams } from '../statistics.component';
 
 interface ExamInfo {
     name: string;

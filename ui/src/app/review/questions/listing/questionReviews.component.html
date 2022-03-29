@@ -36,7 +36,7 @@
             </span>
         </span>
         <div>
-            <question-review *ngFor="let review of reviews" [review]="review" (onSelection)="onReviewSelection($event)">
+            <question-review *ngFor="let review of reviews" [review]="review" (selected)="onReviewSelection($event)">
             </question-review>
         </div>
 

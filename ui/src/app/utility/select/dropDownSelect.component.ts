@@ -14,9 +14,8 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import type { OnChanges, OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-
-import type { OnInit, OnChanges } from '@angular/core';
 
 export interface Option<V, I> {
     value?: V;
@@ -34,7 +33,7 @@ export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
     @Input() placeholder = '-';
     @Input() limitTo?: number;
     @Input() fullWidth?: boolean = false;
-    @Output() onSelect = new EventEmitter<Option<V, I> | undefined>();
+    @Output() optionSelected = new EventEmitter<Option<V, I> | undefined>();
     filteredOptions: Option<V, I>[] = []; // filtered
     searchFilter = '';
     selected?: Option<V, I>;
@@ -61,7 +60,7 @@ export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
 
     selectOption = (option: Option<V, I>) => {
         this.selected = option;
-        this.onSelect.emit(option);
+        this.optionSelected.emit(option);
     };
 
     getClasses = (option: Option<V, I>): string[] => {
@@ -77,6 +76,6 @@ export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
 
     clearSelection = () => {
         delete this.selected;
-        this.onSelect.emit();
+        this.optionSelected.emit();
     };
 }

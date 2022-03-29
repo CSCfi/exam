@@ -14,9 +14,8 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-
-import type { QueryParams } from '../statistics.component';
 import type { ExamParticipation } from '../../../exam/exam.model';
+import type { QueryParams } from '../statistics.component';
 
 interface Participations {
     [room: string]: ExamParticipation[];

@@ -6,3 +6,4 @@ target
 default-drop-all.sql
 default-create-all.sql
 /data/
+.angular

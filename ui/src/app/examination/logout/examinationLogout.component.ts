@@ -13,9 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
-
 import { WindowRef } from '../../utility/window/window.service';
 import { ExaminationStatusService } from '../examinationStatus.service';
 
@@ -35,7 +34,7 @@ import { ExaminationStatusService } from '../examinationStatus.service';
         </div>
     `,
 })
-export class ExaminationLogoutComponent {
+export class ExaminationLogoutComponent implements OnInit {
     quitLinkEnabled = false;
     reasonPhrase = '';
     quitLink?: string;

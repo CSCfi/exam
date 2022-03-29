@@ -3,17 +3,17 @@
         <div [ngClass]="getSelectedOptionClass(option)">
             <div class="make-inline pull-left">
                 <img
-                    *ngIf="determineClaimOptionType(option) == 'CorrectOption'"
+                    *ngIf="determineClaimOptionType(option) === 'CorrectOption'"
                     src="/assets/images/icon_correct_answer_radio.png"
                     alt="exam"
                 />
                 <img
-                    *ngIf="determineClaimOptionType(option) == 'IncorrectOption'"
+                    *ngIf="determineClaimOptionType(option) === 'IncorrectOption'"
                     src="/assets/images/icon_wrong_answer_radio.png"
                     alt="exam"
                 />
                 <img
-                    *ngIf="determineClaimOptionType(option) == 'SkipOption'"
+                    *ngIf="determineClaimOptionType(option) === 'SkipOption'"
                     src="/assets/images/icon_correct_answer_radio_grey.png"
                     alt="exam"
                 />

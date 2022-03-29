@@ -12,20 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-
+import type { LanguageInspectionData } from '../languageInspections.component';
 import { LanguageInspectionService } from '../languageInspections.service';
 
-import type { SimpleChanges, OnChanges } from '@angular/core';
-import type { LanguageInspectionData } from '../languageInspections.component';
 @Component({
     selector: 'reviewed-inspections',
     templateUrl: './reviewedInspections.component.html',
 })
 export class ReviewedInspectionsComponent implements OnChanges {
     @Input() inspections: LanguageInspectionData[] = [];
-    @Output() onStartDateChange = new EventEmitter<{ date: Date | null }>();
-    @Output() onEndDateChange = new EventEmitter<{ date: Date | null }>();
+    @Output() startDateChanged = new EventEmitter<{ date: Date | null }>();
+    @Output() endDateChanged = new EventEmitter<{ date: Date | null }>();
 
     filteredInspections: LanguageInspectionData[] = [];
     sorting = {
@@ -67,9 +66,9 @@ export class ReviewedInspectionsComponent implements OnChanges {
             this.examToString(i).toLowerCase().match(this.filterText.toLowerCase()),
         ));
 
-    startDateChanged = (event: { date: Date | null }) => this.onStartDateChange.emit({ date: event.date });
+    onStartDateChanged = (event: { date: Date | null }) => this.startDateChanged.emit({ date: event.date });
 
-    endDateChanged = (event: { date: Date | null }) => this.onEndDateChange.emit({ date: event.date });
+    onEndDateChanged = (event: { date: Date | null }) => this.endDateChanged.emit({ date: event.date });
 
     showStatement = (statement: { comment?: string }) =>
         this.LanguageInspections.showStatement({ comment: statement.comment || '' });

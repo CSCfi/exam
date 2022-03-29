@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { cloneDeep } from 'lodash';
-import * as toast from 'toastr';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
     templateUrl: './exceptionDialog.component.html',
@@ -18,7 +18,11 @@ export class ExceptionDialogComponent {
         outOfService: boolean;
     };
 
-    constructor(private translate: TranslateService, private activeModal: NgbActiveModal) {
+    constructor(
+        private translate: TranslateService,
+        private activeModal: NgbActiveModal,
+        private toast: ToastrService,
+    ) {
         const now = new Date();
         now.setSeconds(0);
         now.setMilliseconds(0);
@@ -33,7 +37,7 @@ export class ExceptionDialogComponent {
         const start = this.exception.startDate;
         const end = this.exception.endDate;
         if (end <= start) {
-            toast.error(this.translate.instant('sitnet_endtime_before_starttime'));
+            this.toast.error(this.translate.instant('sitnet_endtime_before_starttime'));
             return;
         }
         this.activeModal.close({

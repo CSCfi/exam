@@ -13,17 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { WindowRef } from '../../utility/window/window.service';
 
 @Component({
     selector: 'examination-clock',
     templateUrl: './examinationClock.component.html',
 })
-export class ExaminationClockComponent {
+export class ExaminationClockComponent implements OnInit, OnDestroy {
     @Input() examHash = '';
-    @Output() onTimeout = new EventEmitter<void>();
+    @Output() timedOut = new EventEmitter<void>();
     syncInterval = 15;
     secondsSinceSync = this.syncInterval + 1;
     alarmThreshold = 300;
@@ -65,7 +64,7 @@ export class ExaminationClockComponent {
 
     private notifyTimeout = () => {
         this.Window.nativeWindow.clearTimeout(this.pollerId);
-        this.onTimeout.emit();
+        this.timedOut.emit();
     };
 
     private zeroPad = (n: number): string => ('0' + n).slice(-2);

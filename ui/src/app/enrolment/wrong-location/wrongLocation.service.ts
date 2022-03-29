@@ -15,19 +15,18 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { addHours, format, parseISO } from 'date-fns';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import { DateTimeService } from '../../utility/date/date.service';
 import { WindowRef } from '../../utility/window/window.service';
 
 @Injectable()
 export class WrongLocationService {
-    opts: ToastrOptions = {
-        timeOut: 10000,
-        preventDuplicates: true,
-    };
-
-    constructor(private translate: TranslateService, private DateTime: DateTimeService, private Window: WindowRef) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private DateTime: DateTimeService,
+        private Window: WindowRef,
+    ) {}
 
     display = (data: string[]) => {
         this.Window.nativeWindow.setTimeout(() => {
@@ -41,19 +40,19 @@ export class WrongLocationService {
             if (startsAt > now) {
                 const i18nLocation = this.translate.instant('sitnet_at_location');
                 const i18nTime = this.translate.instant('sitnet_your_exam_will_start_at');
-                toast.warning(
+                this.toast.warning(
                     `${i18nTime} ${format(startsAt, 'HH:mm')} ${i18nLocation} ${data[0]}: ${data[1]}, ${i18nRoom} ${
                         data[2]
                     } ${i18nMachine} ${data[3]}`,
                     '',
-                    this.opts,
+                    { timeOut: 10000 },
                 );
             } else {
                 const i18nLocation = this.translate.instant('sitnet_you_have_ongoing_exam_at_location');
-                toast.error(
+                this.toast.error(
                     `${i18nLocation}: ${data[0]}, ${data[1]} ${i18nRoom} ${data[2]} ${i18nMachine} ${data[3]}`,
                     '',
-                    this.opts,
+                    { timeOut: 10000 },
                 );
             }
         }, 1000);
@@ -66,13 +65,13 @@ export class WrongLocationService {
         };
         const startsAt = parseISO(startsAtTxt);
         if (startsAt > new Date()) {
-            toast.warning(
+            this.toast.warning(
                 `${this.translate.instant('sitnet_seb_exam_about_to_begin')} ${format(startsAt, 'HH:mm')}`,
                 '',
-                opts,
+                { timeOut: 10000 },
             );
         } else {
-            toast.error(this.translate.instant('sitnet_seb_exam_ongoing'), '', opts);
+            this.toast.error(this.translate.instant('sitnet_seb_exam_ongoing'), '', { timeOut: 10000 });
         }
     };
 }

@@ -14,8 +14,7 @@
  */
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import { FileService } from '../../../utility/file/file.service';
 
 @Component({
@@ -34,11 +33,11 @@ import { FileService } from '../../../utility/file/file.service';
 export class LibraryFileExportComponent {
     @Input() selections: number[] = [];
 
-    constructor(private Files: FileService, private translate: TranslateService) {}
+    constructor(private Files: FileService, private translate: TranslateService, private toast: ToastrService) {}
 
     export() {
         if (this.selections.length === 0) {
-            toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
+            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
         } else {
             this.Files.download(
                 '/app/questions/export',

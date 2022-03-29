@@ -13,25 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as FileSaver from 'file-saver';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { forkJoin, noop, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { isRealGrade } from '../../exam/exam.model';
-import { ExamService } from '../../exam/exam.service';
-import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { DateTimeService } from '../../utility/date/date.service';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { FileService } from '../../utility/file/file.service';
-import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
-import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
-
-import type { Observable } from 'rxjs';
 import type {
     Course,
     Exam,
@@ -41,13 +31,22 @@ import type {
     NoGrade,
     SelectableGrade,
 } from '../../exam/exam.model';
+import { isRealGrade } from '../../exam/exam.model';
+import { ExamService } from '../../exam/exam.service';
 import type { User } from '../../session/session.service';
+import { AttachmentService } from '../../utility/attachment/attachment.service';
+import { DateTimeService } from '../../utility/date/date.service';
+import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { FileService } from '../../utility/file/file.service';
+import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
 import type { Review } from '../review.model';
+import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
+
 @Component({
     selector: 'speed-review',
     templateUrl: './speedReview.component.html',
 })
-export class SpeedReviewComponent {
+export class SpeedReviewComponent implements OnInit {
     pageSize = 10;
     currentPage = 0;
     reviewPredicate = 'deadline';
@@ -63,6 +62,7 @@ export class SpeedReviewComponent {
         private routing: UIRouterGlobals,
         private translate: TranslateService,
         private modal: NgbModal,
+        private toast: ToastrService,
         private Exam: ExamService,
         private CommonExam: CommonExamService,
         private Confirmation: ConfirmationDialogService,
@@ -133,7 +133,7 @@ export class SpeedReviewComponent {
                         }));
                     this.toggleReviews = this.examReviews.length > 0;
                 },
-                (err) => toast.error(err.data),
+                (err) => this.toast.error(err.data),
             );
     }
 
@@ -199,7 +199,7 @@ export class SpeedReviewComponent {
             this.translate.instant('sitnet_confirm_grade_review'),
         ).result.then(() => {
             forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
-                toast.info(this.translate.instant('sitnet_saved'));
+                this.toast.info(this.translate.instant('sitnet_saved'));
                 if (this.examReviews.length === 0) {
                     this.state.go('staff.examEditor.assessments', { id: this.routing.params.id });
                 }
@@ -214,7 +214,7 @@ export class SpeedReviewComponent {
         if (!review.selectedGrade && !gradeId) {
             messages.push('sitnet_participation_unreviewed');
         }
-        messages.forEach((msg) => toast.warning(this.translate.instant(msg)));
+        messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
         if (messages.length === 0) {
             let grade: SelectableGrade | undefined;
             if (review.selectedGrade?.type === 'NONE') {
@@ -248,10 +248,10 @@ export class SpeedReviewComponent {
         this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv')
             .then((result) => {
                 this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload);
-                toast.success(`${this.translate.instant('sitnet_csv_uploaded_successfully')}`);
+                this.toast.success(`${this.translate.instant('sitnet_csv_uploaded_successfully')}`);
             })
             .catch(() => {
-                toast.error(`${this.translate.instant('sitnet_csv_uploading_failed')}`);
+                this.toast.error(`${this.translate.instant('sitnet_csv_uploading_failed')}`);
                 return noop;
             });
     };

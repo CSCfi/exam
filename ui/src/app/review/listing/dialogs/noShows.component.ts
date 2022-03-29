@@ -12,9 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-
 import { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import { SessionService } from '../../../session/session.service';
 
@@ -22,7 +21,7 @@ import { SessionService } from '../../../session/session.service';
     selector: 'no-shows-component',
     templateUrl: './noShows.component.html',
 })
-export class NoShowsComponent {
+export class NoShowsComponent implements OnInit {
     @Input() noShows: (ExamEnrolment & { displayName: string })[] = [];
 
     noShowPredicate = 'reservation.startAt';

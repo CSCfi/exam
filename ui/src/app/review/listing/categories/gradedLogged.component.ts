@@ -13,35 +13,35 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import type { SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { Exam } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
 import { FileService } from '../../../utility/file/file.service';
 import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
-import { ReviewListService } from '../reviewList.service';
-
-import type { Exam } from '../../../exam/exam.model';
-import type { SimpleChanges } from '@angular/core';
 import type { Review } from '../../review.model';
 import type { ReviewListView } from '../reviewList.service';
+import { ReviewListService } from '../reviewList.service';
+
 @Component({
     selector: 'rl-graded-logged',
     templateUrl: './gradedLogged.component.html',
 })
-export class GradedLoggedReviewsComponent {
+export class GradedLoggedReviewsComponent implements OnInit {
     @Input() reviews: Review[] = [];
     @Input() exam!: Exam;
     @Input() collaborative = false;
-    @Output() onArchive = new EventEmitter<Review[]>();
+    @Output() archived = new EventEmitter<Review[]>();
     view!: ReviewListView;
     selections: { all: boolean; page: boolean } = { all: false, page: false };
 
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
+        private toast: ToastrService,
         private ReviewList: ReviewListService,
         private Files: FileService,
         private CommonExam: CommonExamService,
@@ -91,8 +91,8 @@ export class GradedLoggedReviewsComponent {
             return;
         }
         const ok = () => {
-            this.onArchive.emit(selection);
-            toast.info(this.translate.instant('sitnet_exams_archived'));
+            this.archived.emit(selection);
+            this.toast.info(this.translate.instant('sitnet_exams_archived'));
         };
         const ids = selection.map((r) => r.examParticipation.exam.id);
         this.http.put('/app/reviews/archive', { ids: ids.join() }).subscribe(ok);

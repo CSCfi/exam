@@ -14,13 +14,11 @@
  */
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { addDays } from 'date-fns';
 import { Observable } from 'rxjs';
-
 import { ExaminationEventConfiguration } from '../exam.model';
-
-import type { OnInit } from '@angular/core';
 
 @Component({
     selector: 'byod-exam-event-search',

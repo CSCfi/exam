@@ -14,14 +14,14 @@
  */
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { isObject } from 'lodash';
+import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import type { OnInit } from '@angular/core';
 import type { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
+
 @Component({
     selector: 'exam-search',
     templateUrl: './examSearch.component.html',
@@ -38,14 +38,14 @@ import type { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
         ]),
     ],
 })
-export class ExamSearchComponent implements OnInit {
+export class ExamSearchComponent implements OnInit, OnDestroy {
     exams: EnrolmentInfo[] = [];
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
     filter = { text: '' };
     permissionCheck = { active: false };
 
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private toast: ToastrService) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((txt) => {
@@ -59,7 +59,7 @@ export class ExamSearchComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 
@@ -90,7 +90,7 @@ export class ExamSearchComponent implements OnInit {
                 this.checkEnrolment();
             },
             (err) => {
-                toast.error(err.data);
+                this.toast.error(err);
             },
         );
 

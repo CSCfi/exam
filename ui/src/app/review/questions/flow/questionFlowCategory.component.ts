@@ -13,11 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-
 import { SessionService } from '../../../session/session.service';
+import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../questionReview.service';
 
-import type { QuestionReview } from '../../review.model';
 @Component({
     selector: 'question-flow-category',
     templateUrl: './questionFlowCategory.component.html',
@@ -26,7 +25,7 @@ export class QuestionFlowCategoryComponent {
     @Input() categoryTitle = '';
     @Input() reviews: QuestionReview[] = [];
     @Input() allDone = false;
-    @Output() onSelection = new EventEmitter<QuestionReview>();
+    @Output() selected = new EventEmitter<QuestionReview>();
 
     hideCategory = false;
 
@@ -37,5 +36,5 @@ export class QuestionFlowCategoryComponent {
     getAssessedAnswerCount = (review: QuestionReview) =>
         this.allDone ? 0 : this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
 
-    selectQuestion = (review: QuestionReview) => this.onSelection.emit(review);
+    selectQuestion = (review: QuestionReview) => this.selected.emit(review);
 }

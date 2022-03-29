@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { ComponentRef, OnDestroy, OnInit } from '@angular/core';
 import {
     Compiler,
     Component,
@@ -24,7 +25,6 @@ import {
     ViewContainerRef,
 } from '@angular/core';
 
-import type { OnInit, OnDestroy, ComponentRef } from '@angular/core';
 type ClozeTestAnswer = { [key: string]: string };
 
 @Component({
@@ -35,7 +35,7 @@ export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
     @Input() answer: ClozeTestAnswer = {};
     @Input() content = '';
     @Input() editable = false;
-    @Output() onAnswerChange = new EventEmitter<ClozeTestAnswer>();
+    @Output() answerChanged = new EventEmitter<ClozeTestAnswer>();
     @ViewChild('clozeContainer', { read: ViewContainerRef, static: true }) container?: ViewContainerRef;
 
     componentRef?: ComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
@@ -109,6 +109,6 @@ export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
 
     handleInputChange = (event: { target: HTMLInputElement }) => {
         const { id, value } = event.target;
-        this.onAnswerChange.emit({ id, value });
+        this.answerChanged.emit({ id, value });
     };
 }

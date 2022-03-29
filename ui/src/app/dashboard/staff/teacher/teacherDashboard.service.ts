@@ -14,14 +14,13 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import type { Observable } from 'rxjs';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-
+import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { ReservationService } from '../../../reservation/reservation.service';
 
-import type { Observable } from 'rxjs';
-import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
 export interface DraftExam extends Exam {
     ownerAggregate: string;
 }

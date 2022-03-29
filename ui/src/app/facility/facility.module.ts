@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { NgbModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { UIRouterModule } from '@uirouter/angular';
-
 import { CalendarModule } from '../calendar/calendar.module';
 import { SoftwareModule } from '../software/software.module';
 import { UtilityModule } from '../utility/utility.module';

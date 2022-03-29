@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-
 import type { ExamInfo } from '../calendar.component';
 
 @Component({
@@ -10,7 +9,7 @@ import type { ExamInfo } from '../calendar.component';
                 <span class="col-md-12">
                     <span class="calendar-phase-title">2. {{ 'sitnet_exam_materials' | translate }}</span>
                     <span class="calendar-phase-icon pull-right" *ngIf="sectionSelectionOk()">
-                        <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="phase 1" />
+                        <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="phase 1" />
                     </span>
                 </span>
             </div>
@@ -73,9 +72,9 @@ import type { ExamInfo } from '../calendar.component';
 })
 export class OptionalSectionsComponent {
     @Input() examInfo!: ExamInfo;
-    @Output() onSelection = new EventEmitter<{ valid: boolean }>();
+    @Output() selected = new EventEmitter<{ valid: boolean }>();
 
-    checkSectionSelections = () => this.onSelection.emit({ valid: this.sectionSelectionOk() });
+    checkSectionSelections = () => this.selected.emit({ valid: this.sectionSelectionOk() });
 
     sectionSelectionOk = () => this.examInfo.examSections.some((es) => !es.optional || es.selected);
 }

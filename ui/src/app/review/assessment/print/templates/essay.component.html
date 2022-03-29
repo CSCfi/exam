@@ -77,10 +77,10 @@
                 {{ getScore() }} / {{ sectionQuestion.maxScore }}
             </span>
             <span *ngIf="sectionQuestion.evaluationType === 'Selection'">
-                <div *ngIf="sectionQuestion.essayAnswer?.evaluatedScore == 1">
+                <div *ngIf="sectionQuestion.essayAnswer?.evaluatedScore === 1">
                     {{ 'sitnet_approved' | translate }}
                 </div>
-                <div *ngIf="sectionQuestion.essayAnswer?.evaluatedScore == 0">
+                <div *ngIf="sectionQuestion.essayAnswer?.evaluatedScore === 0">
                     {{ 'sitnet_rejected' | translate }}
                 </div>
             </span>

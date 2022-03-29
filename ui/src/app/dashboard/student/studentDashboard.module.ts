@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-
 import { EnrolmentModule } from '../../enrolment/enrolment.module';
 import { UtilityModule } from '../../utility/utility.module';
 import { StudentDashboardComponent } from './studentDashboard.component';

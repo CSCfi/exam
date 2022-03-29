@@ -1,9 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { addDays, format, parseISO } from 'date-fns';
-
 import { DateTimeService } from '../../utility/date/date.service';
-
 import type { ExamInfo } from '../calendar.component';
 
 @Component({
@@ -15,7 +13,7 @@ import type { ExamInfo } from '../calendar.component';
                     <span class="col-md-12">
                         <span class="calendar-phase-title">1. {{ 'sitnet_calendar_phase_1' | translate }}</span>
                         <span class="calendar-phase-icon float-right">
-                            <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="phase 1" />
+                            <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="phase 1" />
                         </span>
                     </span>
                 </div>
@@ -66,7 +64,7 @@ import type { ExamInfo } from '../calendar.component';
                 <div class="row mart10">
                     <div class="col-md-12">
                         <span *ngIf="showReservationWindowInfo()" class="infolink">
-                            <img class="arrow_icon padr10" src="/assets/assets/images/icon_info.png" alt="info-icon" />
+                            <img class="arrow_icon padr10" src="/assets/images/icon_info.png" alt="info-icon" />
                             {{ getReservationWindowDescription() }}
                         </span>
                     </div>
@@ -75,7 +73,7 @@ import type { ExamInfo } from '../calendar.component';
         </div>
     `,
 })
-export class CalendarExamInfoComponent {
+export class CalendarExamInfoComponent implements OnInit {
     @Input() examInfo!: ExamInfo;
     @Input() reservationWindowSize = 0;
     @Input() collaborative = false;

@@ -13,20 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { EnrolmentService } from '../../../enrolment/enrolment.service';
-
-import type { Exam, ExamParticipation } from '../../exam.model';
-import type { OnInit } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { Observable } from 'rxjs';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import { EnrolmentService } from '../../../enrolment/enrolment.service';
 import type { User } from '../../../session/session.service';
+import type { Exam, ExamParticipation } from '../../exam.model';
+
 @Component({
     selector: 'exam-participant-selector',
     templateUrl: './examParticipantSelector.component.html',
@@ -36,7 +35,12 @@ export class ExamParticipantSelectorComponent implements OnInit {
     newParticipant: { id?: number; name?: string } = {};
     participants: User[] = [];
 
-    constructor(private http: HttpClient, private translate: TranslateService, private Enrolment: EnrolmentService) {}
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Enrolment: EnrolmentService,
+    ) {}
 
     ngOnInit() {
         this.participants = this.exam.children
@@ -75,16 +79,16 @@ export class ExamParticipantSelectorComponent implements OnInit {
                 delete this.newParticipant.name;
                 delete this.newParticipant.id;
             },
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err.data),
         );
 
     removeParticipant = (id: number) =>
         this.http.delete(`/app/enrolments/student/${id}`).subscribe(
             () => {
                 this.exam.examEnrolments = this.exam.examEnrolments.filter((ee) => ee.id !== id);
-                toast.info(this.translate.instant('sitnet_participant_removed'));
+                this.toast.info(this.translate.instant('sitnet_participant_removed'));
             },
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err.data),
         );
 
     renderParticipantLabel = (enrolment: ExamEnrolment) =>

@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-
 import { ReservationModule } from '../../../reservation/reservation.module';
 import { UtilityModule } from '../../../utility/utility.module';
 import { AdminDashboardComponent } from './adminDashboard.component';

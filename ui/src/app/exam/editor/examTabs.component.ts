@@ -12,20 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnDestroy, OnInit } from '@angular/core';
 import { ChangeDetectorRef, Component, Input } from '@angular/core';
+import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
+import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
-import { ExamTabService } from './examTabs.service';
-
 import type { Exam } from '../exam.model';
 import type { UpdateProps } from './examTabs.service';
-import type { OnInit, OnDestroy } from '@angular/core';
-import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { User } from '../../session/session.service';
+import { ExamTabService } from './examTabs.service';
 
 @Component({
     selector: 'exam-tabs',
@@ -64,7 +62,7 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 

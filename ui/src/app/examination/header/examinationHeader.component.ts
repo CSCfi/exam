@@ -13,9 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-
 import { SessionService } from '../../session/session.service';
-
 import type { Examination } from '../examination.model';
 
 @Component({
@@ -25,10 +23,10 @@ import type { Examination } from '../examination.model';
 export class ExaminationHeaderComponent {
     @Input() exam!: Examination;
     @Input() isPreview = false;
-    @Output() onTimeout = new EventEmitter<void>();
+    @Output() timedOut = new EventEmitter<void>();
 
     constructor(private Session: SessionService) {}
 
-    notifyTimeout = () => this.onTimeout.emit();
+    notifyTimeout = () => this.timedOut.emit();
     switchLanguage = (key: string) => this.Session.switchLanguage(key);
 }

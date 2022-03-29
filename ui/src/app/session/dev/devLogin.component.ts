@@ -13,10 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Output } from '@angular/core';
-
+import type { User } from '../session.service';
 import { SessionService } from '../session.service';
 
-import type { User } from '../session.service';
 @Component({
     selector: 'dev-login',
     template: `
@@ -66,7 +65,7 @@ import type { User } from '../session.service';
     `,
 })
 export class DevLoginComponent {
-    @Output() onLoggedIn = new EventEmitter<User>();
+    @Output() loggedIn = new EventEmitter<User>();
 
     username = '';
     password = '';
@@ -76,7 +75,7 @@ export class DevLoginComponent {
     login = (event: Event, blur: boolean) => {
         if (blur) (event.target as HTMLElement).blur();
         this.Session.login$(this.username, this.password).subscribe(
-            (user) => this.onLoggedIn.emit(user),
+            (user) => this.loggedIn.emit(user),
             (err) => console.log(JSON.stringify(err)),
         );
     };

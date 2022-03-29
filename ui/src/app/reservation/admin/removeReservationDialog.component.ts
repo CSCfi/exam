@@ -15,8 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import type { Reservation } from '../reservation.model';
 
 @Component({
@@ -27,7 +26,7 @@ export class RemoveReservationDialogComponent {
     @Input() reservation!: Reservation;
     message = { text: '' };
 
-    constructor(public activeModal: NgbActiveModal, private http: HttpClient) {}
+    constructor(public activeModal: NgbActiveModal, private http: HttpClient, private toast: ToastrService) {}
 
     ok = () =>
         this.http
@@ -37,7 +36,7 @@ export class RemoveReservationDialogComponent {
             })
             .subscribe(
                 () => this.activeModal.close(),
-                (err) => toast.error(err),
+                (err) => this.toast.error(err),
             );
 
     cancel = () => this.activeModal.dismiss();

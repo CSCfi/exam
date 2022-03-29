@@ -31,7 +31,7 @@
         <div class="col-md">
             <h4>{{ 'sitnet_begin' | translate }}</h4>
             <date-picker
-                (onUpdate)="startDateChanged($event)"
+                (updated)="startDateChanged($event)"
                 [initialDate]="null"
                 [modelOptions]="{ timezone: '+0000' }"
             ></date-picker>
@@ -40,7 +40,7 @@
         <div class="col-md">
             <h4>{{ 'sitnet_end' | translate }}</h4>
             <date-picker
-                (onUpdate)="endDateChanged($event)"
+                (updated)="endDateChanged($event)"
                 [initialDate]="null"
                 [modelOptions]="{ timezone: '+0000' }"
             ></date-picker>

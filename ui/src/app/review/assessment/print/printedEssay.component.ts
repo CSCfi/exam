@@ -13,10 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-
-import { AssessmentService } from '../assessment.service';
-
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
+import { AssessmentService } from '../assessment.service';
 
 @Component({
     selector: 'printed-essay',

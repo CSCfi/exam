@@ -13,14 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import type { OnInit } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { Observable } from 'rxjs';
 import type { User } from '../../../session/session.service';
 import type { Exam, ExamInspection } from '../../exam.model';
 
@@ -41,7 +40,7 @@ export class ExamInspectorSelectorComponent implements OnInit {
         email?: string;
     };
 
-    constructor(private http: HttpClient) {
+    constructor(private http: HttpClient, private toast: ToastrService) {
         this.newInspector = {};
     }
 
@@ -52,7 +51,7 @@ export class ExamInspectorSelectorComponent implements OnInit {
     private getInspectors = () =>
         this.http.get<ExamInspection[]>(`/app/exam/${this.exam.id}/inspections`).subscribe(
             (inspections) => (this.examInspections = inspections),
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err.data),
         );
 
     listInspectors$ = (criteria$: Observable<string>): Observable<User[]> =>
@@ -67,7 +66,7 @@ export class ExamInspectorSelectorComponent implements OnInit {
             ),
             take(15),
             catchError((err) => {
-                toast.error(err.data);
+                this.toast.error(err.data);
                 return throwError(err);
             }),
         );
@@ -92,6 +91,6 @@ export class ExamInspectorSelectorComponent implements OnInit {
     removeInspector = (id: number) =>
         this.http.delete(`/app/exams/inspector/${id}`).subscribe(
             () => this.getInspectors(),
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err.data),
         );
 }

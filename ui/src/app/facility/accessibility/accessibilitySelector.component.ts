@@ -12,14 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
-import { AccessibilityService } from './accessibility.service';
-
-import type { OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
+import { AccessibilityService } from './accessibility.service';
 
 @Component({
     templateUrl: './accessibilitySelector.component.html',
@@ -29,7 +27,11 @@ export class AccessibilitySelectorComponent implements OnInit {
     @Input() room!: ExamRoom;
     accessibilities: Accessibility[] = [];
 
-    constructor(private translate: TranslateService, private accessibilityService: AccessibilityService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private accessibilityService: AccessibilityService,
+    ) {}
 
     ngOnInit() {
         this.accessibilityService.getAccessibilities().subscribe((resp) => {
@@ -61,7 +63,7 @@ export class AccessibilitySelectorComponent implements OnInit {
         const ids = this.room.accessibilities.map((item) => item.id).join(', ');
 
         this.accessibilityService.updateRoomAccessibilities(this.room.id, { ids: ids }).subscribe(() => {
-            toast.info(this.translate.instant('sitnet_room_updated'));
+            this.toast.info(this.translate.instant('sitnet_room_updated'));
         });
     };
 

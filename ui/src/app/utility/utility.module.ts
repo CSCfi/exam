@@ -17,7 +17,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-
+import { ToastrModule } from 'ngx-toastr';
 import { AttachmentService } from './attachment/attachment.service';
 import { AttachmentSelectorComponent } from './attachment/dialogs/attachmentSelector.component';
 import { CKEditorComponent } from './ckeditor/ckeditor.component';
@@ -52,11 +52,12 @@ import { UniqueValuesValidatorDirective } from './validation/uniqueValues.direct
 import { WindowRef } from './window/window.service';
 
 @NgModule({
-    imports: [CommonModule, TranslateModule, FormsModule, ReactiveFormsModule, NgbModule],
+    imports: [CommonModule, TranslateModule, FormsModule, ReactiveFormsModule, NgbModule, ToastrModule],
     exports: [
         CommonModule,
         TranslateModule,
         FormsModule,
+        ToastrModule,
         CKEditorComponent,
         DatePickerComponent,
         DateTimePickerComponent,

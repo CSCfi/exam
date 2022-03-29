@@ -17,7 +17,7 @@
     </div>
 
     <div class="reservation-border">
-        <library-search (onUpdate)="resultsUpdated($event)"></library-search>
+        <library-search (updated)="resultsUpdated($event)"></library-search>
         <div *ngIf="selections.length > 0" class="padl30 padr30 questions-selections-box">
             <div class="make-inline">
                 <span class="padr10">{{ selections.length }} {{ 'sitnet_questions_selected' | translate }}</span>
@@ -38,8 +38,8 @@
         <div class="margin-20">
             <library-results
                 [questions]="questions"
-                (onCopy)="questionCopied($event)"
-                (onSelection)="questionSelected($event)"
+                (copied)="questionCopied($event)"
+                (selected)="questionSelected($event)"
             >
             </library-results>
         </div>

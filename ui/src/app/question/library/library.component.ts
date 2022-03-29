@@ -15,8 +15,7 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import type { Question } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
 
@@ -28,7 +27,7 @@ export class LibraryComponent {
     questions: Question[] = [];
     selections: number[] = [];
 
-    constructor(private state: StateService, private translate: TranslateService) {}
+    constructor(private state: StateService, private translate: TranslateService, private toast: ToastrService) {}
 
     resultsUpdated(results: Question[]) {
         this.questions = results;
@@ -39,7 +38,7 @@ export class LibraryComponent {
     }
 
     questionCopied(copy: Question) {
-        toast.info(this.translate.instant('sitnet_question_copied'));
+        this.toast.info(this.translate.instant('sitnet_question_copied'));
         this.state.go('staff.question', { id: copy.id });
     }
 

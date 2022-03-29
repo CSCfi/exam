@@ -35,7 +35,7 @@
                             <cloze-test-display
                                 [content]="sq.clozeTestAnswer?.question || ''"
                                 [answer]="clozeAnswer"
-                                (onAnswerChange)="answered($event)"
+                                (answerChanged)="answered($event)"
                             ></cloze-test-display>
                         </div>
                     </div>

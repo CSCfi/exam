@@ -13,20 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { addDays, format } from 'date-fns';
+import { ToastrService } from 'ngx-toastr';
 import { switchMap, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
+import type { Course, Exam, ExamSection } from '../exam/exam.model';
+import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
 import { DateTimeService } from '../utility/date/date.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { CalendarService } from './calendar.service';
 
-import type { OnInit } from '@angular/core';
-import type { Course, Exam, ExamSection } from '../exam/exam.model';
-import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
 export type SelectableSection = ExamSection & { selected: boolean };
 export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Course } & {
     duration: number;
@@ -82,6 +81,7 @@ export class CalendarComponent implements OnInit {
         private state: StateService,
         private uiRouter: UIRouterGlobals,
         private translate: TranslateService,
+        private toast: ToastrService,
         private DateTime: DateTimeService,
         private Dialog: ConfirmationDialogService,
         private Calendar: CalendarService,
@@ -220,7 +220,7 @@ export class CalendarComponent implements OnInit {
         }
         const selectedSectionIds = this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id);
         if (!this.sectionSelectionOk()) {
-            toast.error(this.translate.instant('sitnet_select_at_least_one_section'));
+            this.toast.error(this.translate.instant('sitnet_select_at_least_one_section'));
             return;
         }
         this.confirming = true;
@@ -236,7 +236,7 @@ export class CalendarComponent implements OnInit {
             .subscribe(
                 () => this.state.go('dashboard'),
                 (resp) => {
-                    toast.error(resp);
+                    this.toast.error(resp);
                 },
             )
             .add(() => (this.confirming = false));

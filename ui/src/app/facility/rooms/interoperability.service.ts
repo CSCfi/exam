@@ -14,7 +14,6 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-
 import type { ExamRoom } from '../../reservation/reservation.model';
 
 @Injectable()

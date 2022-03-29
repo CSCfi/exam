@@ -1,23 +1,22 @@
 import { WeekDay } from '@angular/common';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
+import type { SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
+import type { CalendarEvent } from 'angular-calendar';
 import { addHours, format, startOfWeek } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { MaintenancePeriod } from '../../exam/exam.model';
+import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
 import { DateTimeService } from '../../utility/date/date.service';
+import type { SlotMeta } from '../bookingCalendar.component';
+import type { Organisation } from '../calendar.component';
+import type { Slot } from '../calendar.service';
 import { CalendarService } from '../calendar.service';
 
-import type { Organisation } from '../calendar.component';
-import type { SimpleChanges } from '@angular/core';
-import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
-import type { CalendarEvent } from 'angular-calendar';
-import type { SlotMeta } from '../bookingCalendar.component';
-import type { Slot } from '../calendar.service';
-import type { Observable } from 'rxjs';
 type FilterableAccessibility = Accessibility & { filtered: boolean };
 type FilterableRoom = ExamRoom & { filtered: boolean };
 type AvailableSlot = Slot & { availableMachines: number };
@@ -43,7 +42,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                 </span>
                 <span class="col-md-1 col-3">
                     <span class="calendar-phase-icon float-right" *ngIf="selectedRoom">
-                        <img class="arrow_icon" src="/assets/assets/images/icon-phase.png" alt="choose room" />
+                        <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="choose room" />
                     </span>
                 </span>
             </div>
@@ -63,13 +62,13 @@ type AvailableSlot = Slot & { availableMachines: number };
                                     class="arrow_icon"
                                     *ngIf="!showAccessibilityMenu"
                                     alt="show accessibility selection"
-                                    src="/assets/assets/images/arrow_right.png"
+                                    src="/assets/images/arrow_right.png"
                                 />
                                 <img
                                     class="arrow_icon"
                                     *ngIf="showAccessibilityMenu"
                                     alt="hide accessibility selection"
-                                    src="/assets/assets/images/arrow_down.png"
+                                    src="/assets/images/arrow_down.png"
                                 />
                             </button>
                             <span *ngIf="disabled" class="text text-muted">
@@ -140,8 +139,8 @@ type AvailableSlot = Slot & { availableMachines: number };
             <div class="row mart10" *ngIf="selectedRoom">
                 <div class="col-md-12">
                     <booking-calendar
-                        (onEventSelected)="eventSelected($event)"
-                        (onNeedMoreEvents)="refresh($event)"
+                        (eventSelected)="eventSelected($event)"
+                        (moreEventsNeeded)="refresh($event)"
                         [minDate]="minDate"
                         [maxDate]="maxDate"
                         [room]="selectedRoom"
@@ -162,7 +161,7 @@ type AvailableSlot = Slot & { availableMachines: number };
     ],
     encapsulation: ViewEncapsulation.None,
 })
-export class SlotPickerComponent {
+export class SlotPickerComponent implements OnInit, OnChanges {
     @Input() sequenceNumber = 0;
     @Input() isInteroperable = false;
     @Input() isCollaborative = false;
@@ -171,8 +170,8 @@ export class SlotPickerComponent {
     @Input() disabled = false;
     @Input() minDate = new Date();
     @Input() maxDate = new Date();
-    @Output() onCancel = new EventEmitter<void>();
-    @Output() onEventSelected = new EventEmitter<{
+    @Output() cancelled = new EventEmitter<void>();
+    @Output() selected = new EventEmitter<{
         start: Date;
         end: Date;
         room: ExamRoom;
@@ -191,6 +190,7 @@ export class SlotPickerComponent {
         private http: HttpClient,
         private translate: TranslateService,
         private uiRouter: UIRouterGlobals,
+        private toast: ToastrService,
         private Calendar: CalendarService,
         private DateTime: DateTimeService,
     ) {}
@@ -214,7 +214,7 @@ export class SlotPickerComponent {
     }
 
     eventSelected = ($event: CalendarEvent<SlotMeta>) =>
-        this.onEventSelected.emit({
+        this.selected.emit({
             start: $event.start,
             end: $event.end as Date,
             room: this.selectedRoom as ExamRoom,
@@ -292,14 +292,14 @@ export class SlotPickerComponent {
             }));
             this.events = events;
         };
-        const errorFn = (resp: string) => toast.error(resp);
+        const errorFn = (resp: string) => this.toast.error(resp);
         this.query(format($event.date, 'yyyy-MM-dd'), accessibilities).subscribe(successFn, errorFn);
     }
 
     makeExternalReservation = () => {
         delete this.selectedRoom;
         this.events = [];
-        this.onCancel.emit();
+        this.cancelled.emit();
     };
 
     selectAccessibility = (accessibility: FilterableAccessibility) => {

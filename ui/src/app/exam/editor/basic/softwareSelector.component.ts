@@ -13,11 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
-import type { OnInit } from '@angular/core';
+import { ToastrService } from 'ngx-toastr';
 import type { Exam, Software } from '../../exam.model';
 
 @Component({
@@ -29,7 +28,7 @@ export class SoftwareSelectorComponent implements OnInit {
 
     software: Software[] = [];
 
-    constructor(private http: HttpClient, private translate: TranslateService) {}
+    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
 
     ngOnInit() {
         this.http.get<Software[]>('/app/softwares').subscribe((data) => (this.software = data));
@@ -51,9 +50,9 @@ export class SoftwareSelectorComponent implements OnInit {
                 } else {
                     this.exam.softwares.push(sw);
                 }
-                toast.info(this.translate.instant('sitnet_exam_software_updated'));
+                this.toast.info(this.translate.instant('sitnet_exam_software_updated'));
             },
-            (err) => toast.error(err.data),
+            (err) => this.toast.error(err.data),
         );
     };
 }

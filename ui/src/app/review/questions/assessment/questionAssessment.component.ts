@@ -12,26 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
 import { cloneDeep, isNumber } from 'lodash';
+import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
-import * as toast from 'toastr';
-
+import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../../assessment/assessment.service';
-import { QuestionReviewService } from '../questionReview.service';
-
-import type { User } from '../../../session/session.service';
 import type { QuestionReview, ReviewQuestion } from '../../review.model';
+import { QuestionReviewService } from '../questionReview.service';
 
 @Component({
     selector: 'question-assessment',
     templateUrl: './questionAssessment.component.html',
 })
-export class QuestionAssessmentComponent {
+export class QuestionAssessmentComponent implements OnInit {
     user: User;
     examId: number;
     reviews: QuestionReview[] = [];
@@ -42,7 +40,8 @@ export class QuestionAssessmentComponent {
 
     constructor(
         private state: UIRouterGlobals,
-        private $translate: TranslateService,
+        private translate: TranslateService,
+        private toast: ToastrService,
         private QuestionReview: QuestionReviewService,
         private Assessment: AssessmentService,
         private Session: SessionService,
@@ -62,7 +61,7 @@ export class QuestionAssessmentComponent {
                     this.setSelectedReview(this.reviews[0]);
                 }
             },
-            (err) => toast.error(err),
+            (err) => this.toast.error(err),
         );
     }
 
@@ -85,7 +84,7 @@ export class QuestionAssessmentComponent {
         return new Promise<void>((resolve) => {
             answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
             this.Assessment.saveEssayScore$(answer).subscribe(() => {
-                toast.info(this.$translate.instant('sitnet_graded'));
+                this.toast.info(this.translate.instant('sitnet_graded'));
                 if (this.assessedAnswers.indexOf(answer) === -1) {
                     this.unassessedAnswers.splice(this.unassessedAnswers.indexOf(answer), 1);
                     this.assessedAnswers.push(answer);
@@ -108,7 +107,7 @@ export class QuestionAssessmentComponent {
                 (err: string) => {
                     // Roll back
                     answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
-                    toast.error(err);
+                    this.toast.error(err);
                     resolve();
                 };
         });

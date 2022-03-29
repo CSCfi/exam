@@ -14,12 +14,10 @@
  */
 import { Component, Input } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
-
+import type { ExamParticipation } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
 import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { WindowRef } from '../../../utility/window/window.service';
-
-import type { ExamParticipation } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-participation',

@@ -13,22 +13,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnDestroy, OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import * as toast from 'toastr';
-
+import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
+import type { Exam, ExamType, GradeScale } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { ExamTabService } from '../examTabs.service';
-
-import type { OnDestroy, OnInit } from '@angular/core';
-import type { User } from '../../../session/session.service';
-import type { Exam, ExamType, GradeScale } from '../../exam.model';
 
 @Component({
     selector: 'basic-exam-info',
@@ -52,6 +50,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
         private http: HttpClient,
         private state: StateService,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Exam: ExamService,
         private ExamTabs: ExamTabService,
         private Attachment: AttachmentService,
@@ -82,14 +81,14 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.unsubscribe.next();
+        this.unsubscribe.next(undefined);
         this.unsubscribe.complete();
     }
 
     updateExam = (resetAutoEvaluationConfig: boolean) => {
         this.Exam.updateExam$(this.exam, {}, this.collaborative).subscribe(
             () => {
-                toast.info(this.translate.instant('sitnet_exam_saved'));
+                this.toast.info(this.translate.instant('sitnet_exam_saved'));
                 const code = this.exam.course ? this.exam.course.code : null;
                 this.ExamTabs.notifyExamUpdate({
                     name: this.exam.name,
@@ -98,7 +97,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
                     initScale: false,
                 });
             },
-            (resp) => toast.error(resp),
+            (resp) => this.toast.error(resp),
         );
     };
 

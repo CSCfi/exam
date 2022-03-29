@@ -38,7 +38,7 @@
                         [participation]="participation"
                         [isScorable]="isScorable"
                         [collaborative]="collaborative"
-                        (onScore)="scoreSet($event)"
+                        (scored)="scoreSet($event)"
                     >
                     </r-multi-choice-question>
                 </div>
@@ -49,7 +49,7 @@
                         [exam]="exam"
                         [isScorable]="isScorable"
                         [collaborative]="collaborative"
-                        (onScore)="scoreSet($event)"
+                        (scored)="scoreSet($event)"
                     >
                     </r-essay-question>
                 </div>
@@ -59,7 +59,7 @@
                         [participation]="participation"
                         [isScorable]="isScorable"
                         [collaborative]="collaborative"
-                        (onScore)="scoreSet($event)"
+                        (scored)="scoreSet($event)"
                     >
                         >
                     </r-multi-choice-question>
@@ -70,7 +70,7 @@
                         [participation]="participation"
                         [isScorable]="isScorable"
                         [collaborative]="collaborative"
-                        (onScore)="scoreSet($event)"
+                        (scored)="scoreSet($event)"
                     >
                         >
                     </r-cloze-test>
@@ -81,7 +81,7 @@
                         [participation]="participation"
                         [isScorable]="isScorable"
                         [collaborative]="collaborative"
-                        (onScore)="scoreSet($event)"
+                        (scored)="scoreSet($event)"
                     >
                         >
                     </r-multi-choice-question>

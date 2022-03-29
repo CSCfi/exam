@@ -61,7 +61,7 @@
                 <td>
                     <ul>
                         <li *ngFor="let software of machine.softwareInfo; let l = last" class="pull-left">
-                            <span *ngIf="software.status != 'DISABLED'">
+                            <span *ngIf="software.status !== 'DISABLED'">
                                 {{ software.name }}<span *ngIf="!l">, </span>
                             </span>
                         </li>

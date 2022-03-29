@@ -13,9 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 
-import type { OnInit } from '@angular/core';
 interface Departments {
     name: string;
     filtered: boolean;

@@ -13,12 +13,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-
+import type { ExamExecutionType, Implementation } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
-import type { OnInit } from '@angular/core';
-import type { ExamExecutionType, Implementation } from '../../exam.model';
 @Component({
     selector: 'new-exam',
     templateUrl: './newExam.component.html',

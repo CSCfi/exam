@@ -6,11 +6,11 @@
         <div id="dashboard">
             <div>
                 <label for="archive-download-start">{{ 'sitnet_begin' | translate }}:</label>
-                <date-picker id="archive-download-start" (onUpdate)="startDateChanged($event)"></date-picker>
+                <date-picker id="archive-download-start" (updated)="startDateChanged($event)"></date-picker>
             </div>
             <div>
                 <label for="archive-download-end">{{ 'sitnet_end' | translate }}:</label>
-                <date-picker id="archive-download-end" (onUpdate)="endDateChanged($event)"></date-picker>
+                <date-picker id="archive-download-end" (updated)="endDateChanged($event)"></date-picker>
             </div>
         </div>
     </div>

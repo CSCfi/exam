@@ -13,12 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
+import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
+import type { Exam, ExamLanguage, ExamParticipation, ExamType, SelectableGrade } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
+import type { Examination } from '../../../examination/examination.model';
+import type { QuestionAmounts } from '../../../question/question.service';
+import type { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { LanguageService } from '../../../utility/language/language.service';
 import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
@@ -26,11 +30,6 @@ import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 import { GradingBaseComponent } from '../common/gradingBase.component';
 
-import type { QuestionAmounts } from '../../../question/question.service';
-import type { Examination } from '../../../examination/examination.model';
-import type { User } from '../../../session/session.service';
-import type { OnInit } from '@angular/core';
-import type { Exam, ExamLanguage, ExamParticipation, ExamType, SelectableGrade } from '../../../exam/exam.model';
 @Component({
     selector: 'r-grading',
     templateUrl: './grading.component.html',
@@ -41,7 +40,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     @Input() participation!: ExamParticipation;
     @Input() collaborative = false;
     @Input() user!: User;
-    @Output() onUpdate = new EventEmitter<void>();
+    @Output() updated = new EventEmitter<void>();
 
     message: { text?: string } = { text: '' };
     override selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null } = {
@@ -57,6 +56,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
         private translate: TranslateService,
         private state: StateService,
         http: HttpClient,
+        toast: ToastrService,
         Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         Exam: ExamService,
@@ -64,7 +64,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
         private Attachment: AttachmentService,
         Language: LanguageService,
     ) {
-        super(http, Assessment, Exam, CommonExam, Language);
+        super(http, toast, Assessment, Exam, CommonExam, Language);
     }
 
     getExam = () => this.exam;
@@ -82,7 +82,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
 
     getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam);
     getExamTotalScore = () => this.Exam.getTotalScore(this.exam);
-    inspectionDone = () => this.onUpdate.emit();
+    inspectionDone = () => this.updated.emit();
     isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam, this.collaborative);
     isReadOnly = () => this.Assessment.isReadOnly(this.exam);
     isGraded = () => this.Assessment.isGraded(this.exam);
@@ -98,7 +98,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
 
     sendEmailMessage = () => {
         if (!this.message.text) {
-            toast.error(this.translate.instant('sitnet_email_empty'));
+            this.toast.error(this.translate.instant('sitnet_email_empty'));
             return;
         }
         if (this.collaborative) {
@@ -109,15 +109,15 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
             ).subscribe(
                 () => {
                     delete this.message.text;
-                    toast.info(this.translate.instant('sitnet_email_sent'));
+                    this.toast.info(this.translate.instant('sitnet_email_sent'));
                 },
-                (err) => toast.error(err.data),
+                (err) => this.toast.error(err.data),
             );
         } else {
             this.http.post(`/app/email/inspection/${this.exam.id}`, { msg: this.message.text }).subscribe(() => {
-                toast.info(this.translate.instant('sitnet_email_sent'));
+                this.toast.info(this.translate.instant('sitnet_email_sent'));
                 delete this.message.text;
-            }, toast.error);
+            }, this.toast.error);
         }
     };
 

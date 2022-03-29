@@ -14,10 +14,8 @@
  */
 import { Component, Input } from '@angular/core';
 import { format } from 'date-fns';
-
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { FileService } from '../../utility/file/file.service';
-
 import type { ReviewedExam, Scores } from '../enrolment.model';
 
 @Component({

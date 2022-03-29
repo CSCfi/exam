@@ -13,17 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { format, parseISO } from 'date-fns';
 import { map } from 'rxjs/operators';
-
 import type { Exam } from '../exam.model';
 
 @Component({
     selector: 'printout-listing',
     templateUrl: './printoutListing.component.html',
 })
-export class PrintoutListingComponent {
+export class PrintoutListingComponent implements OnInit {
     printouts: (Exam & { examinationDatesAggregate: string })[] = [];
     predicate = 'examinationDatesAggregate';
     reverse = true;

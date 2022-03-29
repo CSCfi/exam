@@ -1,8 +1,7 @@
-import { Compiler, COMPILER_OPTIONS, CompilerFactory, NgModule } from '@angular/core';
+import { Compiler, CompilerFactory, COMPILER_OPTIONS, NgModule } from '@angular/core';
 import { JitCompilerFactory } from '@angular/platform-browser-dynamic';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
-
 import { QuestionModule } from '../question/question.module';
 import { UtilityModule } from '../utility/utility.module';
 import { ExaminationClockComponent } from './clock/examinationClock.component';

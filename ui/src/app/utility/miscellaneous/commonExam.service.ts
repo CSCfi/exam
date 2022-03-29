@@ -15,9 +15,7 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { isNumber } from 'lodash';
-
 import { ReviewedExam } from '../../enrolment/enrolment.model';
-
 import type { Exam, GradeScale, Implementation } from '../../exam/exam.model';
 
 @Injectable()

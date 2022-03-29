@@ -12,9 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Pipe } from '@angular/core';
-
 import type { PipeTransform } from '@angular/core';
+import { Pipe } from '@angular/core';
 import type { Exam } from '../../../exam/exam.model';
 
 @Pipe({ name: 'examSearch' })
