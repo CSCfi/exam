@@ -84,12 +84,7 @@
               "browserTarget": "exam:build:production"
             },
             "development": {
-<<<<<<< HEAD
-              "browserTarget": "exam:build:development",
-              "headers": {"Csrf-Token": "nocheck"}
-=======
               "browserTarget": "exam:build:development"
->>>>>>> 31b15e327011eb41b4ea879c540b4bd36189fadd
             }
           },
           "defaultConfiguration": "development"
