@@ -27,6 +27,7 @@ import { CalendarService } from './calendar.service';
 import type { OnInit } from '@angular/core';
 import type { Course, Exam, ExamSection } from '../exam/exam.model';
 import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
+import { isArray } from 'lodash';
 export type SelectableSection = ExamSection & { selected: boolean };
 export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Course } & {
     duration: number;
@@ -87,14 +88,21 @@ export class CalendarComponent implements OnInit {
         private Calendar: CalendarService,
     ) {}
 
+    private resolveOptionalSections = (): string[] => {
+        if (!this.uiRouter.params.selected) return [];
+        if (isArray(this.uiRouter.params.selected)) return this.uiRouter.params.selected;
+        else return [this.uiRouter.params.selected];
+    };
+
     private prepareOptionalSections = (data: ReservationInfo | null) => {
         this.examInfo.examSections
             .filter((es) => es.optional)
             .forEach((es) => {
                 es.selected =
                     (data?.optionalSections && data.optionalSections.map((os) => os.id).indexOf(es.id) > -1) ||
-                    (this.uiRouter.params.selected &&
-                        this.uiRouter.params.selected.map((p: string) => parseInt(p)).indexOf(es.id) > -1);
+                    this.resolveOptionalSections()
+                        .map((p: string) => parseInt(p))
+                        .indexOf(es.id) > -1;
             });
     };
 
