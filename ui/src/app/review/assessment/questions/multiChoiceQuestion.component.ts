@@ -62,8 +62,6 @@ export class MultiChoiceQuestionComponent {
         this._score = value;
         if (this.form?.valid) {
             this.sectionQuestion.forcedScore = value;
-        } else {
-            this.sectionQuestion.forcedScore = null;
         }
     }
 
