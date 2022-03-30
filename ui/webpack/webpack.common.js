@@ -51,21 +51,27 @@ const config = {
                 test: /\.(woff|woff2)$/,
                 use: ['url-loader'],
             },
+            {
+                test: /\.m?js/,
+                resolve: {
+                    fullySpecified: false,
+                },
+            },
         ],
     },
     plugins: [
-        new ForkTsCheckerWebpackPlugin({ eslint: { files: './src/**/*.ts'} }),
+        new ForkTsCheckerWebpackPlugin({ eslint: { files: './src/**/*.ts' } }),
         new CleanWebpackPlugin(),
         new webpack.IgnorePlugin({
             resourceRegExp: /^\.\/locale$/,
             contextRegExp: /moment$/,
-          }),
+        }),
         new BundleAnalyzerPlugin({ analyzerMode: 'static', openAnalyzer: false }),
     ],
     resolve: {
         extensions: ['.ts', '.js'],
         //fallback: { buffer: require.resolve('buffer/') },
-        mainFields: [ 'es2015', 'main' ]
+        mainFields: ['es2015', 'main'],
     },
 };
 
