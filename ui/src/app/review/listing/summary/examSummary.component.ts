@@ -154,8 +154,10 @@ export class ExamSummaryComponent {
             },
             options: {
                 animation: {
-                    onComplete: (chart) => {
-                        const ctx = chart.ctx;
+                    // FIXME: how on earth does this fully work on typescript?
+                    // See if doable with ng2-chart / chart.js 3
+                    onComplete: function (event: { chart: { ctx: CanvasRenderingContext2D } }) {
+                        const ctx = event.chart.ctx;
                         ctx.font = Chart.helpers.fontString(
                             Chart.defaults.global.defaultFontFamily,
                             'bold',
@@ -163,7 +165,9 @@ export class ExamSummaryComponent {
                         );
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'bottom';
-                        const dataset = chart.data.datasets[0];
+                        // eslint-disable-next-line
+                        // @ts-ignore
+                        const dataset = this.data.datasets[0];
                         for (let i = 0; i < dataset.data?.length; i++) {
                             const model = dataset._meta[Object.keys(dataset._meta)[0]].data[i]._model,
                                 total = dataset._meta[Object.keys(dataset._meta)[0]].total,
@@ -175,6 +179,7 @@ export class ExamSummaryComponent {
                             const x = mid_radius * Math.cos(mid_angle);
                             const y = mid_radius * Math.sin(mid_angle);
 
+                            // Darker text color for lighter background
                             ctx.fillStyle = '#444';
                             const percent = String(Math.round((dataset.data[i] / total) * 100)) + '%';
                             ctx.fillText(`${dataset.data[i]} ${amount}`, model.x + x, model.y + y);
