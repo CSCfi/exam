@@ -38,7 +38,10 @@ export class ArchivedReviewsComponent {
     ) {}
 
     ngOnInit() {
-        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'displayedGradingTime');
+        this.view = {
+            ...this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.started'),
+            reverse: true,
+        };
     }
 
     showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
