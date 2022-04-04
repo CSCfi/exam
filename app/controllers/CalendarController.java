@@ -146,12 +146,11 @@ public class CalendarController extends BaseController {
 
     @Authenticated
     @Restrict({ @Group("STUDENT") })
-    public Result getCurrentReservation(Long id, Http.Request request) {
+    public Result getCurrentEnrolment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
         Optional<ExamEnrolment> enrolment = Ebean
             .find(ExamEnrolment.class)
-            .fetch("reservation")
             .fetch("optionalSections")
             .where()
             .eq("user.id", user.getId())
@@ -159,7 +158,7 @@ public class CalendarController extends BaseController {
             .eq("exam.state", Exam.State.PUBLISHED)
             .gt("reservation.startAt", now.toDate())
             .findOneOrEmpty();
-        return enrolment.map(e -> ok(e.getReservation())).orElse(ok());
+        return enrolment.map(this::ok).orElse(ok());
     }
 
     @Authenticated
