@@ -859,11 +859,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     @Transient
     public boolean isPrivate() {
-        return (
-            !executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString()) &&
-            !isPrintout() &&
-            (implementation == null || implementation.toString().equals(Implementation.AQUARIUM.toString()))
-        );
+        return !executionType.getType().equals(ExamExecutionType.Type.PUBLIC.toString()) && !isPrintout();
     }
 
     @Transient
