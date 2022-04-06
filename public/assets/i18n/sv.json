@@ -1028,5 +1028,7 @@
   "sitnet_maintenance_period": "Uppehåll för underhåll",
   "sitnet_maintenance_periods": "Uppehåll för underhåll",
   "sitnet_exam_organisations": "Osallistuvat organisaatiot SV",
-  "sitnet_exam_organisations_description": "Yhteistentin tiedot näkyvät vain näille organisaatioille. Yhteistentin luonut taho on automaattisesti näiden joukossa. SV"
+  "sitnet_exam_organisations_description": "Yhteistentin tiedot näkyvät vain näille organisaatioille. Yhteistentin luonut taho on automaattisesti näiden joukossa. SV",
+  "sitnet_error_examination_event_in_the_past": "Examination event takes place in the past SV",
+  "sitnet_error_conflicts_with_maintenance_period": "Examination event conflicts with a maintenance period SV"
 }
