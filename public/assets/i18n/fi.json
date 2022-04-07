@@ -1028,5 +1028,7 @@
   "sitnet_maintenance_period": "Huoltokatko",
   "sitnet_maintenance_periods": "Huoltokatkot",
   "sitnet_exam_organisations": "Osallistujaorganisaatiot",
-  "sitnet_exam_organisations_description": "Yhteistentin tiedot näkyvät vain näille organisaatioille. Yhteistentin luonut taho on automaattisesti näiden joukossa."
+  "sitnet_exam_organisations_description": "Yhteistentin tiedot näkyvät vain näille organisaatioille. Yhteistentin luonut taho on automaattisesti näiden joukossa.",
+  "sitnet_error_examination_event_in_the_past": "Examination event takes place in the past FI",
+  "sitnet_error_conflicts_with_maintenance_period": "Examination event conflicts with a maintenance period FI"
 }

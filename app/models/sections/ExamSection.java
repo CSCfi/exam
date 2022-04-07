@@ -34,6 +34,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import models.Exam;
+import models.ExamEnrolment;
 import models.User;
 import models.api.Sortable;
 import models.base.OwnedModel;
@@ -77,6 +78,9 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         inverseJoinColumns = @JoinColumn(name = "exam_material_id")
     )
     private Set<ExamMaterial> examMaterials;
+
+    @ManyToMany(mappedBy = "optionalSections", cascade = CascadeType.ALL)
+    private Set<ExamEnrolment> examEnrolments;
 
     public Set<ExamSectionQuestion> getSectionQuestions() {
         return sectionQuestions;
@@ -156,6 +160,13 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
 
     public void setExamMaterials(Set<ExamMaterial> examMaterials) {
         this.examMaterials = examMaterials;
+    }
+
+    public Set<ExamEnrolment> getExamEnrolments() {
+        return examEnrolments;
+    }
+    public void setExamEnrolments(Set<ExamEnrolment> enrolments) {
+        this.examEnrolments = enrolments;
     }
 
     public void shuffleQuestions() {
