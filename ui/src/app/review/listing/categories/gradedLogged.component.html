@@ -265,12 +265,12 @@
             <div class="speed-review-csv mb-2">
                 <a class="pointer" (click)="printSelected(false)">{{ 'sitnet_print_selected_to_file' | translate }}</a>
             </div>
-            <div class="speed-review-csv mb-2">
+            <div class="speed-review-csv mb-2" *ngIf="!collaborative">
                 <a class="pointer" (click)="printSelected(true)">{{ 'sitnet_print_selected_to_excel' | translate }}</a>
             </div>
         </div>
 
-        <div>
+        <div *ngIf="!collaborative">
             <div class="review-attachment-button make-inline">
                 <a class="pointer" (click)="archiveSelected()">
                     {{ 'sitnet_archive_selected' | translate }}
