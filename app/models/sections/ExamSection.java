@@ -165,6 +165,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     public Set<ExamEnrolment> getExamEnrolments() {
         return examEnrolments;
     }
+
     public void setExamEnrolments(Set<ExamEnrolment> enrolments) {
         this.examEnrolments = enrolments;
     }

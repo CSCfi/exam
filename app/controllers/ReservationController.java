@@ -30,7 +30,6 @@ import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -275,7 +274,13 @@ public class ReservationController extends BaseController {
             .isNotNull("exam");
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (user.hasRole(Role.Name.TEACHER)) {
-            query = query.disjunction().eq("exam.parent.examOwners", user).eq("exam.examOwners", user).endJunction();
+            query =
+                query
+                    .disjunction()
+                    .eq("exam.parent.examOwners", user)
+                    .eq("exam.examOwners", user)
+                    .endJunction()
+                    .eq("exam.state", Exam.State.DELETED);
         }
 
         if (start.isPresent()) {
@@ -283,8 +288,19 @@ public class ReservationController extends BaseController {
             query = query.ge("examinationEventConfiguration.examinationEvent.start", startDate.toDate());
         }
 
-        if (state.isPresent() && Arrays.stream(Exam.State.values()).anyMatch(v -> state.get().equals(v.name()))) {
-            query = query.eq("exam.state", Exam.State.valueOf(state.get()));
+        if (state.isPresent()) {
+            switch (state.get()) {
+                case "NO_SHOW":
+                    query = query.eq("noShow", true);
+                    break;
+                case "EXTERNAL_UNFINISHED":
+                case "EXTERNAL_FINISHED":
+                    query = query.isNull("id"); // Deliberately force an empty result set
+                    break;
+                default:
+                    query = query.eq("exam.state", Exam.State.valueOf(state.get())).eq("noShow", false);
+                    break;
+            }
         }
 
         if (studentId.isPresent()) {
@@ -407,10 +423,8 @@ public class ReservationController extends BaseController {
                     query = query.isNotNull("externalUserRef").isNotNull("enrolment.externalExam.finished");
                     break;
                 default:
-                    query = query.eq("enrolment.exam.state", Exam.State.valueOf(state.get()));
-                    if (state.get().equals(Exam.State.PUBLISHED.toString())) {
-                        query = query.eq("enrolment.noShow", false);
-                    }
+                    query =
+                        query.eq("enrolment.exam.state", Exam.State.valueOf(state.get())).eq("enrolment.noShow", false);
                     break;
             }
         }
