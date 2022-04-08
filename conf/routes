@@ -272,7 +272,6 @@ GET           /app/iop/attachment/question/:qid/answer/:hash           controlle
 #### integration ####
 # records
 GET           /integration/record/:startDate                           controllers.integration.ExamRecordAPIController.getNewRecords(startDate: String)
-GET           /integration/recordalphabetic/:startDate                 controllers.integration.ExamRecordAPIController.getNewRecordsAlphabeticKeyOrder(startDate: String)
 
 # exams
 GET           /integration/exams/active                                controllers.integration.ExamAPIController.getActiveExams(date: java.util.Optional[String])
