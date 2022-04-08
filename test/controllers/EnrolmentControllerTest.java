@@ -1,16 +1,14 @@
 package controllers;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
-
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
-import com.icegreen.greenmail.junit.GreenMailRule;
-import com.icegreen.greenmail.util.ServerSetup;
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit4.GreenMailRule;
+import com.icegreen.greenmail.util.ServerSetupTest;
 import helpers.RemoteServerHelper;
 import io.ebean.Ebean;
 import io.ebean.text.json.EJson;
@@ -32,6 +30,7 @@ import models.User;
 import models.json.ExternalExam;
 import net.jodah.concurrentunit.Waiter;
 import org.eclipse.jetty.server.Server;
+import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -41,6 +40,7 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+import static play.test.Helpers.contentAsString;
 import util.json.JsonDeserializer;
 
 public class EnrolmentControllerTest extends IntegrationTestCase {
@@ -54,7 +54,8 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     private static Server server;
 
     @Rule
-    public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
+    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
+            .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     public static class CourseInfoServlet extends HttpServlet {
 
