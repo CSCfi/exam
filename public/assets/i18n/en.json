@@ -1030,5 +1030,6 @@
   "sitnet_exam_organisations": "Participating organisations",
   "sitnet_exam_organisations_description": "Joint exam is visible in these organisations only. Organisation where joint exam is created is included automatically.",
   "sitnet_error_examination_event_in_the_past": "Examination event takes place in the past",
-  "sitnet_error_conflicts_with_maintenance_period": "Examination event conflicts with a maintenance period"
+  "sitnet_error_conflicts_with_maintenance_period": "Examination event conflicts with a maintenance period",
+  "sitnet_save_custom_time": "Save custom time EN"
 }
