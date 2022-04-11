@@ -12,14 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
 import { parseISO } from 'date-fns';
 import { noop } from 'rxjs';
 
-import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
 
@@ -27,12 +24,7 @@ import type { Exam } from '../exam/exam.model';
 import type { ExamMachine, Reservation } from './reservation.model';
 @Injectable()
 export class ReservationService {
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private modal: NgbModal,
-        private ConfirmationDialog: ConfirmationDialogService,
-    ) {}
+    constructor(private modal: NgbModal) {}
 
     printExamState = (reservation: {
         enrolment: { exam: { state: string }; collaborativeExam: { state: string }; noShow: boolean };
