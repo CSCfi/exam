@@ -234,29 +234,37 @@
 
   .exam-header {
     background-color: black;
-    height:80px;
-
-    img {
-      margin-top: 15px;
-      padding-left: 30px;
-      vertical-align: initial;
+    display: flex;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    .language-selector{
+      margin-right: 450px;
     }
+    button{
+      max-height: 45px;
+    }
+    img {
+      align-self: center;
+    }
+    @media (max-width: $sitnet-mobile) {
+
+    }
+
 
   }
 
   .exam-header-img-wrap {
-    display: inline-block;
+    display: flex;
+    min-width: 100px;
+    align-content: flex-start;
+    justify-content: flex-end;
   }
 
   .exam-header-title {
-
-    display: inline-block;
     color: white;
     line-height: 55px;
     font-size: 28px;
     padding-left: 18px;
-    height: 40px;
-    vertical-align: text-bottom;
 
     &.divider {
       border-left: 1px solid white;
@@ -281,11 +289,8 @@
 
   .language-selector {
     display: flex;
-    position: absolute;
     white-space: nowrap;
     margin-top: 0px;
-    top: 19px;
-    right: 420px;
 
     a {
       cursor: pointer;
@@ -296,21 +301,22 @@
 
   .floating-clock {
 
-    margin-top: 26px;
+    margin-top: 10px;
     display: inline-block;
     margin-right: 40px;
     position: fixed;
     right: 0;
     z-index: 9999;
 
+    @media (max-width: 1030px) {
+      margin-top: 50px;
+    }
     .header-wrapper {
       width: 100%;
       background-color: black;
       margin-right: 20px;
 
       img {
-        margin-left: 10px;
-        margin-top: 10px;
         padding-left: 0;
       }
 

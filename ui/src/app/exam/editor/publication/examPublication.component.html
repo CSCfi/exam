@@ -154,7 +154,7 @@
                 {{ duration }}
             </button>
         </span>
-        <span *ngIf="exam.implementation === 'WHATEVER'">
+        <span *ngIf="exam.implementation === 'WHATEVER' || exam.implementation === 'CLIENT_AUTH'">
             <button class="btn btn-primary green border-green marl30" (click)="toggleCustomTimeField()">
                 {{ 'sitnet_custom' | translate }} {{ ('sitnet_exam_time' | translate).toLowerCase() }}
                 <img
@@ -195,7 +195,7 @@
                         class="btn btn-primary green border-green mart10"
                         (click)="setExamDuration(hourValue, minuteValue)"
                     >
-                        {{ 'sitnet_save' | translate }}
+                        {{ 'sitnet_save_custom_time' | translate }}
                     </button>
                 </div>
                 <div>
