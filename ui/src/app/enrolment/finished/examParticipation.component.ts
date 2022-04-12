@@ -24,7 +24,7 @@ import { EnrolmentService } from '../enrolment.service';
 import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
 import type { OnInit } from '@angular/core';
 import type { Exam, ExamParticipation } from '../../exam/exam.model';
-import type { ReviewedExam } from '../enrolment.model';
+import type { ExamEnrolment, ReviewedExam } from '../enrolment.model';
 type Scores = {
     maxScore: number;
     totalScore: number;
@@ -37,7 +37,9 @@ type Scores = {
     templateUrl: './examParticipation.component.html',
 })
 export class ExamParticipationComponent implements OnInit {
-    @Input() participation!: ExamParticipation | CollaborativeParticipation;
+    @Input() participation!:
+        | ((ExamParticipation | CollaborativeParticipation) & { noShow: boolean })
+        | (ExamEnrolment & { ended?: string });
     @Input() collaborative = false;
 
     reviewedExam!: ReviewedExam;

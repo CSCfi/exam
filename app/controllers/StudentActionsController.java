@@ -202,7 +202,6 @@ public class StudentActionsController extends CollaborationController {
             .fetch("exam.course", "code, name")
             .fetch("exam.examOwners", "firstName, lastName, id")
             .fetch("exam.examInspections.user", "firstName, lastName, id")
-            .fetch("reservation")
             .where()
             .eq("user", user)
             .isNull("exam.parent")
