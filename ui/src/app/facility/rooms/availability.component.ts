@@ -14,7 +14,7 @@
  */
 import { Component } from '@angular/core';
 import { StateService } from '@uirouter/core';
-import { format } from 'date-fns';
+import { addHours, format } from 'date-fns';
 import * as toast from 'toastr';
 
 import { CalendarService } from '../../calendar/calendar.service';
@@ -26,6 +26,8 @@ import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservat
 import type { Availability } from './room.service';
 import type { SlotMeta } from '../../calendar/bookingCalendar.component';
 import type { CalendarEvent } from 'calendar-utils';
+import { zonedTimeToUtc } from 'date-fns-tz';
+import { DateTimeService } from '../../utility/date/date.service';
 @Component({
     templateUrl: './availability.component.html',
     selector: 'availability',
@@ -43,7 +45,12 @@ export class AvailabilityComponent implements OnInit {
     room!: ExamRoom;
     events: CalendarEvent<SlotMeta>[] = [];
 
-    constructor(private state: StateService, private roomService: RoomService, private calendar: CalendarService) {}
+    constructor(
+        private state: StateService,
+        private roomService: RoomService,
+        private calendar: CalendarService,
+        private DateTime: DateTimeService,
+    ) {}
 
     ngOnInit() {
         this.roomService.getRoom$(this.state.params.id).subscribe((room) => {
@@ -70,8 +77,8 @@ export class AvailabilityComponent implements OnInit {
             this.events = resp.map((slot: Availability, i) => ({
                 id: i,
                 title: slot.reserved + ' / ' + slot.total,
-                start: new Date(slot.start),
-                end: new Date(slot.end),
+                start: this.adjust(slot.start, this.room?.localTimezone as string),
+                end: this.adjust(slot.end, this.room?.localTimezone as string),
                 color: this.getColor(slot),
                 cssClass: 'black-event-text',
                 meta: { availableMachines: 0 },
@@ -79,5 +86,11 @@ export class AvailabilityComponent implements OnInit {
         };
         const errorFn = (resp: string) => toast.error(resp);
         this.query$(format(event.date, 'yyyy-MM-dd')).subscribe(successFn, errorFn);
+    };
+
+    private adjust = (date: string, tz: string): Date => {
+        const adjusted = zonedTimeToUtc(date, tz);
+        const offset = this.DateTime.isDST(adjusted) ? -1 : 0;
+        return addHours(adjusted, offset);
     };
 }
