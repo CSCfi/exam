@@ -24,6 +24,7 @@ import type { CollaborativeExam, ExamParticipation, Exam } from '../exam.model';
 import type { ReviewedExam } from '../../enrolment/enrolment.model';
 export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exam: ReviewedExam } & {
     examId: string;
+    noShow: false;
     _id: string;
     _rev: string;
 };
