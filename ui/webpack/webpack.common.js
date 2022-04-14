@@ -5,6 +5,7 @@ const webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const linkerPlugin = require('@angular/compiler-cli/linker/babel');
 
 /**
  * Base configuration object for Webpack
@@ -53,6 +54,14 @@ const config = {
             },
             {
                 test: /\.m?js/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        plugins: [linkerPlugin],
+                        compact: false,
+                        cacheDirectory: true
+                    }
+                },
                 resolve: {
                     fullySpecified: false,
                 },
