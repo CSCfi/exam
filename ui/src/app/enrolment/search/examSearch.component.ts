@@ -15,7 +15,6 @@
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { isObject } from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -103,7 +102,7 @@ export class ExamSearchComponent implements OnInit {
                     exam.reservationMade = false;
                 } else {
                     exam.alreadyEnrolled = true;
-                    exam.reservationMade = enrolments.some((e) => isObject(e.reservation));
+                    exam.reservationMade = enrolments.some((e) => e.reservation || e.examinationEventConfiguration);
                 }
             });
         });
