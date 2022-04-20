@@ -47,7 +47,7 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
     ) {}
 
     private init() {
-        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'deadline');
+        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.deadline');
         this.selections = { all: false, page: false };
     }
 

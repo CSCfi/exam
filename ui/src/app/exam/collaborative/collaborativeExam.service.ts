@@ -22,6 +22,7 @@ import { CollaborativeExamState } from '../exam.model';
 
 export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exam: ReviewedExam } & {
     examId: string;
+    noShow: false;
     _id: string;
     _rev: string;
 };

@@ -163,7 +163,7 @@ export class MaturityService {
             return StateName.AWAIT_INSPECTION;
         }
         const grade = exam.grade;
-        const disapproved = !grade || grade.marksRejection;
+        const disapproved = (!grade && !exam.gradeless) || grade?.marksRejection;
 
         return disapproved ? StateName.REJECT_STRAIGHTAWAY : StateName.LANGUAGE_INSPECT;
     };

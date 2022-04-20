@@ -16,12 +16,14 @@ import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import type { CalendarEvent } from 'calendar-utils';
-import { format } from 'date-fns';
+import { addHours, format } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import { ToastrService } from 'ngx-toastr';
 import type { SlotMeta } from '../../calendar/bookingCalendar.component';
 import type { OpeningHours } from '../../calendar/calendar.service';
 import { CalendarService } from '../../calendar/calendar.service';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { DateTimeService } from '../../utility/date/date.service';
 import type { Availability } from './room.service';
 import { RoomService } from './room.service';
 
@@ -47,6 +49,7 @@ export class AvailabilityComponent implements OnInit {
         private toast: ToastrService,
         private roomService: RoomService,
         private calendar: CalendarService,
+        private DateTime: DateTimeService,
     ) {}
 
     ngOnInit() {
@@ -74,8 +77,8 @@ export class AvailabilityComponent implements OnInit {
             this.events = resp.map((slot: Availability, i) => ({
                 id: i,
                 title: slot.reserved + ' / ' + slot.total,
-                start: new Date(slot.start),
-                end: new Date(slot.end),
+                start: this.adjust(slot.start, this.room?.localTimezone as string),
+                end: this.adjust(slot.end, this.room?.localTimezone as string),
                 color: this.getColor(slot),
                 cssClass: 'black-event-text',
                 meta: { availableMachines: 0 },
@@ -83,5 +86,11 @@ export class AvailabilityComponent implements OnInit {
         };
         const errorFn = (resp: string) => this.toast.error(resp);
         this.query$(format(event.date, 'yyyy-MM-dd')).subscribe(successFn, errorFn);
+    };
+
+    private adjust = (date: string, tz: string): Date => {
+        const adjusted = zonedTimeToUtc(date, tz);
+        const offset = this.DateTime.isDST(adjusted) ? -1 : 0;
+        return addHours(adjusted, offset);
     };
 }

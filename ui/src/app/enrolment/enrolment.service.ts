@@ -71,12 +71,15 @@ export class EnrolmentService {
             ? enrolment.examinationEventConfiguration.id
             : undefined;
         modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.http.post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {}).subscribe(() => {
-                enrolment.examinationEventConfiguration = data;
-                if (nextState) {
-                    this.State.go(nextState);
-                }
-            });
+            this.http.post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {}).subscribe(
+                () => {
+                    enrolment.examinationEventConfiguration = data;
+                    if (nextState) {
+                        this.State.go(nextState);
+                    }
+                },
+                (err) => this.toast.error(err),
+            );
         });
     };
 

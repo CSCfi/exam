@@ -16,7 +16,6 @@ import { animate, query, stagger, style, transition, trigger } from '@angular/an
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
-import { isObject } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
@@ -103,7 +102,7 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
                     exam.reservationMade = false;
                 } else {
                     exam.alreadyEnrolled = true;
-                    exam.reservationMade = enrolments.some((e) => isObject(e.reservation));
+                    exam.reservationMade = enrolments.some((e) => e.reservation || e.examinationEventConfiguration);
                 }
             });
         });

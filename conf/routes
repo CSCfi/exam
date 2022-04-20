@@ -272,7 +272,6 @@ GET           /app/iop/attachment/question/:qid/answer/:hash           controlle
 #### integration ####
 # records
 GET           /integration/record/:startDate                           controllers.integration.ExamRecordAPIController.getNewRecords(startDate: String)
-GET           /integration/recordalphabetic/:startDate                 controllers.integration.ExamRecordAPIController.getNewRecordsAlphabeticKeyOrder(startDate: String)
 
 # exams
 GET           /integration/exams/active                                controllers.integration.ExamAPIController.getActiveExams(date: java.util.Optional[String])
@@ -393,7 +392,7 @@ GET           /app/time/:hash                                          controlle
 
 ################# Calendar interface ##################
 GET           /app/calendar/:examId/:roomId                            controllers.CalendarController.getSlots(examId: Long, roomId: Long, day: String ?= "", aids: String ?= "", request: Request)
-GET           /app/calendar/enrolment/:id/reservation                  controllers.CalendarController.getCurrentReservation(id: Long, request: Request)
+GET           /app/calendar/enrolment/:id/current                      controllers.CalendarController.getCurrentEnrolment(id: Long, request: Request)
 POST          /app/calendar/reservation                                controllers.CalendarController.createReservation(request: Request)
 DELETE        /app/calendar/reservation/:id                            controllers.CalendarController.removeReservation(id: Long, request: Request)
 GET           /app/availability/:roomId/:date                          controllers.AvailabilityController.getAvailability(roomId: Long, date: String)

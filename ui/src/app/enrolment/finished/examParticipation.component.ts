@@ -21,9 +21,8 @@ import { takeUntil } from 'rxjs/operators';
 import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
 import type { Exam, ExamParticipation } from '../../exam/exam.model';
 import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
-import type { ReviewedExam } from '../enrolment.model';
+import type { ExamEnrolment, ReviewedExam } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
-
 type Scores = {
     maxScore: number;
     totalScore: number;
@@ -31,12 +30,17 @@ type Scores = {
     rejectedAnswerCount: number;
     hasApprovedRejectedAnswers: boolean;
 };
+export type ParticipationLike =
+    | (ExamParticipation & { noShow: boolean })
+    | (CollaborativeParticipation & { noShow: boolean })
+    | (ExamEnrolment & { started?: string; ended?: string });
+
 @Component({
     selector: 'exam-participation',
     templateUrl: './examParticipation.component.html',
 })
 export class ExamParticipationComponent implements OnInit, OnDestroy {
-    @Input() participation!: ExamParticipation | CollaborativeParticipation;
+    @Input() participation!: ParticipationLike;
     @Input() collaborative = false;
 
     reviewedExam!: ReviewedExam;

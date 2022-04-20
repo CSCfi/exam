@@ -548,7 +548,7 @@
   "sitnet_last_login": "Viimeksi kirjautunut",
   "sitnet_at_least_one_role_required": "Roolia ei voi poistaa. Käyttäjällä täytyy olla vähintään yksi rooli.",
   "sitnet_copy": "Kopioi",
-  "sitnet_custom": "Mukautettu FI",
+  "sitnet_custom": "Mukautettu",
   "sitnet_copy_question": "Kopioidaanko kysymys?",
   "sitnet_load_answer_attachments": "Lataa liitteet",
   "sitnet_no_attachments_to_archive": "Palautetuista, ei arvioiduista vastauksista ei löytynyt liitetiedostoja halutulla aikavälillä.",
@@ -1028,5 +1028,8 @@
   "sitnet_maintenance_period": "Huoltokatko",
   "sitnet_maintenance_periods": "Huoltokatkot",
   "sitnet_exam_organisations": "Osallistujaorganisaatiot",
-  "sitnet_exam_organisations_description": "Yhteistentin tiedot näkyvät vain näille organisaatioille. Yhteistentin luonut taho on automaattisesti näiden joukossa."
+  "sitnet_exam_organisations_description": "Yhteistentin tiedot näkyvät vain näille organisaatioille. Yhteistentin luonut taho on automaattisesti näiden joukossa.",
+  "sitnet_error_examination_event_in_the_past": "Tenttitilaisuuden ajankohta ei voi olla menneisyydessä",
+  "sitnet_error_conflicts_with_maintenance_period": "Tenttitilaisuuden ajankohta ei voi olla huoltokatkon aikana",
+  "sitnet_save_custom_time": "Tallenna mukautettu aika"
 }

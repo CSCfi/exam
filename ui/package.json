@@ -15,7 +15,7 @@
     "test": "ng test",
     "lint": "ng lint --fix",
     "format": "prettier --write \"src/app/**/*.{ts,html}\" --write \"../app/**/*.java\" --print-width=120 --tab-width=4; exit 0",
-    "prepare": "cd .. && husky install ui/.husky"
+    "prepare": "cd .. && npx husky install ui/.husky"
   },
   "dependencies": {
     "@angular/animations": "^13.3.0",
@@ -83,11 +83,6 @@
     "prettier-plugin-java": "^1.6.1",
     "prettier-plugin-organize-imports": "^2.3.4",
     "typescript": "~4.6.3"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   },
   "lint-staged": {
     "src/app/**/*.{ts,html}": [

@@ -36,7 +36,7 @@ export class InLanguageInspectionReviewsComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'deadline');
+        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.deadline');
     }
 
     showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
