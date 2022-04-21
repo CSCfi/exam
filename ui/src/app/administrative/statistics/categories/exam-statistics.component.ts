@@ -1,14 +1,7 @@
-import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import type { QueryParams } from '../statistics.component';
-
-interface ExamInfo {
-    name: string;
-    participations: number;
-    state: string;
-    rank: number;
-}
+import type { ExamInfo, QueryParams } from '../statistics.service';
+import { StatisticsService } from '../statistics.service';
 
 @Component({
     template: `
@@ -60,7 +53,7 @@ export class ExamStatisticsComponent implements OnInit {
 
     exams: ExamInfo[] = [];
 
-    constructor(private http: HttpClient) {}
+    constructor(private Statistics: StatisticsService) {}
 
     ngOnInit() {
         this.listExams();
@@ -69,10 +62,7 @@ export class ExamStatisticsComponent implements OnInit {
     totalExams = () => this.exams.reduce((a, b) => a + b.participations, 0);
 
     listExams = () =>
-        this.http.get<ExamInfo[]>('/app/reports/exams', { params: this.queryParams }).subscribe((resp) => {
-            if (!resp) {
-                return;
-            }
+        this.Statistics.listExams$(this.queryParams).subscribe((resp) => {
             this.exams = resp.sort((a, b) => {
                 if (a.participations > b.participations) return -1;
                 else if (a.participations < b.participations) return 1;

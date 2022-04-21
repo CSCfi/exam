@@ -12,14 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import type { QueryParams } from '../statistics.component';
-
-interface Reservation {
-    noShow: boolean;
-}
+import type { QueryParams } from '../statistics.service';
+import { StatisticsService } from '../statistics.service';
 
 @Component({
     template: `
@@ -48,17 +44,17 @@ interface Reservation {
 export class ReservationStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};
 
-    reservations: Reservation[] = [];
-    noShows: Reservation[] = [];
+    reservations: { noShow: boolean }[] = [];
+    noShows: { noShow: boolean }[] = [];
 
-    constructor(private http: HttpClient) {}
+    constructor(private Statistics: StatisticsService) {}
 
     ngOnInit() {
         this.listReservations();
     }
 
     listReservations = () =>
-        this.http.get<Reservation[]>('/app/reports/reservations', { params: this.queryParams }).subscribe((resp) => {
+        this.Statistics.listReservations$(this.queryParams).subscribe((resp) => {
             this.reservations = resp.filter((r) => !r.noShow);
             this.noShows = resp.filter((r) => r.noShow);
         });

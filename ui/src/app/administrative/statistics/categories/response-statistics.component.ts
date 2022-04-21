@@ -12,11 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import type { Exam } from '../../../exam/exam.model';
-import type { QueryParams } from '../statistics.component';
+import type { QueryParams } from '../statistics.service';
+import { StatisticsService } from '../statistics.service';
 
 @Component({
     template: `
@@ -52,14 +52,14 @@ export class ResponseStatisticsComponent implements OnInit {
     unassessedExams: Exam[] = [];
     abortedExams: Exam[] = [];
 
-    constructor(private http: HttpClient) {}
+    constructor(private Statistics: StatisticsService) {}
 
     ngOnInit() {
         this.listResponses();
     }
 
     listResponses = () =>
-        this.http.get<Exam[]>('/app/reports/responses', { params: this.queryParams }).subscribe((resp) => {
+        this.Statistics.listResponses$(this.queryParams).subscribe((resp) => {
             this.assessedExams = resp.filter(
                 (e) => ['GRADED', 'GRADED_LOGGED', 'ARCHIVED', 'REJECTED', 'DELETED'].indexOf(e.state) > -1,
             );

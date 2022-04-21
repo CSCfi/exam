@@ -12,14 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import type { ExamParticipation } from '../../../exam/exam.model';
-import type { QueryParams } from '../statistics.component';
-
-interface Participations {
-    [room: string]: ExamParticipation[];
-}
+import type { Participations, QueryParams } from '../statistics.service';
+import { StatisticsService } from '../statistics.service';
 
 @Component({
     template: `
@@ -70,10 +66,10 @@ export class RoomStatisticsComponent {
     rooms: string[] = [];
     months: Date[] = [];
 
-    constructor(private http: HttpClient) {}
+    constructor(private Statistics: StatisticsService) {}
 
-    listParticipations = () => {
-        this.http.get<Participations>('/app/reports/participations', { params: this.queryParams }).subscribe((resp) => {
+    listParticipations = () =>
+        this.Statistics.listParticipations$(this.queryParams).subscribe((resp) => {
             this.participations = resp;
             if (Object.values(this.participations).flat().length > 0) {
                 this.rooms = Object.keys(this.participations);
@@ -83,7 +79,6 @@ export class RoomStatisticsComponent {
                 this.months = [];
             }
         });
-    };
 
     totalParticipations = (month?: Date, room?: string) => {
         if (!this.participations) return 0;

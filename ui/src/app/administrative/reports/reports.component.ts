@@ -58,10 +58,10 @@ export class ReportsComponent implements OnInit {
     teachers: Option<User, number>[] = [];
     students: Option<User, number>[] = [];
 
-    constructor(private Users: UserService, private Reports: ReportsService, private room: RoomService) {}
+    constructor(private Users: UserService, private Reports: ReportsService, private Room: RoomService) {}
 
     ngOnInit() {
-        this.room.getRooms$().subscribe((resp) => {
+        this.Room.getRooms$().subscribe((resp) => {
             this.rooms = resp.map((r) => ({
                 id: r.id,
                 label: `${r.buildingName} - ${r.name}`,
