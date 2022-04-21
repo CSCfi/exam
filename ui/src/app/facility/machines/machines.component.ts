@@ -21,7 +21,7 @@ import type { ExamMachine, ExamRoom } from '../../reservation/reservation.model'
 
 @Component({
     templateUrl: './machines.component.html',
-    selector: 'machines',
+    selector: 'xm-machines',
 })
 export class MachineListComponent implements OnInit {
     @Input() room!: ExamRoom;

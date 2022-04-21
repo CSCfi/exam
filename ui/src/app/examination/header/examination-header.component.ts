@@ -17,7 +17,7 @@ import { SessionService } from '../../session/session.service';
 import type { Examination } from '../examination.model';
 
 @Component({
-    selector: 'examination-header',
+    selector: 'xm-examination-header',
     template: `<div class="row">
         <div class="col-md-12 padr0 padl0">
             <div class="exam-header">
@@ -31,7 +31,7 @@ import type { Examination } from '../examination.model';
                 <div class="exam-header-title divider"></div>
                 <div class="exam-header-title width-100">
                     {{ exam.course?.name }}
-                    <course-code *ngIf="exam.course" [course]="exam.course"></course-code>
+                    <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code>
                 </div>
                 <div class="language-selector">
                     <button tabindex="1" class="green_button marl10" (click)="switchLanguage('fi')">FI</button>
@@ -39,8 +39,8 @@ import type { Examination } from '../examination.model';
                     <button tabindex="1" class="green_button marl10" (click)="switchLanguage('en')">EN</button>
                     <div class="divider-free"></div>
                 </div>
-                <examination-clock *ngIf="!isPreview" [examHash]="exam.hash" (onTimeout)="notifyTimeout()">
-                </examination-clock>
+                <xm-examination-clock *ngIf="!isPreview" [examHash]="exam.hash" (onTimeout)="notifyTimeout()">
+                </xm-examination-clock>
             </div>
         </div>
     </div> `,

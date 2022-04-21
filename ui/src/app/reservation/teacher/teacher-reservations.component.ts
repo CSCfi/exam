@@ -16,7 +16,7 @@ import { Component } from '@angular/core';
 import { ReservationComponentBase } from '../reservation-base.component';
 
 @Component({
-    selector: 'teacher-reservations',
+    selector: 'xm-teacher-reservations',
     templateUrl: './teacher-reservations.component.html',
 })
 export class TeacherReservationComponent extends ReservationComponentBase {}

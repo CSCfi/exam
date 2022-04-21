@@ -30,7 +30,7 @@ enum Tab {
 export type QueryParams = { start?: string; end?: string; dept?: string };
 @Component({
     templateUrl: './statistics.component.html',
-    selector: 'statistics',
+    selector: 'xm-statistics',
 })
 export class StatisticsComponent implements OnInit {
     view: Tab = Tab.RESPONSES;

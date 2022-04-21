@@ -21,7 +21,7 @@ import { Observable } from 'rxjs';
 import { ExaminationEventConfiguration } from '../../exam.model';
 
 @Component({
-    selector: 'examination-event-search',
+    selector: 'xm-examination-event-search',
     templateUrl: './examination-event-search.component.html',
     animations: [
         trigger('listAnimation', [

@@ -22,7 +22,7 @@ import { ExaminationService } from '../examination.service';
 type ClozeTestAnswer = { [key: string]: string };
 
 @Component({
-    selector: 'examination-question',
+    selector: 'xm-examination-question',
     templateUrl: './examination-question.component.html',
 })
 export class ExaminationQuestionComponent implements OnInit, AfterViewInit {

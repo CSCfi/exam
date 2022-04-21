@@ -18,7 +18,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
 
 @Component({
-    selector: 'printed-multi-choice',
+    selector: 'xm-printed-multi-choice',
     templateUrl: './templates/multi-choice.component.html',
 })
 export class PrintedMultiChoiceComponent {

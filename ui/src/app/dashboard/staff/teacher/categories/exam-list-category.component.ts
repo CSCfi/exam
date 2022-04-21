@@ -40,7 +40,7 @@ export interface ExtraColumnValue {
 }
 type ExecutionType = ExamExecutionType & { examinationTypes: { type: string; name: string }[] };
 @Component({
-    selector: 'exam-list-category',
+    selector: 'xm-exam-list-category',
     templateUrl: './exam-list-category.component.html',
 })
 export class ExamListCategoryComponent implements OnInit, OnDestroy {

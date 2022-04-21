@@ -17,7 +17,7 @@ import type { User } from '../session.service';
 import { SessionService } from '../session.service';
 
 @Component({
-    selector: 'dev-login',
+    selector: 'xm-dev-login',
     template: `
         <div class="container-fluid">
             <div class="row mt-2">

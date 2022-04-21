@@ -20,7 +20,7 @@ import type { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
-    selector: 'enrolment-details',
+    selector: 'xm-enrolment-details',
     templateUrl: './exam-enrolment-details.component.html',
 })
 export class EnrolmentDetailsComponent {

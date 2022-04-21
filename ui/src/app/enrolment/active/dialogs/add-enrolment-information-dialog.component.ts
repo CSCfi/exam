@@ -18,7 +18,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import type { EnrolmentInfo } from '../../enrolment.model';
 
 @Component({
-    selector: 'add-enrolment-information-dialog',
+    selector: 'xm-add-enrolment-information-dialog',
     template: `
         <div class="modal-header">
             <h4 class="modal-title">{{ 'sitnet_student_enrolment_info' | translate }}</h4>

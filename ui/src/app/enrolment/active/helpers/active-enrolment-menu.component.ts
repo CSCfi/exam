@@ -6,7 +6,7 @@ import type { ExamEnrolment } from '../../enrolment.model';
 import { EnrolmentService } from '../../enrolment.service';
 
 @Component({
-    selector: 'active-enrolment-menu',
+    selector: 'xm-active-enrolment-menu',
     templateUrl: './active-enrolment-menu.component.html',
 })
 export class ActiveEnrolmentMenuComponent {

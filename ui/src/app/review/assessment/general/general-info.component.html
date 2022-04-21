@@ -65,11 +65,11 @@
     </div>
 
     <div [hidden]="participations.length === 0" *ngFor="let participation of participations">
-        <r-participation [participation]="participation" [collaborative]="collaborative"></r-participation>
+        <xm-r-participation [participation]="participation" [collaborative]="collaborative"></xm-r-participation>
     </div>
 
     <div [hidden]="noShows.length === 0" *ngFor="let noShow of noShows">
-        <r-no-show [enrolment]="noShow" [collaborative]="collaborative"></r-no-show>
+        <xm-r-no-show [enrolment]="noShow" [collaborative]="collaborative"></xm-r-no-show>
     </div>
 
     <div class="detail-row marb20" *ngIf="exam.instruction">
@@ -84,7 +84,7 @@
     </div>
     <div class="detail-row marb20" *ngIf="exam.instruction">
         <div class="col-md-12 general-info-content">
-            <p [MathJax]="exam.instruction"></p>
+            <p xmMathJax math="exam.instruction"></p>
         </div>
     </div>
 

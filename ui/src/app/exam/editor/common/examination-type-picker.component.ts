@@ -6,7 +6,7 @@ import { ExamService } from '../../exam.service';
 export type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
 
 @Component({
-    selector: 'examinatino-type-selector',
+    selector: 'xm-examinatino-type-selector',
     template: `
         <div id="sitnet-dialog">
             <div class="modal-header">

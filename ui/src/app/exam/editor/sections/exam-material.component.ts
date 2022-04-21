@@ -19,7 +19,7 @@ import { ToastrService } from 'ngx-toastr';
 import type { ExamMaterial } from '../../exam.model';
 
 @Component({
-    selector: 'exam-material',
+    selector: 'xm-exam-material',
     templateUrl: './exam-material.component.html',
 })
 export class ExamMaterialComponent implements OnInit {

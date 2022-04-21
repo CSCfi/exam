@@ -2,7 +2,7 @@
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            <span [MathJax]="sectionQuestion.question.question"></span>
+            <span xmMathJax math="sectionQuestion.question.question"></span>
         </div>
     </div>
     <!-- question attachment -->
@@ -39,7 +39,9 @@
     <!-- answer -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
-        <div class="sub-content-row col-md-9"><span [MathJax]="sectionQuestion.essayAnswer?.answer"></span>&nbsp;</div>
+        <div class="sub-content-row col-md-9">
+            <span xmMathJax math="sectionQuestion.essayAnswer?.answer"></span>&nbsp;
+        </div>
     </div>
     <!-- answer attachment -->
     <div class="row">

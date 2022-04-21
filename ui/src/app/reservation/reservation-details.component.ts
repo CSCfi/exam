@@ -26,7 +26,7 @@ import { ReservationService } from './reservation.service';
 type ReservationDetail = Reservation & { org: { name: string; code: string }; userAggregate: string };
 
 @Component({
-    selector: 'reservation-details',
+    selector: 'xm-reservation-details',
     templateUrl: './reservation-details.component.html',
 })
 export class ReservationDetailsComponent implements OnChanges {

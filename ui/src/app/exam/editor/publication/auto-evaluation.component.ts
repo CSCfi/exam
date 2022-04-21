@@ -28,7 +28,7 @@ type AutoEvaluationConfigurationTemplate = {
 };
 
 @Component({
-    selector: 'auto-evaluation',
+    selector: 'xm-auto-evaluation',
     templateUrl: './auto-evaluation.component.html',
 })
 export class AutoEvaluationComponent implements OnInit {

@@ -26,7 +26,7 @@ import type { QuestionReview, ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../question-review.service';
 
 @Component({
-    selector: 'question-assessment',
+    selector: 'xm-question-assessment',
     templateUrl: './question-assessment.component.html',
 })
 export class QuestionAssessmentComponent implements OnInit {

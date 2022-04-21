@@ -42,7 +42,7 @@ export type Organisation = {
 };
 
 @Component({
-    selector: 'calendar',
+    selector: 'xm-calendar',
     templateUrl: './calendar.component.html',
 })
 export class CalendarComponent implements OnInit {

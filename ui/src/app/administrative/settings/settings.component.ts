@@ -30,7 +30,7 @@ export interface AppConfig {
 
 @Component({
     templateUrl: './settings.component.html',
-    selector: 'settings',
+    selector: 'xm-settings',
 })
 export class SettingsComponent implements OnInit {
     config!: AppConfig;

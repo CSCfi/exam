@@ -25,7 +25,7 @@ import { CalendarService } from './calendar.service';
 export type SlotMeta = { availableMachines: number };
 
 @Component({
-    selector: 'booking-calendar',
+    selector: 'xm-booking-calendar',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './booking-calendar.component.html',
     providers: [{ provide: CalendarDateFormatter, useClass: DateFormatter }],

@@ -20,7 +20,7 @@ import type { Question } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
 
 @Component({
-    selector: 'library',
+    selector: 'xm-library',
     template: `<div id="dashboard">
         <div class="top-row">
             <div class="col-md-12">
@@ -40,7 +40,7 @@ import type { User } from '../../session/session.service';
         </div>
 
         <div class="reservation-border">
-            <library-search (updated)="resultsUpdated($event)"></library-search>
+            <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
             <div *ngIf="selections.length > 0" class="padl30 padr30 questions-selections-box">
                 <div class="make-inline">
                     <span class="padr10">{{ selections.length }} {{ 'sitnet_questions_selected' | translate }}</span>
@@ -48,23 +48,23 @@ import type { User } from '../../session/session.service';
 
                 <div class="row margin-20">
                     <div class="col-md-12 d-flex justify-content-between">
-                        <library-owner-selection
+                        <xm-library-owner-selection
                             [selections]="selections"
                             (selected)="ownerSelected($event)"
-                        ></library-owner-selection>
-                        <library-transfer [selections]="selections"></library-transfer>
-                        <library-file-export [selections]="selections"></library-file-export>
+                        ></xm-library-owner-selection>
+                        <xm-library-transfer [selections]="selections"></xm-library-transfer>
+                        <xm-library-file-export [selections]="selections"></xm-library-file-export>
                     </div>
                 </div>
             </div>
 
             <div class="margin-20">
-                <library-results
+                <xm-library-results
                     [questions]="questions"
                     (copied)="questionCopied($event)"
                     (selected)="questionSelected($event)"
                 >
-                </library-results>
+                </xm-library-results>
             </div>
         </div>
     </div> `,

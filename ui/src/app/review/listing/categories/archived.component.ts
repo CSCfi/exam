@@ -21,7 +21,7 @@ import type { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
 @Component({
-    selector: 'rl-archived',
+    selector: 'xm-rl-archived',
     templateUrl: './archived.component.html',
 })
 export class ArchivedReviewsComponent implements OnInit {

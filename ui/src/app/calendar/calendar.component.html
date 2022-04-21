@@ -1,37 +1,37 @@
 <div id="dashboard">
     <div class="col-md-12 mt-2">
         <div class="student-details-title-wrap">
-            <history-back></history-back>
+            <xm-history-back></xm-history-back>
             <h1 class="student-exam-details-title">{{ 'sitnet_calendar' | translate }}</h1>
         </div>
     </div>
 
     <!-- Phase 1: Exam Info -->
-    <calendar-exam-info
+    <xm-calendar-exam-info
         *ngIf="examInfo && reservationWindowSize"
         [examInfo]="examInfo"
         [reservationWindowSize]="reservationWindowSize"
         [collaborative]="isCollaborative"
-    ></calendar-exam-info>
+    ></xm-calendar-exam-info>
     <!-- Phase 2: Optional exam section selection (optional) -->
     <div *ngIf="examInfo && hasOptionalSections()" class="mart10">
-        <calendar-optional-sections
+        <xm-calendar-optional-sections
             [examInfo]="examInfo"
             (selected)="onSectionSelection($event)"
-        ></calendar-optional-sections>
+        ></xm-calendar-optional-sections>
     </div>
     <!-- Phase 3: Organisation picker -->
     <div *ngIf="isInteroperable && isExternal" class="mart10">
-        <calendar-organisation-picker
+        <xm-calendar-organisation-picker
             [sequenceNumber]="getSequenceNumber('organization')"
             [disabled]="!sectionSelectionOk()"
             (selected)="setOrganisation($event)"
             (onCancel)="makeInternalReservation()"
-        ></calendar-organisation-picker>
+        ></xm-calendar-organisation-picker>
     </div>
     <!-- Phase 4: Room picker -->
     <div class="mart10">
-        <calendar-slot-picker
+        <xm-calendar-slot-picker
             [sequenceNumber]="getSequenceNumber('room')"
             [isInteroperable]="isInteroperable"
             [isExternal]="isExternal"
@@ -43,7 +43,7 @@
             (onCancel)="makeExternalReservation()"
             (selected)="createReservation($event)"
         >
-        </calendar-slot-picker>
+        </xm-calendar-slot-picker>
     </div>
 
     <!-- Reservation confirmation -->
@@ -81,7 +81,7 @@
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-3">
                                     <div *ngIf="examInfo.course">
-                                        <course-code *ngIf="examInfo" [course]="examInfo.course"></course-code>
+                                        <xm-course-code *ngIf="examInfo" [course]="examInfo.course"></xm-course-code>
                                         {{ examInfo.course.name }}
                                     </div>
                                 </div>

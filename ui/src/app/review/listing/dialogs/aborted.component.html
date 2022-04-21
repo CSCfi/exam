@@ -17,41 +17,41 @@
                 <tr>
                     <th *ngIf="showId()">Id</th>
                     <th>
-                        <table-sort
+                        <xm-table-sort
                             [reverse]="reverse"
                             [predicate]="abortedPredicate"
                             by="displayName"
                             text="sitnet_student"
                             (click)="setPredicate('displayName')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th>
-                        <table-sort
+                        <xm-table-sort
                             [reverse]="reverse"
                             [predicate]="abortedPredicate"
                             by="examParticipation.user.email"
                             text="sitnet_email"
                             (click)="setPredicate('examParticipation.user.email')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th>
-                        <table-sort
+                        <xm-table-sort
                             [reverse]="reverse"
                             [predicate]="abortedPredicate"
                             by="examParticipation.started"
                             text="sitnet_exam_duration"
                             (click)="setPredicate('examParticipation.started')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th>{{ 'sitnet_exam_state' | translate }}</th>
                     <th>
-                        <table-sort
+                        <xm-table-sort
                             [reverse]="reverse"
                             [predicate]="abortedPredicate"
                             by="examParticipation.reservation.trialCount"
                             text="sitnet_trial"
                             (click)="setPredicate('examParticipation.exam.examEnrolments[0].trialCount')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                 </tr>
             </thead>

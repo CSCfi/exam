@@ -23,7 +23,7 @@ import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborative-assessment.service';
 
 @Component({
-    selector: 'r-feedback',
+    selector: 'xm-r-feedback',
     template: `<div id="feedback">
         <div cdkDrag id="draggable" class="wrapper">
             <div class="row">
@@ -53,7 +53,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
             <div [hidden]="hideEditor" class="body">
                 <div class="row mt-2 mb-1">
                     <div class="col-md-12">
-                        <ckeditor
+                        <xm-ckeditor
                             id="feedback-editor"
                             [enableClozeTest]="false"
                             [(ngModel)]="exam.examFeedback.comment"
@@ -61,7 +61,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                             name="ck"
                             rows="10"
                             cols="80"
-                        ></ckeditor>
+                        ></xm-ckeditor>
                     </div>
                 </div>
                 <div class="d-flex justify-content-end" *ngIf="exam.examFeedback?.attachment">

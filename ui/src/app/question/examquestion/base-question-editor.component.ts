@@ -20,11 +20,11 @@ import { WindowRef } from '../../shared/window/window.service';
 import type { QuestionDraft } from '../question.service';
 
 @Component({
-    selector: 'base-question-editor',
+    selector: 'xm-base-question-editor',
     template: `
         <div id="sitnet-dialog">
             <div class="modal-body">
-                <question
+                <xm-question
                     [newQuestion]="newQuestion"
                     [questionId]="questionId"
                     (saved)="onSave($event)"
@@ -34,7 +34,7 @@ import type { QuestionDraft } from '../question.service';
                     [lotteryOn]="lotteryOn"
                     [examId]="examId"
                     [sectionQuestion]="sectionQuestion"
-                ></question>
+                ></xm-question>
             </div>
             <div class="modal-footer"></div>
         </div>

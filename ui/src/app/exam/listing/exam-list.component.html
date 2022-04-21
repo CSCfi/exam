@@ -88,58 +88,58 @@
                     <thead>
                         <tr>
                             <th>
-                                <table-sort
+                                <xm-table-sort
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
                                     by="course.code"
                                     text="sitnet_examcode"
                                     (click)="setPredicate('course.code')"
-                                ></table-sort>
+                                ></xm-table-sort>
                             </th>
                             <th>
-                                <table-sort
+                                <xm-table-sort
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
                                     by="name"
                                     text="sitnet_exam_name"
                                     (click)="setPredicate('name')"
-                                ></table-sort>
+                                ></xm-table-sort>
                             </th>
                             <th>
-                                <table-sort
+                                <xm-table-sort
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
                                     by="executionType.id"
                                     text="sitnet_exam_credit_type"
                                     (click)="setPredicate('executionType.id')"
-                                ></table-sort>
+                                ></xm-table-sort>
                             </th>
                             <th>
-                                <table-sort
+                                <xm-table-sort
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
                                     by="ownerAggregate"
                                     text="sitnet_teachers"
                                     (click)="setPredicate('ownerAggregate')"
-                                ></table-sort>
+                                ></xm-table-sort>
                             </th>
                             <th>
-                                <table-sort
+                                <xm-table-sort
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
                                     by="examActiveStartDate"
                                     text="sitnet_start_time"
                                     (click)="setPredicate('examActiveStartDate')"
-                                ></table-sort>
+                                ></xm-table-sort>
                             </th>
                             <th>
-                                <table-sort
+                                <xm-table-sort
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
                                     by="examActiveEndDate"
                                     text="sitnet_end_time"
                                     (click)="setPredicate('examActiveEndDate')"
-                                ></table-sort>
+                                ></xm-table-sort>
                             </th>
                             <th>{{ 'sitnet_copy' | translate }}</th>
                             <th>{{ 'sitnet_exam_remove' | translate }}</th>
@@ -154,7 +154,7 @@
                                 ) | orderBy: examsPredicate:reverse
                             "
                         >
-                            <td><course-code *ngIf="exam.course" [course]="exam.course"></course-code></td>
+                            <td><xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code></td>
                             <td>
                                 <a
                                     *ngIf="exam.name"
@@ -175,7 +175,7 @@
                                 {{ getExecutionTypeTranslation(exam) | translate | uppercase }}
                             </td>
                             <td>
-                                <teacher-list [exam]="exam"></teacher-list>
+                                <xm-teacher-list [exam]="exam"></xm-teacher-list>
                             </td>
                             <td>
                                 <span *ngIf="exam.examActiveStartDate">

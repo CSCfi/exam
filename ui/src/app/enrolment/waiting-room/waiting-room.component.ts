@@ -32,7 +32,7 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
 };
 
 @Component({
-    selector: 'waiting-room',
+    selector: 'xm-waiting-room',
     templateUrl: './waiting-room.component.html',
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {

@@ -24,7 +24,7 @@ import type { ExamMaterial, ExamSection } from '../../exam.model';
 import { ExamMaterialComponent } from './exam-material.component';
 
 @Component({
-    selector: 'exam-material-selector',
+    selector: 'xm-exam-material-selector',
     templateUrl: './exam-material-picker.component.html',
 })
 export class ExamMaterialSelectorComponent implements OnInit {

@@ -19,7 +19,7 @@ import type { ExamExecutionType, Implementation } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 @Component({
-    selector: 'new-exam',
+    selector: 'xm-new-exam',
     templateUrl: './new-exam.component.html',
 })
 export class NewExamComponent implements OnInit {

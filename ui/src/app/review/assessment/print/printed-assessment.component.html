@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-md-12">
             <h3>
-                <course-code *ngIf="exam.course" [course]="exam.course"></course-code> - {{ exam.name }},
+                <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code> - {{ exam.name }},
                 <small>{{ exam.course?.credits }} op</small>
             </h3>
         </div>
@@ -91,7 +91,7 @@
     <div class="row">
         <div class="col-md-12" [hidden]="exam.instruction">N/A</div>
         <div class="col-md-12" *ngIf="exam.instruction">
-            <div [MathJax]="exam.instruction"></div>
+            <div xmMathJax math="exam.instruction"></div>
         </div>
     </div>
 
@@ -123,7 +123,7 @@
             class="top-margin-1 col-md-12"
             *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let index = index"
         >
-            <printed-section [section]="section" [index]="index"></printed-section>
+            <xm-printed-section [section]="section" [index]="index"></xm-printed-section>
         </div>
     </div>
 
@@ -161,7 +161,7 @@
         <div class="col-md-3">
             <strong>{{ 'sitnet_teachers_comment' | translate }}:</strong>
         </div>
-        <div class="col-md-9" [MathJax]="exam.examFeedback?.comment"></div>
+        <div class="col-md-9" xmMathJax math="exam.examFeedback?.comment"></div>
     </div>
     <div class="row firefox-print-fix" *ngIf="exam.examFeedback?.attachment">
         <div class="col-md-3">

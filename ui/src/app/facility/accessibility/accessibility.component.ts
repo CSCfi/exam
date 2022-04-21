@@ -21,7 +21,7 @@ import { AccessibilityService } from './accessibility.service';
 
 @Component({
     templateUrl: './accessibility.component.html',
-    selector: 'accessibility',
+    selector: 'xm-accessibility',
 })
 export class AccessibilityComponent implements OnInit {
     newItem: { name: string } = { name: '' };

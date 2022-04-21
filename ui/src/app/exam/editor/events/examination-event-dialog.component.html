@@ -18,7 +18,7 @@
                 </div>
             </div>
             <label for="dtpicker">{{ 'sitnet_begin' | translate }}:</label>
-            <date-time-picker
+            <xm-date-time-picker
                 id="dtpicker"
                 [disabled]="hasEnrolments"
                 [hourStep]="1"
@@ -27,7 +27,7 @@
                 [examMaxDate]="examMaxDate"
                 (updated)="onStartDateChange($event)"
             >
-            </date-time-picker>
+            </xm-date-time-picker>
             <div class="form-group">
                 <label for="description">{{ 'sitnet_instructions' | translate }}:</label>
                 <textarea
@@ -47,7 +47,7 @@
                     required
                     type="number"
                     step="1"
-                    [min]="1"
+                    [xmMin]="1"
                     [(ngModel)]="capacity"
                 />
             </div>

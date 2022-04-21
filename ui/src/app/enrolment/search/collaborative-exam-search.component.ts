@@ -22,7 +22,7 @@ import type { CollaborativeExamInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
-    selector: 'collaborative-exam-search',
+    selector: 'xm-collaborative-exam-search',
     template: `<div id="dashboard">
         <div class="student-details-title-wrap padtop padleft">
             <div class="student-exam-search-title">{{ 'sitnet_collaborative_exams' | translate }}</div>
@@ -67,7 +67,7 @@ import { EnrolmentService } from '../enrolment.service';
         <div class="row">
             <div class="col-12 ml-4">
                 <div class="exams-list list-item" [hidden]="loader.loading" *ngFor="let exam of exams">
-                    <exam-search-result [exam]="exam" [collaborative]="true"></exam-search-result>
+                    <xm-exam-search-result [exam]="exam" [collaborative]="true"></xm-exam-search-result>
                 </div>
             </div>
         </div>

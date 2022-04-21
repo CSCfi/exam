@@ -22,7 +22,7 @@ import { User } from '../../../session/session.service';
 import type { Exam, ExamParticipation } from '../../exam.model';
 
 @Component({
-    selector: 'exam-pre-participant-selector',
+    selector: 'xm-exam-pre-participant-selector',
     template: `<div class="row">
             <div class="col-md-9 offset-md-3">
                 <form #myForm="ngForm" name="myForm">

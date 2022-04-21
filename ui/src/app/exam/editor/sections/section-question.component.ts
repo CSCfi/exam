@@ -30,7 +30,7 @@ import { FileService } from '../../../shared/file/file.service';
 import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from '../../exam.model';
 
 @Component({
-    selector: 'section-question',
+    selector: 'xm-section-question',
     templateUrl: './section-question.component.html',
 })
 export class SectionQuestionComponent {

@@ -3,13 +3,13 @@ import type { AbstractControl, ValidationErrors, Validator } from '@angular/form
 import { NG_VALIDATORS, Validators } from '@angular/forms';
 
 @Directive({
-    selector: '[min]',
+    selector: '[xmMin]',
     providers: [{ provide: NG_VALIDATORS, useExisting: MinDirective, multi: true }],
 })
 export class MinDirective implements Validator {
-    @Input() min = 0;
+    @Input() xmMin = 0;
 
     validate(control: AbstractControl): ValidationErrors | null {
-        return Validators.min(this.min)(control);
+        return Validators.min(this.xmMin)(control);
     }
 }

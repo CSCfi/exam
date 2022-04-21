@@ -19,7 +19,7 @@ import { WindowRef } from '../../../shared/window/window.service';
 import { AssessmentService } from '../../assessment/assessment.service';
 
 @Component({
-    selector: 'speed-review-feedback',
+    selector: 'xm-speed-review-feedback',
     template: `<div id="sitnet-dialog">
         <div class="student-details-title-wrap mart20">
             <div class="student-enroll-title">{{ 'sitnet_give_feedback' | translate }}</div>

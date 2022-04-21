@@ -30,23 +30,23 @@ import { Option } from '../../../shared/select/dropdown-select.component';
         <div class="bottom-row d-flex justify-content-between">
             <div class="col-lg-4 mb-2">
                 <label for="teacher">{{ 'sitnet_teacher' | translate }}</label>
-                <dropdown-select
+                <xm-dropdown-select
                     id="teacher"
                     *ngIf="teachers"
                     [options]="teachers"
                     (optionSelected)="teacherSelected($event)"
-                ></dropdown-select>
+                ></xm-dropdown-select>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (updated)="answerStartDateChanged($event)"></date-picker>
+                    <xm-date-picker (updated)="answerStartDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (updated)="answerEndDateChanged($event)"></date-picker>
+                    <xm-date-picker (updated)="answerEndDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
             <div class="col-lg-2 mb-2">
@@ -66,7 +66,7 @@ import { Option } from '../../../shared/select/dropdown-select.component';
             </div>
         </div>
     `,
-    selector: 'teachers-report',
+    selector: 'xm-teachers-report',
 })
 export class TeachersReportComponent {
     @Input() teachers: Option<User, number>[] = [];

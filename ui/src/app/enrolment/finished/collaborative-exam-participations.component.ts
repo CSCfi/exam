@@ -20,7 +20,7 @@ import type { CollaborativeParticipation } from '../../exam/collaborative/collab
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
-    selector: 'collaborative-exam-participations',
+    selector: 'xm-collaborative-exam-participations',
     templateUrl: './exam-participations.component.html',
 })
 export class CollaborativeParticipationsComponent implements OnInit, AfterViewInit {

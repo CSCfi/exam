@@ -296,12 +296,12 @@
                 </tbody>
             </table>
             <div *ngIf="filteredUsers && filteredUsers.length > pageSize">
-                <paginator
+                <xm-paginator
                     [items]="filteredUsers"
                     (pageSelected)="pageSelected($event)"
                     [pageSize]="pageSize"
                     [currentPage]="currentPage"
-                ></paginator>
+                ></xm-paginator>
             </div>
         </div>
     </div>

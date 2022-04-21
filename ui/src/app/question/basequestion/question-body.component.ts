@@ -27,7 +27,7 @@ import type { QuestionDraft } from '../question.service';
 import { QuestionService } from '../question.service';
 
 @Component({
-    selector: 'question-body',
+    selector: 'xm-question-body',
     templateUrl: './question-body.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })

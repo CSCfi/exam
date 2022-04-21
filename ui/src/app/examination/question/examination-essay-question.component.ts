@@ -21,7 +21,7 @@ import type { Examination, ExaminationQuestion } from '../examination.model';
 import { ExaminationService } from '../examination.service';
 
 @Component({
-    selector: 'examination-essay-question',
+    selector: 'xm-examination-essay-question',
     templateUrl: './examination-essay-question.component.html',
 })
 export class ExaminationEssayQuestionComponent implements OnInit {

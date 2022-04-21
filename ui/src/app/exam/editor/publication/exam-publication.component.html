@@ -9,8 +9,8 @@
     <!-- examination dates -->
     <div class="col-md-3 exam-basic-title padl0">{{ 'sitnet_examination_dates' | translate }}</div>
     <div class="col-md-4">
-        <date-picker [extra]="true" extraText="sitnet_add" (extraActionHappened)="addExaminationDate($event)">
-        </date-picker>
+        <xm-date-picker [extra]="true" extraText="sitnet_add" (extraActionHappened)="addExaminationDate($event)">
+        </xm-date-picker>
     </div>
 </div>
 <div class="row mt-2" [hidden]="exam.executionType.type !== 'PRINTOUT'">
@@ -62,12 +62,12 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <date-picker [initialDate]="exam.examActiveStartDate" (updated)="startDateChanged($event)">
-                    </date-picker>
+                    <xm-date-picker [initialDate]="exam.examActiveStartDate" (updated)="startDateChanged($event)">
+                    </xm-date-picker>
                 </div>
                 <div class="col-md-3">
-                    <date-picker [initialDate]="exam.examActiveEndDate" (updated)="endDateChanged($event)">
-                    </date-picker>
+                    <xm-date-picker [initialDate]="exam.examActiveEndDate" (updated)="endDateChanged($event)">
+                    </xm-date-picker>
                 </div>
                 <div class="col-md-3" [hidden]="!exam.hasEnrolmentsInEffect">
                     <span class="text-info">
@@ -173,8 +173,8 @@
                             class="wdt50 time-display"
                             type="number"
                             [(ngModel)]="hourValue"
-                            [max]="23"
-                            [min]="0"
+                            [xmMax]="23"
+                            [xmMin]="0"
                             (change)="setHourValue($event)"
                         />
                         <label for="hourValue">{{ 'sitnet_hours' | translate }}</label>
@@ -186,8 +186,8 @@
                             class="wdt50 time-display"
                             type="number"
                             [(ngModel)]="minuteValue"
-                            [max]="59"
-                            [min]="0"
+                            [xmMax]="59"
+                            [xmMin]="0"
                             (change)="setMinuteValue($event)"
                         />
                         <label for="minuteValue">{{ 'sitnet_minutes' | translate }}</label>
@@ -295,22 +295,22 @@
 </div>
 
 <!-- Exam participants -->
-<exam-participant-selector
+<xm-exam-participant-selector
     *ngIf="exam.executionType.type !== 'PUBLIC' && !collaborative && visibleParticipantSelector === 'participant'"
     [exam]="exam"
-></exam-participant-selector>
+></xm-exam-participant-selector>
 
 <!-- Exam pre-participants -->
-<exam-pre-participant-selector
+<xm-exam-pre-participant-selector
     *ngIf="exam.executionType.type !== 'PUBLIC' && !collaborative && visibleParticipantSelector === 'pre-participant'"
     [exam]="exam"
-></exam-pre-participant-selector>
+></xm-exam-pre-participant-selector>
 
 <!-- Collaborative exam owners -->
-<collaborative-exam-owner-selector *ngIf="collaborative" [exam]="exam"> </collaborative-exam-owner-selector>
+<xm-collaborative-exam-owner-selector *ngIf="collaborative" [exam]="exam"> </xm-collaborative-exam-owner-selector>
 
 <!-- Collaborative exam organisations -->
-<exam-organisation-selector *ngIf="collaborative" [exam]="exam"></exam-organisation-selector>
+<xm-exam-organisation-selector *ngIf="collaborative" [exam]="exam"></xm-exam-organisation-selector>
 
 <!-- Link to enrolment -->
 <div class="row marr30" *ngIf="exam.executionType.type === 'PUBLIC' && !collaborative">
@@ -340,13 +340,13 @@
 
 <!-- Autoevaluation -->
 <div *ngIf="canBeAutoEvaluated()">
-    <auto-evaluation
+    <xm-auto-evaluation
         [exam]="exam"
         (disabled)="autoEvaluationDisabled()"
         (enabled)="autoEvaluationEnabled()"
         (updated)="autoEvaluationConfigChanged($event)"
     >
-    </auto-evaluation>
+    </xm-auto-evaluation>
 </div>
 
 <!-- Buttons -->

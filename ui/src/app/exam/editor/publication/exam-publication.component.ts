@@ -43,7 +43,7 @@ import { PublicationErrorDialogComponent } from './publication-error-dialog.comp
 import { PublicationRevocationDialogComponent } from './publication-revocation-dialog.component';
 
 @Component({
-    selector: 'exam-publication',
+    selector: 'xm-exam-publication',
     templateUrl: './exam-publication.component.html',
 })
 export class ExamPublicationComponent implements OnInit {

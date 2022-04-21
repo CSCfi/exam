@@ -39,7 +39,7 @@
                 </div>
             </div>
 
-            <div class="review-question-title marr110" [MathJax]="sectionQuestion.question.question"></div>
+            <div class="review-question-title marr110" xmMathJax math="sectionQuestion.question.question"></div>
 
             <!-- question attachment -->
             <div class="padl0 mart20 marb20 notice-text" *ngIf="reviewExpanded && sectionQuestion.question.attachment">
@@ -84,12 +84,12 @@
                             lang="en"
                             class="form-control"
                             [(ngModel)]="scoreValue"
-                            fixedPrecision
+                            xmFixedPrecision
                             (blur)="forcedPoints.valid && insertForcedScore()"
                             onclick="this.focus()"
                             [disabled]="!isScorable"
-                            [min]="0"
-                            [max]="sectionQuestion.maxScore"
+                            [xmMin]="0"
+                            [xmMax]="sectionQuestion.maxScore"
                         />
                         <small *ngIf="forcedPoints.invalid" class="alert-danger">
                             <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}

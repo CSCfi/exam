@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import type { Organisation } from '../calendar.component';
 
 @Component({
-    selector: 'calendar-organisation-picker',
+    selector: 'xm-calendar-organisation-picker',
     template: `
         <div class="row student-enrolment-wrapper details-view row" [ngClass]="selectedOrganisation ? '' : 'notactive'">
             <div class="col-md-12">

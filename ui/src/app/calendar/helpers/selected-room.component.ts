@@ -7,7 +7,7 @@ import type { OpeningHours } from '../calendar.service';
 import { CalendarService } from '../calendar.service';
 
 @Component({
-    selector: 'calendar-selected-room',
+    selector: 'xm-calendar-selected-room',
     template: `
         <div class="row">
             <div class="col-md-2 col-12 bold max-w-100perc">

@@ -24,18 +24,18 @@ import type { Option } from '../../shared/select/dropdown-select.component';
 import type { ExamMachine, Reservation } from '../reservation.model';
 
 @Component({
-    selector: 'change-machine-dialog',
+    selector: 'xm-change-machine-dialog',
     template: `<div id="sitnet-dialog">
         <div class="terms-dialog-header">
             <h4><i class="bi-info-circle"></i>&nbsp;&nbsp;{{ 'sitnet_change_reservation_machine' | translate }}</h4>
         </div>
         <div class="modal-body">
             <strong>{{ 'sitnet_exam_machine' | translate }}</strong>
-            <dropdown-select
+            <xm-dropdown-select
                 [options]="availableMachineOptions"
                 (optionSelected)="machineChanged($event)"
                 (limitTo)="(0)"
-            ></dropdown-select>
+            ></xm-dropdown-select>
         </div>
         <div class="modal-footer">
             <button class="btn btn-sm btn-danger" (click)="cancel()">

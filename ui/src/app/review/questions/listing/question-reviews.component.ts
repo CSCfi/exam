@@ -20,7 +20,7 @@ import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../question-review.service';
 
 @Component({
-    selector: 'question-reviews',
+    selector: 'xm-question-reviews',
     template: `<div>
         <div class="p-2 mt-2">
             <img class="mr-3" src="/assets/images/icon_info.png" alt="info" />
@@ -59,12 +59,12 @@ import { QuestionReviewService } from '../question-review.service';
                 </span>
             </span>
             <div>
-                <question-review
+                <xm-question-review
                     *ngFor="let review of reviews"
                     [review]="review"
                     (selected)="onReviewSelection($event)"
                 >
-                </question-review>
+                </xm-question-review>
             </div>
 
             <div class="mart20 d-flex justify-content-between">

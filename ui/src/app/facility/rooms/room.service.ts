@@ -11,7 +11,7 @@ import { MaintenancePeriod } from '../../exam/exam.model';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import { DateTimeService } from '../../shared/date/date.service';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { ExceptionDialogComponent } from '../schedule/exceptionDialog.component';
+import { ExceptionDialogComponent } from '../schedule/exception-dialog.component';
 
 export type Weekday = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 

@@ -28,7 +28,7 @@ import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborative-assessment.service';
 
 @Component({
-    selector: 'assessment',
+    selector: 'xm-assessment',
     templateUrl: './assessment.component.html',
 })
 export class AssessmentComponent implements OnInit {

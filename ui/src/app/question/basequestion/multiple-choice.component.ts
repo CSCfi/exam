@@ -19,7 +19,7 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionDraft, QuestionService } from '../question.service';
 
 @Component({
-    selector: 'multiple-choice-editor',
+    selector: 'xm-multiple-choice-editor',
     template: `
         <div class="row mt-2" *ngIf="question.type === 'WeightedMultipleChoiceQuestion'">
             <div class="col-md-6">
@@ -51,21 +51,21 @@ import { QuestionDraft, QuestionService } from '../question.service';
         </div>
         <div class="row" id="question-editor" *ngFor="let option of question.options; let i = index">
             <div class="col-md-12">
-                <mc-option-editor
+                <xm-mc-option-editor
                     *ngIf="question.type === 'MultipleChoiceQuestion'"
                     [option]="option"
                     [question]="question"
                     [index]="i"
                     [allowRemoval]="!lotteryOn && allowOptionRemoval"
                 >
-                </mc-option-editor>
-                <wmc-option-editor
+                </xm-mc-option-editor>
+                <xm-wmc-option-editor
                     *ngIf="question.type === 'WeightedMultipleChoiceQuestion'"
                     [option]="option"
                     [index]="i"
                     [question]="question"
                     [lotteryOn]="lotteryOn"
-                ></wmc-option-editor>
+                ></xm-wmc-option-editor>
             </div>
         </div>
         <div *ngIf="question.type === 'WeightedMultipleChoiceQuestion'" class="row mt-3">

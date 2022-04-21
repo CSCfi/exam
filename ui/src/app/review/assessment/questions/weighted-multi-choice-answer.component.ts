@@ -16,7 +16,7 @@ import { Component, Input } from '@angular/core';
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
-    selector: 'r-weighted-multi-choice-answer',
+    selector: 'xm-r-weighted-multi-choice-answer',
     template: `<div
         class="padl15 marb10"
         [hidden]="!reviewExpanded"
@@ -28,7 +28,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="exam" />
                 </div>
                 <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [MathJax]="option.option.option"></span>
+                    <span class="exam-question-option-text" xmMathJax math="option.option.option"></span>
                 </div>
                 <div class="make-inline pull-right">
                     <span class="text-success"> {{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
@@ -39,7 +39,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     <img src="/assets/images/icon_wrong_answer_checkbox_red.svg" alt="exam" />
                 </div>
                 <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [MathJax]="option.option.option"></span>
+                    <span class="exam-question-option-text" xmMathJax math="option.option.option"></span>
                 </div>
                 <div class="make-inline pull-right">
                     <span class="text-danger"> {{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
@@ -55,7 +55,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     <img *ngIf="option.score < 0" src="/assets/images/icon_wrong_answer_checkbox.png" alt="exam" />
                 </div>
                 <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [MathJax]="option.option.option"></span>
+                    <span class="exam-question-option-text" xmMathJax math="option.option.option"></span>
                 </div>
                 <div class="make-inline pull-right">
                     <span [ngClass]="option.score >= 0 ? 'text-success' : 'text-danger'">

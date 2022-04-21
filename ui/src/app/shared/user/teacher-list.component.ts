@@ -19,7 +19,7 @@ import type { User } from '../../session/session.service';
 
 type Personnel = { examInspections: ExamInspection[]; examOwners: User[] };
 @Component({
-    selector: 'teacher-list',
+    selector: 'xm-teacher-list',
     template: `
         <span>
             <strong>{{ owners }}</strong

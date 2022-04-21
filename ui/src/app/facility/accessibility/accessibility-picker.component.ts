@@ -20,7 +20,7 @@ import type { Accessibility, ExamRoom } from '../../reservation/reservation.mode
 import { AccessibilityService } from './accessibility.service';
 
 @Component({
-    selector: 'accessibility-selector',
+    selector: 'xm-accessibility-picker',
     template: `<div class="col-md-12">
         <div class="sitnet-info-text">{{ 'sitnet_room_accessibility_info' | translate }}</div>
         <div>

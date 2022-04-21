@@ -11,70 +11,70 @@
         <div class="p-4 row">
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{ 'sitnet_student' | translate }}</strong>
-                <dropdown-select
+                <xm-dropdown-select
                     *ngIf="studentOptions"
                     [fullWidth]="true"
                     [options]="studentOptions"
                     (optionSelected)="studentChanged($event)"
                 >
-                </dropdown-select>
+                </xm-dropdown-select>
             </div>
             <div class="col-md-3">
                 <strong class="reservation-search-titles">{{ 'sitnet_exam' | translate }}</strong>
-                <dropdown-select
+                <xm-dropdown-select
                     *ngIf="examOptions"
                     [fullWidth]="true"
                     [options]="examOptions"
                     (optionSelected)="examChanged($event)"
                 >
-                </dropdown-select>
+                </xm-dropdown-select>
             </div>
             <div class="col-md-2 pt-1 reservation-search-titles">
                 <strong class="reservation-search-titles">{{ 'sitnet_begin' | translate }}</strong>
-                <date-picker (updated)="startDateChanged($event)"></date-picker>
+                <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
             </div>
             <div class="col-md-2 pt-1 reservation-search-titles">
                 <strong class="reservation-search-titles">{{ 'sitnet_end' | translate }}</strong>
-                <date-picker (updated)="endDateChanged($event)"></date-picker>
+                <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
             </div>
         </div>
         <div class="p-4 row align-items-center">
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{ 'sitnet_exam_owners' | translate }}</strong>
-                <dropdown-select
+                <xm-dropdown-select
                     *ngIf="teacherOptions"
                     [fullWidth]="true"
                     [options]="teacherOptions"
                     (optionSelected)="ownerChanged($event)"
                 >
-                </dropdown-select>
+                </xm-dropdown-select>
             </div>
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{ 'sitnet_room' | translate }}</strong>
-                <dropdown-select
+                <xm-dropdown-select
                     *ngIf="roomOptions"
                     [options]="roomOptions"
                     (optionSelected)="roomChanged($event)"
                     [limitTo]="0"
                     [fullWidth]="true"
                 >
-                </dropdown-select>
+                </xm-dropdown-select>
             </div>
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{ 'sitnet_exam_machine' | translate }}</strong>
-                <dropdown-select
+                <xm-dropdown-select
                     *ngIf="machineOptions"
                     [options]="machineOptions"
                     (optionSelected)="machineChanged($event)"
                     [limitTo]="0"
                     [fullWidth]="true"
                 >
-                </dropdown-select>
+                </xm-dropdown-select>
             </div>
             <div class="col-md-3">
                 <strong class="reservation-search-titles">{{ 'sitnet_exam_state' | translate }}</strong>
-                <dropdown-select [options]="stateOptions" [fullWidth]="true" (optionSelected)="stateChanged($event)">
-                </dropdown-select>
+                <xm-dropdown-select [options]="stateOptions" [fullWidth]="true" (optionSelected)="stateChanged($event)">
+                </xm-dropdown-select>
             </div>
             <div class="col-md-3">
                 <div class="checkbox">
@@ -101,7 +101,7 @@
             </div>
         </div>
 
-        <reservation-details *ngIf="reservations" [reservations]="reservations" [isAdminView]="true">
-        </reservation-details>
+        <xm-reservation-details *ngIf="reservations" [reservations]="reservations" [isAdminView]="true">
+        </xm-reservation-details>
     </div>
 </div>

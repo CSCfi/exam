@@ -28,7 +28,7 @@ interface SoftwareWithClass extends Software {
 
 @Component({
     templateUrl: './machine.component.html',
-    selector: 'machine',
+    selector: 'xm-machine',
 })
 export class MachineComponent implements OnInit {
     machine!: ExamMachine;

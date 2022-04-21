@@ -31,7 +31,7 @@ interface Filterable<T> {
 }
 
 @Component({
-    selector: 'library-search',
+    selector: 'xm-library-search',
     templateUrl: './library-search.component.html',
 })
 export class LibrarySearchComponent implements OnInit {

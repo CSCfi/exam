@@ -39,7 +39,7 @@
         <div class="review-border">
             <div class="padt50 padl30 padr30">
                 <div class="review-list-title">
-                    <course-code *ngIf="exam.course" [course]="exam.course"></course-code> - {{ exam.name }}
+                    <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code> - {{ exam.name }}
                     <a class="pointer" (click)="hideGeneralInfo = !hideGeneralInfo">
                         <img
                             *ngIf="hideGeneralInfo"
@@ -57,18 +57,18 @@
                 </div>
             </div>
             <!-- General Information -->
-            <r-general-info
+            <xm-r-general-info
                 *ngIf="exam && !hideGeneralInfo"
                 [participation]="participation"
                 [exam]="exam"
                 [collaborative]="collaborative"
-            ></r-general-info>
+            ></xm-r-general-info>
         </div>
     </div>
 
     <!-- Sections -->
     <div *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let index = index">
-        <r-section
+        <xm-r-section
             [section]="section"
             [participation]="participation"
             [exam]="exam"
@@ -77,7 +77,7 @@
             [index]="index + 1"
             [isScorable]="(!isGraded() || isOwnerOrAdmin()) && !isReadOnly()"
         >
-        </r-section>
+        </xm-r-section>
     </div>
 
     <div class="tab-wrapper-exams review">
@@ -104,7 +104,7 @@
 
             <!-- Grading -->
             <div [hidden]="hideGradeInfo" class="padl15 padr15">
-                <r-grading
+                <xm-r-grading
                     [exam]="exam"
                     [questionSummary]="questionSummary"
                     [participation]="participation"
@@ -113,27 +113,27 @@
                     *ngIf="exam && !exam.subjectToLanguageInspection"
                     (onUpdate)="gradingUpdated()"
                 >
-                </r-grading>
-                <r-maturity-grading
+                </xm-r-grading>
+                <xm-r-maturity-grading
                     *ngIf="exam && exam.executionType.type === 'MATURITY' && exam.subjectToLanguageInspection"
                     (onUpdate)="gradingUpdated()"
                     [user]="user"
                     [exam]="exam"
                     [questionSummary]="questionSummary"
                 >
-                </r-maturity-grading>
+                </xm-r-maturity-grading>
             </div>
 
             <!-- Floating feedback window -->
-            <r-feedback
+            <xm-r-feedback
                 *ngIf="exam.examFeedback && !isUnderLanguageInspection()"
                 [exam]="exam"
                 [collaborative]="collaborative"
                 [participation]="participation"
                 [hidden]="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
             >
-            </r-feedback>
-            <r-statement *ngIf="exam && isUnderLanguageInspection()" [exam]="exam"></r-statement>
+            </xm-r-feedback>
+            <xm-r-statement *ngIf="exam && isUnderLanguageInspection()" [exam]="exam"></xm-r-statement>
         </div>
     </div>
 </div>

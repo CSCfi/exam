@@ -21,7 +21,7 @@ import type { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
 @Component({
-    selector: 'rl-in-language-inspection',
+    selector: 'xm-rl-in-language-inspection',
     templateUrl: './in-language-inspection.component.html',
 })
 export class InLanguageInspectionReviewsComponent implements OnInit {

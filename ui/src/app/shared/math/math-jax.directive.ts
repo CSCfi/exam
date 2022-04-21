@@ -15,15 +15,15 @@
 import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
 
 @Directive({
-    selector: '[MathJax]',
+    selector: '[xmMathJax]',
 })
 export class MathJaxDirective implements OnChanges {
-    @Input('MathJax') src?: string;
+    @Input() math?: string;
 
     constructor(private el: ElementRef) {}
 
     ngOnChanges() {
-        this.el.nativeElement.innerHTML = this.src || '';
+        this.el.nativeElement.innerHTML = this.math || '';
         MathJax.Hub.Queue(['Typeset', MathJax.Hub, this.el.nativeElement]);
     }
 }

@@ -23,7 +23,7 @@ import { LanguageInspectionService } from '../language-inspections.service';
 import type { LanguageInspection } from '../maturity.model';
 
 @Component({
-    selector: 'maturity-reporting',
+    selector: 'xm-maturity-reporting',
     templateUrl: './maturity-reporting.component.html',
 })
 export class MaturityReportingComponent implements OnInit {

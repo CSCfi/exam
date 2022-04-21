@@ -16,7 +16,7 @@ import { Component, Input } from '@angular/core';
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
-    selector: 'r-multi-choice-answer',
+    selector: 'xm-r-multi-choice-answer',
     template: `<div
         class="padl15 marb10"
         [hidden]="!reviewExpanded"
@@ -33,7 +33,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     />
                 </div>
                 <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [MathJax]="option.option.option"></span>
+                    <span class="exam-question-option-text" xmMathJax math="option.option.option"></span>
                 </div>
             </div>
             <div *ngIf="!option.option.correctOption" class="exam-answered-wrong">
@@ -46,7 +46,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     />
                 </div>
                 <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [MathJax]="option.option.option"></span>
+                    <span class="exam-question-option-text" xmMathJax math="option.option.option"></span>
                 </div>
             </div>
         </div>
@@ -67,7 +67,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     />
                 </div>
                 <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [MathJax]="option.option.option"></span>
+                    <span class="exam-question-option-text" xmMathJax math="option.option.option"></span>
                 </div>
             </div>
         </div>

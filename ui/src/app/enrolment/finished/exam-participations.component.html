@@ -94,19 +94,22 @@
         "
     >
         <div class="col-md-12">
-            <exam-participation [participation]="participation" [collaborative]="collaborative"></exam-participation>
+            <xm-exam-participation
+                [participation]="participation"
+                [collaborative]="collaborative"
+            ></xm-exam-participation>
         </div>
     </div>
 
     <div class="row mt-2" *ngIf="participations">
         <div class="col-md-12" *ngIf="participations.length > pageSize">
-            <paginator
+            <xm-paginator
                 [items]="participations"
                 (pageSelected)="pageSelected($event)"
                 [pageSize]="pageSize"
                 [currentPage]="currentPage"
             >
-            </paginator>
+            </xm-paginator>
         </div>
     </div>
 </div>

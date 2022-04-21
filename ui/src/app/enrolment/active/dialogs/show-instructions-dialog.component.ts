@@ -17,14 +17,14 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-    selector: 'show-instructions-dialog',
+    selector: 'xm-show-instructions-dialog',
     template: `<div id="sitnet-dialog">
         <div class="modal-header">
             <div class="modal-title">
                 <div class="student-enroll-title">{{ title | translate }}</div>
             </div>
         </div>
-        <div class="modal-body" [MathJax]="instructions"></div>
+        <div class="modal-body" xmMathJax math="instructions"></div>
         <div class="modal-footer">
             <div class="student-message-dialog-button-save">
                 <button class="btn btn-sm btn-primary" (click)="ok()">

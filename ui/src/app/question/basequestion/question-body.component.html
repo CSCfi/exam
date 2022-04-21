@@ -115,7 +115,7 @@
                 </sup>
             </div>
             <div class="col-md-9" [ngClass]="ck.invalid ? 'ng-invalid' : ''">
-                <ckeditor
+                <xm-ckeditor
                     id="editor"
                     name="editor"
                     rows="10"
@@ -125,7 +125,7 @@
                     [(ngModel)]="question.question"
                     [required]="true"
                 >
-                </ckeditor>
+                </xm-ckeditor>
             </div>
         </div>
 
@@ -149,29 +149,29 @@
 
         <!-- Type specific content -->
         <div [ngSwitch]="question.type">
-            <essay-editor *ngSwitchCase="'EssayQuestion'" [question]="question"></essay-editor>
-            <multiple-choice-editor
+            <xm-essay-editor *ngSwitchCase="'EssayQuestion'" [question]="question"></xm-essay-editor>
+            <xm-multiple-choice-editor
                 *ngSwitchCase="'MultipleChoiceQuestion'"
                 [question]="question"
                 [showWarning]="showWarning()"
                 [lotteryOn]="lotteryOn"
                 [allowOptionRemoval]="!isInPublishedExam"
             >
-            </multiple-choice-editor>
-            <multiple-choice-editor
+            </xm-multiple-choice-editor>
+            <xm-multiple-choice-editor
                 *ngSwitchCase="'WeightedMultipleChoiceQuestion'"
                 [question]="question"
                 [showWarning]="showWarning()"
                 [lotteryOn]="lotteryOn"
                 [allowOptionRemoval]="!isInPublishedExam"
             >
-            </multiple-choice-editor>
-            <claim-choice-editor
+            </xm-multiple-choice-editor>
+            <xm-claim-choice-editor
                 *ngSwitchCase="'ClaimChoiceQuestion'"
                 [question]="question"
                 [showWarning]="showWarning()"
             >
-            </claim-choice-editor>
+            </xm-claim-choice-editor>
         </div>
 
         <!-- Evaluation type - not allowed if question is in use in other published exam. -->
@@ -214,8 +214,8 @@
                     lang="en"
                     class="form-control wdt100"
                     [(ngModel)]="question.defaultMaxScore"
-                    [min]="0"
-                    [max]="1000"
+                    [xmMin]="0"
+                    [xmMax]="1000"
                     required
                     [disabled]="lotteryOn"
                 />
@@ -396,7 +396,7 @@
         </div>
 
         <!-- Tags -->
-        <tag-picker *ngIf="!collaborative" [question]="question"></tag-picker>
+        <xm-tag-picker *ngIf="!collaborative" [question]="question"></xm-tag-picker>
 
         <!-- Categories -->
         <div class="row mt-2">

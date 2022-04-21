@@ -19,7 +19,7 @@ import { map } from 'rxjs/operators';
 import type { Exam } from '../exam.model';
 
 @Component({
-    selector: 'printout-listing',
+    selector: 'xm-printout-listing',
     template: `<div id="sitnet-header" class="header">
             <div class="col-md-12 header-wrapper">
                 <span class="header-text">{{ 'sitnet_printout_exams' | translate }}</span>
@@ -32,47 +32,47 @@ import type { Exam } from '../exam.model';
                         <thead>
                             <tr>
                                 <th>
-                                    <table-sort
+                                    <xm-table-sort
                                         [reverse]="reverse"
                                         [predicate]="predicate"
                                         by="examinationDatesAggregate"
                                         text="sitnet_examination_dates"
                                         (click)="setPredicate('examinationDatesAggregate')"
-                                    ></table-sort>
+                                    ></xm-table-sort>
                                 </th>
                                 <th>
-                                    <table-sort
+                                    <xm-table-sort
                                         [reverse]="reverse"
                                         [predicate]="predicate"
                                         by="course.code"
                                         text="sitnet_examcode"
                                         (click)="setPredicate('course.code')"
-                                    ></table-sort>
+                                    ></xm-table-sort>
                                 </th>
                                 <th>
-                                    <table-sort
+                                    <xm-table-sort
                                         [reverse]="reverse"
                                         [predicate]="predicate"
                                         by="name"
                                         text="sitnet_exam_name"
                                         (click)="setPredicate('name')"
-                                    ></table-sort>
+                                    ></xm-table-sort>
                                 </th>
                                 <th>
-                                    <table-sort
+                                    <xm-table-sort
                                         [reverse]="reverse"
                                         [predicate]="predicate"
                                         by="ownerAggregate"
                                         text="sitnet_teachers"
                                         (click)="setPredicate('ownerAggregate')"
-                                    ></table-sort>
+                                    ></xm-table-sort>
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr *ngFor="let exam of printouts | orderBy: predicate:reverse">
                                 <td>{{ exam.examinationDatesAggregate }}</td>
-                                <td><course-code *ngIf="exam.course" [course]="exam.course"></course-code></td>
+                                <td><xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code></td>
                                 <td>
                                     <a
                                         class="exams-info-title bold-button"
@@ -82,7 +82,7 @@ import type { Exam } from '../exam.model';
                                     >
                                 </td>
                                 <td>
-                                    <teacher-list [exam]="exam"></teacher-list>
+                                    <xm-teacher-list [exam]="exam"></xm-teacher-list>
                                 </td>
                             </tr>
                         </tbody>

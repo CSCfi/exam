@@ -21,7 +21,7 @@ import type { Week } from './room.service';
 import { RoomService } from './room.service';
 
 @Component({
-    selector: 'exception-mass-edit',
+    selector: 'xm-exception-mass-edit',
     template: `<div id="sitnet-header" class="header">
             <div class="col-md-12 header-wrapper">
                 <span class="header-text">{{ 'sitnet_edit_all_rooms' | translate }}</span>

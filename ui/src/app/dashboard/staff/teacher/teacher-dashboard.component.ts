@@ -26,7 +26,7 @@ import type { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teach
 import { TeacherDashboardService } from './teacher-dashboard.service';
 
 @Component({
-    selector: 'teacher-dashboard',
+    selector: 'xm-teacher-dashboard',
     templateUrl: './teacher-dashboard.component.html',
 })
 export class TeacherDashboardComponent implements OnInit {

@@ -28,7 +28,7 @@ import { ExamService } from '../exam.service';
 type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
 
 @Component({
-    selector: 'exam-list',
+    selector: 'xm-exam-list',
     templateUrl: './exam-list.component.html',
 })
 export class ExamListingComponent implements OnInit, OnDestroy {

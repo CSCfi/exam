@@ -18,7 +18,7 @@ import { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import { SessionService } from '../../../session/session.service';
 
 @Component({
-    selector: 'no-shows-component',
+    selector: 'xm-no-shows-component',
     templateUrl: './no-shows.component.html',
 })
 export class NoShowsComponent implements OnInit {

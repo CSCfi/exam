@@ -23,20 +23,21 @@
                 <!-- question text -->
                 <div class="col">
                     <div *ngIf="sq.question.type !== 'ClozeTestQuestion'">
-                        <div class="section-box-title" *ngIf="expanded" [MathJax]="sq.question.question"></div>
+                        <div class="section-box-title" *ngIf="expanded" xmMathJax math="sq.question.question"></div>
                         <div
                             class="section-box-title"
                             *ngIf="!expanded"
-                            [MathJax]="sq.question.question | slice: 0:240"
+                            xmMathJax
+                            math="sq.question.question | slice: 0:240"
                         ></div>
                     </div>
                     <div *ngIf="sq.question.type === 'ClozeTestQuestion'">
                         <div class="section-box-title">
-                            <dynamic-cloze-test
+                            <xm-dynamic-cloze-test
                                 [content]="sq.clozeTestAnswer?.question || ''"
                                 [answer]="clozeAnswer"
                                 (answerChanged)="answered($event)"
-                            ></dynamic-cloze-test>
+                            ></xm-dynamic-cloze-test>
                         </div>
                     </div>
                 </div>
@@ -81,22 +82,22 @@
                     <div class="exam-question-container" *ngIf="expanded">
                         <hr class="info-question-separator" />
                         <div class="question" [ngSwitch]="sq.question.type">
-                            <examination-essay-question
+                            <xm-examination-essay-question
                                 *ngSwitchCase="'EssayQuestion'"
                                 [sq]="sq"
                                 [exam]="exam"
                                 [isPreview]="isPreview"
                             >
-                            </examination-essay-question>
+                            </xm-examination-essay-question>
 
-                            <examination-cloze-test
+                            <xm-examination-cloze-test
                                 *ngSwitchCase="'ClozeTestQuestion'"
                                 [sq]="sq"
                                 [examHash]="exam.hash"
                             >
-                            </examination-cloze-test>
+                            </xm-examination-cloze-test>
 
-                            <examination-multi-choice-question
+                            <xm-examination-multi-choice-question
                                 *ngSwitchCase="'MultipleChoiceQuestion'"
                                 [sq]="sq"
                                 [examHash]="exam.hash"
@@ -104,9 +105,9 @@
                                 [isCollaborative]="isCollaborative"
                                 [orderOptions]="!exam.external"
                             >
-                            </examination-multi-choice-question>
+                            </xm-examination-multi-choice-question>
 
-                            <examination-multi-choice-question
+                            <xm-examination-multi-choice-question
                                 *ngSwitchCase="'ClaimChoiceQuestion'"
                                 [sq]="sq"
                                 [examHash]="exam.hash"
@@ -114,16 +115,16 @@
                                 [isCollaborative]="isCollaborative"
                                 [orderOptions]="true"
                             >
-                            </examination-multi-choice-question>
+                            </xm-examination-multi-choice-question>
 
-                            <examination-weighted-multi-choice-question
+                            <xm-examination-weighted-multi-choice-question
                                 *ngSwitchCase="'WeightedMultipleChoiceQuestion'"
                                 [sq]="sq"
                                 [examHash]="exam.hash"
                                 [isPreview]="isPreview"
                                 [orderOptions]="!exam.external"
                             >
-                            </examination-weighted-multi-choice-question>
+                            </xm-examination-weighted-multi-choice-question>
                         </div>
                     </div>
                 </div>

@@ -25,7 +25,7 @@ import type { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
 @Component({
-    selector: 'rl-in-progress',
+    selector: 'xm-rl-in-progress',
     templateUrl: './in-progress.component.html',
 })
 export class InProgressReviewsComponent implements OnInit {

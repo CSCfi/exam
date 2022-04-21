@@ -26,7 +26,7 @@ import { WindowRef } from '../window/window.service';
 declare let CKEDITOR: any;
 
 @Component({
-    selector: 'ckeditor',
+    selector: 'xm-ckeditor',
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

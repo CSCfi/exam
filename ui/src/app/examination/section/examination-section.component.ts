@@ -18,7 +18,7 @@ import type { Examination, ExaminationSection } from '../examination.model';
 import { ExaminationService } from '../examination.service';
 
 @Component({
-    selector: 'examination-section',
+    selector: 'xm-examination-section',
     template: `<div class="row">
             <div class="col-md-12 studentexam-header">
                 <h2>
@@ -59,14 +59,14 @@ import { ExaminationService } from '../examination.service';
                         </span>
                     </div>
                 </div>
-                <examination-question
+                <xm-examination-question
                     *ngFor="let sq of section.sectionQuestions | orderBy: 'sequenceNumber'"
                     [question]="sq"
                     [exam]="exam"
                     [isPreview]="isPreview"
                     [isCollaborative]="isCollaborative"
                     tabindex="0"
-                ></examination-question>
+                ></xm-examination-question>
             </div>
         </div> `,
 })

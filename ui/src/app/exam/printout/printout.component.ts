@@ -23,7 +23,7 @@ import type { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuesti
 type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & { ord: number })[] };
 
 @Component({
-    selector: 'printout',
+    selector: 'xm-printout',
     templateUrl: './printout.component.html',
 })
 export class PrintoutComponent implements OnInit {

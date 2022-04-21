@@ -29,7 +29,7 @@ import { RoomService } from './room.service';
 
 @Component({
     templateUrl: './availability.component.html',
-    selector: 'availability',
+    selector: 'xm-availability',
     styles: [
         `
             .black-event-text span {

@@ -23,9 +23,9 @@ import { CollaborativeExamListingComponent } from './collaborative/collaborative
 import { CollaborativeExamService } from './collaborative/collaborative-exam.service';
 import { BasicExamInfoComponent } from './editor/basic/basic-exam-info.component';
 import { ExamCourseComponent } from './editor/basic/exam-course.component';
-import { ExamInspectorSelectorComponent } from './editor/basic/exam-inspector-selector.component';
-import { ExamOwnerSelectorComponent } from './editor/basic/exam-owner-selector.component';
-import { SoftwareSelectorComponent } from './editor/basic/software-selector.component';
+import { ExamInspectorSelectorComponent } from './editor/basic/exam-inspector-picker.component';
+import { ExamOwnerSelectorComponent } from './editor/basic/exam-owner-picker.component';
+import { SoftwareSelectorComponent } from './editor/basic/software-picker.component';
 import { CoursePickerComponent } from './editor/common/course-picker.component';
 import { CoursePickerService } from './editor/common/course-picker.service';
 import { ExaminationTypeSelectorComponent } from './editor/common/examination-type-picker.component';

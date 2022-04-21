@@ -33,17 +33,17 @@
         <div class="detail-row">
             <div class="col-md-12 mt-8" *ngFor="let sq of section.sectionQuestions | orderBy: 'sequenceNumber'">
                 <div *ngIf="sq.question.type === 'MultipleChoiceQuestion'">
-                    <r-multi-choice-question
+                    <xm-r-multi-choice-question
                         [sectionQuestion]="sq"
                         [participation]="participation"
                         [isScorable]="isScorable"
                         [collaborative]="collaborative"
                         (scored)="scoreSet($event)"
                     >
-                    </r-multi-choice-question>
+                    </xm-r-multi-choice-question>
                 </div>
                 <div *ngIf="sq.question.type === 'EssayQuestion'">
-                    <r-essay-question
+                    <xm-r-essay-question
                         [sectionQuestion]="sq"
                         [participation]="participation"
                         [exam]="exam"
@@ -51,10 +51,10 @@
                         [collaborative]="collaborative"
                         (scored)="scoreSet($event)"
                     >
-                    </r-essay-question>
+                    </xm-r-essay-question>
                 </div>
                 <div *ngIf="sq.question.type === 'WeightedMultipleChoiceQuestion'">
-                    <r-multi-choice-question
+                    <xm-r-multi-choice-question
                         [sectionQuestion]="sq"
                         [participation]="participation"
                         [isScorable]="isScorable"
@@ -62,10 +62,10 @@
                         (scored)="scoreSet($event)"
                     >
                         >
-                    </r-multi-choice-question>
+                    </xm-r-multi-choice-question>
                 </div>
                 <div *ngIf="sq.question.type === 'ClozeTestQuestion'">
-                    <r-cloze-test
+                    <xm-r-cloze-test
                         [sectionQuestion]="sq"
                         [participation]="participation"
                         [isScorable]="isScorable"
@@ -73,10 +73,10 @@
                         (scored)="scoreSet($event)"
                     >
                         >
-                    </r-cloze-test>
+                    </xm-r-cloze-test>
                 </div>
                 <div *ngIf="sq.question.type === 'ClaimChoiceQuestion'">
-                    <r-multi-choice-question
+                    <xm-r-multi-choice-question
                         [sectionQuestion]="sq"
                         [participation]="participation"
                         [isScorable]="isScorable"
@@ -84,7 +84,7 @@
                         (scored)="scoreSet($event)"
                     >
                         >
-                    </r-multi-choice-question>
+                    </xm-r-multi-choice-question>
                 </div>
             </div>
         </div>

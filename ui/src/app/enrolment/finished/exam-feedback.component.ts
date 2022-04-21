@@ -19,7 +19,7 @@ import { FileService } from '../../shared/file/file.service';
 import type { ReviewedExam, Scores } from '../enrolment.model';
 
 @Component({
-    selector: 'exam-feedback',
+    selector: 'xm-exam-feedback',
     templateUrl: './exam-feedback.component.html',
 })
 export class ExamFeedbackComponent {

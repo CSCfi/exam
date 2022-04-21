@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import type { ExamInfo } from '../calendar.component';
 
 @Component({
-    selector: 'calendar-optional-sections',
+    selector: 'xm-calendar-optional-sections',
     template: `
         <div class="student-enrolment-wrapper details-view">
             <div class="row mb-3" [ngClass]="sectionSelectionOk() ? '' : 'notactive'">

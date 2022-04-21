@@ -16,7 +16,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
 @Component({
-    selector: 'r-no-show',
+    selector: 'xm-r-no-show',
     template: ` <div class="detail-row">
             <div class="col-md-12">{{ started | date: 'dd.MM.yyyy' }}</div>
         </div>

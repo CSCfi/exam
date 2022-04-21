@@ -2,7 +2,7 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-details-title-wrap">
-                <history-back></history-back>
+                <xm-history-back></xm-history-back>
                 <div class="student-exam-details-title">{{ 'sitnet_speed_review' | translate }}</div>
             </div>
         </div>
@@ -32,31 +32,31 @@
                     <thead>
                         <tr>
                             <th class="with-top">
-                                <table-sort
+                                <xm-table-sort
                                     by="displayName"
                                     text="sitnet_student"
                                     [predicate]="reviewPredicate"
                                     [reverse]="reverse"
                                     (click)="setPredicate('displayName')"
-                                ></table-sort>
+                                ></xm-table-sort>
                             </th>
                             <th class="with-top">
-                                <table-sort
+                                <xm-table-sort
                                     by="examParticipation.started"
                                     text="sitnet_exam_duration"
                                     [predicate]="reviewPredicate"
                                     [reverse]="reverse"
                                     (click)="setPredicate('examParticipation.started')"
-                                ></table-sort>
+                                ></xm-table-sort>
                             </th>
                             <th class="with-top">
-                                <table-sort
+                                <xm-table-sort
                                     by="examParticipation.deadline"
                                     text="sitnet_review_deadline"
                                     [predicate]="reviewPredicate"
                                     [reverse]="reverse"
                                     (click)="setPredicate('examParticipation.deadline')"
-                                ></table-sort>
+                                ></xm-table-sort>
                             </th>
                             <th class="with-space">{{ 'sitnet_inspection_status' | translate }}</th>
                             <th class="with-space">{{ 'sitnet_exam_state' | translate }}</th>
@@ -173,12 +173,12 @@
         </div>
         <div *ngIf="toggleReviews">
             <div *ngIf="examReviews.length > pageSize">
-                <paginator
+                <xm-paginator
                     [items]="examReviews"
                     (pageSelected)="pageSelected($event)"
                     [pageSize]="pageSize"
                     [currentPage]="currentPage"
-                ></paginator>
+                ></xm-paginator>
             </div>
         </div>
 

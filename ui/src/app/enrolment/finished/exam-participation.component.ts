@@ -36,7 +36,7 @@ export type ParticipationLike =
     | (ExamEnrolment & { started?: string; ended?: string });
 
 @Component({
-    selector: 'exam-participation',
+    selector: 'xm-exam-participation',
     templateUrl: './exam-participation.component.html',
 })
 export class ExamParticipationComponent implements OnInit, OnDestroy {

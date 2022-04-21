@@ -31,7 +31,7 @@ export interface LanguageInspectionData extends LanguageInspection {
 }
 
 @Component({
-    selector: 'language-inspections',
+    selector: 'xm-language-inspections',
     template: `<div id="dashboard">
         <div class="top-row">
             <div class="col-md-12">
@@ -44,19 +44,19 @@ export interface LanguageInspectionData extends LanguageInspection {
         <div class="tab-wrapper-exams">
             <div class="review-border">
                 <!-- Under review language inspection -->
-                <unfinished-inspections *ngIf="ongoingInspections" [inspections]="ongoingInspections">
-                </unfinished-inspections>
+                <xm-unfinished-inspections *ngIf="ongoingInspections" [inspections]="ongoingInspections">
+                </xm-unfinished-inspections>
             </div>
 
             <div class="review-border">
                 <!-- Reviewed language inspection -->
-                <reviewed-inspections
+                <xm-reviewed-inspections
                     *ngIf="processedInspections"
                     [inspections]="processedInspections"
                     (endDateChanged)="endDateChanged($event)"
                     (startDateChanged)="startDateChanged($event)"
                 >
-                </reviewed-inspections>
+                </xm-reviewed-inspections>
             </div>
         </div>
     </div> `,

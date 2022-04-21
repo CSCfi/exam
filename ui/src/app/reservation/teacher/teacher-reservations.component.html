@@ -11,44 +11,44 @@
         <div class="p-4 row">
             <div class="col-md-2 pt-1 reservation-search-titles">
                 <strong>{{ 'sitnet_begin' | translate }}</strong>
-                <date-picker (updated)="startDateChanged($event)"></date-picker>
+                <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
             </div>
             <div class="col-md-2 pt-1 reservation-search-titles">
                 <strong>{{ 'sitnet_end' | translate }}</strong>
-                <date-picker (updated)="endDateChanged($event)"></date-picker>
+                <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
             </div>
             <div class="col-md-2">
                 <strong class="reservation-search-titles">{{ 'sitnet_student' | translate }}</strong>
-                <dropdown-select
+                <xm-dropdown-select
                     *ngIf="studentOptions"
                     [fullWidth]="true"
                     [options]="studentOptions"
                     (optionSelected)="studentChanged($event)"
                 >
-                </dropdown-select>
+                </xm-dropdown-select>
             </div>
             <div class="col-md-3">
                 <strong class="reservation-search-titles">{{ 'sitnet_exam' | translate }}</strong>
-                <dropdown-select
+                <xm-dropdown-select
                     *ngIf="examOptions"
                     [fullWidth]="true"
                     [options]="examOptions"
                     (optionSelected)="examChanged($event)"
                 >
-                </dropdown-select>
+                </xm-dropdown-select>
             </div>
             <div class="col-md-3">
                 <strong class="reservation-search-titles">{{ 'sitnet_exam_state' | translate }}</strong>
-                <dropdown-select
+                <xm-dropdown-select
                     *ngIf="stateOptions"
                     [fullWidth]="true"
                     [options]="stateOptions"
                     (optionSelected)="stateChanged($event)"
                 >
-                </dropdown-select>
+                </xm-dropdown-select>
             </div>
         </div>
 
-        <reservation-details *ngIf="reservations" [reservations]="reservations"></reservation-details>
+        <xm-reservation-details *ngIf="reservations" [reservations]="reservations"></xm-reservation-details>
     </div>
 </div>

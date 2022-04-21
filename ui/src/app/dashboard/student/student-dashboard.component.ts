@@ -18,7 +18,7 @@ import type { DashboardEnrolment } from './student-dashboard.service';
 import { StudentDashboardService } from './student-dashboard.service';
 
 @Component({
-    selector: 'student-dashboard',
+    selector: 'xm-student-dashboard',
     templateUrl: './student-dashboard.component.html',
 })
 export class StudentDashboardComponent implements OnInit {

@@ -18,7 +18,7 @@ import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-    selector: 'eula-dialog',
+    selector: 'xm-xm-eula-dialog',
     template: `
         <div id="sitnet-dialog">
             <div class="modal-header">

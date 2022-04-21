@@ -31,7 +31,7 @@ import { QuestionService } from '../question.service';
 
 // This component depicts a distributed exam question
 @Component({
-    selector: 'exam-question',
+    selector: 'xm-exam-question',
     templateUrl: './exam-question.component.html',
 })
 export class ExamQuestionComponent implements OnInit {

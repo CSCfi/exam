@@ -20,7 +20,7 @@ import { merge } from 'lodash';
 import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.model';
 
 @Component({
-    selector: 'select-examination-event-dialog',
+    selector: 'xm-select-examination-event-dialog',
     template: `<div id="sitnet-dialog">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">

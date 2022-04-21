@@ -20,7 +20,7 @@ import { CommonExamService } from '../../../shared/miscellaneous/common-exam.ser
 import { WindowRef } from '../../../shared/window/window.service';
 
 @Component({
-    selector: 'r-participation',
+    selector: 'xm-r-participation',
     template: `<div class="detail-row">
             <div class="col-md-12 general-info-title">{{ participation.started | date: 'dd.MM.yyyy' }}</div>
         </div>

@@ -27,7 +27,7 @@
             <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
             <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
             <div class="row section-handle">
-                <section
+                <xm-section
                     class="col-md-12 padt40"
                     [section]="section"
                     [index]="i + 1"
@@ -44,7 +44,7 @@
                         popoverTitle="{{ 'sitnet_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     ></i>
-                </section>
+                </xm-section>
             </div>
         </div>
     </div>

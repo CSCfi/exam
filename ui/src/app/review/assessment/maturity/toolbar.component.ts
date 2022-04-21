@@ -21,7 +21,7 @@ import type { StateName } from './maturity.service';
 import { MaturityService } from './maturity.service';
 
 @Component({
-    selector: 'r-maturity-toolbar',
+    selector: 'xm-r-maturity-toolbar',
     template: `<!-- language inspection controls  -->
         <div class="float-right" *ngIf="isOwnerOrAdmin() || isUnderLanguageInspection()">
             <span [hidden]="isUnderLanguageInspection()">

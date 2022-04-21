@@ -22,7 +22,7 @@ import type { Question, Tag } from '../../exam/exam.model';
 import { QuestionDraft } from '../question.service';
 
 @Component({
-    selector: 'tag-picker',
+    selector: 'xm-tag-picker',
     template: `<div class="row mt-2">
         <div class="col-md-3 exam-basic-title">
             {{ 'sitnet_tag_question' | translate }}

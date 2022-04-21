@@ -26,7 +26,7 @@ import { AssessmentService } from '../assessment.service';
 import { GradingBaseComponent } from '../common/grading-base.component';
 
 @Component({
-    selector: 'r-maturity-grading',
+    selector: 'xm-r-maturity-grading',
     templateUrl: './grading.component.html',
 })
 export class MaturityGradingComponent extends GradingBaseComponent implements OnInit {

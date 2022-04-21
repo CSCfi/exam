@@ -30,20 +30,20 @@
         <!-- Start & End time datepickers, department selection -->
         <div class="col-md">
             <h4>{{ 'sitnet_begin' | translate }}</h4>
-            <date-picker
+            <xm-date-picker
                 (updated)="startDateChanged($event)"
                 [initialDate]="null"
                 [modelOptions]="{ timezone: '+0000' }"
-            ></date-picker>
+            ></xm-date-picker>
         </div>
 
         <div class="col-md">
             <h4>{{ 'sitnet_end' | translate }}</h4>
-            <date-picker
+            <xm-date-picker
                 (updated)="endDateChanged($event)"
                 [initialDate]="null"
                 [modelOptions]="{ timezone: '+0000' }"
-            ></date-picker>
+            ></xm-date-picker>
         </div>
 
         <div class="col-md">
@@ -112,8 +112,8 @@
     </div>
 
     <!-- TAB CONTENT -->
-    <room-statistics *ngIf="view === 'ROOMS'" [queryParams]="queryParams"></room-statistics>
-    <reservation-statistics *ngIf="view === 'RESERVATIONS'" [queryParams]="queryParams"> </reservation-statistics>
-    <response-statistics *ngIf="view === 'RESPONSES'" [queryParams]="queryParams"></response-statistics>
-    <exam-statistics *ngIf="view === 'EXAMS'" [queryParams]="queryParams"></exam-statistics>
+    <xm-room-statistics *ngIf="view === 'ROOMS'" [queryParams]="queryParams"></xm-room-statistics>
+    <xm-reservation-statistics *ngIf="view === 'RESERVATIONS'" [queryParams]="queryParams"> </xm-reservation-statistics>
+    <xm-response-statistics *ngIf="view === 'RESPONSES'" [queryParams]="queryParams"></xm-response-statistics>
+    <xm-exam-statistics *ngIf="view === 'EXAMS'" [queryParams]="queryParams"></xm-exam-statistics>
 </div>

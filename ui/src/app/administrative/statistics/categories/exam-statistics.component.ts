@@ -53,7 +53,7 @@ interface ExamInfo {
             </div>
         </div>
     `,
-    selector: 'exam-statistics',
+    selector: 'xm-exam-statistics',
 })
 export class ExamStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};

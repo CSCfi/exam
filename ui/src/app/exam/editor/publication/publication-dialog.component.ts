@@ -19,7 +19,7 @@ import { TranslateService } from '@ngx-translate/core';
 import type { Exam } from '../../exam.model';
 
 @Component({
-    selector: 'publication-dialog',
+    selector: 'xm-publication-dialog',
     template: `<div id="sitnet-dialog">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">

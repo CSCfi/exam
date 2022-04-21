@@ -17,59 +17,59 @@
                 <thead>
                     <tr>
                         <th class="with-top">
-                            <table-sort
+                            <xm-table-sort
                                 [reverse]="sorting.reverse"
                                 [predicate]="sorting.predicate"
                                 by="name"
                                 text="sitnet_exam_name"
                                 (click)="setPredicate('name')"
-                            ></table-sort>
+                            ></xm-table-sort>
                         </th>
                         <th class="with-top">
-                            <table-sort
+                            <xm-table-sort
                                 by="course.code"
                                 text="sitnet_course_code"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate('course.code')"
-                            ></table-sort>
+                            ></xm-table-sort>
                         </th>
                         <th class="with-top">
-                            <table-sort
+                            <xm-table-sort
                                 by="executionType.type"
                                 text="sitnet_exam_type"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate('executionType.type')"
-                            ></table-sort>
+                            ></xm-table-sort>
                         </th>
                         <th class="with-top">
-                            <table-sort
+                            <xm-table-sort
                                 by="examActiveEndDate"
                                 text="sitnet_exam_validity"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate('examActiveEndDate')"
-                            ></table-sort>
+                            ></xm-table-sort>
                         </th>
 
                         <th *ngFor="let column of extraColumnNames()" class="with-top with-space">
-                            <table-sort
+                            <xm-table-sort
                                 by="{{ column.property }}"
                                 text="{{ column.text }}"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate(column.property)"
-                            ></table-sort>
+                            ></xm-table-sort>
                         </th>
                         <th class="with-top">
-                            <table-sort
+                            <xm-table-sort
                                 by="ownerAggregate"
                                 text="sitnet_teachers"
                                 [predicate]="sorting.predicate"
                                 [reverse]="sorting.reverse"
                                 (click)="setPredicate('ownerAggregate')"
-                            ></table-sort>
+                            ></xm-table-sort>
                         </th>
                         <th>&nbsp;</th>
                         <th>&nbsp;</th>
@@ -95,7 +95,11 @@
                             <span class="text-danger" *ngIf="!isOwner(exam)">{{ 'sitnet_no_name' | translate }}</span>
                         </td>
                         <td>
-                            <course-code class="exam-code" *ngIf="exam.course" [course]="exam.course"></course-code>
+                            <xm-course-code
+                                class="exam-code"
+                                *ngIf="exam.course"
+                                [course]="exam.course"
+                            ></xm-course-code>
                         </td>
                         <td>
                             <span class="exam-type">{{ getExecutionTypeTranslation(exam) }}</span>
@@ -131,7 +135,7 @@
                         </td>
 
                         <td class="table-column-teachers">
-                            <teacher-list [exam]="exam"></teacher-list>
+                            <xm-teacher-list [exam]="exam"></xm-teacher-list>
                         </td>
                         <td class="text-center">
                             <a *ngIf="isOwner(exam)" (click)="deleteExam(exam)" class="pointer">

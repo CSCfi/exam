@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-    selector: 'publication-error-dialog',
+    selector: 'xm-publication-error-dialog',
     template: `<div id="sitnet-dialog">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">

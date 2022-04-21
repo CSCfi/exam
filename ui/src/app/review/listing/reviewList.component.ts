@@ -24,7 +24,7 @@ import { NoShowsComponent } from './dialogs/no-shows.component';
 import { ReviewListService } from './reviewList.service';
 
 @Component({
-    selector: 'review-list',
+    selector: 'xm-review-list',
     templateUrl: './reviewList.component.html',
 })
 export class ReviewListComponent implements OnInit, OnChanges {

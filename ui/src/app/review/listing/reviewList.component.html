@@ -46,47 +46,47 @@
     <div *ngIf="reviews" class="mb-3">
         <div class="review-border mb-5">
             <!-- Ready for review-->
-            <rl-in-progress
+            <xm-rl-in-progress
                 [exam]="exam"
                 [reviews]="inProgressReviews"
                 [collaborative]="collaborative"
-            ></rl-in-progress>
+            ></xm-rl-in-progress>
         </div>
 
         <div class="review-border mb-5" *ngIf="languageInspectedReviews.length > 0">
             <!-- Under language inspection -->
-            <rl-in-language-inspection [reviews]="languageInspectedReviews"></rl-in-language-inspection>
+            <xm-rl-in-language-inspection [reviews]="languageInspectedReviews"></xm-rl-in-language-inspection>
         </div>
 
         <div class="review-border mb-5">
             <!-- Graded -->
-            <rl-graded
+            <xm-rl-graded
                 [exam]="exam"
                 [reviews]="gradedReviews"
                 [collaborative]="collaborative"
                 (registered)="onRegistration($event)"
             >
-            </rl-graded>
+            </xm-rl-graded>
         </div>
 
         <div class="review-border mb-5">
             <!-- Graded and Logged -->
-            <rl-graded-logged
+            <xm-rl-graded-logged
                 [exam]="exam"
                 [reviews]="gradedLoggedReviews"
                 [collaborative]="collaborative"
                 (archived)="onArchive($event)"
-            ></rl-graded-logged>
+            ></xm-rl-graded-logged>
         </div>
 
         <div class="review-border mb-5" *ngIf="rejectedReviews.length > 0">
             <!-- Rejected -->
-            <rl-rejected [reviews]="rejectedReviews"></rl-rejected>
+            <xm-rl-rejected [reviews]="rejectedReviews"></xm-rl-rejected>
         </div>
 
         <div class="review-border mb-5" *ngIf="archivedReviews.length > 0">
             <!-- Archived -->
-            <rl-archived [reviews]="archivedReviews"></rl-archived>
+            <xm-rl-archived [reviews]="archivedReviews"></xm-rl-archived>
         </div>
     </div>
 </div>

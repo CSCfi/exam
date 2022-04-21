@@ -22,11 +22,11 @@ import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
 import { WindowRef } from '../shared/window/window.service';
 import { RoomService } from './rooms/room.service';
-import { MaintenancePeriodDialogComponent } from './schedule/maintenancePeriodDialog.component';
+import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-dialog.component';
 
 @Component({
     templateUrl: './facility.component.html',
-    selector: 'facility',
+    selector: 'xm-facility',
 })
 export class FacilityComponent implements OnInit {
     user: User;

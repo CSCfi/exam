@@ -18,7 +18,7 @@ import { ToastrService } from 'ngx-toastr';
 import { FileService } from '../../../shared/file/file.service';
 
 @Component({
-    selector: 'library-file-export',
+    selector: 'xm-library-file-export',
     template: `<div *ngIf="selections.length > 0" class="padl30 questions-selections-box">
         <div class="make-inline">
             <div class="question-add-owners-box">

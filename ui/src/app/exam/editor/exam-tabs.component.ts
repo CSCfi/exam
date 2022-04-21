@@ -26,7 +26,7 @@ import type { UpdateProps } from './exam-tabs.service';
 import { ExamTabService } from './exam-tabs.service';
 
 @Component({
-    selector: 'exam-tabs',
+    selector: 'xm-exam-tabs',
     templateUrl: './exam-tabs.component.html',
 })
 export class ExamTabsComponent implements OnInit, OnDestroy {

@@ -20,7 +20,7 @@ import { SessionService } from '../../../session/session.service';
 import type { Exam } from '../../exam.model';
 
 @Component({
-    selector: 'collaborative-exam-owner-selector',
+    selector: 'xm-collaborative-exam-owner-selector',
     template: `<div class="row mt-2">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_owners' | translate }}

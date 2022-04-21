@@ -22,7 +22,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import type { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
 
 @Component({
-    selector: 'exam-search',
+    selector: 'xm-exam-search',
     template: `<div id="dashboard">
         <div class="top-row ml-2 mr-2">
             <div class="col-md-12">
@@ -75,7 +75,7 @@ import type { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
 
         <div [@listAnimation]="exams.length" class="search-list-wrapper">
             <div class="" *ngFor="let exam of exams">
-                <exam-search-result [exam]="exam"></exam-search-result>
+                <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
             </div>
         </div>
     </div> `,

@@ -16,7 +16,7 @@ import { Component, Input } from '@angular/core';
 import type { ExamSection } from '../../../exam/exam.model';
 
 @Component({
-    selector: 'printed-section',
+    selector: 'xm-printed-section',
     template: `
         <blockquote>
             <h4>{{ index + 1 }}.&nbsp; &nbsp;{{ section.name }}</h4>
@@ -26,7 +26,7 @@ import type { ExamSection } from '../../../exam/exam.model';
             class="sub-content-row col-md-12"
             *ngFor="let sectionQuestion of section.sectionQuestions | orderBy: 'sequenceNumber'"
         >
-            <printed-multi-choice
+            <xm-printed-multi-choice
                 *ngIf="
                     sectionQuestion.question.type === 'MultipleChoiceQuestion' ||
                     sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion' ||
@@ -34,17 +34,17 @@ import type { ExamSection } from '../../../exam/exam.model';
                 "
                 [sectionQuestion]="sectionQuestion"
             >
-            </printed-multi-choice>
-            <printed-essay
+            </xm-printed-multi-choice>
+            <xm-printed-essay
                 *ngIf="sectionQuestion.question.type === 'EssayQuestion'"
                 [sectionQuestion]="sectionQuestion"
             >
-            </printed-essay>
-            <printed-cloze-test
+            </xm-printed-essay>
+            <xm-printed-cloze-test
                 *ngIf="sectionQuestion.question.type === 'ClozeTestQuestion'"
                 [sectionQuestion]="sectionQuestion"
             >
-            </printed-cloze-test>
+            </xm-printed-cloze-test>
         </div>
     `,
 })

@@ -156,8 +156,8 @@
                         type="number"
                         lang="en"
                         name="lotteryItemCount"
-                        [min]="1"
-                        [max]="section.sectionQuestions.length"
+                        [xmMin]="1"
+                        [xmMax]="section.sectionQuestions.length"
                         [(ngModel)]="section.lotteryItemCount"
                         (change)="updateLotteryCount()"
                     />
@@ -227,7 +227,7 @@
                 <div *ngFor="let sectionQuestion of section.sectionQuestions" cdkDrag cdkDragLockAxis="y">
                     <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
                     <div class="drag-preview" *cdkDragPreview [innerHtml]="sectionQuestion.question.question"></div>
-                    <section-question
+                    <xm-section-question
                         class="section-question"
                         [section]="section"
                         [examId]="examId"
@@ -236,7 +236,7 @@
                         [lotteryOn]="section.lotteryOn"
                         (removed)="removeQuestion($event)"
                     >
-                    </section-question>
+                    </xm-section-question>
                 </div>
             </div>
 

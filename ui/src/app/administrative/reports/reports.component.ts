@@ -22,7 +22,7 @@ import { UserService } from '../../shared/user/user.service';
 import { ReportsService, UserRole } from './reports.service';
 
 @Component({
-    selector: 'reports',
+    selector: 'xm-reports',
     template: `
         <div>
             <div id="sitnet-header" class="header">
@@ -32,21 +32,21 @@ import { ReportsService, UserRole } from './reports.service';
             </div>
 
             <div id="dashboard">
-                <div class="report-category" *ngIf="rooms"><rooms-report [rooms]="rooms"></rooms-report></div>
+                <div class="report-category" *ngIf="rooms"><xm-rooms-report [rooms]="rooms"></xm-rooms-report></div>
                 <div class="report-category" *ngIf="examNames">
-                    <exams-report [examNames]="examNames" fileType="xlsx"></exams-report>
+                    <xm-exams-report [examNames]="examNames" fileType="xlsx"></xm-exams-report>
                 </div>
                 <div class="report-category" *ngIf="students">
-                    <students-report [students]="students"></students-report>
+                    <xm-students-report [students]="students"></xm-students-report>
                 </div>
                 <div class="report-category" *ngIf="examNames">
-                    <enrolments-report [examNames]="examNames"></enrolments-report>
+                    <xm-enrolments-report [examNames]="examNames"></xm-enrolments-report>
                 </div>
-                <div class="report-category"><answers-report></answers-report></div>
-                <div class="report-category"><reviews-report></reviews-report></div>
-                <div class="report-category"><records-report></records-report></div>
+                <div class="report-category"><xm-answers-report></xm-answers-report></div>
+                <div class="report-category"><xm-reviews-report></xm-reviews-report></div>
+                <div class="report-category"><xm-records-report></xm-records-report></div>
                 <div class="report-category" *ngIf="teachers">
-                    <teachers-report [teachers]="teachers"></teachers-report>
+                    <xm-teachers-report [teachers]="teachers"></xm-teachers-report>
                 </div>
             </div>
         </div>

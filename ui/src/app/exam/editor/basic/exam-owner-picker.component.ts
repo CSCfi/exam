@@ -25,8 +25,8 @@ import type { User } from '../../../session/session.service';
 import type { Exam } from '../../exam.model';
 
 @Component({
-    selector: 'exam-owner-selector',
-    templateUrl: './exam-owner-selector.component.html',
+    selector: 'xm-exam-owner-picker',
+    templateUrl: './exam-owner-picker.component.html',
 })
 export class ExamOwnerSelectorComponent implements OnInit {
     @Input() exam!: Exam;

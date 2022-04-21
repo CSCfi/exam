@@ -17,7 +17,7 @@ import { DateTimeService } from '../../shared/date/date.service';
 import type { Examination } from '../examination.model';
 
 @Component({
-    selector: 'answer-instructions',
+    selector: 'xm-answer-instructions',
     template: `
         <!-- ANSWER INSTRUCTIONS -->
         <div class="row">
@@ -33,7 +33,7 @@ import type { Examination } from '../examination.model';
                 </div>
                 <div class="row" *ngIf="exam.course">
                     <div class="header col-md-4">{{ 'sitnet_course_code' | translate }}:</div>
-                    <div class="text col-md-8"><course-code [course]="exam.course"></course-code></div>
+                    <div class="text col-md-8"><xm-course-code [course]="exam.course"></xm-course-code></div>
                 </div>
                 <div class="row">
                     <div class="header col-md-4">{{ 'sitnet_exam_name' | translate }}:</div>
@@ -45,7 +45,7 @@ import type { Examination } from '../examination.model';
                 </div>
                 <div class="row">
                     <div class="header col-md-4">{{ 'sitnet_exam_guide' | translate }}:</div>
-                    <div class="text col-md-8" [MathJax]="exam.instruction"></div>
+                    <div class="text col-md-8" xmMathJax math="exam.instruction"></div>
                 </div>
             </div>
         </div>

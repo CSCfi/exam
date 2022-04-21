@@ -15,16 +15,16 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
-    selector: 'date-time-picker',
+    selector: 'xm-date-time-picker',
     template: `
         <div class="row align-items-center">
             <div class="col-auto">
-                <date-picker
+                <xm-date-picker
                     [disabled]="disabled"
                     [initialDate]="initialTime"
                     [examMaxDate]="examMaxDate"
                     (updated)="onDateUpdate($event)"
-                ></date-picker>
+                ></xm-date-picker>
             </div>
             <div class="col">
                 <ngb-timepicker

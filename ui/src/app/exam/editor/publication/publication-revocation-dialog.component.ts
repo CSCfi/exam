@@ -17,7 +17,7 @@ import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-    selector: 'publication-revoke-dialog',
+    selector: 'xm-publication-revoke-dialog',
     template: `<div id="sitnet-dialog">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">

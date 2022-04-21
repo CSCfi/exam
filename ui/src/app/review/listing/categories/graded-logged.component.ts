@@ -27,7 +27,7 @@ import type { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
 @Component({
-    selector: 'rl-graded-logged',
+    selector: 'xm-rl-graded-logged',
     templateUrl: './graded-logged.component.html',
 })
 export class GradedLoggedReviewsComponent implements OnInit {

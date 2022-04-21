@@ -21,7 +21,7 @@ import { LanguageService } from '../../../shared/language/language.service';
 import type { Exam, ExamLanguage } from '../../exam.model';
 
 @Component({
-    selector: 'language-selector',
+    selector: 'xm-language-picker',
     template: `<div ngbDropdown>
         <button [disabled]="disabled" ngbDropdownToggle class="btn btn-outline-dark" type="button" id="ddMenu">
             {{ selectedLanguages() }}&nbsp;

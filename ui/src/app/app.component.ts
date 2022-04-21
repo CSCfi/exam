@@ -25,13 +25,13 @@ import type { User } from './session/session.service';
 import { SessionService } from './session/session.service';
 
 @Component({
-    selector: 'app',
+    selector: 'xm-app',
     template: `
         <div *ngIf="!user && devLoginRequired">
-            <dev-login (loggedIn)="setUser($event)"></dev-login>
+            <xm-dev-login (loggedIn)="setUser($event)"></xm-dev-login>
         </div>
         <div *ngIf="user">
-            <navigation [hidden]="hideNavBar"></navigation>
+            <xm-navigation [hidden]="hideNavBar"></xm-navigation>
             <main id="mainView" class="container-fluid pad0" [ngClass]="{ 'vmenu-on': !hideNavBar }">
                 <ui-view></ui-view>
             </main>

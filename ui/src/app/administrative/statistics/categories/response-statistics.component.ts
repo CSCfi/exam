@@ -44,7 +44,7 @@ import type { QueryParams } from '../statistics.component';
             <div class="col-md-10">{{ abortedExams.length }}</div>
         </div>
     `,
-    selector: 'response-statistics',
+    selector: 'xm-response-statistics',
 })
 export class ResponseStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};

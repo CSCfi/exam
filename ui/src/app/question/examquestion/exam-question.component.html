@@ -125,7 +125,7 @@
                             </sup>
                         </div>
                         <div class="col-md-9" *ngIf="question?.type">
-                            <ckeditor
+                            <xm-ckeditor
                                 id="editor"
                                 name="editor"
                                 #ck="ngModel"
@@ -135,7 +135,7 @@
                                 [(ngModel)]="question!.question"
                                 [required]="true"
                             >
-                            </ckeditor>
+                            </xm-ckeditor>
                         </div>
                     </div>
 
@@ -160,8 +160,8 @@
                                     lang="en"
                                     class="form-control"
                                     [(ngModel)]="examQuestion.expectedWordCount"
-                                    [min]="1"
-                                    [max]="1000000"
+                                    [xmMin]="1"
+                                    [xmMax]="1000000"
                                     #wordCount="ngModel"
                                 />
                                 <span
@@ -234,7 +234,7 @@
                                     [ngClass]="option.score || 0 > 0 ? 'question-correct-option-radio' : ''"
                                 >
                                     <input
-                                        fixedPrecision
+                                        xmFixedPrecision
                                         id="optionScore_{{ option.id }}"
                                         name="maxScore_{{ option.id }}"
                                         class="question-option-input points"
@@ -358,7 +358,7 @@
                                             class="question-option-input points"
                                             type="number"
                                             lang="en"
-                                            fixedPrecision
+                                            xmFixedPrecision
                                             [(ngModel)]="opt.score"
                                             required
                                             [disabled]="lotteryOn || opt.option!.claimChoiceType === 'SkipOption'"
@@ -441,9 +441,9 @@
                                 lang="en"
                                 class="form-control wdt100"
                                 [(ngModel)]="examQuestion.maxScore"
-                                [min]="0"
-                                [max]="1000"
-                                fixedPrecision
+                                [xmMin]="0"
+                                [xmMax]="1000"
+                                xmFixedPrecision
                                 required
                                 [disabled]="lotteryOn"
                             />

@@ -19,8 +19,55 @@ import type { WorkingHour } from '../rooms/room.service';
 import { RoomService } from '../rooms/room.service';
 
 @Component({
-    templateUrl: './startingTime.component.html',
-    selector: 'starting-time',
+    selector: 'xm-starting-time',
+    template: `<div class="detail-row">
+            <h3 class="col-md-12 header-text">{{ 'sitnet_exam_starting_hours' | translate }}</h3>
+        </div>
+        <div class="bottom-row">
+            <form>
+                <div class="col-md-12">
+                    <div class="sitnet-info-text">{{ 'sitnet_minutes_on_the_hour' | translate }}:</div>
+                    <input
+                        id="hourOffset"
+                        name="hourOffset"
+                        type="number"
+                        lang="en"
+                        [xmMin]="0"
+                        [xmMax]="59"
+                        [(ngModel)]="examStartingHourOffset"
+                        (change)="setStartingHourOffset()"
+                    />
+                </div>
+            </form>
+        </div>
+        <div class="detail-row">
+            <div class="col-md-6">
+                <span
+                    *ngFor="let hour of examStartingHours"
+                    class="badge pointer"
+                    [ngClass]="hour.selected ? 'badge-success' : 'badge-default'"
+                    (click)="hour.selected = !hour.selected"
+                    style="margin: 0.2em"
+                    >{{ hour.startingHour }}</span
+                >
+            </div>
+        </div>
+        <div class="bottom-row">
+            <div class="col-md-12">
+                <a class="pointer" (click)="toggleAllExamStartingHours()">{{ 'sitnet_add_remove_all' | translate }}</a>
+            </div>
+        </div>
+        <div class="bottom-row">
+            <div class="col-md-12">
+                <button
+                    class="btn btn-primary"
+                    (click)="updateStartingHours()"
+                    [disabled]="!anyStartingHoursSelected()"
+                >
+                    {{ 'sitnet_save' | translate }}
+                </button>
+            </div>
+        </div> `,
 })
 export class StartingTimeComponent implements OnInit {
     @Input() roomIds: number[] = [];

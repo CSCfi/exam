@@ -18,7 +18,7 @@ import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../question-review.service';
 
 @Component({
-    selector: 'question-flow-category',
+    selector: 'xm-question-flow-category',
     template: `<div class="main-row question-flow-category-title-wrapper">
             <span class="col-md-10">
                 <strong>{{ categoryTitle | translate | uppercase }}</strong

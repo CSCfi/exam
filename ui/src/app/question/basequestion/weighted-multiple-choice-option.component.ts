@@ -19,7 +19,7 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionDraft } from '../question.service';
 
 @Component({
-    selector: 'wmc-option-editor',
+    selector: 'xm-wmc-option-editor',
     template: `
         <div class="question-editor-option">
             <div class="row">
@@ -47,7 +47,7 @@ import { QuestionDraft } from '../question.service';
                         type="number"
                         lang="en"
                         [(ngModel)]="option.defaultScore"
-                        fixedPrecision
+                        xmFixedPrecision
                         required
                         [disabled]="lotteryOn"
                     />

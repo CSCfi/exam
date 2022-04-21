@@ -59,7 +59,7 @@ export class DatePickerI18n extends NgbDatepickerI18n {
     getWeekdayLabel = (weekday: number): string => this.getWeekdayShortName(weekday);
 }
 @Component({
-    selector: 'date-picker',
+    selector: 'xm-date-picker',
     templateUrl: './date-picker.component.html',
     providers: [
         { provide: NgbDateParserFormatter, useClass: DatePickerFormatter },

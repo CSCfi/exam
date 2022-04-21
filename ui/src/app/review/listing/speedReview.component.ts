@@ -43,7 +43,7 @@ import type { Review } from '../review.model';
 import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 
 @Component({
-    selector: 'speed-review',
+    selector: 'xm-speed-review',
     templateUrl: './speedReview.component.html',
 })
 export class SpeedReviewComponent implements OnInit {

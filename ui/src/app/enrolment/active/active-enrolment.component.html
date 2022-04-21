@@ -73,10 +73,10 @@
                 </div>
             </div>
             <div class="col">
-                <active-enrolment-menu
+                <xm-active-enrolment-menu
                     [enrolment]="enrolment"
                     (removed)="enrolmentRemoved($event)"
-                ></active-enrolment-menu>
+                ></xm-active-enrolment-menu>
             </div>
         </div>
         <div class="row mart10">
@@ -88,7 +88,7 @@
                     <div class="col-6 col-sm-6 col-md-3 col-lg-3">
                         <div *ngIf="enrolment.exam && enrolment.exam.course">
                             <span class="exam-code">
-                                <strong><course-code [course]="enrolment.exam.course"></course-code></strong>
+                                <strong><xm-course-code [course]="enrolment.exam.course"></xm-course-code></strong>
                             </span>
                             {{ enrolment.exam.course.name }}
                         </div>
@@ -98,7 +98,7 @@
                     </div>
                     <div class="col-6 col-sm-6 col-md-5 col-lg-5">
                         <div *ngIf="enrolment.exam">
-                            <teacher-list [exam]="enrolment.exam"></teacher-list>
+                            <xm-teacher-list [exam]="enrolment.exam"></xm-teacher-list>
                         </div>
                         <button
                             *ngIf="enrolment.exam"
@@ -278,7 +278,8 @@
             <div
                 class="col-6 col-md-10"
                 [hidden]="!showInstructions"
-                [MathJax]="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction || ''"
+                xmMathJax
+                math="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction || ''"
             ></div>
         </div>
         <div class="row mt-2" *ngIf="enrolment.reservation && enrolment.optionalSections.length > 0">

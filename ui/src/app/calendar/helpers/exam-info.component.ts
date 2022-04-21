@@ -5,7 +5,7 @@ import { DateTimeService } from '../../shared/date/date.service';
 import type { ExamInfo } from '../calendar.component';
 
 @Component({
-    selector: 'calendar-exam-info',
+    selector: 'xm-calendar-exam-info',
     template: `
         <div class="row student-enrolment-wrapper details-view">
             <div class="col-md-12">
@@ -31,7 +31,7 @@ import type { ExamInfo } from '../calendar.component';
                             <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
                             <div class="col-6 col-sm-6 col-md-2 col-lg-2">
                                 <div *ngIf="!collaborative">
-                                    <course-code [course]="examInfo.course"></course-code>
+                                    <xm-course-code [course]="examInfo.course"></xm-course-code>
                                     {{ examInfo.course.name }}
                                 </div>
                             </div>
@@ -57,7 +57,7 @@ import type { ExamInfo } from '../calendar.component';
                     <div class="col-md-12">
                         <span class="student-exam-row-infolink" [hidden]="examInfo.executionType?.type === 'MATURITY'">
                             {{ 'sitnet_calendar_instructions' | translate }}:
-                            <span [MathJax]="examInfo.enrollInstruction"></span>
+                            <span xmMathJax math="examInfo.enrollInstruction"></span>
                         </span>
                     </div>
                 </div>

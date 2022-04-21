@@ -18,7 +18,7 @@ import type { LanguageInspectionData } from '../language-inspections.component';
 import { LanguageInspectionService } from '../language-inspections.service';
 
 @Component({
-    selector: 'reviewed-inspections',
+    selector: 'xm-reviewed-inspections',
     templateUrl: './reviewed-inspections.component.html',
 })
 export class ReviewedInspectionsComponent implements OnChanges {

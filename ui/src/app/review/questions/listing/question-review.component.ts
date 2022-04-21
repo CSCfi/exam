@@ -18,7 +18,7 @@ import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../question-review.service';
 
 @Component({
-    selector: 'question-review',
+    selector: 'xm-question-review',
     template: `<div class="student-enrolment-wrapper essay-review">
         <div class="review-points-exam d-flex justify-content-between">
             <div>
@@ -58,7 +58,7 @@ import { QuestionReviewService } from '../question-review.service';
 
         <!-- Question -->
         <div class="marl10 make-inline">
-            <div class="review-question-title make-inline" [MathJax]="review.question.question"></div>
+            <div class="review-question-title make-inline" xmMathJax math="review.question.question"></div>
             <a
                 (click)="review.expanded = !review.expanded"
                 class="pointer-hand"

@@ -31,7 +31,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
 import { GradingBaseComponent } from '../common/grading-base.component';
 
 @Component({
-    selector: 'r-grading',
+    selector: 'xm-r-grading',
     templateUrl: './grading.component.html',
 })
 export class GradingComponent extends GradingBaseComponent implements OnInit {

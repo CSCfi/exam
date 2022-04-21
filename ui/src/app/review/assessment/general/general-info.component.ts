@@ -26,7 +26,7 @@ import { DateTimeService } from '../../../shared/date/date.service';
 export type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
-    selector: 'r-general-info',
+    selector: 'xm-r-general-info',
     templateUrl: './general-info.component.html',
 })
 export class GeneralInfoComponent implements OnInit {

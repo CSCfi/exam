@@ -51,19 +51,19 @@
 
                 <div class="col-md-2">
                     <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
-                    <date-picker
+                    <xm-date-picker
                         [optional]="true"
                         [initiallyEmpty]="true"
                         (updated)="onStartDateChanged($event)"
-                    ></date-picker>
+                    ></xm-date-picker>
                 </div>
                 <div class="col-md-2">
                     <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
-                    <date-picker
+                    <xm-date-picker
                         [optional]="true"
                         [initiallyEmpty]="true"
                         (updated)="onEndDateChanged($event)"
-                    ></date-picker>
+                    ></xm-date-picker>
                 </div>
             </div>
         </div>
@@ -73,104 +73,104 @@
         <thead>
             <tr>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="exam.course.code"
                         text="sitnet_code"
                         [predicate]="sorting.predicate"
                         [reverse]="sorting.reverse"
                         (click)="setPredicate('exam.course.code')"
                     >
-                    </table-sort>
+                    </xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="answerLanguage"
                         text="sitnet_language"
                         [predicate]="sorting.predicate"
                         [reverse]="sorting.reverse"
                         (click)="setPredicate('answerLanguage')"
                     >
-                    </table-sort>
+                    </xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="exam.name"
                         text="sitnet_exam_name"
                         [predicate]="sorting.predicate"
                         [reverse]="sorting.reverse"
                         (click)="setPredicate('exam.name')"
                     >
-                    </table-sort>
+                    </xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="ownerAggregate"
                         text="sitnet_teachers"
                         [predicate]="sorting.predicate"
                         [reverse]="sorting.reverse"
                         (click)="setPredicate('ownerAggregate')"
                     >
-                    </table-sort>
+                    </xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="created"
                         text="sitnet_arrived"
                         [predicate]="sorting.predicate"
                         [reverse]="sorting.reverse"
                         (click)="setPredicate('created')"
                     >
-                    </table-sort>
+                    </xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="studentNameAggregate"
                         text="sitnet_student"
                         [predicate]="sorting.predicate"
                         [reverse]="sorting.reverse"
                         (click)="setPredicate('studentNameAggregate')"
                     >
-                    </table-sort>
+                    </xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="exam.created"
                         text="sitnet_finished"
                         [predicate]="sorting.predicate"
                         [reverse]="sorting.reverse"
                         (click)="setPredicate('exam.created')"
                     >
-                    </table-sort>
+                    </xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="inspectorNameAggregate"
                         text="sitnet_language_inspector"
                         [predicate]="sorting.predicate"
                         [reverse]="sorting.reverse"
                         (click)="setPredicate('inspectorNameAggregate')"
                     >
-                    </table-sort>
+                    </xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="finishedAt"
                         text="sitnet_inspection_finished"
                         [predicate]="sorting.predicate"
                         [reverse]="sorting.reverse"
                         (click)="setPredicate('finishedAt')"
                     >
-                    </table-sort>
+                    </xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="approved"
                         text="sitnet_language_inspections"
                         [predicate]="sorting.predicate"
                         [reverse]="sorting.reverse"
                         (click)="setPredicate('approved')"
                     >
-                    </table-sort>
+                    </xm-table-sort>
                 </th>
                 <th class="with-top">{{ 'sitnet_feedback' | translate }}</th>
             </tr>
@@ -260,11 +260,11 @@
     </table>
 
     <div [hidden]="filteredInspections.length <= pageSize">
-        <paginator
+        <xm-paginator
             [items]="filteredInspections"
             (pageSelected)="pageSelected($event)"
             [pageSize]="pageSize"
             [currentPage]="currentPage"
-        ></paginator>
+        ></xm-paginator>
     </div>
 </div>

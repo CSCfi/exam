@@ -26,7 +26,7 @@ import { RoomService } from './room.service';
 
 @Component({
     templateUrl: './room.component.html',
-    selector: 'room',
+    selector: 'xm-room',
 })
 export class RoomComponent implements OnInit {
     @ViewChild('roomForm', { static: false }) roomForm!: NgForm;

@@ -25,7 +25,7 @@ import { UserService } from '../../../shared/user/user.service';
 import { QuestionService } from '../../question.service';
 
 @Component({
-    selector: 'library-owner-selection',
+    selector: 'xm-library-owner-selection',
     template: ` <div class="make-inline">
         <div class="question-add-owners-box">
             <span class="padl10">

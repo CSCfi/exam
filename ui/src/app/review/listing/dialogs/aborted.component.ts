@@ -23,7 +23,7 @@ import { SessionService } from '../../../session/session.service';
 import type { Review } from '../../review.model';
 
 @Component({
-    selector: 'aborted-exams',
+    selector: 'xm-aborted-exams',
     templateUrl: './aborted.component.html',
 })
 export class AbortedExamsComponent {

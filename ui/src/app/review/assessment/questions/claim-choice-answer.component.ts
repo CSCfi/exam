@@ -17,7 +17,7 @@ import type { ExamSectionQuestion, ExamSectionQuestionOption } from '../../../ex
 import { QuestionService } from '../../../question/question.service';
 
 @Component({
-    selector: 'r-claim-choice-answer',
+    selector: 'xm-r-claim-choice-answer',
     template: `<div *ngIf="reviewExpanded">
         <div class="padl15 marb10" *ngFor="let option of sectionQuestion.options | orderBy: 'option.id'">
             <div [ngClass]="getSelectedOptionClass(option)">

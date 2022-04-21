@@ -24,7 +24,7 @@ import type { Examination, ExaminationSection, NavigationPage } from './examinat
 import { ExaminationService } from './examination.service';
 
 @Component({
-    selector: 'examination',
+    selector: 'xm-examination',
     templateUrl: './examination.component.html',
 })
 export class ExaminationComponent implements OnInit, OnDestroy {

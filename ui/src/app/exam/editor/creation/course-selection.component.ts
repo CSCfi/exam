@@ -23,7 +23,7 @@ import type { Course, Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 @Component({
-    selector: 'course-selection',
+    selector: 'xm-course-selection',
     templateUrl: './course-selection.component.html',
 })
 export class CourseSelectionComponent implements OnInit {

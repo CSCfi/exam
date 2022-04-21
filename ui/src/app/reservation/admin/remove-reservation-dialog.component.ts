@@ -19,7 +19,7 @@ import { ToastrService } from 'ngx-toastr';
 import type { Reservation } from '../reservation.model';
 
 @Component({
-    selector: 'remove-reservation-dialog',
+    selector: 'xm-remove-reservation-dialog',
     template: `<div id="sitnet-dialog">
         <div class="terms-dialog-header">
             <h4><i class="bi-trash"></i>&nbsp;&nbsp;{{ 'sitnet_remove_reservation' | translate }}</h4>

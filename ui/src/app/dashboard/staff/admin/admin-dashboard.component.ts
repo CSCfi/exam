@@ -15,7 +15,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-    selector: 'admin-dashboard',
-    template: '<admin-reservations></admin-reservations>',
+    selector: 'xm-admin-dashboard',
+    template: '<xm-admin-reservations></xm-admin-reservations>',
 })
 export class AdminDashboardComponent {}

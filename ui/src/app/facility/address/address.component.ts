@@ -20,7 +20,7 @@ import type { Address } from '../rooms/room.service';
 import { RoomService } from '../rooms/room.service';
 
 @Component({
-    selector: 'exam-address',
+    selector: 'xm-room-address',
     template: `<div>
         <form
             role="form"

@@ -18,8 +18,34 @@ import type { ExceptionWorkingHours } from '../../reservation/reservation.model'
 import { RoomService } from '../rooms/room.service';
 
 @Component({
-    templateUrl: './exceptionList.component.html',
-    selector: 'exception-list',
+    selector: 'xm-exceptions',
+    template: `<div class="top-row" *ngIf="!hideTitle">
+            <h3 class="col-md-12 header-text">{{ 'sitnet_exception_datetimes' | translate }}</h3>
+        </div>
+
+        <div class="col-md-12">
+            <div class="detail-row" *ngFor="let exception of exceptions | filterBy: filter">
+                <div class="mr-4">
+                    {{ formatDate(exception) }}
+                </div>
+                <div class="text-danger mr-4" *ngIf="exception.outOfService">
+                    {{ 'sitnet_room_out_of_service' | translate }}
+                </div>
+                <div class="text-info mr-4" *ngIf="!exception.outOfService">
+                    {{ 'sitnet_room_in_service' | translate }}
+                </div>
+                <div>
+                    <a class="pointer" (click)="deleteException(exception)">{{ 'sitnet_exam_remove' | translate }}</a>
+                </div>
+            </div>
+        </div>
+        <div class="main-row" *ngIf="!hideButton">
+            <div class="col-md-12">
+                <button (click)="addException()" class="btn btn-primary">
+                    {{ 'sitnet_add' | translate }}
+                </button>
+            </div>
+        </div> `,
 })
 export class ExceptionListComponent {
     @Input() exceptions: ExceptionWorkingHours[] = [];

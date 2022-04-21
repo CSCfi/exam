@@ -23,8 +23,7 @@ export function uniqueValuesValidator(): ValidatorFn {
     };
 }
 @Directive({
-    selector: '[appUniqueValues]',
-    /* eslint-disable-next-line */
+    selector: '[xmUniqueValues]',
     providers: [{ provide: NG_VALIDATORS, useExisting: UniqueValuesValidatorDirective, multi: true }],
 })
 export class UniqueValuesValidatorDirective implements Validator {

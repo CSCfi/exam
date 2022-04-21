@@ -17,7 +17,7 @@
         <!-- Question body //-->
         <div class="col-md-12 question-border padl40 padr40">
             <form role="form" #form="ngForm" class="form-horizontal" name="form" novalidate>
-                <question-body
+                <xm-question-body
                     *ngIf="question"
                     [question]="question"
                     [currentOwners]="currentOwners"
@@ -25,7 +25,7 @@
                     [examId]="examId"
                     [sectionQuestion]="sectionQuestion"
                     [collaborative]="collaborative"
-                ></question-body>
+                ></xm-question-body>
             </form>
             <!-- buttons -->
             <div class="mart20">

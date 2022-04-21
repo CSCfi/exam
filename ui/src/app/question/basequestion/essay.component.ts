@@ -17,7 +17,7 @@ import type { Question } from '../../exam/exam.model';
 import { QuestionDraft } from '../question.service';
 
 @Component({
-    selector: 'essay-editor',
+    selector: 'xm-essay-editor',
     template: `
         <form name="essayForm">
             <div class="row mt-3">
@@ -34,8 +34,8 @@ import { QuestionDraft } from '../question.service';
                             lang="en"
                             class="form-control"
                             [(ngModel)]="question.defaultExpectedWordCount"
-                            [min]="1"
-                            [max]="1000000"
+                            [xmMin]="1"
+                            [xmMax]="1000000"
                         />
                         <span class="input-group-text" title="{{ 'sitnet_average_word_length_finnish' | translate }}">
                             {{ 'sitnet_approximately' | translate }} {{ estimateCharacters() }}

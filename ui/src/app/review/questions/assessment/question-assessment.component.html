@@ -5,7 +5,7 @@
                 <div class="top-row">
                     <div class="col-md-8">
                         <div class="student-details-title-wrap">
-                            <history-back></history-back>
+                            <xm-history-back></xm-history-back>
                             <div class="student-exam-details-title">
                                 {{ 'sitnet_question_based_review' | translate }}
                             </div>
@@ -13,7 +13,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="essay-review-status">
-                            <!-- Arvioinnin tila kesken / valmis -->
+                            <!-- Assessment status in progress / done -->
                             <span class="inspection-title">{{ 'sitnet_inspection_status' | translate }}:</span>
                             <span *ngIf="isFinalized(selectedReview)" class="text-success"
                                 >{{ 'sitnet_exam_status_graded' | translate | lowercase }}
@@ -39,7 +39,7 @@
                         "
                         class="col-md-offset-1"
                     >
-                        <div class="review-question-title" [MathJax]="selectedReview.question.question"></div>
+                        <div class="review-question-title" xmMathJax math="selectedReview.question.question"></div>
                     </div>
                     <div *ngIf="selectedReview && selectedReview.question.defaultAnswerInstructions" class="col-md-1">
                         <a (click)="selectedReview.expanded = !selectedReview.expanded" class="pointer-hand">
@@ -108,13 +108,13 @@
                                 <span class="badge badge-danger">{{ getUnassessedAnswerCount() }}</span>
                             </a>
                             <ng-template ngbNavContent>
-                                <essay-answers
+                                <xm-essay-answers
                                     [answers]="unassessedAnswers"
                                     [editable]="true"
                                     actionText="sitnet_move_to_assessed"
                                     (assessed)="saveAssessments($event)"
                                 >
-                                </essay-answers>
+                                </xm-essay-answers>
                             </ng-template>
                         </li>
                         <li ngbNavItem>
@@ -123,13 +123,13 @@
                                 <span class="badge badge-danger">{{ getAssessedAnswerCount(false) }}</span>
                             </a>
                             <ng-template ngbNavContent>
-                                <essay-answers
+                                <xm-essay-answers
                                     [answers]="assessedAnswers"
                                     [editable]="true"
                                     actionText="sitnet_grade_exams"
                                     (assessed)="saveAssessments($event)"
                                 >
-                                </essay-answers>
+                                </xm-essay-answers>
                             </ng-template>
                         </li>
                         <li ngbNavItem>
@@ -138,12 +138,12 @@
                                 <span class="badge badge-danger">{{ getLockedAnswerCount() }}</span>
                             </a>
                             <ng-template ngbNavContent>
-                                <essay-answers
+                                <xm-essay-answers
                                     [answers]="lockedAnswers"
                                     [editable]="false"
                                     actionText="sitnet_grade_exams"
                                 >
-                                </essay-answers>
+                                </xm-essay-answers>
                             </ng-template>
                         </li>
                     </ul>
@@ -155,7 +155,8 @@
         <!-- END OF RIGHT COL -->
 
         <div class="col-md-4 p-0">
-            <question-flow *ngIf="reviews" [reviews]="reviews" (selected)="questionSelected($event)"> </question-flow>
+            <xm-question-flow *ngIf="reviews" [reviews]="reviews" (selected)="questionSelected($event)">
+            </xm-question-flow>
         </div>
     </div>
 </div>

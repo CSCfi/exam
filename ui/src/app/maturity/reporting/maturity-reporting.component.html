@@ -18,19 +18,19 @@
             <div class="col-md-12 mb-3 no-print">
                 <form class="form-inline">
                     <label for="month" class="mr-2">{{ 'sitnet_month' | translate }}:</label>
-                    <dropdown-select
+                    <xm-dropdown-select
                         id="month"
                         class="input-group mr-2"
                         [options]="months"
                         (optionSelected)="monthChanged($event)"
-                    ></dropdown-select>
+                    ></xm-dropdown-select>
                     <label for="year" class="mr-2">{{ 'sitnet_year' | translate }}:</label>
-                    <dropdown-select
+                    <xm-dropdown-select
                         id="year"
                         class="input-group"
                         [options]="years"
                         (optionSelected)="yearChanged($event)"
-                    ></dropdown-select>
+                    ></xm-dropdown-select>
                 </form>
             </div>
         </div>
@@ -62,10 +62,10 @@
                     <tbody>
                         <tr *ngFor="let inspection of processedInspections | orderBy: 'finishedAt'">
                             <td>
-                                <course-code
+                                <xm-course-code
                                     *ngIf="inspection.exam.course"
                                     [course]="inspection.exam.course"
-                                ></course-code>
+                                ></xm-course-code>
                             </td>
                             <td>{{ inspection.exam.name }}</td>
                             <td>

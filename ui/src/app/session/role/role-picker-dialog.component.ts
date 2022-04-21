@@ -18,7 +18,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import type { User } from '../session.service';
 
 @Component({
-    selector: 'role-selector-dialog',
+    selector: 'xm-role-selector-dialog',
     template: `
         <div>
             <div class="modal-header">

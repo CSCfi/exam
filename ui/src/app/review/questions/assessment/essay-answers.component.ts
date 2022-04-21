@@ -17,16 +17,16 @@ import type { ReviewQuestion } from '../../review.model';
 import { QuestionReviewService } from '../question-review.service';
 
 @Component({
-    selector: 'essay-answers',
+    selector: 'xm-essay-answers',
     template: `
         <div class="top-row">
             <div class="col-md-12" *ngFor="let answer of answers">
-                <essay-answer
+                <xm-essay-answer
                     [answer]="answer"
                     [editable]="editable"
                     [action]="actionText"
                     (onSelection)="assessEssay(answer)"
-                ></essay-answer>
+                ></xm-essay-answer>
             </div>
             <div *ngIf="answers.length === 0" class="col-md-12">
                 <div class="jumbotron padl20">

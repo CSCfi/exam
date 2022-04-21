@@ -20,7 +20,7 @@ import { ToastrService } from 'ngx-toastr';
 import type { Exam, Software } from '../../exam.model';
 
 @Component({
-    selector: 'software-selector',
+    selector: 'xm-software-picker',
     template: `<div [hidden]="exam.executionType.type === 'MATURITY'" class="row">
         <div class="col-md-12 margin-20">
             <div class="row">

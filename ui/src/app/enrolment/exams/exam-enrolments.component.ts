@@ -21,7 +21,7 @@ import type { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
-    selector: 'exam-enrolments',
+    selector: 'xm-exam-enrolments',
     template: `
         <div id="dashboard">
             <div class="row mt-2 ml-2 mr-2" *ngIf="exam?.noTrialsLeft">
@@ -29,7 +29,7 @@ import { EnrolmentService } from '../enrolment.service';
                     <h1>{{ 'sitnet_no_trials_left' | translate }}</h1>
                 </div>
             </div>
-            <enrolment-details *ngIf="exam" [exam]="exam"></enrolment-details>
+            <xm-enrolment-details *ngIf="exam" [exam]="exam"></xm-enrolment-details>
             <div *ngIf="exams.length > 0">
                 <div class="row mt-2 ml-4 mr-4">
                     <div class="col-md-12 mt-2 ml-4 mr-4">
@@ -38,7 +38,7 @@ import { EnrolmentService } from '../enrolment.service';
                 </div>
                 <div class="row mt-2 ml-4 mr-4 " *ngFor="let exam of exams">
                     <div class="col-md-12">
-                        <exam-search-result [exam]="exam"></exam-search-result>
+                        <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
                     </div>
                 </div>
             </div>

@@ -73,7 +73,7 @@
         class="col-md-12 pt-2"
         [ngStyle]="gradesForm?.invalid ? { border: 'red 1px solid' } : { border: 'white 1px solid' }"
     >
-        <form role="form" #gradesForm="ngForm" appUniqueValues name="gradeEvaluations" *ngIf="config">
+        <form role="form" #gradesForm="ngForm" xmUniqueValues name="gradeEvaluations" *ngIf="config">
             <div *ngFor="let ge of config.gradeEvaluations | orderBy: 'grade.name'">
                 <div class="row padl30 mb-2">
                     <div class="col-md-2">
@@ -88,8 +88,8 @@
                             class="form-control autoevaluation-inputs"
                             [(ngModel)]="ge.percentage"
                             (change)="propertyChanged()"
-                            [min]="0"
-                            [max]="100"
+                            [xmMin]="0"
+                            [xmMax]="100"
                             required
                         />
                         <span class="ml-2">%</span>
@@ -136,10 +136,10 @@
         <form role="form">
             <div class="row" *ngIf="selectedReleaseType()?.name === 'GIVEN_DATE'">
                 <div class="col-md-6">
-                    <date-picker
+                    <xm-date-picker
                         (updated)="releaseDateChanged($event)"
                         [initialDate]="config ? config.releaseDate : null"
-                    ></date-picker>
+                    ></xm-date-picker>
                 </div>
             </div>
             <div class="row" *ngIf="selectedReleaseType()?.name === 'GIVEN_AMOUNT_DAYS'">
@@ -153,8 +153,8 @@
                         class="form-control"
                         [(ngModel)]="config.amountDays"
                         (change)="propertyChanged()"
-                        [min]="1"
-                        [max]="60"
+                        [xmMin]="1"
+                        [xmMax]="60"
                         required
                     />
                 </div>

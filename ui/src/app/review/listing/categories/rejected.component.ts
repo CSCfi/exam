@@ -21,7 +21,7 @@ import type { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';
 
 @Component({
-    selector: 'rl-rejected',
+    selector: 'xm-rl-rejected',
     templateUrl: './rejected.component.html',
 })
 export class RejectedReviewsComponent implements OnInit {

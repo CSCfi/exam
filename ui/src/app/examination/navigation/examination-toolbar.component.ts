@@ -29,7 +29,7 @@ import type { Examination, ExaminationSection } from '../examination.model';
 import { ExaminationService } from '../examination.service';
 
 @Component({
-    selector: 'examination-toolbar',
+    selector: 'xm-examination-toolbar',
     templateUrl: './examination-toolbar.component.html',
 })
 export class ExaminationToolbarComponent implements OnInit {

@@ -2,7 +2,7 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-details-title-wrap">
-                <history-back></history-back>
+                <xm-history-back></xm-history-back>
                 <div class="student-enroll-title-wrap">
                     <div class="student-enroll-title">{{ 'sitnet_toolbar_new_exam' | translate }}</div>
                 </div>
@@ -36,7 +36,7 @@
             </div>
             <div class="row">
                 <div class="col ml-3 mt-3">
-                    <exam-course [exam]="exam" (updated)="onCourseSelected($event)"></exam-course>
+                    <xm-exam-course [exam]="exam" (updated)="onCourseSelected($event)"></xm-exam-course>
                 </div>
             </div>
             <div class="row">
@@ -82,7 +82,7 @@
                                 />
                             </sup>
                         </label>
-                        <language-selector *ngIf="exam" [exam]="exam" id="examLanguage"></language-selector>
+                        <xm-language-picker *ngIf="exam" [exam]="exam" id="examLanguage"></xm-language-picker>
                     </form>
                 </div>
             </div>

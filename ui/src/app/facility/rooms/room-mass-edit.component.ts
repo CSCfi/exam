@@ -21,7 +21,7 @@ import type { Week } from './room.service';
 import { RoomService } from './room.service';
 
 @Component({
-    selector: 'multi-room',
+    selector: 'xm-multi-room',
     template: `<div id="sitnet-header" class="header">
             <div class="header-wrapper">
                 <span class="header-text">{{ 'sitnet_edit_all_rooms' | translate }}</span>
@@ -33,14 +33,14 @@ import { RoomService } from './room.service';
                     <h3 class="header-text">{{ 'sitnet_room_default_working_hours' | translate }}</h3>
                 </div>
                 <div class="bottom-row">
-                    <open-hours
+                    <xm-opening-hours
                         *ngIf="allRooms"
                         class="col-md-12"
                         [week]="week"
                         (onSelect)="updateWorkingHours()"
-                    ></open-hours>
+                    ></xm-opening-hours>
                 </div>
-                <starting-time *ngIf="allRooms" [roomIds]="roomIds"></starting-time>
+                <xm-starting-time *ngIf="allRooms" [roomIds]="roomIds"></xm-starting-time>
                 <div class="top-row">
                     <h3 class="col-md-12 header-text">{{ 'sitnet_exception_datetimes' | translate }}</h3>
                 </div>
@@ -48,14 +48,14 @@ import { RoomService } from './room.service';
                     <div class="col-md-12">
                         <b>{{ room.name || 'sitnet_no_name' | translate }}</b>
                     </div>
-                    <exception-list
+                    <xm-exceptions
                         [exceptions]="room.calendarExceptionEvents"
                         (created)="addException($event)"
                         (removed)="deleteException($event)"
                         [filter]="massEditedExceptionFilter"
                         [hideButton]="true"
                         [hideTitle]="true"
-                    ></exception-list>
+                    ></xm-exceptions>
                 </div>
             </div>
             <div class="main-row">

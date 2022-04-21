@@ -15,58 +15,58 @@
                         />
                     </th>
                     <th>
-                        <table-sort
+                        <xm-table-sort
                             by="id"
                             text="sitnet_question"
                             [predicate]="questionsPredicate"
                             [reverse]="reverse"
                             (click)="setPredicate('id')"
                         >
-                        </table-sort>
+                        </xm-table-sort>
                     </th>
                     <th>
-                        <table-sort
+                        <xm-table-sort
                             by="modified"
                             text="sitnet_modified"
                             [predicate]="questionsPredicate"
                             [reverse]="reverse"
                             (click)="setPredicate('modified')"
                         >
-                        </table-sort>
+                        </xm-table-sort>
                     </th>
                     <th>
-                        <table-sort
+                        <xm-table-sort
                             by="displayedMaxScore"
                             text="sitnet_max_score"
                             [predicate]="questionsPredicate"
                             [reverse]="reverse"
                             (click)="setPredicate('displayedMaxScore')"
                         >
-                        </table-sort>
+                        </xm-table-sort>
                     </th>
                     <th>
-                        <table-sort
+                        <xm-table-sort
                             by="typeOrd"
                             text="sitnet_question_type"
                             [predicate]="questionsPredicate"
                             [reverse]="reverse"
                             (click)="setPredicate('typeOrd')"
                         >
-                        </table-sort>
+                        </xm-table-sort>
                     </th>
                     <th>
-                        <table-sort
+                        <xm-table-sort
                             by="attachment.fileName"
                             text="sitnet_attachment"
                             [predicate]="questionsPredicate"
                             [reverse]="reverse"
                             (click)="setPredicate('attachment.fileName')"
                         >
-                        </table-sort>
+                        </xm-table-sort>
                     </th>
                     <th>{{ 'sitnet_categories' | translate }}</th>
                     <th>
-                        <table-sort
+                        <xm-table-sort
                             *ngIf="user.isAdmin"
                             by="ownerAggregate"
                             text="sitnet_owner"
@@ -74,7 +74,7 @@
                             [reverse]="reverse"
                             (click)="setPredicate('ownerAggregate')"
                         >
-                        </table-sort>
+                        </xm-table-sort>
                     </th>
                     <th>{{ 'sitnet_remove' | translate }}</th>
                     <th>{{ 'sitnet_copy' | translate }}</th>
@@ -98,7 +98,7 @@
                         />
                     </td>
                     <td class="question-table-name">
-                        <span *ngIf="question.question" [MathJax]="question.question | slice: 0:360"> </span>
+                        <span *ngIf="question.question" xmMathJax math="question.question | slice: 0:360"> </span>
                         <span *ngIf="!question.question" class="text-danger">
                             {{ 'sitnet_no_name' | translate }}
                         </span>
@@ -194,12 +194,12 @@
         </table>
     </div>
     <div class="col-md-12" *ngIf="questions.length > pageSize">
-        <paginator
+        <xm-paginator
             [items]="questions"
             (pageSelected)="pageSelected($event)"
             [pageSize]="pageSize"
             [currentPage]="currentPage"
         >
-        </paginator>
+        </xm-paginator>
     </div>
 </div>

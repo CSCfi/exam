@@ -21,7 +21,7 @@ import type { ExamInspection } from '../../../exam/exam.model';
 import type { User } from '../../../session/session.service';
 
 @Component({
-    selector: 'r-inspection',
+    selector: 'xm-r-inspection',
     template: `<span *ngIf="inspection.user.id !== user.id">
             <span class="sitnet-text-ready" *ngIf="inspection.ready">
                 {{ inspection.user.firstName }} {{ inspection.user.lastName }} {{ 'sitnet_ready' | translate }}</span

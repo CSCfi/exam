@@ -32,7 +32,7 @@ import { AssessmentService } from '../assessment.service';
 type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
-    selector: 'printed-assessment',
+    selector: 'xm-printed-assessment',
     templateUrl: './printed-assessment.component.html',
 })
 export class PrintedAssessmentComponent implements AfterViewInit {

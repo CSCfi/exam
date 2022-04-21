@@ -43,7 +43,7 @@ interface Reservation {
             <div class="col-md-10">{{ noShows.length }}</div>
         </div>
     `,
-    selector: 'reservation-statistics',
+    selector: 'xm-reservation-statistics',
 })
 export class ReservationStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};

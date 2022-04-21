@@ -24,8 +24,8 @@ import type { User } from '../../../session/session.service';
 import type { Exam, ExamInspection } from '../../exam.model';
 
 @Component({
-    selector: 'exam-inspector-selector',
-    templateUrl: './exam-inspector-selector.component.html',
+    selector: 'xm-exam-inspector-picker',
+    templateUrl: './exam-inspector-picker.component.html',
 })
 export class ExamInspectorSelectorComponent implements OnInit {
     @Input() exam!: Exam;

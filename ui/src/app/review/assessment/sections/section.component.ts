@@ -18,7 +18,7 @@ import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
 
 @Component({
-    selector: 'r-section',
+    selector: 'xm-r-section',
     templateUrl: './section.component.html',
 })
 export class ExamSectionComponent implements OnInit, AfterViewInit {

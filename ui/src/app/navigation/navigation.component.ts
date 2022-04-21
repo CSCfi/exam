@@ -25,7 +25,7 @@ import type { Link } from './navigation.service';
 import { NavigationService } from './navigation.service';
 
 @Component({
-    selector: 'navigation',
+    selector: 'xm-navigation',
     templateUrl: './navigation.component.html',
 })
 export class NavigationComponent implements OnInit, OnDestroy {

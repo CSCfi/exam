@@ -62,7 +62,7 @@ interface Participations {
             </div>
         </div>
     `,
-    selector: 'room-statistics',
+    selector: 'xm-room-statistics',
 })
 export class RoomStatisticsComponent {
     @Input() queryParams: QueryParams = {};

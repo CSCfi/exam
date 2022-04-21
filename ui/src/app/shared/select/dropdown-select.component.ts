@@ -25,7 +25,7 @@ export interface Option<V, I> {
 }
 
 @Component({
-    selector: 'dropdown-select',
+    selector: 'xm-dropdown-select',
     template: `<div ngbDropdown>
         <button
             ngbDropdownToggle

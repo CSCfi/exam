@@ -16,7 +16,7 @@ import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-    selector: 'r-inspection-comment',
+    selector: 'xm-r-inspection-comment',
     template: `
         <div id="sitnet-dialog">
             <div class="student-message-dialog-wrapper-padding">

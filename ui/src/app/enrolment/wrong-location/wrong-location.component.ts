@@ -26,7 +26,7 @@ import type { ExamEnrolment } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
-    selector: 'wrong-location',
+    selector: 'xm-wrong-location',
     templateUrl: './wrong-location.component.html',
 })
 export class WrongLocationComponent implements OnInit {

@@ -17,7 +17,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
 import { AssessmentService } from '../assessment.service';
 
 @Component({
-    selector: 'printed-essay',
+    selector: 'xm-printed-essay',
     templateUrl: './templates/essay.component.html',
 })
 export class PrintedEssayComponent {

@@ -39,7 +39,7 @@ interface ListedCollaborativeExam extends CollaborativeExam {
 }
 
 @Component({
-    selector: 'collaborative-exam-listing',
+    selector: 'xm-collaborative-exam-listing',
     templateUrl: './collaborative-exam-listing.component.html',
 })
 export class CollaborativeExamListingComponent implements OnInit, OnDestroy {

@@ -24,7 +24,7 @@ import type { Course } from '../../exam.model';
 import { CoursePickerService } from './course-picker.service';
 
 @Component({
-    selector: 'course-picker',
+    selector: 'xm-course-picker',
     templateUrl: './course-picker.component.html',
 })
 export class CoursePickerComponent implements OnInit {

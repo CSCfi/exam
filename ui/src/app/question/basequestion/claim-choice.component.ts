@@ -18,7 +18,7 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionDraft, QuestionService } from '../question.service';
 
 @Component({
-    selector: 'claim-choice-editor',
+    selector: 'xm-claim-choice-editor',
     template: `
         <div>
             <div class="col-md-9 col-md-offset-3">
@@ -67,7 +67,7 @@ import { QuestionDraft, QuestionService } from '../question.service';
                             class="question-option-input points"
                             type="number"
                             lang="en"
-                            fixedPrecision
+                            xmFixedPrecision
                             [(ngModel)]="opt.defaultScore"
                             required
                             (change)="updateOptionTypes()"

@@ -14,7 +14,7 @@
 </div>
 
 <!-- inspector comments -->
-<r-inspection-comments [exam]="exam" [addingVisible]="!isMaturityRejection()"> </r-inspection-comments>
+<xm-r-inspection-comments [exam]="exam" [addingVisible]="!isMaturityRejection()"> </xm-r-inspection-comments>
 
 <!-- language inspection - inspector -->
 <div class="detail-row mart20" *ngIf="hasGoneThroughLanguageInspection()">
@@ -28,7 +28,7 @@
 <div class="detail-row mart20" *ngIf="hasGoneThroughLanguageInspection()">
     <div class="col-md-2 general-info-title">{{ 'sitnet_inspector_statement' | translate }}:</div>
     <div class="col-md-10 general-info-content">
-        <div [MathJax]="exam.languageInspection.statement.comment"></div>
+        <div xmMathJax math="exam.languageInspection.statement.comment"></div>
     </div>
 </div>
 <!-- language inspection - statement attachment -->
@@ -56,7 +56,7 @@
 <div class="detail-row mart20" *ngIf="isReadOnly() || isUnderLanguageInspection()">
     <div class="col-md-2 general-info-title">{{ 'sitnet_teachers_comment' | translate }}:</div>
     <div class="col-md-10 general-info-content">
-        <div [MathJax]="exam.examFeedback.comment"></div>
+        <div xmMathJax math="exam.examFeedback.comment"></div>
     </div>
 </div>
 
@@ -148,7 +148,7 @@
                 lang="en"
                 [disabled]="isReadOnly() || !isOwnerOrAdmin() || isAwaitingInspection()"
                 required
-                [min]="0"
+                [xmMin]="0"
                 class="form-control"
                 maxlength="3"
                 [(ngModel)]="exam.customCredit"
@@ -161,7 +161,7 @@
     <div class="row mart20 padr15">
         <div class="col-md-12">
             <span>{{ examForm.errors?.toString() }}</span>
-            <r-maturity-toolbar [exam]="exam" [valid]="!examForm.invalid"></r-maturity-toolbar>
+            <xm-r-maturity-toolbar [exam]="exam" [valid]="!examForm.invalid"></xm-r-maturity-toolbar>
         </div>
     </div>
 </form>

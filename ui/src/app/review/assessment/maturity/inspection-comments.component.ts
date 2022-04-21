@@ -22,7 +22,7 @@ import type { User } from '../../../session/session.service';
 import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-dialog.component';
 
 @Component({
-    selector: 'r-inspection-comments',
+    selector: 'xm-r-inspection-comments',
     template: `<div class="detail-row marb20 mart20">
             <div class="col-md-12 general-info-title">{{ 'sitnet_inspector_comments' | translate }}:</div>
         </div>

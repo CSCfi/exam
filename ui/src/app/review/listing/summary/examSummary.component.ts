@@ -39,7 +39,7 @@ type QuestionData = {
 };
 
 @Component({
-    selector: 'exam-summary',
+    selector: 'xm-exam-summary',
     templateUrl: './examSummary.component.html',
 })
 export class ExamSummaryComponent implements OnInit, OnChanges {

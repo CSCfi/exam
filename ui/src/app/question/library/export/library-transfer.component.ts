@@ -26,7 +26,7 @@ type Organisation = {
 };
 
 @Component({
-    selector: 'library-transfer',
+    selector: 'xm-library-transfer',
     templateUrl: './library-transfer.component.html',
 })
 export class LibraryTransferComponent implements OnInit {

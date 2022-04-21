@@ -20,7 +20,7 @@ import { CommonExamService } from '../../../shared/miscellaneous/common-exam.ser
 import type { Course, Exam } from '../../exam.model';
 
 @Component({
-    selector: 'exam-course',
+    selector: 'xm-exam-course',
     template: `<div class="row align-items-center">
             <div class="col-md-3 mt-2">
                 <div class="exam-basic-title">
@@ -38,7 +38,7 @@ import type { Course, Exam } from '../../exam.model';
                 </div>
             </div>
             <div class="col mt-2">
-                <course-picker [course]="exam.course" (updated)="setCourse($event)"></course-picker>
+                <xm-course-picker [course]="exam.course" (updated)="setCourse($event)"></xm-course-picker>
             </div>
         </div>
         <!-- Course scope and organization name elements -> 3 rows -->

@@ -22,7 +22,7 @@ import type { ExaminationEventConfiguration, MaintenancePeriod } from '../../exa
 import { ExamService } from '../../exam.service';
 
 @Component({
-    selector: 'examination-event-dialog',
+    selector: 'xm-examination-event-dialog',
     templateUrl: './examination-event-dialog.component.html',
 })
 export class ExaminationEventDialogComponent implements OnInit {

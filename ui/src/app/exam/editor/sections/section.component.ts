@@ -28,7 +28,7 @@ import type { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from '.
 import { ExamService } from '../../exam.service';
 
 @Component({
-    selector: 'section',
+    selector: 'xm-section',
     encapsulation: ViewEncapsulation.None,
     templateUrl: './section.component.html',
 })

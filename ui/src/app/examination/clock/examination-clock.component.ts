@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { WindowRef } from '../../shared/window/window.service';
 
 @Component({
-    selector: 'examination-clock',
+    selector: 'xm-examination-clock',
     template: `<div class="floating-clock">
         <div class="header-wrapper">
             <span *ngIf="showRemainingTime" class="exam-clock-text">

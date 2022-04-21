@@ -19,7 +19,7 @@ import type { CollaborativeExamInfo, EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
-    selector: 'exam-search-result',
+    selector: 'xm-exam-search-result',
     template: `<div
         class="student-enrolment-result-wrapper max-w-1100"
         [ngClass]="exam.alreadyEnrolled && exam.reservationMade ? '' : 'notactive'"
@@ -43,7 +43,7 @@ import { EnrolmentService } from '../enrolment.service';
         <div class="d-flex flex-column">
             <span [hidden]="collaborative">{{ 'sitnet_course_name' | translate }}:</span>
             <div *ngIf="!collaborative && exam.course">
-                <course-code [course]="exam.course"></course-code> {{ exam.course.name }}
+                <xm-course-code [course]="exam.course"></xm-course-code> {{ exam.course.name }}
             </div>
         </div>
         <div class="d-flex flex-column">
@@ -56,7 +56,7 @@ import { EnrolmentService } from '../enrolment.service';
         <div class="d-flex flex-column">
             <span [hidden]="collaborative">{{ 'sitnet_teachers' | translate }}: </span>
             <span [hidden]="collaborative">
-                <teacher-list [exam]="exam"></teacher-list>
+                <xm-teacher-list [exam]="exam"></xm-teacher-list>
             </span>
         </div>
         <div class="d-flex flex-column">

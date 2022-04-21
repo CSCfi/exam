@@ -17,7 +17,7 @@ import type { ExaminationQuestion } from '../examination.model';
 import { ExaminationService } from '../examination.service';
 
 @Component({
-    selector: 'examination-weighted-multi-choice-question',
+    selector: 'xm-examination-weighted-multi-choice-question',
     template: `
         <div class="bottom-padding-2">
             <fieldset>

@@ -17,7 +17,7 @@ import { isNumber } from 'lodash';
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
-    selector: 'printed-cloze-test',
+    selector: 'xm-printed-cloze-test',
     templateUrl: './templates/cloze-test.component.html',
 })
 export class PrintedClozeTestComponent {

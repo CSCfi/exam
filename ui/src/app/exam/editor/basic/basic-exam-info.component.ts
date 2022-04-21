@@ -29,7 +29,7 @@ import { ExamService } from '../../exam.service';
 import { ExamTabService } from '../exam-tabs.service';
 
 @Component({
-    selector: 'basic-exam-info',
+    selector: 'xm-basic-exam-info',
     templateUrl: './basic-exam-info.component.html',
 })
 export class BasicExamInfoComponent implements OnInit, OnDestroy {

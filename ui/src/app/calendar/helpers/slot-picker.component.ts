@@ -22,7 +22,7 @@ type FilterableRoom = ExamRoom & { filtered: boolean };
 type AvailableSlot = Slot & { availableMachines: number };
 
 @Component({
-    selector: 'calendar-slot-picker',
+    selector: 'xm-calendar-slot-picker',
     template: `<div class="row student-enrolment-wrapper details-view" [ngClass]="selectedRoom ? '' : 'notactive'">
         <div class="col-md-12">
             <div class="row">
@@ -129,16 +129,16 @@ type AvailableSlot = Slot & { availableMachines: number };
             </div>
             <div class="row mart10" *ngIf="selectedRoom">
                 <div class="col-md-12">
-                    <calendar-selected-room
+                    <xm-calendar-selected-room
                         [room]="selectedRoom"
                         [viewStart]="currentWeek"
                         [maintenancePeriods]="maintenancePeriods"
-                    ></calendar-selected-room>
+                    ></xm-calendar-selected-room>
                 </div>
             </div>
             <div class="row mart10" *ngIf="selectedRoom">
                 <div class="col-md-12">
-                    <booking-calendar
+                    <xm-booking-calendar
                         (eventSelected)="eventSelected($event)"
                         (moreEventsNeeded)="refresh($event)"
                         [minDate]="minDate"
@@ -147,7 +147,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                         [visible]="selectedRoom !== undefined"
                         [events]="events"
                     >
-                    </booking-calendar>
+                    </xm-booking-calendar>
                 </div>
             </div>
         </div>

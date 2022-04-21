@@ -1,7 +1,7 @@
 <div class="row mt-4 mr-2 ml-2">
     <div class="col-md-12 mt-2">
         <div class="student-details-title-wrap">
-            <history-back></history-back>
+            <xm-history-back></xm-history-back>
             <h1 class="student-exam-details-title">{{ exam.name }}</h1>
         </div>
     </div>
@@ -40,11 +40,11 @@
     <div class="row ml-2 mt-1">
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_course_name' | translate }}:</div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            <course-code *ngIf="exam.course" [course]="exam.course"></course-code> {{ exam.course?.name }}
+            <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code> {{ exam.course?.name }}
         </div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_teachers' | translate }}:</div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            <teacher-list [exam]="exam"></teacher-list>
+            <xm-teacher-list [exam]="exam"></xm-teacher-list>
         </div>
     </div>
 
@@ -91,7 +91,7 @@
             <div class="student-exam-row-infolink infotitle" [hidden]="exam.executionType.type === 'MATURITY'">
                 {{ 'sitnet_view_instructions' | translate }}
             </div>
-            <div [MathJax]="exam.enrollInstruction"></div>
+            <div xmMathJax math="exam.enrollInstruction"></div>
         </div>
     </div>
 
@@ -100,7 +100,7 @@
             <div class="student-exam-row-infolink">
                 {{ 'sitnet_maturity_instructions' | translate }}
             </div>
-            <div [MathJax]="exam.maturityInstructions || ''"></div>
+            <div xmMathJax math="exam.maturityInstructions || ''"></div>
         </div>
     </div>
 

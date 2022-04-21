@@ -40,7 +40,7 @@
                     </div>
                 </a>
                 <ng-template ngbNavContent>
-                    <exam-list-category
+                    <xm-exam-list-category
                         [items]="filteredActive"
                         defaultPredicate="examActiveEndDate"
                         [examTypes]="executionTypes"
@@ -48,7 +48,7 @@
                         [extraColumnValues]="getActiveExtraColumnValues"
                         (filtered)="search($event)"
                     >
-                    </exam-list-category>
+                    </xm-exam-list-category>
                 </ng-template>
             </li>
             <li [ngbNavItem]="2">
@@ -59,7 +59,7 @@
                     </div>
                 </a>
                 <ng-template ngbNavContent>
-                    <exam-list-category
+                    <xm-exam-list-category
                         [items]="filteredFinished"
                         defaultPredicate="unassessedCount"
                         [defaultReverse]="true"
@@ -68,7 +68,7 @@
                         [examTypes]="executionTypes"
                         (filtered)="search($event)"
                     >
-                    </exam-list-category>
+                    </xm-exam-list-category>
                 </ng-template>
             </li>
             <li [ngbNavItem]="3">
@@ -79,7 +79,7 @@
                     </div>
                 </a>
                 <ng-template ngbNavContent>
-                    <exam-list-category
+                    <xm-exam-list-category
                         [items]="filteredArchived"
                         defaultPredicate="examActiveEndDate"
                         [defaultReverse]="true"
@@ -88,7 +88,7 @@
                         [examTypes]="executionTypes"
                         (filtered)="search($event)"
                     >
-                    </exam-list-category>
+                    </xm-exam-list-category>
                 </ng-template>
             </li>
             <li [ngbNavItem]="4">
@@ -99,14 +99,14 @@
                     </div>
                 </a>
                 <ng-template ngbNavContent>
-                    <exam-list-category
+                    <xm-exam-list-category
                         [items]="filteredDrafts"
                         defaultPredicate="examActiveEndDate"
                         [defaultReverse]="true"
                         [examTypes]="executionTypes"
                         (filtered)="search($event)"
                     >
-                    </exam-list-category>
+                    </xm-exam-list-category>
                 </ng-template>
             </li>
         </ul>

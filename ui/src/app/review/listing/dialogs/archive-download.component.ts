@@ -19,7 +19,7 @@ import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
-    selector: 'archive-download',
+    selector: 'xm-archive-download',
     template: `<div id="sitnet-dialog">
         <div class="student-details-title-wrap mart20">
             <div class="student-enroll-title">{{ 'sitnet_exam_validity' | translate }}</div>
@@ -28,11 +28,11 @@ import { ToastrService } from 'ngx-toastr';
             <div id="dashboard">
                 <div>
                     <label for="archive-download-start">{{ 'sitnet_begin' | translate }}:</label>
-                    <date-picker id="archive-download-start" (updated)="startDateChanged($event)"></date-picker>
+                    <xm-date-picker id="archive-download-start" (updated)="startDateChanged($event)"></xm-date-picker>
                 </div>
                 <div>
                     <label for="archive-download-end">{{ 'sitnet_end' | translate }}:</label>
-                    <date-picker id="archive-download-end" (updated)="endDateChanged($event)"></date-picker>
+                    <xm-date-picker id="archive-download-end" (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
         </div>

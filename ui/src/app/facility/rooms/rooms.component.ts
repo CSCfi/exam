@@ -29,7 +29,7 @@ interface RoomWithAddressVisibility extends ExamRoom {
 
 @Component({
     templateUrl: './rooms.component.html',
-    selector: 'rooms',
+    selector: 'xm-rooms',
 })
 export class RoomListComponent implements OnInit {
     user: User;

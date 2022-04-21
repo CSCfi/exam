@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-    selector: 'confirmation-dialog',
+    selector: 'xm-confirmation-dialog',
     template: `
         <div id="sitnet-dialog">
             <div class="modal-header">

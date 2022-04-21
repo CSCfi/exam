@@ -26,7 +26,7 @@ import type { QuestionDraft } from '../question.service';
 import { QuestionService } from '../question.service';
 
 @Component({
-    selector: 'question',
+    selector: 'xm-question',
     templateUrl: './question.component.html',
 })
 export class QuestionComponent implements OnInit, OnDestroy {

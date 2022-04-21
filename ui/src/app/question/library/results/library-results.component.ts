@@ -29,7 +29,7 @@ import { LibraryService } from '../library.service';
 type SelectableQuestion = LibraryQuestion & { selected: boolean };
 
 @Component({
-    selector: 'library-results',
+    selector: 'xm-library-results',
     templateUrl: './library-results.component.html',
 })
 export class LibraryResultsComponent implements OnInit, OnChanges {

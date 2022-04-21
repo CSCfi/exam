@@ -27,7 +27,7 @@ import { ExamService } from '../../exam.service';
 import { ExamTabService } from '../exam-tabs.service';
 
 @Component({
-    selector: 'sections',
+    selector: 'xm-sections',
     templateUrl: './sections.component.html',
 })
 export class SectionsComponent implements OnInit, OnChanges {

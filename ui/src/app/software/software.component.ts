@@ -19,7 +19,7 @@ import { ToastrService } from 'ngx-toastr';
 import type { Software } from '../exam/exam.model';
 
 @Component({
-    selector: 'software',
+    selector: 'xm-software',
     templateUrl: './software.component.html',
 })
 export class SoftwareComponent implements OnInit {

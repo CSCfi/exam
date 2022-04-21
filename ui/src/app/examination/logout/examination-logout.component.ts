@@ -19,7 +19,7 @@ import { WindowRef } from '../../shared/window/window.service';
 import { ExaminationStatusService } from '../examination-status.service';
 
 @Component({
-    selector: 'examination-logout',
+    selector: 'xm-examination-logout',
     template: `
         <div class="jumbotron">
             <h1>{{ 'sitnet_end_of_exam' | translate }}</h1>

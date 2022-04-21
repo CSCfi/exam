@@ -27,13 +27,13 @@ import { FileService } from '../../../shared/file/file.service';
             <div class="col-lg-5 mb-2">
                 <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
                 <div id="startAt">
-                    <date-picker (updated)="startDateChanged($event)"></date-picker>
+                    <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
             <div class="col-lg-5 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (updated)="endDateChanged($event)"></date-picker>
+                    <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
             <div class="col-lg-2 mb-2">
@@ -53,7 +53,7 @@ import { FileService } from '../../../shared/file/file.service';
             </div>
         </div>
     `,
-    selector: 'reviews-report',
+    selector: 'xm-reviews-report',
 })
 export class ReviewsReportComponent {
     startDate: Date | null = null;

@@ -20,17 +20,17 @@ import { WindowRef } from '../../shared/window/window.service';
 
 // This component is used for editing distributed exam questions.
 @Component({
-    selector: 'exam-question-editor',
+    selector: 'xm-exam-question-editor',
     template: `
         <div id="sitnet-dialog">
             <div class="modal-body">
-                <exam-question
+                <xm-exam-question
                     *ngIf="examQuestion"
                     [examQuestion]="examQuestion"
                     (saved)="save($event)"
                     (cancelled)="cancel()"
                     [lotteryOn]="lotteryOn"
-                ></exam-question>
+                ></xm-exam-question>
             </div>
             <div class="modal-footer"></div>
         </div>

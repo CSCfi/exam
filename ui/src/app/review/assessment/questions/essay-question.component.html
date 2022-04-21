@@ -4,7 +4,7 @@
             <!-- question text -->
             <div class="d-flex justify-content-between">
                 <!-- question title -->
-                <div class="review-question-title marr20" [MathJax]="sectionQuestion.question.question"></div>
+                <div class="review-question-title marr20" xmMathJax math="sectionQuestion.question.question"></div>
                 <!--chevron -->
                 <a (click)="reviewExpanded = !reviewExpanded">
                     <img
@@ -50,7 +50,7 @@
                 <div class="points-title">
                     <span>{{ 'sitnet_exam_answer' | translate | uppercase }}</span>
                 </div>
-                <span [MathJax]="sectionQuestion.essayAnswer?.answer"></span>
+                <span xmMathJax math="sectionQuestion.essayAnswer?.answer"></span>
             </div>
 
             <!-- answer attachment -->
@@ -94,12 +94,12 @@
                                 lang="en"
                                 class="form-control"
                                 [(ngModel)]="scoreValue"
-                                fixedPrecision
+                                xmFixedPrecision
                                 (blur)="essayPoints.valid && insertEssayScore()"
                                 onclick="this.focus()"
                                 [disabled]="!isScorable"
-                                [min]="0"
-                                [max]="sectionQuestion.maxScore"
+                                [xmMin]="0"
+                                [xmMax]="sectionQuestion.maxScore"
                             />
                             <small *ngIf="!essayPoints.valid && isScorable" class="alert-danger">
                                 <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}

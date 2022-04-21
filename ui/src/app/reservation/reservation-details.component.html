@@ -2,74 +2,74 @@
     <thead>
         <tr>
             <th class="reservation-search">
-                <table-sort
+                <xm-table-sort
                     by="userAggregate"
                     text="sitnet_student"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('userAggregate')"
                 >
-                </table-sort>
+                </xm-table-sort>
             </th>
             <th class="reservation-search">
-                <table-sort
+                <xm-table-sort
                     by="enrolment.exam.name"
                     text="sitnet_exam"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('enrolment.exam.name')"
                 >
-                </table-sort>
+                </xm-table-sort>
             </th>
             <th class="reservation-search">
-                <table-sort
+                <xm-table-sort
                     by="enrolment.exam.course.code"
                     text="sitnet_examcode"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('enrolment.exam.course.code')"
                 >
-                </table-sort>
+                </xm-table-sort>
             </th>
             <th class="reservation-search">
-                <table-sort
+                <xm-table-sort
                     by="enrolment.teacherAggregate"
                     text="sitnet_teachers"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('enrolment.teacherAggregate')"
                 >
-                </table-sort>
+                </xm-table-sort>
             </th>
             <th class="reservation-search">
-                <table-sort
+                <xm-table-sort
                     by="startAt"
                     text="sitnet_date_time"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('startAt')"
                 >
-                </table-sort>
+                </xm-table-sort>
             </th>
             <th class="reservation-search">
-                <table-sort
+                <xm-table-sort
                     by="machine.room.name"
                     text="sitnet_examination_location_and_machine"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('machine.room.name')"
                 >
-                </table-sort>
+                </xm-table-sort>
             </th>
             <th class="reservation-search">
-                <table-sort
+                <xm-table-sort
                     by="stateOrd"
                     text="sitnet_exam_state"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('stateOrd')"
                 >
-                </table-sort>
+                </xm-table-sort>
             </th>
             <th class="reservation-search" *ngIf="isAdminView">{{ 'sitnet_remove_reservation' | translate }}</th>
             <th class="reservation-search" *ngIf="isAdminView">
@@ -117,21 +117,21 @@
             </td>
 
             <td class="reservation-search" *ngIf="!r.enrolment.exam.external">
-                <course-code *ngIf="r.enrolment.exam.course" [course]="r.enrolment.exam.course"></course-code>
+                <xm-course-code *ngIf="r.enrolment.exam.course" [course]="r.enrolment.exam.course"></xm-course-code>
             </td>
             <td class="reservation-search text-primary" *ngIf="r.enrolment.exam.external">
                 {{ 'sitnet_exam_status_external' | translate }}
             </td>
 
             <td *ngIf="r.enrolment.exam.parent" class="width15">
-                <teacher-list [exam]="r.enrolment.exam" [useParent]="true"></teacher-list>
+                <xm-teacher-list [exam]="r.enrolment.exam" [useParent]="true"></xm-teacher-list>
             </td>
             <td
                 class="reservation-search"
                 *ngIf="!r.enrolment.exam.external && !r.enrolment.exam.parent"
                 class="width15"
             >
-                <teacher-list *ngIf="r.enrolment.exam" [exam]="r.enrolment.exam"></teacher-list>
+                <xm-teacher-list *ngIf="r.enrolment.exam" [exam]="r.enrolment.exam"></xm-teacher-list>
             </td>
             <td class="reservation-search text-primary" *ngIf="r.enrolment.exam.external" class="width15">
                 {{ 'sitnet_exam_status_external' | translate }}

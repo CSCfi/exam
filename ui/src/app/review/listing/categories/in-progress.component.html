@@ -79,49 +79,49 @@
                 <tr>
                     <th *ngIf="showId()" class="with-top">Id</th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="displayName"
                             text="sitnet_student"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('displayName')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="examParticipation.user.email"
                             text="sitnet_email"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.user.email')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="duration"
                             text="sitnet_exam_duration"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('duration')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="examParticipation.started"
                             text="sitnet_exam_time"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.started')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="examParticipation.deadline"
                             text="sitnet_review_deadline"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.deadline')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-space with-top">{{ 'sitnet_inspection_status' | translate }}</th>
                     <th class="with-space with-top">{{ 'sitnet_exam_state' | translate }}</th>
@@ -223,12 +223,12 @@
 
 <div class="detail-row" *ngIf="view.toggle">
     <div class="col-md-12" *ngIf="view.filtered.length > view.pageSize">
-        <paginator
+        <xm-paginator
             [items]="view.filtered"
             [pageSize]="view.pageSize"
             (pageSelected)="pageSelected($event)"
             [currentPage]="view.page"
         >
-        </paginator>
+        </xm-paginator>
     </div>
 </div>

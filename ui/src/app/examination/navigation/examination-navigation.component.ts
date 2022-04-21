@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angu
 import type { Examination, ExaminationSection, NavigationPage } from '../examination.model';
 
 @Component({
-    selector: 'examination-navigation',
+    selector: 'xm-examination-navigation',
     template: `<!-- SECTION NAVIGATION ARROWS AND LABELS -->
         <div class="row exam-navigation mb-3">
             <span class="col-md-12 ml-2">

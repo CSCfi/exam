@@ -18,11 +18,11 @@ import { MultiRoomComponent } from './rooms/room-mass-edit.component';
 import { RoomComponent } from './rooms/room.component';
 import { RoomService } from './rooms/room.service';
 import { RoomListComponent } from './rooms/rooms.component';
-import { ExceptionDialogComponent } from './schedule/exceptionDialog.component';
-import { ExceptionListComponent } from './schedule/exceptionList.component';
-import { MaintenancePeriodDialogComponent } from './schedule/maintenancePeriodDialog.component';
-import { OpenHoursComponent } from './schedule/openHours.component';
-import { StartingTimeComponent } from './schedule/startingTime.component';
+import { ExceptionDialogComponent } from './schedule/exception-dialog.component';
+import { ExceptionListComponent } from './schedule/exceptions.component';
+import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-dialog.component';
+import { OpenHoursComponent } from './schedule/opening-hours.component';
+import { StartingTimeComponent } from './schedule/starting-time.component';
 
 @NgModule({
     imports: [

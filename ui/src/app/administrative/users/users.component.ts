@@ -32,7 +32,7 @@ interface UserWithOptions extends User {
 
 @Component({
     templateUrl: './users.component.html',
-    selector: 'users',
+    selector: 'xm-users',
 })
 export class UsersComponent implements OnInit, OnDestroy {
     users: UserWithOptions[] = [];

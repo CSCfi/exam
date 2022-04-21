@@ -17,7 +17,7 @@ import type { ExaminationQuestion } from '../examination.model';
 import { ExaminationService } from '../examination.service';
 
 @Component({
-    selector: 'examination-cloze-test',
+    selector: 'xm-examination-cloze-test',
     template: `<div class="row">
             <div class="col-md-12">
                 <small class="sitnet-info-text" *ngIf="sq.autosaved">

@@ -30,12 +30,12 @@ import { Option } from '../../../shared/select/dropdown-select.component';
         <div class="bottom-row d-flex justify-content-between">
             <div class="col-lg-10 mb-4">
                 <label for="exam">{{ 'sitnet_select_exam' | translate }}</label>
-                <dropdown-select
+                <xm-dropdown-select
                     id="exam"
                     *ngIf="examNames"
                     [options]="examNames"
                     (optionSelected)="examSelected($event)"
-                ></dropdown-select>
+                ></xm-dropdown-select>
             </div>
             <div class="col-lg-2 mb-2">
                 <label for="link"></label>
@@ -55,7 +55,7 @@ import { Option } from '../../../shared/select/dropdown-select.component';
             </div>
         </div>
     `,
-    selector: 'exams-report',
+    selector: 'xm-exams-report',
 })
 export class ExamsReportComponent {
     @Input() examNames: Option<string, number>[] = [];

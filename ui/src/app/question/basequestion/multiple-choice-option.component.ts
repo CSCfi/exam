@@ -19,7 +19,7 @@ import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionDraft, QuestionService } from '../question.service';
 
 @Component({
-    selector: 'mc-option-editor',
+    selector: 'xm-mc-option-editor',
     template: `
         <div class="question-editor-option">
             <div class="row">

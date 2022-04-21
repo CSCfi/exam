@@ -20,7 +20,7 @@ import { ToastrService } from 'ngx-toastr';
 import type { ExamSection, Question } from '../../exam/exam.model';
 
 @Component({
-    selector: 'question-selector',
+    selector: 'xm-question-selector',
     template: `<div id="library">
         <div class="library">
             <!-- title row and add new question button -->
@@ -33,7 +33,7 @@ import type { ExamSection, Question } from '../../exam/exam.model';
             </div>
 
             <!-- search bar and search parameters -->
-            <library-search (updated)="resultsUpdated($event)"></library-search>
+            <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
 
             <div class="row">
                 <div class="col-md-12 padl0 padr0 marb20">
@@ -48,13 +48,13 @@ import type { ExamSection, Question } from '../../exam/exam.model';
             </div>
 
             <!-- resulting table with questions -->
-            <library-results
+            <xm-library-results
                 [questions]="questions"
                 (selected)="questionSelected($event)"
                 (copied)="questionCopied()"
                 tableClass="library-table"
                 [disableLinks]="true"
-            ></library-results>
+            ></xm-library-results>
 
             <!-- Buttons -->
             <div class="row">

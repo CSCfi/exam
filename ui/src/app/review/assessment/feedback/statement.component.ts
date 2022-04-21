@@ -20,7 +20,7 @@ import { FileService } from '../../../shared/file/file.service';
 import { MaturityService } from '../maturity/maturity.service';
 
 @Component({
-    selector: 'r-statement',
+    selector: 'xm-r-statement',
     template: `<div id="feedback" [hidden]="hasGoneThroughLanguageInspection()">
         <div cdkDrag id="draggable" class="wrapper">
             <div class="row">
@@ -50,12 +50,12 @@ import { MaturityService } from '../maturity/maturity.service';
             <div [hidden]="hideEditor" class="body">
                 <div class="row editor">
                     <div class="col-md-12">
-                        <ckeditor
+                        <xm-ckeditor
                             [enableClozeTest]="false"
                             [(ngModel)]="exam.languageInspection.statement.comment"
                             #ck="ngModel"
                             name="ck"
-                        ></ckeditor>
+                        ></xm-ckeditor>
                     </div>
                 </div>
                 <div class="d-flex justify-content-between">

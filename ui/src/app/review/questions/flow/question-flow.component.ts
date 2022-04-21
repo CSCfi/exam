@@ -19,27 +19,27 @@ import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../question-review.service';
 
 @Component({
-    selector: 'question-flow',
+    selector: 'xm-question-flow',
     template: `<div class="top-row">
             <div class="col-md-12 marb30">
                 <div class="question-flow-title">{{ 'sitnet_question_flow' | translate }}</div>
             </div>
         </div>
-        <question-flow-category
+        <xm-question-flow-category
             *ngIf="unfinished"
             categoryTitle="sitnet_in_progress"
             [reviews]="unfinished"
             (selected)="questionSelected($event)"
         >
-        </question-flow-category>
-        <question-flow-category
+        </xm-question-flow-category>
+        <xm-question-flow-category
             *ngIf="finished"
             categoryTitle="sitnet_all_finished"
             [reviews]="finished"
             [allDone]="true"
             (selected)="questionSelected($event)"
         >
-        </question-flow-category> `,
+        </xm-question-flow-category> `,
 })
 export class QuestionFlowComponent implements OnInit, OnChanges {
     @Input() reviews: QuestionReview[] = [];

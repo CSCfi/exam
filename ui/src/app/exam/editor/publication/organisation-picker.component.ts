@@ -26,7 +26,7 @@ type Organisation = {
 };
 
 @Component({
-    selector: 'exam-organisation-selector',
+    selector: 'xm-exam-organisation-selector',
     template: `<div class="row mt-2">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_organisations' | translate }}

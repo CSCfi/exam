@@ -23,7 +23,7 @@ import { AttachmentService } from '../../../shared/attachment/attachment.service
 import { AssessmentService } from '../assessment.service';
 
 @Component({
-    selector: 'r-cloze-test',
+    selector: 'xm-r-cloze-test',
     templateUrl: './cloze-test.component.html',
 })
 export class ClozeTestComponent implements OnInit {

@@ -21,7 +21,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import type { ParticipationLike } from './exam-participation.component';
 
 @Component({
-    selector: 'exam-participations',
+    selector: 'xm-exam-participations',
     templateUrl: './exam-participations.component.html',
 })
 export class ExamParticipationsComponent implements OnInit, OnDestroy {

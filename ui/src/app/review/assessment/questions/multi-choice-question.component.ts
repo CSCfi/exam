@@ -24,7 +24,7 @@ import { AttachmentService } from '../../../shared/attachment/attachment.service
 import { AssessmentService } from '../assessment.service';
 
 @Component({
-    selector: 'r-multi-choice-question',
+    selector: 'xm-r-multi-choice-question',
     templateUrl: './multi-choice-question.component.html',
 })
 export class MultiChoiceQuestionComponent implements OnInit {

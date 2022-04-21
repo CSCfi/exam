@@ -22,7 +22,7 @@ import type { LanguageInspection } from '../maturity.model';
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 @Component({
-    selector: 'unfinished-inspections',
+    selector: 'xm-unfinished-inspections',
     templateUrl: './unfinished-inspections.component.html',
 })
 export class UnfinishedInspectionsComponent implements OnChanges {

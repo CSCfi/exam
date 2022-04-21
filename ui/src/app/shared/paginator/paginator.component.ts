@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { range as _range } from 'lodash';
 
 @Component({
-    selector: 'paginator',
+    selector: 'xm-paginator',
     template: `
         <ul class="paginator">
             <li [ngClass]="previousPageDisabled()"><a (click)="previousPage()">&#60;</a></li>

@@ -20,8 +20,42 @@ import type { Week } from '../rooms/room.service';
 import { RoomService } from '../rooms/room.service';
 
 @Component({
-    templateUrl: './openHours.component.html',
-    selector: 'open-hours',
+    selector: 'xm-opening-hours',
+    template: `<div id="room">
+        <table style="display: inline-block">
+            <thead>
+                <tr *ngFor="let time of times; index as i">
+                    <th style="vertical-align: bottom" [ngClass]="{ light: i % 2 === 1 }">{{ time }}</th>
+                </tr>
+            </thead>
+        </table>
+
+        <table style="display: inline-block">
+            <thead>
+                <tr>
+                    <th *ngFor="let weekday of weekdayNames">{{ weekday }}</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let slot of timeRange()">
+                    <td
+                        *ngFor="let day of getWeekdays()"
+                        class="selectable {{ getType(day, slot) }}"
+                        (click)="selectSlot(day, slot)"
+                    >
+                        <div
+                            class="fullsize"
+                            placement="right"
+                            [animation]="false"
+                            delay="50"
+                            ngbTooltip="{{ calculateTime(slot) }}"
+                        ></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div> `,
 })
 export class OpenHoursComponent implements OnInit {
     @Input() week: Week = {};
