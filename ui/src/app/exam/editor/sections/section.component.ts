@@ -58,20 +58,6 @@ export class SectionComponent implements OnInit {
         this.section.sectionQuestions.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
     }
 
-    private getResource = (url: string) => (this.collaborative ? url.replace('/app/exams/', '/app/iop/exams/') : url);
-
-    private getSectionPayload = () => ({
-        id: this.section.id,
-        name: this.section.name,
-        lotteryOn: this.section.lotteryOn,
-        lotteryItemCount: this.section.lotteryOn ? this.section.lotteryItemCount : 0,
-        description: this.section.description,
-        expanded: this.section.expanded,
-        optional: this.section.optional,
-    });
-
-    private getQuestionScore = (question: ExamSectionQuestion) => this.Question.calculateMaxScore(question);
-
     questionPointsMatch = () => {
         const sectionQuestions = this.section.sectionQuestions;
         if (!sectionQuestions || sectionQuestions.length < 2) {
@@ -80,74 +66,6 @@ export class SectionComponent implements OnInit {
         const score = this.getQuestionScore(sectionQuestions[0]);
         return sectionQuestions.every((sq) => score === this.getQuestionScore(sq));
     };
-
-    private updateSection = (silent: boolean) => {
-        this.http
-            .put<ExamSection>(
-                this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`),
-                this.getSectionPayload(),
-            )
-            .subscribe({
-                next: () => {
-                    if (!silent) {
-                        this.toast.info(this.translate.instant('sitnet_section_updated'));
-                    }
-                },
-                error: () => (this.section.optional = !this.section.optional),
-            });
-    };
-
-    private insertExamQuestion = (question: Question, seq: number) => {
-        const resource = this.collaborative
-            ? `/app/iop/exams/${this.examId}/sections/${this.section.id}/questions`
-            : `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
-        const data = { sequenceNumber: seq, question: this.collaborative ? question : undefined };
-        this.http.post<ExamSection | ExamSectionQuestion>(resource, data).subscribe({
-            next: (resp) => {
-                // Add new section question to existing section
-                if (!this.collaborative) {
-                    const section = resp as ExamSection;
-                    const examSectionQuestion = section.sectionQuestions.find((esq) => esq.question.id === question.id);
-                    if (examSectionQuestion) {
-                        this.section.sectionQuestions = [...this.section.sectionQuestions, examSectionQuestion];
-                    }
-                    return;
-                }
-                // Collaborative exam question handling.
-                const newSectionQuestion = resp as ExamSectionQuestion;
-                this.addAttachment(newSectionQuestion, question, () => {
-                    const uploadedAttachment = question.attachment;
-                    if (uploadedAttachment) {
-                        newSectionQuestion.question.attachment = uploadedAttachment;
-                    }
-                });
-                this.section.sectionQuestions = [...this.section.sectionQuestions, newSectionQuestion];
-            },
-            error: this.toast.error,
-        });
-    };
-
-    private addAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
-        const attachment = question.attachment;
-        if (!attachment) {
-            return;
-        }
-
-        if (attachment.modified && attachment.file) {
-            this.Files.upload(
-                '/app/iop/attachment/question',
-                attachment.file,
-                { examId: this.examId.toString(), questionId: data.id.toString() },
-                question,
-                callback,
-            );
-        }
-    };
-
-    private openBaseQuestionEditor = () =>
-        this.Question.openBaseQuestionEditor(true, this.collaborative).subscribe((resp) =>
-            this.insertExamQuestion(resp, this.section.sectionQuestions.length),
-        );
 
     clearAllQuestions = () => {
         const dialog = this.dialogs.open(
@@ -292,4 +210,86 @@ export class SectionComponent implements OnInit {
 
     getAmountOfSelectionEvaluatedQuestions = () =>
         this.section.sectionQuestions.filter((q) => q.evaluationType === 'Selection').length;
+
+    private updateSection = (silent: boolean) => {
+        this.http
+            .put<ExamSection>(
+                this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`),
+                this.getSectionPayload(),
+            )
+            .subscribe({
+                next: () => {
+                    if (!silent) {
+                        this.toast.info(this.translate.instant('sitnet_section_updated'));
+                    }
+                },
+                error: () => (this.section.optional = !this.section.optional),
+            });
+    };
+
+    private getResource = (url: string) => (this.collaborative ? url.replace('/app/exams/', '/app/iop/exams/') : url);
+
+    private getSectionPayload = () => ({
+        id: this.section.id,
+        name: this.section.name,
+        lotteryOn: this.section.lotteryOn,
+        lotteryItemCount: this.section.lotteryOn ? this.section.lotteryItemCount : 0,
+        description: this.section.description,
+        expanded: this.section.expanded,
+        optional: this.section.optional,
+    });
+
+    private getQuestionScore = (question: ExamSectionQuestion) => this.Question.calculateMaxScore(question);
+
+    private insertExamQuestion = (question: Question, seq: number) => {
+        const resource = this.collaborative
+            ? `/app/iop/exams/${this.examId}/sections/${this.section.id}/questions`
+            : `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
+        const data = { sequenceNumber: seq, question: this.collaborative ? question : undefined };
+        this.http.post<ExamSection | ExamSectionQuestion>(resource, data).subscribe({
+            next: (resp) => {
+                // Add new section question to existing section
+                if (!this.collaborative) {
+                    const section = resp as ExamSection;
+                    const examSectionQuestion = section.sectionQuestions.find((esq) => esq.question.id === question.id);
+                    if (examSectionQuestion) {
+                        this.section.sectionQuestions = [...this.section.sectionQuestions, examSectionQuestion];
+                    }
+                    return;
+                }
+                // Collaborative exam question handling.
+                const newSectionQuestion = resp as ExamSectionQuestion;
+                this.addAttachment(newSectionQuestion, question, () => {
+                    const uploadedAttachment = question.attachment;
+                    if (uploadedAttachment) {
+                        newSectionQuestion.question.attachment = uploadedAttachment;
+                    }
+                });
+                this.section.sectionQuestions = [...this.section.sectionQuestions, newSectionQuestion];
+            },
+            error: this.toast.error,
+        });
+    };
+
+    private addAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
+        const attachment = question.attachment;
+        if (!attachment) {
+            return;
+        }
+
+        if (attachment.modified && attachment.file) {
+            this.Files.upload(
+                '/app/iop/attachment/question',
+                attachment.file,
+                { examId: this.examId.toString(), questionId: data.id.toString() },
+                question,
+                callback,
+            );
+        }
+    };
+
+    private openBaseQuestionEditor = () =>
+        this.Question.openBaseQuestionEditor(true, this.collaborative).subscribe((resp) =>
+            this.insertExamQuestion(resp, this.section.sectionQuestions.length),
+        );
 }

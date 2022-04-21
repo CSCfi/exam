@@ -49,6 +49,17 @@ export class CoursePickerComponent implements OnInit {
         this.codeFilter = this.course ? this.course.code.split('_')[0] : '';
     }
 
+    getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
+    getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);
+    codeFormat = (c: Course | string) => (this.isCourse(c) ? c.code : c);
+    nameFormat = (c: Course | string) => (this.isCourse(c) ? c.name : c);
+
+    onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
+        this.codeFilter = event.item.code.split('_')[0];
+        this.nameFilter = event.item.name;
+        this.updated.emit(event.item);
+    };
+
     private showError = (term: string) =>
         this.toast.error(`${this.translate.instant('sitnet_course_not_found')} ( ${term}  )`);
 
@@ -70,18 +81,6 @@ export class CoursePickerComponent implements OnInit {
         );
 
     private isCourse = (input: string | Course): input is Course => (input as Course).code !== undefined;
-
-    getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
-    getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);
-    codeFormat = (c: Course | string) => (this.isCourse(c) ? c.code : c);
-    nameFormat = (c: Course | string) => (this.isCourse(c) ? c.name : c);
-
-    onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
-        this.codeFilter = event.item.code.split('_')[0];
-        this.nameFilter = event.item.name;
-        this.updated.emit(event.item);
-    };
-
     private toggleLoadingIcon = (filter: 'name' | 'code', isOn: boolean) => (this.loader[filter].isOn = isOn);
     private setInputValue = (filter: string, value: string) => {
         if (filter === 'code') {

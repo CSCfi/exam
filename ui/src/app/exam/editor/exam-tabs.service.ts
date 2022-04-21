@@ -12,8 +12,8 @@ export type UpdateProps = {
 @Injectable()
 export class ExamTabService {
     public tabChange$: Observable<number>;
-    private tabChangeSubscription = new Subject<number>();
     public examUpdate$: Observable<UpdateProps>;
+    private tabChangeSubscription = new Subject<number>();
     private examUpdateSubscription = new Subject<UpdateProps>();
 
     constructor() {

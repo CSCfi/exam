@@ -46,14 +46,9 @@ export class SectionsComponent implements OnInit, OnChanges {
         private Tabs: ExamTabService,
     ) {}
 
-    loadMaterials = () => {
-        this.http.get<ExamMaterial[]>('/app/materials').subscribe((resp) => (this.materials = resp));
-    };
-
-    private init = () => {
-        this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
-        this.loadMaterials();
-    };
+    ngOnInit() {
+        this.Tabs.notifyTabChange(2);
+    }
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.exam) {
@@ -61,9 +56,7 @@ export class SectionsComponent implements OnInit, OnChanges {
         }
     }
 
-    ngOnInit() {
-        this.Tabs.notifyTabChange(2);
-    }
+    loadMaterials = () => this.http.get<ExamMaterial[]>('/app/materials').subscribe((resp) => (this.materials = resp));
 
     moveSection = (event: CdkDragDrop<ExamSection[]>) => {
         const [from, to] = [event.previousIndex, event.currentIndex];
@@ -133,5 +126,10 @@ export class SectionsComponent implements OnInit, OnChanges {
             return this.Session.getUser().isAdmin;
         }
         return this.exam.executionType.type === 'PUBLIC';
+    };
+
+    private init = () => {
+        this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
+        this.loadMaterials();
     };
 }

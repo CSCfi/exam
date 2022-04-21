@@ -45,12 +45,6 @@ export class ClozeTestComponent implements OnInit {
         private Attachment: AttachmentService,
     ) {}
 
-    ngOnInit() {
-        if (this.sectionQuestion.forcedScore) {
-            this.scoreValue = this.sectionQuestion.forcedScore;
-        }
-    }
-
     get scoreValue(): number | null {
         return this._score;
     }
@@ -59,6 +53,12 @@ export class ClozeTestComponent implements OnInit {
         this._score = value;
         if (this.form?.valid) {
             this.sectionQuestion.forcedScore = value;
+        }
+    }
+
+    ngOnInit() {
+        if (this.sectionQuestion.forcedScore) {
+            this.scoreValue = this.sectionQuestion.forcedScore;
         }
     }
 

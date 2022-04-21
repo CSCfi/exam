@@ -53,14 +53,6 @@ export class ReviewedInspectionsComponent implements OnChanges {
 
     pageSelected = (event: { page: number }) => (this.currentPage = event.page);
 
-    private examToString = (li: LanguageInspectionData) => {
-        const code = li.exam.course ? li.exam.course.code : '';
-        const name = li.exam.name;
-        const student = li.studentNameAggregate;
-        const teacher = li.ownerAggregate;
-        return code + name + student + teacher;
-    };
-
     filterTextChanged = () =>
         (this.filteredInspections = this.inspections.filter((i) =>
             this.examToString(i).toLowerCase().match(this.filterText.toLowerCase()),
@@ -72,4 +64,12 @@ export class ReviewedInspectionsComponent implements OnChanges {
 
     showStatement = (statement: { comment?: string }) =>
         this.LanguageInspections.showStatement({ comment: statement.comment || '' });
+
+    private examToString = (li: LanguageInspectionData) => {
+        const code = li.exam.course ? li.exam.course.code : '';
+        const name = li.exam.name;
+        const student = li.studentNameAggregate;
+        const teacher = li.ownerAggregate;
+        return code + name + student + teacher;
+    };
 }

@@ -102,6 +102,56 @@ export class CollaborativeAssesmentService {
         };
     }
 
+    saveAssessment = (participation: ExamParticipation, modifiable: boolean, id: number, ref: string) => {
+        if (!modifiable) {
+            if (participation.exam.state !== 'GRADED') {
+                // Just save feedback and leave
+                this.saveFeedback$(id, ref, participation).subscribe(() => {
+                    this.toast.info(this.translate.instant('sitnet_saved'));
+                    const state = this.Assessment.getExitStateById(this.routing.params.id, true);
+                    this.state.go(state.name as string, state.params);
+                });
+            }
+        } else {
+            if (!this.Assessment.checkCredit(participation.exam)) {
+                return;
+            }
+            const messages = this.Assessment.getErrors(participation.exam);
+            const oldState = participation.exam.state;
+            const newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
+            const payload = this.getPayload(participation.exam, newState, participation._rev as string);
+            if (newState !== 'GRADED' || oldState === 'GRADED') {
+                this.sendAssessment(newState, payload, messages, participation, id, ref);
+            } else {
+                const dialog = this.dialogs.open(
+                    this.translate.instant('sitnet_confirm'),
+                    this.translate.instant('sitnet_confirm_grade_review'),
+                );
+                dialog.result.then(() => this.sendAssessment(newState, payload, messages, participation, id, ref));
+            }
+        }
+    };
+
+    createExamRecord = (participation: ExamParticipation, examId: number, ref: string) => {
+        if (!this.Assessment.checkCredit(participation.exam)) {
+            return;
+        }
+        const messages = this.Assessment.getErrors(participation.exam);
+        if (messages.length > 0) {
+            messages.forEach((msg) => this.toast.error(this.translate.instant(msg)));
+        } else {
+            const dialogNote = participation.exam.gradeless
+                ? this.translate.instant('sitnet_confirm_archiving_without_grade')
+                : this.Assessment.getRecordReviewConfirmationDialogContent(
+                      (participation.exam.examFeedback as Feedback).comment,
+                  );
+            const payload = this.getPayload(participation.exam, 'GRADED', participation._rev as string);
+            this.dialogs
+                .open(this.translate.instant('sitnet_confirm'), dialogNote)
+                .result.then(() => this.register(participation, examId, ref, payload));
+        }
+    };
+
     private sendAssessment = (
         newState: string,
         payload: Payload,
@@ -133,36 +183,6 @@ export class CollaborativeAssesmentService {
             },
             error: this.toast.error,
         });
-    };
-
-    saveAssessment = (participation: ExamParticipation, modifiable: boolean, id: number, ref: string) => {
-        if (!modifiable) {
-            if (participation.exam.state !== 'GRADED') {
-                // Just save feedback and leave
-                this.saveFeedback$(id, ref, participation).subscribe(() => {
-                    this.toast.info(this.translate.instant('sitnet_saved'));
-                    const state = this.Assessment.getExitStateById(this.routing.params.id, true);
-                    this.state.go(state.name as string, state.params);
-                });
-            }
-        } else {
-            if (!this.Assessment.checkCredit(participation.exam)) {
-                return;
-            }
-            const messages = this.Assessment.getErrors(participation.exam);
-            const oldState = participation.exam.state;
-            const newState = messages.length > 0 ? 'REVIEW_STARTED' : 'GRADED';
-            const payload = this.getPayload(participation.exam, newState, participation._rev as string);
-            if (newState !== 'GRADED' || oldState === 'GRADED') {
-                this.sendAssessment(newState, payload, messages, participation, id, ref);
-            } else {
-                const dialog = this.dialogs.open(
-                    this.translate.instant('sitnet_confirm'),
-                    this.translate.instant('sitnet_confirm_grade_review'),
-                );
-                dialog.result.then(() => this.sendAssessment(newState, payload, messages, participation, id, ref));
-            }
-        }
     };
 
     private sendToRegistry = (payload: Payload, examId: number, ref: string, participation: ExamParticipation) => {
@@ -197,25 +217,5 @@ export class CollaborativeAssesmentService {
             },
             error: this.toast.error,
         });
-    };
-
-    createExamRecord = (participation: ExamParticipation, examId: number, ref: string) => {
-        if (!this.Assessment.checkCredit(participation.exam)) {
-            return;
-        }
-        const messages = this.Assessment.getErrors(participation.exam);
-        if (messages.length > 0) {
-            messages.forEach((msg) => this.toast.error(this.translate.instant(msg)));
-        } else {
-            const dialogNote = participation.exam.gradeless
-                ? this.translate.instant('sitnet_confirm_archiving_without_grade')
-                : this.Assessment.getRecordReviewConfirmationDialogContent(
-                      (participation.exam.examFeedback as Feedback).comment,
-                  );
-            const payload = this.getPayload(participation.exam, 'GRADED', participation._rev as string);
-            this.dialogs
-                .open(this.translate.instant('sitnet_confirm'), dialogNote)
-                .result.then(() => this.register(participation, examId, ref, payload));
-        }
     };
 }

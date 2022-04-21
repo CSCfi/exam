@@ -46,11 +46,6 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
         private Session: SessionService,
     ) {}
 
-    private init() {
-        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.deadline');
-        this.selections = { all: false, page: false };
-    }
-
     ngOnInit() {
         this.init();
     }
@@ -102,6 +97,11 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
         }
         this.view.predicate = predicate;
     };
+
+    private init() {
+        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.deadline');
+        this.selections = { all: false, page: false };
+    }
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';

@@ -68,10 +68,9 @@ export interface FileResult {
 })
 export class AttachmentSelectorComponent implements OnInit {
     @ViewChild('file', { static: false }) file!: ElementRef;
-    fileObject!: File;
-
     @Input() title = '';
     @Input() isTeacherModal = false;
+    fileObject!: File;
     maxFileSize = 0;
 
     constructor(public activeModal: NgbActiveModal, private Files: FileService) {}

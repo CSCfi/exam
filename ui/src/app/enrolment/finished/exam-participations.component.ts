@@ -36,7 +36,7 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
     constructor(private http: HttpClient, private toast: ToastrService) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
-            .subscribe(this.doSearch);
+            .subscribe(this._search);
     }
 
     ngOnInit() {
@@ -50,7 +50,9 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
 
     search = (text: string) => this.filterChanged.next(text);
 
-    private doSearch = (text: string) => {
+    pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
+
+    private _search = (text: string) => {
         this.filter.text = text;
         this.http.get<ParticipationLike[]>('/app/student/finishedexams', { params: { filter: text } }).subscribe({
             next: (data) => {
@@ -62,6 +64,4 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
             error: this.toast.error,
         });
     };
-
-    pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
 }

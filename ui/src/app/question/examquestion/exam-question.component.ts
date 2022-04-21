@@ -93,23 +93,6 @@ export class ExamQuestionComponent implements OnInit {
         this.cancelled.emit();
     };
 
-    private init = () =>
-        this.http.get<ReverseQuestion>(`/app/questions/${this.examQuestion.question.id}`).subscribe((question) => {
-            this.question = question;
-            const sections = this.question.examSectionQuestions.map((esq) => esq.examSection);
-            const examNames = sections.map((s) => {
-                if (s.exam.state === 'PUBLISHED') {
-                    this.isInPublishedExam = true;
-                }
-                return s.exam.name as string;
-            });
-            const sectionNames = sections.map((s) => s.name);
-            // remove duplicates
-            this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
-            this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
-            this.validate();
-        });
-
     showWarning = () => this.examNames && this.examNames.length > 1;
     estimateCharacters = () => (this.examQuestion.expectedWordCount || 0) * 8;
 
@@ -226,4 +209,21 @@ export class ExamQuestionComponent implements OnInit {
         this.examQuestion.question.type === 'ClaimChoiceQuestion' &&
         this.Question.getInvalidDistributedClaimOptionTypes(this.examQuestion.options as ExamSectionQuestionOption[])
             .length > 0;
+
+    private init = () =>
+        this.http.get<ReverseQuestion>(`/app/questions/${this.examQuestion.question.id}`).subscribe((question) => {
+            this.question = question;
+            const sections = this.question.examSectionQuestions.map((esq) => esq.examSection);
+            const examNames = sections.map((s) => {
+                if (s.exam.state === 'PUBLISHED') {
+                    this.isInPublishedExam = true;
+                }
+                return s.exam.name as string;
+            });
+            const sectionNames = sections.map((s) => s.name);
+            // remove duplicates
+            this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
+            this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
+            this.validate();
+        });
 }

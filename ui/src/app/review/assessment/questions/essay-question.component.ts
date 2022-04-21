@@ -47,13 +47,6 @@ export class EssayQuestionComponent implements OnInit {
         private Attachment: AttachmentService,
     ) {}
 
-    ngOnInit() {
-        if (!this.sectionQuestion.essayAnswer) {
-            this.sectionQuestion.essayAnswer = { id: 0 };
-        }
-        this.scoreValue = this.sectionQuestion.essayAnswer.evaluatedScore;
-    }
-
     get scoreValue(): number | undefined {
         return this._score;
     }
@@ -65,6 +58,13 @@ export class EssayQuestionComponent implements OnInit {
         } else {
             this.sectionQuestion.essayAnswer = { ...this.sectionQuestion.essayAnswer, evaluatedScore: undefined };
         }
+    }
+
+    ngOnInit() {
+        if (!this.sectionQuestion.essayAnswer) {
+            this.sectionQuestion.essayAnswer = { id: 0 };
+        }
+        this.scoreValue = this.sectionQuestion.essayAnswer.evaluatedScore;
     }
 
     downloadQuestionAttachment = () => {

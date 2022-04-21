@@ -78,11 +78,6 @@ export class LibraryOwnersComponent implements OnInit {
         });
     }
 
-    private filterByName = (src: User[], q: string): User[] => {
-        if (!q) return src;
-        return src.filter((u) => u.name && u.name.toLowerCase().includes(q.toLowerCase()));
-    };
-
     listTeachers$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
             debounceTime(100),
@@ -120,5 +115,10 @@ export class LibraryOwnersComponent implements OnInit {
             },
             error: () => this.toast.error(this.translate.instant('sitnet_update_failed')),
         });
+    };
+
+    private filterByName = (src: User[], q: string): User[] => {
+        if (!q) return src;
+        return src.filter((u) => u.name && u.name.toLowerCase().includes(q.toLowerCase()));
     };
 }

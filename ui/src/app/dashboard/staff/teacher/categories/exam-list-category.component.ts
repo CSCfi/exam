@@ -46,8 +46,8 @@ type ExecutionType = ExamExecutionType & { examinationTypes: { type: string; nam
 export class ExamListCategoryComponent implements OnInit, OnDestroy {
     @Input() items: Exam[] = [];
     @Input() examTypes: ExecutionType[] = [];
-    @Input() extraColumnNames: () => ExtraColumnName[] = () => [];
-    @Input() extraColumnValues: (exam: Exam) => ExtraColumnValue[] = () => [];
+    @Input() extraColumnNames: () => ExtraColumnName[];
+    @Input() extraColumnValues: (exam: Exam) => ExtraColumnValue[];
     @Input() defaultPredicate = '';
     @Input() defaultReverse = false;
     @Output() filtered = new EventEmitter<string>();
@@ -72,6 +72,8 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {
+        this.extraColumnNames = () => [];
+        this.extraColumnValues = () => [];
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((text) => {

@@ -131,21 +131,11 @@ export class ClaimChoiceEditorComponent implements OnInit {
 
     displayMissingOptions = () => this.missingOptions.map(this.translate.instant).join();
 
-    private resetOptions = () => {
-        const { correct, wrong, skip } = this.defaultOptions;
-        this.question.options = [correct, wrong, skip];
-    };
-
     returnOptionDescriptionTranslation = (option: MultipleChoiceOption): string =>
         this.Question.returnOptionDescriptionTranslation(option.claimChoiceType as string);
 
     returnOptionClass = (option: MultipleChoiceOption) =>
         this.Question.returnClaimChoiceOptionClass(option.claimChoiceType as string);
-
-    private validate = () =>
-        (this.missingOptions = this.Question.getInvalidClaimOptionTypes(this.question.options)
-            .filter((type) => type !== 'SkipOption')
-            .map((optionType) => this.Question.getOptionTypeTranslation(optionType)));
 
     updateOptionTypes = () => {
         this.question.options.forEach((opt, index) => {
@@ -166,4 +156,14 @@ export class ClaimChoiceEditorComponent implements OnInit {
         });
         this.validate();
     };
+
+    private resetOptions = () => {
+        const { correct, wrong, skip } = this.defaultOptions;
+        this.question.options = [correct, wrong, skip];
+    };
+
+    private validate = () =>
+        (this.missingOptions = this.Question.getInvalidClaimOptionTypes(this.question.options)
+            .filter((type) => type !== 'SkipOption')
+            .map((optionType) => this.Question.getOptionTypeTranslation(optionType)));
 }

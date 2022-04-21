@@ -29,9 +29,7 @@ import type { Exam, ExamInspection } from '../../exam.model';
 })
 export class ExamInspectorSelectorComponent implements OnInit {
     @Input() exam!: Exam;
-
     examInspections: ExamInspection[] = [];
-
     newInspector: {
         id?: number;
         sendMessage?: boolean;
@@ -47,12 +45,6 @@ export class ExamInspectorSelectorComponent implements OnInit {
     ngOnInit() {
         this.getInspectors();
     }
-
-    private getInspectors = () =>
-        this.http.get<ExamInspection[]>(`/app/exam/${this.exam.id}/inspections`).subscribe({
-            next: (inspections) => (this.examInspections = inspections),
-            error: this.toast.error,
-        });
 
     listInspectors$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
@@ -90,4 +82,10 @@ export class ExamInspectorSelectorComponent implements OnInit {
 
     removeInspector = (id: number) =>
         this.http.delete(`/app/exams/inspector/${id}`).subscribe({ next: this.getInspectors, error: this.toast.error });
+
+    private getInspectors = () =>
+        this.http.get<ExamInspection[]>(`/app/exam/${this.exam.id}/inspections`).subscribe({
+            next: (inspections) => (this.examInspections = inspections),
+            error: this.toast.error,
+        });
 }

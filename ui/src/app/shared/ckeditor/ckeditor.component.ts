@@ -20,7 +20,6 @@ import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { debounce } from 'lodash';
-import { WindowRef } from '../window/window.service';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let CKEDITOR: any;
@@ -38,21 +37,9 @@ declare let CKEDITOR: any;
     template: ` <textarea #host [required]="required"></textarea> `,
 })
 export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDestroy, ControlValueAccessor {
+    @ViewChild('host', { static: false }) host!: ElementRef;
     @Input() required = false;
     @Input() enableClozeTest = false;
-    @Input()
-    set value(v) {
-        if (v !== this._value) {
-            this._value = v;
-            this.onChange(v);
-        }
-    }
-    get value(): unknown {
-        return this._value;
-    }
-
-    @ViewChild('host', { static: false }) host!: ElementRef;
-
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     instance: any;
     _value: unknown;
@@ -63,8 +50,18 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
         private zone: NgZone,
         private translate: TranslateService,
         @Inject(DOCUMENT) private document: Document,
-        private Window: WindowRef,
     ) {}
+
+    @Input()
+    get value(): unknown {
+        return this._value;
+    }
+    set value(v) {
+        if (v !== this._value) {
+            this._value = v;
+            this.onChange(v);
+        }
+    }
 
     updateValue(value: unknown) {
         this.zone.run(() => {
@@ -73,9 +70,6 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
             this.value = value;
         });
     }
-
-    private documentContains = (n: Node) =>
-        this.document.contains ? this.document.contains(n) : this.document.body.contains(n);
 
     editorInit() {
         if (typeof CKEDITOR === 'undefined') {
@@ -140,4 +134,7 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
     registerOnTouched(fn: () => unknown): void {
         this.onTouched = fn;
     }
+
+    private documentContains = (n: Node) =>
+        this.document.contains ? this.document.contains(n) : this.document.body.contains(n);
 }

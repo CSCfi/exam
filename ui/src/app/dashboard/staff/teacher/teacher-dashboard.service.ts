@@ -47,21 +47,6 @@ export class Dashboard {
 export class TeacherDashboardService {
     constructor(private http: HttpClient, private Exam: ExamService, private Reservation: ReservationService) {}
 
-    // Exam is private and has unfinished participants
-    private participationsInFuture = (exam: Exam) =>
-        exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0;
-
-    private hasUpcomingExaminationDates = (exam: Exam) =>
-        exam.examinationDates.some((ed) => Date.now() <= new Date(ed.date).setHours(23, 59, 59, 999));
-
-    // Printout exams do not have an activity period but have examination dates.
-    // Produce a fake period for information purposes by selecting first and last examination dates.
-    private createFakeActivityPeriod(exam: Exam) {
-        const dates = exam.examinationDates.map((es) => new Date(es.date).getTime());
-        exam.examActiveStartDate = new Date(dates.length > 0 ? Math.min(...dates) : new Date()).toISOString();
-        exam.examActiveEndDate = new Date(dates.length > 0 ? Math.max(...dates) : new Date()).toISOString();
-    }
-
     populate = (): Observable<Dashboard> =>
         forkJoin([this.Exam.listExecutionTypes$(), this.http.get<Exam[]>('/app/reviewerexams')]).pipe(
             map((resp) => {
@@ -151,5 +136,20 @@ export class TeacherDashboardService {
             params[key] = decodeURIComponent(val);
         });
         return params;
+    }
+
+    // Exam is private and has unfinished participants
+    private participationsInFuture = (exam: Exam) =>
+        exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0;
+
+    private hasUpcomingExaminationDates = (exam: Exam) =>
+        exam.examinationDates.some((ed) => Date.now() <= new Date(ed.date).setHours(23, 59, 59, 999));
+
+    // Printout exams do not have an activity period but have examination dates.
+    // Produce a fake period for information purposes by selecting first and last examination dates.
+    private createFakeActivityPeriod(exam: Exam) {
+        const dates = exam.examinationDates.map((es) => new Date(es.date).getTime());
+        exam.examActiveStartDate = new Date(dates.length > 0 ? Math.min(...dates) : new Date()).toISOString();
+        exam.examActiveEndDate = new Date(dates.length > 0 ? Math.max(...dates) : new Date()).toISOString();
     }
 }

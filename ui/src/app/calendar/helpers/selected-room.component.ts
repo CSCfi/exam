@@ -75,11 +75,6 @@ export class SelectedRoomComponent implements OnInit, OnChanges {
 
     constructor(private translate: TranslateService, private Calendar: CalendarService) {}
 
-    private init() {
-        this.openingHours = this.Calendar.processOpeningHours(this.room);
-        this.exceptionHours = this.Calendar.getExceptionHours(this.room, this.viewStart, addWeeks(this.viewStart, 1));
-    }
-
     ngOnInit() {
         this.translate.onLangChange.subscribe(() => {
             this.openingHours = this.Calendar.processOpeningHours(this.room);
@@ -104,4 +99,9 @@ export class SelectedRoomComponent implements OnInit, OnChanges {
 
     getRoomAccessibility = () =>
         this.room.accessibilities ? this.room.accessibilities.map((a) => a.name).join(', ') : '';
+
+    private init() {
+        this.openingHours = this.Calendar.processOpeningHours(this.room);
+        this.exceptionHours = this.Calendar.getExceptionHours(this.room, this.viewStart, addWeeks(this.viewStart, 1));
+    }
 }

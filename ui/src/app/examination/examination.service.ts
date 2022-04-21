@@ -97,17 +97,6 @@ export class ExaminationService {
         );
     };
 
-    private isTextualAnswer = (esq: ExaminationQuestion, allowEmpty: boolean) => {
-        switch (esq.question.type) {
-            case 'EssayQuestion':
-                return esq.essayAnswer && (allowEmpty || (esq.essayAnswer.answer && esq.essayAnswer.answer.length > 0));
-            case 'ClozeTestQuestion':
-                return esq.clozeTestAnswer && (allowEmpty || !isEmpty(esq.clozeTestAnswer.answer));
-            default:
-                return false;
-        }
-    };
-
     saveAllTextualAnswersOfSection$ = (
         section: ExaminationSection,
         hash: string,
@@ -124,13 +113,6 @@ export class ExaminationService {
         concat(
             ...exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, true)),
         );
-
-    private stripHtml = (text: string) => {
-        if (text && text.indexOf('math-tex') === -1) {
-            return String(text).replace(/<[^>]+>/gm, '');
-        }
-        return text;
-    };
 
     isAnswered = (sq: ExaminationQuestion) => {
         let isAnswered;
@@ -226,5 +208,23 @@ export class ExaminationService {
                 else ok();
             },
         });
+    };
+
+    private isTextualAnswer = (esq: ExaminationQuestion, allowEmpty: boolean) => {
+        switch (esq.question.type) {
+            case 'EssayQuestion':
+                return esq.essayAnswer && (allowEmpty || (esq.essayAnswer.answer && esq.essayAnswer.answer.length > 0));
+            case 'ClozeTestQuestion':
+                return esq.clozeTestAnswer && (allowEmpty || !isEmpty(esq.clozeTestAnswer.answer));
+            default:
+                return false;
+        }
+    };
+
+    private stripHtml = (text: string) => {
+        if (text && text.indexOf('math-tex') === -1) {
+            return String(text).replace(/<[^>]+>/gm, '');
+        }
+        return text;
     };
 }

@@ -63,6 +63,16 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
         }
     }
 
+    formatRemainingTime = (): string => {
+        if (!this.remainingTime) {
+            return '';
+        }
+        const hours = Math.floor(this.remainingTime / 60 / 60);
+        const minutes = Math.floor(this.remainingTime / 60) % 60;
+        const seconds = this.remainingTime % 60;
+        return `${hours}:${this.zeroPad(minutes)}:${this.zeroPad(seconds)}`;
+    };
+
     private checkRemainingTime = () => {
         this.secondsSinceSync++;
         if (this.secondsSinceSync > this.syncInterval) {
@@ -89,14 +99,4 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
     };
 
     private zeroPad = (n: number): string => ('0' + n).slice(-2);
-
-    formatRemainingTime = (): string => {
-        if (!this.remainingTime) {
-            return '';
-        }
-        const hours = Math.floor(this.remainingTime / 60 / 60);
-        const minutes = Math.floor(this.remainingTime / 60) % 60;
-        const seconds = this.remainingTime % 60;
-        return `${hours}:${this.zeroPad(minutes)}:${this.zeroPad(seconds)}`;
-    };
 }

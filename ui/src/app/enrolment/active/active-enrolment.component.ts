@@ -41,17 +41,6 @@ export class ActiveEnrolmentComponent {
 
     enrolmentRemoved = ($event: number) => this.removed.emit($event);
 
-    private getRoomInstructions = (lang: string, room: Partial<ExamRoom>) => {
-        switch (lang) {
-            case 'FI':
-                return room.roomInstruction;
-            case 'SV':
-                return room.roomInstructionSV;
-            default:
-                return room.roomInstructionEN;
-        }
-    };
-
     getRoomInstruction = () => {
         const reservation = this.enrolment.reservation;
         if (!reservation) {
@@ -73,4 +62,15 @@ export class ActiveEnrolmentComponent {
             `/app/student/enrolments/${this.enrolment.id}/configFile`,
             (this.enrolment.exam.name || this.translate.instant('sitnet_no_name')).replace(' ', '-') + '.seb',
         );
+
+    private getRoomInstructions = (lang: string, room: Partial<ExamRoom>) => {
+        switch (lang) {
+            case 'FI':
+                return room.roomInstruction;
+            case 'SV':
+                return room.roomInstructionSV;
+            default:
+                return room.roomInstructionEN;
+        }
+    };
 }

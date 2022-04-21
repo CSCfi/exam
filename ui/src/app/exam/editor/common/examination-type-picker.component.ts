@@ -54,10 +54,9 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
     `,
 })
 export class ExaminationTypeSelectorComponent implements OnInit {
+    @ViewChild('acc', { static: false }) acc!: NgbAccordion;
     executionTypes: ExamConfig[] = [];
     selectedType!: ExamConfig;
-
-    @ViewChild('acc', { static: false }) acc!: NgbAccordion;
 
     constructor(private http: HttpClient, private modal: NgbActiveModal, private Exam: ExamService) {}
 

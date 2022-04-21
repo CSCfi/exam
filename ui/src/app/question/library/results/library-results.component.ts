@@ -182,6 +182,16 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         return '';
     };
 
+    showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
+        if (isNumber(scoreColumnValue)) {
+            return scoreColumnValue;
+        } else if (isString(scoreColumnValue) && scoreColumnValue !== '') {
+            return this.translate.instant(scoreColumnValue);
+        } else {
+            return '';
+        }
+    };
+
     private saveFilters = () => {
         const filters = {
             predicate: this.questionsPredicate,
@@ -193,15 +203,5 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     private resetSelections = () => {
         this.fixedQuestions.forEach((q) => (q.selected = false));
         this.questionSelected();
-    };
-
-    showDisplayedScoreOrTranslate = (scoreColumnValue: string | number) => {
-        if (isNumber(scoreColumnValue)) {
-            return scoreColumnValue;
-        } else if (isString(scoreColumnValue) && scoreColumnValue !== '') {
-            return this.translate.instant(scoreColumnValue);
-        } else {
-            return '';
-        }
     };
 }

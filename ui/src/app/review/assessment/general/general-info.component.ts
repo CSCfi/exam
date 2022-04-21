@@ -48,19 +48,6 @@ export class GeneralInfoComponent implements OnInit {
         private DateTime: DateTimeService,
     ) {}
 
-    private handleParticipations = (data: ExamParticipation[]) => {
-        if (this.collaborative) {
-            // TODO: Add collaborative support for noshows.
-            this.participations = data;
-            return;
-        }
-        // Filter out the participation we are looking into
-        this.participations = data.filter((p) => p.id !== this.participation.id);
-        this.http.get<ExamEnrolment[]>(`/app/usernoshows/${this.exam.id}`).subscribe((enrolments) => {
-            this.noShows = enrolments.map((ee) => ({ ...ee, exam: { ...ee.exam, state: 'no_show' } }));
-        });
-    };
-
     ngOnInit() {
         const duration = roundToNearestMinutes(parseISO(this.participation.duration as string));
         this.participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC');
@@ -92,5 +79,18 @@ export class GeneralInfoComponent implements OnInit {
         } else {
             this.Attachment.downloadExamAttachment(this.exam);
         }
+    };
+
+    private handleParticipations = (data: ExamParticipation[]) => {
+        if (this.collaborative) {
+            // TODO: Add collaborative support for noshows.
+            this.participations = data;
+            return;
+        }
+        // Filter out the participation we are looking into
+        this.participations = data.filter((p) => p.id !== this.participation.id);
+        this.http.get<ExamEnrolment[]>(`/app/usernoshows/${this.exam.id}`).subscribe((enrolments) => {
+            this.noShows = enrolments.map((ee) => ({ ...ee, exam: { ...ee.exam, state: 'no_show' } }));
+        });
     };
 }

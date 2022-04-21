@@ -84,24 +84,6 @@ export class CalendarComponent implements OnInit {
         private Calendar: CalendarService,
     ) {}
 
-    private resolveOptionalSections = (): string[] => {
-        if (!this.uiRouter.params.selected) return [];
-        if (isArray(this.uiRouter.params.selected)) return this.uiRouter.params.selected;
-        else return [this.uiRouter.params.selected];
-    };
-
-    private prepareOptionalSections = (data: ExamEnrolment | null) => {
-        this.examInfo.examSections
-            .filter((es) => es.optional)
-            .forEach((es) => {
-                es.selected =
-                    (data && data.optionalSections.map((os) => os.id).indexOf(es.id) > -1) ||
-                    this.resolveOptionalSections()
-                        .map((p: string) => parseInt(p))
-                        .indexOf(es.id) > -1;
-            });
-    };
-
     ngOnInit() {
         if (this.uiRouter.params.isCollaborative === 'true') {
             this.isCollaborative = true;
@@ -251,4 +233,22 @@ export class CalendarComponent implements OnInit {
     printExamDuration(exam: { duration: number }) {
         return this.DateTime.printExamDuration(exam);
     }
+
+    private resolveOptionalSections = (): string[] => {
+        if (!this.uiRouter.params.selected) return [];
+        if (isArray(this.uiRouter.params.selected)) return this.uiRouter.params.selected;
+        else return [this.uiRouter.params.selected];
+    };
+
+    private prepareOptionalSections = (data: ExamEnrolment | null) => {
+        this.examInfo.examSections
+            .filter((es) => es.optional)
+            .forEach((es) => {
+                es.selected =
+                    (data && data.optionalSections.map((os) => os.id).indexOf(es.id) > -1) ||
+                    this.resolveOptionalSections()
+                        .map((p: string) => parseInt(p))
+                        .indexOf(es.id) > -1;
+            });
+    };
 }

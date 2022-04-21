@@ -20,7 +20,7 @@
       ],
       "plugins": ["deprecation"],
       "rules": {
-        "deprecation/deprecation": "warn",
+        "deprecation/deprecation": "error",
         "@angular-eslint/directive-selector": [
           "error",
           {
@@ -36,7 +36,8 @@
             "prefix": "xm",
             "style": "kebab-case"
           }
-        ]
+        ],
+        "@typescript-eslint/member-ordering": "error"
       }
     },
     {

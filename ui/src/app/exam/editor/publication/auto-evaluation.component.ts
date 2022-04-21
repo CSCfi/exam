@@ -73,26 +73,6 @@ export class AutoEvaluationComponent implements OnInit {
     disable = () => this.disabled.emit();
     enable = () => this.enabled.emit();
 
-    private prepareAutoEvaluationConfig = () => {
-        this.autoevaluation.enabled = !!this.exam.autoEvaluationConfig;
-        if (!this.exam.autoEvaluationConfig && this.exam.gradeScale) {
-            const releaseType = this.selectedReleaseType();
-            this.config = {
-                releaseType: releaseType ? releaseType.name : this.autoevaluation.releaseTypes[0].name,
-                gradeEvaluations: this.exam.gradeScale.grades.map((g) => ({ grade: cloneDeep(g), percentage: 0 })),
-                amountDays: 0,
-                releaseDate: new Date(),
-            };
-        }
-        if (this.exam.autoEvaluationConfig) {
-            this.config = this.exam.autoEvaluationConfig;
-            const rt = this.getReleaseTypeByName(this.config.releaseType);
-            this.applyFilter(rt);
-        }
-    };
-
-    private getReleaseTypeByName = (name?: string) => this.autoevaluation.releaseTypes.find((rt) => rt.name === name);
-
     applyFilter = (type?: ReleaseType) => {
         if (!this.config) return;
         this.autoevaluation.releaseTypes.forEach((rt) => (rt.filtered = false));
@@ -128,4 +108,24 @@ export class AutoEvaluationComponent implements OnInit {
     propertyChanged = () => {
         if (this.config && this.gradesForm?.valid) this.updated.emit({ config: this.config });
     };
+
+    private prepareAutoEvaluationConfig = () => {
+        this.autoevaluation.enabled = !!this.exam.autoEvaluationConfig;
+        if (!this.exam.autoEvaluationConfig && this.exam.gradeScale) {
+            const releaseType = this.selectedReleaseType();
+            this.config = {
+                releaseType: releaseType ? releaseType.name : this.autoevaluation.releaseTypes[0].name,
+                gradeEvaluations: this.exam.gradeScale.grades.map((g) => ({ grade: cloneDeep(g), percentage: 0 })),
+                amountDays: 0,
+                releaseDate: new Date(),
+            };
+        }
+        if (this.exam.autoEvaluationConfig) {
+            this.config = this.exam.autoEvaluationConfig;
+            const rt = this.getReleaseTypeByName(this.config.releaseType);
+            this.applyFilter(rt);
+        }
+    };
+
+    private getReleaseTypeByName = (name?: string) => this.autoevaluation.releaseTypes.find((rt) => rt.name === name);
 }

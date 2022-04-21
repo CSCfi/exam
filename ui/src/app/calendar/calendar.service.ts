@@ -58,23 +58,6 @@ export class CalendarService {
         private Session: SessionService,
     ) {}
 
-    private adjustBack(date: Date, tz: string): string {
-        const adjusted = zonedTimeToUtc(date, tz);
-        const offset = this.DateTime.isDST(adjusted) ? 1 : 0;
-        return utcToZonedTime(addHours(adjusted, offset), tz).toISOString();
-    }
-
-    private reserveInternal$ = (slot: Slot, accs: Accessibility[], collaborative: boolean): Observable<void> => {
-        slot.aids = accs.map((item) => item.id);
-        const url = collaborative ? '/app/iop/calendar/reservation' : '/app/calendar/reservation';
-        return this.http.post<void>(url, slot);
-    };
-
-    private reserveExternal$ = (slot: Slot, collaborative = false) => {
-        const url = collaborative ? '/app/iop/calendar/external/reservation' : '/app/iop/reservations/external';
-        return this.http.post<void>(url, slot);
-    };
-
     reserve$(
         start: Date,
         end: Date,
@@ -99,9 +82,6 @@ export class CalendarService {
             return this.reserveInternal$(slot, accs, collaborative);
         }
     }
-
-    private findOpeningHours = (dwh: DefaultWorkingHours, items: OpeningHours[]) =>
-        items.find((i) => i.ref === dwh.weekday);
 
     getWeekdayNames(): WeekdayNames {
         const lang = this.Session.getUser().lang;
@@ -147,20 +127,6 @@ export class CalendarService {
         return openingHours.sort((a, b) => a.ord - b.ord);
     }
 
-    private static formatExceptionEvent(
-        event: ExceptionWorkingHours,
-        tz: string,
-    ): ExceptionWorkingHours & { start: string; end: string; description: string } {
-        const startDate = zonedTimeToUtc(parseISO(event.startDate), tz);
-        const endDate = zonedTimeToUtc(parseISO(event.endDate), tz);
-        return {
-            ...event,
-            start: format(startDate, 'dd.MM.yyyy HH:mm'),
-            end: format(endDate, 'dd.MM.yyyy HH:mm'),
-            description: event.outOfService ? 'sitnet_closed' : 'sitnet_open',
-        };
-    }
-
     listMaintenancePeriods$ = () => this.http.get<MaintenancePeriod[]>('/app/maintenance');
 
     getExceptionHours(
@@ -172,13 +138,13 @@ export class CalendarService {
         const events = room.calendarExceptionEvents.filter(
             (e) => parseISO(e.startDate) > maxStart && parseISO(e.endDate) < end,
         );
-        return events.map((e) => CalendarService.formatExceptionEvent(e, room.localTimezone));
+        return events.map((e) => this.formatExceptionEvent(e, room.localTimezone));
     }
 
     getExceptionalAvailability(
         room: ExamRoom,
     ): (ExceptionWorkingHours & { start: string; end: string; description: string })[] {
-        return room.calendarExceptionEvents.map((e) => CalendarService.formatExceptionEvent(e, room.localTimezone));
+        return room.calendarExceptionEvents.map((e) => this.formatExceptionEvent(e, room.localTimezone));
     }
 
     getEarliestOpening(room: ExamRoom): Date {
@@ -197,5 +163,39 @@ export class CalendarService {
         const weekdays = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
         const openedDays = room.defaultWorkingHours.map((dwh) => weekdays.indexOf(dwh.weekday));
         return [0, 1, 2, 3, 4, 5, 6].filter((x) => openedDays.indexOf(x) === -1);
+    }
+
+    private adjustBack(date: Date, tz: string): string {
+        const adjusted = zonedTimeToUtc(date, tz);
+        const offset = this.DateTime.isDST(adjusted) ? 1 : 0;
+        return utcToZonedTime(addHours(adjusted, offset), tz).toISOString();
+    }
+
+    private reserveInternal$ = (slot: Slot, accs: Accessibility[], collaborative: boolean): Observable<void> => {
+        slot.aids = accs.map((item) => item.id);
+        const url = collaborative ? '/app/iop/calendar/reservation' : '/app/calendar/reservation';
+        return this.http.post<void>(url, slot);
+    };
+
+    private reserveExternal$ = (slot: Slot, collaborative = false) => {
+        const url = collaborative ? '/app/iop/calendar/external/reservation' : '/app/iop/reservations/external';
+        return this.http.post<void>(url, slot);
+    };
+
+    private findOpeningHours = (dwh: DefaultWorkingHours, items: OpeningHours[]) =>
+        items.find((i) => i.ref === dwh.weekday);
+
+    private formatExceptionEvent(
+        event: ExceptionWorkingHours,
+        tz: string,
+    ): ExceptionWorkingHours & { start: string; end: string; description: string } {
+        const startDate = zonedTimeToUtc(parseISO(event.startDate), tz);
+        const endDate = zonedTimeToUtc(parseISO(event.endDate), tz);
+        return {
+            ...event,
+            start: format(startDate, 'dd.MM.yyyy HH:mm'),
+            end: format(endDate, 'dd.MM.yyyy HH:mm'),
+            description: event.outOfService ? 'sitnet_closed' : 'sitnet_open',
+        };
     }
 }

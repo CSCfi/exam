@@ -74,21 +74,6 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
         private Files: FileService,
     ) {}
 
-    private refresh = () => {
-        this.getNoShows();
-        this.calculateGradeDistribution();
-        this.renderGradeDistributionChart();
-        this.calculateExaminationTimeValues();
-        this.renderExaminationTimeDistributionChart();
-        this.gradedCount = this.reviews.filter((r) => r.exam.gradedTime).length;
-        this.abortedExams = this.ReviewList.filterByStateAndEnhance(['ABORTED'], this.reviews, this.collaborative);
-        this.calculateGradeTimeValues();
-        this.renderGradeTimeChart();
-        this.calculateQuestionData();
-        this.renderQuestionScoreChart();
-        this.renderApprovalRateChart();
-    };
-
     ngOnInit() {
         this.refresh();
         // Had to manually update chart locales
@@ -219,43 +204,6 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
         this.gradeTimeData = this.reviews
             .sort((a, b) => (this.getDurationAsMillis(a.duration) > this.getDurationAsMillis(b.duration) ? 1 : -1))
             .map((r) => ({ x: String(this.getDurationAsMinutes(r.duration)), y: r.exam.totalScore }));
-    };
-
-    private median = (...xs: number[]) => {
-        const sz = xs.length;
-        const sorted = xs.sort();
-        return sz % 2 == 1 ? sorted[Math.floor(sz / 2)] : (sorted[Math.floor(sz / 2 - 1)] + sorted[sz / 2]) / 2;
-    };
-
-    private groupBy = <T>(xs: T[], fn: (x: T) => string) =>
-        xs.map(fn).reduce((acc, x, i) => {
-            acc[x] = (acc[x] || []).concat(xs[i]);
-            return acc;
-        }, {} as { [k: string]: T[] });
-
-    private calculateQuestionData = () => {
-        const sectionQuestions = this.reviews
-            .map((r) => r.exam)
-            .flatMap((e) => e.examSections)
-            .flatMap((es) => es.sectionQuestions);
-        const mapped = this.groupBy(sectionQuestions, (sq) => (sq.question.parent as Question).id.toString());
-        this.questionScoreData = Object.entries(mapped)
-            .map((e) => ({
-                question: e[0],
-                max: this.Question.calculateMaxScore(e[1][0]), // hope this is ok
-                scores: e[1].map((sq) => this.Question.calculateAnswerScore(sq)).filter((s) => s != null),
-            }))
-            .map((e) => ({
-                question: e.question,
-                max: e.max,
-                avg:
-                    e.scores.reduce((a, b) => {
-                        const score = a + (b ? b.score : 0);
-                        return score;
-                    }, 0) / e.scores.length,
-                median: this.median(...e.scores.map((s) => (s ? s.score : 0))),
-                approvalRate: e.scores.filter((s) => s?.approved || (s && s.score > 0)).length / e.scores.length,
-            }));
     };
 
     calculateExaminationTimeValues = () => {
@@ -535,5 +483,57 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
             }),
             {},
         );
+    };
+
+    private refresh = () => {
+        this.getNoShows();
+        this.calculateGradeDistribution();
+        this.renderGradeDistributionChart();
+        this.calculateExaminationTimeValues();
+        this.renderExaminationTimeDistributionChart();
+        this.gradedCount = this.reviews.filter((r) => r.exam.gradedTime).length;
+        this.abortedExams = this.ReviewList.filterByStateAndEnhance(['ABORTED'], this.reviews, this.collaborative);
+        this.calculateGradeTimeValues();
+        this.renderGradeTimeChart();
+        this.calculateQuestionData();
+        this.renderQuestionScoreChart();
+        this.renderApprovalRateChart();
+    };
+
+    private median = (...xs: number[]) => {
+        const sz = xs.length;
+        const sorted = xs.sort();
+        return sz % 2 == 1 ? sorted[Math.floor(sz / 2)] : (sorted[Math.floor(sz / 2 - 1)] + sorted[sz / 2]) / 2;
+    };
+
+    private groupBy = <T>(xs: T[], fn: (x: T) => string) =>
+        xs.map(fn).reduce((acc, x, i) => {
+            acc[x] = (acc[x] || []).concat(xs[i]);
+            return acc;
+        }, {} as { [k: string]: T[] });
+
+    private calculateQuestionData = () => {
+        const sectionQuestions = this.reviews
+            .map((r) => r.exam)
+            .flatMap((e) => e.examSections)
+            .flatMap((es) => es.sectionQuestions);
+        const mapped = this.groupBy(sectionQuestions, (sq) => (sq.question.parent as Question).id.toString());
+        this.questionScoreData = Object.entries(mapped)
+            .map((e) => ({
+                question: e[0],
+                max: this.Question.calculateMaxScore(e[1][0]), // hope this is ok
+                scores: e[1].map((sq) => this.Question.calculateAnswerScore(sq)).filter((s) => s != null),
+            }))
+            .map((e) => ({
+                question: e.question,
+                max: e.max,
+                avg:
+                    e.scores.reduce((a, b) => {
+                        const score = a + (b ? b.score : 0);
+                        return score;
+                    }, 0) / e.scores.length,
+                median: this.median(...e.scores.map((s) => (s ? s.score : 0))),
+                approvalRate: e.scores.filter((s) => s?.approved || (s && s.score > 0)).length / e.scores.length,
+            }));
     };
 }

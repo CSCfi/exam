@@ -51,17 +51,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         private DateTime: DateTimeService,
     ) {}
 
-    private getRoomInstructions = (lang: string, room: ExamRoom) => {
-        switch (lang) {
-            case 'FI':
-                return room.roomInstruction;
-            case 'SV':
-                return room.roomInstructionSV;
-            default:
-                return room.roomInstructionEN;
-        }
-    };
-
     ngOnInit() {
         if (this.routing.params.id && this.routing.params.hash) {
             this.isUpcoming = true;
@@ -88,6 +77,17 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.Window.nativeWindow.clearTimeout(this.timeoutId);
     }
+
+    private getRoomInstructions = (lang: string, room: ExamRoom) => {
+        switch (lang) {
+            case 'FI':
+                return room.roomInstruction;
+            case 'SV':
+                return room.roomInstructionSV;
+            default:
+                return room.roomInstructionEN;
+        }
+    };
 
     private setOccasion = (reservation: WaitingReservation) => {
         if (!reservation) {

@@ -144,35 +144,6 @@ export class ExamPublicationComponent implements OnInit {
         this.exam.gradeScale &&
         this.exam.executionType.type !== 'MATURITY';
 
-    private updateExam$ = (silent?: boolean, overrides?: Record<string, string>): Observable<Exam> => {
-        const config = {
-            evaluationConfig:
-                this.autoEvaluation.enabled && this.canBeAutoEvaluated()
-                    ? {
-                          releaseType: this.exam.autoEvaluationConfig?.releaseType,
-                          releaseDate: this.exam.autoEvaluationConfig?.releaseDate
-                              ? new Date(this.exam.autoEvaluationConfig.releaseDate).getTime()
-                              : null,
-                          amountDays: this.exam.autoEvaluationConfig?.amountDays,
-                          gradeEvaluations: this.exam.autoEvaluationConfig?.gradeEvaluations,
-                      }
-                    : null,
-        };
-
-        Object.assign(config, overrides);
-        return this.Exam.updateExam$(this.exam, config, this.collaborative).pipe(
-            tap(() => {
-                if (!silent) {
-                    this.toast.info(this.translate.instant('sitnet_exam_saved'));
-                }
-            }),
-            catchError((err) => {
-                this.toast.error(err);
-                return throwError(() => new Error(err));
-            }),
-        );
-    };
-
     updateExam = () => this.updateExam$().subscribe();
 
     setExamDuration = (hours?: number, minutes?: number) => {
@@ -352,6 +323,38 @@ export class ExamPublicationComponent implements OnInit {
             .catch((err) => this.toast.error(err));
     };
 
+    sortByString = (prop: ExaminationEventConfiguration[]): Array<ExaminationEventConfiguration> =>
+        prop.sort((a, b) => Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start));
+
+    private updateExam$ = (silent?: boolean, overrides?: Record<string, string>): Observable<Exam> => {
+        const config = {
+            evaluationConfig:
+                this.autoEvaluation.enabled && this.canBeAutoEvaluated()
+                    ? {
+                          releaseType: this.exam.autoEvaluationConfig?.releaseType,
+                          releaseDate: this.exam.autoEvaluationConfig?.releaseDate
+                              ? new Date(this.exam.autoEvaluationConfig.releaseDate).getTime()
+                              : null,
+                          amountDays: this.exam.autoEvaluationConfig?.amountDays,
+                          gradeEvaluations: this.exam.autoEvaluationConfig?.gradeEvaluations,
+                      }
+                    : null,
+        };
+
+        Object.assign(config, overrides);
+        return this.Exam.updateExam$(this.exam, config, this.collaborative).pipe(
+            tap(() => {
+                if (!silent) {
+                    this.toast.info(this.translate.instant('sitnet_exam_saved'));
+                }
+            }),
+            catchError((err) => {
+                this.toast.error(err);
+                return throwError(() => new Error(err));
+            }),
+        );
+    };
+
     private isAllowedToUnpublishOrRemove = () =>
         // allowed if no upcoming reservations and if no one has taken this yet
         !this.exam.hasEnrolmentsInEffect && this.exam.children.length === 0;
@@ -441,11 +444,5 @@ export class ExamPublicationComponent implements OnInit {
             errors.push('sitnet_missing_examination_event_configurations');
         }
         return errors.map((e) => this.translate.instant(e));
-    }
-
-    sortByString(prop: ExaminationEventConfiguration[]): Array<ExaminationEventConfiguration> {
-        return prop.sort((a, b) => {
-            return Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start);
-        });
     }
 }

@@ -78,24 +78,6 @@ const blocksForDay = (week: Week, day: Weekday) => {
 export class RoomService {
     times = [''];
 
-    constructor(
-        private http: HttpClient,
-        private ngbModal: NgbModal,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private dialogs: ConfirmationDialogService,
-        private DateTime: DateTimeService,
-    ) {
-        for (let i = 0; i <= 24; ++i) {
-            if (i > 0) {
-                this.times.push(i + ':00');
-            }
-            if (i < 24) {
-                this.times.push(i + ':30');
-            }
-        }
-    }
-
     week = {
         MONDAY: Array(...new Array(48)).map((x, i) => {
             return { index: i, type: '' };
@@ -119,6 +101,24 @@ export class RoomService {
             return { index: i, type: '' };
         }),
     };
+
+    constructor(
+        private http: HttpClient,
+        private ngbModal: NgbModal,
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private dialogs: ConfirmationDialogService,
+        private DateTime: DateTimeService,
+    ) {
+        for (let i = 0; i <= 24; ++i) {
+            if (i > 0) {
+                this.times.push(i + ':00');
+            }
+            if (i < 24) {
+                this.times.push(i + ':30');
+            }
+        }
+    }
 
     roomsApi = (id?: number) => (id ? `/app/rooms/${id}` : '/app/rooms');
     addressApi = (id: number) => `/app/address/${id}`;
@@ -155,9 +155,6 @@ export class RoomService {
     updateExceptions$ = (roomIds: number[], exception: ExceptionWorkingHours) =>
         this.http.put<ExceptionWorkingHours>(this.exceptionsApi(), { roomIds, exception });
 
-    private removeException$ = (roomId: number, exceptionId: number) =>
-        this.http.delete<void>(this.exceptionApi(roomId, exceptionId), { responseType: 'text' as 'json' });
-
     getDraft$ = () => this.http.get<ExamRoom>(this.draftApi());
 
     isAnyExamMachines = (room: ExamRoom) => room.examMachines && room.examMachines.length > 0;
@@ -182,21 +179,9 @@ export class RoomService {
         return true;
     };
 
-    getTimes = () => {
-        return cloneDeep(this.times);
-    };
+    getTimes = () => cloneDeep(this.times);
 
-    getWeek = () => {
-        return cloneDeep(this.week);
-    };
-
-    private formatTime = (time: string) => {
-        const hours = this.DateTime.isDST(new Date()) ? 1 : 0;
-        return format(
-            setMinutes(setHours(new Date(), parseInt(time.split(':')[0]) + hours), parseInt(time.split(':')[1])),
-            'dd.MM.yyyy HH:mmXXX',
-        );
-    };
+    getWeek = () => cloneDeep(this.week);
 
     disableRoom = (room: ExamRoom) => {
         const dialog = this.dialogs.open(
@@ -237,7 +222,7 @@ export class RoomService {
             });
         });
 
-    openExceptionDialog = (callBack: (exception: ExceptionWorkingHours) => void) => {
+    openExceptionDialog = (callBack: (exception: ExceptionWorkingHours) => void) =>
         this.ngbModal
             .open(ExceptionDialogComponent, {
                 backdrop: 'static',
@@ -248,7 +233,6 @@ export class RoomService {
             })
             // eslint-disable-next-line @typescript-eslint/no-empty-function
             .catch(() => {});
-    };
 
     deleteException = (roomId: number, exceptionId: number) =>
         new Promise<void>((resolve, reject) => {
@@ -319,4 +303,15 @@ export class RoomService {
     updateMaintenancePeriod$ = (period: MaintenancePeriod) => this.http.put(`/app/maintenance/${period.id}`, period);
     removeMaintenancePeriod$ = (period: MaintenancePeriod) => this.http.delete(`/app/maintenance/${period.id}`);
     examVisit = () => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit');
+
+    private removeException$ = (roomId: number, exceptionId: number) =>
+        this.http.delete<void>(this.exceptionApi(roomId, exceptionId), { responseType: 'text' as 'json' });
+
+    private formatTime = (time: string) => {
+        const hours = this.DateTime.isDST(new Date()) ? 1 : 0;
+        return format(
+            setMinutes(setHours(new Date(), parseInt(time.split(':')[0]) + hours), parseInt(time.split(':')[1])),
+            'dd.MM.yyyy HH:mmXXX',
+        );
+    };
 }

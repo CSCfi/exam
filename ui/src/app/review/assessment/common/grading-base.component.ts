@@ -28,24 +28,28 @@ export abstract class GradingBaseComponent {
         };
     }
 
-    protected abstract getExam(): Exam;
-
-    private resolveGradeScale = (): GradeScale => {
-        const exam: Exam = this.getExam();
-        if (exam.gradeScale) {
-            return exam.gradeScale;
-        } else if (exam.parent?.gradeScale) {
-            return exam.parent.gradeScale;
-        } else if (exam?.course?.gradeScale) {
-            return exam.course.gradeScale;
+    setGrade = () => {
+        const exam = this.getExam();
+        if (this.selections.grade && (isRealGrade(this.selections.grade) || this.selections.grade.type === 'NONE')) {
+            exam.grade = this.selections.grade;
+            exam.gradeless = this.selections.grade.type === 'NONE';
         } else {
-            throw Error('No GradeScale for Assessment!');
+            delete exam.grade;
+            exam.gradeless = false;
         }
     };
 
-    private _setGrade = (grade: SelectableGrade) => {
-        this.selections.grade = grade;
+    setCreditType = () => {
+        const exam = this.getExam();
+        if (this.selections.type && this.selections.type.type) {
+            exam.creditType = this.selections.type;
+        } else {
+            delete exam.creditType;
+        }
     };
+
+    setLanguage = () =>
+        (this.getExam().answerLanguage = this.selections.language ? this.selections.language.code : undefined);
 
     protected initGrade = () => {
         const scale = this.resolveGradeScale();
@@ -107,26 +111,22 @@ export abstract class GradingBaseComponent {
         });
     };
 
-    setGrade = () => {
-        const exam = this.getExam();
-        if (this.selections.grade && (isRealGrade(this.selections.grade) || this.selections.grade.type === 'NONE')) {
-            exam.grade = this.selections.grade;
-            exam.gradeless = this.selections.grade.type === 'NONE';
+    private resolveGradeScale = (): GradeScale => {
+        const exam: Exam = this.getExam();
+        if (exam.gradeScale) {
+            return exam.gradeScale;
+        } else if (exam.parent?.gradeScale) {
+            return exam.parent.gradeScale;
+        } else if (exam?.course?.gradeScale) {
+            return exam.course.gradeScale;
         } else {
-            delete exam.grade;
-            exam.gradeless = false;
+            throw Error('No GradeScale for Assessment!');
         }
     };
 
-    setCreditType = () => {
-        const exam = this.getExam();
-        if (this.selections.type && this.selections.type.type) {
-            exam.creditType = this.selections.type;
-        } else {
-            delete exam.creditType;
-        }
+    private _setGrade = (grade: SelectableGrade) => {
+        this.selections.grade = grade;
     };
 
-    setLanguage = () =>
-        (this.getExam().answerLanguage = this.selections.language ? this.selections.language.code : undefined);
+    protected abstract getExam(): Exam;
 }

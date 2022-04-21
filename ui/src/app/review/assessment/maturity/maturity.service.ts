@@ -51,15 +51,26 @@ type States = {
 
 @Injectable()
 export class MaturityService {
+    constructor(
+        private http: HttpClient,
+        private state: StateService,
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Confirmation: ConfirmationDialogService,
+        private Assessment: AssessmentService,
+        private Session: SessionService,
+    ) {}
+
     isMissingStatement = (exam: Exam) => {
         if (!this.isUnderLanguageInspection(exam)) {
             return false;
         }
         return !exam.languageInspection?.statement?.comment;
     };
-    private canFinalizeInspection = (exam: Exam): boolean =>
+    canFinalizeInspection = (exam: Exam): boolean =>
         exam.languageInspection?.statement?.comment ? exam.languageInspection.statement.comment.length > 0 : false;
 
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     MATURITY_STATES: States = {
         [StateName.NOT_REVIEWED]: {
             id: 1,
@@ -119,19 +130,6 @@ export class MaturityService {
         },
     };
 
-    constructor(
-        private http: HttpClient,
-        private state: StateService,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private Confirmation: ConfirmationDialogService,
-        private Assessment: AssessmentService,
-        private Session: SessionService,
-    ) {}
-
-    private isUnderLanguageInspection = (exam: Exam) =>
-        this.Session.getUser().isLanguageInspector && exam.languageInspection && !exam.languageInspection.finishedAt;
-
     isMissingFeedback = (exam: Exam) => !exam.examFeedback || !exam.examFeedback.comment;
 
     isAwaitingInspection = (exam: Exam) => exam.languageInspection && !exam.languageInspection.finishedAt;
@@ -147,25 +145,6 @@ export class MaturityService {
         return this.http
             .put<LanguageInspection>(`/app/inspection/${inspection.id}/statement`, statement)
             .pipe(tap((li) => Object.assign(exam.languageInspection?.statement, { id: li.id })));
-    };
-
-    private getNextStateName = (exam: Exam): StateName => {
-        if (!this.isGraded(exam)) {
-            return StateName.NOT_REVIEWED;
-        }
-        if (this.isMissingFeedback(exam)) {
-            return StateName.MISSING_STATEMENT;
-        }
-        if (this.isUnderLanguageInspection(exam)) {
-            return StateName.APPROVE_LANGUAGE;
-        }
-        if (this.isAwaitingInspection(exam)) {
-            return StateName.AWAIT_INSPECTION;
-        }
-        const grade = exam.grade;
-        const disapproved = (!grade && !exam.gradeless) || grade?.marksRejection;
-
-        return disapproved ? StateName.REJECT_STRAIGHTAWAY : StateName.LANGUAGE_INSPECT;
     };
 
     getNextState = (exam: Exam): State => {
@@ -206,6 +185,28 @@ export class MaturityService {
                 // Nothing to do
                 break;
         }
+    };
+
+    private isUnderLanguageInspection = (exam: Exam) =>
+        this.Session.getUser().isLanguageInspector && exam.languageInspection && !exam.languageInspection.finishedAt;
+
+    private getNextStateName = (exam: Exam): StateName => {
+        if (!this.isGraded(exam)) {
+            return StateName.NOT_REVIEWED;
+        }
+        if (this.isMissingFeedback(exam)) {
+            return StateName.MISSING_STATEMENT;
+        }
+        if (this.isUnderLanguageInspection(exam)) {
+            return StateName.APPROVE_LANGUAGE;
+        }
+        if (this.isAwaitingInspection(exam)) {
+            return StateName.AWAIT_INSPECTION;
+        }
+        const grade = exam.grade;
+        const disapproved = (!grade && !exam.gradeless) || grade?.marksRejection;
+
+        return disapproved ? StateName.REJECT_STRAIGHTAWAY : StateName.LANGUAGE_INSPECT;
     };
 
     private sendForLanguageInspection = (exam: Exam) =>

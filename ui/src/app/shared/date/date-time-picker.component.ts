@@ -50,15 +50,6 @@ export class DateTimePickerComponent implements OnInit {
     date: Date = new Date();
     time!: { hour: number; minute: number; second: number; millisecond?: number };
 
-    private setDateTime = (dt: Date) => {
-        this.date.setFullYear(dt.getFullYear());
-        this.date.setMonth(dt.getMonth(), dt.getDate());
-        this.time.hour = dt.getHours();
-        this.time.minute = dt.getMinutes();
-        this.time.second = 0;
-        this.time.millisecond = 0;
-    };
-
     ngOnInit() {
         const now = new Date();
         this.time = { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() };
@@ -87,4 +78,13 @@ export class DateTimePickerComponent implements OnInit {
         this.date.setMilliseconds(0);
         this.updated.emit({ date: this.date });
     }
+
+    private setDateTime = (dt: Date) => {
+        this.date.setFullYear(dt.getFullYear());
+        this.date.setMonth(dt.getMonth(), dt.getDate());
+        this.time.hour = dt.getHours();
+        this.time.minute = dt.getMinutes();
+        this.time.second = 0;
+        this.time.millisecond = 0;
+    };
 }

@@ -43,12 +43,6 @@ export class DatePickerI18n extends NgbDatepickerI18n {
         super();
     }
 
-    private getTranslation = (options: Intl.DateTimeFormatOptions, ord: number, fn: (n: number) => Date): string => {
-        const lang = this.translate.currentLang;
-        const locale = `${lang.toLowerCase()}-${lang.toUpperCase()}`;
-        return fn(ord).toLocaleDateString(locale, options);
-    };
-
     getWeekdayShortName = (weekday: number): string =>
         this.getTranslation({ weekday: 'short' }, weekday, this.DateTime.getDateForWeekday);
     getMonthShortName = (month: number): string =>
@@ -57,6 +51,12 @@ export class DatePickerI18n extends NgbDatepickerI18n {
         this.getTranslation({ month: 'long' }, month - 1, this.DateTime.getDateForMonth);
     getDayAriaLabel = (date: NgbDateStruct): string => new Date(date.year, date.month - 1, date.day).toISOString();
     getWeekdayLabel = (weekday: number): string => this.getWeekdayShortName(weekday);
+
+    private getTranslation = (options: Intl.DateTimeFormatOptions, ord: number, fn: (n: number) => Date): string => {
+        const lang = this.translate.currentLang;
+        const locale = `${lang.toLowerCase()}-${lang.toUpperCase()}`;
+        return fn(ord).toLocaleDateString(locale, options);
+    };
 }
 @Component({
     selector: 'xm-date-picker',

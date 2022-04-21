@@ -32,14 +32,6 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
 
     constructor(private el: ElementRef) {}
 
-    private getTextNodes = (el: Element) => {
-        const a = [],
-            walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
-        let n;
-        while ((n = walk.nextNode())) a.push(n);
-        return a;
-    };
-
     ngOnInit() {
         const parser = new DOMParser();
         const doc = parser.parseFromString(this.content, 'text/html');
@@ -96,5 +88,13 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
     handleInputChange = (event: { target: HTMLInputElement }) => {
         const { id, value } = event.target;
         this.answerChanged.emit({ id, value });
+    };
+
+    private getTextNodes = (el: Element) => {
+        const a = [],
+            walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+        let n;
+        while ((n = walk.nextNode())) a.push(n);
+        return a;
     };
 }

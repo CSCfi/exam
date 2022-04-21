@@ -80,6 +80,22 @@ export class QuestionAssessmentComponent implements OnInit {
 
     isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 
+    saveAssessments = (answers: ReviewQuestion[]) =>
+        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = cloneDeep(this.reviews)));
+
+    downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
+
+    setSelectedReview = (review: QuestionReview) => {
+        this.selectedReview = { ...review, expanded: true };
+        this.assessedAnswers = this.selectedReview.answers.filter(
+            (a) => a.essayAnswer && isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
+        );
+        this.unassessedAnswers = this.selectedReview.answers.filter(
+            (a) => !a.essayAnswer || (!isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
+        );
+        this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);
+    };
+
     private saveEvaluation = (answer: ReviewQuestion) => {
         return new Promise<void>((resolve) => {
             answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
@@ -111,22 +127,6 @@ export class QuestionAssessmentComponent implements OnInit {
                     resolve();
                 };
         });
-    };
-
-    saveAssessments = (answers: ReviewQuestion[]) =>
-        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = cloneDeep(this.reviews)));
-
-    downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
-
-    setSelectedReview = (review: QuestionReview) => {
-        this.selectedReview = { ...review, expanded: true };
-        this.assessedAnswers = this.selectedReview.answers.filter(
-            (a) => a.essayAnswer && isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
-        );
-        this.unassessedAnswers = this.selectedReview.answers.filter(
-            (a) => !a.essayAnswer || (!isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
-        );
-        this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);
     };
 
     private isLocked = (answer: ReviewQuestion) => {

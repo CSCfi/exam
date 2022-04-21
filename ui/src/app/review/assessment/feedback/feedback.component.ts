@@ -110,24 +110,6 @@ export class FeedbackComponent {
         }
     };
 
-    private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
-
-    private _saveCollaborativeFeedback$ = () =>
-        this.CollaborativeAssessment.saveFeedback$(this.routing.params.id, this.routing.params.ref, this.participation);
-
-    private _upload = (res: FileResult, url: string) =>
-        this.Files.upload(
-            url,
-            res.$value.attachmentFile,
-            { examId: this.exam.id.toString() },
-            this.exam.examFeedback,
-            () => {
-                // kinda hacky, but let's do this mangling for time being
-                this.participation._rev = this.exam.examFeedback?.attachment?.rev;
-                delete this.exam.examFeedback?.attachment?.rev;
-            },
-        );
-
     selectFile = () => {
         this.Attachment.selectFile(false, {}).then((res: FileResult) => {
             if (this.collaborative) {
@@ -165,4 +147,22 @@ export class FeedbackComponent {
             this.Attachment.removeFeedbackAttachment(this.exam);
         }
     };
+
+    private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
+
+    private _saveCollaborativeFeedback$ = () =>
+        this.CollaborativeAssessment.saveFeedback$(this.routing.params.id, this.routing.params.ref, this.participation);
+
+    private _upload = (res: FileResult, url: string) =>
+        this.Files.upload(
+            url,
+            res.$value.attachmentFile,
+            { examId: this.exam.id.toString() },
+            this.exam.examFeedback,
+            () => {
+                // kinda hacky, but let's do this mangling for time being
+                this.participation._rev = this.exam.examFeedback?.attachment?.rev;
+                delete this.exam.examFeedback?.attachment?.rev;
+            },
+        );
 }

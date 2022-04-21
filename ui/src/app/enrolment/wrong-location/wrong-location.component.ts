@@ -48,17 +48,6 @@ export class WrongLocationComponent implements OnInit {
         private DateTime: DateTimeService,
     ) {}
 
-    private getRoomInstructions = (lang: string, room: ExamRoom) => {
-        switch (lang) {
-            case 'FI':
-                return room.roomInstruction;
-            case 'SV':
-                return room.roomInstructionSV;
-            default:
-                return room.roomInstructionEN;
-        }
-    };
-
     ngOnInit() {
         if (this.routing.params.eid) {
             this.isUpcoming = true;
@@ -83,6 +72,18 @@ export class WrongLocationComponent implements OnInit {
     }
 
     printExamDuration = () => this.DateTime.printExamDuration(this.enrolment.exam);
+    showInstructions = () => this.Enrolment.showInstructions(this.enrolment);
+
+    private getRoomInstructions = (lang: string, room: ExamRoom) => {
+        switch (lang) {
+            case 'FI':
+                return room.roomInstruction;
+            case 'SV':
+                return room.roomInstructionSV;
+            default:
+                return room.roomInstructionEN;
+        }
+    };
 
     private setOccasion = (reservation: Reservation) => {
         const tz = reservation.machine.room.localTimezone;
@@ -99,6 +100,4 @@ export class WrongLocationComponent implements OnInit {
             endAt: format(end, 'HH:mm'),
         };
     };
-
-    showInstructions = () => this.Enrolment.showInstructions(this.enrolment);
 }

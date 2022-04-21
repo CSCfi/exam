@@ -38,12 +38,6 @@ export class ExamMaterialSelectorComponent implements OnInit {
 
     constructor(private http: HttpClient, private modal: NgbModal, private toast: ToastrService) {}
 
-    private filterOutExisting = () => {
-        this.materials = this.allMaterials.filter(
-            (m) => this.section.examMaterials.map((em) => em.id).indexOf(m.id) == -1,
-        );
-    };
-
     ngOnInit() {
         this.filterOutExisting();
     }
@@ -54,19 +48,17 @@ export class ExamMaterialSelectorComponent implements OnInit {
         }
     };
 
-    selectMaterial(event: NgbTypeaheadSelectItemEvent) {
-        this.selectedMaterial = event.item;
-    }
+    selectMaterial = (event: NgbTypeaheadSelectItemEvent) => (this.selectedMaterial = event.item);
 
-    filterMaterials$ = (text$: Observable<string>): Observable<ExamMaterial[]> => {
-        return text$.pipe(
+    filterMaterials$ = (text$: Observable<string>): Observable<ExamMaterial[]> =>
+        text$.pipe(
             distinctUntilChanged(),
             map((t) => {
                 const re = new RegExp(t, 'i');
                 return this.materials.filter((m) => m.name.match(re));
             }),
         );
-    };
+
     nameFormat = (m: ExamMaterial) => m.name;
 
     addMaterial = () => {
@@ -82,7 +74,7 @@ export class ExamMaterialSelectorComponent implements OnInit {
         });
     };
 
-    removeMaterial = (material: ExamMaterial) => {
+    removeMaterial = (material: ExamMaterial) =>
         this.http.delete(`/app/materials/${material.id}/${this.section.id}`).subscribe({
             next: () => {
                 this.section.examMaterials.splice(this.section.examMaterials.indexOf(material), 1);
@@ -90,9 +82,8 @@ export class ExamMaterialSelectorComponent implements OnInit {
             },
             error: (err) => this.toast.error(err),
         });
-    };
 
-    openMaterialEditor = () => {
+    openMaterialEditor = () =>
         this.modal
             .open(ExamMaterialComponent, {
                 backdrop: 'static',
@@ -103,5 +94,9 @@ export class ExamMaterialSelectorComponent implements OnInit {
                 // this.filterOutExisting();
                 this.changed.emit(),
             );
-    };
+
+    private filterOutExisting = () =>
+        (this.materials = this.allMaterials.filter(
+            (m) => this.section.examMaterials.map((em) => em.id).indexOf(m.id) == -1,
+        ));
 }

@@ -23,13 +23,13 @@ import type { ExamMaterial } from '../../exam.model';
     templateUrl: './exam-material.component.html',
 })
 export class ExamMaterialComponent implements OnInit {
-    constructor(private activeModal: NgbActiveModal, private http: HttpClient, private toast: ToastrService) {}
-
     materials: ExamMaterial[] = [];
     filteredMaterials: ExamMaterial[] = [];
     newMaterial: Partial<ExamMaterial> = {};
     filter = '';
     materialsChanged = false;
+
+    constructor(private activeModal: NgbActiveModal, private http: HttpClient, private toast: ToastrService) {}
 
     ngOnInit() {
         this.http

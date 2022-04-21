@@ -45,22 +45,6 @@ export class EnrolmentService {
         private Session: SessionService,
     ) {}
 
-    private getMaturityInstructions = (exam: Exam): Observable<string> => {
-        if (exam.executionType.type !== 'MATURITY') {
-            return of('');
-        }
-        if (exam.examLanguages.length !== 1) {
-            console.warn('Exam has no exam languages or it has several!');
-        }
-        const lang = exam.examLanguages.length > 0 ? exam.examLanguages[0].code : 'fi';
-        return this.http
-            .get<{ value: string }>(`/app/settings/maturityInstructions?lang=${lang}`)
-            .pipe(map((data) => data.value));
-    };
-
-    private getResource = (path: string, collaborative: boolean) =>
-        (collaborative ? '/app/iop/enrolments/' : '/app/enrolments/') + path;
-
     selectExaminationEvent = (exam: Exam, enrolment: ExamEnrolment, nextState?: string) => {
         const modalRef = this.ngbModal.open(SelectExaminationEventDialogComponent, {
             backdrop: 'static',
@@ -195,27 +179,6 @@ export class EnrolmentService {
             ),
         );
 
-    private check$ = (info: EnrolmentInfo): Observable<EnrolmentInfo> =>
-        this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${info.id}`).pipe(
-            map((resp) => {
-                if (resp.length > 0) {
-                    info.alreadyEnrolled = true;
-                    info.reservationMade = resp.some((e) => isObject(e.reservation));
-                } else {
-                    info.alreadyEnrolled = info.reservationMade = false;
-                }
-                return info;
-            }),
-            catchError(() => {
-                info.alreadyEnrolled = false;
-                info.reservationMade = false;
-                return of(info);
-            }),
-        );
-
-    private checkEnrolments$ = (infos: EnrolmentInfo[]): Observable<EnrolmentInfo[]> =>
-        forkJoin(infos.map(this.check$));
-
     listEnrolments$ = (code: string, id: number): Observable<EnrolmentInfo[]> =>
         this.http.get<Exam[]>(`/app/enrolments?code=${code}`).pipe(
             map((resp) =>
@@ -265,8 +228,6 @@ export class EnrolmentService {
             });
         });
     };
-
-    private isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
 
     setCommentRead = (exam: Exam | ReviewedExam) => {
         if (!this.isCommentRead(exam)) {
@@ -331,4 +292,43 @@ export class EnrolmentService {
             this.State.go(enrolment.collaborativeExam ? 'collaborativeCalendar' : 'calendar', params);
         }
     };
+
+    private getMaturityInstructions = (exam: Exam): Observable<string> => {
+        if (exam.executionType.type !== 'MATURITY') {
+            return of('');
+        }
+        if (exam.examLanguages.length !== 1) {
+            console.warn('Exam has no exam languages or it has several!');
+        }
+        const lang = exam.examLanguages.length > 0 ? exam.examLanguages[0].code : 'fi';
+        return this.http
+            .get<{ value: string }>(`/app/settings/maturityInstructions?lang=${lang}`)
+            .pipe(map((data) => data.value));
+    };
+
+    private getResource = (path: string, collaborative: boolean) =>
+        (collaborative ? '/app/iop/enrolments/' : '/app/enrolments/') + path;
+
+    private check$ = (info: EnrolmentInfo): Observable<EnrolmentInfo> =>
+        this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${info.id}`).pipe(
+            map((resp) => {
+                if (resp.length > 0) {
+                    info.alreadyEnrolled = true;
+                    info.reservationMade = resp.some((e) => isObject(e.reservation));
+                } else {
+                    info.alreadyEnrolled = info.reservationMade = false;
+                }
+                return info;
+            }),
+            catchError(() => {
+                info.alreadyEnrolled = false;
+                info.reservationMade = false;
+                return of(info);
+            }),
+        );
+
+    private checkEnrolments$ = (infos: EnrolmentInfo[]): Observable<EnrolmentInfo[]> =>
+        forkJoin(infos.map(this.check$));
+
+    private isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
 }

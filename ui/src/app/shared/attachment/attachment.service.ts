@@ -42,38 +42,11 @@ export class AttachmentService {
         private Files: FileService,
     ) {}
 
-    private questionAttachmentApi = (id: number) => `/app/attachment/question/${id}`;
-    private collaborativeQuestionAttachmentApi = (eid: number, qid: number) =>
-        `/app/iop/collab/attachment/exam/${eid}/question/${qid}`;
-    private answerAttachmentApi = (qid: number) => `/app/attachment/question/${qid}/answer`;
-    private externalAnswerAttachmentApi = (qid: number, hash: string) =>
-        `/app/iop/attachment/question/${qid}/answer/${hash}`;
-    private examAttachmentApi = (id: number) => `/app/attachment/exam/${id}`;
-    private collaborativeExamAttachmentApi = (id: number) => `/app/iop/collab/attachment/exam/${id}`;
-    private feedbackAttachmentApi = (id: number) => `/app/attachment/exam/${id}/feedback`;
-    private statementAttachmentApi = (id: number) => `/app/attachment/exam/${id}/statement`;
-
-    private getResource(url: string, external = false, collaborative = false) {
-        return external
-            ? url.replace('/app/', '/app/iop/')
-            : collaborative
-            ? url.replace('/app/', '/app/iop/collab/')
-            : url;
-    }
-
     removeQuestionAttachment(question: Partial<Question>) {
         if (question.attachment) {
             question.attachment.removed = true;
         }
     }
-
-    private toPromise = (observable: Observable<void>) =>
-        new Promise<void>((resolve, reject) => {
-            observable.subscribe({
-                next: () => resolve(),
-                error: (err) => reject(err),
-            });
-        });
 
     eraseQuestionAttachment = (question: Question) =>
         this.toPromise(this.http.delete<void>(this.questionAttachmentApi(question.id)));
@@ -93,23 +66,6 @@ export class AttachmentService {
 
     removeExternalQuestionAnswerAttachment(question: AnsweredQuestion, hash: string) {
         this.removeAnswerAttachment(this.externalAnswerAttachmentApi(question.id, hash), question);
-    }
-
-    private removeAnswerAttachment(url: string, question: AnsweredQuestion) {
-        const dialog = this.dialogs.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
-        );
-        dialog.result.then(() => {
-            this.http.delete<{ objectVersion?: number }>(url, {}).subscribe({
-                next: (resp) => {
-                    this.toast.info(this.translate.instant('sitnet_attachment_removed'));
-                    question.essayAnswer.objectVersion = resp?.objectVersion ? resp.objectVersion : 0;
-                    delete question.essayAnswer.attachment;
-                },
-                error: (err) => this.toast.error(err),
-            });
-        });
     }
 
     removeExamAttachment(exam: Exam, collaborative = false) {
@@ -258,5 +214,49 @@ export class AttachmentService {
         modalRef.componentInstance.isTeacherModal = isTeacherModal;
         modalRef.componentInstance.title = title;
         return modalRef.result;
+    }
+
+    private toPromise = (observable: Observable<void>) =>
+        new Promise<void>((resolve, reject) => {
+            observable.subscribe({
+                next: () => resolve(),
+                error: (err) => reject(err),
+            });
+        });
+
+    private removeAnswerAttachment(url: string, question: AnsweredQuestion) {
+        const dialog = this.dialogs.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_are_you_sure'),
+        );
+        dialog.result.then(() => {
+            this.http.delete<{ objectVersion?: number }>(url, {}).subscribe({
+                next: (resp) => {
+                    this.toast.info(this.translate.instant('sitnet_attachment_removed'));
+                    question.essayAnswer.objectVersion = resp?.objectVersion ? resp.objectVersion : 0;
+                    delete question.essayAnswer.attachment;
+                },
+                error: (err) => this.toast.error(err),
+            });
+        });
+    }
+
+    private questionAttachmentApi = (id: number) => `/app/attachment/question/${id}`;
+    private collaborativeQuestionAttachmentApi = (eid: number, qid: number) =>
+        `/app/iop/collab/attachment/exam/${eid}/question/${qid}`;
+    private answerAttachmentApi = (qid: number) => `/app/attachment/question/${qid}/answer`;
+    private externalAnswerAttachmentApi = (qid: number, hash: string) =>
+        `/app/iop/attachment/question/${qid}/answer/${hash}`;
+    private examAttachmentApi = (id: number) => `/app/attachment/exam/${id}`;
+    private collaborativeExamAttachmentApi = (id: number) => `/app/iop/collab/attachment/exam/${id}`;
+    private feedbackAttachmentApi = (id: number) => `/app/attachment/exam/${id}/feedback`;
+    private statementAttachmentApi = (id: number) => `/app/attachment/exam/${id}/statement`;
+
+    private getResource(url: string, external = false, collaborative = false) {
+        return external
+            ? url.replace('/app/', '/app/iop/')
+            : collaborative
+            ? url.replace('/app/', '/app/iop/collab/')
+            : url;
     }
 }

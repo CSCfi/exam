@@ -63,11 +63,6 @@ export class ReviewListService {
         });
     };
 
-    private diffInMinutes = (from: string, to: string) => {
-        const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
-        return Math.round(diff);
-    };
-
     filterByStateAndEnhance = (states: string[], reviews: ExamParticipation[], collaborative = false): Review[] =>
         reviews
             .filter((r) => states.indexOf(r.exam.state) > -1)
@@ -103,27 +98,11 @@ export class ReviewListService {
         });
     };
 
-    private resetSelections = (scope: Selection, view: string) => {
-        let [prev, next] = [false, false];
-        for (const k in scope) {
-            if (Object.prototype.hasOwnProperty.call(scope, k)) {
-                if (k === view) {
-                    scope[k] = !scope[k];
-                    next = scope[k];
-                } else {
-                    if (scope[k]) {
-                        prev = true;
-                    }
-                    scope[k] = false;
-                }
-            }
-        }
-        return prev && next;
-    };
     selectAll = (scope: Selection, items: Review[]) => {
         const override = this.resetSelections(scope, 'all');
         items.forEach((i) => (i.selected = !i.selected || override));
     };
+
     selectPage = (scope: Selection, items: Review[], selector: string) => {
         const override = this.resetSelections(scope, 'page');
         const boxes = document.querySelectorAll<HTMLInputElement>('.' + selector);
@@ -147,6 +126,35 @@ export class ReviewListService {
             this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
         }
         return objects;
+    };
+
+    sendToArchive$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'ARCHIVED', examId);
+    sendToRegistry$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'GRADED_LOGGED', examId);
+
+    getReviews$ = (examId: number, collaborative = false) =>
+        this.http.get<ExamParticipation[]>(this.getResource(examId, collaborative));
+
+    private diffInMinutes = (from: string, to: string) => {
+        const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
+        return Math.round(diff);
+    };
+
+    private resetSelections = (scope: Selection, view: string) => {
+        let [prev, next] = [false, false];
+        for (const k in scope) {
+            if (Object.prototype.hasOwnProperty.call(scope, k)) {
+                if (k === view) {
+                    scope[k] = !scope[k];
+                    next = scope[k];
+                } else {
+                    if (scope[k]) {
+                        prev = true;
+                    }
+                    scope[k] = false;
+                }
+            }
+        }
+        return prev && next;
     };
 
     private send$ = (review: ExamParticipation, state: string, examId?: number): Observable<ExamParticipation> => {
@@ -176,12 +184,6 @@ export class ReviewListService {
             return of();
         }
     };
-
-    sendToArchive$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'ARCHIVED', examId);
-    sendToRegistry$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'GRADED_LOGGED', examId);
-
-    getReviews$ = (examId: number, collaborative = false) =>
-        this.http.get<ExamParticipation[]>(this.getResource(examId, collaborative));
 
     private getResource = (examId: number, collaborative: boolean) =>
         collaborative ? `/app/iop/reviews/${examId}` : `/app/reviews/${examId}`;

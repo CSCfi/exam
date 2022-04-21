@@ -38,11 +38,6 @@ export class SettingsComponent implements OnInit {
 
     constructor(private translate: TranslateService, private http: HttpClient, private toast: ToastrService) {}
 
-    private onSuccess = () =>
-        this.toast.info(this.translate.instant('sitnet_settings') + ' ' + this.translate.instant('sitnet_updated'));
-
-    private onError = (error: string) => this.toast.error(error);
-
     ngOnInit() {
         this.http.get<AppConfig>('/app/config').subscribe((resp) => {
             this.config = resp;
@@ -65,4 +60,9 @@ export class SettingsComponent implements OnInit {
             .subscribe({ next: this.onSuccess, error: this.onError });
 
     showAttributes = () => this.http.get<string[]>('/attributes').subscribe((resp) => (this.attributes = resp));
+
+    private onSuccess = () =>
+        this.toast.info(this.translate.instant('sitnet_settings') + ' ' + this.translate.instant('sitnet_updated'));
+
+    private onError = (error: string) => this.toast.error(error);
 }

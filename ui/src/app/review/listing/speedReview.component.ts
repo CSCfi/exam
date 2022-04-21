@@ -71,38 +71,6 @@ export class SpeedReviewComponent implements OnInit {
         private DateTime: DateTimeService,
     ) {}
 
-    private resolveGradeScale = (exam: Exam): GradeScale => {
-        if (exam.gradeScale) {
-            return exam.gradeScale;
-        } else if (exam.parent?.gradeScale) {
-            return exam.parent.gradeScale;
-        } else if (exam?.course?.gradeScale) {
-            return exam.course.gradeScale;
-        } else {
-            throw Error('No GradeScale for Assessment!');
-        }
-    };
-
-    private initGrades = (exam: Exam): SelectableGrade[] => {
-        const scale = this.resolveGradeScale(exam);
-        const grades: SelectableGrade[] = scale.grades
-            .map((grade) => {
-                return {
-                    ...grade,
-                    name: this.CommonExam.getExamGradeDisplayName(grade.name),
-                    type: grade.name,
-                };
-            })
-            .filter(isRealGrade);
-        // The "no grade" option
-        const noGrade: NoGrade = {
-            name: this.CommonExam.getExamGradeDisplayName('NONE'),
-            type: 'NONE',
-            marksRejection: false,
-        };
-        return [...grades, noGrade];
-    };
-
     ngOnInit() {
         this.examId = this.routing.params.id;
         this.http
@@ -149,24 +117,6 @@ export class SpeedReviewComponent implements OnInit {
 
     setPredicate = (predicate: string) => (this.reviewPredicate = predicate);
 
-    private getErrors = (review: Review) => {
-        const messages = [];
-        if (!this.isAllowedToGrade(review)) {
-            messages.push('sitnet_error_unauthorized');
-        }
-        const exam = review.examParticipation.exam;
-        if (!exam.creditType && !exam.examType) {
-            messages.push('sitnet_exam_choose_credit_type');
-        }
-        if (!exam.answerLanguage && exam.examLanguages.length !== 1) {
-            messages.push('sitnet_exam_choose_response_language');
-        }
-        return messages;
-    };
-
-    private getAnswerLanguage = (review: Review) =>
-        review.examParticipation.exam.answerLanguage || review.examParticipation.exam.examLanguages[0].code;
-
     isGradeable = (review: Review) => this.getErrors(review).length === 0;
 
     hasModifications = () => {
@@ -207,6 +157,88 @@ export class SpeedReviewComponent implements OnInit {
         });
     };
 
+    importGrades = () => {
+        this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv')
+            .then((result) => {
+                this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload);
+                this.toast.success(`${this.translate.instant('sitnet_csv_uploaded_successfully')}`);
+            })
+            .catch(() => {
+                this.toast.error(`${this.translate.instant('sitnet_csv_uploading_failed')}`);
+                return noop;
+            });
+    };
+
+    createGradingTemplate = () => {
+        const rows = this.examReviews
+            .map(
+                (r) =>
+                    [
+                        r.examParticipation.exam.id,
+                        '',
+                        '',
+                        r.examParticipation.exam.totalScore + ' / ' + r.examParticipation.exam.maxScore,
+                        r.displayName,
+                        r.examParticipation.user ? r.examParticipation.user.userIdentifier : '',
+                    ].join() + '\n',
+            )
+            .reduce((a, b) => a + b, '');
+
+        const content = 'exam id,grade,feedback,total score,student,student id\n' + rows;
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+        FileSaver.saveAs(blob, 'grading.csv');
+    };
+
+    private resolveGradeScale = (exam: Exam): GradeScale => {
+        if (exam.gradeScale) {
+            return exam.gradeScale;
+        } else if (exam.parent?.gradeScale) {
+            return exam.parent.gradeScale;
+        } else if (exam?.course?.gradeScale) {
+            return exam.course.gradeScale;
+        } else {
+            throw Error('No GradeScale for Assessment!');
+        }
+    };
+
+    private initGrades = (exam: Exam): SelectableGrade[] => {
+        const scale = this.resolveGradeScale(exam);
+        const grades: SelectableGrade[] = scale.grades
+            .map((grade) => {
+                return {
+                    ...grade,
+                    name: this.CommonExam.getExamGradeDisplayName(grade.name),
+                    type: grade.name,
+                };
+            })
+            .filter(isRealGrade);
+        // The "no grade" option
+        const noGrade: NoGrade = {
+            name: this.CommonExam.getExamGradeDisplayName('NONE'),
+            type: 'NONE',
+            marksRejection: false,
+        };
+        return [...grades, noGrade];
+    };
+
+    private getErrors = (review: Review) => {
+        const messages = [];
+        if (!this.isAllowedToGrade(review)) {
+            messages.push('sitnet_error_unauthorized');
+        }
+        const exam = review.examParticipation.exam;
+        if (!exam.creditType && !exam.examType) {
+            messages.push('sitnet_exam_choose_credit_type');
+        }
+        if (!exam.answerLanguage && exam.examLanguages.length !== 1) {
+            messages.push('sitnet_exam_choose_response_language');
+        }
+        return messages;
+    };
+
+    private getAnswerLanguage = (review: Review) =>
+        review.examParticipation.exam.answerLanguage || review.examParticipation.exam.examLanguages[0].code;
+
     private gradeExam$ = (review: Review): Observable<void> => {
         const messages = this.getErrors(review);
         const exam = review.examParticipation.exam;
@@ -242,37 +274,5 @@ export class SpeedReviewComponent implements OnInit {
         } else {
             return throwError(() => 'no can do');
         }
-    };
-
-    importGrades = () => {
-        this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv')
-            .then((result) => {
-                this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload);
-                this.toast.success(`${this.translate.instant('sitnet_csv_uploaded_successfully')}`);
-            })
-            .catch(() => {
-                this.toast.error(`${this.translate.instant('sitnet_csv_uploading_failed')}`);
-                return noop;
-            });
-    };
-
-    createGradingTemplate = () => {
-        const rows = this.examReviews
-            .map(
-                (r) =>
-                    [
-                        r.examParticipation.exam.id,
-                        '',
-                        '',
-                        r.examParticipation.exam.totalScore + ' / ' + r.examParticipation.exam.maxScore,
-                        r.displayName,
-                        r.examParticipation.user ? r.examParticipation.user.userIdentifier : '',
-                    ].join() + '\n',
-            )
-            .reduce((a, b) => a + b, '');
-
-        const content = 'exam id,grade,feedback,total score,student,student id\n' + rows;
-        const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
-        FileSaver.saveAs(blob, 'grading.csv');
     };
 }

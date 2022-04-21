@@ -50,21 +50,6 @@ export class StatisticsComponent implements OnInit {
         });
     }
 
-    private setQueryParams = () => {
-        const params: { start?: string; end?: string; dept?: string } = {};
-        if (this.startDate) {
-            params.start = this.startDate.toISOString();
-        }
-        if (this.endDate) {
-            params.end = this.endDate.toISOString();
-        }
-        const departments = this.departments.filter((d) => d.filtered);
-        if (departments.length > 0) {
-            params.dept = departments.map((d) => d.name).join();
-        }
-        this.queryParams = params;
-    };
-
     setDepartmentFilter = (dept: { name: string; filtered: boolean }) => {
         dept.filtered = !dept.filtered;
         this.setQueryParams();
@@ -88,5 +73,20 @@ export class StatisticsComponent implements OnInit {
                 d.name.toLowerCase().includes(this.limitations.department.toLowerCase()),
             );
         }
+    };
+
+    private setQueryParams = () => {
+        const params: { start?: string; end?: string; dept?: string } = {};
+        if (this.startDate) {
+            params.start = this.startDate.toISOString();
+        }
+        if (this.endDate) {
+            params.end = this.endDate.toISOString();
+        }
+        const departments = this.departments.filter((d) => d.filtered);
+        if (departments.length > 0) {
+            params.dept = departments.map((d) => d.name).join();
+        }
+        this.queryParams = params;
     };
 }

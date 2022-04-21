@@ -54,9 +54,6 @@ export class QuestionService {
         private Attachment: AttachmentService,
     ) {}
 
-    private questionsApi = (id?: number) => (!id ? '/app/questions' : `/app/questions/${id}`);
-    private questionOwnerApi = (id?: number) => (!id ? '/app/questions/owner' : `/app/questions/owner/${id}`);
-
     getQuestionType = (type: string) => {
         let questionType;
         switch (type) {
@@ -253,36 +250,6 @@ export class QuestionService {
                 throw Error('unknown question type');
         }
     };
-
-    private getQuestionData(question: Partial<Question>): Partial<Question> {
-        const questionToUpdate: Partial<Question> = {
-            type: question.type,
-            defaultMaxScore: question.defaultMaxScore,
-            question: question.question,
-            shared: question.shared,
-            defaultAnswerInstructions: question.defaultAnswerInstructions,
-            defaultEvaluationCriteria: question.defaultEvaluationCriteria,
-            questionOwners: question.questionOwners,
-            tags: question.tags,
-            options: question.options,
-        };
-        if (question.id) {
-            questionToUpdate.id = question.id;
-        }
-
-        // update question specific attributes
-        switch (questionToUpdate.type) {
-            case 'EssayQuestion':
-                questionToUpdate.defaultExpectedWordCount = question.defaultExpectedWordCount;
-                questionToUpdate.defaultEvaluationType = question.defaultEvaluationType;
-                break;
-            case 'MultipleChoiceQuestion':
-            case 'WeightedMultipleChoiceQuestion':
-                questionToUpdate.options = question.options;
-                break;
-        }
-        return questionToUpdate;
-    }
 
     createQuestion = (question: QuestionDraft): Promise<Question> => {
         const body = this.getQuestionData(question);
@@ -520,4 +487,37 @@ export class QuestionService {
         modal.componentInstance.collaborative = collaborative;
         return from(modal.result);
     };
+
+    private questionsApi = (id?: number) => (!id ? '/app/questions' : `/app/questions/${id}`);
+    private questionOwnerApi = (id?: number) => (!id ? '/app/questions/owner' : `/app/questions/owner/${id}`);
+
+    private getQuestionData(question: Partial<Question>): Partial<Question> {
+        const questionToUpdate: Partial<Question> = {
+            type: question.type,
+            defaultMaxScore: question.defaultMaxScore,
+            question: question.question,
+            shared: question.shared,
+            defaultAnswerInstructions: question.defaultAnswerInstructions,
+            defaultEvaluationCriteria: question.defaultEvaluationCriteria,
+            questionOwners: question.questionOwners,
+            tags: question.tags,
+            options: question.options,
+        };
+        if (question.id) {
+            questionToUpdate.id = question.id;
+        }
+
+        // update question specific attributes
+        switch (questionToUpdate.type) {
+            case 'EssayQuestion':
+                questionToUpdate.defaultExpectedWordCount = question.defaultExpectedWordCount;
+                questionToUpdate.defaultEvaluationType = question.defaultEvaluationType;
+                break;
+            case 'MultipleChoiceQuestion':
+            case 'WeightedMultipleChoiceQuestion':
+                questionToUpdate.options = question.options;
+                break;
+        }
+        return questionToUpdate;
+    }
 }

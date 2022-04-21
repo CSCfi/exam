@@ -51,11 +51,13 @@ export class ExceptionListComponent {
     @Input() exceptions: ExceptionWorkingHours[] = [];
     @Input() hideButton = false;
     @Input() hideTitle = false;
-    @Input() filter: (exception: ExceptionWorkingHours) => boolean = () => true;
+    @Input() filter: (exception: ExceptionWorkingHours) => boolean;
     @Output() created = new EventEmitter<ExceptionWorkingHours>();
     @Output() removed = new EventEmitter<ExceptionWorkingHours>();
 
-    constructor(private roomService: RoomService) {}
+    constructor(private roomService: RoomService) {
+        this.filter = () => true;
+    }
 
     formatDate = (exception: ExceptionWorkingHours) => {
         const fmt = 'dd.MM.yyyy HH:mm';

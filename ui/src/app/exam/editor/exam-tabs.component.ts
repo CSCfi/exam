@@ -66,13 +66,6 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
-    private initGradeScale = () => {
-        // Set exam grade scale from course default if not specifically set for exam
-        if (!this.exam.gradeScale && this.exam.course && this.exam.course.gradeScale) {
-            this.exam.gradeScale = this.exam.course.gradeScale;
-        }
-    };
-
     updateTitle = (code: string | null, name: string | null) => {
         if (code && name) {
             this.examInfo.title = `${code.split('_')[0]} ${name}`;
@@ -115,6 +108,13 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
         }
         if (props.initScale) {
             this.exam.gradeScale = this.exam?.course?.gradeScale;
+        }
+    };
+
+    private initGradeScale = () => {
+        // Set exam grade scale from course default if not specifically set for exam
+        if (!this.exam.gradeScale && this.exam.course && this.exam.course.gradeScale) {
+            this.exam.gradeScale = this.exam.course.gradeScale;
         }
     };
 }

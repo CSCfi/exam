@@ -81,8 +81,6 @@ export class FileService {
             .catch((resp) => this.toast.error(this.translate.instant(resp.data)));
     }
 
-    private isAttachment = (obj: EssayAnswer | Attachment): obj is Attachment => obj.objectVersion === undefined;
-
     uploadAnswerAttachment(url: string, file: File, params: Record<string, string>, parent: Container): void {
         this.doUpload(url, file, params)
             .then((resp) => {
@@ -92,10 +90,12 @@ export class FileService {
             .catch((resp) => this.toast.error(this.translate.instant(resp.data)));
     }
 
+    private isAttachment = (obj: EssayAnswer | Attachment): obj is Attachment => obj.objectVersion === undefined;
+
     private saveFile(data: string, fileName: string, contentType: string) {
         let blob: Blob;
         try {
-            const byteString = atob(data);
+            const byteString = window.atob(data);
             const ab = new ArrayBuffer(byteString.length);
             const ia = new Uint8Array(ab);
             for (let i = 0; i < byteString.length; i++) {

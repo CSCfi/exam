@@ -60,13 +60,13 @@ interface Env {
 
 @Injectable()
 export class SessionService implements OnDestroy {
+    public userChange$: Observable<User | undefined>;
+    public devLogoutChange$: Observable<void>;
+
     private PING_INTERVAL: number = 30 * 1000;
     private sessionCheckSubscription?: Unsubscribable;
     private userChangeSubscription = new Subject<User | undefined>();
     private devLogoutSubscription = new Subject<void>();
-
-    public userChange$: Observable<User | undefined>;
-    public devLogoutChange$: Observable<void>;
 
     constructor(
         private http: HttpClient,
@@ -97,17 +97,6 @@ export class SessionService implements OnDestroy {
         return user ? user.firstName + ' ' + user.lastName : '';
     };
 
-    private static hasPermission(user: User, permission: string) {
-        if (!user) {
-            return false;
-        }
-        return user.permissions.some((p) => p.type === permission);
-    }
-
-    static hasRole(user: User, role: string): boolean {
-        return user && user.loginRole !== null && user.loginRole === role;
-    }
-
     getEnv$ = (): Observable<'DEV' | 'PROD'> =>
         this.http.get<Env>('/app/settings/environment').pipe(
             tap((env) => this.webStorageService.set('EXAM-ENV', env)),
@@ -115,40 +104,6 @@ export class SessionService implements OnDestroy {
         );
 
     getEnv = (): Env | undefined => this.webStorageService.get('EXAM-ENV');
-
-    private onLogoutSuccess(data: { logoutUrl: string }): void {
-        this.userChangeSubscription.next(undefined);
-
-        this.toast.success(this.i18n.instant('sitnet_logout_success'));
-        this.windowRef.nativeWindow.onbeforeunload = () => null;
-        const location = this.windowRef.nativeWindow.location;
-        const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
-        const env = this.getEnv();
-        if (data && data.logoutUrl) {
-            location.href = `${localLogout}?return=${data.logoutUrl}`;
-        } else if (!env || env.isProd) {
-            // redirect to SP-logout directly
-            location.href = localLogout;
-        } else {
-            // DEV logout
-            this.devLogoutSubscription.next();
-        }
-    }
-
-    private redirect(user: User): void {
-        if (this.routing.current.name === 'app' && user.isLanguageInspector) {
-            this.state.go('staff.languageInspections');
-        } else if (this.routing.current.name === 'app') {
-            let state;
-            if (user.loginRole === 'STUDENT') state = 'dashboard';
-            else if (user.loginRole === 'TEACHER') state = 'staff.teacher';
-            else state = 'staff.admin';
-            this.state.go(state);
-        } else if (this.routing.current.name === '') {
-            // Hackish but will have to try
-            this.windowRef.nativeWindow.location.reload();
-        }
-    }
 
     logout(): void {
         this.http.delete<{ logoutUrl: string }>('/app/session', {}).subscribe({
@@ -232,66 +187,6 @@ export class SessionService implements OnDestroy {
         });
     };
 
-    private openUserAgreementModal$(user: User): Observable<User> {
-        const modalRef = this.modal.open(EulaDialogComponent, {
-            backdrop: 'static',
-            keyboard: true,
-            size: 'lg',
-        });
-        return from(modalRef.result).pipe(
-            switchMap(() => this.http.put('/app/users/agreement', {})),
-            map(() => ({ ...user, userAgreementAccepted: true })),
-        );
-    }
-
-    private openRoleSelectModal$(user: User): Observable<User> {
-        const modalRef = this.modal.open(SelectRoleDialogComponent);
-        modalRef.componentInstance.user = user;
-        return from(modalRef.result).pipe(
-            switchMap((role: Role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
-            map((role: Role) => {
-                user.loginRole = role.name;
-                user.isAdmin = role.name === 'ADMIN';
-                user.isTeacher = role.name === 'TEACHER';
-                user.isStudent = role.name === 'STUDENT';
-                user.isLanguageInspector = user.isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
-                return user;
-            }),
-        );
-    }
-
-    private prepareUser(user: User): User {
-        user.roles.forEach((role) => {
-            switch (role.name) {
-                case 'ADMIN':
-                    role.displayName = 'sitnet_admin';
-                    role.icon = 'bi-gear';
-                    break;
-                case 'TEACHER':
-                    role.displayName = 'sitnet_teacher';
-                    role.icon = 'bi-person-fill';
-                    break;
-                case 'STUDENT':
-                    role.displayName = 'sitnet_student';
-                    role.icon = 'bi-person';
-                    break;
-            }
-        });
-
-        const loginRole = user.roles.length === 1 ? user.roles[0].name : null;
-        const isTeacher = loginRole != null && loginRole === 'TEACHER';
-        this.translate(user.lang);
-
-        return {
-            ...user,
-            loginRole: loginRole,
-            isTeacher: isTeacher,
-            isAdmin: loginRole != null && loginRole === 'ADMIN',
-            isStudent: loginRole != null && loginRole === 'STUDENT',
-            isLanguageInspector: isTeacher && SessionService.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
-        };
-    }
-
     login$ = (username: string, password: string): Observable<User> =>
         this.http
             .post<User>('/app/session', {
@@ -326,5 +221,106 @@ export class SessionService implements OnDestroy {
         return user.loginRole
             ? userAgreementConfirmation$(user)
             : this.openRoleSelectModal$(user).pipe(switchMap((u) => userAgreementConfirmation$(u)));
+    }
+
+    private openUserAgreementModal$(user: User): Observable<User> {
+        const modalRef = this.modal.open(EulaDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'lg',
+        });
+        return from(modalRef.result).pipe(
+            switchMap(() => this.http.put('/app/users/agreement', {})),
+            map(() => ({ ...user, userAgreementAccepted: true })),
+        );
+    }
+
+    private openRoleSelectModal$(user: User): Observable<User> {
+        const modalRef = this.modal.open(SelectRoleDialogComponent);
+        modalRef.componentInstance.user = user;
+        return from(modalRef.result).pipe(
+            switchMap((role: Role) => this.http.put<Role>(`/app/users/roles/${role.name}`, {})),
+            map((role: Role) => {
+                user.loginRole = role.name;
+                user.isAdmin = role.name === 'ADMIN';
+                user.isTeacher = role.name === 'TEACHER';
+                user.isStudent = role.name === 'STUDENT';
+                user.isLanguageInspector = user.isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
+                return user;
+            }),
+        );
+    }
+
+    private prepareUser(user: User): User {
+        user.roles.forEach((role) => {
+            switch (role.name) {
+                case 'ADMIN':
+                    role.displayName = 'sitnet_admin';
+                    role.icon = 'bi-gear';
+                    break;
+                case 'TEACHER':
+                    role.displayName = 'sitnet_teacher';
+                    role.icon = 'bi-person-fill';
+                    break;
+                case 'STUDENT':
+                    role.displayName = 'sitnet_student';
+                    role.icon = 'bi-person';
+                    break;
+            }
+        });
+
+        const loginRole = user.roles.length === 1 ? user.roles[0].name : null;
+        const isTeacher = loginRole != null && loginRole === 'TEACHER';
+        this.translate(user.lang);
+
+        return {
+            ...user,
+            loginRole: loginRole,
+            isTeacher: isTeacher,
+            isAdmin: loginRole != null && loginRole === 'ADMIN',
+            isStudent: loginRole != null && loginRole === 'STUDENT',
+            isLanguageInspector: isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
+        };
+    }
+
+    private onLogoutSuccess(data: { logoutUrl: string }): void {
+        this.userChangeSubscription.next(undefined);
+
+        this.toast.success(this.i18n.instant('sitnet_logout_success'));
+        this.windowRef.nativeWindow.onbeforeunload = () => null;
+        const location = this.windowRef.nativeWindow.location;
+        const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
+        const env = this.getEnv();
+        if (data && data.logoutUrl) {
+            location.href = `${localLogout}?return=${data.logoutUrl}`;
+        } else if (!env || env.isProd) {
+            // redirect to SP-logout directly
+            location.href = localLogout;
+        } else {
+            // DEV logout
+            this.devLogoutSubscription.next();
+        }
+    }
+
+    private redirect(user: User): void {
+        if (this.routing.current.name === 'app' && user.isLanguageInspector) {
+            this.state.go('staff.languageInspections');
+        } else if (this.routing.current.name === 'app') {
+            let state;
+            if (user.loginRole === 'STUDENT') state = 'dashboard';
+            else if (user.loginRole === 'TEACHER') state = 'staff.teacher';
+            else state = 'staff.admin';
+            this.state.go(state);
+        } else if (this.routing.current.name === '') {
+            // Hackish but will have to try
+            this.windowRef.nativeWindow.location.reload();
+        }
+    }
+
+    private hasPermission(user: User, permission: string) {
+        if (!user) {
+            return false;
+        }
+        return user.permissions.some((p) => p.type === permission);
     }
 }

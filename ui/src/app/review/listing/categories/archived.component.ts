@@ -49,11 +49,6 @@ export class ArchivedReviewsComponent implements OnInit {
 
     pageSelected = (event: { page: number }) => (this.view.page = event.page);
 
-    private translateGrade = (exam: Exam) => {
-        const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.CommonExam.getExamGradeDisplayName(grade);
-    };
-
     handleGradedReviews = (r: Review) => {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection
             ? r.examParticipation.exam.languageInspection.finishedAt
@@ -67,5 +62,10 @@ export class ArchivedReviewsComponent implements OnInit {
             this.view.reverse = !this.view.reverse;
         }
         this.view.predicate = predicate;
+    };
+
+    private translateGrade = (exam: Exam) => {
+        const grade = exam.grade ? exam.grade.name : 'NONE';
+        return this.CommonExam.getExamGradeDisplayName(grade);
     };
 }

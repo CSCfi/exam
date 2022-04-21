@@ -83,7 +83,7 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
     constructor(private Enrolment: EnrolmentService) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
-            .subscribe(this.doSearch);
+            .subscribe(this._search);
     }
 
     ngOnInit() {
@@ -97,21 +97,6 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
     }
 
     search = (text: string) => this.filterChanged.next(text);
-
-    private doSearch = (text: string) => {
-        if (text.length <= 2) {
-            return;
-        }
-        this.filter.text = text;
-        this.loader = { loading: true };
-
-        this.Enrolment.searchExams$(text)
-            .pipe(
-                tap((exams) => this.updateExamList(exams)),
-                finalize(() => (this.loader = { loading: false })),
-            )
-            .subscribe();
-    };
 
     updateExamList(exams: CollaborativeExam[]) {
         this.exams = exams.map((e) =>
@@ -133,4 +118,19 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
             });
         });
     }
+
+    private _search = (text: string) => {
+        if (text.length <= 2) {
+            return;
+        }
+        this.filter.text = text;
+        this.loader = { loading: true };
+
+        this.Enrolment.searchExams$(text)
+            .pipe(
+                tap((exams) => this.updateExamList(exams)),
+                finalize(() => (this.loader = { loading: false })),
+            )
+            .subscribe();
+    };
 }

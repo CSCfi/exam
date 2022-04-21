@@ -50,11 +50,6 @@ export class QuestionFlowComponent implements OnInit, OnChanges {
 
     constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
 
-    private init = () => {
-        this.unfinished = this.reviews.filter((r) => this.getAssessedAnswerCount(r) < r.answers.length);
-        this.finished = this.reviews.filter((r) => this.getAssessedAnswerCount(r) === r.answers.length);
-    };
-
     getAssessedAnswerCount = (review: QuestionReview) =>
         this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());
 
@@ -71,5 +66,10 @@ export class QuestionFlowComponent implements OnInit, OnChanges {
     questionSelected = (review: QuestionReview) => {
         this.unfinished.concat(this.finished).forEach((r) => (r.selected = r.question.id === review.question.id));
         this.selected.emit(this.reviews.indexOf(review));
+    };
+
+    private init = () => {
+        this.unfinished = this.reviews.filter((r) => this.getAssessedAnswerCount(r) < r.answers.length);
+        this.finished = this.reviews.filter((r) => this.getAssessedAnswerCount(r) === r.answers.length);
     };
 }

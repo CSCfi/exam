@@ -62,16 +62,26 @@ export interface LanguageInspectionData extends LanguageInspection {
     </div> `,
 })
 export class LanguageInspectionsComponent implements OnInit {
+    ongoingInspections: LanguageInspectionData[] = [];
+    processedInspections: LanguageInspectionData[] = [];
     private startDate: Date | null = null;
     private endDate: Date | null = null;
-    public ongoingInspections: LanguageInspectionData[] = [];
-    public processedInspections: LanguageInspectionData[] = [];
 
     constructor(private Language: LanguageService, private LanguageInspection: LanguageInspectionService) {}
 
     ngOnInit() {
         this.query();
     }
+
+    startDateChanged = (event: { date: Date | null }) => {
+        this.startDate = event.date;
+        this.query();
+    };
+
+    endDateChanged = (event: { date: Date | null }) => {
+        this.endDate = event.date;
+        this.query();
+    };
 
     private query = () => {
         const params: QueryParams = {};
@@ -105,15 +115,5 @@ export class LanguageInspectionsComponent implements OnInit {
             }
             this.processedInspections = inspections.filter((i) => i.finishedAt);
         });
-    };
-
-    startDateChanged = (event: { date: Date | null }) => {
-        this.startDate = event.date;
-        this.query();
-    };
-
-    endDateChanged = (event: { date: Date | null }) => {
-        this.endDate = event.date;
-        this.query();
     };
 }

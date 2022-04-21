@@ -56,6 +56,9 @@ export class ExaminationNavigationComponent implements OnInit, OnChanges {
         }
     }
 
+    nextPage = () => this.selected.emit({ page: this.next });
+    previousPage = () => this.selected.emit({ page: this.prev });
+
     private setupNavigation = () => {
         if (!this.activeSection) {
             this.next = this.pages[1];
@@ -79,7 +82,4 @@ export class ExaminationNavigationComponent implements OnInit, OnChanges {
     };
 
     private prevPageIndex = () => this.activePageIndex() - 1;
-
-    nextPage = () => this.selected.emit({ page: this.next });
-    previousPage = () => this.selected.emit({ page: this.prev });
 }

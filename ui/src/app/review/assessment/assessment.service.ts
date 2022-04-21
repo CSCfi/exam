@@ -116,15 +116,6 @@ export class AssessmentService {
         return normalizedText.length;
     };
 
-    private strip = (html: string) => {
-        const tmp = this.document.createElement('div');
-        tmp.innerHTML = html;
-        if (!tmp.textContent && typeof tmp.innerText === 'undefined') {
-            return '';
-        }
-        return tmp.textContent || tmp.innerText;
-    };
-
     countWords = (text?: string) => {
         let normalizedText = text
             ? text
@@ -338,5 +329,14 @@ export class AssessmentService {
             }),
             switchMap(() => this.sendToRegistry$(payload, res)),
         );
+    };
+
+    private strip = (html: string) => {
+        const tmp = this.document.createElement('div');
+        tmp.innerHTML = html;
+        if (!tmp.textContent && typeof tmp.innerText === 'undefined') {
+            return '';
+        }
+        return tmp.textContent || tmp.innerText;
     };
 }

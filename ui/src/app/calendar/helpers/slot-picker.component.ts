@@ -221,49 +221,6 @@ export class SlotPickerComponent implements OnInit, OnChanges {
             accessibilities: this.accessibilities.filter((i) => i.filtered),
         });
 
-    private getTitle(slot: AvailableSlot): string {
-        const start = format(this.adjust(slot.start, this.selectedRoom?.localTimezone as string), 'HH:mm');
-        const end = format(this.adjust(slot.end, this.selectedRoom?.localTimezone as string), 'HH:mm');
-        if (slot.availableMachines > 0) {
-            return `${start}-${end} ${this.translate.instant('sitnet_slot_available')} (${slot.availableMachines})`;
-        } else {
-            return slot.conflictingExam
-                ? this.translate.instant('sitnet_own_reservation')
-                : this.translate.instant('sitnet_reserved');
-        }
-    }
-
-    private query(date: string, accessibilityIds: number[]): Observable<AvailableSlot[]> {
-        const room = this.selectedRoom as ExamRoom;
-        if (this.isExternal && this.organisation) {
-            const url = this.isCollaborative
-                ? `/app/iop/exams/${this.uiRouter.params.id}/external/calendar/${room._id}`
-                : `/app/iop/calendar/${this.uiRouter.params.id}/${room._id}`;
-            return this.http.get<AvailableSlot[]>(url, {
-                params: {
-                    org: this.organisation._id,
-                    date: date,
-                },
-            });
-        } else {
-            const url = this.isCollaborative
-                ? `/app/iop/exams/${this.uiRouter.params.id}/calendar/${room.id}`
-                : `/app/calendar/${this.uiRouter.params.id}/${room.id}`;
-            const params = new HttpParams({
-                fromObject: { day: date, aids: accessibilityIds.map((i) => i.toString()) },
-            });
-            return this.http.get<AvailableSlot[]>(url, {
-                params: params,
-            });
-        }
-    }
-
-    private adjust = (date: string, tz: string): Date => {
-        const adjusted = zonedTimeToUtc(date, tz);
-        const offset = this.DateTime.isDST(adjusted) ? -1 : 0;
-        return addHours(adjusted, offset);
-    };
-
     refresh($event: { date: Date }) {
         if (!this.selectedRoom) {
             return;
@@ -321,15 +278,48 @@ export class SlotPickerComponent implements OnInit, OnChanges {
         return this.translate.instant('sitnet_room_out_of_service') + status;
     }
 
-    /**
-     * Tests if the selected room is out of service and returns given array (for rendering), If selected room is out of service it returns Undefined.
-     * @param room
-     * @param text
-     */
-    outOfServiceGate(room: ExamRoom, text: string) {
-        if (room.outOfService) {
-            return text;
+    outOfServiceGate = (room: ExamRoom, text: string) => (room.outOfService ? text : undefined);
+
+    private getTitle(slot: AvailableSlot): string {
+        const start = format(this.adjust(slot.start, this.selectedRoom?.localTimezone as string), 'HH:mm');
+        const end = format(this.adjust(slot.end, this.selectedRoom?.localTimezone as string), 'HH:mm');
+        if (slot.availableMachines > 0) {
+            return `${start}-${end} ${this.translate.instant('sitnet_slot_available')} (${slot.availableMachines})`;
+        } else {
+            return slot.conflictingExam
+                ? this.translate.instant('sitnet_own_reservation')
+                : this.translate.instant('sitnet_reserved');
         }
-        return undefined;
     }
+
+    private query(date: string, accessibilityIds: number[]): Observable<AvailableSlot[]> {
+        const room = this.selectedRoom as ExamRoom;
+        if (this.isExternal && this.organisation) {
+            const url = this.isCollaborative
+                ? `/app/iop/exams/${this.uiRouter.params.id}/external/calendar/${room._id}`
+                : `/app/iop/calendar/${this.uiRouter.params.id}/${room._id}`;
+            return this.http.get<AvailableSlot[]>(url, {
+                params: {
+                    org: this.organisation._id,
+                    date: date,
+                },
+            });
+        } else {
+            const url = this.isCollaborative
+                ? `/app/iop/exams/${this.uiRouter.params.id}/calendar/${room.id}`
+                : `/app/calendar/${this.uiRouter.params.id}/${room.id}`;
+            const params = new HttpParams({
+                fromObject: { day: date, aids: accessibilityIds.map((i) => i.toString()) },
+            });
+            return this.http.get<AvailableSlot[]>(url, {
+                params: params,
+            });
+        }
+    }
+
+    private adjust = (date: string, tz: string): Date => {
+        const adjusted = zonedTimeToUtc(date, tz);
+        const offset = this.DateTime.isDST(adjusted) ? -1 : 0;
+        return addHours(adjusted, offset);
+    };
 }

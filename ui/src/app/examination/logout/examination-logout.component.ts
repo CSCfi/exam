@@ -47,12 +47,6 @@ export class ExaminationLogoutComponent implements OnInit {
         private ExaminationStatus: ExaminationStatusService,
     ) {}
 
-    private logout = () =>
-        this.Window.nativeWindow.setTimeout(() => {
-            this.ExaminationStatus.notifyEndOfExamination();
-            this.state.go('logout');
-        }, 8000);
-
     ngOnInit() {
         this.reasonPhrase = this.routing.params.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
         this.quitLinkEnabled = this.routing.params.quitLinkEnabled === 'true';
@@ -65,4 +59,10 @@ export class ExaminationLogoutComponent implements OnInit {
             this.logout();
         }
     }
+
+    private logout = () =>
+        this.Window.nativeWindow.setTimeout(() => {
+            this.ExaminationStatus.notifyEndOfExamination();
+            this.state.go('logout');
+        }, 8000);
 }

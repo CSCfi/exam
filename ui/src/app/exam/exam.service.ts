@@ -159,8 +159,6 @@ export class ExamService {
             ),
         );
 
-    private isInteger = (n: number) => isFinite(n) && Math.floor(n) === n;
-
     getSectionTotalNumericScore = (section: ExamSection): number => {
         const score = section.sectionQuestions.reduce((n, sq) => {
             const points = this.Question.calculateAnswerScore(sq);
@@ -293,4 +291,6 @@ export class ExamService {
 
     private hasEffectiveEnrolments = (exam: Exam) =>
         exam.examEnrolments.some((ee) => ee.reservation && parseISO(ee.reservation.endAt) > new Date());
+
+    private isInteger = (n: number) => isFinite(n) && Math.floor(n) === n;
 }

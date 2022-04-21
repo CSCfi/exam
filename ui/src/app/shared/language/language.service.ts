@@ -28,14 +28,14 @@ export interface IsoLangMap {
 
 @Injectable()
 export class LanguageService {
-    constructor(private http: HttpClient) {}
-
     private isoLangs: IsoLangMap = {
         en: { name: 'English', nativeName: 'English' },
         fi: { name: 'Finnish', nativeName: 'suomi' },
         sv: { name: 'Swedish', nativeName: 'svenska' },
         de: { name: 'German', nativeName: 'Deutsch' },
     };
+
+    constructor(private http: HttpClient) {}
 
     getLanguageName = (code: string) => {
         const key = code.slice(0, 2);

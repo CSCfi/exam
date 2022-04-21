@@ -58,14 +58,6 @@ export class UnfinishedInspectionsComponent implements OnChanges {
         this.sorting.predicate = predicate;
     };
 
-    private examToString = (li: LanguageInspectionData) => {
-        const code = li.exam.course ? li.exam.course.code : '';
-        const name = li.exam.name;
-        const student = li.studentNameAggregate;
-        const teacher = li.ownerAggregate;
-        return code + name + student + teacher;
-    };
-
     filterTextChanged = () =>
         (this.filteredInspections = this.inspections.filter((i) =>
             this.examToString(i).toLowerCase().match(this.filterText.toLowerCase()),
@@ -77,4 +69,12 @@ export class UnfinishedInspectionsComponent implements OnChanges {
             .replace('{0}', this.inspections.length.toString());
 
     assignInspection = (inspection: LanguageInspection) => this.LanguageInspection.assignInspection(inspection);
+
+    private examToString = (li: LanguageInspectionData) => {
+        const code = li.exam.course ? li.exam.course.code : '';
+        const name = li.exam.name;
+        const student = li.studentNameAggregate;
+        const teacher = li.ownerAggregate;
+        return code + name + student + teacher;
+    };
 }

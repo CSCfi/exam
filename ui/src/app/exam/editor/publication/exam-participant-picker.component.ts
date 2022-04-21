@@ -99,9 +99,6 @@ export class ExamParticipantSelectorComponent implements OnInit {
             .map((p) => p.user);
     }
 
-    private findUsers$ = (criteria: string) =>
-        this.http.get<User[]>(`/app/students/${this.exam.id}`, { params: { q: criteria } });
-
     listStudents$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
             tap((name) => (this.newParticipant.name = name)),
@@ -145,4 +142,7 @@ export class ExamParticipantSelectorComponent implements OnInit {
         enrolment.preEnrolledUserEmail
             ? enrolment.preEnrolledUserEmail
             : enrolment.user?.firstName + ' ' + enrolment?.user.lastName;
+
+    private findUsers$ = (criteria: string) =>
+        this.http.get<User[]>(`/app/students/${this.exam.id}`, { params: { q: criteria } });
 }

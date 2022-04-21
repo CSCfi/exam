@@ -73,6 +73,10 @@ export class SectionQuestionComponent {
             this.translate.instant('sitnet_remove_question'),
         ).result.then(() => this.removed.emit(this.sectionQuestion));
 
+    determineClaimOptionType(examOption: ExamSectionQuestionOption) {
+        return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
+    }
+
     private getQuestionDistribution(): Observable<boolean> {
         if (this.collaborative) {
             return of(false);
@@ -172,8 +176,4 @@ export class SectionQuestionComponent {
             })
             .catch(noop);
     };
-
-    determineClaimOptionType(examOption: ExamSectionQuestionOption) {
-        return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
-    }
 }

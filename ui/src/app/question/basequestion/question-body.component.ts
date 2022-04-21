@@ -55,20 +55,6 @@ export class QuestionBodyComponent implements OnInit {
         private Question: QuestionService,
     ) {}
 
-    private init = () => {
-        const sections = this.question.examSectionQuestions.map((esq) => esq.examSection);
-        const examNames = sections.map((s) => {
-            if (s.exam.state === 'PUBLISHED') {
-                this.isInPublishedExam = true;
-            }
-            return s.exam.name as string;
-        });
-        const sectionNames = sections.map((s) => s.name);
-        // remove duplicates
-        this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
-        this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
-    };
-
     ngOnInit() {
         this.questionTypes = [
             { type: 'essay', name: 'sitnet_toolbar_essay_question' },
@@ -180,5 +166,19 @@ export class QuestionBodyComponent implements OnInit {
             this.question.questionOwners &&
             (user.isAdmin || this.question.questionOwners.map((o) => o.id).indexOf(user.id) > -1)
         );
+    };
+
+    private init = () => {
+        const sections = this.question.examSectionQuestions.map((esq) => esq.examSection);
+        const examNames = sections.map((s) => {
+            if (s.exam.state === 'PUBLISHED') {
+                this.isInPublishedExam = true;
+            }
+            return s.exam.name as string;
+        });
+        const sectionNames = sections.map((s) => s.name);
+        // remove duplicates
+        this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
+        this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
     };
 }

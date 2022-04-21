@@ -53,12 +53,12 @@ import { ReportsService, UserRole } from './reports.service';
     `,
 })
 export class ReportsComponent implements OnInit {
-    constructor(private Users: UserService, private Reports: ReportsService, private room: RoomService) {}
-
     rooms: Option<ExamRoom, number>[] = [];
     examNames: Option<string, number>[] = [];
     teachers: Option<User, number>[] = [];
     students: Option<User, number>[] = [];
+
+    constructor(private Users: UserService, private Reports: ReportsService, private room: RoomService) {}
 
     ngOnInit() {
         this.room.getRooms$().subscribe((resp) => {

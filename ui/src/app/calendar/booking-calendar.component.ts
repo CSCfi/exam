@@ -58,29 +58,9 @@ export class BookingCalendarComponent implements OnInit, OnChanges {
         this.locale = this.translate.currentLang;
     }
 
-    private nextWeekValid = (date: Date): boolean =>
-        !this.maxDate || this.maxDate > startOfWeek(addWeeks(date, 1), { weekStartsOn: DAYS_OF_WEEK.MONDAY });
-    private prevWeekValid = (date: Date): boolean =>
-        !this.minDate || this.minDate < endOfWeek(subWeeks(date, 1), { weekStartsOn: DAYS_OF_WEEK.MONDAY });
-
     today = () => this.changeDate(new Date());
     nextWeek = () => this.changeDate(addWeeks(this.viewDate, 1));
     prevWeek = () => this.changeDate(subWeeks(this.viewDate, 1));
-
-    private changeDate(date: Date): void {
-        this.viewDate = date;
-        this.dateChanged();
-    }
-
-    private dateChanged() {
-        this.prevWeekDisabled = !this.prevWeekValid(this.viewDate);
-        this.nextWeekDisabled = !this.nextWeekValid(this.viewDate);
-        if (this.minDate && this.viewDate < this.minDate) {
-            this.changeDate(this.minDate);
-        } else if (this.maxDate && this.viewDate > this.maxDate) {
-            this.changeDate(this.maxDate);
-        }
-    }
 
     ngOnInit() {
         if (!this.minDate) {
@@ -112,6 +92,26 @@ export class BookingCalendarComponent implements OnInit, OnChanges {
                 this.clickedEvent = event;
             }
             this.eventSelected.emit(event);
+        }
+    }
+
+    private nextWeekValid = (date: Date): boolean =>
+        !this.maxDate || this.maxDate > startOfWeek(addWeeks(date, 1), { weekStartsOn: DAYS_OF_WEEK.MONDAY });
+    private prevWeekValid = (date: Date): boolean =>
+        !this.minDate || this.minDate < endOfWeek(subWeeks(date, 1), { weekStartsOn: DAYS_OF_WEEK.MONDAY });
+
+    private changeDate(date: Date): void {
+        this.viewDate = date;
+        this.dateChanged();
+    }
+
+    private dateChanged() {
+        this.prevWeekDisabled = !this.prevWeekValid(this.viewDate);
+        this.nextWeekDisabled = !this.nextWeekValid(this.viewDate);
+        if (this.minDate && this.viewDate < this.minDate) {
+            this.changeDate(this.minDate);
+        } else if (this.maxDate && this.viewDate > this.maxDate) {
+            this.changeDate(this.maxDate);
         }
     }
 }

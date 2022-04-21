@@ -52,43 +52,6 @@ export class LibrarySearchComponent implements OnInit {
         this.user = this.Session.getUser();
     }
 
-    private saveFilters = () => {
-        const filters = {
-            exams: this.exams,
-            courses: this.courses,
-            tags: this.tags,
-            text: this.filter.text,
-            owner: this.filter.owner,
-        };
-        this.Library.storeFilters(filters, 'search');
-    };
-
-    private getCourseIds = () => this.courses.filter((course) => course.filtered).map((course) => course.id);
-    private getExamIds = () => this.exams.filter((exam) => exam.filtered).map((exam) => exam.id);
-    private getTagIds = () => this.tags.filter((tag) => !tag.isSectionTag && tag.filtered).map((tag) => tag.id);
-    private getSectionIds = () =>
-        this.tags.filter((tag) => tag.isSectionTag && tag.filtered).map((section) => section.id);
-
-    private union<T>(filtered: Filterable<T>[], tags: Filterable<T>[]): Filterable<T>[] {
-        const filteredIds = filtered.map((f) => f.id);
-        return filtered.concat(tags.filter((t) => filteredIds.indexOf(t.id) === -1));
-    }
-
-    private query = (): Observable<LibraryQuestion[]> =>
-        this.Library.search(this.getExamIds(), this.getCourseIds(), this.getTagIds(), this.getSectionIds()).pipe(
-            tap((questions) => {
-                this.questions = questions;
-                this.saveFilters();
-            }),
-        );
-
-    applySearchFilter = () => {
-        let results = this.Library.applyFreeSearchFilter(this.filter.text, this.questions);
-        results = this.Library.applyOwnerSearchFilter(this.filter.owner, results);
-        this.updated.emit(results);
-        this.saveFilters();
-    };
-
     ngOnInit() {
         const storedData = this.Library.loadFilters('search');
         if (storedData.filters) {
@@ -108,6 +71,13 @@ export class LibrarySearchComponent implements OnInit {
             this.query().subscribe((resp) => this.updated.emit(resp));
         }
     }
+
+    applySearchFilter = () => {
+        let results = this.Library.applyFreeSearchFilter(this.filter.text, this.questions);
+        results = this.Library.applyOwnerSearchFilter(this.filter.owner, results);
+        this.updated.emit(results);
+        this.saveFilters();
+    };
 
     listCourses = () => {
         const courses = this.courses.filter((c) => c.filtered);
@@ -187,6 +157,36 @@ export class LibrarySearchComponent implements OnInit {
             (t) => t.name.toLowerCase().indexOf(this.limitations.tag.toLowerCase()) > -1,
         );
     };
+
+    private saveFilters = () => {
+        const filters = {
+            exams: this.exams,
+            courses: this.courses,
+            tags: this.tags,
+            text: this.filter.text,
+            owner: this.filter.owner,
+        };
+        this.Library.storeFilters(filters, 'search');
+    };
+
+    private getCourseIds = () => this.courses.filter((course) => course.filtered).map((course) => course.id);
+    private getExamIds = () => this.exams.filter((exam) => exam.filtered).map((exam) => exam.id);
+    private getTagIds = () => this.tags.filter((tag) => !tag.isSectionTag && tag.filtered).map((tag) => tag.id);
+    private getSectionIds = () =>
+        this.tags.filter((tag) => tag.isSectionTag && tag.filtered).map((section) => section.id);
+
+    private union<T>(filtered: Filterable<T>[], tags: Filterable<T>[]): Filterable<T>[] {
+        const filteredIds = filtered.map((f) => f.id);
+        return filtered.concat(tags.filter((t) => filteredIds.indexOf(t.id) === -1));
+    }
+
+    private query = (): Observable<LibraryQuestion[]> =>
+        this.Library.search(this.getExamIds(), this.getCourseIds(), this.getTagIds(), this.getSectionIds()).pipe(
+            tap((questions) => {
+                this.questions = questions;
+                this.saveFilters();
+            }),
+        );
 
     private doListTags = (tags: Filterable<Tag>[], sections: Filterable<Tag | ExamSection>[]) => {
         const examIds = this.getExamIds();

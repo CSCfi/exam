@@ -47,12 +47,6 @@ export class MultiChoiceQuestionComponent implements OnInit {
         private Question: QuestionService,
     ) {}
 
-    ngOnInit() {
-        if (this.sectionQuestion.forcedScore) {
-            this.scoreValue = this.sectionQuestion.forcedScore;
-        }
-    }
-
     get scoreValue(): number | null {
         return this._score;
     }
@@ -61,6 +55,12 @@ export class MultiChoiceQuestionComponent implements OnInit {
         this._score = value;
         if (this.form?.valid) {
             this.sectionQuestion.forcedScore = value;
+        }
+    }
+
+    ngOnInit() {
+        if (this.sectionQuestion.forcedScore) {
+            this.scoreValue = this.sectionQuestion.forcedScore;
         }
     }
 

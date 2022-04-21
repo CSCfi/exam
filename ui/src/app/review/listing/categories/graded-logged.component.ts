@@ -48,14 +48,6 @@ export class GradedLoggedReviewsComponent implements OnInit {
         private Session: SessionService,
     ) {}
 
-    private init = () => {
-        this.view = {
-            ...this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.started'),
-            reverse: true,
-        };
-        this.selections = { all: false, page: false };
-    };
-
     ngOnInit() {
         this.init();
     }
@@ -123,6 +115,14 @@ export class GradedLoggedReviewsComponent implements OnInit {
     selectAll = () => this.ReviewList.selectAll(this.selections, this.view.filtered);
 
     selectPage = (selector: string) => this.ReviewList.selectPage(this.selections, this.view.filtered, selector);
+
+    private init = () => {
+        this.view = {
+            ...this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.started'),
+            reverse: true,
+        };
+        this.selections = { all: false, page: false };
+    };
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';

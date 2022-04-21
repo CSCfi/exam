@@ -102,6 +102,34 @@ export class PrintedAssessmentComponent implements AfterViewInit {
         });
     }
 
+    translateGrade = (participation: PreviousParticipation) =>
+        !participation.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(participation.exam.grade.name);
+
+    getGrade = () => (!this.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(this.exam.grade.name));
+
+    getCreditType = () => (!this.exam ? 'N/A' : this.CommonExam.getExamTypeDisplayName(this.exam.examType.type));
+
+    getLanguage = () => {
+        if (!this.exam) return 'N/A';
+        const lang = this.Assessment.pickExamLanguage(this.exam);
+        return !lang ? 'N/A' : lang.name;
+    };
+
+    getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam);
+
+    getExamTotalScore = () => this.Exam.getTotalScore(this.exam);
+
+    getTeacherCount = () => {
+        // Do not add up if user exists in both groups
+        const exam = this.collaborative ? this.exam : (this.exam.parent as Exam);
+        const owners = exam.examOwners.filter(
+            (owner) => this.exam.examInspections.map((i) => i.user.id).indexOf(owner.id) === -1,
+        );
+        return this.exam.examInspections.length + owners.length;
+    };
+
+    translateState = (participation: PreviousParticipation) => 'sitnet_exam_status_' + participation.exam.state;
+
     private handleParticipations = (data: ExamParticipation[]) => {
         if (this.collaborative) {
             //TODO: Add collaborative support for noshows.
@@ -133,32 +161,4 @@ export class PrintedAssessmentComponent implements AfterViewInit {
     };
 
     private getResource = (path: string) => (this.collaborative ? `/app/iop/reviews/${path}` : `/app/review/${path}`);
-
-    translateGrade = (participation: PreviousParticipation) =>
-        !participation.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(participation.exam.grade.name);
-
-    getGrade = () => (!this.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(this.exam.grade.name));
-
-    getCreditType = () => (!this.exam ? 'N/A' : this.CommonExam.getExamTypeDisplayName(this.exam.examType.type));
-
-    getLanguage = () => {
-        if (!this.exam) return 'N/A';
-        const lang = this.Assessment.pickExamLanguage(this.exam);
-        return !lang ? 'N/A' : lang.name;
-    };
-
-    getExamMaxPossibleScore = () => this.Exam.getMaxScore(this.exam);
-
-    getExamTotalScore = () => this.Exam.getTotalScore(this.exam);
-
-    getTeacherCount = () => {
-        // Do not add up if user exists in both groups
-        const exam = this.collaborative ? this.exam : (this.exam.parent as Exam);
-        const owners = exam.examOwners.filter(
-            (owner) => this.exam.examInspections.map((i) => i.user.id).indexOf(owner.id) === -1,
-        );
-        return this.exam.examInspections.length + owners.length;
-    };
-
-    translateState = (participation: PreviousParticipation) => 'sitnet_exam_status_' + participation.exam.state;
 }

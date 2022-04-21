@@ -19,12 +19,12 @@ import { Subject } from 'rxjs';
 @Injectable()
 export class ExaminationStatusService {
     public examinationEnding$: Observable<void>;
-    private examinationEndingSubscription = new Subject<void>();
     public wrongLocation$: Observable<void>;
-    private wrongLocationSubscription = new Subject<void>();
     public upcomingExam$: Observable<void>;
-    private upcomingExamSubscription = new Subject<void>();
     public examinationStarting$: Observable<void>;
+    private examinationEndingSubscription = new Subject<void>();
+    private wrongLocationSubscription = new Subject<void>();
+    private upcomingExamSubscription = new Subject<void>();
     private examinationStartingSubscription = new Subject<void>();
 
     constructor() {
