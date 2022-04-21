@@ -24,8 +24,8 @@ import { switchMap, tap } from 'rxjs/operators';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { Course, Exam, ExamSection } from '../exam/exam.model';
 import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
-import { DateTimeService } from '../utility/date/date.service';
-import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
+import { DateTimeService } from '../shared/date/date.service';
+import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
 import { CalendarService } from './calendar.service';
 export type SelectableSection = ExamSection & { selected: boolean };
 export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Course } & {

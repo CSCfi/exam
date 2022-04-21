@@ -17,8 +17,8 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { parseISO } from 'date-fns';
 import { noop } from 'rxjs';
 import type { Exam } from '../exam/exam.model';
-import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
-import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
+import { ChangeMachineDialogComponent } from './admin/change-machine-dialog.component';
+import { RemoveReservationDialogComponent } from './admin/remove-reservation-dialog.component';
 import type { ExamMachine, Reservation } from './reservation.model';
 
 @Injectable()

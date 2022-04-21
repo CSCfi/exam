@@ -20,8 +20,8 @@ import { clone } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { WindowRef } from '../../utility/window/window.service';
+import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import { WindowRef } from '../../shared/window/window.service';
 import type { QuestionDraft } from '../question.service';
 import { QuestionService } from '../question.service';
 

@@ -18,51 +18,51 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
 import { QuestionModule } from '../question/question.module';
 import { ReviewModule } from '../review/review.module';
-import { UtilityModule } from '../utility/utility.module';
-import { CollaborativeExamService } from './collaborative/collaborativeExam.service';
-import { CollaborativeExamListingComponent } from './collaborative/collaborativeExamListing.component';
-import { BasicExamInfoComponent } from './editor/basic/basicExamInfo.component';
-import { ExamCourseComponent } from './editor/basic/examCourse.component';
-import { ExamInspectorSelectorComponent } from './editor/basic/examInspectorSelector.component';
-import { ExamOwnerSelectorComponent } from './editor/basic/examOwnerSelector.component';
-import { SoftwareSelectorComponent } from './editor/basic/softwareSelector.component';
-import { CoursePickerComponent } from './editor/common/coursePicker.component';
-import { CoursePickerService } from './editor/common/coursePicker.service';
-import { ExaminationTypeSelectorComponent } from './editor/common/examinationTypeSelector.component';
-import { LanguageSelectorComponent } from './editor/common/languageSelector.component';
-import { CourseSelectionComponent } from './editor/creation/courseSelection.component';
-import { NewExamComponent } from './editor/creation/newExam.component';
-import { ExaminationEventDialogComponent } from './editor/events/examinationEventDialog.component';
-import { ExamTabsComponent } from './editor/examTabs.component';
-import { ExamTabService } from './editor/examTabs.service';
-import { AutoEvaluationComponent } from './editor/publication/autoEvaluation.component';
-import { CollaborativeExamOwnerSelectorComponent } from './editor/publication/collaborativeExamOwnerSelector.component';
-import { ExamParticipantSelectorComponent } from './editor/publication/examParticipantSelector.component';
-import { ExamPreParticipantSelectorComponent } from './editor/publication/examPreParticipantSelector.component';
-import { ExamPublicationComponent } from './editor/publication/examPublication.component';
-import { OrganisationSelectorComponent } from './editor/publication/organisationSelector.component';
-import { PublicationDialogComponent } from './editor/publication/publicationDialog.component';
-import { PublicationErrorDialogComponent } from './editor/publication/publicationErrorDialog.component';
-import { PublicationRevocationDialogComponent } from './editor/publication/publicationRevocationDialog.component';
-import { ExamMaterialComponent } from './editor/sections/examMaterial.component';
-import { ExamMaterialSelectorComponent } from './editor/sections/examMaterialSelector.component';
+import { SharedModule } from '../shared/shared.module';
+import { CollaborativeExamListingComponent } from './collaborative/collaborative-exam-listing.component';
+import { CollaborativeExamService } from './collaborative/collaborative-exam.service';
+import { BasicExamInfoComponent } from './editor/basic/basic-exam-info.component';
+import { ExamCourseComponent } from './editor/basic/exam-course.component';
+import { ExamInspectorSelectorComponent } from './editor/basic/exam-inspector-selector.component';
+import { ExamOwnerSelectorComponent } from './editor/basic/exam-owner-selector.component';
+import { SoftwareSelectorComponent } from './editor/basic/software-selector.component';
+import { CoursePickerComponent } from './editor/common/course-picker.component';
+import { CoursePickerService } from './editor/common/course-picker.service';
+import { ExaminationTypeSelectorComponent } from './editor/common/examination-type-picker.component';
+import { LanguageSelectorComponent } from './editor/common/language-picker.component';
+import { CourseSelectionComponent } from './editor/creation/course-selection.component';
+import { NewExamComponent } from './editor/creation/new-exam.component';
+import { ExaminationEventDialogComponent } from './editor/events/examination-event-dialog.component';
+import { ExaminationEventSearchComponent } from './editor/events/examination-event-search.component';
+import { ExamTabsComponent } from './editor/exam-tabs.component';
+import { ExamTabService } from './editor/exam-tabs.service';
+import { AutoEvaluationComponent } from './editor/publication/auto-evaluation.component';
+import { CollaborativeExamOwnerSelectorComponent } from './editor/publication/collaborative-exam-owner-picker.component';
+import { ExamParticipantSelectorComponent } from './editor/publication/exam-participant-picker.component';
+import { ExamPreParticipantSelectorComponent } from './editor/publication/exam-pre-participant-picker.component';
+import { ExamPublicationComponent } from './editor/publication/exam-publication.component';
+import { OrganisationSelectorComponent } from './editor/publication/organisation-picker.component';
+import { PublicationDialogComponent } from './editor/publication/publication-dialog.component';
+import { PublicationErrorDialogComponent } from './editor/publication/publication-error-dialog.component';
+import { PublicationRevocationDialogComponent } from './editor/publication/publication-revocation-dialog.component';
+import { ExamMaterialSelectorComponent } from './editor/sections/exam-material-picker.component';
+import { ExamMaterialComponent } from './editor/sections/exam-material.component';
+import { SectionQuestionComponent } from './editor/sections/section-question.component';
 import { SectionComponent } from './editor/sections/section.component';
-import { SectionQuestionComponent } from './editor/sections/sectionQuestion.component';
-import { SectionsListComponent } from './editor/sections/sectionsList.component';
+import { SectionsComponent } from './editor/sections/sections.component';
 import { ExamService } from './exam.service';
-import { ExamListingComponent } from './listing/examList.component';
+import { ExamListingComponent } from './listing/exam-list.component';
 import { PrintoutComponent } from './printout/printout.component';
-import { PrintoutListingComponent } from './printout/printoutListing.component';
-import { ByodExamEventSearchComponent } from './search/byodExamEventSearch.component';
+import { PrintoutListingComponent } from './printout/printouts.component';
 
 @NgModule({
-    imports: [NgbModule, UtilityModule, ReviewModule, DragDropModule, UIRouterModule, QuestionModule],
+    imports: [NgbModule, SharedModule, ReviewModule, DragDropModule, UIRouterModule, QuestionModule],
     declarations: [
         BasicExamInfoComponent,
         ExamPublicationComponent,
         ExamCourseComponent,
         AutoEvaluationComponent,
-        SectionsListComponent,
+        SectionsComponent,
         NewExamComponent,
         SectionComponent,
         CoursePickerComponent,
@@ -89,7 +89,7 @@ import { ByodExamEventSearchComponent } from './search/byodExamEventSearch.compo
         PrintoutComponent,
         PrintoutListingComponent,
         ExaminationTypeSelectorComponent,
-        ByodExamEventSearchComponent,
+        ExaminationEventSearchComponent,
     ],
     bootstrap: [
         PublicationDialogComponent,

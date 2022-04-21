@@ -15,7 +15,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import type { Exam } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
-import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
+import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
 import type { Review } from '../../review.model';
 import type { ReviewListView } from '../reviewList.service';
 import { ReviewListService } from '../reviewList.service';

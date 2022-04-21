@@ -25,16 +25,16 @@ import { ToastrModule } from 'ngx-toastr';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CalendarModule } from './calendar/calendar.module';
-import { StudentDashboardModule } from './dashboard/student/studentDashboard.module';
+import { StudentDashboardModule } from './dashboard/student/student-dashboard.module';
 import { EnrolmentModule } from './enrolment/enrolment.module';
 import { ExaminationModule } from './examination/examination.module';
-import { AuthInterceptor } from './interceptors/httpAuthInterceptor';
-import { ErrorInterceptor } from './interceptors/httpErrorInterceptor';
-import { ExaminationInterceptor } from './interceptors/httpExaminationInterceptor';
+import { AuthInterceptor } from './interceptors/auth-interceptor';
+import { ErrorInterceptor } from './interceptors/error-interceptor';
+import { ExaminationInterceptor } from './interceptors/examination-interceptor';
 import { NavigationModule } from './navigation/navigation.module';
 import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
-import { UtilityModule } from './utility/utility.module';
+import { SharedModule } from './shared/shared.module';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
@@ -58,7 +58,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         NgbModule,
         ToastrModule.forRoot({ preventDuplicates: true }),
         AppRoutingModule,
-        UtilityModule,
+        SharedModule,
         SessionModule,
         NavigationModule,
         StudentDashboardModule,

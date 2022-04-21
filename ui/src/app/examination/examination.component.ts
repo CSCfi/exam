@@ -19,7 +19,7 @@ import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { EnrolmentService } from '../enrolment/enrolment.service';
 import { SessionService } from '../session/session.service';
-import { WindowRef } from '../utility/window/window.service';
+import { WindowRef } from '../shared/window/window.service';
 import type { Examination, ExaminationSection, NavigationPage } from './examination.model';
 import { ExaminationService } from './examination.service';
 

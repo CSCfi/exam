@@ -68,7 +68,7 @@
 
     <!-- Sections -->
     <div *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let index = index">
-        <r-exam-section
+        <r-section
             [section]="section"
             [participation]="participation"
             [exam]="exam"
@@ -77,7 +77,7 @@
             [index]="index + 1"
             [isScorable]="(!isGraded() || isOwnerOrAdmin()) && !isReadOnly()"
         >
-        </r-exam-section>
+        </r-section>
     </div>
 
     <div class="tab-wrapper-exams review">

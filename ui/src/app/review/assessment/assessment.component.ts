@@ -23,9 +23,9 @@ import type { QuestionAmounts } from '../../question/question.service';
 import { QuestionService } from '../../question/question.service';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
-import { WindowRef } from '../../utility/window/window.service';
+import { WindowRef } from '../../shared/window/window.service';
 import { AssessmentService } from './assessment.service';
-import { CollaborativeAssesmentService } from './collaborativeAssessment.service';
+import { CollaborativeAssesmentService } from './collaborative-assessment.service';
 
 @Component({
     selector: 'assessment',

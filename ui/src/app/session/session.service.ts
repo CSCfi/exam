@@ -23,9 +23,9 @@ import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable, Unsubscribable } from 'rxjs';
 import { defer, from, interval, of, Subject, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { WindowRef } from '../utility/window/window.service';
-import { EulaDialogComponent } from './eula/eulaDialog.component';
-import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
+import { WindowRef } from '../shared/window/window.service';
+import { EulaDialogComponent } from './eula/eula-dialog.component';
+import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
 
 export interface Role {
     name: string;

@@ -22,7 +22,7 @@ import { catchError, switchMap, tap } from 'rxjs/operators';
 import type { Exam } from '../../../exam/exam.model';
 import type { LanguageInspection } from '../../../maturity/maturity.model';
 import { SessionService } from '../../../session/session.service';
-import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
+import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
 import { AssessmentService } from '../assessment.service';
 
 type State = {

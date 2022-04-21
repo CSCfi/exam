@@ -16,12 +16,29 @@ import { Component, Input } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
 import type { ExamParticipation } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
-import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
-import { WindowRef } from '../../../utility/window/window.service';
+import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
+import { WindowRef } from '../../../shared/window/window.service';
 
 @Component({
     selector: 'r-participation',
-    templateUrl: './participation.component.html',
+    template: `<div class="detail-row">
+            <div class="col-md-12 general-info-title">{{ participation.started | date: 'dd.MM.yyyy' }}</div>
+        </div>
+        <div class="detail-row mb-2">
+            <div class="col-md-auto">
+                <span [ngStyle]="participation.exam.state === 'ABORTED' ? { color: '#F35D6C' } : { color: '#3CA34F' }">
+                    {{ 'sitnet_exam_status_' + participation.exam.state | lowercase | translate }}
+                </span>
+            </div>
+            <div class="col-md-auto sitnet-info-text-compact" [hidden]="hideGrade()">
+                {{ 'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span style="color: #3ca34f">{{
+                    translateGrade()
+                }}</span>
+            </div>
+            <div class="col-md-auto general-info-link-bold" *ngIf="!hideAnswerLink()">
+                <a class="pointer" (click)="viewAnswers()">{{ 'sitnet_view_answers' | translate }}</a>
+            </div>
+        </div> `,
 })
 export class ParticipationComponent {
     @Input() participation!: ExamParticipation;

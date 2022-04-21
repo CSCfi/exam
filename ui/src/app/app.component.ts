@@ -20,7 +20,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { StateService } from '@uirouter/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ExaminationStatusService } from './examination/examinationStatus.service';
+import { ExaminationStatusService } from './examination/examination-status.service';
 import type { User } from './session/session.service';
 import { SessionService } from './session/session.service';
 

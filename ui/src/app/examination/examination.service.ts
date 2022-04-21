@@ -22,7 +22,7 @@ import type { Observable } from 'rxjs';
 import { concat, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import type { ClozeTestAnswer, EssayAnswer } from '../exam/exam.model';
-import { WindowRef } from '../utility/window/window.service';
+import { WindowRef } from '../shared/window/window.service';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
 
 @Injectable()

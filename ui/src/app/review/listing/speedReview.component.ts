@@ -34,11 +34,11 @@ import type {
 import { isRealGrade } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import type { User } from '../../session/session.service';
-import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { DateTimeService } from '../../utility/date/date.service';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { FileService } from '../../utility/file/file.service';
-import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
+import { AttachmentService } from '../../shared/attachment/attachment.service';
+import { DateTimeService } from '../../shared/date/date.service';
+import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import { FileService } from '../../shared/file/file.service';
+import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
 import type { Review } from '../review.model';
 import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 

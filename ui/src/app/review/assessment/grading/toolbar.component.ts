@@ -20,11 +20,64 @@ import type { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import type { Examination } from '../../../examination/examination.model';
 import { AssessmentService } from '../assessment.service';
-import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
+import { CollaborativeAssesmentService } from '../collaborative-assessment.service';
 
 @Component({
     selector: 'r-toolbar',
-    templateUrl: './toolbar.component.html',
+    template: `<!-- Buttons -->
+        <div class="review-toolbar-wrapper pt-4 padl0 padr0 marb20 float-right">
+            <div class="review-attachment-button exam-questions-buttons marl15">
+                <a
+                    class="pointer preview"
+                    [uiSref]="getExitState().name || ''"
+                    [uiParams]="getExitState().params"
+                    [hidden]="(!isReadOnly() && isOwnerOrAdmin()) || (!isReadOnly() && !isGraded())"
+                >
+                    {{ 'sitnet_close' | translate }}
+                </a>
+            </div>
+
+            <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons">
+                <button
+                    class="pointer warning-filled"
+                    *ngIf="isMaturityRejection()"
+                    [disabled]="!isOwnerOrAdmin() || !valid"
+                    (click)="rejectMaturity()"
+                >
+                    {{ 'sitnet_reject_maturity' | translate }}
+                </button>
+            </div>
+
+            <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
+                <button
+                    class="pointer"
+                    [disabled]="isReadOnly()"
+                    (click)="saveAssessment()"
+                    ngbPopover="{{ 'sitnet_save_changes_popover_info' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                >
+                    {{ 'sitnet_save_changes' | translate }}
+                </button>
+            </div>
+            <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
+                <span
+                    class="disabled-button-popover-wrapper"
+                    ngbPopover="{{ 'sitnet_send_result_to_registry_popover_info' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <button
+                        class="pointer"
+                        *ngIf="!isMaturityRejection()"
+                        [disabled]="!isOwnerOrAdmin() || !valid"
+                        (click)="createExamRecord()"
+                    >
+                        {{ 'sitnet_send_result_to_registry' | translate }}
+                    </button>
+                </span>
+            </div>
+        </div> `,
 })
 export class ToolbarComponent {
     @Input() valid = false;

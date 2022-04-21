@@ -19,11 +19,11 @@ import type { CalendarEvent } from 'calendar-utils';
 import { addHours, format } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
 import { ToastrService } from 'ngx-toastr';
-import type { SlotMeta } from '../../calendar/bookingCalendar.component';
+import type { SlotMeta } from '../../calendar/booking-calendar.component';
 import type { OpeningHours } from '../../calendar/calendar.service';
 import { CalendarService } from '../../calendar/calendar.service';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { DateTimeService } from '../../utility/date/date.service';
+import { DateTimeService } from '../../shared/date/date.service';
 import type { Availability } from './room.service';
 import { RoomService } from './room.service';
 

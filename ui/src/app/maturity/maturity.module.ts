@@ -15,16 +15,16 @@
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
-import { UtilityModule } from '../utility/utility.module';
-import { InspectionStatementDialogComponent } from './dialogs/inspectionStatementDialog.component';
-import { LanguageInspectionsComponent } from './languageInspections.component';
-import { LanguageInspectionService } from './languageInspections.service';
-import { ReviewedInspectionsComponent } from './listing/reviewedInspections.component';
-import { UnfinishedInspectionsComponent } from './listing/unfinishedInspections.component';
-import { MaturityReportingComponent } from './reporting/maturityReporting.component';
+import { SharedModule } from '../shared/shared.module';
+import { InspectionStatementDialogComponent } from './dialogs/inspection-statement-dialog.component';
+import { LanguageInspectionsComponent } from './language-inspections.component';
+import { LanguageInspectionService } from './language-inspections.service';
+import { ReviewedInspectionsComponent } from './listing/reviewed-inspections.component';
+import { UnfinishedInspectionsComponent } from './listing/unfinished-inspections.component';
+import { MaturityReportingComponent } from './reporting/maturity-reporting.component';
 
 @NgModule({
-    imports: [NgbModule, UIRouterModule, UtilityModule],
+    imports: [NgbModule, UIRouterModule, SharedModule],
     exports: [ReviewedInspectionsComponent],
     declarations: [
         LanguageInspectionsComponent,

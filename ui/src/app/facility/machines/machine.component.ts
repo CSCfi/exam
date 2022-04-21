@@ -19,7 +19,7 @@ import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import { ToastrService } from 'ngx-toastr';
 import type { Software } from '../../exam/exam.model';
 import type { ExamMachine } from '../../reservation/reservation.model';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 import { MachineService } from './machines.service';
 
 interface SoftwareWithClass extends Software {

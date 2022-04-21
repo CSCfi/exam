@@ -16,11 +16,11 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import type { ExamEnrolment } from '../../enrolment/enrolment.model';
-import { ExamTabService } from '../../exam/editor/examTabs.service';
+import { ExamTabService } from '../../exam/editor/exam-tabs.service';
 import type { Exam, ExamParticipation } from '../../exam/exam.model';
 import type { Review } from '../review.model';
-import { AbortedExamsComponent } from './dialogs/abortedExams.component';
-import { NoShowsComponent } from './dialogs/noShows.component';
+import { AbortedExamsComponent } from './dialogs/aborted.component';
+import { NoShowsComponent } from './dialogs/no-shows.component';
 import { ReviewListService } from './reviewList.service';
 
 @Component({

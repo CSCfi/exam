@@ -26,9 +26,9 @@ import type { ReviewedExam } from '../../enrolment/enrolment.model';
 import type { Exam, ExamLanguage, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
 import { isRealGrade } from '../../exam/exam.model';
 import { SessionService } from '../../session/session.service';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
-import { WindowRef } from '../../utility/window/window.service';
+import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
+import { WindowRef } from '../../shared/window/window.service';
 
 type Payload = {
     id: number;

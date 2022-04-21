@@ -14,11 +14,11 @@
  */
 import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UtilityModule } from '../utility/utility.module';
+import { SharedModule } from '../shared/shared.module';
 import { SoftwareComponent } from './software.component';
 
 @NgModule({
-    imports: [NgbModule, UtilityModule],
+    imports: [NgbModule, SharedModule],
     exports: [SoftwareComponent],
     declarations: [SoftwareComponent],
     providers: [],

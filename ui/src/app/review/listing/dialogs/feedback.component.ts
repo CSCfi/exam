@@ -15,12 +15,31 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import type { Exam } from '../../../exam/exam.model';
-import { WindowRef } from '../../../utility/window/window.service';
+import { WindowRef } from '../../../shared/window/window.service';
 import { AssessmentService } from '../../assessment/assessment.service';
 
 @Component({
     selector: 'speed-review-feedback',
-    templateUrl: './feedback.component.html',
+    template: `<div id="sitnet-dialog">
+        <div class="student-details-title-wrap mart20">
+            <div class="student-enroll-title">{{ 'sitnet_give_feedback' | translate }}</div>
+        </div>
+        <div class="modal-body marl20">
+            <div class="row">
+                <div class="col-md-12 padl0" *ngIf="exam.examFeedback !== null">
+                    <ckeditor rows="10" #ck="ngModel" [(ngModel)]="exam.examFeedback.comment"></ckeditor>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-between">
+            <button class="btn btn btn-success pull-left" (click)="ok()">
+                {{ 'sitnet_save' | translate }}
+            </button>
+            <button class="btn btn-primary pull-right" (click)="cancel()">
+                {{ 'sitnet_button_cancel' | translate }}
+            </button>
+        </div>
+    </div> `,
 })
 export class SpeedReviewFeedbackComponent implements OnInit {
     @Input() exam!: Exam;

@@ -17,16 +17,16 @@ import type { Ng2StateDeclaration, UIRouter } from '@uirouter/angular';
 import { UIRouterModule } from '@uirouter/angular';
 import { AppComponent } from './app.component';
 import { CalendarComponent } from './calendar/calendar.component';
-import { StudentDashboardComponent } from './dashboard/student/studentDashboard.component';
-import { ExamEnrolmentsComponent } from './enrolment/exams/examEnrolments.component';
-import { CollaborativeParticipationsComponent } from './enrolment/finished/collaborativeExamParticipations.component';
-import { ExamParticipationsComponent } from './enrolment/finished/examParticipations.component';
-import { CollaborativeExamSearchComponent } from './enrolment/search/collaborativeExamSearch.component';
-import { ExamSearchComponent } from './enrolment/search/examSearch.component';
-import { WaitingRoomComponent } from './enrolment/waiting-room/waitingRoom.component';
-import { WrongLocationComponent } from './enrolment/wrong-location/wrongLocation.component';
+import { StudentDashboardComponent } from './dashboard/student/student-dashboard.component';
+import { ExamEnrolmentsComponent } from './enrolment/exams/exam-enrolments.component';
+import { CollaborativeParticipationsComponent } from './enrolment/finished/collaborative-exam-participations.component';
+import { ExamParticipationsComponent } from './enrolment/finished/exam-participations.component';
+import { CollaborativeExamSearchComponent } from './enrolment/search/collaborative-exam-search.component';
+import { ExamSearchComponent } from './enrolment/search/exam-search.component';
+import { WaitingRoomComponent } from './enrolment/waiting-room/waiting-room.component';
+import { WrongLocationComponent } from './enrolment/wrong-location/wrong-location.component';
 import { ExaminationComponent } from './examination/examination.component';
-import { ExaminationLogoutComponent } from './examination/logout/examinationLogout.component';
+import { ExaminationLogoutComponent } from './examination/logout/examination-logout.component';
 import { LogoutComponent } from './session/logout/logout.component';
 
 function uiRouterConfigFn(router: UIRouter) {
@@ -149,7 +149,7 @@ const staffFutureStates: Ng2StateDeclaration[] = [
     {
         name: 'staff.**',
         url: '/staff',
-        loadChildren: () => import('./dashboard/staff/staffDashboard.module').then((mod) => mod.StaffDashboardModule),
+        loadChildren: () => import('./dashboard/staff/staff-dashboard.module').then((mod) => mod.StaffDashboardModule),
     },
 ];
 

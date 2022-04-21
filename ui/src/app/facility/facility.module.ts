@@ -5,20 +5,19 @@ import { NgbModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { UIRouterModule } from '@uirouter/angular';
 import { CalendarModule } from '../calendar/calendar.module';
+import { SharedModule } from '../shared/shared.module';
 import { SoftwareModule } from '../software/software.module';
-import { UtilityModule } from '../utility/utility.module';
 import { AccessibilityModule } from './accessibility/accessibility.module';
 import { AddressComponent } from './address/address.component';
-import { ExamRoomsAdminTabsComponent } from './examRoomsAdminTabs.component';
+import { FacilityComponent } from './facility.component';
 import { MachineModule } from './machines/machines.module';
 import { AvailabilityComponent } from './rooms/availability.component';
-import { ExceptionListAllComponent } from './rooms/exceptionListAll.component';
+import { ExceptionListAllComponent } from './rooms/exception-mass-edit.component';
 import { InteroperabilityService } from './rooms/interoperability.service';
-import { MultiRoomComponent } from './rooms/multiRoom.component';
+import { MultiRoomComponent } from './rooms/room-mass-edit.component';
 import { RoomComponent } from './rooms/room.component';
 import { RoomService } from './rooms/room.service';
-import { RoomListComponent } from './rooms/roomList.component';
-import { SettingsResourceService } from './rooms/settingsResource';
+import { RoomListComponent } from './rooms/rooms.component';
 import { ExceptionDialogComponent } from './schedule/exceptionDialog.component';
 import { ExceptionListComponent } from './schedule/exceptionList.component';
 import { MaintenancePeriodDialogComponent } from './schedule/maintenancePeriodDialog.component';
@@ -32,7 +31,7 @@ import { StartingTimeComponent } from './schedule/startingTime.component';
         TranslateModule,
         NgbModule,
         NgbNavModule,
-        UtilityModule,
+        SharedModule,
         CommonModule,
         UIRouterModule,
         CalendarModule,
@@ -40,7 +39,7 @@ import { StartingTimeComponent } from './schedule/startingTime.component';
         SoftwareModule,
     ],
     declarations: [
-        ExamRoomsAdminTabsComponent,
+        FacilityComponent,
         ExceptionDialogComponent,
         ExceptionListComponent,
         MaintenancePeriodDialogComponent,
@@ -54,7 +53,7 @@ import { StartingTimeComponent } from './schedule/startingTime.component';
         AddressComponent,
     ],
     bootstrap: [ExceptionDialogComponent, MaintenancePeriodDialogComponent],
-    providers: [SettingsResourceService, RoomService, InteroperabilityService],
-    exports: [ExamRoomsAdminTabsComponent],
+    providers: [RoomService, InteroperabilityService],
+    exports: [FacilityComponent],
 })
 export class FacilityModule {}

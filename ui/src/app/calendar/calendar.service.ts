@@ -26,7 +26,7 @@ import type {
     ExceptionWorkingHours,
 } from '../reservation/reservation.model';
 import { SessionService } from '../session/session.service';
-import { DateTimeService } from '../utility/date/date.service';
+import { DateTimeService } from '../shared/date/date.service';
 
 type WeekdayNames = Record<string, { ord: number; name: string }>;
 

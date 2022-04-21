@@ -1,0 +1,133 @@
+/*
+ * Copyright (c) 2017 Exam Consortium
+ *
+ * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
+ * versions of the EUPL (the "Licence");
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ *
+ * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
+ * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+import { Component, Input, OnInit } from '@angular/core';
+import { StateService } from '@uirouter/core';
+import { ToastrService } from 'ngx-toastr';
+import { ExamTabService } from '../../../exam/editor/exam-tabs.service';
+import type { QuestionReview } from '../../review.model';
+import { QuestionReviewService } from '../question-review.service';
+
+@Component({
+    selector: 'question-reviews',
+    template: `<div>
+        <div class="p-2 mt-2">
+            <img class="mr-3" src="/assets/images/icon_info.png" alt="info" />
+            <strong>{{ 'sitnet_question_review_info' | translate }}</strong>
+            {{ 'sitnet_question_review_info_detailed' | translate }}
+        </div>
+
+        <div *ngIf="reviews.length === 0">
+            <div class="mart20">
+                <h3>{{ 'sitnet_no_questions_to_review' | translate }}</h3>
+            </div>
+        </div>
+        <div *ngIf="reviews.length > 0">
+            <div class="mart20 d-flex justify-content-between">
+                <div>
+                    <strong class="question-review-toolbar-text"
+                        >{{ selectedReviews.length }} {{ 'sitnet_questions_selected' | translate }}</strong
+                    >
+                </div>
+                <div>
+                    <button
+                        [disabled]="selectedReviews.length === 0"
+                        class="btn btn-success pull-right"
+                        (click)="startReview()"
+                    >
+                        {{ 'sitnet_review_selected' | translate }} ({{ selectedReviews.length }})
+                    </button>
+                </div>
+            </div>
+
+            <span class="mart20 marb10 d-flex justify-content-between">
+                <span class="question-review-title">{{ 'sitnet_select_question_reviews' | translate }}</span>
+                <span class="form-group">
+                    <label class="mr-2" for="select-all">{{ 'sitnet_check_uncheck_all' | translate }}</label>
+                    <input id="select-all" type="checkbox" (change)="selectAll()" [(ngModel)]="selectionToggle" />
+                </span>
+            </span>
+            <div>
+                <question-review
+                    *ngFor="let review of reviews"
+                    [review]="review"
+                    (selected)="onReviewSelection($event)"
+                >
+                </question-review>
+            </div>
+
+            <div class="mart20 d-flex justify-content-between">
+                <!-- Might make sense to make this a separate component as it is used twice here-->
+                <span>
+                    <strong class="question-review-toolbar-text"
+                        >{{ selectedReviews.length }} {{ 'sitnet_questions_selected' | translate }}</strong
+                    >
+                </span>
+                <div>
+                    <button [disabled]="selectedReviews.length === 0" class="btn btn-success" (click)="startReview()">
+                        {{ 'sitnet_review_selected' | translate }} ({{ selectedReviews.length }})
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div> `,
+})
+export class QuestionReviewsComponent implements OnInit {
+    @Input() examId = 0;
+    reviews: QuestionReview[] = [];
+    selectedReviews: number[] = [];
+    selectionToggle = false;
+
+    constructor(
+        private state: StateService,
+        private toast: ToastrService,
+        private QuestionReview: QuestionReviewService,
+        private Tabs: ExamTabService,
+    ) {}
+
+    ngOnInit() {
+        this.QuestionReview.getReviews$(this.examId).subscribe({
+            next: (resp) => (this.reviews = resp),
+            error: (err) => this.toast.error(err),
+        });
+        this.Tabs.notifyTabChange(5);
+    }
+
+    onReviewSelection = (event: { id: number; selected: boolean }) => {
+        const index = this.selectedReviews.indexOf(event.id);
+        if (event.selected && index === -1) {
+            this.selectedReviews.push(event.id);
+        } else if (index > -1) {
+            this.selectedReviews.splice(index, 1);
+        }
+    };
+
+    removeSelections = () => {
+        this.reviews.forEach((r) => (r.selected = false));
+        this.selectedReviews = [];
+    };
+
+    addSelections = () => {
+        this.reviews.forEach((r) => (r.selected = true));
+        this.selectedReviews = this.reviews.map((r) => r.question.id);
+    };
+
+    selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
+
+    startReview = () =>
+        this.state.go('staff.questionAssessment', {
+            id: this.examId,
+            q: this.selectedReviews.map((r) => r.toString()),
+        });
+}

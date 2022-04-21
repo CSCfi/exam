@@ -31,9 +31,9 @@ import type {
     ReverseQuestion,
 } from '../exam/exam.model';
 import { SessionService } from '../session/session.service';
-import { AttachmentService } from '../utility/attachment/attachment.service';
-import { FileService } from '../utility/file/file.service';
-import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
+import { AttachmentService } from '../shared/attachment/attachment.service';
+import { FileService } from '../shared/file/file.service';
+import { BaseQuestionEditorComponent } from './examquestion/base-question-editor.component';
 
 export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
 export type QuestionAmounts = {

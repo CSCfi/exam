@@ -16,8 +16,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { map } from 'rxjs/operators';
-import { FileService } from '../../utility/file/file.service';
-import { WindowRef } from '../../utility/window/window.service';
+import { FileService } from '../../shared/file/file.service';
+import { WindowRef } from '../../shared/window/window.service';
 import type { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuestion } from '../exam.model';
 
 type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & { ord: number })[] };

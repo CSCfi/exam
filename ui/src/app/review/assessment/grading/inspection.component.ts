@@ -22,7 +22,28 @@ import type { User } from '../../../session/session.service';
 
 @Component({
     selector: 'r-inspection',
-    templateUrl: './inspection.component.html',
+    template: `<span *ngIf="inspection.user.id !== user.id">
+            <span class="sitnet-text-ready" *ngIf="inspection.ready">
+                {{ inspection.user.firstName }} {{ inspection.user.lastName }} {{ 'sitnet_ready' | translate }}</span
+            >
+            <span class="sitnet-text-alarm" *ngIf="!inspection.ready">
+                {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                {{ 'sitnet_in_progress' | translate }}</span
+            >
+        </span>
+        <div class="input-group-sm make-inline" *ngIf="inspection.user.id === user.id">
+            <div class="make-inline">{{ inspection.user.firstName }} {{ inspection.user.lastName }}</div>
+            <div class="make-inline padl10">
+                <select
+                    [(ngModel)]="inspection.ready"
+                    class="form-control"
+                    [disabled]="disabled"
+                    (change)="setInspectionStatus()"
+                >
+                    <option *ngFor="let rs of reviewStatuses" [ngValue]="rs.key">{{ rs.value }}</option>
+                </select>
+            </div>
+        </div> `,
 })
 export class InspectionComponent implements OnInit {
     @Input() inspection!: ExamInspection;

@@ -19,11 +19,11 @@ import { ToastrService } from 'ngx-toastr';
 import type { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import type { User } from '../../../session/session.service';
-import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { LanguageService } from '../../../utility/language/language.service';
-import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
+import { AttachmentService } from '../../../shared/attachment/attachment.service';
+import { LanguageService } from '../../../shared/language/language.service';
+import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
 import { AssessmentService } from '../assessment.service';
-import { GradingBaseComponent } from '../common/gradingBase.component';
+import { GradingBaseComponent } from '../common/grading-base.component';
 
 @Component({
     selector: 'r-maturity-grading',

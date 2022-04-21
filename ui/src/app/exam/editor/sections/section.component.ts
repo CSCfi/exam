@@ -20,10 +20,10 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { noop } from 'rxjs';
+import { QuestionSelectorComponent } from '../../../question/picker/question-picker.component';
 import { QuestionService } from '../../../question/question.service';
-import { QuestionSelectorComponent } from '../../../question/selector/questionSelector.component';
-import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import { FileService } from '../../../utility/file/file.service';
+import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
+import { FileService } from '../../../shared/file/file.service';
 import type { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 

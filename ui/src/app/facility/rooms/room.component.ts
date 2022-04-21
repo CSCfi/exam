@@ -23,7 +23,6 @@ import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../..
 import { InteroperabilityService } from './interoperability.service';
 import type { Week, Weekday, WeekdayBlock } from './room.service';
 import { RoomService } from './room.service';
-import { SettingsResourceService } from './settingsResource';
 
 @Component({
     templateUrl: './room.component.html',
@@ -45,14 +44,13 @@ export class RoomComponent implements OnInit {
         private routing: UIRouterGlobals,
         private toast: ToastrService,
         private roomService: RoomService,
-        private settings: SettingsResourceService,
         private interoperability: InteroperabilityService,
     ) {}
 
     ngOnInit() {
         this.week = this.roomService.getWeek();
         this.showName = true;
-        this.settings.examVisit().subscribe((data) => {
+        this.roomService.examVisit().subscribe((data) => {
             this.isInteroperable = data.isExamVisitSupported;
         });
 

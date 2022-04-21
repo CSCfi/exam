@@ -22,8 +22,8 @@ import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { QuestionService } from '../question/question.service';
 import { SessionService } from '../session/session.service';
-import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import { CommonExamService } from '../utility/miscellaneous/commonExam.service';
+import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
+import { CommonExamService } from '../shared/miscellaneous/common-exam.service';
 import type {
     Exam,
     ExamExecutionType,

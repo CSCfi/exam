@@ -9,8 +9,8 @@ import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { MaintenancePeriod } from '../../exam/exam.model';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { DateTimeService } from '../../utility/date/date.service';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
+import { DateTimeService } from '../../shared/date/date.service';
+import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 import { ExceptionDialogComponent } from '../schedule/exceptionDialog.component';
 
 export type Weekday = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
@@ -318,4 +318,5 @@ export class RoomService {
         this.http.post<MaintenancePeriod>('/app/maintenance', period);
     updateMaintenancePeriod$ = (period: MaintenancePeriod) => this.http.put(`/app/maintenance/${period.id}`, period);
     removeMaintenancePeriod$ = (period: MaintenancePeriod) => this.http.delete(`/app/maintenance/${period.id}`);
+    examVisit = () => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit');
 }

@@ -15,7 +15,7 @@
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { DateTimeService } from '../../utility/date/date.service';
+import { DateTimeService } from '../../shared/date/date.service';
 import type { Week } from '../rooms/room.service';
 import { RoomService } from '../rooms/room.service';
 

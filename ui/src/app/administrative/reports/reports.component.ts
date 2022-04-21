@@ -17,8 +17,8 @@ import { Component } from '@angular/core';
 import { RoomService } from '../../facility/rooms/room.service';
 import { ExamRoom } from '../../reservation/reservation.model';
 import { User } from '../../session/session.service';
-import { Option } from '../../utility/select/dropDownSelect.component';
-import { UserService } from '../../utility/user/user.service';
+import { Option } from '../../shared/select/dropdown-select.component';
+import { UserService } from '../../shared/user/user.service';
 import { ReportsService, UserRole } from './reports.service';
 
 @Component({

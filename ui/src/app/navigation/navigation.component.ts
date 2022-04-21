@@ -18,7 +18,7 @@ import { UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ExaminationStatusService } from '../examination/examinationStatus.service';
+import { ExaminationStatusService } from '../examination/examination-status.service';
 import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
 import type { Link } from './navigation.service';

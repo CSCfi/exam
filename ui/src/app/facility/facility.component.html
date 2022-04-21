@@ -1,0 +1,64 @@
+<div id="dashboard">
+    <div class="top-row d-flex justify-content-between align-items-center">
+        <div class="student-enroll-title-wrap marb20">
+            <div>
+                <span class="student-enroll-title">{{ 'sitnet_exam_rooms_administration' | translate }}</span>
+                <a (click)="createExamRoom()" class="font-6 marl20 pointer">
+                    <i class="bi-plus-square"></i>
+                </a>
+            </div>
+        </div>
+        <div>
+            <a class="header-top-link" (click)="editMultipleRooms()">
+                <i class="bi-building"></i>
+                <span>
+                    {{ 'sitnet_edit_all_rooms' | translate }}
+                </span>
+            </a>
+        </div>
+    </div>
+    <div class="top-row">
+        <div class="col-md-12 ml-4">
+            <strong>{{ 'sitnet_maintenance_periods' | translate }}</strong>
+            <a (click)="createPeriod()" class="ml-2"><i class="pointer bi-plus-square"></i></a>
+        </div>
+    </div>
+    <div class="row ml-3" *ngFor="let period of maintenancePeriods | orderBy: 'startsAt'">
+        <div class="col-md-12 ml-4">
+            {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
+            {{ period.description }}
+            <a (click)="updatePeriod(period)" class="pointer ml-2"><i class="bi-pencil-square"></i></a>
+            <a (click)="removePeriod(period)" class="pointer ml-2"><i class="bi-x-square"></i></a>
+        </div>
+    </div>
+
+    <div class="tab-wrapper">
+        <ul ngbNav #nav="ngbNav" class="nav-tabs">
+            <li ngbNavItem>
+                <a ngbNavLink>
+                    {{ getHeadingTranslation('sitnet_exam_all_rooms') }}
+                </a>
+                <ng-template ngbNavContent>
+                    <rooms></rooms>
+                </ng-template>
+            </li>
+            <li ngbNavItem>
+                <a ngbNavLink>
+                    {{ getHeadingTranslation('sitnet_exam_machine_softwares') }}
+                </a>
+                <ng-template ngbNavContent>
+                    <software></software>
+                </ng-template>
+            </li>
+            <li ngbNavItem>
+                <a ngbNavLink>
+                    {{ getHeadingTranslation('sitnet_room_accessibility_info') }}
+                </a>
+                <ng-template ngbNavContent>
+                    <accessibility></accessibility>
+                </ng-template>
+            </li>
+        </ul>
+        <div [ngbNavOutlet]="nav"></div>
+    </div>
+</div>

@@ -22,15 +22,15 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { CollaborativeParticipation } from '../exam/collaborative/collaborativeExam.service';
+import { CollaborativeParticipation } from '../exam/collaborative/collaborative-exam.service';
 import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from '../exam/exam.model';
 import type { ExamRoom } from '../reservation/reservation.model';
 import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
-import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
-import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
-import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
+import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
+import { AddEnrolmentInformationDialogComponent } from './active/dialogs/add-enrolment-information-dialog.component';
+import { SelectExaminationEventDialogComponent } from './active/dialogs/select-examination-event-dialog.component';
+import { ShowInstructionsDialogComponent } from './active/dialogs/show-instructions-dialog.component';
 import type { EnrolmentInfo, ExamEnrolment, ReviewedExam } from './enrolment.model';
 
 @Injectable()

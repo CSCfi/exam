@@ -23,11 +23,11 @@ import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import type { Exam, ExamParticipation, Question } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
-import { FileService } from '../../../utility/file/file.service';
-import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
+import { FileService } from '../../../shared/file/file.service';
+import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
 import type { Review } from '../../review.model';
-import { AbortedExamsComponent } from '../dialogs/abortedExams.component';
-import { NoShowsComponent } from '../dialogs/noShows.component';
+import { AbortedExamsComponent } from '../dialogs/aborted.component';
+import { NoShowsComponent } from '../dialogs/no-shows.component';
 import { ReviewListService } from '../reviewList.service';
 
 type QuestionData = {

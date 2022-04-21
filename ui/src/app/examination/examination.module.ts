@@ -2,29 +2,25 @@ import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
 import { QuestionModule } from '../question/question.module';
-import { UtilityModule } from '../utility/utility.module';
-import { ExaminationClockComponent } from './clock/examinationClock.component';
+import { SharedModule } from '../shared/shared.module';
+import { ExaminationClockComponent } from './clock/examination-clock.component';
+import { ExaminationStatusService } from './examination-status.service';
 import { ExaminationComponent } from './examination.component';
 import { ExaminationService } from './examination.service';
-import { ExaminationStatusService } from './examinationStatus.service';
-import { ExaminationHeaderComponent } from './header/examinationHeader.component';
-import { AnswerInstructionsComponent } from './instructions/answerInstructions.component';
-import { ExaminationLogoutComponent } from './logout/examinationLogout.component';
-import { ExaminationNavigationComponent } from './navigation/examinationNavigation.component';
-import { ExaminationToolbarComponent } from './navigation/examinationToolbar.component';
-import { ClozeTestDisplayComponent } from './question/clozeTestDisplay.component';
-import { ExaminationClozeTestComponent } from './question/examinationClozeTest.component';
-import { ExaminationEssayQuestionComponent } from './question/examinationEssayQuestion.component';
-import { ExaminationMultiChoiceComponent } from './question/examinationMultiChoice.component';
-import { ExaminationQuestionComponent } from './question/examinationQuestion.component';
-import { ExaminationWeightedMultiChoiceComponent } from './question/examinationWeightedMultiChoice.component';
-import { ExaminationSectionComponent } from './section/examinationSection.component';
-
-/*export function createCompiler(compilerFactory: CompilerFactory) {
-    return compilerFactory.createCompiler();
-}*/
+import { ExaminationHeaderComponent } from './header/examination-header.component';
+import { AnswerInstructionsComponent } from './instructions/answer-instructions.component';
+import { ExaminationLogoutComponent } from './logout/examination-logout.component';
+import { ExaminationNavigationComponent } from './navigation/examination-navigation.component';
+import { ExaminationToolbarComponent } from './navigation/examination-toolbar.component';
+import { DynamicClozeTestComponent } from './question/dynamic-cloze-test.component';
+import { ExaminationClozeTestComponent } from './question/examination-cloze-test.component';
+import { ExaminationEssayQuestionComponent } from './question/examination-essay-question.component';
+import { ExaminationMultiChoiceComponent } from './question/examination-multi-choice-question.component';
+import { ExaminationQuestionComponent } from './question/examination-question.component';
+import { ExaminationWeightedMultiChoiceComponent } from './question/examination-weighted-multi-choice-question.component';
+import { ExaminationSectionComponent } from './section/examination-section.component';
 @NgModule({
-    imports: [NgbModule, UIRouterModule, QuestionModule, UtilityModule],
+    imports: [NgbModule, UIRouterModule, QuestionModule, SharedModule],
     declarations: [
         AnswerInstructionsComponent,
         ExaminationClockComponent,
@@ -39,14 +35,8 @@ import { ExaminationSectionComponent } from './section/examinationSection.compon
         ExaminationSectionComponent,
         ExaminationToolbarComponent,
         ExaminationComponent,
-        ClozeTestDisplayComponent,
+        DynamicClozeTestComponent,
     ],
-    providers: [
-        ExaminationService,
-        ExaminationStatusService,
-        //{ provide: COMPILER_OPTIONS, useValue: {}, multi: true },
-        //{ provide: CompilerFactory, useClass: JitCompilerFactory, deps: [COMPILER_OPTIONS] },
-        //{ provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory] },
-    ],
+    providers: [ExaminationService, ExaminationStatusService],
 })
 export class ExaminationModule {}
