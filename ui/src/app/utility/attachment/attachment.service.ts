@@ -69,10 +69,10 @@ export class AttachmentService {
 
     private toPromise = (observable: Observable<void>) =>
         new Promise<void>((resolve, reject) => {
-            observable.subscribe(
-                () => resolve(),
-                (err) => reject(err),
-            );
+            observable.subscribe({
+                next: () => resolve(),
+                error: (err) => reject(err),
+            });
         });
 
     eraseQuestionAttachment = (question: Question) =>
@@ -80,10 +80,10 @@ export class AttachmentService {
 
     eraseCollaborativeQuestionAttachment(examId: number, questionId: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            this.http.delete(this.collaborativeQuestionAttachmentApi(examId, questionId)).subscribe(
-                () => resolve(),
-                (err) => reject(err),
-            );
+            this.http.delete(this.collaborativeQuestionAttachmentApi(examId, questionId)).subscribe({
+                next: () => resolve(),
+                error: (err) => reject(err),
+            });
         });
     }
 
@@ -101,14 +101,14 @@ export class AttachmentService {
             this.translate.instant('sitnet_are_you_sure'),
         );
         dialog.result.then(() => {
-            this.http.delete<{ objectVersion?: number }>(url, {}).subscribe(
-                (resp) => {
+            this.http.delete<{ objectVersion?: number }>(url, {}).subscribe({
+                next: (resp) => {
                     this.toast.info(this.translate.instant('sitnet_attachment_removed'));
                     question.essayAnswer.objectVersion = resp?.objectVersion ? resp.objectVersion : 0;
                     delete question.essayAnswer.attachment;
                 },
-                (err) => this.toast.error(err),
-            );
+                error: (err) => this.toast.error(err),
+            });
         });
     }
 
@@ -119,13 +119,13 @@ export class AttachmentService {
         );
         dialog.result.then(() => {
             const api = collaborative ? this.collaborativeExamAttachmentApi : this.examAttachmentApi;
-            this.http.delete(api(exam.id)).subscribe(
-                () => {
+            this.http.delete(api(exam.id)).subscribe({
+                next: () => {
                     this.toast.info(this.translate.instant('sitnet_attachment_removed'));
                     delete exam.attachment;
                 },
-                (err) => this.toast.error(err),
-            );
+                error: (err) => this.toast.error(err),
+            });
         });
     }
 
@@ -135,13 +135,13 @@ export class AttachmentService {
             this.translate.instant('sitnet_are_you_sure'),
         );
         dialog.result.then(() => {
-            this.http.delete(this.feedbackAttachmentApi(exam.id)).subscribe(
-                () => {
+            this.http.delete(this.feedbackAttachmentApi(exam.id)).subscribe({
+                next: () => {
                     this.toast.info(this.translate.instant('sitnet_attachment_removed'));
                     delete exam.examFeedback?.attachment;
                 },
-                (err) => this.toast.error(err),
-            );
+                error: (err) => this.toast.error(err),
+            });
         });
     }
 
@@ -151,14 +151,14 @@ export class AttachmentService {
             this.translate.instant('sitnet_are_you_sure'),
         );
         dialog.result.then(() => {
-            this.http.delete<{ rev: string }>(`/app/iop/collab/attachment/exam/${id}/${ref}/feedback`).subscribe(
-                (resp) => {
+            this.http.delete<{ rev: string }>(`/app/iop/collab/attachment/exam/${id}/${ref}/feedback`).subscribe({
+                next: (resp) => {
                     this.toast.info(this.translate.instant('sitnet_attachment_removed'));
                     participation._rev = resp.rev;
                     delete participation.exam.examFeedback?.attachment;
                 },
-                (resp) => this.toast.error(resp),
-            );
+                error: (resp) => this.toast.error(resp),
+            });
         });
     };
 
@@ -168,13 +168,13 @@ export class AttachmentService {
             this.translate.instant('sitnet_are_you_sure'),
         );
         dialog.result.then(() => {
-            this.http.delete(this.statementAttachmentApi(exam.id)).subscribe(
-                () => {
+            this.http.delete(this.statementAttachmentApi(exam.id)).subscribe({
+                next: () => {
                     this.toast.info(this.translate.instant('sitnet_attachment_removed'));
                     delete exam.languageInspection?.statement.attachment;
                 },
-                (err) => this.toast.error(err),
-            );
+                error: (err) => this.toast.error(err),
+            });
         });
     }
 

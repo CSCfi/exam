@@ -36,7 +36,7 @@ export class EnrolmentDetailsComponent {
         return new Date(this.exam.examActiveEndDate || 0) < new Date();
     };
 
-    enrollForExam = () => this.Enrolment.checkAndEnroll(this.exam).subscribe();
+    enrollForExam = () => this.Enrolment.checkAndEnroll$(this.exam).subscribe();
 
     translateExamType = () => this.Exam.getExamTypeDisplayName(this.exam.examType.type);
 

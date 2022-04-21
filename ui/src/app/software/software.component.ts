@@ -35,27 +35,27 @@ export class SoftwareComponent implements OnInit {
     }
 
     updateSoftware = (software: Software) =>
-        this.http.put(`/app/softwares/${software.id}/${software.name}`, {}).subscribe(
-            () => this.toast.info(this.translate.instant('sitnet_software_updated')),
-            (err) => this.toast.error(err),
-        );
+        this.http.put(`/app/softwares/${software.id}/${software.name}`, {}).subscribe({
+            next: () => this.toast.info(this.translate.instant('sitnet_software_updated')),
+            error: (err) => this.toast.error(err),
+        });
 
     addSoftware = () =>
-        this.http.post<Software>(`/app/softwares/${this.newSoftware.name}`, {}).subscribe(
-            (resp) => {
+        this.http.post<Software>(`/app/softwares/${this.newSoftware.name}`, {}).subscribe({
+            next: (resp) => {
                 this.toast.info(this.translate.instant('sitnet_software_added'));
                 this.software.push({ ...resp, showName: false });
                 this.newSoftware.name = '';
             },
-            (err) => this.toast.error(err),
-        );
+            error: (err) => this.toast.error(err),
+        });
 
     removeSoftware = (software: Software & { showName: boolean }) =>
-        this.http.delete(`/app/softwares/${software.id}`).subscribe(
-            () => {
+        this.http.delete(`/app/softwares/${software.id}`).subscribe({
+            next: () => {
                 this.toast.info(this.translate.instant('sitnet_software_removed'));
                 this.software.splice(this.software.indexOf(software), 1);
             },
-            (err) => this.toast.error(err),
-        );
+            error: (err) => this.toast.error(err),
+        });
 }

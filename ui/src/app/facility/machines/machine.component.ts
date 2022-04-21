@@ -44,8 +44,8 @@ export class MachineComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.machines.getMachine(this.routing.params.id).subscribe(
-            (machine) => {
+        this.machines.getMachine(this.routing.params.id).subscribe({
+            next: (machine) => {
                 this.machine = machine;
                 this.machines.getSoftware().subscribe((data) => {
                     this.software = data as unknown as SoftwareWithClass[];
@@ -61,10 +61,8 @@ export class MachineComponent implements OnInit {
                     });
                 });
             },
-            (error) => {
-                this.toast.error(error.data);
-            },
-        );
+            error: this.toast.error,
+        });
     }
 
     removeMachine = (machine: ExamMachine) => {
@@ -73,37 +71,31 @@ export class MachineComponent implements OnInit {
             this.translate.instant('sitnet_remove_machine'),
         );
         dialog.result.then(() => {
-            this.machines.removeMachine(machine.id).subscribe(
-                () => {
+            this.machines.removeMachine(machine.id).subscribe({
+                next: () => {
                     this.toast.info(this.translate.instant('sitnet_machine_removed'));
                     this.state.go('staff.rooms');
                 },
-                (error) => {
-                    this.toast.error(error.data);
-                },
-            );
+                error: this.toast.error,
+            });
         });
     };
 
     toggleSoftware = (software: SoftwareWithClass) => {
-        this.machines.toggleMachineSoftware(this.machine.id, software.id).subscribe(
-            (response) => {
-                software.class = response.turnedOn === true ? 'btn-info' : 'btn-default';
-            },
-            (error) => {
-                this.toast.error(error.data);
-            },
-        );
+        this.machines.toggleMachineSoftware(this.machine.id, software.id).subscribe({
+            next: (response) => (software.class = response.turnedOn === true ? 'btn-info' : 'btn-default'),
+            error: this.toast.error,
+        });
     };
 
     updateMachine = (cb?: () => void) =>
-        this.machines.updateMachine(this.machine).subscribe(
-            () => this.toast.info(this.translate.instant('sitnet_machine_updated')),
-            (error) => this.toast.error(error),
-            () => {
+        this.machines.updateMachine(this.machine).subscribe({
+            next: () => this.toast.info(this.translate.instant('sitnet_machine_updated')),
+            error: this.toast.error,
+            complete: () => {
                 if (cb) cb();
             },
-        );
+        });
 
     updateMachineAndExit = () => this.updateMachine(() => this.state.go('staff.rooms'));
 

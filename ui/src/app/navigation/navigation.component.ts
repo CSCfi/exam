@@ -60,10 +60,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.user = this.Session.getUser();
         if (this.user && this.user.isAdmin) {
-            this.Navigation.getAppVersion().subscribe(
-                (resp) => (this.appVersion = resp.appVersion),
-                (e) => this.toast.error(e),
-            );
+            this.Navigation.getAppVersion().subscribe({
+                next: (resp) => (this.appVersion = resp.appVersion),
+                error: this.toast.error,
+            });
             this.getLinks(true);
         } else if (this.user) {
             this.getLinks(true);
@@ -89,13 +89,13 @@ export class NavigationComponent implements OnInit, OnDestroy {
 
     private getLinks = (checkInteroperability: boolean) => {
         if (checkInteroperability) {
-            this.Navigation.getInteroperability().subscribe(
-                (resp) => {
+            this.Navigation.getInteroperability().subscribe({
+                next: (resp) => {
                     this.isInteroperable = resp.isExamCollaborationSupported;
                     this.links = this.Navigation.getLinks(this.isInteroperable);
                 },
-                (e) => this.toast.error(e),
-            );
+                error: this.toast.error,
+            });
         } else {
             this.links = this.Navigation.getLinks(false);
         }

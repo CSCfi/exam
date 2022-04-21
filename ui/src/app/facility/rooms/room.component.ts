@@ -56,8 +56,8 @@ export class RoomComponent implements OnInit {
             this.isInteroperable = data.isExamVisitSupported;
         });
 
-        this.roomService.getRoom$(this.routing.params.id).subscribe(
-            (room: ExamRoom) => {
+        this.roomService.getRoom$(this.routing.params.id).subscribe({
+            next: (room: ExamRoom) => {
                 room.availableForExternals = room.externalRef !== null;
                 this.room = room;
                 if (!this.roomService.isAnyExamMachines(this.room)) {
@@ -71,10 +71,8 @@ export class RoomComponent implements OnInit {
                     this.setSelected(daySlot.weekday as Weekday, timeSlots);
                 });
             },
-            (error) => {
-                this.toast.error(error.data);
-            },
-        );
+            error: this.toast.error,
+        });
     }
 
     updateWorkingHours = () =>
@@ -123,14 +121,12 @@ export class RoomComponent implements OnInit {
     };
 
     updateRoom = () => {
-        this.roomService.updateRoom(this.room).subscribe(
-            () => {
+        this.roomService.updateRoom(this.room).subscribe({
+            next: () => {
                 this.toast.info(this.translate.instant('sitnet_room_updated'));
             },
-            (error) => {
-                this.toast.error(error.data);
-            },
-        );
+            error: this.toast.error,
+        });
     };
 
     saveRoom = () => {
@@ -142,28 +138,26 @@ export class RoomComponent implements OnInit {
         if (!this.roomService.isAnyExamMachines(this.room))
             this.toast.error(this.translate.instant('sitnet_dont_forget_to_add_machines') + ' ' + this.room.name);
 
-        this.roomService.updateRoom(this.room).subscribe(
-            () => {
+        this.roomService.updateRoom(this.room).subscribe({
+            next: () => {
                 this.toast.info(this.translate.instant('sitnet_room_saved'));
                 this.state.go('staff.rooms');
             },
-            (error) => {
-                this.toast.error(error.data);
-            },
-        );
+            error: this.toast.error,
+        });
     };
 
     updateInteroperability = () => {
-        this.interoperability.updateFacility$(this.room).subscribe(
-            (data) => {
+        this.interoperability.updateFacility$(this.room).subscribe({
+            next: (data) => {
                 this.room.externalRef = data.externalRef;
                 this.room.availableForExternals = data.externalRef !== null;
             },
-            (err) => {
+            error: (err) => {
                 this.room.availableForExternals = !this.room.availableForExternals;
                 this.toast.error(err.data.message);
             },
-        );
+        });
     };
 
     private setSelected = (day: Weekday, slots: number[]) => {

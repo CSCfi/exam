@@ -86,8 +86,8 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
     }
 
     updateExam = (resetAutoEvaluationConfig: boolean) => {
-        this.Exam.updateExam$(this.exam, {}, this.collaborative).subscribe(
-            () => {
+        this.Exam.updateExam$(this.exam, {}, this.collaborative).subscribe({
+            next: () => {
                 this.toast.info(this.translate.instant('sitnet_exam_saved'));
                 const code = this.exam.course ? this.exam.course.code : null;
                 this.ExamTabs.notifyExamUpdate({
@@ -97,8 +97,8 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
                     initScale: false,
                 });
             },
-            (resp) => this.toast.error(resp),
-        );
+            error: this.toast.error,
+        });
     };
 
     onCourseChange = () => {

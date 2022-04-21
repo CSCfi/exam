@@ -14,7 +14,7 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { SessionService } from '../../session/session.service';
 import type { EnrolmentInfo } from '../enrolment.model';
@@ -50,7 +50,7 @@ export class ExamEnrolmentsComponent implements OnInit {
     exams: EnrolmentInfo[] = [];
 
     constructor(
-        private state: StateService,
+        private route: UIRouterGlobals,
         private toast: ToastrService,
         private Enrolment: EnrolmentService,
         private Session: SessionService,
@@ -62,13 +62,13 @@ export class ExamEnrolmentsComponent implements OnInit {
             // We can not load resources before role is known.
             return;
         }
-        this.Enrolment.getEnrolmentInfo(this.state.params.code, parseInt(this.state.params.id)).subscribe(
-            (exam) => (this.exam = exam),
-            (err) => this.toast.error(err.data),
-        );
-        this.Enrolment.listEnrolments(this.state.params.code, parseInt(this.state.params.id)).subscribe(
-            (exams) => (this.exams = exams),
-            (err) => this.toast.error(err.data),
-        );
+        this.Enrolment.getEnrolmentInfo$(this.route.params.code, parseInt(this.route.params.id)).subscribe({
+            next: (exam) => (this.exam = exam),
+            error: this.toast.error,
+        });
+        this.Enrolment.listEnrolments$(this.route.params.code, parseInt(this.route.params.id)).subscribe({
+            next: (exams) => (this.exams = exams),
+            error: this.toast.error,
+        });
     }
 }

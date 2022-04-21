@@ -61,8 +61,8 @@ export class AssessmentComponent implements OnInit {
             ? `${this.routing.params.id}/${this.routing.params.ref}`
             : this.routing.params.id;
         const url = this.getResource(path);
-        this.http.get<Omit<ExamParticipation, 'exam'> & { exam: Examination }>(url).subscribe(
-            (participation) => {
+        this.http.get<Omit<ExamParticipation, 'exam'> & { exam: Examination }>(url).subscribe({
+            next: (participation) => {
                 const exam = participation.exam;
                 exam.examSections.forEach((es) =>
                     es.sectionQuestions
@@ -84,8 +84,8 @@ export class AssessmentComponent implements OnInit {
                 this.exam = exam;
                 this.participation = participation;
             },
-            (err) => this.toast.error(err.data),
-        );
+            error: this.toast.error,
+        });
     }
 
     isUnderLanguageInspection = () => {

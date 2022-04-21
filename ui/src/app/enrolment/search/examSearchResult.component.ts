@@ -35,7 +35,7 @@ export class ExamSearchResultComponent {
             return;
         }
         this.enrolling = true;
-        this.Enrolment.checkAndEnroll(this.exam as Exam, this.collaborative).subscribe(() => (this.enrolling = false));
+        this.Enrolment.checkAndEnroll$(this.exam as Exam, this.collaborative).subscribe(() => (this.enrolling = false));
     };
 
     makeReservation = () => {

@@ -36,8 +36,8 @@ export class FileService {
                 params: method === 'GET' ? params : undefined,
                 body: method === 'POST' ? { params } : undefined,
             })
-            .subscribe(
-                (resp: HttpResponse<string>) => {
+            .subscribe({
+                next: (resp: HttpResponse<string>) => {
                     if (resp.body) {
                         const contentType = resp.headers.get('Content-Type');
                         if (contentType) {
@@ -45,11 +45,11 @@ export class FileService {
                         }
                     }
                 },
-                (resp) => {
+                error: (resp) => {
                     console.log('error ' + JSON.stringify(resp));
                     this.toast.error(resp.body || resp);
                 },
-            );
+            });
     }
 
     getMaxFilesize(): Promise<{ filesize: number }> {
@@ -57,13 +57,13 @@ export class FileService {
             if (this.maxFileSize) {
                 resolve({ filesize: this.maxFileSize });
             } else {
-                this.http.get<{ filesize: number }>('/app/settings/maxfilesize').subscribe(
-                    (resp) => {
+                this.http.get<{ filesize: number }>('/app/settings/maxfilesize').subscribe({
+                    next: (resp) => {
                         this.maxFileSize = resp.filesize;
                         resolve(resp);
                     },
-                    (e) => reject(e),
-                );
+                    error: reject,
+                });
             }
         });
     }
@@ -135,10 +135,10 @@ export class FileService {
                         fd.append(k, params[k]);
                     }
                 }
-                this.http.post<Attachment>(url, fd).subscribe(
-                    (resp) => resolve(resp),
-                    (resp) => reject(resp),
-                );
+                this.http.post<Attachment>(url, fd).subscribe({
+                    next: (resp) => resolve(resp),
+                    error: (resp) => reject(resp),
+                });
             }
         });
     }

@@ -44,26 +44,26 @@ export class ExamMaterialComponent implements OnInit {
         ));
 
     createMaterial = () => {
-        this.http.post<ExamMaterial>('/app/materials', this.newMaterial).subscribe(
-            (resp) => {
+        this.http.post<ExamMaterial>('/app/materials', this.newMaterial).subscribe({
+            next: (resp) => {
                 this.materials.push(resp);
                 this.filterMaterials();
                 this.newMaterial = {};
                 this.materialsChanged = true;
             },
-            (err) => this.toast.error(err),
-        );
+            error: this.toast.error,
+        });
     };
 
     removeMaterial = (material: ExamMaterial) => {
-        this.http.delete(`/app/materials/${material.id}`).subscribe(
-            () => {
+        this.http.delete(`/app/materials/${material.id}`).subscribe({
+            next: () => {
                 this.materials.splice(this.materials.indexOf(material), 1);
                 this.filterMaterials();
                 this.materialsChanged = true;
             },
-            (err) => this.toast.error(err),
-        );
+            error: this.toast.error,
+        });
     };
 
     ok = () => this.activeModal.close();

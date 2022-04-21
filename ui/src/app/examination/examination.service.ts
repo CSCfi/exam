@@ -181,14 +181,14 @@ export class ExaminationService {
         }
         if (!preview) {
             const url = this.getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
-            this.http.post(url, { oids: ids }).subscribe(
-                () => {
+            this.http.post(url, { oids: ids }).subscribe({
+                next: () => {
                     this.toast.info(this.translate.instant('sitnet_answer_saved'));
                     sq.options.forEach((o) => (o.answered = ids.indexOf(o.id as number) > -1));
                     this.setQuestionColors(sq);
                 },
-                (resp) => this.toast.error(resp),
-            );
+                error: this.toast.error,
+            });
         } else {
             this.setQuestionColors(sq);
         }
@@ -219,9 +219,12 @@ export class ExaminationService {
             this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
         };
         const url = this.getResource('/app/student/exam/' + hash);
-        this.http.put<void>(url, {}).subscribe(ok, (resp) => {
-            if (!canFail) this.toast.error(this.translate.instant(resp));
-            else ok();
+        this.http.put<void>(url, {}).subscribe({
+            next: ok,
+            error: (resp) => {
+                if (!canFail) this.toast.error(this.translate.instant(resp));
+                else ok();
+            },
         });
     };
 }

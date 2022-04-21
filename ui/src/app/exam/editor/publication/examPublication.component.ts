@@ -82,22 +82,18 @@ export class ExamPublicationComponent implements OnInit {
 
     ngOnInit() {
         this.autoEvaluation = { enabled: !!this.exam.autoEvaluationConfig };
-        this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe(
-            (data) => (this.examDurations = data.examDurations),
-            (error) => this.toast.error(error),
-        );
-        this.http.get<{ maxDate: Date }>('/app/settings/maxDate').subscribe(
-            (data) => (this.examMaxDate = data.maxDate),
-            (error) => this.toast.error(error),
-        );
-        this.http.get<{ maxDuration: number }>('/app/settings/maxDuration').subscribe(
-            (data) => (this.maxDuration = data.maxDuration),
-            (error) => this.toast.error(error),
-        );
-        this.http.get<{ minDuration: number }>('/app/settings/minDuration').subscribe(
-            (data) => (this.minDuration = data.minDuration),
-            (error) => this.toast.error(error),
-        );
+        this.http
+            .get<{ examDurations: number[] }>('/app/settings/durations')
+            .subscribe({ next: (data) => (this.examDurations = data.examDurations), error: this.toast.error });
+        this.http
+            .get<{ maxDate: Date }>('/app/settings/maxDate')
+            .subscribe({ next: (data) => (this.examMaxDate = data.maxDate), error: this.toast.error });
+        this.http
+            .get<{ maxDuration: number }>('/app/settings/maxDuration')
+            .subscribe({ next: (data) => (this.maxDuration = data.maxDuration), error: this.toast.error });
+        this.http
+            .get<{ minDuration: number }>('/app/settings/minDuration')
+            .subscribe({ next: (data) => (this.minDuration = data.minDuration), error: this.toast.error });
         if (this.exam.implementation !== 'AQUARIUM') {
             this.http
                 .get<MaintenancePeriod[]>('/app/maintenance')
@@ -172,7 +168,7 @@ export class ExamPublicationComponent implements OnInit {
             }),
             catchError((err) => {
                 this.toast.error(err);
-                return throwError(err);
+                return throwError(() => new Error(err));
             }),
         );
     };
@@ -257,16 +253,16 @@ export class ExamPublicationComponent implements OnInit {
                     state: this.isDraftCollaborativeExam() ? 'PRE_PUBLISHED' : 'PUBLISHED',
                 };
                 // OK button clicked
-                this.updateExam$(true, state).subscribe(
-                    () => {
+                this.updateExam$(true, state).subscribe({
+                    next: () => {
                         const text = this.isDraftCollaborativeExam()
                             ? 'sitnet_exam_saved_and_pre_published'
                             : 'sitnet_exam_saved_and_published';
                         this.toast.success(this.translate.instant(text));
                         this.state.go(this.user.isAdmin ? 'staff.admin' : 'staff.teacher');
                     },
-                    (err) => this.toast.error(err.data),
-                );
+                    error: this.toast.error,
+                });
             });
         }
     };
@@ -284,13 +280,13 @@ export class ExamPublicationComponent implements OnInit {
                 .result.then(() =>
                     this.updateExam$(true, {
                         state: this.collaborative ? 'PRE_PUBLISHED' : 'DRAFT',
-                    }).subscribe(
-                        () => {
+                    }).subscribe({
+                        next: () => {
                             this.toast.success(this.translate.instant('sitnet_exam_unpublished'));
                             this.exam.state = 'DRAFT';
                         },
-                        (err) => this.toast.error(err.data),
-                    ),
+                        error: this.toast.error,
+                    }),
                 );
         } else {
             this.toast.warning(this.translate.instant('sitnet_unpublish_not_possible'));
@@ -343,15 +339,15 @@ export class ExamPublicationComponent implements OnInit {
             this.translate.instant('sitnet_are_you_sure'),
         )
             .result.then(() =>
-                this.Exam.removeExaminationEvent$(this.exam.id, configuration).subscribe(
-                    () => {
+                this.Exam.removeExaminationEvent$(this.exam.id, configuration).subscribe({
+                    next: () => {
                         this.exam.examinationEventConfigurations.splice(
                             this.exam.examinationEventConfigurations.indexOf(configuration),
                             1,
                         );
                     },
-                    (err) => this.toast.error(err),
-                ),
+                    error: this.toast.error,
+                }),
             )
             .catch((err) => this.toast.error(err));
     };

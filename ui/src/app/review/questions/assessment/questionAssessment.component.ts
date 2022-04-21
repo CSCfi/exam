@@ -53,16 +53,16 @@ export class QuestionAssessmentComponent implements OnInit {
 
     ngOnInit() {
         const ids = this.state.params.q || [];
-        this.QuestionReview.getReviews$(this.examId, ids).subscribe(
-            (reviews) => {
+        this.QuestionReview.getReviews$(this.examId, ids).subscribe({
+            next: (reviews) => {
                 reviews.forEach((r, i) => (r.selected = i === 0)); // select the first in the list
                 this.reviews = reviews;
                 if (this.reviews.length > 0) {
                     this.setSelectedReview(this.reviews[0]);
                 }
             },
-            (err) => this.toast.error(err),
-        );
+            error: (err) => this.toast.error(err),
+        });
     }
 
     getAssessedAnswerCount = (includeLocked: boolean) => {

@@ -65,8 +65,8 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     ngOnInit() {
         if (this.routing.params.id && this.routing.params.hash) {
             this.isUpcoming = true;
-            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.routing.params.id}`).subscribe(
-                (enrolment) => {
+            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.routing.params.id}`).subscribe({
+                next: (enrolment) => {
                     this.setOccasion(enrolment.reservation);
                     this.enrolment = enrolment;
                     const offset = this.calculateOffset();
@@ -80,8 +80,8 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                         .post<void>(`/app/student/exam/${this.routing.params.hash}`, {})
                         .subscribe(() => console.log(`exam ${this.routing.params.hash} prepared ok`));
                 },
-                (err) => this.toast.error(err),
-            );
+                error: this.toast.error,
+            });
         }
     }
 

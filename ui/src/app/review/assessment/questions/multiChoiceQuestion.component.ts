@@ -105,18 +105,18 @@ export class MultiChoiceQuestionComponent implements OnInit {
                 this.routing.params.id,
                 this.routing.params.ref,
                 this.participation._rev,
-            ).subscribe(
-                (resp) => {
+            ).subscribe({
+                next: (resp) => {
                     this.toast.info(this.translate.instant('sitnet_graded'));
                     this.scored.emit(resp.rev);
                 },
-                (err) => this.toast.error(err.data),
-            );
+                error: (err) => this.toast.error(err.data),
+            });
         } else {
-            this.Assessment.saveForcedScore(this.sectionQuestion).subscribe(
-                () => this.toast.info(this.translate.instant('sitnet_graded')),
-                (err) => this.toast.error(err.data),
-            );
+            this.Assessment.saveForcedScore(this.sectionQuestion).subscribe({
+                next: () => this.toast.info(this.translate.instant('sitnet_graded')),
+                error: (err) => this.toast.error(err.data),
+            });
         }
     };
 

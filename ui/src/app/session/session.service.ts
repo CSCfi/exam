@@ -151,11 +151,14 @@ export class SessionService implements OnDestroy {
     }
 
     logout(): void {
-        this.http.delete<{ logoutUrl: string }>('/app/session', {}).subscribe((resp) => {
-            this.webStorageService.remove('EXAM_USER');
-            // delete this.user;
-            this.onLogoutSuccess(resp);
-        }, this.toast.error);
+        this.http.delete<{ logoutUrl: string }>('/app/session', {}).subscribe({
+            next: (resp) => {
+                this.webStorageService.remove('EXAM_USER');
+                // delete this.user;
+                this.onLogoutSuccess(resp);
+            },
+            error: this.toast.error,
+        });
     }
 
     getLocale = () => {
@@ -172,14 +175,14 @@ export class SessionService implements OnDestroy {
         if (!user) {
             this.translate(lang);
         } else {
-            this.http.put('/app/user/lang', { lang: lang }).subscribe(
-                () => {
+            this.http.put('/app/user/lang', { lang: lang }).subscribe({
+                next: () => {
                     user.lang = lang;
                     this.webStorageService.set('EXAM_USER', user);
                     this.translate(lang);
                 },
-                () => this.toast.error('failed to switch language'),
-            );
+                error: () => this.toast.error('failed to switch language'),
+            });
         }
     }
 
@@ -312,7 +315,7 @@ export class SessionService implements OnDestroy {
                 catchError((resp) => {
                     if (resp) this.toast.error(this.i18n.instant(resp));
                     this.logout();
-                    return throwError(resp);
+                    return throwError(() => new Error(resp));
                 }),
             );
 

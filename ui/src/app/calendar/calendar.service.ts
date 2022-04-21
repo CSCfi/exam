@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import { addHours, parseISO } from 'date-fns';
 import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import type { Observable } from 'rxjs';
@@ -53,7 +53,7 @@ export interface OpeningHours {
 export class CalendarService {
     constructor(
         private http: HttpClient,
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {}
@@ -88,7 +88,7 @@ export class CalendarService {
         const slot: Slot = {
             start: this.adjustBack(start, tz),
             end: this.adjustBack(end, tz),
-            examId: parseInt(this.state.params.id),
+            examId: parseInt(this.routing.params.id),
             roomId: room._id ? room._id : room.id,
             orgId: org._id,
             sectionIds: sectionIds,

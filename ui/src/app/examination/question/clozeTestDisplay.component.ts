@@ -13,17 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import type { ComponentRef, OnDestroy, OnInit } from '@angular/core';
-import {
-    Compiler,
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    NgModule,
-    Output,
-    ViewChild,
-    ViewContainerRef,
-} from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewContainerRef } from '@angular/core';
 
 type ClozeTestAnswer = { [key: string]: string };
 
@@ -40,7 +30,7 @@ export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
 
     componentRef?: ComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
 
-    constructor(private compiler: Compiler, private el: ElementRef) {}
+    constructor(private el: ElementRef) {}
 
     private getTextNodes = (el: Element) => {
         const a = [],
@@ -92,15 +82,16 @@ export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
             },
         );
 
-        const clozeModule = NgModule({ declarations: [clozeComponent] })(class {});
-        this.compiler.compileModuleAndAllComponentsAsync(clozeModule).then((factories) => {
-            const f = factories.componentFactories.find((cf) => cf.selector === 'dyn-cloze-test');
-            if (f && this.container) {
-                this.componentRef = this.container.createComponent(f);
-                this.componentRef.instance.el = this.el;
-                this.componentRef.instance.onInput = this.handleInputChange;
-            }
-        });
+        // const clozeModule = NgModule({ declarations: [clozeComponent] })(class {});
+        //this.compiler.compileModuleAndAllComponentsAsync(clozeModule).then((factories) => {
+        // const f = factories.componentFactories.find((cf) => cf.selector === 'dyn-cloze-test');
+        if (this.container) {
+            //this.componentRef = this.container.createComponent();
+            this.componentRef = this.container.createComponent(clozeComponent);
+            this.componentRef.instance.el = this.el;
+            this.componentRef.instance.onInput = this.handleInputChange;
+        }
+        //});
     }
 
     ngOnDestroy() {

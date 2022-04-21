@@ -42,8 +42,8 @@ export class SoftwareSelectorComponent implements OnInit {
     isSelected = (sw: Software) => this.exam.softwares.some((es) => es.id === sw.id);
 
     updateExamSoftware = (sw: Software) => {
-        this.http.put(`/app/exam/${this.exam.id}/software/${sw.id}`, {}).subscribe(
-            () => {
+        this.http.put(`/app/exam/${this.exam.id}/software/${sw.id}`, {}).subscribe({
+            next: () => {
                 if (this.isSelected(sw)) {
                     const index = this.exam.softwares.map((es) => es.id).indexOf(sw.id);
                     this.exam.softwares.splice(index, 1);
@@ -52,7 +52,7 @@ export class SoftwareSelectorComponent implements OnInit {
                 }
                 this.toast.info(this.translate.instant('sitnet_exam_software_updated'));
             },
-            (err) => this.toast.error(err.data),
-        );
+            error: this.toast.error,
+        });
     };
 }

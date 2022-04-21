@@ -87,14 +87,14 @@ export class SectionComponent implements OnInit {
                 this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`),
                 this.getSectionPayload(),
             )
-            .subscribe(
-                () => {
+            .subscribe({
+                next: () => {
                     if (!silent) {
                         this.toast.info(this.translate.instant('sitnet_section_updated'));
                     }
                 },
-                () => (this.section.optional = !this.section.optional),
-            );
+                error: () => (this.section.optional = !this.section.optional),
+            });
     };
 
     private insertExamQuestion = (question: Question, seq: number) => {
@@ -102,8 +102,8 @@ export class SectionComponent implements OnInit {
             ? `/app/iop/exams/${this.examId}/sections/${this.section.id}/questions`
             : `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
         const data = { sequenceNumber: seq, question: this.collaborative ? question : undefined };
-        this.http.post<ExamSection | ExamSectionQuestion>(resource, data).subscribe(
-            (resp) => {
+        this.http.post<ExamSection | ExamSectionQuestion>(resource, data).subscribe({
+            next: (resp) => {
                 // Add new section question to existing section
                 if (!this.collaborative) {
                     const section = resp as ExamSection;
@@ -123,8 +123,8 @@ export class SectionComponent implements OnInit {
                 });
                 this.section.sectionQuestions = [...this.section.sectionQuestions, newSectionQuestion];
             },
-            (err) => this.toast.error(err.data),
-        );
+            error: this.toast.error,
+        });
     };
 
     private addAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
@@ -157,14 +157,14 @@ export class SectionComponent implements OnInit {
         dialog.result.then(() => {
             this.http
                 .delete(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/questions`))
-                .subscribe(
-                    () => {
+                .subscribe({
+                    next: () => {
                         this.section.sectionQuestions.splice(0, this.section.sectionQuestions.length);
                         this.section.lotteryOn = false;
                         this.toast.info(this.translate.instant('sitnet_all_questions_removed'));
                     },
-                    (resp) => this.toast.error(resp.data),
-                );
+                    error: this.toast.error,
+                });
         });
     };
 
@@ -196,8 +196,8 @@ export class SectionComponent implements OnInit {
         }
         this.http
             .put(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}`), this.getSectionPayload())
-            .subscribe(
-                () => {
+            .subscribe({
+                next: () => {
                     if (!this.section.lotteryItemCount) {
                         this.section.lotteryItemCount = 1;
                     }
@@ -206,8 +206,8 @@ export class SectionComponent implements OnInit {
                     }
                     this.toast.info(this.translate.instant('sitnet_section_updated'));
                 },
-                (resp) => this.toast.error(resp.data),
-            );
+                error: this.toast.error,
+            });
     };
 
     updateLotteryCount = () => {
@@ -250,8 +250,8 @@ export class SectionComponent implements OnInit {
             .delete<ExamSection>(
                 this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/questions/${sq.question.id}`),
             )
-            .subscribe(
-                (resp) => {
+            .subscribe({
+                next: (resp) => {
                     this.section.sectionQuestions.splice(this.section.sectionQuestions.indexOf(sq), 1);
                     this.toast.info(this.translate.instant('sitnet_question_removed'));
                     if (this.section.sectionQuestions.length < 2 && this.section.lotteryOn) {
@@ -263,8 +263,8 @@ export class SectionComponent implements OnInit {
                         this.section.lotteryItemCount = resp.lotteryItemCount;
                     }
                 },
-                (resp) => this.toast.error(resp.data),
-            );
+                error: this.toast.error,
+            });
     };
 
     openLibrary = () => {

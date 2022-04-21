@@ -16,7 +16,6 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
-import { noop } from 'rxjs';
 import type { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import type { Examination } from '../../../examination/examination.model';
@@ -77,7 +76,7 @@ export class ToolbarComponent {
                 this.toast.info(this.translate.instant('sitnet_review_recorded'));
                 const state = this.getExitState();
                 this.state.go(state.name as string, state.params);
-            }, noop);
+            });
         }
     };
 

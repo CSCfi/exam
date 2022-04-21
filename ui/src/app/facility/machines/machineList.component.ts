@@ -42,11 +42,11 @@ export class MachineListComponent implements OnInit {
         this.room ? this.room.examMachines.filter((m) => !m.outOfService && m.statusComment).length : 0;
 
     addNewMachine = () =>
-        this.http.post<ExamMachine>(`/app/machines/${this.room.id}`, {}).subscribe(
-            (resp) => {
+        this.http.post<ExamMachine>(`/app/machines/${this.room.id}`, {}).subscribe({
+            next: (resp) => {
                 this.toast.info(this.translate.instant('sitnet_machine_added'));
                 this.room.examMachines.push(resp);
             },
-            (err) => this.toast.error(err.data),
-        );
+            error: (err) => this.toast.error(err.data),
+        });
 }

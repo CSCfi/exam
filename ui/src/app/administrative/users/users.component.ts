@@ -212,8 +212,8 @@ export class UsersComponent implements OnInit, OnDestroy {
     };
 
     initSearch = () => {
-        this.userManagement.getUsers(this.filter.text).subscribe(
-            (users) => {
+        this.userManagement.getUsers(this.filter.text).subscribe({
+            next: (users) => {
                 this.users = users as UserWithOptions[];
                 this.users.forEach((user: UserWithOptions) => {
                     this.updateEditOptions(user);
@@ -221,10 +221,10 @@ export class UsersComponent implements OnInit, OnDestroy {
                 this.filterUsers();
                 this.loader.loading = false;
             },
-            (err) => {
+            error: (err) => {
                 this.loader.loading = false;
                 this.toast.error(this.translate.instant(err));
             },
-        );
+        });
     };
 }

@@ -49,10 +49,10 @@ export class ExamInspectorSelectorComponent implements OnInit {
     }
 
     private getInspectors = () =>
-        this.http.get<ExamInspection[]>(`/app/exam/${this.exam.id}/inspections`).subscribe(
-            (inspections) => (this.examInspections = inspections),
-            (err) => this.toast.error(err.data),
-        );
+        this.http.get<ExamInspection[]>(`/app/exam/${this.exam.id}/inspections`).subscribe({
+            next: (inspections) => (this.examInspections = inspections),
+            error: this.toast.error,
+        });
 
     listInspectors$ = (criteria$: Observable<string>): Observable<User[]> =>
         criteria$.pipe(
@@ -66,8 +66,8 @@ export class ExamInspectorSelectorComponent implements OnInit {
             ),
             take(15),
             catchError((err) => {
-                this.toast.error(err.data);
-                return throwError(err);
+                this.toast.error(err);
+                return throwError(() => new Error(err));
             }),
         );
 
@@ -89,8 +89,5 @@ export class ExamInspectorSelectorComponent implements OnInit {
     };
 
     removeInspector = (id: number) =>
-        this.http.delete(`/app/exams/inspector/${id}`).subscribe(
-            () => this.getInspectors(),
-            (err) => this.toast.error(err.data),
-        );
+        this.http.delete(`/app/exams/inspector/${id}`).subscribe({ next: this.getInspectors, error: this.toast.error });
 }

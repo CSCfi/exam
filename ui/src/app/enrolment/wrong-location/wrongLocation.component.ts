@@ -62,8 +62,8 @@ export class WrongLocationComponent implements OnInit {
     ngOnInit() {
         if (this.routing.params.eid) {
             this.isUpcoming = true;
-            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.routing.params.eid}`).subscribe(
-                (enrolment) => {
+            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.routing.params.eid}`).subscribe({
+                next: (enrolment) => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');
                     }
@@ -77,8 +77,8 @@ export class WrongLocationComponent implements OnInit {
                         .get<ExamMachine>(`/app/machines/${this.routing.params.mid}`)
                         .subscribe((machine) => (this.currentMachine = machine));
                 },
-                (err) => this.toast.error(err),
-            );
+                error: this.toast.error,
+            });
         }
     }
 

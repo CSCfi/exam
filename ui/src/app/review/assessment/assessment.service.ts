@@ -189,7 +189,7 @@ export class AssessmentService {
 
     saveEssayScore$ = (question: ExamSectionQuestion): Observable<void> => {
         if (!question.essayAnswer || isNaN(question.essayAnswer?.evaluatedScore as number)) {
-            return throwError({ data: 'sitnet_error_score_input' });
+            return throwError(() => new Error(this.translate.instant('sitnet_error_score_input')));
         }
         const url = `/app/review/examquestion/${question.id}/score`;
         return this.http.put<void>(url, { evaluatedScore: question.essayAnswer.evaluatedScore });
@@ -202,7 +202,7 @@ export class AssessmentService {
         rev: string,
     ): Observable<{ rev: string }> => {
         if (!question.essayAnswer || isNaN(question.essayAnswer?.evaluatedScore as number)) {
-            return throwError({ data: 'sitnet_error_score_input' });
+            return throwError(() => new Error(this.translate.instant('sitnet_error_score_input')));
         }
         const url = `/app/iop/reviews/${examId}/${examRef}/question/${question.id}`;
         return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });

@@ -71,25 +71,25 @@ export class ExamMaterialSelectorComponent implements OnInit {
 
     addMaterial = () => {
         if (!this.selectedMaterial) return;
-        this.http.post(`/app/materials/${this.selectedMaterial.id}/${this.section.id}`, {}).subscribe(
-            () => {
+        this.http.post(`/app/materials/${this.selectedMaterial.id}/${this.section.id}`, {}).subscribe({
+            next: () => {
                 this.section.examMaterials.push(this.selectedMaterial as ExamMaterial);
                 delete this.selectedMaterial;
                 this.filterOutExisting();
                 this.filter = '';
             },
-            (err) => this.toast.error(err),
-        );
+            error: this.toast.error,
+        });
     };
 
     removeMaterial = (material: ExamMaterial) => {
-        this.http.delete(`/app/materials/${material.id}/${this.section.id}`).subscribe(
-            () => {
+        this.http.delete(`/app/materials/${material.id}/${this.section.id}`).subscribe({
+            next: () => {
                 this.section.examMaterials.splice(this.section.examMaterials.indexOf(material), 1);
                 this.filterOutExisting();
             },
-            (err) => this.toast.error(err),
-        );
+            error: (err) => this.toast.error(err),
+        });
     };
 
     openMaterialEditor = () => {

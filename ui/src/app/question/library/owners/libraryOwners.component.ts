@@ -110,15 +110,15 @@ export class LibraryOwnersComponent implements OnInit {
             return;
         }
 
-        this.Question.addOwnerForQuestions$(this.selectedTeacherId, this.selections).subscribe(
-            () => {
+        this.Question.addOwnerForQuestions$(this.selectedTeacherId, this.selections).subscribe({
+            next: () => {
                 this.toast.info(this.translate.instant('sitnet_question_owner_added'));
                 this.selected.emit({
                     user: this.teachers.find((t) => t.id === this.selectedTeacherId) as User,
                     selections: this.selections,
                 });
             },
-            () => this.toast.info(this.translate.instant('sitnet_update_failed')),
-        );
+            error: () => this.toast.error(this.translate.instant('sitnet_update_failed')),
+        });
     };
 }

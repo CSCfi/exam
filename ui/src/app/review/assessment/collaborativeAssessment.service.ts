@@ -111,11 +111,11 @@ export class CollaborativeAssesmentService {
         examRef: string,
     ) => {
         const url = `/app/iop/reviews/${examId}/${examRef}`;
-        this.http.put<{ rev: string }>(url, payload).subscribe(
-            (data) => {
+        this.http.put<{ rev: string }>(url, payload).subscribe({
+            next: (data) => {
                 participation._rev = data.rev;
-                this.saveFeedback$(examId, examRef, participation).subscribe(
-                    () => {
+                this.saveFeedback$(examId, examRef, participation).subscribe({
+                    next: () => {
                         if (newState === 'REVIEW_STARTED') {
                             messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
                             this.windowRef.nativeWindow.setTimeout(
@@ -128,11 +128,11 @@ export class CollaborativeAssesmentService {
                             this.state.go(state.name as string, state.params);
                         }
                     },
-                    (resp) => this.toast.error(resp),
-                );
+                    error: this.toast.error,
+                });
             },
-            (resp) => this.toast.error(resp),
-        );
+            error: this.toast.error,
+        });
     };
 
     saveAssessment = (participation: ExamParticipation, modifiable: boolean, id: number, ref: string) => {
@@ -168,35 +168,35 @@ export class CollaborativeAssesmentService {
     private sendToRegistry = (payload: Payload, examId: number, ref: string, participation: ExamParticipation) => {
         payload.state = 'GRADED_LOGGED';
         const url = `/app/iop/reviews/${examId}/${ref}/record`;
-        this.http.put<{ rev: string }>(url, payload).subscribe(
-            (data) => {
+        this.http.put<{ rev: string }>(url, payload).subscribe({
+            next: (data) => {
                 participation._rev = data.rev;
                 this.toast.info(this.translate.instant('sitnet_review_recorded'));
                 const state = this.Assessment.getExitStateById(this.routing.params.id, true);
                 this.state.go(state.name as string, state.params);
             },
-            (resp) => this.toast.error(resp),
-        );
+            error: this.toast.error,
+        });
     };
 
     private register = (participation: ExamParticipation, examId: number, ref: string, payload: Payload) => {
-        this.saveFeedback$(examId, ref, participation).subscribe(
-            () => {
+        this.saveFeedback$(examId, ref, participation).subscribe({
+            next: () => {
                 payload.rev = participation._rev as string;
                 const url = `/app/iop/reviews/${examId}/${ref}`;
-                this.http.put<{ rev: string }>(url, payload).subscribe(
-                    (data) => {
+                this.http.put<{ rev: string }>(url, payload).subscribe({
+                    next: (data) => {
                         payload.rev = participation._rev = data.rev;
                         if (participation.exam.state !== 'GRADED') {
                             this.toast.info(this.translate.instant('sitnet_review_graded'));
                         }
                         this.sendToRegistry(payload, examId, ref, participation);
                     },
-                    (resp) => this.toast.error(resp),
-                );
+                    error: this.toast.error,
+                });
             },
-            (resp) => this.toast.error(resp),
-        );
+            error: this.toast.error,
+        });
     };
 
     createExamRecord = (participation: ExamParticipation, examId: number, ref: string) => {

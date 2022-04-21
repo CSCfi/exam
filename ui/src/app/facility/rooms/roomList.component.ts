@@ -15,7 +15,7 @@
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/angular';
+import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
 import type { User } from '../../session/session.service';
@@ -38,6 +38,7 @@ export class RoomListComponent implements OnInit {
 
     constructor(
         private state: StateService,
+        private router: UIRouterGlobals,
         private toast: ToastrService,
         private session: SessionService,
         private room: RoomService,
@@ -48,7 +49,7 @@ export class RoomListComponent implements OnInit {
 
     ngOnInit() {
         if (this.user.isAdmin) {
-            if (!this.state.params.id) {
+            if (!this.router.params.id) {
                 this.room.getRooms$().subscribe((rooms) => {
                     this.times = this.room.getTimes();
                     const roomsWithVisibility = rooms as RoomWithAddressVisibility[];
@@ -75,13 +76,13 @@ export class RoomListComponent implements OnInit {
 
     // Called when create exam button is clicked
     createExamRoom = () => {
-        this.room.getDraft$().subscribe(
-            (room) => {
+        this.room.getDraft$().subscribe({
+            next: (room) => {
                 this.toast.info(this.translate.instant('sitnet_room_draft_created'));
                 this.state.go('staff.room', { id: room.id });
             },
-            (error) => this.toast.error(error.data),
-        );
+            error: this.toast.error,
+        });
     };
 
     isArchived = (machine: ExamMachine) => {

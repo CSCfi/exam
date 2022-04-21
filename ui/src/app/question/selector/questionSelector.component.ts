@@ -55,19 +55,19 @@ export class QuestionSelectorComponent {
                     sequenceNumber: to,
                     questions: this.selections.join(),
                 })
-                .subscribe(
-                    (resp) => {
+                .subscribe({
+                    next: (resp) => {
                         const insertedSectionQuestions = resp.sectionQuestions.filter((esq) =>
                             this.selections.includes(esq.question.id),
                         );
                         this.toast.info(this.translate.instant('sitnet_question_added'));
                         this.modal.close(insertedSectionQuestions);
                     },
-                    (err) => {
-                        this.toast.error(err.data);
+                    error: (err) => {
+                        this.toast.error(err);
                         this.cancel();
                     },
-                );
+                });
         };
 
         // calculate the new order number for question sequence

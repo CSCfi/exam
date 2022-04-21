@@ -78,15 +78,15 @@ export class AppComponent implements OnInit, OnDestroy {
             this.user = user;
         } else {
             this.Session.switchLanguage('en');
-            this.Session.getEnv$().subscribe(
-                (value: 'DEV' | 'PROD') => {
+            this.Session.getEnv$().subscribe({
+                next: (value: 'DEV' | 'PROD') => {
                     if (value === 'PROD') {
                         this.Session.login$('', '').subscribe((user) => (this.user = user));
                     }
                     this.devLoginRequired = value === 'DEV';
                 },
-                () => console.log('no env found'),
-            );
+                error: () => console.log('no env found'),
+            });
         }
     }
 

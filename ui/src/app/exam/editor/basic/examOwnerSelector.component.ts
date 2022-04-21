@@ -59,8 +59,8 @@ export class ExamOwnerSelectorComponent implements OnInit {
             ),
             take(15),
             catchError((err) => {
-                this.toast.error(err.data);
-                return throwError(err);
+                this.toast.error(err);
+                return throwError(() => new Error(err));
             }),
         );
 
@@ -70,30 +70,28 @@ export class ExamOwnerSelectorComponent implements OnInit {
 
     addExamOwner = () => {
         if (this.newOwner.id) {
-            this.http.post(`/app/exam/${this.exam.id}/owner/${this.newOwner.id}`, {}).subscribe(
-                () => {
+            this.http.post(`/app/exam/${this.exam.id}/owner/${this.newOwner.id}`, {}).subscribe({
+                next: () => {
                     this.getExamOwners();
                     // clear input field
                     delete this.newOwner.email;
                     delete this.newOwner.name;
                     delete this.newOwner.id;
                 },
-                (err) => this.toast.error(err.data),
-            );
+                error: (err) => this.toast.error,
+            });
         } else {
             this.toast.error(this.translate.instant('sitnet_teacher_not_found'));
         }
     };
 
     removeOwner = (id: number) =>
-        this.http.delete(`/app/exam/${this.exam.id}/owner/${id}`).subscribe(
-            () => this.getExamOwners(),
-            (err) => this.toast.error(err.data),
-        );
+        this.http
+            .delete(`/app/exam/${this.exam.id}/owner/${id}`)
+            .subscribe({ next: this.getExamOwners, error: this.toast.error });
 
     private getExamOwners = () =>
-        this.http.get<User[]>(`/app/exam/${this.exam.id}/owners`).subscribe(
-            (owners) => (this.examOwners = owners),
-            (err) => this.toast.error(err.data),
-        );
+        this.http
+            .get<User[]>(`/app/exam/${this.exam.id}/owners`)
+            .subscribe({ next: (owners) => (this.examOwners = owners), error: this.toast.error });
 }

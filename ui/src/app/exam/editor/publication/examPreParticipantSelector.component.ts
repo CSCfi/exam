@@ -49,24 +49,24 @@ export class ExamPreParticipantSelectorComponent implements OnInit {
         const exists =
             this.exam.examEnrolments.map((e) => e.preEnrolledUserEmail).indexOf(this.newPreParticipant.email) > -1;
         if (!exists) {
-            this.Enrolment.enrollStudent(this.exam, this.newPreParticipant).subscribe(
-                (enrolment) => {
+            this.Enrolment.enrollStudent$(this.exam, this.newPreParticipant).subscribe({
+                next: (enrolment) => {
                     this.exam.examEnrolments.push(enrolment);
                     delete this.newPreParticipant.email;
                 },
-                (error) => this.toast.error(error),
-            );
+                error: this.toast.error,
+            });
         }
     };
 
     removeParticipant = (id: number) => {
-        this.http.delete(`/app/enrolments/student/${id}`).subscribe(
-            () => {
+        this.http.delete(`/app/enrolments/student/${id}`).subscribe({
+            next: () => {
                 this.exam.examEnrolments = this.exam.examEnrolments.filter((ee) => ee.id !== id);
                 this.toast.info(this.translate.instant('sitnet_participant_removed'));
             },
-            (err) => this.toast.error(err.data),
-        );
+            error: this.toast.error,
+        });
     };
 
     renderParticipantLabel = (enrolment: ExamEnrolment) =>

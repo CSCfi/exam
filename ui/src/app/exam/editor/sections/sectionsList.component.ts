@@ -68,13 +68,13 @@ export class SectionsListComponent implements OnInit, OnChanges {
     moveSection = (event: CdkDragDrop<ExamSection[]>) => {
         const [from, to] = [event.previousIndex, event.currentIndex];
         if (from >= 0 && to >= 0 && from !== to) {
-            this.Exam.reorderSections$(from, to, this.exam, this.collaborative).subscribe(
-                () => {
+            this.Exam.reorderSections$(from, to, this.exam, this.collaborative).subscribe({
+                next: () => {
                     moveItemInArray(this.exam.examSections, from, to);
                     this.toast.info(this.translate.instant('sitnet_sections_reordered'));
                 },
-                (err) => this.toast.error(err),
-            );
+                error: this.toast.error,
+            });
         }
     };
 
@@ -107,13 +107,13 @@ export class SectionsListComponent implements OnInit, OnChanges {
     removeSection = (section: ExamSection) => {
         this.http
             .delete(this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`, this.collaborative))
-            .subscribe(
-                () => {
+            .subscribe({
+                next: () => {
                     this.toast.info(this.translate.instant('sitnet_section_removed'));
                     this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
                 },
-                (resp) => this.toast.error(resp.data),
-            );
+                error: this.toast.error,
+            });
     };
 
     calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);

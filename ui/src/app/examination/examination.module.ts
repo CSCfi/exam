@@ -1,5 +1,4 @@
-import { Compiler, CompilerFactory, COMPILER_OPTIONS, NgModule } from '@angular/core';
-import { JitCompilerFactory } from '@angular/platform-browser-dynamic';
+import { NgModule } from '@angular/core';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
 import { QuestionModule } from '../question/question.module';
@@ -21,9 +20,9 @@ import { ExaminationQuestionComponent } from './question/examinationQuestion.com
 import { ExaminationWeightedMultiChoiceComponent } from './question/examinationWeightedMultiChoice.component';
 import { ExaminationSectionComponent } from './section/examinationSection.component';
 
-export function createCompiler(compilerFactory: CompilerFactory) {
+/*export function createCompiler(compilerFactory: CompilerFactory) {
     return compilerFactory.createCompiler();
-}
+}*/
 @NgModule({
     imports: [NgbModule, UIRouterModule, QuestionModule, UtilityModule],
     declarations: [
@@ -45,9 +44,9 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     providers: [
         ExaminationService,
         ExaminationStatusService,
-        { provide: COMPILER_OPTIONS, useValue: {}, multi: true },
-        { provide: CompilerFactory, useClass: JitCompilerFactory, deps: [COMPILER_OPTIONS] },
-        { provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory] },
+        //{ provide: COMPILER_OPTIONS, useValue: {}, multi: true },
+        //{ provide: CompilerFactory, useClass: JitCompilerFactory, deps: [COMPILER_OPTIONS] },
+        //{ provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory] },
     ],
 })
 export class ExaminationModule {}

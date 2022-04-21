@@ -105,13 +105,13 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                     this.http.post<Exam>(`/app/exams/${exam.id}`, data),
                 ),
             )
-            .subscribe(
-                (resp) => {
+            .subscribe({
+                next: (resp) => {
                     this.toast.success(this.translate.instant('sitnet_exam_copied'));
                     this.state.go('staff.examEditor.basic', { id: resp.id });
                 },
-                (err) => this.toast.error(err),
-            );
+                error: this.toast.error,
+            });
 
     deleteExam = (exam: ExamListExam) => {
         const dialog = this.Confirmation.open(
@@ -119,13 +119,13 @@ export class ExamListingComponent implements OnInit, OnDestroy {
             this.translate.instant('sitnet_remove_exam'),
         );
         dialog.result.then(() => {
-            this.http.delete(`/app/exams/${exam.id}`).subscribe(
-                () => {
+            this.http.delete(`/app/exams/${exam.id}`).subscribe({
+                next: () => {
                     this.toast.success(this.translate.instant('sitnet_exam_removed'));
                     this.exams.splice(this.exams.indexOf(exam), 1);
                 },
-                (err) => this.toast.error(err),
-            );
+                error: this.toast.error,
+            });
         });
     };
 

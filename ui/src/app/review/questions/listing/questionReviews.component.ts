@@ -37,10 +37,10 @@ export class QuestionReviewsComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.QuestionReview.getReviews$(this.examId).subscribe(
-            (resp) => (this.reviews = resp),
-            (err) => this.toast.error(err),
-        );
+        this.QuestionReview.getReviews$(this.examId).subscribe({
+            next: (resp) => (this.reviews = resp),
+            error: (err) => this.toast.error(err),
+        });
         this.Tabs.notifyTabChange(5);
     }
 

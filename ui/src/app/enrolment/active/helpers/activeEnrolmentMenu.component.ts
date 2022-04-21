@@ -38,7 +38,7 @@ export class ActiveEnrolmentMenuComponent {
                 this.translate.instant('sitnet_confirm'),
                 this.translate.instant('sitnet_are_you_sure'),
             ).result.then(() =>
-                this.Enrolment.removeEnrolment(this.enrolment).subscribe(() => this.removed.emit(this.enrolment.id)),
+                this.Enrolment.removeEnrolment$(this.enrolment).subscribe(() => this.removed.emit(this.enrolment.id)),
             );
         }
     };

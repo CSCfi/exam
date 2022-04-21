@@ -38,16 +38,16 @@ export class CollaborativeParticipationsComponent implements OnInit, AfterViewIn
     ) {}
 
     ngOnInit() {
-        this.Enrolment.listStudentParticipations$().subscribe(
-            (participations: CollaborativeParticipation[]) => {
+        this.Enrolment.listStudentParticipations$().subscribe({
+            next: (participations: CollaborativeParticipation[]) => {
                 participations
                     .filter((p) => typeof p.ended == 'number')
                     .forEach((p) => (p.ended = new Date(p.ended).toISOString()));
                 this.originals = participations;
                 this.search('');
             },
-            (err) => this.toast.error(err),
-        );
+            error: this.toast.error,
+        });
     }
 
     ngAfterViewInit() {

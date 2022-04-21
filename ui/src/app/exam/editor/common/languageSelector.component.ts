@@ -53,8 +53,8 @@ export class LanguageSelectorComponent implements OnInit {
 
     updateExamLanguage = (lang: ExamLanguage) => {
         const resource = this.collaborative ? '/app/iop/exams' : '/app/exams';
-        this.http.put(`${resource}/${this.exam.id}/language/${lang.code}`, {}).subscribe(
-            () => {
+        this.http.put(`${resource}/${this.exam.id}/language/${lang.code}`, {}).subscribe({
+            next: () => {
                 if (this.isSelected(lang)) {
                     const index = this.exam.examLanguages.map((el) => el.code).indexOf(lang.code);
                     this.exam.examLanguages.splice(index, 1);
@@ -63,7 +63,7 @@ export class LanguageSelectorComponent implements OnInit {
                 }
                 this.toast.info(this.translate.instant('sitnet_exam_language_updated'));
             },
-            (resp) => this.toast.error(resp.data),
-        );
+            error: this.toast.error,
+        });
     };
 }

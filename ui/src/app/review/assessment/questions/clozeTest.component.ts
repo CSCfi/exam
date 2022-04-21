@@ -15,7 +15,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import { isInteger, isNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
@@ -38,7 +38,7 @@ export class ClozeTestComponent implements OnInit {
     _score: number | null = null;
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private toast: ToastrService,
         private Assessment: AssessmentService,
@@ -88,8 +88,8 @@ export class ClozeTestComponent implements OnInit {
         this.collaborative
             ? this.Assessment.saveCollaborativeForcedScore$(
                   this.sectionQuestion,
-                  this.state.params.id,
-                  this.state.params.ref,
+                  this.routing.params.id,
+                  this.routing.params.ref,
                   this.participation._rev as string,
               ).subscribe((resp) => {
                   this.toast.info(this.translate.instant('sitnet_graded'));

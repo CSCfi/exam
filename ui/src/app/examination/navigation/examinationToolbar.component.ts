@@ -102,8 +102,8 @@ export class ExaminationToolbarComponent implements OnInit {
             this.translate.instant('sitnet_confirm_abort_exam'),
         );
         dialog.result.then(() =>
-            this.Examination.abort$(this.exam.hash).subscribe(
-                () => {
+            this.Examination.abort$(this.exam.hash).subscribe({
+                next: () => {
                     this.toast.info(this.translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
                     this.Window.nativeWindow.onbeforeunload = null;
                     this.state.go('examinationLogout', {
@@ -111,8 +111,8 @@ export class ExaminationToolbarComponent implements OnInit {
                         quitLinkEnabled: this.exam.implementation === 'CLIENT_AUTH',
                     });
                 },
-                (err) => this.toast.error(err.data),
-            ),
+                error: this.toast.error,
+            }),
         );
     };
 

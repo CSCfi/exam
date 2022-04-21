@@ -70,13 +70,13 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(this.doSearch);
-        this.examCreated.pipe(exhaustMap(() => this.CollaborativeExam.createExam$())).subscribe(
-            (exam: CollaborativeExam) => {
+        this.examCreated.pipe(exhaustMap(() => this.CollaborativeExam.createExam$())).subscribe({
+            next: (exam: CollaborativeExam) => {
                 toast.info(this.translate.instant('sitnet_exam_created'));
                 this.state.go('staff.examEditor.basic', { id: exam.id, collaborative: 'collaborative' });
             },
-            (err) => this.toast.error(err),
-        );
+            error: this.toast.error,
+        });
     }
 
     ngOnDestroy() {

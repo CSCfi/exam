@@ -293,7 +293,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
             this.events = events;
         };
         const errorFn = (resp: string) => this.toast.error(resp);
-        this.query(format($event.date, 'yyyy-MM-dd'), accessibilities).subscribe(successFn, errorFn);
+        this.query(format($event.date, 'yyyy-MM-dd'), accessibilities).subscribe({ next: successFn, error: errorFn });
     }
 
     makeExternalReservation = () => {

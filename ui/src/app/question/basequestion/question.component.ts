@@ -87,15 +87,15 @@ export class QuestionComponent implements OnInit, OnDestroy {
             this.currentOwners = clone(this.question.questionOwners);
             this.window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         } else {
-            this.Question.getQuestion(this.questionId || this.state.params.id).subscribe(
-                (question: ReverseQuestion) => {
+            this.Question.getQuestion(this.questionId || this.routing.params.id).subscribe({
+                next: (question: ReverseQuestion) => {
                     this.question = question;
                     this.currentOwners = clone(this.question.questionOwners);
                     this.window.nativeWindow.onbeforeunload = () =>
                         this.translate.instant('sitnet_unsaved_data_may_be_lost');
                 },
-                (error) => this.toast.error(error),
-            );
+                error: this.toast.error,
+            });
         }
     }
 

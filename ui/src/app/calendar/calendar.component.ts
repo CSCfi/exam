@@ -235,12 +235,12 @@ export class CalendarComponent implements OnInit {
             this.isCollaborative,
             selectedSectionIds,
         )
-            .subscribe(
-                () => this.state.go('dashboard'),
-                (resp) => {
+            .subscribe({
+                next: () => this.state.go('dashboard'),
+                error: (resp) => {
                     this.toast.error(resp);
                 },
-            )
+            })
             .add(() => (this.confirming = false));
     };
 

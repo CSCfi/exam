@@ -64,13 +64,13 @@ export class ReservationDetailsComponent implements OnChanges {
     }
 
     permitRetrial(enrolment: ExamEnrolment) {
-        this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe(
-            () => {
+        this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe({
+            next: () => {
                 enrolment.retrialPermitted = true;
                 this.toast.info(this.translate.instant('sitnet_retrial_permitted'));
             },
-            (err) => this.toast.error(err),
-        );
+            error: this.toast.error,
+        });
     }
 
     changeReservationMachine = (reservation: Reservation) => this.Reservation.changeMachine(reservation);

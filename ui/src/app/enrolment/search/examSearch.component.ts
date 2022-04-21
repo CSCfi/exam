@@ -76,8 +76,8 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     search = (txt: string) => this.filterChanged.next(txt);
 
     private doSearch = () =>
-        this.http.get<EnrolmentInfo[]>('/app/student/exams', { params: { filter: this.filter.text } }).subscribe(
-            (exams) => {
+        this.http.get<EnrolmentInfo[]>('/app/student/exams', { params: { filter: this.filter.text } }).subscribe({
+            next: (exams) => {
                 exams.forEach((exam) => {
                     if (!exam.examLanguages) {
                         console.warn('No languages for exam #' + exam.id);
@@ -88,10 +88,8 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
                 this.exams = exams;
                 this.checkEnrolment();
             },
-            (err) => {
-                this.toast.error(err);
-            },
-        );
+            error: this.toast.error,
+        });
 
     private checkEnrolment = () => {
         this.exams.forEach((exam) => {

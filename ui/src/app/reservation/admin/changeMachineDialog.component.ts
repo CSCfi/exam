@@ -58,13 +58,13 @@ export class ChangeMachineDialogComponent implements OnInit {
     ok = () =>
         this.http
             .put<ExamMachine>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection?.id })
-            .subscribe(
-                (resp) => {
+            .subscribe({
+                next: (resp) => {
                     this.toast.info(this.translate.instant('sitnet_updated'));
                     this.activeModal.close(resp);
                 },
-                (err) => this.toast.error(err.data),
-            );
+                error: this.toast.error,
+            });
 
     cancel = () => this.activeModal.dismiss();
 }

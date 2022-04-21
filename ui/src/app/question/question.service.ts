@@ -288,8 +288,8 @@ export class QuestionService {
         const body = this.getQuestionData(question);
         // TODO: make this a pipe
         return new Promise<Question>((resolve, reject) => {
-            this.http.post<Question>(this.questionsApi(), body).subscribe(
-                (response) => {
+            this.http.post<Question>(this.questionsApi(), body).subscribe({
+                next: (response) => {
                     this.toast.info(this.translate.instant('sitnet_question_added'));
                     if (question.attachment && question.attachment.file && question.attachment.modified) {
                         this.Files.upload(
@@ -303,8 +303,8 @@ export class QuestionService {
                         resolve(response);
                     }
                 },
-                (error) => reject(error),
-            );
+                error: reject,
+            });
         });
     };
 

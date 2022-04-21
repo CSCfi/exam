@@ -221,7 +221,7 @@ export class MaturityService {
                 switchMap(() => this.http.post('/app/inspection', { examId: exam.id })),
                 catchError((err) => {
                     this.toast.error(err.data);
-                    return throwError(err);
+                    return throwError(() => new Error(err));
                 }),
             )
             .subscribe(() => {

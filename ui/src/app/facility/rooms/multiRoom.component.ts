@@ -61,14 +61,14 @@ export class MultiRoomComponent implements OnInit {
     massEditedExceptionFilter = (exception: ExceptionWorkingHours) => exception.massEdited;
 
     private loadRooms = () => {
-        this.room.getRooms$().subscribe(
-            (rooms) => {
+        this.room.getRooms$().subscribe({
+            next: (rooms) => {
                 this.allRooms = rooms;
                 this.massEditedRooms = orderBy(rooms, 'name', 'asc').filter(this.massEditedRoomFilter);
                 this.roomIds = this.getRoomIds();
             },
-            (error) => this.toast.error(error.data),
-        );
+            error: this.toast.error,
+        });
     };
 
     private getRoomIds = () => this.allRooms.map((room) => room.id);

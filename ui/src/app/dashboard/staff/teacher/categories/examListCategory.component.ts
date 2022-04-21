@@ -76,7 +76,7 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((text) => {
                 this.filterText = text;
-                this.state.go('staff.teacher', { tab: this.state.params.tab, filter: this.filterText });
+                this.state.go('staff.teacher', { tab: this.routing.params.tab, filter: this.filterText });
                 this.filtered.emit(this.filterText);
             });
         this.userId = this.Session.getUser().id;
@@ -124,13 +124,13 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
                     this.http.post<Exam>(`/app/exams/${exam.id}`, data),
                 ),
             )
-            .subscribe(
-                (resp) => {
+            .subscribe({
+                next: (resp) => {
                     this.toast.success(this.translate.instant('sitnet_exam_copied'));
                     this.state.go('staff.examEditor.basic', { id: resp.id, collaborative: 'false' });
                 },
-                (err) => this.toast.error(err.data),
-            );
+                error: this.toast.error,
+            });
 
     deleteExam = (exam: Exam) => {
         const dialog = this.Dialog.open(
@@ -138,13 +138,13 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
             this.translate.instant('sitnet_remove_exam'),
         );
         dialog.result.then(() => {
-            this.http.delete(`/app/exams/${exam.id}`).subscribe(
-                () => {
+            this.http.delete(`/app/exams/${exam.id}`).subscribe({
+                next: () => {
                     this.toast.success(this.translate.instant('sitnet_exam_removed'));
                     this.items.splice(this.items.indexOf(exam), 1);
                 },
-                (err) => this.toast.error(err),
-            );
+                error: this.toast.error,
+            });
         });
     };
 

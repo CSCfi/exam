@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { SessionService } from '../../../session/session.service';
 import type { Course, Exam } from '../../exam.model';
@@ -32,6 +32,7 @@ export class CourseSelectionComponent implements OnInit {
     constructor(
         private translate: TranslateService,
         private state: StateService,
+        private routing: UIRouterGlobals,
         private http: HttpClient,
         private toast: ToastrService,
         private Exam: ExamService,
@@ -39,21 +40,21 @@ export class CourseSelectionComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.http.get<Exam>(`/app/exams/${this.state.params.id}`).subscribe((exam) => (this.exam = exam));
+        this.http.get<Exam>(`/app/exams/${this.routing.params.id}`).subscribe((exam) => (this.exam = exam));
     }
 
     getExecutionTypeTranslation = () => !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType);
 
     updateExamName = () =>
-        this.Exam.updateExam$(this.exam).subscribe(
-            () => this.toast.info(this.translate.instant('sitnet_exam_saved')),
-            (error) => {
+        this.Exam.updateExam$(this.exam).subscribe({
+            next: () => this.toast.info(this.translate.instant('sitnet_exam_saved')),
+            error: (error) => {
                 if (error.data) {
                     const msg = error.data.message || error.data;
                     this.toast.error(this.translate.instant(msg));
                 }
             },
-        );
+        });
 
     onCourseSelected = (course: Course) =>
         this.http.put(`/app/exams/${this.exam.id}/course/${course.id}`, {}).subscribe(() => {

@@ -58,13 +58,9 @@ export class ExaminationLogoutComponent implements OnInit {
         this.quitLinkEnabled = this.routing.params.quitLinkEnabled === 'true';
 
         if (this.quitLinkEnabled) {
-            this.http.get<{ quitLink: string }>('/app/settings/examinationQuitLink').subscribe(
-                (resp) => (this.quitLink = resp.quitLink),
-                () =>
-                    // Fetching quit link failed for some reason, just log out. Nothing we can do
-                    () =>
-                        this.logout(),
-            );
+            this.http
+                .get<{ quitLink: string }>('/app/settings/examinationQuitLink')
+                .subscribe({ next: (resp) => (this.quitLink = resp.quitLink), error: () => this.logout() });
         } else {
             this.logout();
         }

@@ -14,7 +14,7 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import type { CalendarEvent } from 'calendar-utils';
 import { addHours, format } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
@@ -45,7 +45,7 @@ export class AvailabilityComponent implements OnInit {
     events: CalendarEvent<SlotMeta>[] = [];
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private toast: ToastrService,
         private roomService: RoomService,
         private calendar: CalendarService,
@@ -53,14 +53,14 @@ export class AvailabilityComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.roomService.getRoom$(this.state.params.id).subscribe((room) => {
+        this.roomService.getRoom$(this.routing.params.id).subscribe((room) => {
             this.openingHours = this.calendar.processOpeningHours(room);
             this.exceptionHours = this.calendar.getExceptionalAvailability(room);
             this.room = room;
         });
     }
 
-    query$ = (date: string) => this.roomService.getAvailability$(this.state.params.id, date);
+    query$ = (date: string) => this.roomService.getAvailability$(this.routing.params.id, date);
 
     getColor = (slot: Availability) => {
         const ratio = slot.reserved / slot.total;
@@ -85,7 +85,7 @@ export class AvailabilityComponent implements OnInit {
             }));
         };
         const errorFn = (resp: string) => this.toast.error(resp);
-        this.query$(format(event.date, 'yyyy-MM-dd')).subscribe(successFn, errorFn);
+        this.query$(format(event.date, 'yyyy-MM-dd')).subscribe({ next: successFn, error: errorFn });
     };
 
     private adjust = (date: string, tz: string): Date => {

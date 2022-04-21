@@ -113,8 +113,8 @@ export class SectionQuestionComponent {
                 .put<ExamSectionQuestion>(this.getResource(resource), {
                     question: question,
                 })
-                .subscribe(
-                    (resp) => {
+                .subscribe({
+                    next: (resp) => {
                         this.sectionQuestion = merge(this.sectionQuestion, resp);
                         // Collaborative exam question handling.
                         if (!this.collaborative) {
@@ -140,8 +140,8 @@ export class SectionQuestionComponent {
                             });
                         }
                     },
-                    (resp) => this.toast.error(resp.data),
-                );
+                    error: this.toast.error,
+                });
         });
     };
 
@@ -161,11 +161,14 @@ export class SectionQuestionComponent {
                     data.examQuestion,
                     this.examId,
                     this.section.id,
-                ).subscribe((esq: ExamSectionQuestion) => {
-                    this.toast.info(this.translate.instant('sitnet_question_saved'));
-                    // apply changes back to scope
-                    this.sectionQuestion = merge(this.sectionQuestion, esq);
-                }, this.toast.error);
+                ).subscribe({
+                    next: (esq: ExamSectionQuestion) => {
+                        this.toast.info(this.translate.instant('sitnet_question_saved'));
+                        // apply changes back to scope
+                        this.sectionQuestion = merge(this.sectionQuestion, esq);
+                    },
+                    error: this.toast.error,
+                });
             })
             .catch(noop);
     };

@@ -35,14 +35,9 @@ export class AddressComponent {
         }
     };
 
-    updateAddress = () => {
-        this.room.updateAddress$(this.address).subscribe(
-            () => {
-                this.toast.info(this.translate.instant('sitnet_room_address_updated'));
-            },
-            (error) => {
-                this.toast.error(error.data);
-            },
-        );
-    };
+    updateAddress = () =>
+        this.room.updateAddress$(this.address).subscribe({
+            next: () => this.toast.info(this.translate.instant('sitnet_room_address_updated')),
+            error: this.toast.error,
+        });
 }

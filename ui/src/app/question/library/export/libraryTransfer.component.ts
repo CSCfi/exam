@@ -53,10 +53,10 @@ export class LibraryTransferComponent implements OnInit {
                     orgRef: this.organisation?._id,
                     ids: this.selections,
                 })
-                .subscribe(
-                    () => this.toast.info(this.translate.instant('sitnet_questions_transferred')),
-                    (err) => this.toast.error(err.data),
-                );
+                .subscribe({
+                    next: () => this.toast.info(this.translate.instant('sitnet_questions_transferred')),
+                    error: this.toast.error,
+                });
         }
     };
 }

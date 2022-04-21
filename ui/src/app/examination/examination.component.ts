@@ -53,8 +53,8 @@ export class ExaminationComponent implements OnInit, OnDestroy {
             this.isPreview,
             this.isCollaborative,
             this.routing.params.id,
-        ).subscribe(
-            (exam) => {
+        ).subscribe({
+            next: (exam) => {
                 exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
                 this.exam = exam;
                 this.setActiveSection({ type: 'guide' });
@@ -65,11 +65,11 @@ export class ExaminationComponent implements OnInit, OnDestroy {
                     this.Session.disableSessionCheck(); // we don't need this here and it might cause unwanted forwarding to another states
                 }
             },
-            (err) => {
+            error: (err) => {
                 console.log(JSON.stringify(err));
                 this.state.go('dashboard');
             },
-        );
+        });
     }
 
     ngOnDestroy() {

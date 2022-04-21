@@ -69,13 +69,15 @@ export class ExamService {
         exam.children.filter((child) => ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) === -1).length;
 
     createExam = (executionType: string, examinationType: Implementation = 'AQUARIUM') => {
-        this.http.post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType }).subscribe(
-            (response) => {
-                this.toast.info(this.translate.instant('sitnet_exam_added'));
-                this.State.go('staff.courseSelector', { id: response.id });
-            },
-            (err) => this.toast.error(err.data),
-        );
+        this.http
+            .post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType })
+            .subscribe({
+                next: (response) => {
+                    this.toast.info(this.translate.instant('sitnet_exam_added'));
+                    this.State.go('staff.courseSelector', { id: response.id });
+                },
+                error: this.toast.error,
+            });
     };
 
     updateExam$ = (exam: Exam, overrides = {}, collaborative = false): Observable<Exam> => {
@@ -225,13 +227,13 @@ export class ExamService {
                 this.translate.instant('sitnet_remove_exam'),
             );
             dialog.result.then(() =>
-                this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe(
-                    () => {
+                this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe({
+                    next: () => {
                         this.toast.success(this.translate.instant('sitnet_exam_removed'));
                         this.State.go('dashboard');
                     },
-                    (err) => this.toast.error(err),
-                ),
+                    error: this.toast.error,
+                }),
             );
         } else {
             this.toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));

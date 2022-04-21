@@ -204,39 +204,37 @@ export class RoomService {
             this.translate.instant('sitnet_confirm_room_inactivation'),
         );
         dialog.result.then(() =>
-            this.inactivateRoom$(room.id).subscribe(
-                () => {
+            this.inactivateRoom$(room.id).subscribe({
+                next: () => {
                     this.toast.info(this.translate.instant('sitnet_room_inactivated'));
                     room.state = 'INACTIVE';
                 },
-                (error) => {
-                    this.toast.error(error.data);
-                },
-            ),
+                error: this.toast.error,
+            }),
         );
     };
 
     enableRoom = (room: ExamRoom) =>
-        this.activateRoom$(room.id).subscribe(
-            () => {
+        this.activateRoom$(room.id).subscribe({
+            next: () => {
                 this.toast.info(this.translate.instant('sitnet_room_activated'));
                 room.state = 'ACTIVE';
             },
-            (error) => this.toast.error(error.data),
-        );
+            error: this.toast.error,
+        });
 
     addException = (ids: number[], exception: ExceptionWorkingHours) =>
         new Promise<ExceptionWorkingHours>((resolve, reject) => {
-            this.updateExceptions$(ids, exception).subscribe(
-                (data: ExceptionWorkingHours) => {
+            this.updateExceptions$(ids, exception).subscribe({
+                next: (data: ExceptionWorkingHours) => {
                     this.toast.info(this.translate.instant('sitnet_exception_time_added'));
                     resolve(data);
                 },
-                (error) => {
-                    this.toast.error(error.data);
+                error: (error) => {
+                    this.toast.error(error);
                     reject();
                 },
-            );
+            });
         });
 
     openExceptionDialog = (callBack: (exception: ExceptionWorkingHours) => void) => {
@@ -254,16 +252,16 @@ export class RoomService {
 
     deleteException = (roomId: number, exceptionId: number) =>
         new Promise<void>((resolve, reject) => {
-            this.removeException$(roomId, exceptionId).subscribe(
-                () => {
+            this.removeException$(roomId, exceptionId).subscribe({
+                next: () => {
                     this.toast.info(this.translate.instant('sitnet_exception_time_removed'));
                     resolve();
                 },
-                (error) => {
+                error: (error) => {
                     this.toast.error(error);
                     reject(error);
                 },
-            );
+            });
         });
 
     formatExceptionEvent = (event: ExceptionWorkingHours) => {
@@ -276,16 +274,16 @@ export class RoomService {
             const selected = hours.filter((hour) => hour.selected).map((hour) => this.formatTime(hour.startingHour));
             const data = { hours: selected, offset, roomIds };
 
-            this.updateExamStartingHours$(data).subscribe(
-                () => {
+            this.updateExamStartingHours$(data).subscribe({
+                next: () => {
                     this.toast.info(this.translate.instant('sitnet_exam_starting_hours_updated'));
                     resolve();
                 },
-                (error) => {
+                error: (error) => {
                     this.toast.error(error.data);
                     reject();
                 },
-            );
+            });
         });
 
     updateWorkingHours$ = (week: Week, ids: number[]): Observable<WeekdayBlock[]> => {

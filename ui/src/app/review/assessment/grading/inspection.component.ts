@@ -49,13 +49,13 @@ export class InspectionComponent implements OnInit {
 
     setInspectionStatus = () => {
         if (this.inspection.user.id === this.user.id) {
-            this.http.put(`/app/exams/inspection/${this.inspection.id}`, { ready: this.inspection.ready }).subscribe(
-                () => {
+            this.http.put(`/app/exams/inspection/${this.inspection.id}`, { ready: this.inspection.ready }).subscribe({
+                next: () => {
                     this.toast.info(this.translate.instant('sitnet_exam_updated'));
                     this.inspected.emit();
                 },
-                (err) => this.toast.error(err.data),
-            );
+                error: this.toast.error,
+            });
         }
     };
 }

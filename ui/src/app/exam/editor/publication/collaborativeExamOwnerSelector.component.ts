@@ -36,20 +36,20 @@ export class CollaborativeExamOwnerSelectorComponent {
     addOwner = () => {
         const exists = this.exam.examOwners.some((o) => o.email === this.newOwner.email);
         if (!exists) {
-            this.http.post<User>(`/app/iop/exams/${this.exam.id}/owners`, this.newOwner).subscribe(
-                (user) => {
+            this.http.post<User>(`/app/iop/exams/${this.exam.id}/owners`, this.newOwner).subscribe({
+                next: (user) => {
                     this.exam.examOwners.push(user);
                     delete this.newOwner.email;
                 },
-                (resp) => this.toast.error(resp.data),
-            );
+                error: this.toast.error,
+            });
         }
     };
 
     removeOwner = (id: number) => {
-        this.http.delete(`/app/iop/exams/${this.exam.id}/owners/${id}`).subscribe(
-            () => (this.exam.examOwners = this.exam.examOwners.filter((o) => o.id !== id)),
-            (resp) => this.toast.error(resp.data),
-        );
+        this.http.delete(`/app/iop/exams/${this.exam.id}/owners/${id}`).subscribe({
+            next: () => (this.exam.examOwners = this.exam.examOwners.filter((o) => o.id !== id)),
+            error: this.toast.error,
+        });
     };
 }

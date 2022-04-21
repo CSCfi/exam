@@ -14,11 +14,6 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import type { ExamEnrolment } from '../../enrolment/enrolment.model';
-import { EnrolmentService } from '../../enrolment/enrolment.service';
-import type { Exam } from '../../exam/exam.model';
-import { SessionService } from '../../session/session.service';
-import { DateTimeService } from '../../utility/date/date.service';
 import type { DashboardEnrolment } from './studentDashboard.service';
 import { StudentDashboardService } from './studentDashboard.service';
 
@@ -29,32 +24,14 @@ import { StudentDashboardService } from './studentDashboard.service';
 export class StudentDashboardComponent implements OnInit {
     userEnrolments: DashboardEnrolment[] = [];
 
-    constructor(
-        private StudentDashboard: StudentDashboardService,
-        private DateTime: DateTimeService,
-        private Enrolment: EnrolmentService,
-        private Session: SessionService,
-    ) {}
+    constructor(private StudentDashboard: StudentDashboardService) {}
 
     ngOnInit() {
-        this.StudentDashboard.listEnrolments().subscribe(
-            (data) => (this.userEnrolments = data),
-            (err) => console.error(err),
-        );
+        this.StudentDashboard.listEnrolments().subscribe((data) => (this.userEnrolments = data));
     }
-
-    printExamDuration = (exam: Exam) => this.DateTime.printExamDuration(exam);
-
-    removeReservation = (enrolment: ExamEnrolment) => this.Enrolment.removeReservation(enrolment);
-
-    addEnrolmentInformation = (enrolment: ExamEnrolment) => this.Enrolment.addEnrolmentInformation(enrolment);
-
-    getUsername = (): string => this.Session.getUserName();
 
     enrolmentRemoved = (id: number) => {
         const index = this.userEnrolments.map((e) => e.id).indexOf(id);
         this.userEnrolments.splice(index, 1);
     };
-
-    removeEnrolment = (enrolment: ExamEnrolment) => this.Enrolment.removeEnrolment(enrolment);
 }

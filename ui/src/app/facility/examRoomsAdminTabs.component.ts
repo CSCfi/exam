@@ -49,15 +49,13 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
     }
 
     createExamRoom = () => {
-        this.room.getDraft$().subscribe(
-            (room) => {
+        this.room.getDraft$().subscribe({
+            next: (room) => {
                 this.toast.info(this.translate.instant('sitnet_room_draft_created'));
                 this.state.go('staff.room', { id: room.id });
             },
-            (error) => {
-                this.toast.error(error.data);
-            },
-        );
+            error: this.toast.error,
+        });
     };
 
     createPeriod = () => {
@@ -68,13 +66,13 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
         });
         modalRef.result
             .then((res: MaintenancePeriod) => {
-                this.room.createMaintenancePeriod$(res).subscribe(
-                    (mp) => {
+                this.room.createMaintenancePeriod$(res).subscribe({
+                    next: (mp) => {
                         this.toast.info(this.translate.instant('sitnet_created'));
                         this.maintenancePeriods.push(mp);
                     },
-                    (err) => this.toast.error(err),
-                );
+                    error: this.toast.error,
+                });
             })
             .catch((err) => this.toast.error(err));
     };
@@ -88,26 +86,26 @@ export class ExamRoomsAdminTabsComponent implements OnInit {
         modalRef.componentInstance.period = period;
         modalRef.result
             .then((res: MaintenancePeriod) => {
-                this.room.updateMaintenancePeriod$(res).subscribe(
-                    () => {
+                this.room.updateMaintenancePeriod$(res).subscribe({
+                    next: () => {
                         this.toast.info(this.translate.instant('sitnet_updated'));
                         const index = this.maintenancePeriods.indexOf(res);
                         this.maintenancePeriods.splice(index, 1, res);
                     },
-                    (err) => this.toast.error(err),
-                );
+                    error: this.toast.error,
+                });
             })
             .catch((err) => this.toast.error(err));
     };
 
     removePeriod = (period: MaintenancePeriod) => {
-        this.room.removeMaintenancePeriod$(period).subscribe(
-            () => {
+        this.room.removeMaintenancePeriod$(period).subscribe({
+            next: () => {
                 this.toast.info(this.translate.instant('sitnet_removed'));
                 this.maintenancePeriods.splice(this.maintenancePeriods.indexOf(period), 1);
             },
-            (err) => this.toast.error(err),
-        );
+            error: this.toast.error,
+        });
     };
 
     editMultipleRooms = () => this.state.go('staff.multiRoom');

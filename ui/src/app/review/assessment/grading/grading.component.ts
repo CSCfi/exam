@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam, ExamLanguage, ExamParticipation, ExamType, SelectableGrade } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
@@ -54,7 +54,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
 
     constructor(
         private translate: TranslateService,
-        private state: StateService,
+        private routing: UIRouterGlobals,
         http: HttpClient,
         toast: ToastrService,
         Assessment: AssessmentService,
@@ -103,29 +103,32 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
         }
         if (this.collaborative) {
             this.CollaborativeAssessment.sendEmailMessage$(
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
                 this.message.text,
-            ).subscribe(
-                () => {
+            ).subscribe({
+                next: () => {
                     delete this.message.text;
                     this.toast.info(this.translate.instant('sitnet_email_sent'));
                 },
-                (err) => this.toast.error(err.data),
-            );
+                error: this.toast.error,
+            });
         } else {
-            this.http.post(`/app/email/inspection/${this.exam.id}`, { msg: this.message.text }).subscribe(() => {
-                this.toast.info(this.translate.instant('sitnet_email_sent'));
-                delete this.message.text;
-            }, this.toast.error);
+            this.http.post(`/app/email/inspection/${this.exam.id}`, { msg: this.message.text }).subscribe({
+                next: () => {
+                    this.toast.info(this.translate.instant('sitnet_email_sent'));
+                    delete this.message.text;
+                },
+                error: this.toast.error,
+            });
         }
     };
 
     saveAssessmentInfo = () => {
         if (this.collaborative) {
             this.CollaborativeAssessment.saveAssessmentInfo$(
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
                 this.participation,
             ).subscribe();
         } else {

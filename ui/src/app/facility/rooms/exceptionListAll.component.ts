@@ -62,13 +62,13 @@ export class ExceptionListAllComponent implements OnInit {
     massEditedExceptionFilter = (exception: ExceptionWorkingHours) => exception.massEdited;
 
     private loadRooms = () => {
-        this.room.getRooms$().subscribe(
-            (rooms) => {
+        this.room.getRooms$().subscribe({
+            next: (rooms) => {
                 this.rooms = orderBy(rooms, 'name', 'asc').filter(this.massEditedRoomFilter);
                 this.roomIds = this.getRoomIds();
             },
-            (error) => this.toast.error(error.data),
-        );
+            error: this.toast.error,
+        });
     };
 
     private getRoomIds = () => this.rooms.map((room) => room.id);

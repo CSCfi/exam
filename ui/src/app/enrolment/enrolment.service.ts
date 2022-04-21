@@ -71,15 +71,15 @@ export class EnrolmentService {
             ? enrolment.examinationEventConfiguration.id
             : undefined;
         modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.http.post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {}).subscribe(
-                () => {
+            this.http.post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {}).subscribe({
+                next: () => {
                     enrolment.examinationEventConfiguration = data;
                     if (nextState) {
                         this.State.go(nextState);
                     }
                 },
-                (err) => this.toast.error(err),
-            );
+                error: (err) => this.toast.error(err),
+            });
         });
     };
 
@@ -88,13 +88,13 @@ export class EnrolmentService {
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_are_you_sure'),
         ).result.then(() => {
-            this.http.delete(`/app/enrolments/${enrolment.id}/examination`).subscribe(
-                () => {
+            this.http.delete(`/app/enrolments/${enrolment.id}/examination`).subscribe({
+                next: () => {
                     this.toast.info(this.translate.instant('sitnet_examination_event_removed'));
                     delete enrolment.examinationEventConfiguration;
                 },
-                (err) => this.toast.error(err.data),
-            );
+                error: this.toast.error,
+            });
         });
     };
 
@@ -116,7 +116,7 @@ export class EnrolmentService {
             ? `/app/iop/reservations/external/${externalRef}`
             : `/app/calendar/reservation/${enrolment.reservation.id}`;
 
-        dialog.result.then(() => this.http.delete(url).subscribe(successFn, errorFn));
+        dialog.result.then(() => this.http.delete(url).subscribe({ next: successFn, error: errorFn }));
     }
 
     enroll = (exam: Exam, collaborative = false): Observable<ExamEnrolment> =>
@@ -142,25 +142,27 @@ export class EnrolmentService {
     getEnrolments = (examId: number, collaborative = false): Observable<ExamEnrolment[]> =>
         this.http.get<ExamEnrolment[]>(this.getResource(`exam/${examId}`, collaborative));
 
-    checkAndEnroll = (exam: Exam, collaborative = false): Observable<ExamEnrolment> =>
+    checkAndEnroll$ = (exam: Exam, collaborative = false): Observable<ExamEnrolment> =>
         this.http.get<ExamEnrolment[]>(this.getResource(`exam/${exam.id}`, collaborative)).pipe(
             switchMap((resp) =>
-                resp.length == 0 ? this.enroll(exam, collaborative) : throwError('sitnet_already_enrolled'),
+                resp.length == 0
+                    ? this.enroll(exam, collaborative)
+                    : throwError(() => new Error('sitnet_already_enrolled')),
             ),
             catchError((err) => {
                 this.toast.error(err);
-                return throwError(err);
+                return throwError(() => new Error(err));
             }),
         );
 
-    enrollStudent = (exam: Exam, student: Partial<User>): Observable<ExamEnrolment> => {
+    enrollStudent$ = (exam: Exam, student: Partial<User>): Observable<ExamEnrolment> => {
         const data = { uid: student.id, email: student.email };
         return this.http
             .post<ExamEnrolment>(`/app/enrolments/student/${exam.id}`, data)
             .pipe(tap(() => this.toast.success(this.translate.instant('sitnet_student_enrolled_to_exam'))));
     };
 
-    getEnrolmentInfo = (code: string, id: number): Observable<EnrolmentInfo> =>
+    getEnrolmentInfo$ = (code: string, id: number): Observable<EnrolmentInfo> =>
         this.http.get<Exam>(`/app/enrolments/${id}?code=${code}`).pipe(
             switchMap((exam) =>
                 this.getMaturityInstructions(exam).pipe(
@@ -193,7 +195,7 @@ export class EnrolmentService {
             ),
         );
 
-    private check = (info: EnrolmentInfo): Observable<EnrolmentInfo> =>
+    private check$ = (info: EnrolmentInfo): Observable<EnrolmentInfo> =>
         this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${info.id}`).pipe(
             map((resp) => {
                 if (resp.length > 0) {
@@ -211,9 +213,10 @@ export class EnrolmentService {
             }),
         );
 
-    private checkEnrolments = (infos: EnrolmentInfo[]): Observable<EnrolmentInfo[]> => forkJoin(infos.map(this.check));
+    private checkEnrolments$ = (infos: EnrolmentInfo[]): Observable<EnrolmentInfo[]> =>
+        forkJoin(infos.map(this.check$));
 
-    listEnrolments = (code: string, id: number): Observable<EnrolmentInfo[]> =>
+    listEnrolments$ = (code: string, id: number): Observable<EnrolmentInfo[]> =>
         this.http.get<Exam[]>(`/app/enrolments?code=${code}`).pipe(
             map((resp) =>
                 resp
@@ -229,7 +232,7 @@ export class EnrolmentService {
                         };
                     }),
             ),
-            switchMap(this.checkEnrolments),
+            switchMap(this.checkEnrolments$),
         );
 
     listStudentParticipations$ = (): Observable<CollaborativeParticipation[]> =>
@@ -244,7 +247,7 @@ export class EnrolmentService {
         return this.http.get<CollaborativeExam[]>(path);
     };
 
-    removeEnrolment = (enrolment: ExamEnrolment) => this.http.delete<void>(`/app/enrolments/${enrolment.id}`);
+    removeEnrolment$ = (enrolment: ExamEnrolment) => this.http.delete<void>(`/app/enrolments/${enrolment.id}`);
 
     addEnrolmentInformation = (enrolment: ExamEnrolment): void => {
         const modalRef = this.ngbModal.open(AddEnrolmentInformationDialogComponent, {
@@ -253,13 +256,13 @@ export class EnrolmentService {
         });
         modalRef.componentInstance.information = enrolment.information;
         modalRef.result.then((information: string) => {
-            this.http.put(`/app/enrolments/${enrolment.id}`, { information: information }).subscribe(
-                () => {
+            this.http.put(`/app/enrolments/${enrolment.id}`, { information: information }).subscribe({
+                next: () => {
                     this.toast.success(this.translate.instant('sitnet_saved'));
                     enrolment.information = information;
                 },
-                (err) => this.toast.error(err),
-            );
+                error: this.toast.error,
+            });
         });
     };
 
@@ -285,7 +288,7 @@ export class EnrolmentService {
         return this.http.post(url, { rev: revision });
     }
 
-    getRoomInstructions = (hash: string): Observable<ExamRoom> =>
+    getRoomInstructions$ = (hash: string): Observable<ExamRoom> =>
         this.http.get<ExamRoom>(`/app/enrolments/room/${hash}`);
 
     showInstructions = (enrolment: ExamEnrolment): void => {

@@ -88,19 +88,19 @@ export class ExaminationEventDialogComponent implements OnInit {
         };
         if (!this.config) {
             // new config
-            this.Exam.addExaminationEvent$(this.examId, config).subscribe(
-                (response: ExaminationEventConfiguration) => {
+            this.Exam.addExaminationEvent$(this.examId, config).subscribe({
+                next: (response: ExaminationEventConfiguration) => {
                     this.activeModal.close(response);
                 },
-                (err) => this.toast.error(err),
-            );
+                error: this.toast.error,
+            });
         } else {
-            this.Exam.updateExaminationEvent$(this.examId, { ...config, id: this.config.id }).subscribe(
-                (response: ExaminationEventConfiguration) => {
+            this.Exam.updateExaminationEvent$(this.examId, { ...config, id: this.config.id }).subscribe({
+                next: (response: ExaminationEventConfiguration) => {
                     this.activeModal.close(response);
                 },
-                (err) => this.toast.error(err),
-            );
+                error: this.toast.error,
+            });
         }
     }
 

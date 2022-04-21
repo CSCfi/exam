@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { noop, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
 import type { Exam, ExamParticipation } from '../../exam/exam.model';
@@ -135,7 +135,7 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
         }
         this.http
             .get<ReviewedExam>(`/app/feedback/exams/${this.participation.exam.id}/score`)
-            .subscribe(this.prepareScores, () => noop);
+            .subscribe(this.prepareScores);
     };
 
     private prepareScores = (exam: ReviewedExam) => {

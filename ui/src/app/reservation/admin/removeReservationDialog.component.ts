@@ -34,10 +34,10 @@ export class RemoveReservationDialogComponent {
                 headers: { 'Content-Type': 'application/json' },
                 params: { msg: this.message.text },
             })
-            .subscribe(
-                () => this.activeModal.close(),
-                (err) => this.toast.error(err),
-            );
+            .subscribe({
+                next: this.activeModal.close,
+                error: this.toast.error,
+            });
 
     cancel = () => this.activeModal.dismiss();
 }

@@ -253,8 +253,8 @@ export class ReservationComponentBase implements OnInit {
                         return reservations;
                     }),
                 )
-                .subscribe(
-                    (reservations) => {
+                .subscribe({
+                    next: (reservations) => {
                         this.reservations = reservations
                             .filter((r) => r.externalReservation || !this.externalReservationsOnly)
                             .filter(
@@ -264,39 +264,39 @@ export class ReservationComponentBase implements OnInit {
                                     !this.byodExamsOnly,
                             );
                     },
-                    (err) => this.toast.error(err),
-                );
+                    error: this.toast.error,
+                });
         }
     }
 
     isAdminView = () => this.user.isAdmin;
 
     private initOptions() {
-        this.http.get<(User & { name: string })[]>('/app/reservations/students').subscribe(
-            (resp) => {
+        this.http.get<(User & { name: string })[]>('/app/reservations/students').subscribe({
+            next: (resp) => {
                 const students: (User & { name: string })[] = this.orderPipe.transform(resp, 'lastName');
                 this.studentOptions = students.map((s) => {
                     return { id: s.id, value: s, label: s.name };
                 });
             },
-            (resp) => this.toast.error(resp.data),
-        );
+            error: this.toast.error,
+        });
         this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit').subscribe((resp) => {
             this.isInteroperable = resp.isExamVisitSupported;
             this.initExamOptions();
         });
 
         if (this.isAdminView()) {
-            this.http.get<(User & { name: string })[]>('/app/reservations/teachers').subscribe(
-                (resp) => {
+            this.http.get<(User & { name: string })[]>('/app/reservations/teachers').subscribe({
+                next: (resp) => {
                     const teachers = this.orderPipe.transform(resp, 'lastName');
                     this.teacherOptions = teachers.map((t) => ({ id: t.id, value: t, label: t.name }));
                 },
-                (resp) => this.toast.error(resp.data),
-            );
+                error: this.toast.error,
+            });
 
-            this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe(
-                (resp) => {
+            this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe({
+                next: (resp) => {
                     this.rooms = this.orderPipe.transform(resp, 'name');
                     this.roomOptions = this.rooms.map((r) => ({ id: r.id, value: r, label: r.name }));
                     this.http.get<ExamMachine[]>('/app/machines').subscribe((resp) => {
@@ -304,8 +304,8 @@ export class ReservationComponentBase implements OnInit {
                         this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
                     });
                 },
-                (err) => this.toast.error(err.data),
-            );
+                error: this.toast.error,
+            });
         }
     }
 

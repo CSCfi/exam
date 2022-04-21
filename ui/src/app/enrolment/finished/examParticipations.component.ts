@@ -52,15 +52,15 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
 
     private doSearch = (text: string) => {
         this.filter.text = text;
-        this.http.get<ParticipationLike[]>('/app/student/finishedexams', { params: { filter: text } }).subscribe(
-            (data) => {
+        this.http.get<ParticipationLike[]>('/app/student/finishedexams', { params: { filter: text } }).subscribe({
+            next: (data) => {
                 data.filter((p) => !p.ended).forEach(
                     (p) => (p.ended = p.reservation ? p.reservation.endAt : p.started),
                 );
                 this.participations = data;
             },
-            (err) => this.toast.error(err),
-        );
+            error: this.toast.error,
+        });
     };
 
     pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);

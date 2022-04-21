@@ -104,7 +104,7 @@ export class SpeedReviewComponent implements OnInit {
     };
 
     ngOnInit() {
-        this.examId = this.state.params.id;
+        this.examId = this.routing.params.id;
         this.http
             .get<Exam>(`/app/exams/${this.examId}`)
             .pipe(
@@ -118,8 +118,8 @@ export class SpeedReviewComponent implements OnInit {
                 ),
                 switchMap(() => this.http.get<ExamParticipation[]>(`/app/reviews/${this.examId}`)),
             )
-            .subscribe(
-                (reviews) => {
+            .subscribe({
+                next: (reviews) => {
                     this.examReviews = reviews
                         .filter((r) => r.exam.state === 'REVIEW' || r.exam.state === 'REVIEW_STARTED')
                         .map((r) => ({
@@ -133,8 +133,8 @@ export class SpeedReviewComponent implements OnInit {
                         }));
                     this.toggleReviews = this.examReviews.length > 0;
                 },
-                (err) => this.toast.error(err.data),
-            );
+                error: (err) => this.toast.error(err.data),
+            });
     }
 
     showFeedbackEditor = (review: Review) => {
