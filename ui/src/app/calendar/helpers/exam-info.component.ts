@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { addDays, format, parseISO } from 'date-fns';
 import { DateTimeService } from '../../shared/date/date.service';
-import type { ExamInfo } from '../calendar.component';
+import type { ExamInfo } from '../calendar.service';
 
 @Component({
     selector: 'xm-calendar-exam-info',

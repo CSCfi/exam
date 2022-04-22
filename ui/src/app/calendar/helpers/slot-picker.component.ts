@@ -1,5 +1,5 @@
 import { WeekDay } from '@angular/common';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpParams } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -13,8 +13,7 @@ import { MaintenancePeriod } from '../../exam/exam.model';
 import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
 import { DateTimeService } from '../../shared/date/date.service';
 import type { SlotMeta } from '../booking-calendar.component';
-import type { Organisation } from '../calendar.component';
-import type { Slot } from '../calendar.service';
+import type { Organisation, Slot } from '../calendar.service';
 import { CalendarService } from '../calendar.service';
 
 type FilterableAccessibility = Accessibility & { filtered: boolean };
@@ -23,135 +22,7 @@ type AvailableSlot = Slot & { availableMachines: number };
 
 @Component({
     selector: 'xm-calendar-slot-picker',
-    template: `<div class="row student-enrolment-wrapper details-view" [ngClass]="selectedRoom ? '' : 'notactive'">
-        <div class="col-md-12">
-            <div class="row">
-                <span class="col-md-11 col-9">
-                    <span class="calendar-phase-title">
-                        {{ sequenceNumber }}. {{ 'sitnet_calendar_phase_2' | translate }}
-                        <small class="col-12 pl-0">
-                            <button
-                                class="btn btn-sm btn-outline-dark"
-                                (click)="makeExternalReservation()"
-                                *ngIf="isInteroperable && !isExternal"
-                            >
-                                {{ 'sitnet_external_reservation' | translate }}&nbsp;
-                            </button>
-                        </small>
-                    </span>
-                </span>
-                <span class="col-md-1 col-3">
-                    <span class="calendar-phase-icon float-right" *ngIf="selectedRoom">
-                        <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="choose room" />
-                    </span>
-                </span>
-            </div>
-            <div class="row mt-2 mb-2">
-                <!-- todo: make this a component -->
-                <div class="col-md-12 mart10 marb20" [hidden]="isExternal">
-                    <div class="row">
-                        <span class="col-md-12">
-                            <button
-                                class="infolink pointer border rounded"
-                                *ngIf="!disabled"
-                                tabindex="0"
-                                (click)="showAccessibilityMenu = !showAccessibilityMenu"
-                            >
-                                {{ 'sitnet_calendar_room_accessibility_info' | translate }}
-                                <img
-                                    class="arrow_icon"
-                                    *ngIf="!showAccessibilityMenu"
-                                    alt="show accessibility selection"
-                                    src="/assets/images/arrow_right.png"
-                                />
-                                <img
-                                    class="arrow_icon"
-                                    *ngIf="showAccessibilityMenu"
-                                    alt="hide accessibility selection"
-                                    src="/assets/images/arrow_down.png"
-                                />
-                            </button>
-                            <span *ngIf="disabled" class="text text-muted">
-                                {{ 'sitnet_calendar_room_accessibility_info' | translate }}
-                            </span>
-                            <div class="row" [hidden]="!showAccessibilityMenu">
-                                <div class="col-md-12">
-                                    <div class="calendar-accs-title">
-                                        {{ 'sitnet_exam_room_accessibility' | translate }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row" [hidden]="!showAccessibilityMenu">
-                                <div class="col-md-12 calendar-accs-checkboxes">
-                                    <span class="marr10 accs-list" *ngFor="let accessibility of accessibilities">
-                                        <input
-                                            aria-label="search for accessibility criteria"
-                                            type="checkbox"
-                                            role="presentation"
-                                            (click)="selectAccessibility(accessibility)"
-                                            value="{{ accessibility.name | slice: 0:30 }}"
-                                        />
-                                        {{ accessibility.name | slice: 0:30 }}
-                                    </span>
-                                </div>
-                            </div>
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <div class="row ml-1 mt-3">
-                <div class="dropdown" ngbDropdown>
-                    <button
-                        ngbDropdownToggle
-                        class="btn btn-outline-dark"
-                        type="button"
-                        id="dropDownMenu1"
-                        aria-expanded="true"
-                        [disabled]="(isExternal && !organisation) || disabled"
-                    >
-                        {{ 'sitnet_room' | translate }}
-                        <span class="caret"></span>
-                    </button>
-                    <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
-                        <button
-                            ngbDropdownItem
-                            *ngFor="let room of rooms"
-                            role="presentation"
-                            (click)="selectRoom(room)"
-                            title="{{ room.name }}"
-                        >
-                            <div ngbDropdownItem [disabled]="room.outOfService" role="menuitem">
-                                <a> {{ room.name }}</a>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="row mart10" *ngIf="selectedRoom">
-                <div class="col-md-12">
-                    <xm-calendar-selected-room
-                        [room]="selectedRoom"
-                        [viewStart]="currentWeek"
-                        [maintenancePeriods]="maintenancePeriods"
-                    ></xm-calendar-selected-room>
-                </div>
-            </div>
-            <div class="row mart10" *ngIf="selectedRoom">
-                <div class="col-md-12">
-                    <xm-booking-calendar
-                        (eventSelected)="eventSelected($event)"
-                        (moreEventsNeeded)="refresh($event)"
-                        [minDate]="minDate"
-                        [maxDate]="maxDate"
-                        [room]="selectedRoom"
-                        [visible]="selectedRoom !== undefined"
-                        [events]="events"
-                    >
-                    </xm-booking-calendar>
-                </div>
-            </div>
-        </div>
-    </div>`,
+    templateUrl: './slot-picker.component.html',
     styles: [
         `
             .black-event-text span {
@@ -187,7 +58,6 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     events: CalendarEvent<SlotMeta>[] = [];
 
     constructor(
-        private http: HttpClient,
         private translate: TranslateService,
         private uiRouter: UIRouterGlobals,
         private toast: ToastrService,
@@ -196,10 +66,10 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     ) {}
 
     ngOnInit() {
-        this.http
-            .get<Accessibility[]>('/app/accessibility')
-            .subscribe((resp) => (this.accessibilities = resp.map((a) => ({ ...a, filtered: false }))));
-        this.http.get<ExamRoom[]>('/app/rooms').subscribe((resp) => {
+        this.Calendar.listAccessibilityCriteria$().subscribe(
+            (resp) => (this.accessibilities = resp.map((a) => ({ ...a, filtered: false }))),
+        );
+        this.Calendar.listRooms$().subscribe((resp) => {
             const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false })).filter((r) => r.name);
             this.rooms = rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
         });
@@ -294,27 +164,13 @@ export class SlotPickerComponent implements OnInit, OnChanges {
 
     private query(date: string, accessibilityIds: number[]): Observable<AvailableSlot[]> {
         const room = this.selectedRoom as ExamRoom;
-        if (this.isExternal && this.organisation) {
-            const url = this.isCollaborative
-                ? `/app/iop/exams/${this.uiRouter.params.id}/external/calendar/${room._id}`
-                : `/app/iop/calendar/${this.uiRouter.params.id}/${room._id}`;
-            return this.http.get<AvailableSlot[]>(url, {
-                params: {
-                    org: this.organisation._id,
-                    date: date,
-                },
-            });
-        } else {
-            const url = this.isCollaborative
-                ? `/app/iop/exams/${this.uiRouter.params.id}/calendar/${room.id}`
-                : `/app/calendar/${this.uiRouter.params.id}/${room.id}`;
-            const params = new HttpParams({
-                fromObject: { day: date, aids: accessibilityIds.map((i) => i.toString()) },
-            });
-            return this.http.get<AvailableSlot[]>(url, {
-                params: params,
-            });
-        }
+        const params = new HttpParams({
+            fromObject:
+                this.isExternal && this.organisation
+                    ? { org: this.organisation._id, date: date }
+                    : { day: date, aids: accessibilityIds.map((i) => i.toString()) },
+        });
+        return this.Calendar.listSlots$(this.isExternal, this.isCollaborative, room, this.uiRouter.params.id, params);
     }
 
     private adjust = (date: string, tz: string): Date => {

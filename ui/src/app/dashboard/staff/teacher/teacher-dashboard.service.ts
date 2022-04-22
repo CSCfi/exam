@@ -138,6 +138,10 @@ export class TeacherDashboardService {
         return params;
     }
 
+    copyExam$ = (id: number, type: string, examinationType: string) =>
+        this.http.post<Exam>(`/app/exams/${id}`, { type: type, examinationType: examinationType });
+    deleteExam$ = (id: number) => this.http.delete(`/app/exams/${id}`);
+
     // Exam is private and has unfinished participants
     private participationsInFuture = (exam: Exam) =>
         exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0;

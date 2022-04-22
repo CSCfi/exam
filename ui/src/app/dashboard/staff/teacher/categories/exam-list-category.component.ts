@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -28,6 +27,7 @@ import { SessionService } from '../../../../session/session.service';
 import { DateTimeService } from '../../../../shared/date/date.service';
 import { ConfirmationDialogService } from '../../../../shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from '../../../../shared/miscellaneous/common-exam.service';
+import { TeacherDashboardService } from '../teacher-dashboard.service';
 
 export interface ExtraColumnName {
     text: string;
@@ -60,12 +60,12 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
     ngUnsubscribe = new Subject();
 
     constructor(
-        private http: HttpClient,
         private translate: TranslateService,
         private state: StateService,
         private routing: UIRouterGlobals,
         private modal: NgbModal,
         private toast: ToastrService,
+        private Dashboard: TeacherDashboardService,
         private Dialog: ConfirmationDialogService,
         private Exam: ExamService,
         private CommonExam: CommonExamService,
@@ -123,7 +123,7 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
         from(this.modal.open(ExaminationTypeSelectorComponent, { backdrop: 'static' }).result)
             .pipe(
                 switchMap((data: { type: string; examinationType: string }) =>
-                    this.http.post<Exam>(`/app/exams/${exam.id}`, data),
+                    this.Dashboard.copyExam$(exam.id, data.type, data.examinationType),
                 ),
             )
             .subscribe({
@@ -139,15 +139,15 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_exam'),
         );
-        dialog.result.then(() => {
-            this.http.delete(`/app/exams/${exam.id}`).subscribe({
+        dialog.result.then(() =>
+            this.Dashboard.deleteExam$(exam.id).subscribe({
                 next: () => {
                     this.toast.success(this.translate.instant('sitnet_exam_removed'));
                     this.items.splice(this.items.indexOf(exam), 1);
                 },
                 error: this.toast.error,
-            });
-        });
+            }),
+        );
     };
 
     isOwner = (exam: Exam) => exam.examOwners.some((eo) => eo.id === this.userId);

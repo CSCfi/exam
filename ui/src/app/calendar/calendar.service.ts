@@ -12,13 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
 import { addHours, parseISO } from 'date-fns';
 import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import type { Observable } from 'rxjs';
-import { MaintenancePeriod } from '../exam/exam.model';
+import { ExamEnrolment } from '../enrolment/enrolment.model';
+import { Course, Exam, ExamSection, MaintenancePeriod } from '../exam/exam.model';
 import type {
     Accessibility,
     DefaultWorkingHours,
@@ -48,6 +49,21 @@ export interface OpeningHours {
     periods: string[];
     periodText?: string;
 }
+
+export type SelectableSection = ExamSection & { selected: boolean };
+export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Course } & {
+    duration: number;
+    examSections: (ExamSection & { selected: boolean })[];
+};
+export type Organisation = {
+    _id: string;
+    name: string;
+    code: string;
+    filtered: boolean;
+    homeOrg: string;
+    facilities: ExamRoom[];
+};
+export type AvailableSlot = Slot & { availableMachines: number };
 
 @Injectable()
 export class CalendarService {
@@ -164,6 +180,28 @@ export class CalendarService {
         const openedDays = room.defaultWorkingHours.map((dwh) => weekdays.indexOf(dwh.weekday));
         return [0, 1, 2, 3, 4, 5, 6].filter((x) => openedDays.indexOf(x) === -1);
     }
+
+    listRooms$ = () => this.http.get<ExamRoom[]>('/app/rooms');
+    listAccessibilityCriteria$ = () => this.http.get<Accessibility[]>('/app/accessibility');
+    listOrganisations$ = () => this.http.get<Organisation[]>('/app/iop/organisations');
+
+    listSlots$ = (external: boolean, collaborative: boolean, room: ExamRoom, examId: number, params: HttpParams) => {
+        let url: string;
+        if (external) {
+            url = collaborative
+                ? `/app/iop/exams/${examId}/external/calendar/${room._id}`
+                : `/app/iop/calendar/${examId}/${room._id}`;
+        } else {
+            url = collaborative ? `/app/iop/exams/${examId}/calendar/${room.id}` : `/app/calendar/${examId}/${room.id}`;
+        }
+        return this.http.get<AvailableSlot[]>(url, { params: params });
+    };
+
+    getReservationiWindowSize$ = () => this.http.get<{ value: number }>('/app/settings/reservationWindow');
+    getExamVisitSupportStatus$ = () => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit');
+    getCurrentEnrolment$ = (id: number) => this.http.get<ExamEnrolment | null>(`/app/calendar/enrolment/${id}/current`);
+    getExamInfo$ = (collaborative: boolean, id: number) =>
+        this.http.get<ExamInfo>(collaborative ? `/app/iop/exams/${id}/info` : `/app/student/exam/${id}/info`);
 
     private adjustBack(date: Date, tz: string): string {
         const adjusted = zonedTimeToUtc(date, tz);

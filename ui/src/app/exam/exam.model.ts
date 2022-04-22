@@ -1,4 +1,4 @@
-import type { Organisation } from '../calendar/calendar.component';
+import type { Organisation } from '../calendar/calendar.service';
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { LanguageInspection } from '../maturity/maturity.model';
 import type { Reservation } from '../reservation/reservation.model';

@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -22,24 +21,10 @@ import { isArray } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { switchMap, tap } from 'rxjs/operators';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { Course, Exam, ExamSection } from '../exam/exam.model';
 import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
 import { DateTimeService } from '../shared/date/date.service';
 import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
-import { CalendarService } from './calendar.service';
-export type SelectableSection = ExamSection & { selected: boolean };
-export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Course } & {
-    duration: number;
-    examSections: (ExamSection & { selected: boolean })[];
-};
-export type Organisation = {
-    _id: string;
-    name: string;
-    code: string;
-    filtered: boolean;
-    homeOrg: string;
-    facilities: ExamRoom[];
-};
+import { CalendarService, ExamInfo, Organisation } from './calendar.service';
 
 @Component({
     selector: 'xm-calendar',
@@ -74,7 +59,6 @@ export class CalendarComponent implements OnInit {
     selectedOrganisation?: Organisation;
 
     constructor(
-        private http: HttpClient,
         private state: StateService,
         private uiRouter: UIRouterGlobals,
         private translate: TranslateService,
@@ -89,17 +73,13 @@ export class CalendarComponent implements OnInit {
             this.isCollaborative = true;
         }
 
-        const url = this.isCollaborative
-            ? `/app/iop/exams/${this.uiRouter.params.id}/info`
-            : `/app/student/exam/${this.uiRouter.params.id}/info`;
-        this.http
-            .get<ExamInfo>(url)
+        this.Calendar.getExamInfo$(this.isCollaborative, this.uiRouter.params.id)
             .pipe(
                 tap((resp) => {
                     resp.examSections.sort((es1, es2) => es1.sequenceNumber - es2.sequenceNumber);
                     this.examInfo = resp;
                 }),
-                switchMap(() => this.http.get<{ value: number }>('/app/settings/reservationWindow')),
+                switchMap(() => this.Calendar.getReservationiWindowSize$()),
                 tap((resp) => {
                     this.reservationWindowSize = resp.value;
                     this.reservationWindowEndDate = addDays(new Date(), resp.value);
@@ -111,11 +91,11 @@ export class CalendarComponent implements OnInit {
                         new Date(this.examInfo.examActiveEndDate as string),
                     ].reduce((a, b) => (a < b ? a : b));
                 }),
-                switchMap(() => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit')),
+                switchMap(() => this.Calendar.getExamVisitSupportStatus$()),
                 tap((resp) => (this.isInteroperable = resp.isExamVisitSupported)),
                 switchMap(() =>
                     // TODO: move to section selector
-                    this.http.get<ExamEnrolment | null>(`/app/calendar/enrolment/${this.uiRouter.params.id}/current`),
+                    this.Calendar.getCurrentEnrolment$(this.uiRouter.params.id),
                 ),
                 tap((resp: ExamEnrolment | null) => this.prepareOptionalSections(resp)),
             )

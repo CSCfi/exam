@@ -14,7 +14,7 @@
  */
 import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { FileService } from '../../../shared/file/file.service';
+import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     template: `

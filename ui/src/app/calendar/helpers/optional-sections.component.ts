@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { ExamInfo } from '../calendar.component';
+import type { ExamInfo } from '../calendar.service';
 
 @Component({
     selector: 'xm-calendar-optional-sections',

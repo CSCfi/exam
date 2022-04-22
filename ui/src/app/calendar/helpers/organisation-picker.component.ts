@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import type { Organisation } from '../calendar.component';
+import type { Organisation } from '../calendar.service';
+import { CalendarService } from '../calendar.service';
 
 @Component({
     selector: 'xm-calendar-organisation-picker',
@@ -77,14 +77,12 @@ export class OrganisationPickerComponent implements OnInit {
     organisations: Organisation[] = [];
     selectedOrganisation?: Organisation;
 
-    constructor(private http: HttpClient) {}
+    constructor(private Calendar: CalendarService) {}
 
     ngOnInit() {
-        this.http
-            .get<Organisation[]>('/app/iop/organisations')
-            .subscribe(
-                (resp) => (this.organisations = resp.filter((org) => !org.homeOrg && org.facilities.length > 0)),
-            );
+        this.Calendar.listOrganisations$().subscribe(
+            (resp) => (this.organisations = resp.filter((org) => !org.homeOrg && org.facilities.length > 0)),
+        );
     }
 
     setOrganisation = (organisation: Organisation) => {
