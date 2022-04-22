@@ -830,7 +830,7 @@ class EmailComposerImpl implements EmailComposer {
             )
             : messaging.get(
                 lang,
-                "email.template.participant.notification.exam.events",
+                "email.template.participant.notification.exam.event",
                 String.format("%s (%s)", events, timeZone)
             );
         String examDuration = messaging.get(
@@ -838,7 +838,9 @@ class EmailComposerImpl implements EmailComposer {
             "email.template.participant.notification.exam.duration",
             exam.getDuration()
         );
-        String reservationInfo = messaging.get(lang, "email.template.participant.notification.please.reserve");
+        String reservationInfo = isAquarium
+            ? ""
+            : String.format("<p>%s</p>", messaging.get(lang, "email.template.participant.notification.please.reserve"));
         String bookingLink = exam.getImplementation() == Exam.Implementation.AQUARIUM
             ? String.format("%s/calendar/%d", hostName, exam.getId())
             : hostName;
