@@ -32,6 +32,7 @@ import { ExamParticipationsComponent } from './finished/exam-participations.comp
 import { CollaborativeExamSearchComponent } from './search/collaborative-exam-search.component';
 import { ExamSearchResultComponent } from './search/exam-search-result.component';
 import { ExamSearchComponent } from './search/exam-search.component';
+import { ExamSearchService } from './search/exam-search.service';
 import { WaitingRoomComponent } from './waiting-room/waiting-room.component';
 import { WrongLocationComponent } from './wrong-location/wrong-location.component';
 import { WrongLocationService } from './wrong-location/wrong-location.service';
@@ -62,6 +63,6 @@ import { WrongLocationService } from './wrong-location/wrong-location.service';
         SelectExaminationEventDialogComponent,
         ShowInstructionsDialogComponent,
     ],
-    providers: [EnrolmentService, WrongLocationService],
+    providers: [EnrolmentService, ExamSearchService, WrongLocationService],
 })
 export class EnrolmentModule {}

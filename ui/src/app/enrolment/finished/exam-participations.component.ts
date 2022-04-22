@@ -12,13 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import type { ParticipationLike } from './exam-participation.component';
+import type { ParticipationLike } from '../enrolment.service';
+import { EnrolmentService } from '../enrolment.service';
 
 @Component({
     selector: 'xm-exam-participations',
@@ -33,7 +33,7 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
 
-    constructor(private http: HttpClient, private toast: ToastrService) {
+    constructor(private toast: ToastrService, private Enrolment: EnrolmentService) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(this._search);
@@ -54,7 +54,7 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
 
     private _search = (text: string) => {
         this.filter.text = text;
-        this.http.get<ParticipationLike[]>('/app/student/finishedexams', { params: { filter: text } }).subscribe({
+        this.Enrolment.loadParticipations$(text).subscribe({
             next: (data) => {
                 data.filter((p) => !p.ended).forEach(
                     (p) => (p.ended = p.reservation ? p.reservation.endAt : p.started),

@@ -13,13 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
-import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import type { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
+import type { EnrolmentInfo } from '../enrolment.model';
+import { ExamSearchService } from './exam-search.service';
 
 @Component({
     selector: 'xm-exam-search',
@@ -99,7 +99,7 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     filter = { text: '' };
     permissionCheck = { active: false };
 
-    constructor(private http: HttpClient, private toast: ToastrService) {
+    constructor(private toast: ToastrService, private Search: ExamSearchService) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((txt) => {
@@ -120,7 +120,7 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.filter = { text: '' };
         this.permissionCheck = { active: false };
-        this.http.get<{ active: boolean }>('/app/settings/enrolmentPermissionCheck').subscribe((setting) => {
+        this.Search.getEnrolmentPermissionCheckStatus$().subscribe((setting) => {
             this.permissionCheck = setting;
             if (setting.active === true) {
                 this.doSearch();
@@ -131,7 +131,7 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     search = (txt: string) => this.filterChanged.next(txt);
 
     private doSearch = () =>
-        this.http.get<EnrolmentInfo[]>('/app/student/exams', { params: { filter: this.filter.text } }).subscribe({
+        this.Search.listExams$(this.filter.text).subscribe({
             next: (exams) => {
                 exams.forEach((exam) => {
                     if (!exam.examLanguages) {
@@ -149,7 +149,7 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     private checkEnrolment = () => {
         this.exams.forEach((exam) => {
             // TODO: optimize
-            this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${exam.id}`).subscribe((enrolments) => {
+            this.Search.checkEnrolmentStatus$(exam.id).subscribe((enrolments) => {
                 if (enrolments.length === 0) {
                     exam.alreadyEnrolled = false;
                     exam.reservationMade = false;

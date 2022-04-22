@@ -47,7 +47,7 @@ export class Dashboard {
 export class TeacherDashboardService {
     constructor(private http: HttpClient, private Exam: ExamService, private Reservation: ReservationService) {}
 
-    populate = (): Observable<Dashboard> =>
+    populate$ = (): Observable<Dashboard> =>
         forkJoin([this.Exam.listExecutionTypes$(), this.http.get<Exam[]>('/app/reviewerexams')]).pipe(
             map((resp) => {
                 const dashboard = new Dashboard();
@@ -141,6 +141,8 @@ export class TeacherDashboardService {
     copyExam$ = (id: number, type: string, examinationType: string) =>
         this.http.post<Exam>(`/app/exams/${id}`, { type: type, examinationType: examinationType });
     deleteExam$ = (id: number) => this.http.delete(`/app/exams/${id}`);
+
+    getByodSupportStatus$ = () => this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod');
 
     // Exam is private and has unfinished participants
     private participationsInFuture = (exam: Exam) =>

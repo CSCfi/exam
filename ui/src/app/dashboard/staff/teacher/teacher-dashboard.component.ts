@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
@@ -48,7 +47,6 @@ export class TeacherDashboardComponent implements OnInit {
     filteredDrafts: DraftExam[] = [];
 
     constructor(
-        private http: HttpClient,
         private TeacherDashboard: TeacherDashboardService,
         private Session: SessionService,
         private state: StateService,
@@ -112,12 +110,12 @@ export class TeacherDashboardComponent implements OnInit {
 
     ngOnInit() {
         this.userId = this.Session.getUser().id;
-        this.TeacherDashboard.populate().subscribe((dashboard) => {
+        this.TeacherDashboard.populate$().subscribe((dashboard) => {
             this.filteredFinished = this.finishedExams = dashboard.finishedExams;
             this.filteredActive = this.activeExams = dashboard.activeExams;
             this.filteredArchived = this.archivedExams = dashboard.archivedExams;
             this.filteredDrafts = this.draftExams = dashboard.draftExams;
-            this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod').subscribe((resp) => {
+            this.TeacherDashboard.getByodSupportStatus$().subscribe((resp) => {
                 const byodSupported = resp.isByodExaminationSupported;
                 this.executionTypes = dashboard.executionTypes.map((t) => {
                     const examinationTypes =

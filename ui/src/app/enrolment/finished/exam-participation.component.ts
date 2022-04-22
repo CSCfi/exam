@@ -12,17 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import type { CollaborativeParticipation } from '../../exam/collaborative/collaborative-exam.service';
-import type { Exam, ExamParticipation } from '../../exam/exam.model';
+import type { Exam } from '../../exam/exam.model';
 import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
-import type { ExamEnrolment, ReviewedExam } from '../enrolment.model';
+import type { ReviewedExam } from '../enrolment.model';
+import type { ParticipationLike } from '../enrolment.service';
 import { EnrolmentService } from '../enrolment.service';
+
 type Scores = {
     maxScore: number;
     totalScore: number;
@@ -30,11 +31,6 @@ type Scores = {
     rejectedAnswerCount: number;
     hasApprovedRejectedAnswers: boolean;
 };
-export type ParticipationLike =
-    | (ExamParticipation & { noShow: boolean })
-    | (CollaborativeParticipation & { noShow: boolean })
-    | (ExamEnrolment & { started?: string; ended?: string });
-
 @Component({
     selector: 'xm-exam-participation',
     templateUrl: './exam-participation.component.html',
@@ -51,7 +47,6 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
 
     constructor(
         private translate: TranslateService,
-        private http: HttpClient,
         private Exam: CommonExamService,
         private Enrolment: EnrolmentService,
     ) {}
@@ -102,8 +97,7 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
         }
     };
 
-    private loadReview = (exam: Exam) =>
-        this.http.get<ReviewedExam>(`/app/feedback/exams/${exam.id}`).subscribe(this.prepareReview);
+    private loadReview = (exam: Exam) => this.Enrolment.loadFeedback$(exam.id).subscribe(this.prepareReview);
 
     private prepareReview = (exam: ReviewedExam) => {
         if (!exam.grade) {
@@ -133,9 +127,7 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
             this.prepareScores(exam);
             return;
         }
-        this.http
-            .get<ReviewedExam>(`/app/feedback/exams/${this.participation.exam.id}/score`)
-            .subscribe(this.prepareScores);
+        this.Enrolment.loadScore$(this.participation.exam.id).subscribe(this.prepareScores);
     };
 
     private prepareScores = (exam: ReviewedExam) => {

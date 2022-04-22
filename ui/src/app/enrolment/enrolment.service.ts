@@ -23,7 +23,7 @@ import type { Observable } from 'rxjs';
 import { forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { CollaborativeParticipation } from '../exam/collaborative/collaborative-exam.service';
-import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from '../exam/exam.model';
+import type { CollaborativeExam, Exam, ExaminationEventConfiguration, ExamParticipation } from '../exam/exam.model';
 import type { ExamRoom } from '../reservation/reservation.model';
 import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
@@ -33,6 +33,10 @@ import { SelectExaminationEventDialogComponent } from './active/dialogs/select-e
 import { ShowInstructionsDialogComponent } from './active/dialogs/show-instructions-dialog.component';
 import type { EnrolmentInfo, ExamEnrolment, ReviewedExam } from './enrolment.model';
 
+export type ParticipationLike =
+    | (ExamParticipation & { noShow: boolean })
+    | (CollaborativeParticipation & { noShow: boolean })
+    | (ExamEnrolment & { started?: string; ended?: string });
 @Injectable()
 export class EnrolmentService {
     constructor(
@@ -292,6 +296,11 @@ export class EnrolmentService {
             this.State.go(enrolment.collaborativeExam ? 'collaborativeCalendar' : 'calendar', params);
         }
     };
+
+    loadFeedback$ = (id: number) => this.http.get<ReviewedExam>(`/app/feedback/exams/${id}`);
+    loadScore$ = (id: number) => this.http.get<ReviewedExam>(`/app/feedback/exams/${id}/score`);
+    loadParticipations$ = (filter: string) =>
+        this.http.get<ParticipationLike[]>('/app/student/finishedexams', { params: { filter: filter } });
 
     private getMaturityInstructions = (exam: Exam): Observable<string> => {
         if (exam.executionType.type !== 'MATURITY') {
