@@ -156,8 +156,8 @@
                         type="number"
                         lang="en"
                         name="lotteryItemCount"
-                        [xmMin]="1"
-                        [xmMax]="section.sectionQuestions.length"
+                        [min]="1"
+                        [max]="section.sectionQuestions.length"
                         [(ngModel)]="section.lotteryItemCount"
                         (change)="updateLotteryCount()"
                     />

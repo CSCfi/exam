@@ -34,8 +34,8 @@ import { QuestionDraft } from '../question.service';
                             lang="en"
                             class="form-control"
                             [(ngModel)]="question.defaultExpectedWordCount"
-                            [xmMin]="1"
-                            [xmMax]="1000000"
+                            [min]="1"
+                            [max]="1000000"
                         />
                         <span class="input-group-text" title="{{ 'sitnet_average_word_length_finnish' | translate }}">
                             {{ 'sitnet_approximately' | translate }} {{ estimateCharacters() }}

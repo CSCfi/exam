@@ -3,7 +3,7 @@
         <div class="col-md-12">
             <!-- question text -->
             <div class="d-flex justify-content-between">
-                <div class="review-question-title marr110" xmMathJax math="sectionQuestion.question.question"></div>
+                <div class="review-question-title marr110" [xmMathJax]="sectionQuestion.question.question"></div>
                 <div>
                     <!-- grade -->
                     <div
@@ -100,8 +100,8 @@
                             (blur)="forcedPoints.valid && insertForcedScore()"
                             onclick="this.focus()"
                             [disabled]="!isScorable"
-                            [xmMin]="getMinimumOptionScore()"
-                            [xmMax]="sectionQuestion.maxScore || calculateWeightedMaxPoints()"
+                            [min]="getMinimumOptionScore()"
+                            [max]="sectionQuestion.maxScore || calculateWeightedMaxPoints()"
                         />
                         <small *ngIf="forcedPoints.invalid" class="alert-danger">
                             <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}

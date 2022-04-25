@@ -18,7 +18,7 @@ import { Directive, ElementRef, Input, OnChanges } from '@angular/core';
     selector: '[xmMathJax]',
 })
 export class MathJaxDirective implements OnChanges {
-    @Input() math?: string;
+    @Input('xmMathJax') math?: string;
 
     constructor(private el: ElementRef) {}
 

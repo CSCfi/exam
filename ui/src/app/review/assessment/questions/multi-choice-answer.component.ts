@@ -33,7 +33,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     />
                 </div>
                 <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" xmMathJax math="option.option.option"></span>
+                    <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                 </div>
             </div>
             <div *ngIf="!option.option.correctOption" class="exam-answered-wrong">
@@ -46,7 +46,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     />
                 </div>
                 <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" xmMathJax math="option.option.option"></span>
+                    <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                 </div>
             </div>
         </div>
@@ -67,7 +67,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     />
                 </div>
                 <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" xmMathJax math="option.option.option"></span>
+                    <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                 </div>
             </div>
         </div>

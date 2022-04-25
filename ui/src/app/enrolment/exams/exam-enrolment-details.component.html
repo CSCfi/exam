@@ -91,7 +91,7 @@
             <div class="student-exam-row-infolink infotitle" [hidden]="exam.executionType.type === 'MATURITY'">
                 {{ 'sitnet_view_instructions' | translate }}
             </div>
-            <div xmMathJax math="exam.enrollInstruction"></div>
+            <div [xmMathJax]="exam.enrollInstruction"></div>
         </div>
     </div>
 
@@ -100,7 +100,7 @@
             <div class="student-exam-row-infolink">
                 {{ 'sitnet_maturity_instructions' | translate }}
             </div>
-            <div xmMathJax math="exam.maturityInstructions || ''"></div>
+            <div [xmMathJax]="exam.maturityInstructions || ''"></div>
         </div>
     </div>
 

@@ -98,7 +98,7 @@
                         />
                     </td>
                     <td class="question-table-name">
-                        <span *ngIf="question.question" xmMathJax math="question.question | slice: 0:360"> </span>
+                        <span *ngIf="question.question" [xmMathJax]="question.question | slice: 0:360"> </span>
                         <span *ngIf="!question.question" class="text-danger">
                             {{ 'sitnet_no_name' | translate }}
                         </span>

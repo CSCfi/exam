@@ -32,8 +32,8 @@ import { RoomService } from '../rooms/room.service';
                         name="hourOffset"
                         type="number"
                         lang="en"
-                        [xmMin]="0"
-                        [xmMax]="59"
+                        [min]="0"
+                        [max]="59"
                         [(ngModel)]="examStartingHourOffset"
                         (change)="setStartingHourOffset()"
                     />

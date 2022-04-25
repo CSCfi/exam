@@ -88,8 +88,8 @@
                             class="form-control autoevaluation-inputs"
                             [(ngModel)]="ge.percentage"
                             (change)="propertyChanged()"
-                            [xmMin]="0"
-                            [xmMax]="100"
+                            [min]="0"
+                            [max]="100"
                             required
                         />
                         <span class="ml-2">%</span>
@@ -153,8 +153,8 @@
                         class="form-control"
                         [(ngModel)]="config.amountDays"
                         (change)="propertyChanged()"
-                        [xmMin]="1"
-                        [xmMax]="60"
+                        [min]="1"
+                        [max]="60"
                         required
                     />
                 </div>

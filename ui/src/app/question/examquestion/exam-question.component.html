@@ -160,8 +160,8 @@
                                     lang="en"
                                     class="form-control"
                                     [(ngModel)]="examQuestion.expectedWordCount"
-                                    [xmMin]="1"
-                                    [xmMax]="1000000"
+                                    [min]="1"
+                                    [max]="1000000"
                                     #wordCount="ngModel"
                                 />
                                 <span
@@ -441,8 +441,8 @@
                                 lang="en"
                                 class="form-control wdt100"
                                 [(ngModel)]="examQuestion.maxScore"
-                                [xmMin]="0"
-                                [xmMax]="1000"
+                                [min]="0"
+                                [max]="1000"
                                 xmFixedPrecision
                                 required
                                 [disabled]="lotteryOn"

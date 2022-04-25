@@ -103,7 +103,7 @@
             </div>
         </div>
         <div class="row" *ngIf="enrolment?.exam?.enrollInstruction">
-            <div class="col-md-12 student-exam-row-infobox" xmMathJax math="enrolment.exam.enrollInstruction"></div>
+            <div class="col-md-12 student-exam-row-infobox" [xmMathJax]="enrolment.exam.enrollInstruction"></div>
         </div>
     </div>
 </div>

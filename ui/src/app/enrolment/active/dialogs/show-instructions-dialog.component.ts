@@ -24,7 +24,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
                 <div class="student-enroll-title">{{ title | translate }}</div>
             </div>
         </div>
-        <div class="modal-body" xmMathJax math="instructions"></div>
+        <div class="modal-body" [xmMathJax]="instructions"></div>
         <div class="modal-footer">
             <div class="student-message-dialog-button-save">
                 <button class="btn btn-sm btn-primary" (click)="ok()">

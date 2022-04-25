@@ -28,7 +28,7 @@
 <div class="detail-row mart20" *ngIf="hasGoneThroughLanguageInspection()">
     <div class="col-md-2 general-info-title">{{ 'sitnet_inspector_statement' | translate }}:</div>
     <div class="col-md-10 general-info-content">
-        <div xmMathJax math="exam.languageInspection.statement.comment"></div>
+        <div [xmMathJax]="exam.languageInspection.statement.comment"></div>
     </div>
 </div>
 <!-- language inspection - statement attachment -->
@@ -56,7 +56,7 @@
 <div class="detail-row mart20" *ngIf="isReadOnly() || isUnderLanguageInspection()">
     <div class="col-md-2 general-info-title">{{ 'sitnet_teachers_comment' | translate }}:</div>
     <div class="col-md-10 general-info-content">
-        <div xmMathJax math="exam.examFeedback.comment"></div>
+        <div [xmMathJax]="exam.examFeedback.comment"></div>
     </div>
 </div>
 
@@ -148,7 +148,7 @@
                 lang="en"
                 [disabled]="isReadOnly() || !isOwnerOrAdmin() || isAwaitingInspection()"
                 required
-                [xmMin]="0"
+                [min]="0"
                 class="form-control"
                 maxlength="3"
                 [(ngModel)]="exam.customCredit"

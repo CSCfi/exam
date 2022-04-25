@@ -39,7 +39,7 @@
                         "
                         class="col-md-offset-1"
                     >
-                        <div class="review-question-title" xmMathJax math="selectedReview.question.question"></div>
+                        <div class="review-question-title" [xmMathJax]="selectedReview.question.question"></div>
                     </div>
                     <div *ngIf="selectedReview && selectedReview.question.defaultAnswerInstructions" class="col-md-1">
                         <a (click)="selectedReview.expanded = !selectedReview.expanded" class="pointer-hand">

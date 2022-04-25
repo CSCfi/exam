@@ -173,8 +173,8 @@
                             class="wdt50 time-display"
                             type="number"
                             [(ngModel)]="hourValue"
-                            [xmMax]="23"
-                            [xmMin]="0"
+                            [max]="23"
+                            [min]="0"
                             (change)="setHourValue($event)"
                         />
                         <label for="hourValue">{{ 'sitnet_hours' | translate }}</label>
@@ -186,8 +186,8 @@
                             class="wdt50 time-display"
                             type="number"
                             [(ngModel)]="minuteValue"
-                            [xmMax]="59"
-                            [xmMin]="0"
+                            [max]="59"
+                            [min]="0"
                             (change)="setMinuteValue($event)"
                         />
                         <label for="minuteValue">{{ 'sitnet_minutes' | translate }}</label>

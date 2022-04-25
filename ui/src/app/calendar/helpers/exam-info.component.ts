@@ -57,7 +57,7 @@ import type { ExamInfo } from '../calendar.service';
                     <div class="col-md-12">
                         <span class="student-exam-row-infolink" [hidden]="examInfo.executionType?.type === 'MATURITY'">
                             {{ 'sitnet_calendar_instructions' | translate }}:
-                            <span xmMathJax math="examInfo.enrollInstruction"></span>
+                            <span [xmMathJax]="examInfo.enrollInstruction"></span>
                         </span>
                     </div>
                 </div>

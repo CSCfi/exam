@@ -45,7 +45,7 @@ import type { Examination } from '../examination.model';
                 </div>
                 <div class="row">
                     <div class="header col-md-4">{{ 'sitnet_exam_guide' | translate }}:</div>
-                    <div class="text col-md-8" xmMathJax math="exam.instruction"></div>
+                    <div class="text col-md-8" [xmMathJax]="exam.instruction"></div>
                 </div>
             </div>
         </div>

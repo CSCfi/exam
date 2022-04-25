@@ -84,7 +84,7 @@
     </div>
     <div class="detail-row marb20" *ngIf="exam.instruction">
         <div class="col-md-12 general-info-content">
-            <p xmMathJax math="exam.instruction"></p>
+            <p [xmMathJax]="exam.instruction"></p>
         </div>
     </div>
 
