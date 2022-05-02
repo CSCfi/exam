@@ -156,7 +156,6 @@
     font-family: $sitnet-family-helvetica;
     background-color: #fff;
     border: 1px solid #979797;
-    width: 150px;
     border-radius: 3px;
     padding: 8px;
     padding-left: 20px;
@@ -167,6 +166,25 @@
     :hover, :active, :focus, :active:focus {
       background-color: #efefef;
       border-color: #efefef;
+    }
+
+  }
+
+  .colorless-button {
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 16px;
+    font-family: $sitnet-family-helvetica;
+    border: 1px solid #979797;
+    border-radius: 3px;
+    padding: 8px;
+    padding-left: 20px;
+    padding-right: 20px;
+    font-weight:200;
+
+    :hover, :active, :focus, :active:focus {
+      border-color: #efefef;
+      font-weight: bold;
     }
 
   }
@@ -216,29 +234,37 @@
 
   .exam-header {
     background-color: black;
-    height:80px;
-
-    img {
-      margin-top: 15px;
-      padding-left: 30px;
-      vertical-align: initial;
+    display: flex;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    .language-selector{
+      margin-right: 450px;
     }
+    button{
+      max-height: 45px;
+    }
+    img {
+      align-self: center;
+    }
+    @media (max-width: $sitnet-mobile) {
+
+    }
+
 
   }
 
   .exam-header-img-wrap {
-    display: inline-block;
+    display: flex;
+    min-width: 100px;
+    align-content: flex-start;
+    justify-content: flex-end;
   }
 
   .exam-header-title {
-
-    display: inline-block;
     color: white;
     line-height: 55px;
     font-size: 28px;
     padding-left: 18px;
-    height: 40px;
-    vertical-align: text-bottom;
 
     &.divider {
       border-left: 1px solid white;
@@ -253,11 +279,18 @@
 
   }
 
+  .divider-free {
+    margin-left: 25px;
+    margin-top: 1px;
+    background-color: $sitnet-white;
+    width: 1px;
+    height: 40px;
+  }
+
   .language-selector {
-    display: inline-block;
-    position: absolute;
-    margin-top: 26px;
-    right: 420px;
+    display: flex;
+    white-space: nowrap;
+    margin-top: 0px;
 
     a {
       cursor: pointer;
@@ -268,21 +301,22 @@
 
   .floating-clock {
 
-    margin-top: 26px;
+    margin-top: 10px;
     display: inline-block;
     margin-right: 40px;
     position: fixed;
     right: 0;
     z-index: 9999;
 
+    @media (max-width: 1030px) {
+      margin-top: 50px;
+    }
     .header-wrapper {
       width: 100%;
       background-color: black;
       margin-right: 20px;
 
       img {
-        margin-left: 10px;
-        margin-top: 10px;
         padding-left: 0;
       }
 
@@ -374,11 +408,10 @@
   }
 
   .attachment-button {
-    display: inline-block;
+    max-height: 40px;
   }
 
   .attachment-name {
-    display: inline-block;
     font-family:$sitnet-family-helvetica;
     font-size:12px;
     color:#555555;

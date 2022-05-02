@@ -1,12 +1,15 @@
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
+import type { OnInit } from '@angular/core';
 export interface AppConfig {
     eula: string;
+    examMaxDate: string;
     examDurations: number[];
+    examMaxDuration: number;
+    examMinDuration: number;
     expirationPeriod: string;
     anonymousReviewEnabled: boolean;
     hasCourseSearchIntegration: boolean;
@@ -30,8 +33,8 @@ export interface AppConfig {
     selector: 'settings',
 })
 export class SettingsComponent implements OnInit {
-    config: AppConfig;
-    attributes: string[];
+    config!: AppConfig;
+    attributes: string[] = [];
 
     constructor(private translate: TranslateService, private http: HttpClient) {}
 
@@ -59,5 +62,5 @@ export class SettingsComponent implements OnInit {
             .put('/app/settings/reservationWindow', { value: this.config.reservationWindowSize })
             .subscribe(this.onSuccess, this.onError);
 
-    showAttributes = () => this.http.get('/attributes').subscribe((resp: string[]) => (this.attributes = resp));
+    showAttributes = () => this.http.get<string[]>('/attributes').subscribe((resp) => (this.attributes = resp));
 }

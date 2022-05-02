@@ -14,7 +14,9 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { ExaminationQuestion, ExaminationService } from '../examination.service';
+import { ExaminationService } from '../examination.service';
+
+import type { ExaminationQuestion } from '../examination.model';
 
 @Component({
     selector: 'examination-weighted-multi-choice-question',
@@ -39,16 +41,16 @@ import { ExaminationQuestion, ExaminationService } from '../examination.service'
     `,
 })
 export class ExaminationWeightedMultiChoiceComponent {
-    @Input() sq: ExaminationQuestion;
-    @Input() examHash: string;
-    @Input() isPreview: boolean;
-    @Input() orderOptions: boolean;
+    @Input() sq!: ExaminationQuestion;
+    @Input() examHash = '';
+    @Input() isPreview = false;
+    @Input() orderOptions = false;
 
     constructor(private Examination: ExaminationService) {}
 
     ngOnInit() {
         if (this.orderOptions) {
-            this.sq.options.sort((a, b) => a.id - b.id);
+            this.sq.options.sort((a, b) => (a.id || -1) - (b.id || -1));
         }
     }
 

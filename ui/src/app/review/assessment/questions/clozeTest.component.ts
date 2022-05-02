@@ -16,24 +16,25 @@ import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as _ from 'lodash';
+import { isInteger, isNumber } from 'lodash';
 import * as toast from 'toastr';
 
-import { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../assessment.service';
+
+import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-cloze-test',
     templateUrl: './clozeTest.component.html',
 })
 export class ClozeTestComponent {
-    @Input() participation: ExamParticipation;
-    @Input() sectionQuestion: ExamSectionQuestion;
-    @Input() isScorable: boolean;
-    @Input() collaborative: boolean;
+    @Input() participation!: ExamParticipation;
+    @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() isScorable = false;
+    @Input() collaborative = false;
     @Output() onScore = new EventEmitter<string>();
-    @ViewChild('forcedPoints', { static: false }) form: NgForm;
+    @ViewChild('forcedPoints', { static: false }) form?: NgForm;
 
     reviewExpanded = true;
     _score: number | null = null;
@@ -59,12 +60,10 @@ export class ClozeTestComponent {
         this._score = value;
         if (this.form?.valid) {
             this.sectionQuestion.forcedScore = value;
-        } else {
-            this.sectionQuestion.forcedScore = null;
         }
     }
 
-    hasForcedScore = () => _.isNumber(this.sectionQuestion.forcedScore);
+    hasForcedScore = () => isNumber(this.sectionQuestion.forcedScore);
 
     downloadQuestionAttachment = () => {
         if (this.collaborative && this.sectionQuestion.question.attachment?.externalId) {
@@ -76,16 +75,19 @@ export class ClozeTestComponent {
         return this.Attachment.downloadQuestionAttachment(this.sectionQuestion.question);
     };
 
-    displayAchievedScore = function () {
+    displayAchievedScore = () => {
         const max = this.sectionQuestion.maxScore;
-        const score = this.sectionQuestion.clozeTestAnswer.score;
-        const value = (score.correctAnswers * max) / (score.correctAnswers + score.incorrectAnswers);
-        return _.isInteger(value) ? value : value.toFixed(2);
+        const score = this.sectionQuestion.clozeTestAnswer?.score;
+        if (score) {
+            const value = (score.correctAnswers * max) / (score.correctAnswers + score.incorrectAnswers);
+            return isInteger(value) ? value : value.toFixed(2);
+        }
+        return 0;
     };
 
     insertForcedScore = () =>
         this.collaborative
-            ? this.Assessment.saveCollaborativeForcedScore(
+            ? this.Assessment.saveCollaborativeForcedScore$(
                   this.sectionQuestion,
                   this.state.params.id,
                   this.state.params.ref,

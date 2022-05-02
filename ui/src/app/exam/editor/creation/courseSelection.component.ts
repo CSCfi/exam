@@ -18,6 +18,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
+import { SessionService } from '../../../session/session.service';
 import { ExamService } from '../../exam.service';
 
 import type { OnInit } from '@angular/core';
@@ -27,13 +28,14 @@ import type { Course, Exam } from '../../exam.model';
     templateUrl: './courseSelection.component.html',
 })
 export class CourseSelectionComponent implements OnInit {
-    exam: Exam;
+    exam!: Exam;
 
     constructor(
         private translate: TranslateService,
         private state: StateService,
         private http: HttpClient,
         private Exam: ExamService,
+        private Session: SessionService,
     ) {}
 
     ngOnInit() {
@@ -62,8 +64,9 @@ export class CourseSelectionComponent implements OnInit {
     cancelNewExam = () =>
         this.http.delete(`/app/exams/${this.exam.id}`).subscribe(() => {
             toast.success(this.translate.instant('sitnet_exam_removed'));
-            this.state.go('dashboard');
+            const state = this.Session.getUser()?.isAdmin ? 'staff.admin' : 'staff.teacher';
+            this.state.go(state);
         });
 
-    continueToExam = () => this.state.go('examEditor.basic', { id: this.exam.id });
+    continueToExam = () => this.state.go('staff.examEditor.basic', { id: this.exam.id });
 }

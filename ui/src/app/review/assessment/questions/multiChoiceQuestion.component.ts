@@ -15,32 +15,33 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
-import * as _ from 'lodash';
+import { UIRouterGlobals } from '@uirouter/core';
+import { isInteger, isNumber } from 'lodash';
 import * as toast from 'toastr';
 
-import { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../assessment.service';
+
+import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-multi-choice-question',
     templateUrl: './multiChoiceQuestion.component.html',
 })
 export class MultiChoiceQuestionComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
-    @Input() participation: ExamParticipation;
-    @Input() isScorable: boolean;
-    @Input() collaborative: boolean;
+    @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() participation!: ExamParticipation;
+    @Input() isScorable = false;
+    @Input() collaborative = false;
     @Output() onScore = new EventEmitter<string>();
-    @ViewChild('forcedPoints', { static: false }) form: NgForm;
+    @ViewChild('forcedPoints', { static: false }) form?: NgForm;
 
     reviewExpanded = true;
     _score: number | null = null;
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Assessment: AssessmentService,
         private Attachment: AttachmentService,
@@ -61,12 +62,10 @@ export class MultiChoiceQuestionComponent {
         this._score = value;
         if (this.form?.valid) {
             this.sectionQuestion.forcedScore = value;
-        } else {
-            this.sectionQuestion.forcedScore = null;
         }
     }
 
-    hasForcedScore = () => _.isNumber(this.sectionQuestion.forcedScore);
+    hasForcedScore = () => isNumber(this.sectionQuestion.forcedScore);
 
     scoreWeightedMultipleChoiceAnswer = (ignoreForcedScore: boolean) => {
         if (this.sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
@@ -90,7 +89,7 @@ export class MultiChoiceQuestionComponent {
     };
 
     displayMaxScore = () =>
-        _.isInteger(this.sectionQuestion.maxScore)
+        isInteger(this.sectionQuestion.maxScore)
             ? this.sectionQuestion.maxScore
             : this.sectionQuestion.maxScore.toFixed(2);
 
@@ -102,10 +101,10 @@ export class MultiChoiceQuestionComponent {
 
     insertForcedScore = () => {
         if (this.collaborative && this.participation._rev) {
-            this.Assessment.saveCollaborativeForcedScore(
+            this.Assessment.saveCollaborativeForcedScore$(
                 this.sectionQuestion,
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
                 this.participation._rev,
             ).subscribe(
                 (resp) => {

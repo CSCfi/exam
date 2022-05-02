@@ -28,9 +28,9 @@ export class ExamMaterialComponent {
 
     materials: ExamMaterial[] = [];
     filteredMaterials: ExamMaterial[] = [];
-    newMaterial?: ExamMaterial;
-    filter: string;
-    materialsChanged: boolean;
+    newMaterial: Partial<ExamMaterial> = {};
+    filter = '';
+    materialsChanged = false;
 
     ngOnInit() {
         this.http
@@ -49,7 +49,7 @@ export class ExamMaterialComponent {
             (resp) => {
                 this.materials.push(resp);
                 this.filterMaterials();
-                delete this.newMaterial;
+                this.newMaterial = {};
                 this.materialsChanged = true;
             },
             (err) => toast.error(err),

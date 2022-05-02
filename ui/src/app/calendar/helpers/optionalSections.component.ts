@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { ExamInfo } from '../calendar.component';
+import type { ExamInfo } from '../calendar.component';
 
 @Component({
     selector: 'calendar-optional-sections',
@@ -72,7 +72,7 @@ import { ExamInfo } from '../calendar.component';
     `,
 })
 export class OptionalSectionsComponent {
-    @Input() examInfo: ExamInfo;
+    @Input() examInfo!: ExamInfo;
     @Output() onSelection = new EventEmitter<{ valid: boolean }>();
 
     checkSectionSelections = () => this.onSelection.emit({ valid: this.sectionSelectionOk() });

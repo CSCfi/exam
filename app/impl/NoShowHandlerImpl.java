@@ -49,16 +49,16 @@ public class NoShowHandlerImpl implements NoShowHandler {
         this.wsClient = wsClient;
     }
 
-    private void send(Reservation reservation) throws MalformedURLException {
-        URL url = parseUrl(reservation.getExternalRef());
+    private void send(ExamEnrolment enrolment) throws MalformedURLException {
+        URL url = parseUrl(enrolment.getReservation().getExternalRef());
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, Void> onSuccess = response -> {
             if (response.getStatus() != 200) {
-                logger.error("No success in sending assessment #{} to XM", reservation.getExternalRef());
+                logger.error("No success in sending assessment #{} to XM", enrolment.getReservation().getExternalRef());
             } else {
-                reservation.setNoShow(true);
-                reservation.update();
-                logger.info("Successfully sent assessment #{} to XM", reservation.getExternalRef());
+                enrolment.setNoShow(true);
+                enrolment.update();
+                logger.info("Successfully sent assessment #{} to XM", enrolment.getReservation().getExternalRef());
             }
             return null;
         };
@@ -70,31 +70,34 @@ public class NoShowHandlerImpl implements NoShowHandler {
     }
 
     private boolean isLocal(ExamEnrolment ee) {
-        return (ee.getExam() != null && ee.getExam().getState() == Exam.State.PUBLISHED);
+        return (ee.getExam() != null && ee.getExam().hasState(Exam.State.PUBLISHED, Exam.State.INITIALIZED));
     }
 
     private boolean isCollaborative(ExamEnrolment ee) {
         return ee.getCollaborativeExam() != null && ee.getExam() == null;
     }
 
+    private boolean isNoShow(ExamEnrolment enrolment) {
+        return (
+            (enrolment.getReservation() != null && enrolment.getReservation().getExternalRef() == null) ||
+            enrolment.getExaminationEventConfiguration() != null
+        );
+    }
+
     @Override
-    public void handleNoShows(List<Reservation> noShows) {
-        Stream<Reservation> locals = noShows
+    public void handleNoShows(List<ExamEnrolment> noShows) {
+        Stream<ExamEnrolment> locals = noShows
             .stream()
-            .filter(ns -> ns.getExternalRef() == null && ns.getEnrolment() != null)
-            .filter(ns -> isLocal(ns.getEnrolment()) || isCollaborative(ns.getEnrolment()));
+            .filter(this::isNoShow)
+            .filter(ns -> isLocal(ns) || isCollaborative(ns));
         locals.forEach(this::handleNoShowAndNotify);
 
-        Stream<Reservation> externals = noShows
+        Stream<ExamEnrolment> externals = noShows
             .stream()
             .filter(ns ->
-                ns.getExternalRef() != null &&
-                (
-                    ns.getUser() == null ||
-                    ns.getEnrolment() == null ||
-                    ns.getEnrolment().getExternalExam() == null ||
-                    ns.getEnrolment().getExternalExam().getStarted() == null
-                )
+                ns.getReservation() != null &&
+                ns.getReservation().getExternalRef() != null &&
+                (ns.getUser() == null || ns.getExternalExam() == null || ns.getExternalExam().getStarted() == null)
             );
         externals.forEach(r -> {
             // Send to XM for further processing
@@ -109,26 +112,27 @@ public class NoShowHandlerImpl implements NoShowHandler {
     }
 
     @Override
-    public void handleNoShowAndNotify(Reservation reservation) {
-        ExamEnrolment enrolment = reservation.getEnrolment();
+    public void handleNoShowAndNotify(ExamEnrolment enrolment) {
         Exam exam = enrolment.getExam();
         if (exam != null && exam.isPrivate()) {
             // For no-shows with private examinations we remove the reservation so student can re-reserve.
             // This is needed because student is not able to re-enroll by himself.
+            Reservation reservation = enrolment.getReservation();
             enrolment.setReservation(null);
             enrolment.update();
-            reservation.delete();
-        } else {
-            reservation.setNoShow(true);
-            reservation.update();
+            if (reservation != null) {
+                reservation.delete();
+            }
         }
-        logger.info("Marked reservation {} as no-show", reservation.getId());
+        enrolment.setNoShow(true);
+        enrolment.update();
+        logger.info("Marked enrolment {} as no-show", enrolment.getId());
 
         String examName = exam == null ? enrolment.getCollaborativeExam().getName() : enrolment.getExam().getName();
         String courseCode = exam == null ? "" : enrolment.getExam().getCourse().getCode();
 
         // Notify student
-        composer.composeNoShowMessage(reservation.getUser(), examName, courseCode);
+        composer.composeNoShowMessage(enrolment.getUser(), examName, courseCode);
         if (exam != null && exam.isPrivate()) {
             // Notify teachers
             Stream

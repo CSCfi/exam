@@ -49,7 +49,7 @@ export class UsersComponent implements OnInit {
         { type: 'TEACHER', name: 'sitnet_teacher', icon: 'bi-person-fill' },
         { type: 'STUDENT', name: 'sitnet_student', icon: 'bi-person' },
     ];
-    permissions: PermissionOption[];
+    permissions: PermissionOption[] = [];
     loader = { loading: false };
 
     constructor(
@@ -99,7 +99,7 @@ export class UsersComponent implements OnInit {
 
     hasPermission = (user: User, permission: string) => user.permissions.some((p) => p.type === permission);
 
-    applyRoleFilter = function (role: RoleOption) {
+    applyRoleFilter = (role: RoleOption) => {
         this.roles = this.roles.map((r: RoleOption) => {
             if (r.type === role.type) {
                 return { ...r, filtered: !r.filtered };

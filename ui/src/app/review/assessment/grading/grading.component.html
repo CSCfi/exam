@@ -1,6 +1,6 @@
 <div class="review-grade-row mart20">
     <div class="col-md-2 general-info-title">{{ 'sitnet_total_score' | translate }}:</div>
-    <div class="col-md-4 general-info-content">{{ getExamTotalScore(exam) }} / {{ getExamMaxPossibleScore(exam) }}</div>
+    <div class="col-md-4 general-info-content">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
     <div class="col-md-2 general-info-title">{{ 'sitnet_inspection_status' | translate }}:</div>
     <div class="col-md-4 general-info-content">
         <div *ngFor="let inspection of exam.examInspections">
@@ -29,7 +29,9 @@
     <div class="col-md-2 general-info-title">{{ 'sitnet_exam_owners' | translate }}:</div>
     <div class="col-md-4 general-info-content">
         <div *ngIf="!collaborative">
-            <span *ngFor="let teacher of exam.parent.examOwners"> {{ teacher.firstName }} {{ teacher.lastName }} </span>
+            <span *ngFor="let teacher of exam.parent?.examOwners">
+                {{ teacher.firstName }} {{ teacher.lastName }}
+            </span>
         </div>
         <div *ngIf="collaborative">
             <span *ngFor="let teacher of exam.examOwners">
@@ -134,7 +136,7 @@
         [MathJax]="exam.examFeedback?.comment"
     ></div>
     <div *ngIf="exam.examFeedback?.attachment" class="col-md-offset-2 col-md-10 general-info-content">
-        <a class="pointer" (click)="downloadFeedbackAttachment(exam)">
+        <a class="pointer" (click)="downloadFeedbackAttachment()">
             {{ exam.examFeedback.attachment?.fileName }}
         </a>
     </div>
@@ -197,7 +199,7 @@
                     lang="en"
                     [disabled]="isReadOnly() || !isOwnerOrAdmin()"
                     required
-                    min="0"
+                    [min]="0"
                     class="form-control"
                     maxlength="3"
                     [(ngModel)]="exam.customCredit"
@@ -209,7 +211,7 @@
 
 <!-- Bottom toolbar -->
 <r-toolbar
-    [valid]="gradingForm.valid"
+    [valid]="!!gradingForm.valid"
     [exam]="exam"
     [participation]="participation"
     [collaborative]="collaborative"

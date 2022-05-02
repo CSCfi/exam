@@ -15,22 +15,23 @@
 import { Component, Input } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
 
-import { ExamParticipation } from '../../../exam/exam.model';
-import { Examination } from '../../../examination/examination.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
 
+import type { ExamParticipation } from '../../../exam/exam.model';
+import type { Examination } from '../../../examination/examination.model';
 import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
+
 @Component({
     selector: 'r-feedback',
     templateUrl: './feedback.component.html',
 })
 export class FeedbackComponent {
-    @Input() exam: Examination;
-    @Input() collaborative: boolean;
-    @Input() participation: ExamParticipation;
+    @Input() exam!: Examination;
+    @Input() collaborative = false;
+    @Input() participation!: ExamParticipation;
     feedbackComment = '';
 
     hideEditor = false;
@@ -75,7 +76,7 @@ export class FeedbackComponent {
         this.Attachment.selectFile(false, {}).then((res: FileResult) => {
             if (this.collaborative) {
                 this._saveCollaborativeFeedback$().subscribe(() => {
-                    const url = `/integration/iop/attachment/exam/${this.routing.params.id}/${this.routing.params.ref}/feedback`;
+                    const url = `/app/iop/attachment/exam/${this.routing.params.id}/${this.routing.params.ref}/feedback`;
                     this._upload(res, url);
                 });
             } else {
@@ -99,7 +100,7 @@ export class FeedbackComponent {
 
     removeFeedbackAttachment = () => {
         if (this.collaborative) {
-            this.Attachment.removeExternalFeedbackAttachment(
+            this.Attachment.removeCollaborativeExamFeedbackAttachment(
                 this.routing.params.id,
                 this.routing.params.ref,
                 this.participation,

@@ -14,8 +14,9 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { Question } from '../../exam/exam.model';
+import { QuestionDraft } from '../question.service';
 
+import type { Question } from '../../exam/exam.model';
 @Component({
     selector: 'essay-editor',
     template: `
@@ -52,7 +53,7 @@ import { Question } from '../../exam/exam.model';
     `,
 })
 export class EssayEditorComponent {
-    @Input() question: Question;
+    @Input() question!: Question | QuestionDraft;
 
     ngOnInit() {
         this.question.defaultEvaluationType = this.question.defaultEvaluationType || 'Points';

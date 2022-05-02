@@ -33,8 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import models.Exam;
-import models.ExamParticipation;
-import models.Reservation;
+import models.ExamEnrolment;
 import models.Role;
 import models.User;
 import play.Logger;
@@ -101,16 +100,16 @@ public class BaseController extends Controller {
             String name2 = rawFilter.split(" ")[1];
             result =
                 result
-                    .disjunction()
-                    .conjunction()
+                    .or()
+                    .and()
                     .ilike(fnField, String.format("%%%s%%", name1))
                     .ilike(lnField, String.format("%%%s%%", name2))
-                    .endJunction()
-                    .conjunction()
+                    .endAnd()
+                    .and()
                     .ilike(fnField, String.format("%%%s%%", name2))
                     .ilike(lnField, String.format("%%%s%%", name1))
-                    .endJunction()
-                    .endJunction();
+                    .endAnd()
+                    .endOr();
         } else {
             result = result.ilike(fnField, condition).ilike(lnField, condition);
         }
@@ -118,29 +117,32 @@ public class BaseController extends Controller {
     }
 
     private void handleNoShow(User user, Long examId) {
-        List<Reservation> reservations = Ebean
-            .find(Reservation.class)
-            .fetch("enrolment")
-            .fetch("enrolment.exam")
+        List<ExamEnrolment> enrolments = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("reservation")
+            .fetch("exam")
             .where()
             .eq("user", user)
             .eq("noShow", false)
-            .lt("endAt", new Date())
+            .or()
+            .lt("reservation.endAt", new Date())
+            .lt("examinationEventConfiguration.examinationEvent.start", new Date()) // FIXME: exam period
+            .endOr()
             // Either a) exam id matches and exam state is published OR
             //        b) collaborative exam id matches and exam is NULL
             .or()
             .and()
-            .eq("enrolment.exam.id", examId)
-            .eq("enrolment.exam.state", Exam.State.PUBLISHED)
+            .eq("exam.id", examId)
+            .eq("exam.state", Exam.State.PUBLISHED)
             .endAnd()
             .and()
-            .eq("enrolment.collaborativeExam.id", examId)
-            .isNull("enrolment.exam")
+            .eq("collaborativeExam.id", examId)
+            .isNull("exam")
             .endAnd()
             .endOr()
-            .isNull("externalReservation")
+            .isNull("reservation.externalReservation")
             .findList();
-        noShowHandler.handleNoShows(reservations);
+        noShowHandler.handleNoShows(enrolments);
     }
 
     protected boolean isAllowedToParticipate(Exam exam, User user) {
@@ -149,24 +151,20 @@ public class BaseController extends Controller {
         if (trialCount == null) {
             return true;
         }
-        List<ExamParticipation> trials = Ebean
-            .find(ExamParticipation.class)
-            .fetch("exam")
+        List<ExamEnrolment> trials = Ebean
+            .find(ExamEnrolment.class)
             .where()
             .eq("user", user)
             .eq("exam.parent.id", exam.getId())
             .ne("exam.state", Exam.State.DELETED)
-            .or()
-            .isNull("reservation")
-            .ne("reservation.retrialPermitted", true)
-            .endOr()
+            .ne("retrialPermitted", true)
             .findList()
             .stream()
-            .sorted(Comparator.comparing(ExamParticipation::getStarted).reversed())
+            .sorted(Comparator.comparing(ExamEnrolment::getId).reversed())
             .collect(Collectors.toList());
 
         if (trials.size() >= trialCount) {
-            return trials.stream().limit(trialCount).anyMatch(ExamParticipation::isProcessed);
+            return trials.stream().limit(trialCount).anyMatch(ExamEnrolment::isProcessed);
         }
         return true;
     }

@@ -39,7 +39,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
 
 @NgModule({
     imports: [BrowserAnimationsModule, NgbModule, UIRouterModule, UtilityModule],
-    exports: [ActiveEnrolmentComponent],
+    exports: [ActiveEnrolmentComponent, ExamSearchResultComponent],
     declarations: [
         ActiveEnrolmentComponent,
         EnrolmentDetailsComponent,
@@ -58,19 +58,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         SelectExaminationEventDialogComponent,
         ShowInstructionsDialogComponent,
     ],
-    entryComponents: [
-        ActiveEnrolmentComponent,
-        EnrolmentDetailsComponent,
-        ExamEnrolmentsComponent,
-        CollaborativeParticipationsComponent,
-        ExamFeedbackComponent,
-        ExamParticipationComponent,
-        ExamParticipationsComponent,
-        CollaborativeExamSearchComponent,
-        ExamSearchComponent,
-        ExamSearchResultComponent,
-        WaitingRoomComponent,
-        WrongLocationComponent,
+    bootstrap: [
         AddEnrolmentInformationDialogComponent,
         SelectExaminationEventDialogComponent,
         ShowInstructionsDialogComponent,

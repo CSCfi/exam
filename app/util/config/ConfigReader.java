@@ -10,7 +10,10 @@ public interface ConfigReader {
     DateTimeZone getDefaultTimeZone();
     String getHostName();
     Integer getMaxFileSize();
+    String getExamMaxDate();
     List<Integer> getExamDurations();
+    Integer getExamMaxDuration();
+    Integer getExamMinDuration();
     Map<Role, List<String>> getRoleMapping();
     boolean isCourseGradeScaleOverridable();
     boolean isEnrolmentPermissionCheckActive();
@@ -31,4 +34,5 @@ public interface ConfigReader {
     String getSettingsPasswordEncryptionKey();
     String getQuitPassword();
     String getHomeOrganisationRef();
+    Integer getMaxByodExaminationParticipantCount();
 }

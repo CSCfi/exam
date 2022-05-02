@@ -10,9 +10,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.icegreen.greenmail.junit.GreenMailRule;
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit4.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
-import com.icegreen.greenmail.util.ServerSetup;
+import com.icegreen.greenmail.util.ServerSetupTest;
 import com.typesafe.config.ConfigFactory;
 import helpers.AttachmentServlet;
 import helpers.RemoteServerHelper;
@@ -70,7 +71,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     private ExamEnrolment enrolment;
 
     @Rule
-    public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
+    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
+        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     public static class SlotServlet extends HttpServlet {
 
@@ -226,7 +228,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     public void testGetSlots() {
         initialize(null);
         String url = String.format(
-            "/integration/iop/calendar/%d/%s?&org=%s&date=%s",
+            "/app/iop/calendar/%d/%s?&org=%s&date=%s",
             exam.getId(),
             room.getExternalRef(),
             ORG_REF,
@@ -261,7 +263,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         // Execute
         String url = String.format(
-            "/integration/iop/calendar/%d/%s?&org=%s&date=%s",
+            "/app/iop/calendar/%d/%s?&org=%s&date=%s",
             exam.getId(),
             room.getExternalRef(),
             ORG_REF,
@@ -437,7 +439,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         Result result = request(
             Helpers.DELETE,
-            "/integration/iop/reservations/external/" + RESERVATION_REF + "/force",
+            "/app/iop/reservations/external/" + RESERVATION_REF + "/force",
             Json.newObject().put("msg", "msg")
         );
         assertThat(result.status()).isEqualTo(200);
@@ -462,7 +464,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         Result result = request(
             Helpers.DELETE,
-            "/integration/iop/reservations/external/" + RESERVATION_REF + "/force",
+            "/app/iop/reservations/external/" + RESERVATION_REF + "/force",
             Json.newObject().put("msg", "msg")
         );
         assertThat(result.status()).isEqualTo(403);
@@ -597,7 +599,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.put("requestingOrg", "foobar");
         json.set("sectionIds", Json.newArray().add(1));
 
-        Result result = request(Helpers.POST, "/integration/iop/reservations/external", json);
+        Result result = request(Helpers.POST, "/app/iop/reservations/external", json);
         assertThat(result.status()).isEqualTo(201);
 
         JsonNode body = Json.parse(contentAsString(result));
@@ -605,7 +607,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
         Reservation created = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
         assertThat(created).isNotNull();
-        assertThat(created.getOptionalSections()).hasSize(1);
+        assertThat(created.getEnrolment().getOptionalSections()).hasSize(1);
         ExternalReservation external = created.getExternalReservation();
         assertThat(external).isNotNull();
         assertThat(external.getRoomInstructionEN()).isEqualTo("information in English here");
@@ -645,7 +647,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.put("examId", exam.getId());
         json.put("orgId", ORG_REF);
         json.put("roomId", ROOM_REF);
-        Result result = request(Helpers.POST, "/integration/iop/reservations/external", json);
+        Result result = request(Helpers.POST, "/app/iop/reservations/external", json);
 
         assertThat(result.status()).isEqualTo(403);
         assertThat(contentAsString(result).equals("sitnet_error_enrolment_not_found"));
@@ -686,7 +688,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         json.put("examId", exam.getId());
         json.put("orgId", ORG_REF);
         json.put("roomId", ROOM_REF);
-        Result result = request(Helpers.POST, "/integration/iop/reservations/external", json);
+        Result result = request(Helpers.POST, "/app/iop/reservations/external", json);
 
         assertThat(result.status()).isEqualTo(201);
         assertThat(contentAsString(result).equals("sitnet_error_enrolment_not_found"));
@@ -720,7 +722,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         enrolment.setReservation(reservation);
         enrolment.update();
 
-        Result result = request(Helpers.DELETE, "/integration/iop/reservations/external/" + RESERVATION_REF, null);
+        Result result = request(Helpers.DELETE, "/app/iop/reservations/external/" + RESERVATION_REF, null);
         assertThat(result.status()).isEqualTo(200);
 
         ExamEnrolment ee = Ebean.find(ExamEnrolment.class, enrolment.getId());

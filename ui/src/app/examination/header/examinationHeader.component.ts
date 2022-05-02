@@ -15,15 +15,16 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { SessionService } from '../../session/session.service';
-import { Examination } from '../examination.service';
+
+import type { Examination } from '../examination.model';
 
 @Component({
     selector: 'examination-header',
     templateUrl: './examinationHeader.component.html',
 })
 export class ExaminationHeaderComponent {
-    @Input() exam: Examination;
-    @Input() isPreview: boolean;
+    @Input() exam!: Examination;
+    @Input() isPreview = false;
     @Output() onTimeout = new EventEmitter<void>();
 
     constructor(private Session: SessionService) {}

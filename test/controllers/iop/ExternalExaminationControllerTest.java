@@ -1,8 +1,5 @@
 package controllers.iop;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static play.test.Helpers.contentAsString;
-
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,8 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.io.Files;
-import com.icegreen.greenmail.junit.GreenMailRule;
-import com.icegreen.greenmail.util.ServerSetup;
+import com.icegreen.greenmail.configuration.GreenMailConfiguration;
+import com.icegreen.greenmail.junit4.GreenMailRule;
+import com.icegreen.greenmail.util.ServerSetupTest;
 import io.ebean.Ebean;
 import io.ebean.text.json.EJson;
 import java.io.File;
@@ -33,12 +31,14 @@ import models.questions.EssayAnswer;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
+import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
+import static play.test.Helpers.contentAsString;
 import util.json.JsonDeserializer;
 
 public class ExternalExaminationControllerTest extends IntegrationTestCase {
@@ -51,7 +51,8 @@ public class ExternalExaminationControllerTest extends IntegrationTestCase {
     private final Reservation reservation = new Reservation();
 
     @Rule
-    public final GreenMailRule greenMail = new GreenMailRule(new ServerSetup(11465, null, ServerSetup.PROTOCOL_SMTP));
+    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
+            .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     @Override
     protected void onBeforeLogin() throws IOException {

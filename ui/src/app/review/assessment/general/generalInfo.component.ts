@@ -14,67 +14,58 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
-import * as moment from 'moment';
+import { UIRouterGlobals } from '@uirouter/core';
+import { parseISO, roundToNearestMinutes } from 'date-fns';
 
-import { Exam } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
+import { DateTimeService } from '../../../utility/date/date.service';
 
+import type { Exam } from '../../../exam/exam.model';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import type { ExaminationEventConfiguration, ExamParticipation } from '../../../exam/exam.model';
+import type { ExamParticipation } from '../../../exam/exam.model';
 import type { Reservation } from '../../../reservation/reservation.model';
 import type { User } from '../../../session/session.service';
-export type Participation = Partial<Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> }>;
+export type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
     selector: 'r-general-info',
     templateUrl: './generalInfo.component.html',
 })
 export class GeneralInfoComponent {
-    @Input() exam: Exam;
-    @Input() participation: Participation;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() participation!: Participation;
+    @Input() collaborative = false;
 
-    student: User;
-    studentName: string;
+    student?: User;
+    studentName = '';
     enrolment?: ExamEnrolment;
     reservation?: Reservation;
-    previousParticipations: Partial<Participation>[];
+    participations: ExamParticipation[] = [];
+    noShows: ExamEnrolment[] = [];
 
-    constructor(private http: HttpClient, private state: StateService, private Attachment: AttachmentService) {}
+    constructor(
+        private http: HttpClient,
+        private state: UIRouterGlobals,
+        private Attachment: AttachmentService,
+        private DateTime: DateTimeService,
+    ) {}
 
-    private handleParticipations = (data: Partial<Participation>[]) => {
+    private handleParticipations = (data: ExamParticipation[]) => {
         if (this.collaborative) {
             // TODO: Add collaborative support for noshows.
-            this.previousParticipations = data;
+            this.participations = data;
             return;
         }
         // Filter out the participation we are looking into
-        const previousParticipations = data.filter((p) => {
-            return p.id !== this.participation.id;
-        });
+        this.participations = data.filter((p) => p.id !== this.participation.id);
         this.http.get<ExamEnrolment[]>(`/app/usernoshows/${this.exam.id}`).subscribe((enrolments) => {
-            const noShows: Partial<Participation>[] = enrolments.map((ee) => {
-                return {
-                    id: ee.id,
-                    noShow: true,
-                    user: ee.user,
-                    started: ee.reservation
-                        ? ee.reservation.startAt
-                        : (ee.examinationEventConfiguration as ExaminationEventConfiguration).examinationEvent.start,
-                    exam: { state: 'no_show' },
-                };
-            });
-            this.previousParticipations = previousParticipations.concat(noShows);
+            this.noShows = enrolments.map((ee) => ({ ...ee, exam: { ...ee.exam, state: 'no_show' } }));
         });
     };
 
     ngOnInit() {
-        const duration = moment.utc(new Date(this.participation.duration as string));
-        if (duration.second() > 29) {
-            duration.add(1, 'minutes');
-        }
-        this.participation.duration = duration.format();
+        const duration = roundToNearestMinutes(parseISO(this.participation.duration as string));
+        this.participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC');
         this.student = this.participation.user as User;
         this.studentName = this.student
             ? `${this.student.lastName} ${this.student.firstName}`
@@ -85,13 +76,13 @@ export class GeneralInfoComponent {
         this.reservation = this.enrolment?.reservation;
         if (this.collaborative) {
             this.http
-                .get<Participation[]>(
-                    `/integration/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
+                .get<ExamParticipation[]>(
+                    `/app/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
                 )
                 .subscribe(this.handleParticipations);
         } else {
             this.http
-                .get<Participation[]>(`app/examparticipations/${this.state.params.id}`)
+                .get<ExamParticipation[]>(`app/examparticipations/${this.state.params.id}`)
                 .subscribe(this.handleParticipations);
         }
     }

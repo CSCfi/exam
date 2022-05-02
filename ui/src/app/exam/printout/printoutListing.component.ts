@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import * as moment from 'moment';
+import { format, parseISO } from 'date-fns';
 import { map } from 'rxjs/operators';
 
 import type { Exam } from '../exam.model';
@@ -24,14 +24,13 @@ import type { Exam } from '../exam.model';
     templateUrl: './printoutListing.component.html',
 })
 export class PrintoutListingComponent {
-    printouts: (Exam & { examinationDatesAggregate: string })[];
-    predicate: string;
-    reverse: boolean;
+    printouts: (Exam & { examinationDatesAggregate: string })[] = [];
+    predicate = 'examinationDatesAggregate';
+    reverse = true;
+
     constructor(private http: HttpClient) {}
 
     ngOnInit() {
-        this.predicate = 'examinationDatesAggregate';
-        this.reverse = true;
         this.http
             .get<Exam[]>('/app/exam/printouts')
             .pipe(
@@ -40,7 +39,7 @@ export class PrintoutListingComponent {
                         const dates = p.examinationDates.map((ed) => ed.date).sort();
                         return {
                             ...p,
-                            examinationDatesAggregate: dates.map((d) => moment(d).format('DD.MM.YYYY')).join(', '),
+                            examinationDatesAggregate: dates.map((d) => format(parseISO(d), 'DD.MM.YYYY')).join(', '),
                         };
                     });
                 }),

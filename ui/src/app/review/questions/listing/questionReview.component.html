@@ -55,12 +55,15 @@
 
     <div *ngIf="review.expanded">
         <img
-            *ngIf="review.question.defaultAnswerInstructions?.length > 0"
+            *ngIf="review.question.defaultAnswerInstructions && review.question.defaultAnswerInstructions.length > 0"
             src="/assets/assets/images/icon_info.png"
             alt="exam"
             onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png'"
         />
-        <span *ngIf="review.question.defaultAnswerInstructions?.length > 0" class="padl10">
+        <span
+            *ngIf="review.question.defaultAnswerInstructions && review.question.defaultAnswerInstructions.length > 0"
+            class="padl10"
+        >
             {{ review.question.defaultAnswerInstructions }}</span
         >
     </div>

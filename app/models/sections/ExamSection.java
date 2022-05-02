@@ -34,10 +34,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 import models.Exam;
+import models.ExamEnrolment;
 import models.User;
 import models.api.Sortable;
 import models.base.OwnedModel;
 import models.questions.Question;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.beans.BeanUtils;
 
 @Entity
@@ -75,6 +78,9 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
         inverseJoinColumns = @JoinColumn(name = "exam_material_id")
     )
     private Set<ExamMaterial> examMaterials;
+
+    @ManyToMany(mappedBy = "optionalSections", cascade = CascadeType.ALL)
+    private Set<ExamEnrolment> examEnrolments;
 
     public Set<ExamSectionQuestion> getSectionQuestions() {
         return sectionQuestions;
@@ -154,6 +160,14 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
 
     public void setExamMaterials(Set<ExamMaterial> examMaterials) {
         this.examMaterials = examMaterials;
+    }
+
+    public Set<ExamEnrolment> getExamEnrolments() {
+        return examEnrolments;
+    }
+
+    public void setExamEnrolments(Set<ExamEnrolment> enrolments) {
+        this.examEnrolments = enrolments;
     }
 
     public void shuffleQuestions() {
@@ -243,5 +257,18 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
     @Override
     public void setOrdinal(Integer ordinal) {
         sequenceNumber = ordinal;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ExamSection)) return false;
+        ExamSection that = (ExamSection) o;
+        return new EqualsBuilder().append(id, that.id).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(id).toHashCode();
     }
 }

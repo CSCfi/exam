@@ -16,27 +16,27 @@ import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/angular';
-import * as moment from 'moment';
+import { format, parseISO } from 'date-fns';
 import * as toast from 'toastr';
 
-import { InteroperabilityResourceService } from './interoperabilityResource.service';
+import { InteroperabilityService } from './interoperability.service';
 import { RoomService } from './room.service';
 import { SettingsResourceService } from './settingsResource';
 
 import type { OnInit } from '@angular/core';
-import type { DefaultWorkingHours, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import type { InteroperableRoom, Week, Weekday, WeekdayBlock } from './room.service';
-
+import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import type { Week, Weekday, WeekdayBlock } from './room.service';
 @Component({
     templateUrl: './room.component.html',
     selector: 'room',
 })
 export class RoomComponent implements OnInit {
-    @ViewChild('roomForm', { static: false }) roomForm: NgForm;
-    room: InteroperableRoom;
-    week: Week;
-    showName: boolean;
-    isInteroperable: boolean;
+    @ViewChild('roomForm', { static: false }) roomForm!: NgForm;
+
+    room!: ExamRoom;
+    week: Week = {};
+    showName = false;
+    isInteroperable = false;
     editingMultipleRooms = false;
     workingHours: WeekdayBlock[] = [];
 
@@ -46,7 +46,7 @@ export class RoomComponent implements OnInit {
         private routing: UIRouterGlobals,
         private roomService: RoomService,
         private settings: SettingsResourceService,
-        private interoperability: InteroperabilityResourceService,
+        private interoperability: InteroperabilityService,
     ) {}
 
     ngOnInit() {
@@ -57,7 +57,7 @@ export class RoomComponent implements OnInit {
         });
 
         this.roomService.getRoom$(this.routing.params.id).subscribe(
-            (room: InteroperableRoom) => {
+            (room: ExamRoom) => {
                 room.availableForExternals = room.externalRef !== null;
                 this.room = room;
                 if (!this.roomService.isAnyExamMachines(this.room)) {
@@ -87,14 +87,16 @@ export class RoomComponent implements OnInit {
 
     addException = (exception: ExceptionWorkingHours) => {
         this.roomService.addException([this.room.id], exception).then((data) => {
-            this.roomService.formatExceptionEvent(data);
-            this.room.calendarExceptionEvents.push(data);
+            this.room.calendarExceptionEvents = [...this.room.calendarExceptionEvents, data];
         });
     };
 
     deleteException = (exception: ExceptionWorkingHours) => {
         this.roomService.deleteException(this.room.id, exception.id).then(() => {
-            this.remove(this.room.calendarExceptionEvents, exception);
+            this.room.calendarExceptionEvents = this.room.calendarExceptionEvents.splice(
+                this.room.calendarExceptionEvents.indexOf(exception),
+                1,
+            );
         });
     };
 
@@ -143,7 +145,7 @@ export class RoomComponent implements OnInit {
         this.roomService.updateRoom(this.room).subscribe(
             () => {
                 toast.info(this.translate.instant('sitnet_room_saved'));
-                this.state.go('rooms');
+                this.state.go('staff.rooms');
             },
             (error) => {
                 toast.error(error.data);
@@ -152,7 +154,7 @@ export class RoomComponent implements OnInit {
     };
 
     updateInteroperability = () => {
-        this.interoperability.updateFacility(this.room).subscribe(
+        this.interoperability.updateFacility$(this.room).subscribe(
             (data) => {
                 this.room.externalRef = data.externalRef;
                 this.room.availableForExternals = data.externalRef !== null;
@@ -162,11 +164,6 @@ export class RoomComponent implements OnInit {
                 toast.error(err.data.message);
             },
         );
-    };
-
-    private remove = (arr: unknown[], item: unknown) => {
-        const index = arr.indexOf(item);
-        arr.splice(index, 1);
     };
 
     private setSelected = (day: Weekday, slots: number[]) => {
@@ -179,8 +176,8 @@ export class RoomComponent implements OnInit {
 
     private slotToTimes = (slot: DefaultWorkingHours) => {
         const arr = [];
-        const startKey = moment(slot.startTime).format('H:mm');
-        const endKey = moment(slot.endTime).format('H:mm');
+        const startKey = format(parseISO(slot.startTime), 'H:mm');
+        const endKey = format(parseISO(slot.endTime), 'H:mm');
         const times = this.roomService.getTimes();
         const start = startKey === '0:00' ? 0 : times.indexOf(startKey);
         for (let i = start; i < times.length; i++) {

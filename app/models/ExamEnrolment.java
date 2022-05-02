@@ -17,9 +17,13 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
@@ -28,6 +32,7 @@ import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import models.json.CollaborativeExam;
 import models.json.ExternalExam;
+import models.sections.ExamSection;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
@@ -59,6 +64,14 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     @ManyToOne
     private ExaminationEventConfiguration examinationEventConfiguration;
 
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+        name = "exam_enrolment_optional_exam_section",
+        joinColumns = @JoinColumn(name = "exam_enrolment_id"),
+        inverseJoinColumns = @JoinColumn(name = "exam_section_id")
+    )
+    private Set<ExamSection> optionalSections;
+
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime enrolledOn;
@@ -68,6 +81,10 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     private boolean reservationCanceled;
 
     private String preEnrolledUserEmail;
+
+    private boolean noShow;
+
+    private boolean retrialPermitted;
 
     public User getUser() {
         return user;
@@ -125,6 +142,14 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
         this.examinationEventConfiguration = examinationEventConfiguration;
     }
 
+    public Set<ExamSection> getOptionalSections() {
+        return optionalSections;
+    }
+
+    public void setOptionalSections(Set<ExamSection> optionalSections) {
+        this.optionalSections = optionalSections;
+    }
+
     public String getInformation() {
         return information;
     }
@@ -149,6 +174,22 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
         this.preEnrolledUserEmail = preEnrolledUserEmail;
     }
 
+    public boolean isNoShow() {
+        return noShow;
+    }
+
+    public void setNoShow(boolean noShow) {
+        this.noShow = noShow;
+    }
+
+    public boolean isRetrialPermitted() {
+        return retrialPermitted;
+    }
+
+    public void setRetrialPermitted(boolean retrialPermitted) {
+        this.retrialPermitted = retrialPermitted;
+    }
+
     @Transient
     public boolean isActive() {
         DateTime now = DateTimeUtils.adjustDST(new DateTime());
@@ -159,6 +200,11 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
             examinationEventConfiguration == null ||
             examinationEventConfiguration.getExaminationEvent().getStart().plusMinutes(exam.getDuration()).isAfter(now)
         );
+    }
+
+    @Transient
+    public boolean isProcessed() {
+        return (exam != null && exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED));
     }
 
     @Override

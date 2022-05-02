@@ -20,9 +20,8 @@ import { debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/
 import * as toast from 'toastr';
 
 import { EnrolmentService } from '../../../enrolment/enrolment.service';
-import { Exam } from '../../exam.model';
 
-import type { ExamParticipation } from '../../exam.model';
+import type { Exam, ExamParticipation } from '../../exam.model';
 import type { OnInit } from '@angular/core';
 import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { Observable } from 'rxjs';
@@ -33,9 +32,9 @@ import type { User } from '../../../session/session.service';
     templateUrl: './examParticipantSelector.component.html',
 })
 export class ExamParticipantSelectorComponent implements OnInit {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     newParticipant: { id?: number; name?: string } = {};
-    participants: User[];
+    participants: User[] = [];
 
     constructor(private http: HttpClient, private translate: TranslateService, private Enrolment: EnrolmentService) {}
 

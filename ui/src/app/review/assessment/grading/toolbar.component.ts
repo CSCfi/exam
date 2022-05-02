@@ -18,21 +18,22 @@ import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { noop } from 'rxjs';
 import * as toast from 'toastr';
 
-import { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
-import { Examination } from '../../../examination/examination.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
+
+import type { ExamParticipation } from '../../../exam/exam.model';
+import type { Examination } from '../../../examination/examination.model';
 
 @Component({
     selector: 'r-toolbar',
     templateUrl: './toolbar.component.html',
 })
 export class ToolbarComponent {
-    @Input() valid: boolean;
-    @Input() participation: ExamParticipation;
-    @Input() collaborative: boolean;
-    @Input() exam: Examination;
+    @Input() valid = false;
+    @Input() participation!: ExamParticipation;
+    @Input() collaborative = false;
+    @Input() exam!: Examination;
 
     constructor(
         private state: StateService,

@@ -139,7 +139,7 @@
             <tbody>
                 <tr *ngFor="let inspection of filteredInspections | orderBy: sorting.predicate:sorting.reverse">
                     <td>
-                        {{ inspection.exam.course.code }}
+                        {{ inspection.exam.course?.code }}
                     </td>
                     <td>
                         {{ inspection.answerLanguage }}
@@ -181,7 +181,7 @@
                         <span class="text-danger">{{ 'sitnet_undefined' | translate }}</span>
                     </td>
                     <td *ngIf="inspection.modifier">
-                        <a class="pointer" uiSref="assessment" [uiParams]="{ id: inspection.exam.id }">{{
+                        <a class="pointer" uiSref="staff.assessment" [uiParams]="{ id: inspection.exam.id }">{{
                             'sitnet_view' | translate
                         }}</a>
                     </td>

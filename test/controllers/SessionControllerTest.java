@@ -97,4 +97,24 @@ public class SessionControllerTest extends IntegrationTestCase {
         assertThat(user).isNotNull();
         assertThat(user.getUserIdentifier()).isEqualTo("org2.org:null");
     }
+
+    @Test
+    public void testLoginWithNationalUserIdentifier() {
+        String eppn = "newuser@test.org";
+        User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
+        assertThat(user).isNull();
+
+        login(
+            eppn,
+            ImmutableMap.of(
+                "schacPersonalUniqueCode",
+                "urn:schac:personalUniqueCode:int:studentID:org2.org:111;" +
+                "urn:schac:personalUniqueCode:int:esi:FI:xxx"
+            )
+        );
+
+        user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
+        assertThat(user).isNotNull();
+        assertThat(user.getUserIdentifier()).isEqualTo("org2.org:111");
+    }
 }

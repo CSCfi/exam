@@ -12,13 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import 'moment-timezone';
-
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { StateService } from '@uirouter/core';
-import * as moment from 'moment';
+import { addHours, parseISO } from 'date-fns';
+import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 
+import { MaintenancePeriod } from '../exam/exam.model';
 import { SessionService } from '../session/session.service';
 import { DateTimeService } from '../utility/date/date.service';
 
@@ -60,28 +60,26 @@ export class CalendarService {
         private Session: SessionService,
     ) {}
 
-    private adjustBack(date: moment.Moment, tz: string): string {
-        const adjusted = moment.tz(date, tz);
-        const offset = adjusted.isDST() ? 1 : 0;
-        return moment.utc(adjusted.add(offset, 'hour')).format();
+    private adjustBack(date: Date, tz: string): string {
+        const adjusted = zonedTimeToUtc(date, tz);
+        const offset = this.DateTime.isDST(adjusted) ? 1 : 0;
+        return utcToZonedTime(addHours(adjusted, offset), tz).toISOString();
     }
 
     private reserveInternal$ = (slot: Slot, accs: Accessibility[], collaborative: boolean): Observable<void> => {
         slot.aids = accs.map((item) => item.id);
-        const url = collaborative ? '/integration/iop/calendar/reservation' : '/app/calendar/reservation';
+        const url = collaborative ? '/app/iop/calendar/reservation' : '/app/calendar/reservation';
         return this.http.post<void>(url, slot);
     };
 
     private reserveExternal$ = (slot: Slot, collaborative = false) => {
-        const url = collaborative
-            ? '/integration/iop/calendar/external/reservation'
-            : '/integration/iop/reservations/external';
+        const url = collaborative ? '/app/iop/calendar/external/reservation' : '/app/iop/reservations/external';
         return this.http.post<void>(url, slot);
     };
 
     reserve$(
-        start: moment.Moment,
-        end: moment.Moment,
+        start: Date,
+        end: Date,
         room: ExamRoom,
         accs: Accessibility[],
         org: { _id: string | null },
@@ -101,32 +99,6 @@ export class CalendarService {
             return this.reserveExternal$(slot, collaborative);
         } else {
             return this.reserveInternal$(slot, accs, collaborative);
-        }
-    }
-
-    renderCalendarTitle() {
-        // Fix date range format in title
-        const selector = $('.fc-toolbar .fc-center > h2');
-        const title = selector.text();
-        const separator = ' — ';
-        const endPart = title.split(separator)[1];
-        const startFragments: string[] = title
-            .split(separator)[0]
-            .split('.')
-            .filter((f) => {
-                // ignore empty fragments (introduced if title already correctly formatted)
-                return f.length > 0;
-            });
-        let newTitle = '';
-        if (startFragments.length < 3) {
-            startFragments.forEach((f) => {
-                newTitle += f;
-                if (f && f[f.length - 1] !== '.') {
-                    newTitle += '.';
-                }
-            });
-            newTitle += separator + endPart;
-            selector.text(newTitle);
         }
     }
 
@@ -166,9 +138,9 @@ export class CalendarService {
             }
             const hours = this.findOpeningHours(dwh, openingHours);
             if (hours) {
-                hours.periods.push(
-                    moment.tz(dwh.startTime, tz).format('HH:mm') + ' - ' + moment.tz(dwh.endTime, tz).format('HH:mm'),
-                );
+                const start = format(parseISO(dwh.startTime), 'HH:mm', { timeZone: tz });
+                const end = format(parseISO(dwh.endTime), 'HH:mm', { timeZone: tz });
+                hours.periods.push(`${start} - ${end}`);
             }
         });
         openingHours.forEach((oh) => {
@@ -181,25 +153,27 @@ export class CalendarService {
         event: ExceptionWorkingHours,
         tz: string,
     ): ExceptionWorkingHours & { start: string; end: string; description: string } {
-        const startDate = moment.tz(event.startDate, tz);
-        const endDate = moment.tz(event.endDate, tz);
+        const startDate = zonedTimeToUtc(parseISO(event.startDate), tz);
+        const endDate = zonedTimeToUtc(parseISO(event.endDate), tz);
         return {
             ...event,
-            start: startDate.format('DD.MM.YYYY HH:mm'),
-            end: endDate.format('DD.MM.YYYY HH:mm'),
+            start: format(startDate, 'dd.MM.yyyy HH:mm'),
+            end: format(endDate, 'dd.MM.yyyy HH:mm'),
             description: event.outOfService ? 'sitnet_closed' : 'sitnet_open',
         };
     }
+
+    listMaintenancePeriods$ = () => this.http.get<MaintenancePeriod[]>('/app/maintenance');
 
     getExceptionHours(
         room: ExamRoom,
         start: Date,
         end: Date,
     ): (ExceptionWorkingHours & { start: string; end: string; description: string })[] {
-        const maxStart = moment.max(moment(), moment(start));
-        const events = room.calendarExceptionEvents.filter((e) => {
-            return moment(e.startDate) > maxStart && moment(e.endDate) < moment(end);
-        });
+        const maxStart = [new Date(), start].reduce((a, b) => (a > b ? a : b));
+        const events = room.calendarExceptionEvents.filter(
+            (e) => parseISO(e.startDate) > maxStart && parseISO(e.endDate) < end,
+        );
         return events.map((e) => CalendarService.formatExceptionEvent(e, room.localTimezone));
     }
 
@@ -209,22 +183,16 @@ export class CalendarService {
         return room.calendarExceptionEvents.map((e) => CalendarService.formatExceptionEvent(e, room.localTimezone));
     }
 
-    getEarliestOpening(room: ExamRoom): moment.Moment {
+    getEarliestOpening(room: ExamRoom): Date {
         const tz = room.localTimezone;
-        const openings = room.defaultWorkingHours.map((dwh) => {
-            const start = moment.tz(dwh.startTime, tz);
-            return moment().hours(start.hours()).minutes(start.minutes()).seconds(start.seconds());
-        });
-        return moment.min(...openings);
+        const openings = room.defaultWorkingHours.map((dwh) => zonedTimeToUtc(parseISO(dwh.startTime), tz));
+        return openings.reduce((a, b) => (a < b ? a : b));
     }
 
-    getLatestClosing(room: ExamRoom): moment.Moment {
+    getLatestClosing(room: ExamRoom): Date {
         const tz = room.localTimezone;
-        const closings = room.defaultWorkingHours.map((dwh) => {
-            const end = moment.tz(dwh.endTime, tz);
-            return moment().hours(end.hours()).minutes(end.minutes()).seconds(end.seconds());
-        });
-        return moment.max(...closings);
+        const closings = room.defaultWorkingHours.map((dwh) => zonedTimeToUtc(parseISO(dwh.endTime), tz));
+        return closings.reduce((a, b) => (a > b ? a : b));
     }
 
     getClosedWeekdays(room: ExamRoom): number[] {

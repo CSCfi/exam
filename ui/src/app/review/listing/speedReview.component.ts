@@ -18,7 +18,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as FileSaver from 'file-saver';
-import * as moment from 'moment';
 import { forkJoin, noop, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -26,8 +25,10 @@ import * as toast from 'toastr';
 import { isRealGrade } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
+import { DateTimeService } from '../../utility/date/date.service';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../utility/file/file.service';
+import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
 import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 
 import type { Observable } from 'rxjs';
@@ -50,11 +51,11 @@ export class SpeedReviewComponent {
     pageSize = 10;
     currentPage = 0;
     reviewPredicate = 'deadline';
-    reverse: false;
-    examId: number;
-    examInfo: { examOwners: User[]; title: string; anonymous: boolean };
+    reverse = false;
+    examId = 0;
+    examInfo?: { examOwners: User[]; title: string; anonymous: boolean };
     toggleReviews = false;
-    examReviews: Review[];
+    examReviews: Review[] = [];
 
     constructor(
         private http: HttpClient,
@@ -63,9 +64,11 @@ export class SpeedReviewComponent {
         private translate: TranslateService,
         private modal: NgbModal,
         private Exam: ExamService,
+        private CommonExam: CommonExamService,
         private Confirmation: ConfirmationDialogService,
         private Files: FileService,
         private Attachment: AttachmentService,
+        private DateTime: DateTimeService,
     ) {}
 
     private resolveGradeScale = (exam: Exam): GradeScale => {
@@ -86,14 +89,14 @@ export class SpeedReviewComponent {
             .map((grade) => {
                 return {
                     ...grade,
-                    name: this.Exam.getExamGradeDisplayName(grade.name),
+                    name: this.CommonExam.getExamGradeDisplayName(grade.name),
                     type: grade.name,
                 };
             })
             .filter(isRealGrade);
         // The "no grade" option
         const noGrade: NoGrade = {
-            name: this.Exam.getExamGradeDisplayName('NONE'),
+            name: this.CommonExam.getExamGradeDisplayName('NONE'),
             type: 'NONE',
             marksRejection: false,
         };
@@ -123,7 +126,7 @@ export class SpeedReviewComponent {
                             examParticipation: r,
                             grades: this.initGrades(r.exam),
                             displayName: r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id.toString(),
-                            duration: moment.utc(Date.parse(r.duration)).format('HH:mm'),
+                            duration: this.DateTime.getDuration(r.duration),
                             isUnderLanguageInspection: (r.exam.languageInspection &&
                                 !r.exam.languageInspection.finishedAt) as boolean,
                             selected: false,
@@ -197,7 +200,7 @@ export class SpeedReviewComponent {
             forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
                 toast.info(this.translate.instant('sitnet_saved'));
                 if (this.examReviews.length === 0) {
-                    this.state.go('examEditor.assessments', { id: this.routing.params.id });
+                    this.state.go('staff.examEditor.assessments', { id: this.routing.params.id });
                 }
             });
         });

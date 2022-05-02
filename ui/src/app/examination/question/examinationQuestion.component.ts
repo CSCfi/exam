@@ -15,21 +15,27 @@
 import { ChangeDetectorRef, Component, Input } from '@angular/core';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
-import { Examination, ExaminationQuestion, ExaminationService } from '../examination.service';
+import { ExaminationService } from '../examination.service';
 
+import type { EssayAnswer } from '../../exam/exam.model';
+import type { Examination, ExaminationQuestion } from '../examination.model';
 import type { AfterViewInit } from '@angular/core';
+
+type ClozeTestAnswer = { [key: string]: string };
+
 @Component({
     selector: 'examination-question',
     templateUrl: './examinationQuestion.component.html',
 })
 export class ExaminationQuestionComponent implements AfterViewInit {
-    @Input() exam: Examination;
-    @Input() sq: ExaminationQuestion;
-    @Input() isPreview: boolean;
-    @Input() isCollaborative: boolean;
+    @Input() exam!: Examination;
+    @Input() question!: ExaminationQuestion;
+    @Input() isPreview = false;
+    @Input() isCollaborative = false;
 
     clozeAnswer: { [key: string]: string } = {};
     expanded = true;
+    sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
 
     constructor(
         private cdr: ChangeDetectorRef,
@@ -38,6 +44,7 @@ export class ExaminationQuestionComponent implements AfterViewInit {
     ) {}
 
     ngOnInit() {
+        this.sq = this.question as Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer }; // FIXME
         this.sq.expanded = true;
         if (this.sq.question.type === 'ClozeTestQuestion' && this.sq.clozeTestAnswer?.answer) {
             const { answer } = this.sq.clozeTestAnswer;
@@ -49,7 +56,8 @@ export class ExaminationQuestionComponent implements AfterViewInit {
         this.cdr.detectChanges();
     }
 
-    answered = ({ id, value }: { id: string; value: string }) => {
+    answered = (answer: ClozeTestAnswer) => {
+        const { id, value } = answer;
         if (this.sq.clozeTestAnswer) {
             this.clozeAnswer = {
                 ...this.clozeAnswer,

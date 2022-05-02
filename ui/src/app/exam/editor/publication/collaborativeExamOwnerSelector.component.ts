@@ -17,30 +17,28 @@ import { Component, Input } from '@angular/core';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../../session/session.service';
-import { Exam } from '../../exam.model';
 
-import type { OnInit } from '@angular/core';
+import type { Exam } from '../../exam.model';
 import type { User } from '../../../session/session.service';
+
 @Component({
     selector: 'collaborative-exam-owner-selector',
     templateUrl: './collaborativeExamOwnerSelector.component.html',
 })
-export class CollaborativeExamOwnerSelectorComponent implements OnInit {
-    @Input() exam: Exam;
+export class CollaborativeExamOwnerSelectorComponent {
+    @Input() exam!: Exam;
 
     user: User;
     newOwner: { email: string | undefined } = { email: undefined };
 
-    constructor(private http: HttpClient, private Session: SessionService) {}
-
-    ngOnInit() {
+    constructor(private http: HttpClient, private Session: SessionService) {
         this.user = this.Session.getUser();
     }
 
     addOwner = () => {
         const exists = this.exam.examOwners.some((o) => o.email === this.newOwner.email);
         if (!exists) {
-            this.http.post<User>(`/integration/iop/exams/${this.exam.id}/owners`, this.newOwner).subscribe(
+            this.http.post<User>(`/app/iop/exams/${this.exam.id}/owners`, this.newOwner).subscribe(
                 (user) => {
                     this.exam.examOwners.push(user);
                     delete this.newOwner.email;
@@ -51,7 +49,7 @@ export class CollaborativeExamOwnerSelectorComponent implements OnInit {
     };
 
     removeOwner = (id: number) => {
-        this.http.delete(`/integration/iop/exams/${this.exam.id}/owners/${id}`).subscribe(
+        this.http.delete(`/app/iop/exams/${this.exam.id}/owners/${id}`).subscribe(
             () => (this.exam.examOwners = this.exam.examOwners.filter((o) => o.id !== id)),
             (resp) => toast.error(resp.data),
         );

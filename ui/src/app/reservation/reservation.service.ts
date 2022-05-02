@@ -12,65 +12,33 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
-import * as moment from 'moment';
+import { parseISO } from 'date-fns';
 import { noop } from 'rxjs';
-import * as toast from 'toastr';
 
-import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
 import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
 import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
 
-import type { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { Exam } from '../exam/exam.model';
 import type { ExamMachine, Reservation } from './reservation.model';
 @Injectable()
 export class ReservationService {
-    constructor(
-        private http: HttpClient,
-        private translate: TranslateService,
-        private modal: NgbModal,
-        private ConfirmationDialog: ConfirmationDialogService,
-    ) {}
+    constructor(private modal: NgbModal) {}
 
     printExamState = (reservation: {
-        noShow: boolean;
-        enrolment: { exam: { state: string }; collaborativeExam: { state: string } };
+        enrolment: { exam: { state: string }; collaborativeExam: { state: string }; noShow: boolean };
     }) =>
-        reservation.noShow
+        reservation.enrolment.noShow
             ? 'NO_SHOW'
             : reservation.enrolment.exam
             ? reservation.enrolment.exam.state
             : reservation.enrolment.collaborativeExam.state;
 
-    removeReservation(enrolment: ExamEnrolment) {
-        if (!enrolment.reservation) {
-            return;
-        }
-        const externalRef = enrolment.reservation.externalRef;
-        const dialog = this.ConfirmationDialog.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
-        );
-        const successFn = () => {
-            delete enrolment.reservation;
-            enrolment.reservationCanceled = true;
-        };
-        const errorFn = (resp: { data: string }) => toast.error(resp.data);
-        const url = externalRef
-            ? `/integration/iop/reservations/external/${externalRef}`
-            : `/app/calendar/reservation/${enrolment.reservation.id}`;
-
-        dialog.result.then(() => this.http.delete(url).subscribe(successFn, errorFn));
-    }
-
     getReservationCount = (exam: Exam) =>
         exam.examEnrolments.filter(
             (enrolment) =>
-                (enrolment.reservation && moment(enrolment.reservation.endAt) > moment()) ||
+                (enrolment.reservation && parseISO(enrolment.reservation.endAt) > new Date()) ||
                 (enrolment.examinationEventConfiguration &&
                     new Date(enrolment.examinationEventConfiguration.examinationEvent.start) > new Date()),
         ).length;

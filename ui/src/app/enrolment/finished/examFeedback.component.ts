@@ -13,20 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import * as moment from 'moment';
+import { format } from 'date-fns';
 
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { FileService } from '../../utility/file/file.service';
-import { ReviewedExam, Scores } from '../enrolment.model';
+
+import type { ReviewedExam, Scores } from '../enrolment.model';
 
 @Component({
     selector: 'exam-feedback',
     templateUrl: './examFeedback.component.html',
 })
 export class ExamFeedbackComponent {
-    @Input() assessment: ReviewedExam;
-    @Input() scores: Scores;
-    @Input() collaborative: boolean;
+    @Input() assessment!: ReviewedExam;
+    @Input() scores!: Scores;
+    @Input() collaborative = false;
 
     constructor(private Attachment: AttachmentService, private Files: FileService) {}
 
@@ -42,6 +43,6 @@ export class ExamFeedbackComponent {
 
     downloadScoreReport = () => {
         const url = `/app/feedback/exams/${this.assessment.id}/report`;
-        this.Files.download(url, `${this.assessment.name}_${moment().format('dd-MM-yyyy')}.xlsx`, undefined, false);
+        this.Files.download(url, `${this.assessment.name}_${format(new Date(), 'dd-MM-yyyy')}.xlsx`, undefined, false);
     };
 }

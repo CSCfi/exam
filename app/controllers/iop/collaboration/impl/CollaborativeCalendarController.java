@@ -8,7 +8,9 @@ import impl.EmailComposer;
 import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -21,6 +23,7 @@ import models.ExamRoom;
 import models.Reservation;
 import models.User;
 import models.json.CollaborativeExam;
+import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.mvc.Http;
@@ -136,20 +139,14 @@ public class CollaborativeCalendarController extends CollaborationController {
                     // Take pessimistic lock for user to prevent multiple reservations creating.
                     Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
                     Reservation oldReservation = enrolment.getReservation();
-                    Reservation reservation = calendarHandler.createReservation(
-                        start,
-                        end,
-                        machine.get(),
-                        user,
-                        sectionIds
-                    );
+                    Reservation reservation = calendarHandler.createReservation(start, end, machine.get(), user);
                     // Nuke the old reservation if any
                     if (oldReservation != null) {
                         enrolment.setReservation(null);
                         enrolment.update();
                         oldReservation.delete();
                     }
-                    Result newReservation = makeNewReservation(enrolment, exam, reservation, user);
+                    Result newReservation = makeNewReservation(enrolment, exam, reservation, user, sectionIds);
                     Ebean.commitTransaction();
                     return newReservation;
                 } finally {
@@ -159,10 +156,20 @@ public class CollaborativeCalendarController extends CollaborationController {
             });
     }
 
-    private Result makeNewReservation(ExamEnrolment enrolment, Exam exam, Reservation reservation, User user) {
+    private Result makeNewReservation(
+        ExamEnrolment enrolment,
+        Exam exam,
+        Reservation reservation,
+        User user,
+        Collection<Long> sectionIds
+    ) {
         reservation.save();
         enrolment.setReservation(reservation);
         enrolment.setReservationCanceled(false);
+        Set<ExamSection> sections = sectionIds.isEmpty()
+            ? Collections.emptySet()
+            : Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
+        enrolment.setOptionalSections(sections);
         enrolment.save();
         // Send some emails asynchronously
         system

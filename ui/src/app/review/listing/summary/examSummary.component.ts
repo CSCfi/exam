@@ -17,18 +17,18 @@ import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
-import { eachDayOfInterval, min, startOfDay } from 'date-fns';
-import * as _ from 'lodash';
-import * as moment from 'moment';
+import { eachDayOfInterval, format, min, startOfDay } from 'date-fns';
+import { countBy } from 'lodash';
 
-import { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
 import { FileService } from '../../../utility/file/file.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { AbortedExamsComponent } from '../dialogs/abortedExams.component';
 import { NoShowsComponent } from '../dialogs/noShows.component';
 import { ReviewListService } from '../reviewList.service';
 
+import type { Exam } from '../../../exam/exam.model';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
 import type { ExamParticipation, Question } from '../../../exam/exam.model';
@@ -46,31 +46,32 @@ type QuestionData = {
     templateUrl: './examSummary.component.html',
 })
 export class ExamSummaryComponent {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     @Input() reviews: ExamParticipation[] = [];
-    @Input() collaborative: boolean;
+    @Input() collaborative = false;
 
-    gradeDistribution: Record<string, number>;
-    gradedCount: number;
-    gradeTimeData: Array<{ x: string; y: number }>;
+    gradeDistribution: Record<string, number> = {};
+    gradedCount = 0;
+    gradeTimeData: Array<{ x: string; y: number }> = [];
     examinationDateData: { date: number; amount: number }[] = [];
     questionScoreData: QuestionData[] = [];
     gradeDistributionData: number[] = [];
     gradeDistributionLabels: string[] = [];
     abortedExams: Review[] = [];
     noShows: ExamEnrolment[] = [];
-    gradeDistributionChart: Chart;
-    gradeTimeChart: Chart;
-    examinationDateDistribution: Chart;
-    questionScoreChart: Chart;
-    approvalRatingChart: Chart;
-    sectionScores: Record<string, { max: number; totals: number[] }>;
+    gradeDistributionChart!: Chart;
+    gradeTimeChart!: Chart;
+    examinationDateDistribution!: Chart;
+    questionScoreChart!: Chart;
+    approvalRatingChart!: Chart;
+    sectionScores: Record<string, { max: number; totals: number[] }> = {};
 
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
         private modal: NgbModal,
         private Exam: ExamService,
+        private CommonExam: CommonExamService,
         private Question: QuestionService,
         private ReviewList: ReviewListService,
         private Files: FileService,
@@ -131,9 +132,9 @@ export class ExamSummaryComponent {
         const grades: string[] = this.reviews
             .filter((r) => r.exam.gradedTime)
             .map((r) => (r.exam.grade ? r.exam.grade.name : this.translate.instant('sitnet_no_grading')));
-        this.gradeDistribution = _.countBy(grades);
+        this.gradeDistribution = countBy(grades);
         this.gradeDistributionData = Object.values(this.gradeDistribution);
-        this.gradeDistributionLabels = Object.keys(this.gradeDistribution).map(this.Exam.getExamGradeDisplayName);
+        this.gradeDistributionLabels = Object.keys(this.gradeDistribution).map(this.CommonExam.getExamGradeDisplayName);
     };
 
     renderGradeDistributionChart = () => {
@@ -153,8 +154,10 @@ export class ExamSummaryComponent {
             },
             options: {
                 animation: {
-                    onComplete: function () {
-                        const ctx = this.chart.ctx;
+                    // FIXME: how on earth does this fully work on typescript?
+                    // See if doable with ng2-chart / chart.js 3
+                    onComplete: function (event: { chart: { ctx: CanvasRenderingContext2D } }) {
+                        const ctx = event.chart.ctx;
                         ctx.font = Chart.helpers.fontString(
                             Chart.defaults.global.defaultFontFamily,
                             'bold',
@@ -162,6 +165,8 @@ export class ExamSummaryComponent {
                         );
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'bottom';
+                        // eslint-disable-next-line
+                        // @ts-ignore
                         const dataset = this.data.datasets[0];
                         for (let i = 0; i < dataset.data?.length; i++) {
                             const model = dataset._meta[Object.keys(dataset._meta)[0]].data[i]._model,
@@ -174,6 +179,7 @@ export class ExamSummaryComponent {
                             const x = mid_radius * Math.cos(mid_angle);
                             const y = mid_radius * Math.sin(mid_angle);
 
+                            // Darker text color for lighter background
                             ctx.fillStyle = '#444';
                             const percent = String(Math.round((dataset.data[i] / total) * 100)) + '%';
                             ctx.fillText(`${dataset.data[i]} ${amount}`, model.x + x, model.y + y);
@@ -257,8 +263,8 @@ export class ExamSummaryComponent {
 
     calculateExaminationTimeValues = () => {
         const dates = eachDayOfInterval({
-            start: min([new Date(this.exam.examActiveStartDate), new Date()]),
-            end: min([new Date(this.exam.examActiveEndDate), new Date()]),
+            start: min([new Date(this.exam.examActiveStartDate as string), new Date()]),
+            end: min([new Date(this.exam.examActiveEndDate as string), new Date()]),
         });
         this.examinationDateData = dates.map((d, i) => ({
             date: i,
@@ -463,7 +469,7 @@ export class ExamSummaryComponent {
             const url = '/app/reports/questionreport/' + this.exam.id;
             this.Files.download(
                 url,
-                this.translate.instant('sitnet_grading_info') + '_' + moment().format('dd-MM-yyyy') + '.xlsx',
+                this.translate.instant('sitnet_grading_info') + '_' + format(new Date(), 'dd-MM-yyyy') + '.xlsx',
                 { childIds: ids.map((i) => i.toString()) },
                 true,
             );
@@ -492,7 +498,7 @@ export class ExamSummaryComponent {
     };
 
     calcSectionMaxAndAverages = () => {
-        const parentSectionMaxScores: _.Dictionary<number> = this.exam.examSections.reduce(
+        const parentSectionMaxScores: Record<string, number> = this.exam.examSections.reduce(
             (obj, current) => ({
                 ...obj,
                 [current.name]: this.Exam.getSectionMaxScore(current),
@@ -509,17 +515,17 @@ export class ExamSummaryComponent {
                 const prevMax = obj[current.name] || 0;
                 const newMax = this.Exam.getSectionMaxScore(current);
                 return { ...obj, [current.name]: Math.max(prevMax, newMax) };
-            }, {} as _.Dictionary<number>);
+            }, {} as Record<string, number>);
 
         const sectionMaxScores = { ...childSectionMaxScores, ...parentSectionMaxScores };
 
-        const sectionTotalScores: _.Dictionary<number[]> = childExamSections.reduce((obj, curr) => {
+        const sectionTotalScores: Record<string, number[]> = childExamSections.reduce((obj, curr) => {
             const { name } = curr;
             const max = sectionMaxScores[name] || 0;
             const score = Math.min(this.Exam.getSectionTotalScore(curr), max);
             const scores = obj[name] || [];
             return { ...obj, [name]: [...scores, score] };
-        }, {} as _.Dictionary<number[]>);
+        }, {} as Record<string, number[]>);
 
         this.sectionScores = Object.keys(sectionMaxScores).reduce(
             (obj, name) => ({

@@ -136,7 +136,7 @@ export class MaturityService {
 
     isAwaitingInspection = (exam: Exam) => exam.languageInspection && !exam.languageInspection.finishedAt;
 
-    isGraded = (exam: Exam) => exam.grade;
+    isGraded = (exam: Exam) => exam.grade || exam.gradeless;
 
     saveInspectionStatement$ = (exam: Exam) => {
         const inspection = exam.languageInspection as LanguageInspection;
@@ -163,7 +163,7 @@ export class MaturityService {
             return StateName.AWAIT_INSPECTION;
         }
         const grade = exam.grade;
-        const disapproved = !grade || grade.marksRejection;
+        const disapproved = (!grade && !exam.gradeless) || grade?.marksRejection;
 
         return disapproved ? StateName.REJECT_STRAIGHTAWAY : StateName.LANGUAGE_INSPECT;
     };
@@ -172,7 +172,10 @@ export class MaturityService {
         return this.MATURITY_STATES[this.getNextStateName(exam)];
     };
 
-    getState = (state: StateName): State => {
+    getState = (state?: StateName): State => {
+        if (!state) {
+            throw Error('no state name provided!');
+        }
         return this.MATURITY_STATES[state];
     };
 
@@ -248,10 +251,10 @@ export class MaturityService {
             .subscribe(() => {
                 if (reject) {
                     toast.info(this.translate.instant('sitnet_maturity_rejected'));
-                    this.state.go('languageInspections');
+                    this.state.go('staff.languageInspections');
                 } else {
                     toast.info(this.translate.instant('sitnet_review_recorded'));
-                    this.state.go('languageInspections');
+                    this.state.go('staff.languageInspections');
                 }
             });
     };

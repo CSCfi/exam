@@ -13,11 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Directive } from '@angular/core';
 import { UIRouterGlobals } from '@uirouter/core';
-import { endOfDay, startOfDay } from 'date-fns';
-import * as _ from 'lodash';
-import * as moment from 'moment';
+import { addMinutes, endOfDay, parseISO, startOfDay } from 'date-fns';
+import { isNumber, isObject } from 'lodash';
 import { forkJoin } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -28,7 +27,7 @@ import { ReservationService } from './reservation.service';
 
 import type { Observable } from 'rxjs';
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { CollaborativeExam, Exam, Implementation } from '../exam/exam.model';
+import type { CollaborativeExam, Exam, ExamImpl, Implementation } from '../exam/exam.model';
 import type { User } from '../session/session.service';
 import type { Option } from '../utility/select/dropDownSelect.component';
 import type { ExamMachine, ExamRoom, Reservation } from './reservation.model';
@@ -61,18 +60,18 @@ type RemoteTransferExamReservation = Omit<ReservationDisplay, 'enrolment'> & {
 type CollaborativeExamReservation = Omit<ReservationDisplay, 'enrolment'> & {
     enrolment: CollaborativeExamEnrolment;
 };
-type AnyReservation =
+export type AnyReservation =
     | ReservationDisplay
     | LocalTransferExamReservation
     | RemoteTransferExamReservation
     | CollaborativeExamReservation;
 
-@Injectable()
+@Directive()
 export class ReservationComponentBase {
     examId: string;
     user: User;
-    startDate: Date = new Date();
-    endDate: Date = new Date();
+    startDate: Date | null = new Date();
+    endDate: Date | null = new Date();
     examStates = [
         'REVIEW',
         'REVIEW_STARTED',
@@ -85,18 +84,19 @@ export class ReservationComponentBase {
         'ABORTED',
         'NO_SHOW',
     ];
-    selection: Selection;
-    stateOptions: Option[];
-    examOptions: Option[];
-    roomOptions: Option[];
-    machineOptions: Option[];
-    studentOptions: Option[];
-    teacherOptions: Option[];
-    rooms: ExamRoom[];
-    machines: ExamMachine[];
-    reservations: AnyReservation[];
-    isInteroperable: boolean;
-    externalReservationsOnly: boolean;
+    selection: Selection = {};
+    stateOptions: Option<string, string>[] = [];
+    examOptions: Option<Exam | CollaborativeExam, number>[] = [];
+    roomOptions: Option<ExamRoom, number>[] = [];
+    machineOptions: Option<ExamMachine, number>[] = [];
+    studentOptions: Option<User, number>[] = [];
+    teacherOptions: Option<User, number>[] = [];
+    rooms: ExamRoom[] = [];
+    machines: ExamMachine[] = [];
+    reservations: AnyReservation[] = [];
+    isInteroperable = false;
+    externalReservationsOnly = false;
+    byodExamsOnly = false;
 
     constructor(
         private http: HttpClient,
@@ -126,7 +126,7 @@ export class ReservationComponentBase {
     // TODO: check this out
     private createParams = (input: Selection) => {
         const params: Selection = { ...input };
-        if (params.examId && !_.isNumber(parseInt(params.examId as string))) {
+        if (params.examId && !isNumber(parseInt(params.examId as string))) {
             params.externalRef = params.examId as string;
             delete params.examId;
         }
@@ -140,11 +140,11 @@ export class ReservationComponentBase {
     };
 
     private isLocalTransfer = (reservation: AnyReservation): reservation is LocalTransferExamReservation =>
-        !reservation.enrolment || _.isObject(reservation.enrolment.externalExam);
+        !reservation.enrolment || isObject(reservation.enrolment.externalExam);
     private isRemoteTransfer = (reservation: AnyReservation): reservation is RemoteTransferExamReservation =>
-        _.isObject(reservation.externalReservation);
+        isObject(reservation.externalReservation);
     private isCollaborative = (reservation: AnyReservation): reservation is CollaborativeExamReservation =>
-        _.isObject(reservation.enrolment?.collaborativeExam);
+        isObject(reservation.enrolment?.collaborativeExam);
 
     query() {
         if (this.somethingSelected(this.selection)) {
@@ -160,13 +160,14 @@ export class ReservationComponentBase {
                                 user: ee.user,
                                 enrolment: ee,
                                 startAt: ee.examinationEventConfiguration?.examinationEvent.start,
-                                endAt: moment(ee.examinationEventConfiguration?.examinationEvent.start)
-                                    .add(ee.exam.duration, 'm')
-                                    .toISOString(),
+                                endAt: addMinutes(
+                                    parseISO(ee.examinationEventConfiguration?.examinationEvent.start as string),
+                                    ee.exam.duration,
+                                ).toISOString(),
                             };
                         });
                         const allEvents: Partial<Reservation>[] = reservations;
-                        return allEvents.concat(events);
+                        return allEvents.concat(events) as Reservation[]; // FIXME: this is wrong(?) <- don't know how to model anymore with strict checking
                     }),
                     map((reservations: Reservation[]) =>
                         reservations.map((r) => ({
@@ -254,9 +255,14 @@ export class ReservationComponentBase {
                 )
                 .subscribe(
                     (reservations) => {
-                        this.reservations = reservations.filter(
-                            (r) => r.externalReservation || !this.externalReservationsOnly,
-                        );
+                        this.reservations = reservations
+                            .filter((r) => r.externalReservation || !this.externalReservationsOnly)
+                            .filter(
+                                (r) =>
+                                    (!r.externalUserRef &&
+                                        (r.enrolment.exam as ExamImpl).implementation !== 'AQUARIUM') ||
+                                    !this.byodExamsOnly,
+                            );
                     },
                     (err) => toast.error(err),
                 );
@@ -284,9 +290,7 @@ export class ReservationComponentBase {
             this.http.get<(User & { name: string })[]>('/app/reservations/teachers').subscribe(
                 (resp) => {
                     const teachers = this.orderPipe.transform(resp, 'lastName');
-                    this.teacherOptions = teachers.map((t) => {
-                        return { id: t.id, value: t, label: t.name };
-                    });
+                    this.teacherOptions = teachers.map((t) => ({ id: t.id, value: t, label: t.name }));
                 },
                 (resp) => toast.error(resp.data),
             );
@@ -294,9 +298,7 @@ export class ReservationComponentBase {
             this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe(
                 (resp) => {
                     this.rooms = this.orderPipe.transform(resp, 'name');
-                    this.roomOptions = this.rooms.map((r) => {
-                        return { id: r.id, value: r, label: r.name };
-                    });
+                    this.roomOptions = this.rooms.map((r) => ({ id: r.id, value: r, label: r.name }));
                     this.http.get<ExamMachine[]>('/app/machines').subscribe((resp) => {
                         this.machines = this.orderPipe.transform(resp, 'name');
                         this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
@@ -307,14 +309,15 @@ export class ReservationComponentBase {
         }
     }
 
-    getPlaceHolder = () => (this.examId ? this.examOptions.find((o) => o.id == this.examId)?.label : '-');
+    getPlaceHolder = () =>
+        this.examId ? this.examOptions.find((o) => (o.id ? o.id.toString() : o) === this.examId)?.label : '-';
 
     protected initExamOptions = () => {
         const examObservables: Observable<Exam[] | CollaborativeExam[]>[] = [
             this.http.get<Exam[]>('/app/reservations/exams'),
         ];
         if (this.isInteroperable && this.isAdminView()) {
-            examObservables.push(this.http.get<CollaborativeExam[]>('/integration/iop/exams'));
+            examObservables.push(this.http.get<CollaborativeExam[]>('/app/iop/exams'));
         }
         forkJoin(examObservables)
             .pipe(
@@ -326,16 +329,16 @@ export class ReservationComponentBase {
 
     private roomContains = (room: ExamRoom, machine: ExamMachine) => room.examMachines.some((m) => m.id === machine.id);
 
-    private machinesForRoom(room: ExamRoom, machines: ExamMachine[]): Option[] {
+    private machinesForRoom(room: ExamRoom, machines: ExamMachine[]): Option<ExamMachine, number>[] {
         if (room.examMachines.length < 1) {
             return [];
         }
-        const header: Option = {
+        const header: Option<ExamMachine, number> = {
             id: undefined,
             label: room.name,
             isHeader: true,
         };
-        const machineData: Option[] = machines
+        const machineData: Option<ExamMachine, number>[] = machines
             .filter((m) => this.roomContains(room, m))
             .map((m) => {
                 return { id: m.id, value: m, label: m.name == null ? '' : m.name };
@@ -344,10 +347,10 @@ export class ReservationComponentBase {
         return machineData;
     }
 
-    private machinesForRooms = (rooms: ExamRoom[], machines: ExamMachine[]): Option[] =>
+    private machinesForRooms = (rooms: ExamRoom[], machines: ExamMachine[]): Option<ExamMachine, number>[] =>
         rooms.map((r) => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
 
-    roomChanged(event?: { value: ExamRoom }) {
+    roomChanged(event: Option<ExamRoom, number> | undefined) {
         if (event?.value === undefined) {
             delete this.selection.roomId;
             this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
@@ -358,17 +361,17 @@ export class ReservationComponentBase {
         this.query();
     }
 
-    startDateChanged(event: { date: Date }) {
+    startDateChanged(event: { date: Date | null }) {
         this.startDate = event.date;
         this.query();
     }
 
-    endDateChanged(event: { date: Date }) {
+    endDateChanged(event: { date: Date | null }) {
         this.endDate = event.date;
         this.query();
     }
 
-    externalReservationFilterClicked() {
+    updateQuery() {
         this.query();
     }
 
@@ -384,7 +387,7 @@ export class ReservationComponentBase {
         return this.startDate || this.endDate;
     }
 
-    ownerChanged(event?: { value: User }) {
+    ownerChanged(event: Option<User, number> | undefined) {
         if (event?.value) {
             this.selection.ownerId = event.value.id.toString();
         } else {
@@ -393,7 +396,7 @@ export class ReservationComponentBase {
         this.query();
     }
 
-    stateChanged(event?: { value: string }) {
+    stateChanged(event: Option<string, string> | undefined) {
         if (event?.value) {
             this.selection.state = event.value;
         } else {
@@ -402,7 +405,7 @@ export class ReservationComponentBase {
         this.query();
     }
 
-    studentChanged(event?: { value: User }) {
+    studentChanged(event: Option<User, number> | undefined) {
         if (event?.value) {
             this.selection.studentId = event.value.id.toString();
         } else {
@@ -411,7 +414,7 @@ export class ReservationComponentBase {
         this.query();
     }
 
-    machineChanged(event?: { value: ExamMachine }) {
+    machineChanged(event: Option<ExamMachine, number> | undefined) {
         if (event?.value) {
             this.selection.machineId = event.value.id.toString();
         } else {
@@ -420,7 +423,7 @@ export class ReservationComponentBase {
         this.query();
     }
 
-    examChanged(event?: { value: Exam }) {
+    examChanged(event: Option<Exam | CollaborativeExam, number> | undefined) {
         if (event?.value) {
             this.selection.examId = event.value.id.toString();
         } else {

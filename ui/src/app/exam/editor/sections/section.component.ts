@@ -24,23 +24,23 @@ import { QuestionService } from '../../../question/question.service';
 import { QuestionSelectorComponent } from '../../../question/selector/questionSelector.component';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { FileService } from '../../../utility/file/file.service';
-import { ExamSection } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
-import type { ExamMaterial, ExamSectionQuestion, Question } from '../../exam.model';
+import type { ExamSection, ExamMaterial, ExamSectionQuestion, Question } from '../../exam.model';
+
 @Component({
     selector: 'section',
     encapsulation: ViewEncapsulation.None,
     templateUrl: './section.component.html',
 })
 export class SectionComponent {
-    @Input() section: ExamSection;
-    @Input() index: number;
-    @Input() examId: number;
-    @Input() canBeOptional: boolean;
-    @Input() collaborative: boolean;
-    @Input() materials: ExamMaterial[];
+    @Input() section!: ExamSection;
+    @Input() index = 0;
+    @Input() examId = 0;
+    @Input() canBeOptional = false;
+    @Input() collaborative = false;
+    @Input() materials: ExamMaterial[] = [];
 
     @Output() onDelete = new EventEmitter<ExamSection>();
     @Output() onMaterialsChanged = new EventEmitter<void>();
@@ -59,8 +59,7 @@ export class SectionComponent {
         this.section.sectionQuestions.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
     }
 
-    private getResource = (url: string) =>
-        this.collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
+    private getResource = (url: string) => (this.collaborative ? url.replace('/app/exams/', '/app/iop/exams/') : url);
 
     private getSectionPayload = () => ({
         id: this.section.id,
@@ -101,7 +100,7 @@ export class SectionComponent {
 
     private insertExamQuestion = (question: Question, seq: number) => {
         const resource = this.collaborative
-            ? `/integration/iop/exams/${this.examId}/sections/${this.section.id}/questions`
+            ? `/app/iop/exams/${this.examId}/sections/${this.section.id}/questions`
             : `/app/exams/${this.examId}/sections/${this.section.id}/questions/${question.id}`;
         const data = { sequenceNumber: seq, question: this.collaborative ? question : undefined };
         this.http.post<ExamSection | ExamSectionQuestion>(resource, data).subscribe(
@@ -117,7 +116,7 @@ export class SectionComponent {
                 }
                 // Collaborative exam question handling.
                 const newSectionQuestion = resp as ExamSectionQuestion;
-                this.addAttachment(newSectionQuestion, question, () => {
+                this.addCollabAttachment(newSectionQuestion, question, () => {
                     const uploadedAttachment = question.attachment;
                     if (uploadedAttachment) {
                         newSectionQuestion.question.attachment = uploadedAttachment;
@@ -129,7 +128,7 @@ export class SectionComponent {
         );
     };
 
-    private addAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
+    private addCollabAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
         const attachment = question.attachment;
         if (!attachment) {
             return;
@@ -137,7 +136,7 @@ export class SectionComponent {
 
         if (attachment.modified && attachment.file) {
             this.Files.upload(
-                '/integration/iop/attachment/question',
+                '/app/iop/collab/attachment/question',
                 attachment.file,
                 { examId: this.examId.toString(), questionId: data.id.toString() },
                 question,

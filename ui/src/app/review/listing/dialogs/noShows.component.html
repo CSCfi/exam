@@ -36,6 +36,7 @@
                         ></table-sort>
                     </th>
                     <th>
+                        <!-- reservation vs eventconfig-->
                         <table-sort
                             [reverse]="reverse"
                             [predicate]="noShowPredicate"
@@ -49,19 +50,29 @@
             </thead>
 
             <tbody>
-                <tr *ngFor="let review of noShows | orderBy: noShowPredicate:reverse">
+                <tr *ngFor="let noShow of noShows | orderBy: noShowPredicate:reverse">
                     <td class="table-column-examname">
-                        {{ review.displayName }}
-                        <span *ngIf="review.user.userIdentifier"><br />({{ review.user.userIdentifier }})</span>
+                        {{ noShow.displayName }}
+                        <span *ngIf="noShow.user?.userIdentifier"><br />({{ noShow.user?.userIdentifier }})</span>
                     </td>
                     <td class="table-column-25">
-                        <a class="pointer" href="mailto:{{ review.user.email }}"> {{ review.user.email }}</a>
+                        <a class="pointer" href="mailto:{{ noShow.user?.email }}"> {{ noShow.user?.email }}</a>
                     </td>
-                    <td class="table-column-25">
-                        {{ review.reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
+                    <td class="table-column-25" *ngIf="noShow.reservation">
+                        {{ noShow.reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
                         {{ 'sitnet_clock_short' | translate }}
-                        {{ review.reservation.startAt | applyDst | date: 'HH:mm' }} -
-                        {{ review.reservation.endAt | applyDst | date: 'HH:mm' }}
+                        {{ noShow.reservation.startAt | applyDst | date: 'HH:mm' }} -
+                        {{ noShow.reservation.endAt | applyDst | date: 'HH:mm' }}
+                    </td>
+                    <td class="table-column-25" *ngIf="noShow.examinationEventConfiguration">
+                        {{ noShow.examinationEventConfiguration.examinationEvent.start | date: 'dd.MM.yyyy' }}
+                        {{ 'sitnet_clock_short' | translate }}
+                        {{ noShow.examinationEventConfiguration.examinationEvent.start | date: 'HH:mm' }} -
+                        {{
+                            noShow.examinationEventConfiguration.examinationEvent.start + noShow.exam.duration
+                                | applyDst
+                                | date: 'HH:mm'
+                        }}
                     </td>
                     <td class="table-column-15" class="sitnet-text-aborted">
                         {{ 'sitnet_exam_status_no_show' | translate }}

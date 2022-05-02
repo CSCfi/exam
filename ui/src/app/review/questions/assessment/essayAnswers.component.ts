@@ -44,9 +44,9 @@ import type { ReviewQuestion } from '../../review.model';
 })
 export class EssayAnswerListComponent {
     @Input() answers: ReviewQuestion[] = [];
-    @Input() editable: boolean;
-    @Input() isPremature: boolean;
-    @Input() actionText: string;
+    @Input() editable = false;
+    @Input() isPremature = false;
+    @Input() actionText = '';
     @Output() onAssessed = new EventEmitter<ReviewQuestion[]>();
 
     constructor(private QuestionReview: QuestionReviewService) {}

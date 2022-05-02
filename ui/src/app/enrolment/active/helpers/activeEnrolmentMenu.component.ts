@@ -2,22 +2,21 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { ReservationService } from '../../../reservation/reservation.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import { ExamEnrolment } from '../../enrolment.model';
 import { EnrolmentService } from '../../enrolment.service';
+
+import type { ExamEnrolment } from '../../enrolment.model';
 
 @Component({
     selector: 'active-enrolment-menu',
     templateUrl: './activeEnrolmentMenu.component.html',
 })
 export class ActiveEnrolmentMenuComponent {
-    @Input() enrolment: ExamEnrolment;
-    @Output() onRemoval = new EventEmitter<ExamEnrolment>();
+    @Input() enrolment!: ExamEnrolment;
+    @Output() onRemoval = new EventEmitter<number>();
 
     constructor(
         private translate: TranslateService,
-        private Reservation: ReservationService,
         private Enrolment: EnrolmentService,
         private Confirmation: ConfirmationDialogService,
     ) {}
@@ -26,7 +25,7 @@ export class ActiveEnrolmentMenuComponent {
 
     removeReservation = () => {
         if (this.enrolment.reservation) {
-            this.Reservation.removeReservation(this.enrolment);
+            this.Enrolment.removeReservation(this.enrolment);
         } else {
             this.Enrolment.removeExaminationEvent(this.enrolment);
         }
@@ -40,7 +39,7 @@ export class ActiveEnrolmentMenuComponent {
                 this.translate.instant('sitnet_confirm'),
                 this.translate.instant('sitnet_are_you_sure'),
             ).result.then(() =>
-                this.Enrolment.removeEnrolment(this.enrolment).subscribe(() => this.onRemoval.emit(this.enrolment)),
+                this.Enrolment.removeEnrolment(this.enrolment).subscribe(() => this.onRemoval.emit(this.enrolment.id)),
             );
         }
     };

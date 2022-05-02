@@ -133,7 +133,7 @@
                                 rows="10"
                                 cols="60"
                                 [(ngModel)]="question!.question"
-                                required
+                                [required]="true"
                             >
                             </ckeditor>
                         </div>
@@ -441,8 +441,8 @@
                                 lang="en"
                                 class="form-control wdt100"
                                 [(ngModel)]="examQuestion.maxScore"
-                                min="0"
-                                max="1000"
+                                [min]="0"
+                                [max]="1000"
                                 fixedPrecision
                                 required
                                 [disabled]="lotteryOn"

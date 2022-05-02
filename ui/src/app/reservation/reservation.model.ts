@@ -13,20 +13,19 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { ExamSection } from '../exam/exam.model';
-import type { WorkingHour } from '../facility/rooms/room.service';
+import type { Address, WorkingHour } from '../facility/rooms/room.service';
 import type { User } from '../session/session.service';
 
 export type DefaultWorkingHours = {
-    startTime: Date;
-    endTime: Date;
+    startTime: string;
+    endTime: string;
     weekday: string;
 };
 
 export type ExceptionWorkingHours = {
     id: number;
-    startDate: Date | string;
-    endDate: Date | string;
+    startDate: string;
+    endDate: string;
     outOfService: boolean;
     massEdited: boolean;
 };
@@ -53,11 +52,13 @@ export interface ExamRoom {
     outOfService: boolean;
     statusComment: string;
     buildingName: string;
-    mailAddress: { street: string; zip: string; city: string };
+    mailAddress: Address;
     state: 'ACTIVE' | 'INACTIVE';
     campus: string;
     contactPerson: string;
     videoRecordingsURL: string;
+    availableForExternals: boolean;
+    externalRef: string | null;
 }
 
 export interface ExamMachine {
@@ -84,6 +85,10 @@ export interface ExternalReservation {
     roomTz: string;
     orgName: string;
     orgCode: string;
+    buildingName: string;
+    campus: string;
+    roomCode: string;
+    mailAddress: { street: string; zip: string; city: string };
     machineName: string;
     roomName: string;
     roomInstructionEN: string;
@@ -93,7 +98,6 @@ export interface ExternalReservation {
 
 export interface Reservation {
     id: number;
-    noShow: boolean;
     enrolment: ExamEnrolment;
     externalRef?: string;
     externalReservation?: ExternalReservation;
@@ -102,6 +106,4 @@ export interface Reservation {
     startAt: string;
     endAt: string;
     user: User;
-    retrialPermitted: boolean;
-    optionalSections: ExamSection[];
 }

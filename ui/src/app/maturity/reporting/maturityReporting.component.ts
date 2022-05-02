@@ -13,16 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
-import { startOfMonth } from 'date-fns';
-import * as _ from 'lodash';
-import * as moment from 'moment';
+import { formatISO, startOfMonth } from 'date-fns';
+import { range } from 'lodash';
 
 import { WindowRef } from '../../utility/window/window.service';
 import { LanguageInspectionService } from '../languageInspections.service';
 
+import type { Attachment } from '../../exam/exam.model';
+
 import type { OnInit } from '@angular/core';
 import type { LanguageInspection } from '../maturity.model';
 import type { Option } from '../../utility/select/dropDownSelect.component';
+
 @Component({
     selector: 'maturity-reporting',
     templateUrl: './maturityReporting.component.html',
@@ -31,26 +33,26 @@ export class MaturityReportingComponent implements OnInit {
     month?: number;
     year?: number;
     processedInspections: LanguageInspection[] = [];
-    months: Option[] = [];
-    years: Option[] = [];
+    months: Option<number, unknown>[] = [];
+    years: Option<number, unknown>[] = [];
 
     constructor(private LanguageInspection: LanguageInspectionService, private Window: WindowRef) {}
 
     ngOnInit() {
-        this.months = _.range(1, 13).map((m) => ({ id: m, label: m.toString() }));
+        this.months = range(1, 13).map((m) => ({ id: m, label: m.toString() }));
         const year = new Date().getFullYear();
-        this.years = _.range(0, 20).map((n) => ({ id: year - n, label: (year - n).toString() }));
+        this.years = range(0, 20).map((n) => ({ id: year - n, label: (year - n).toString() }));
         this.query();
     }
 
     printReport = () => this.Window.nativeWindow.setTimeout(() => this.Window.nativeWindow.print(), 500);
 
-    monthChanged = (event?: { value: number }) => {
+    monthChanged = (event?: Option<number, unknown>) => {
         this.month = event?.value;
         this.query();
     };
 
-    yearChanged = (event?: { value: number }) => {
+    yearChanged = (event?: Option<number, unknown>) => {
         this.year = event?.value;
         this.query();
     };
@@ -60,14 +62,14 @@ export class MaturityReportingComponent implements OnInit {
         if (this.month && this.year) {
             const date = new Date(this.year, this.month - 1, 1);
             const beginning = startOfMonth(date);
-            params.month = moment(beginning).toISOString();
+            params.month = formatISO(beginning);
         }
         this.LanguageInspection.query(params).subscribe(
             (inspections) => (this.processedInspections = inspections.filter((i) => i.finishedAt)),
         );
     };
 
-    showStatement = (statement: { comment: string }) => {
-        this.LanguageInspection.showStatement(statement);
+    showStatement = (statement: { attachment?: Attachment; comment?: string }) => {
+        this.LanguageInspection.showStatement({ comment: statement.comment || '' });
     };
 }

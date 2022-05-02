@@ -13,9 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 
+import type { QueryParams } from '../statistics.component';
+import type { OnInit } from '@angular/core';
 import type { Exam } from '../../../exam/exam.model';
 
 @Component({
@@ -47,7 +48,7 @@ import type { Exam } from '../../../exam/exam.model';
     selector: 'response-statistics',
 })
 export class ResponseStatisticsComponent implements OnInit {
-    @Input() queryParams: { start: string; end: string };
+    @Input() queryParams: QueryParams = {};
     assessedExams: Exam[] = [];
     unassessedExams: Exam[] = [];
     abortedExams: Exam[] = [];

@@ -22,14 +22,14 @@ import { WindowRef } from '../../utility/window/window.service';
     templateUrl: './examinationClock.component.html',
 })
 export class ExaminationClockComponent {
-    @Input() examHash: string;
+    @Input() examHash = '';
     @Output() onTimeout = new EventEmitter<void>();
     syncInterval = 15;
     secondsSinceSync = this.syncInterval + 1;
     alarmThreshold = 300;
     remainingTime = this.alarmThreshold + 1;
     showRemainingTime = true;
-    pollerId: number;
+    pollerId = 0;
 
     constructor(private http: HttpClient, private Window: WindowRef) {}
 

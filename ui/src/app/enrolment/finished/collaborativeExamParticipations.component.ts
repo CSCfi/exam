@@ -15,11 +15,10 @@
  */
 import { ChangeDetectorRef, Component } from '@angular/core';
 
-import { CollaborativeExamService } from '../../exam/collaborative/collaborativeExam.service';
+import { EnrolmentService } from '../enrolment.service';
 
 import type { CollaborativeParticipation } from '../../exam/collaborative/collaborativeExam.service';
 import type { OnInit } from '@angular/core';
-
 @Component({
     selector: 'collaborative-exam-participations',
     templateUrl: './examParticipations.component.html',
@@ -32,13 +31,16 @@ export class CollaborativeParticipationsComponent implements OnInit {
     currentPage = 0;
     filter = { ordering: 'ended', reverse: true, text: '' };
 
-    constructor(private changeDetector: ChangeDetectorRef, private CollaborativeExam: CollaborativeExamService) {}
+    constructor(private changeDetector: ChangeDetectorRef, private Enrolment: EnrolmentService) {}
 
     ngOnInit() {
-        this.CollaborativeExam.listStudentParticipations$().subscribe(
+        this.Enrolment.listStudentParticipations$().subscribe(
             (participations: CollaborativeParticipation[]) => {
+                participations
+                    .filter((p) => typeof p.ended == 'number')
+                    .forEach((p) => (p.ended = new Date(p.ended).toISOString()));
                 this.originals = participations;
-                this.search();
+                this.search('');
             },
             (err) => toastr.error(err.data),
         );
@@ -50,8 +52,7 @@ export class CollaborativeParticipationsComponent implements OnInit {
 
     pageSelected = ($event: { page: number }) => (this.currentPage = $event.page);
 
-    search() {
-        const text = this.filter.text;
+    search(text: string) {
         if (!text || text.length < 1) {
             this.participations = this.originals;
         } else {

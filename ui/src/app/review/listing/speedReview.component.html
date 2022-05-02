@@ -12,9 +12,9 @@
         <div class="review-list-title-row marb20">
             <div class="col-md-12 padl0">
                 <div class="speed-review-title" *ngIf="examInfo?.examOwners">
-                    {{ examInfo.title }}
+                    {{ examInfo?.title }}
                     <span class="speed-review-subtitle">({{ 'sitnet_teachers' | translate }}:</span>
-                    <span class="speed-review-subtitle" *ngFor="let owner of examInfo.examOwners; let isLast = last">
+                    <span class="speed-review-subtitle" *ngFor="let owner of examInfo?.examOwners; let isLast = last">
                         {{ owner.firstName }} {{ owner.lastName }} <span *ngIf="!isLast">,&nbsp;</span>
                     </span>
                     <span class="speed-review-subtitle">)</span>
@@ -82,8 +82,8 @@
                                 <br />
                                 <a
                                     class="pointer"
-                                    uiSref="assessment"
-                                    [uiParams]="{ id: review.examParticpation?.exam.id }"
+                                    uiSref="staff.assessment"
+                                    [uiParams]="{ id: review.examParticipation.exam.id }"
                                 >
                                     {{ review.examParticipation.user?.email }}
                                 </a>
@@ -147,7 +147,7 @@
                                     <option *ngFor="let grade of review.grades | orderBy: 'id'" [ngValue]="grade">
                                         {{ grade.name }}
                                     </option>
-                                    <option value="" [selected]="!review.exam?.selectedGrade">
+                                    <option value="" [selected]="!review.selectedGrade">
                                         {{ 'sitnet_choose' | translate }}
                                     </option>
                                 </select>
@@ -185,7 +185,7 @@
         <!-- Buttons -->
         <div class="padl15 padr15 marb20 d-flex justify-content-between">
             <div>
-                <div class="speed-review-csv mb-1">
+                <div class="speed-review-csv ml-3 mb-1">
                     <a class="pointer" (click)="importGrades()">{{ 'sitnet_import_grades_from_csv' | translate }}</a>
                     <sup>
                         <img
@@ -199,7 +199,7 @@
                     </sup>
                 </div>
 
-                <div class="speed-review-csv mart0">
+                <div class="speed-review-csv ml-3">
                     <a class="pointer" (click)="createGradingTemplate()">{{
                         'sitnet_create_grading_template' | translate
                     }}</a>
@@ -218,7 +218,7 @@
 
             <div class="p-2">
                 <div class="review-attachment-button make-inline">
-                    <a class="pointer preview" uiSref="examEditor.assessments" [uiParams]="{ id: examId }">
+                    <a class="pointer preview" uiSref="staff.examEditor.assessments" [uiParams]="{ id: examId }">
                         {{ 'sitnet_button_cancel' | translate }}
                     </a>
                 </div>

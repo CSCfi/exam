@@ -22,7 +22,6 @@ import { SoftwareComponent } from './software.component';
     imports: [NgbModule, UtilityModule],
     exports: [SoftwareComponent],
     declarations: [SoftwareComponent],
-    entryComponents: [SoftwareComponent],
     providers: [],
 })
 export class SoftwareModule {}

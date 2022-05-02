@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import * as _ from 'lodash';
+import { isNumber } from 'lodash';
 import { from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -94,7 +94,7 @@ export class QuestionService {
         };
     }
 
-    getQuestion = (id: number): Observable<Question> => this.http.get<Question>(this.questionsApi(id));
+    getQuestion = (id: number): Observable<ReverseQuestion> => this.http.get<ReverseQuestion>(this.questionsApi(id));
 
     getQuestionAmounts = (exam: Exam): QuestionAmounts => {
         const data = { accepted: 0, rejected: 0, hasEssays: false };
@@ -174,7 +174,7 @@ export class QuestionService {
         if (!sectionQuestion.clozeTestAnswer) {
             return 0;
         }
-        if (_.isNumber(sectionQuestion.forcedScore)) {
+        if (isNumber(sectionQuestion.forcedScore)) {
             return sectionQuestion.forcedScore;
         }
         const score = sectionQuestion.clozeTestAnswer.score;
@@ -185,7 +185,7 @@ export class QuestionService {
     };
 
     scoreWeightedMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean): number => {
-        if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
+        if (isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }
         const score = sectionQuestion.options.filter((o) => o.answered).reduce((a, b) => a + b.score, 0);
@@ -194,7 +194,7 @@ export class QuestionService {
 
     // For non-weighted mcq
     scoreMultipleChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean): number => {
-        if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
+        if (isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }
         const answered = sectionQuestion.options.filter((o) => o.answered);
@@ -210,7 +210,7 @@ export class QuestionService {
     };
 
     scoreClaimChoiceAnswer = (sectionQuestion: ExamSectionQuestion, ignoreForcedScore: boolean): number => {
-        if (_.isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
+        if (isNumber(sectionQuestion.forcedScore) && !ignoreForcedScore) {
             return sectionQuestion.forcedScore;
         }
         const selected = sectionQuestion.options.filter((o) => o.answered);
@@ -225,7 +225,7 @@ export class QuestionService {
         if (selected.length !== 1) {
             console.error('multiple options selected for a ClaimChoice answer!');
         }
-        if (selected[0].score && _.isNumber(selected[0].score)) {
+        if (selected[0].score && isNumber(selected[0].score)) {
             return selected[0].score;
         }
         return 0;

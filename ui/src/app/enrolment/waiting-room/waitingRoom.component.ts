@@ -15,17 +15,18 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
-import * as moment from 'moment';
+import { UIRouterGlobals } from '@uirouter/core';
+import { addHours, format, parseISO } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../session/session.service';
+import { DateTimeService } from '../../utility/date/date.service';
 import { WindowRef } from '../../utility/window/window.service';
 
 import type { OnDestroy, OnInit } from '@angular/core';
 import type { ExamRoom, Reservation } from '../../reservation/reservation.model';
 import type { ExamEnrolment } from '../enrolment.model';
-
 type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
 type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     reservation: WaitingReservation;
@@ -36,17 +37,18 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
     templateUrl: './waitingRoom.component.html',
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {
-    enrolment: WaitingEnrolment;
-    isUpcoming: boolean;
-    timeoutId: number;
-    roomInstructions: string;
+    enrolment!: WaitingEnrolment;
+    isUpcoming = false;
+    timeoutId = 0;
+    roomInstructions = '';
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Session: SessionService,
         private Window: WindowRef,
+        private DateTime: DateTimeService,
     ) {}
 
     private getRoomInstructions = (lang: string, room: ExamRoom) => {
@@ -61,9 +63,9 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     };
 
     ngOnInit() {
-        if (this.state.params.id) {
+        if (this.routing.params.id && this.routing.params.hash) {
             this.isUpcoming = true;
-            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.state.params.id}`).subscribe(
+            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.routing.params.id}`).subscribe(
                 (enrolment) => {
                     this.setOccasion(enrolment.reservation);
                     this.enrolment = enrolment;
@@ -74,6 +76,9 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                         const code = this.translate.currentLang.toUpperCase();
                         this.roomInstructions = this.getRoomInstructions(code, room);
                     }
+                    this.http
+                        .post<void>(`/app/student/exam/${this.routing.params.hash}`, {})
+                        .subscribe(() => console.log(`exam ${this.routing.params.hash} prepared ok`));
                 },
                 (err) => toast.error(err.data),
             );
@@ -89,30 +94,30 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
             return;
         }
         const tz = reservation.machine.room.localTimezone;
-        const start = moment.tz(reservation.startAt, tz);
-        const end = moment.tz(reservation.endAt, tz);
-        if (start.isDST()) {
-            start.add(-1, 'hour');
+        let start = zonedTimeToUtc(parseISO(reservation.startAt), tz);
+        let end = zonedTimeToUtc(parseISO(reservation.endAt), tz);
+        if (this.DateTime.isDST(start)) {
+            start = addHours(start, -1);
         }
-        if (end.isDST()) {
-            end.add(-1, 'hour');
+        if (this.DateTime.isDST(end)) {
+            end = addHours(end, -1);
         }
         reservation.occasion = {
-            startAt: start.format('HH:mm'),
-            endAt: end.format('HH:mm'),
+            startAt: format(start, 'HH:mm'),
+            endAt: format(end, 'HH:mm'),
         };
     };
 
     private getStart = () => {
         if (this.enrolment.examinationEventConfiguration) {
-            return moment(this.enrolment.examinationEventConfiguration.examinationEvent.start);
+            return parseISO(this.enrolment.examinationEventConfiguration.examinationEvent.start);
         }
-        const start = moment(this.enrolment.reservation.startAt);
-        if (moment().isDST()) {
-            start.add(-1, 'hour');
+        const start = parseISO(this.enrolment.reservation.startAt);
+        if (this.DateTime.isDST(new Date())) {
+            return addHours(start, -1);
         }
         return start;
     };
 
-    private calculateOffset = () => Date.parse(this.getStart().format()) - new Date().getTime();
+    private calculateOffset = () => this.getStart().getTime() - new Date().getTime();
 }

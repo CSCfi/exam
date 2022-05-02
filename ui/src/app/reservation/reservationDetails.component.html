@@ -78,7 +78,7 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let r of reservations | orderBy: predicate:reverse">
+        <tr *ngFor="let r of fixedReservations | orderBy: predicate:reverse">
             <td class="reservation-search">
                 <span>{{ r.userAggregate }}</span>
                 <span *ngIf="r.user?.userIdentifier">&nbsp;({{ r.user.userIdentifier }})</span>
@@ -99,19 +99,25 @@
             </td>
             <td class="reservation-search" *ngIf="!r.enrolment.exam.external && r.enrolment.exam.state !== 'PUBLISHED'">
                 <a
-                    *ngIf="!r.enrolment.collaborativeExam && r.enrolment.exam.id"
-                    uiSref="assessment"
+                    *ngIf="
+                        !r.enrolment.collaborativeExam &&
+                        r.enrolment.exam.id &&
+                        (isAdminView || r.enrolment.exam.state !== 'ABORTED')
+                    "
+                    uiSref="staff.assessment"
                     [uiParams]="{ id: r.enrolment.exam.id }"
                     >{{ r.enrolment.exam.name }}</a
                 >
-                <span *ngIf="r.enrolment.collaborativeExam">{{ r.enrolment.exam.name }}</span>
+                <span *ngIf="r.enrolment.collaborativeExam || (!isAdminView && r.enrolment.exam.state === 'ABORTED')">{{
+                    r.enrolment.exam.name
+                }}</span>
             </td>
             <td class="reservation-search text-primary" *ngIf="r.enrolment.exam.external">
                 {{ 'sitnet_exam_status_external' | translate }}
             </td>
 
             <td class="reservation-search" *ngIf="!r.enrolment.exam.external">
-                <course-code [course]="r.enrolment.exam.course"></course-code>
+                <course-code *ngIf="r.enrolment.exam.course" [course]="r.enrolment.exam.course"></course-code>
             </td>
             <td class="reservation-search text-primary" *ngIf="r.enrolment.exam.external">
                 {{ 'sitnet_exam_status_external' | translate }}
@@ -146,7 +152,7 @@
             </td>
             <td class="reservation-search">
                 <span *ngIf="r.externalUserRef || r.enrolment.exam.implementation === 'AQUARIUM'">
-                    {{ r.machine?.room.name }}<span *ngIf="r.org">,&nbsp;{{ r.org.name }} ({{ r.org.code }})</span>
+                    {{ r.machine?.room?.name }}<span *ngIf="r.org">,&nbsp;{{ r.org.name }} ({{ r.org.code }})</span>
                     <br />{{ r.machine?.name }}
                 </span>
                 <span *ngIf="!r.externalUserRef && r.enrolment.exam.implementation !== 'AQUARIUM'"
@@ -161,7 +167,7 @@
                 <button
                     *ngIf="
                         r.enrolment.exam.state === 'PUBLISHED' &&
-                        !r.noShow &&
+                        !r.enrolment.noShow &&
                         r.enrolment.exam.implementation === 'AQUARIUM'
                     "
                     (click)="removeReservation(r)"
@@ -171,12 +177,12 @@
                 </button>
                 <button
                     *ngIf="r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.implementation === 'AQUARIUM'"
-                    (click)="permitRetrial(r)"
-                    [disabled]="!r.enrolment.exam.trialCount || r.retrialPermitted"
+                    (click)="permitRetrial(r.enrolment)"
+                    [disabled]="!r.enrolment.exam.trialCount || r.enrolment.retrialPermitted"
                     class="btn btn-sm btn-primary pull-left"
                 >
                     {{
-                        !r.enrolment.exam.trialCount || r.retrialPermitted
+                        !r.enrolment.exam.trialCount || r.enrolment.retrialPermitted
                             ? ('sitnet_retrial_permitted' | translate)
                             : ('sitnet_permit_retrial' | translate)
                     }}
@@ -186,7 +192,7 @@
                 <button
                     *ngIf="
                         r.enrolment.exam.state === 'PUBLISHED' &&
-                        !r.noShow &&
+                        !r.enrolment.noShow &&
                         !r.externalReservation &&
                         r.enrolment.exam.implementation === 'AQUARIUM'
                     "

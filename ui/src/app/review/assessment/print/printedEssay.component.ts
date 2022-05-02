@@ -14,15 +14,16 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { ExamSectionQuestion } from '../../../exam/exam.model';
 import { AssessmentService } from '../assessment.service';
+
+import type { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'printed-essay',
     templateUrl: './templates/essay.component.html',
 })
 export class PrintedEssayComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() sectionQuestion!: ExamSectionQuestion;
 
     constructor(private Assessment: AssessmentService) {}
 

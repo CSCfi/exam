@@ -14,13 +14,12 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import type { OnInit } from '@angular/core';
-import type { ExamParticipation } from '../../exam/exam.model';
+import type { ParticipationLike } from './examParticipation.component';
 
 @Component({
     selector: 'exam-participations',
@@ -30,7 +29,7 @@ export class ExamParticipationsComponent implements OnInit {
     filter = { ordering: 'ended', reverse: true, text: '' };
     pageSize = 10;
     currentPage = 0;
-    participations: ExamParticipation[] = [];
+    participations: ParticipationLike[] = [];
     collaborative = false;
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
@@ -54,13 +53,10 @@ export class ExamParticipationsComponent implements OnInit {
 
     private doSearch = (text: string) => {
         this.filter.text = text;
-        this.http.get<ExamParticipation[]>('/app/student/finishedexams', { params: { filter: text } }).subscribe(
+        this.http.get<ParticipationLike[]>('/app/student/finishedexams', { params: { filter: text } }).subscribe(
             (data) => {
                 data.filter((p) => !p.ended).forEach(
-                    (p) =>
-                        (p.ended = p.reservation
-                            ? p.reservation.endAt
-                            : moment(p.examinationEvent?.start).add(p.duration, 'minutes').format()),
+                    (p) => (p.ended = p.reservation ? p.reservation.endAt : p.started),
                 );
                 this.participations = data;
             },

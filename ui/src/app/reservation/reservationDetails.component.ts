@@ -15,23 +15,28 @@
  *
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import type { Reservation } from './reservation.model';
+import { ExamEnrolment } from '../enrolment/enrolment.model';
+import { AnyReservation } from './reservation.base.component';
 import { ReservationService } from './reservation.service';
+
+import type { Reservation } from './reservation.model';
+type ReservationDetail = Reservation & { org: { name: string; code: string }; userAggregate: string };
 
 @Component({
     selector: 'reservation-details',
     templateUrl: './reservationDetails.component.html',
 })
-export class ReservationDetailsComponent {
-    @Input() reservations: Reservation[];
-    @Input() isAdminView: boolean;
+export class ReservationDetailsComponent implements OnChanges {
+    @Input() reservations: AnyReservation[] = [];
+    @Input() isAdminView = false;
 
     predicate = 'reservation.startAt';
     reverse = false;
+    fixedReservations: ReservationDetail[] = [];
 
     constructor(
         private http: HttpClient,
@@ -39,24 +44,29 @@ export class ReservationDetailsComponent {
         private Reservation: ReservationService,
     ) {}
 
+    ngOnChanges() {
+        // This is terrible but modeling these is a handful. Maybe we can move some reservation types to different views.
+        this.fixedReservations = this.reservations as ReservationDetail[];
+    }
+
     printExamState = (reservation: Reservation) => this.Reservation.printExamState(reservation);
 
     getStateClass = (reservation: Reservation) =>
-        reservation.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase();
+        reservation.enrolment.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase();
 
-    removeReservation(reservation: Reservation) {
+    removeReservation(reservation: ReservationDetail) {
         this.Reservation.cancelReservation(reservation)
             .then(() => {
-                this.reservations.splice(this.reservations.indexOf(reservation), 1);
+                this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
                 toast.info(this.translate.instant('sitnet_reservation_removed'));
             })
             .catch((err) => toast.error(err));
     }
 
-    permitRetrial(reservation: Reservation) {
-        this.http.put(`/app/reservations/${reservation.id}`, {}).subscribe(
+    permitRetrial(enrolment: ExamEnrolment) {
+        this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe(
             () => {
-                reservation.retrialPermitted = true;
+                enrolment.retrialPermitted = true;
                 toast.info(this.translate.instant('sitnet_retrial_permitted'));
             },
             (err) => toast.error(err),

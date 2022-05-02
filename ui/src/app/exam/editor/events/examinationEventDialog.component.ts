@@ -18,51 +18,86 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { ExaminationEventConfiguration } from '../../exam.model';
+import { ExamService } from '../../exam.service';
 
+import type { ExaminationEventConfiguration, MaintenancePeriod } from '../../exam.model';
 import type { OnInit } from '@angular/core';
 @Component({
     selector: 'examination-event-dialog',
     templateUrl: './examinationEventDialog.component.html',
 })
 export class ExaminationEventDialogComponent implements OnInit {
+    @Input() examId = 0;
     @Input() config?: ExaminationEventConfiguration;
-    @Input() requiresPassword: boolean;
-    start: Date;
-    description: string;
+    @Input() maintenancePeriods: MaintenancePeriod[] = [];
+    @Input() requiresPassword = false;
+    @Input() examMaxDate?: string;
+    start = new Date();
+    description = '';
+    capacity = 0;
     password?: string;
-    hasEnrolments: boolean;
+    hasEnrolments = false;
     pwdInputType = 'password';
+    now = new Date();
+    maxDateValidator?: Date;
 
-    constructor(public activeModal: NgbActiveModal, private translate: TranslateService) {}
+    constructor(public activeModal: NgbActiveModal, private translate: TranslateService, private Exam: ExamService) {}
 
     ngOnInit() {
         if (this.config) {
             this.start = new Date(this.config.examinationEvent.start);
             this.description = this.config.examinationEvent.description;
+            this.capacity = this.config.examinationEvent.capacity;
             this.password = this.config.settingsPassword;
             this.hasEnrolments = this.config.examEnrolments.length > 0;
-        } else {
-            this.start = new Date();
+        }
+        if (this.examMaxDate) {
+            const maxDate = new Date(Date.parse(this.examMaxDate)).getTime() - new Date(0).getTime();
+            this.maxDateValidator = new Date(this.now.getTime() + maxDate);
         }
     }
 
     togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');
-    onStartDateChange = (event: { date: Date }) => (this.start = event.date);
+    onStartDateChange = (event: { date: Date }) => {
+        if (this.maxDateValidator && this.maxDateValidator > event.date) {
+            this.start = event.date;
+        }
+    };
 
     ok() {
         if (!this.start) {
             toast.error(this.translate.instant('sitnet_no_examination_start_date_picked'));
         }
-        this.activeModal.close({
+        if (this.maxDateValidator && this.maxDateValidator < this.start) {
+            toast.error(this.translate.instant('sitnet_invalid_start_date_picked'));
+            return;
+        }
+        const config = {
             config: {
                 examinationEvent: {
-                    start: this.start,
+                    start: this.start.toISOString(),
                     description: this.description,
+                    capacity: this.capacity,
                 },
                 settingsPassword: this.password,
             },
-        });
+        };
+        if (!this.config) {
+            // new config
+            this.Exam.addExaminationEvent$(this.examId, config).subscribe(
+                (response: ExaminationEventConfiguration) => {
+                    this.activeModal.close(response);
+                },
+                (err) => toast.error(err),
+            );
+        } else {
+            this.Exam.updateExaminationEvent$(this.examId, { ...config, id: this.config.id }).subscribe(
+                (response: ExaminationEventConfiguration) => {
+                    this.activeModal.close(response);
+                },
+                (err) => toast.error(err),
+            );
+        }
     }
 
     cancel = () => this.activeModal.dismiss();

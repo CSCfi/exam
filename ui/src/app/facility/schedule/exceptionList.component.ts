@@ -13,32 +13,30 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import * as moment from 'moment';
+import { format, parseISO } from 'date-fns';
 
-import { ExamRoom } from '../../reservation/reservation.model';
 import { RoomService } from '../rooms/room.service';
 
 import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
-
 @Component({
     templateUrl: './exceptionList.component.html',
     selector: 'exception-list',
 })
 export class ExceptionListComponent {
-    @Input() room: ExamRoom;
-    @Input() hideButton: boolean;
-    @Input() hideTitle: boolean;
-    @Input() filter: (exception: ExceptionWorkingHours) => boolean;
+    @Input() exceptions: ExceptionWorkingHours[] = [];
+    @Input() hideButton = false;
+    @Input() hideTitle = false;
+    @Input() filter: (exception: ExceptionWorkingHours) => boolean = () => true;
     @Output() onCreate = new EventEmitter<ExceptionWorkingHours>();
     @Output() onDelete = new EventEmitter<ExceptionWorkingHours>();
 
     constructor(private roomService: RoomService) {}
 
     formatDate = (exception: ExceptionWorkingHours) => {
-        const fmt = 'DD.MM.YYYY HH:mm';
-        const start = moment(exception.startDate);
-        const end = moment(exception.endDate);
-        return start.format(fmt) + ' - ' + end.format(fmt);
+        const fmt = 'dd.MM.yyyy HH:mm';
+        const start = parseISO(exception.startDate);
+        const end = parseISO(exception.endDate);
+        return format(start, fmt) + ' - ' + format(end, fmt);
     };
 
     addException = () => {

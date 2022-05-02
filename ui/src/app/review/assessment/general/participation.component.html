@@ -1,19 +1,16 @@
-<div class="col-md-2 general-info-title">{{ participation.started | date: 'dd.MM.yyyy' }}</div>
-<div class="col-md-2">
-    <span
-        [ngStyle]="
-            participation.exam.state === 'ABORTED' || participation.noShow ? { color: '#F35D6C' } : { color: '#3CA34F' }
-        "
-    >
-        {{ 'sitnet_exam_status_' + participation.exam.state | lowercase | translate }}
-    </span>
+<div class="detail-row">
+    <div class="col-md-12 general-info-title">{{ participation.started | date: 'dd.MM.yyyy' }}</div>
 </div>
-<div class="col-md-2 sitnet-info-text-compact" [hidden]="hideGrade()">
-    {{ 'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span style="color: #3ca34f">{{ translateGrade() }}</span>
-</div>
-<div class="col-md-4 general-info-link-bold" *ngIf="!hideAnswerLink()">
-    <a class="pointer" (click)="viewAnswers()">{{ 'sitnet_view_answers' | translate }}</a>
-</div>
-<div class="col-md-4 sitnet-info-text-compact" *ngIf="participation.exam.state === 'ABORTED' || participation.noShow">
-    &nbsp;
+<div class="detail-row mb-2">
+    <div class="col-md-auto">
+        <span [ngStyle]="participation.exam.state === 'ABORTED' ? { color: '#F35D6C' } : { color: '#3CA34F' }">
+            {{ 'sitnet_exam_status_' + participation.exam.state | lowercase | translate }}
+        </span>
+    </div>
+    <div class="col-md-auto sitnet-info-text-compact" [hidden]="hideGrade()">
+        {{ 'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span style="color: #3ca34f">{{ translateGrade() }}</span>
+    </div>
+    <div class="col-md-auto general-info-link-bold" *ngIf="!hideAnswerLink()">
+        <a class="pointer" (click)="viewAnswers()">{{ 'sitnet_view_answers' | translate }}</a>
+    </div>
 </div>

@@ -30,11 +30,11 @@ import type { Link } from './navigation.service';
     templateUrl: './navigation.component.html',
 })
 export class NavigationComponent implements OnInit, OnDestroy {
-    appVersion: string;
-    links: Link[];
-    mobileMenuOpen: boolean;
+    appVersion = '';
+    links: Link[] = [];
+    mobileMenuOpen = false;
     user: User;
-    isInteroperable: boolean;
+    isInteroperable = false;
     private ngUnsubscribe = new Subject();
 
     constructor(
@@ -43,6 +43,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
         private Session: SessionService,
         private ExaminationStatus: ExaminationStatusService,
     ) {
+        this.user = this.Session.getUser();
         this.ExaminationStatus.examinationStarting$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             this.getLinks(false);
         });
@@ -75,6 +76,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.next();
         this.ngUnsubscribe.complete();
     }
+
+    getSkipLinkPath = (skipTarget: string) => {
+        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
+    };
 
     isActive = (link: Link): boolean => link.state === this.routing.current.name;
 

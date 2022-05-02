@@ -50,11 +50,11 @@
                 <tbody>
                     <tr *ngFor="let exam of printouts | orderBy: predicate:reverse">
                         <td>{{ exam.examinationDatesAggregate }}</td>
-                        <td><course-code [course]="exam.course"></course-code></td>
+                        <td><course-code *ngIf="exam.course" [course]="exam.course"></course-code></td>
                         <td>
                             <a
                                 class="exams-info-title bold-button"
-                                uiSref="printoutListing"
+                                uiSref="staff.printoutListing"
                                 [uiParams]="{ id: exam.id }"
                                 >{{ exam.name }}</a
                             >

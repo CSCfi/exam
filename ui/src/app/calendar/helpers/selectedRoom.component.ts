@@ -2,12 +2,11 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { addWeeks } from 'date-fns';
 
-import { ExamRoom } from '../../reservation/reservation.model';
+import { MaintenancePeriod } from '../../exam/exam.model';
 import { CalendarService } from '../calendar.service';
 
-import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
+import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import type { OpeningHours } from '../calendar.service';
-
 @Component({
     selector: 'calendar-selected-room',
     template: `
@@ -34,7 +33,16 @@ import type { OpeningHours } from '../calendar.service';
                 </div>
             </div>
         </div>
-        <div class="row mt-2" *ngIf="exceptionHours?.length > 0">
+        <div class="row mt-2" *ngIf="maintenancePeriods.length > 0">
+            <div class="col-md-2 col-12">{{ 'sitnet_maintenance_periods' | translate }}:</div>
+            <div class="col-md-10 col-12">
+                <div *ngFor="let period of maintenancePeriods | orderBy: 'startsAt'">
+                    {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
+                    {{ period.description }}
+                </div>
+            </div>
+        </div>
+        <div class="row mt-2" *ngIf="exceptionHours.length > 0">
             <div class="col-md-2 col-12">{{ 'sitnet_exception_datetimes' | translate }}:</div>
             <div class="col-md-10 col-12">
                 <div
@@ -59,8 +67,9 @@ import type { OpeningHours } from '../calendar.service';
     `,
 })
 export class SelectedRoomComponent {
-    @Input() room: ExamRoom;
-    @Input() viewStart: Date;
+    @Input() room!: ExamRoom;
+    @Input() maintenancePeriods: MaintenancePeriod[] = [];
+    @Input() viewStart = new Date();
 
     openingHours: OpeningHours[] = [];
     exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];

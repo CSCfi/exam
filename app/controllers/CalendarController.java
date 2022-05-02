@@ -146,20 +146,19 @@ public class CalendarController extends BaseController {
 
     @Authenticated
     @Restrict({ @Group("STUDENT") })
-    public Result getCurrentReservation(Long id, Http.Request request) {
+    public Result getCurrentEnrolment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         DateTime now = DateTimeUtils.adjustDST(DateTime.now());
         Optional<ExamEnrolment> enrolment = Ebean
             .find(ExamEnrolment.class)
-            .fetch("reservation")
-            .fetch("reservation.optionalSections")
+            .fetch("optionalSections")
             .where()
             .eq("user.id", user.getId())
             .eq("exam.id", id)
             .eq("exam.state", Exam.State.PUBLISHED)
             .gt("reservation.startAt", now.toDate())
             .findOneOrEmpty();
-        return enrolment.map(e -> ok(e.getReservation())).orElse(ok());
+        return enrolment.map(this::ok).orElse(ok());
     }
 
     @Authenticated
@@ -228,7 +227,7 @@ public class CalendarController extends BaseController {
 
             // We are good to go :)
             Reservation oldReservation = enrolment.getReservation();
-            Reservation reservation = calendarHandler.createReservation(start, end, machine.get(), user, sectionIds);
+            Reservation reservation = calendarHandler.createReservation(start, end, machine.get(), user);
 
             // Nuke the old reservation if any
             if (oldReservation != null) {
@@ -242,7 +241,7 @@ public class CalendarController extends BaseController {
                             if (updatedEnrolment == null) {
                                 return wrapAsPromise(notFound());
                             }
-                            return makeNewReservation(updatedEnrolment, reservation, user);
+                            return makeNewReservation(updatedEnrolment, reservation, user, sectionIds);
                         });
                 } else {
                     enrolment.setReservation(null);
@@ -250,7 +249,7 @@ public class CalendarController extends BaseController {
                     oldReservation.delete();
                 }
             }
-            final CompletionStage<Result> result = makeNewReservation(enrolment, reservation, user);
+            final CompletionStage<Result> result = makeNewReservation(enrolment, reservation, user, sectionIds);
             Ebean.commitTransaction();
             return result;
         } finally {
@@ -259,10 +258,21 @@ public class CalendarController extends BaseController {
         }
     }
 
-    private CompletionStage<Result> makeNewReservation(ExamEnrolment enrolment, Reservation reservation, User user) {
+    private CompletionStage<Result> makeNewReservation(
+        ExamEnrolment enrolment,
+        Reservation reservation,
+        User user,
+        Collection<Long> sectionIds
+    ) {
         Ebean.save(reservation);
         enrolment.setReservation(reservation);
         enrolment.setReservationCanceled(false);
+        enrolment.getOptionalSections().clear();
+        enrolment.update();
+        if (!sectionIds.isEmpty()) {
+            Set<ExamSection> sections = Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
+            enrolment.setOptionalSections(sections);
+        }
         Ebean.save(enrolment);
         Exam exam = enrolment.getExam();
         // Send some emails asynchronously

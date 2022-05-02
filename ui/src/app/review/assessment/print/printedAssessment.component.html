@@ -3,7 +3,7 @@
         <div class="col-md-12">
             <h3>
                 <course-code *ngIf="exam.course" [course]="exam.course"></course-code> - {{ exam.name }},
-                <small>{{ exam.course.credits }} op</small>
+                <small>{{ exam.course?.credits }} op</small>
             </h3>
         </div>
     </div>
@@ -31,32 +31,32 @@
             <strong>{{ 'sitnet_time_of_exam_participation' | translate }}:</strong>
         </div>
         <div class="col-md-4">
-            {{ participation.started | applyDst | date: 'dd.MM.yyyy HH:mm' }} -
-            {{ participation.ended | applyDst | date: 'dd.MM.yyyy HH:mm' }}
+            {{ participation?.started | applyDst | date: 'dd.MM.yyyy HH:mm' }} -
+            {{ participation?.ended | applyDst | date: 'dd.MM.yyyy HH:mm' }}
         </div>
         <div class="col-md-2">
             <strong>{{ 'sitnet_exam_duration' | translate }}:</strong>
         </div>
-        <div class="col-md-4">{{ participation.duration | date: 'HH:mm' }}</div>
+        <div class="col-md-4">{{ participation?.duration | date: 'HH:mm' }}</div>
     </div>
-    <div class="row" *ngIf="enrolment.information">
+    <div class="row" *ngIf="enrolment?.information">
         <div class="col-md-2">
             <strong>{{ 'sitnet_student_enrolment_info' | translate }}:</strong>
         </div>
-        <div class="col-md-10">{{ enrolment.information }}</div>
+        <div class="col-md-10">{{ enrolment?.information }}</div>
     </div>
     <div class="row">
         <div class="col-md-2">
             <strong>{{ 'sitnet_examination_location' | translate }}:</strong>
         </div>
         <div class="col-md-4" *ngIf="reservation?.machine?.room">
-            {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
+            {{ reservation?.machine?.room?.name }} ({{ reservation?.machine?.room?.roomCode }})
         </div>
-        <div class="col-md-4" *ngIf="!reservation?.machine.room">N/A</div>
+        <div class="col-md-4" *ngIf="!reservation?.machine?.room">N/A</div>
         <div class="col-md-2">
             <strong>{{ 'sitnet_exam_machine' | translate }}:</strong>
         </div>
-        <div class="col-md-4" *ngIf="reservation?.machine">{{ reservation.machine.name }}</div>
+        <div class="col-md-4" *ngIf="reservation?.machine">{{ reservation?.machine?.name }}</div>
         <div class="col-md-4" *ngIf="!reservation?.machine">N/A</div>
     </div>
 
@@ -105,7 +105,7 @@
     <div class="row">
         <div class="col-md-12" [hidden]="exam.attachment">N/A</div>
         <div class="col-md-12" *ngIf="exam.attachment">
-            {{ exam.attachment.fileName }}
+            {{ exam.attachment?.fileName }}
         </div>
     </div>
 
@@ -143,18 +143,18 @@
         <div class="col-md-9">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
     </div>
 
-    <div class="row firefox-print-fix" *ngIf="questionSummary.accepted > 0">
+    <div class="row firefox-print-fix" *ngIf="questionSummary?.accepted && questionSummary.accepted > 0">
         <div class="col-md-3">
             <strong>{{ 'sitnet_approved' | translate }}:</strong>
         </div>
-        <div class="col-md-9">{{ questionSummary.accepted }}</div>
+        <div class="col-md-9">{{ questionSummary?.accepted }}</div>
     </div>
 
-    <div class="row firefox-print-fix" *ngIf="questionSummary.rejected > 0">
+    <div class="row firefox-print-fix" *ngIf="questionSummary?.accepted && questionSummary.rejected > 0">
         <div class="col-md-3">
             <strong>{{ 'sitnet_rejected' | translate }}:</strong>
         </div>
-        <div class="col-md-9">{{ questionSummary.rejected }}</div>
+        <div class="col-md-9">{{ questionSummary?.rejected }}</div>
     </div>
 
     <div class="row firefox-print-fix">
@@ -168,7 +168,7 @@
             <strong>{{ 'sitnet_feedback_attachment' | translate }}:</strong>
         </div>
         <div class="col-md-9" *ngIf="exam.examFeedback?.attachment">
-            {{ exam.examFeedback.attachment?.fileName }}
+            {{ exam.examFeedback?.attachment?.fileName }}
         </div>
     </div>
 
@@ -178,7 +178,7 @@
                 <strong>{{ 'sitnet_exam_owners' | translate }}:</strong>
             </div>
             <div class="col-md-9">
-                <span *ngFor="let teacher of exam.parent.examOwners; let isLast = last">
+                <span *ngFor="let teacher of exam.parent?.examOwners; last as isLast">
                     {{ teacher.firstName }} {{ teacher.lastName }}<span *ngIf="!isLast">,&nbsp;</span>
                 </span>
             </div>
@@ -190,8 +190,8 @@
                 >
             </div>
             <div class="col-md-9">
-                <span *ngFor="let inspection of exam.examInspections; let isLast = last">
-                    <span>{{ inspection.user.firstName }} {{ inspection.user.lastName }}</span>
+                <span *ngFor="let inspection of exam.examInspections; last as isLast">
+                    <span>{{ inspection.user?.firstName }} {{ inspection.user?.lastName }}</span>
                     <span *ngIf="inspection.ready">({{ 'sitnet_ready' | translate }})</span>
                     <span *ngIf="!inspection.ready">({{ 'sitnet_in_progress' | translate }})</span>
                     <span *ngIf="!isLast">,&nbsp;</span>
@@ -229,7 +229,7 @@
             <strong>{{ 'sitnet_exam_credit' | translate }} (op):</strong>
         </div>
         <div class="col-md-9">
-            {{ exam.customCredit || exam.course.credits }}
+            {{ exam.customCredit || exam.course?.credits }}
         </div>
     </div>
 </div>

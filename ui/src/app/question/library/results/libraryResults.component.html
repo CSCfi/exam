@@ -83,8 +83,8 @@
             <tbody>
                 <tr
                     *ngFor="
-                        let question of questions
-                            | orderBy: questionsPredicate:reverse:'case-insensitive'
+                        let question of fixedQuestions
+                            | orderBy: questionsPredicate:reverse
                             | slice: currentPage * pageSize:currentPage * pageSize + pageSize
                     "
                 >
@@ -107,7 +107,7 @@
                                 <a
                                     *ngIf="!disableLinks"
                                     class="pointer"
-                                    uiSref="question"
+                                    uiSref="staff.question"
                                     [uiParams]="{ id: question.id }"
                                     >{{ question.id }}</a
                                 >
@@ -126,7 +126,7 @@
                         <span *ngIf="question.modified" class="timestamp">
                             {{ question.modified | date: 'dd.MM.yyyy HH:mm' }}
                             <br />
-                            <small>{{ question.modifier.firstName }} {{ question.modifier.lastName }}</small>
+                            <small>{{ question.modifier?.firstName }} {{ question.modifier?.lastName }}</small>
                         </span>
                     </td>
                     <td>{{ showDisplayedScoreOrTranslate(question.displayedMaxScore) }}</td>
@@ -172,7 +172,7 @@
                         </a>
                     </td>
                     <td class="padl20 padr10">
-                        <a (click)="copyQuestion(question, false)">
+                        <a (click)="copyQuestion(question)">
                             <i
                                 class="bi-files"
                                 popoverTitle="{{ 'sitnet_instructions' | translate }}"

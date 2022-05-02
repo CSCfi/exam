@@ -15,10 +15,8 @@
 
 package models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import java.util.Set;
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
@@ -36,9 +34,10 @@ public class ExaminationEvent extends GeneratedIdentityModel {
 
     private String description;
 
-    @OneToMany(mappedBy = "examinationEvent")
-    @JsonBackReference
-    private Set<ExaminationEventConfiguration> examinationEventConfigurations;
+    private int capacity;
+
+    @OneToOne(mappedBy = "examinationEvent")
+    private ExaminationEventConfiguration examinationEventConfiguration;
 
     public DateTime getStart() {
         return start;
@@ -56,12 +55,20 @@ public class ExaminationEvent extends GeneratedIdentityModel {
         this.description = description;
     }
 
-    public Set<ExaminationEventConfiguration> getExaminationEventConfigurations() {
-        return examinationEventConfigurations;
+    public int getCapacity() {
+        return capacity;
     }
 
-    public void setExaminationEventConfigurations(Set<ExaminationEventConfiguration> examinationEventConfigurations) {
-        this.examinationEventConfigurations = examinationEventConfigurations;
+    public void setCapacity(int capacity) {
+        this.capacity = capacity;
+    }
+
+    public ExaminationEventConfiguration getExaminationEventConfiguration() {
+        return examinationEventConfiguration;
+    }
+
+    public void setExaminationEventConfiguration(ExaminationEventConfiguration examinationEventConfiguration) {
+        this.examinationEventConfiguration = examinationEventConfiguration;
     }
 
     @Transient

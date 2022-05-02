@@ -12,20 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { PipeTransform } from '@angular/core';
-import { Pipe } from '@angular/core';
+import { NgModule } from '@angular/core';
 
-import type { Exam } from '../../exam/exam.model';
+import { ReservationModule } from '../../../reservation/reservation.module';
+import { UtilityModule } from '../../../utility/utility.module';
+import { AdminDashboardComponent } from './adminDashboard.component';
 
-@Pipe({ name: 'examSearch' })
-export class ExamSearchPipe implements PipeTransform {
-    private getAggregate = (exam: Exam) => {
-        const code = exam.course ? exam.course.code : '';
-        const owners = exam.examOwners.map((eo) => `${eo.firstName} ${eo.lastName}`).join(' ');
-        return `${code} ${owners} ${exam.name}`;
-    };
-
-    transform<T extends Exam>(exams: T[], filter: string): T[] {
-        return !filter ? exams : exams.filter((e) => this.getAggregate(e).toLowerCase().includes(filter.toLowerCase()));
-    }
-}
+@NgModule({
+    imports: [UtilityModule, ReservationModule],
+    exports: [AdminDashboardComponent],
+    declarations: [AdminDashboardComponent],
+})
+export class AdminDashboardModule {}

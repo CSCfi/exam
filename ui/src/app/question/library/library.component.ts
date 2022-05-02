@@ -17,21 +17,20 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import * as toast from 'toastr';
 
+import type { Question } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
-
-import type { LibraryQuestion } from './library.service';
 
 @Component({
     selector: 'library',
     templateUrl: './library.component.html',
 })
 export class LibraryComponent {
-    questions: LibraryQuestion[] = [];
+    questions: Question[] = [];
     selections: number[] = [];
 
     constructor(private state: StateService, private translate: TranslateService) {}
 
-    resultsUpdated(results: LibraryQuestion[]) {
+    resultsUpdated(results: Question[]) {
         this.questions = results;
     }
 
@@ -39,9 +38,9 @@ export class LibraryComponent {
         this.selections = selections;
     }
 
-    questionCopied(copy: LibraryQuestion) {
+    questionCopied(copy: Question) {
         toast.info(this.translate.instant('sitnet_question_copied'));
-        this.state.go('question', { id: copy.id });
+        this.state.go('staff.question', { id: copy.id });
     }
 
     ownerSelected(event: { user: User; selections: number[] }) {

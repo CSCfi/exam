@@ -18,18 +18,16 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { EnrolmentService } from '../../../enrolment/enrolment.service';
-import { Exam } from '../../exam.model';
+import { User } from '../../../session/session.service';
 
-import type { User } from '../../../session/session.service';
-
-import type { ExamParticipation } from '../../exam.model';
+import type { Exam, ExamParticipation } from '../../exam.model';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 @Component({
     selector: 'exam-pre-participant-selector',
     templateUrl: './examPreParticipantSelector.component.html',
 })
 export class ExamPreParticipantSelectorComponent {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
 
     participants: User[] = [];
     newPreParticipant: { email?: string } = { email: '' };

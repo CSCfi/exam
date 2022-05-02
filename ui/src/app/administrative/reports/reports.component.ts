@@ -15,17 +15,13 @@
 import { Component } from '@angular/core';
 
 import { RoomService } from '../../facility/rooms/room.service';
-import { ReportsService } from './reports.service';
-import { UserResourceService, UserRole } from './userResource.service';
+import { ExamRoom } from '../../reservation/reservation.model';
+import { User } from '../../session/session.service';
+import { Option } from '../../utility/select/dropDownSelect.component';
+import { UserService } from '../../utility/user/user.service';
+import { ReportsService, UserRole } from './reports.service';
 
 import type { OnInit } from '@angular/core';
-
-interface Category {
-    id: number;
-    label: string;
-    value: Record<string, unknown>;
-}
-
 @Component({
     selector: 'reports',
     template: `
@@ -58,16 +54,12 @@ interface Category {
     `,
 })
 export class ReportsComponent implements OnInit {
-    constructor(
-        private reports: ReportsService,
-        private room: RoomService,
-        private userResource: UserResourceService,
-    ) {}
+    constructor(private Users: UserService, private Reports: ReportsService, private room: RoomService) {}
 
-    rooms: Category[];
-    examNames: Category[];
-    teachers: Category[];
-    students: Category[];
+    rooms: Option<ExamRoom, number>[] = [];
+    examNames: Option<string, number>[] = [];
+    teachers: Option<User, number>[] = [];
+    students: Option<User, number>[] = [];
 
     ngOnInit() {
         this.room.getRooms$().subscribe((resp) => {
@@ -78,27 +70,27 @@ export class ReportsComponent implements OnInit {
             }));
         });
 
-        this.reports.examNames().subscribe((resp) => {
+        this.Reports.examNames().subscribe((resp) => {
             this.examNames = resp.map((en) => ({
                 id: en.id,
                 label: `${en.course.code} - ${en.name}`,
-                value: { ...en },
+                value: en.name,
             }));
         });
 
-        this.userResource.usersByRole(UserRole.TEACHER).subscribe((resp) => {
+        this.Users.listUsersByRole$(UserRole.TEACHER).subscribe((resp) => {
             this.teachers = resp.map((t) => ({
                 id: t.id,
                 label: t.name as string,
-                value: { ...t },
+                value: t,
             }));
         });
 
-        this.userResource.usersByRole(UserRole.STUDENT).subscribe((resp) => {
+        this.Users.listUsersByRole$(UserRole.STUDENT).subscribe((resp) => {
             this.students = resp.map((t) => ({
                 id: t.id,
                 label: t.name as string,
-                value: { ...t },
+                value: t,
             }));
         });
     }

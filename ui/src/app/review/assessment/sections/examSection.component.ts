@@ -14,24 +14,25 @@
  */
 import { ChangeDetectorRef, Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { Exam, ExamParticipation, ExamSection } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
+
+import type { Exam, ExamParticipation, ExamSection } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-exam-section',
     templateUrl: './examSection.component.html',
 })
 export class ExamSectionComponent {
-    @Input() section: ExamSection;
-    @Input() isScorable: boolean;
-    @Input() index: number;
-    @Input() exam: Exam;
-    @Input() participation: ExamParticipation;
-    @Input() collaborative: boolean;
+    @Input() section!: ExamSection;
+    @Input() isScorable = false;
+    @Input() index = 0;
+    @Input() exam!: Exam;
+    @Input() participation!: ExamParticipation;
+    @Input() collaborative = false;
     @Output() onScore = new EventEmitter<string>();
 
-    selectionEvaluatedAmounts: { accepted: number; rejected: number };
+    selectionEvaluatedAmounts: { accepted: number; rejected: number } = { accepted: 0, rejected: 0 };
 
     constructor(private Exam: ExamService, private Question: QuestionService, private cdr: ChangeDetectorRef) {}
 

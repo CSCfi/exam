@@ -290,7 +290,7 @@ public class SessionController extends BaseController {
         } else {
             return Arrays
                 .stream(src.split(";"))
-                .filter(s -> s.contains("int:") || s.contains("fi:")) // TODO: make configurable?
+                .filter(s -> (s.contains("int:") || s.contains("fi:")) && !s.contains("esi:")) // TODO: make configurable?
                 .collect(
                     Collectors.toMap(
                         this::parseStudentIdDomain,

@@ -34,7 +34,7 @@ import { MaturityReportingComponent } from './reporting/maturityReporting.compon
         UnfinishedInspectionsComponent,
         InspectionStatementDialogComponent,
     ],
-    entryComponents: [InspectionStatementDialogComponent],
+    bootstrap: [InspectionStatementDialogComponent],
     providers: [LanguageInspectionService],
 })
 export class MaturityModule {}

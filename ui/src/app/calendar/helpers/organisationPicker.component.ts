@@ -74,8 +74,8 @@ import type { Organisation } from '../calendar.component';
     `,
 })
 export class OrganisationPickerComponent {
-    @Input() sequenceNumber: number;
-    @Input() disabled: boolean;
+    @Input() sequenceNumber = 0;
+    @Input() disabled = false;
     @Output() onSelection = new EventEmitter<Organisation>();
     @Output() onCancel = new EventEmitter<void>();
 
@@ -86,7 +86,7 @@ export class OrganisationPickerComponent {
 
     ngOnInit() {
         this.http
-            .get<Organisation[]>('/integration/iop/organisations')
+            .get<Organisation[]>('/app/iop/organisations')
             .subscribe(
                 (resp) => (this.organisations = resp.filter((org) => !org.homeOrg && org.facilities.length > 0)),
             );

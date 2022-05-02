@@ -14,13 +14,13 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { ExamSectionQuestion } from '../../../exam/exam.model';
+import type { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-weighted-multi-choice-answer',
     templateUrl: './weightedMultiChoiceAnswer.component.html',
 })
 export class WeightedMultiChoiceAnswerComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() sectionQuestion!: ExamSectionQuestion;
     reviewExpanded = true;
 }

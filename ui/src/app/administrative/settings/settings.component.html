@@ -36,7 +36,7 @@
                 class="form-control"
                 type="number"
                 lang="en"
-                min="1"
+                [min]="1"
                 [(ngModel)]="config.reviewDeadline"
                 ngbPopover="{{ 'sitnet_info_deadline' | translate }}"
                 triggers="mouseenter:mouseleave"
@@ -186,9 +186,7 @@
             <a [hidden]="attributes" (click)="showAttributes()" class="pointer">{{
                 'sitnet_show_http_headers' | translate
             }}</a>
-            <a class="pointer" [hidden]="!attributes" (click)="attributes = undefined">{{
-                'sitnet_hide' | translate
-            }}</a>
+            <a class="pointer" [hidden]="!attributes" (click)="attributes = []">{{ 'sitnet_hide' | translate }}</a>
         </div>
     </div>
 </div>

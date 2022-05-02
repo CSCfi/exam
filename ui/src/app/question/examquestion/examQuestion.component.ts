@@ -31,22 +31,14 @@ import type {
     ReverseQuestion,
 } from '../../exam/exam.model';
 
-type EditableExamSectionQuestionOption = Omit<ExamSectionQuestionOption, 'option'> & {
-    option: Partial<MultipleChoiceOption>;
-};
-
-type EditableExamSectionQuestion = Omit<ExamSectionQuestion, 'options'> & {
-    options: Partial<EditableExamSectionQuestionOption>[];
-};
-
 // This component depicts a distributed exam question
 @Component({
     selector: 'exam-question',
     templateUrl: './examQuestion.component.html',
 })
 export class ExamQuestionComponent {
-    @Input() examQuestion: EditableExamSectionQuestion;
-    @Input() lotteryOn: boolean;
+    @Input() examQuestion!: ExamSectionQuestion;
+    @Input() lotteryOn = false;
     @Output() onSave = new EventEmitter<{ question: Question; examQuestion: ExamSectionQuestion }>();
     @Output() onCancel = new EventEmitter<void>();
 
@@ -55,7 +47,7 @@ export class ExamQuestionComponent {
     examNames: string[] = [];
     sectionNames: string[] = [];
     missingOptions: string[] = [];
-    isInPublishedExam: boolean;
+    isInPublishedExam = false;
 
     constructor(
         private http: HttpClient,
@@ -148,7 +140,17 @@ export class ExamQuestionComponent {
             toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
             return;
         }
-        this.examQuestion.options.push({ option: { correctOption: false } });
+        const newOption: ExamSectionQuestionOption = {
+            id: undefined,
+            option: {
+                correctOption: false,
+                option: '',
+                defaultScore: 0,
+            },
+            score: 0,
+            answered: false,
+        };
+        this.examQuestion.options.push(newOption);
     };
 
     correctAnswerToggled = (option: ExamSectionQuestionOption) =>
@@ -193,7 +195,7 @@ export class ExamQuestionComponent {
     returnOptionClass = (option: ExamSectionQuestionOption) => {
         const optionType = this.determineOptionType(option);
         if (!optionType) {
-            return;
+            return '';
         }
         return this.Question.returnClaimChoiceOptionClass(optionType);
     };

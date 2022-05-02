@@ -3,11 +3,11 @@
         <div class="col-md-2 general-info-title">{{ 'sitnet_name' | translate }}:</div>
         <div class="col-md-4 general-info-content">
             {{ studentName }}
-            <span *ngIf="student?.userIdentifier">&nbsp;({{ student.userIdentifier }})</span>
+            <span *ngIf="student?.userIdentifier">&nbsp;({{ student?.userIdentifier }})</span>
         </div>
         <div class="col-md-2 general-info-title">{{ 'sitnet_email' | translate }}:</div>
         <div class="col-md-4 general-info-link">
-            <a *ngIf="student?.email" href="mailto:{{ student.email }}">{{ student.email }}</a>
+            <a *ngIf="student?.email" href="mailto:{{ student?.email }}">{{ student?.email }}</a>
         </div>
     </div>
     <div class="detail-row marb20">
@@ -24,7 +24,7 @@
     </div>
     <div class="detail-row marb20" *ngIf="enrolment?.information">
         <div class="col-md-2 general-info-title">{{ 'sitnet_student_enrolment_info' | translate }}:</div>
-        <div class="col-md-10 general-info-content">{{ enrolment.information }}</div>
+        <div class="col-md-10 general-info-content">{{ enrolment?.information }}</div>
     </div>
     <div class="detail-row marb20" *ngIf="reservation">
         <div class="col-md-2 general-info-title">{{ 'sitnet_examination_location' | translate }}:</div>
@@ -42,11 +42,11 @@
     <div class="detail-row marb20" *ngIf="enrolment?.examinationEventConfiguration">
         <div class="col-md-2 general-info-title">{{ 'sitnet_examination_event' | translate }}:</div>
         <div class="col-md-4 general-info-content">
-            {{ enrolment.examinationEventConfiguration?.examinationEvent.start | date }}
+            {{ enrolment?.examinationEventConfiguration?.examinationEvent?.start | date }}
         </div>
         <div class="col-md-2 general-info-title">{{ 'sitnet_instructions' | translate }}:</div>
         <div class="col-md-4 general-info-content">
-            {{ enrolment.examinationEventConfiguration?.examinationEvent.description }}
+            {{ enrolment?.examinationEventConfiguration?.examinationEvent?.description }}
         </div>
     </div>
 
@@ -54,7 +54,7 @@
         <div class="col-md-12 general-info-title">{{ 'sitnet_previous_exam_participations' | translate }}:</div>
     </div>
     <div class="detail-row marb20">
-        <span *ngIf="previousParticipations?.length === 0" class="padl15 sitnet-info-text-compact">
+        <span *ngIf="participations.length === 0 && noShows.length === 0" class="padl15 sitnet-info-text-compact">
             <img
                 src="/assets/assets/images/icon_info.svg"
                 alt="exam"
@@ -62,13 +62,14 @@
             />
             <span class="padl10 notice-text">{{ 'sitnet_exam_no_previous_participations' | translate }}</span>
         </span>
-        <div
-            class="col-md-12 padl0"
-            [hidden]="previousParticipations?.length === 0"
-            *ngFor="let participation of previousParticipations"
-        >
-            <r-participation [participation]="participation" [collaborative]="collaborative"></r-participation>
-        </div>
+    </div>
+
+    <div [hidden]="participations.length === 0" *ngFor="let participation of participations">
+        <r-participation [participation]="participation" [collaborative]="collaborative"></r-participation>
+    </div>
+
+    <div [hidden]="noShows.length === 0" *ngFor="let noShow of noShows">
+        <r-no-show [enrolment]="noShow" [collaborative]="collaborative"></r-no-show>
     </div>
 
     <div class="detail-row marb20" *ngIf="exam.instruction">

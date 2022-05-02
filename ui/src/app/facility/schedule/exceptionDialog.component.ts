@@ -1,19 +1,17 @@
 import { Component } from '@angular/core';
-import * as moment from 'moment';
-import * as toast from 'toastr';
-import { cloneDeep } from 'lodash';
-import { TranslateService } from '@ngx-translate/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
+import { cloneDeep } from 'lodash';
+import * as toast from 'toastr';
 
 @Component({
-    template: require('./exceptionDialog.component.html'),
-    selector: 'exception-dialog',
+    templateUrl: './exceptionDialog.component.html',
 })
 export class ExceptionDialogComponent {
     dateOptions = {
         'starting-day': 1,
     };
-    dateFormat: 'dd.MM.yyyy';
+    dateFormat = 'dd.MM.yyyy';
     exception: {
         startDate: Date;
         endDate: Date;
@@ -32,8 +30,8 @@ export class ExceptionDialogComponent {
     }
 
     ok = () => {
-        const start = moment(this.exception.startDate);
-        const end = moment(this.exception.endDate);
+        const start = this.exception.startDate;
+        const end = this.exception.endDate;
         if (end <= start) {
             toast.error(this.translate.instant('sitnet_endtime_before_starttime'));
             return;

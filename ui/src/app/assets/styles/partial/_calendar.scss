@@ -2,6 +2,31 @@
     margin-left: 50px;
 }
 
+.cal-tooltip-inner{
+    font-size: 14px !important;
+}
+
 .booking-calendar-container {
     margin-left: 50px;
 }
+
+    ::-webkit-scrollbar {
+        -webkit-appearance: none;
+        width: 7px;
+    }
+    ::-webkit-scrollbar-thumb {
+        border-radius: 4px;
+        background-color: rgba(0, 0, 0, .5);
+        -webkit-box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+    }
+
+.overflow-x-auto {
+    overflow-x: auto;
+    @media (max-width: $sitnet-mobile) {
+        padding-left: -25px;
+        padding-right: -25px;
+    }
+}
+    .calendar-minw{
+            min-width: 875px;
+    }

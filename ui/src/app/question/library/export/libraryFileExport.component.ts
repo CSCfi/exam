@@ -32,7 +32,7 @@ import { FileService } from '../../../utility/file/file.service';
     </div> `,
 })
 export class LibraryFileExportComponent {
-    @Input() selections: number[];
+    @Input() selections: number[] = [];
 
     constructor(private Files: FileService, private translate: TranslateService) {}
 

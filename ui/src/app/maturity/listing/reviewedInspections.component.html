@@ -3,7 +3,9 @@
         <div class="review-list-title">
             {{ 'sitnet_processed_language_inspections' | translate }}
             <small class="smaller padl20">
-                <a uiSref="languageInspectionReports">{{ 'sitnet_language_inspection_report_link' | translate }}</a>
+                <a uiSref="staff.languageInspectionReports">{{
+                    'sitnet_language_inspection_report_link' | translate
+                }}</a>
             </small>
             <a *ngIf="inspections.length > 0" (click)="hideItems = !hideItems" class="pointer marl10">
                 <img
@@ -178,13 +180,13 @@
             <tr
                 *ngFor="
                     let inspection of filteredInspections
-                        | orderBy: sorting.predicate:sorting.reverse:'case-insensitive'
+                        | orderBy: sorting.predicate:sorting.reverse
                         | slice: currentPage * pageSize:currentPage * pageSize + pageSize
                 "
             >
                 <!-- 1 -->
                 <td>
-                    {{ inspection.exam.course.code }}
+                    {{ inspection.exam.course?.code }}
                 </td>
                 <!-- 2 -->
                 <td>
@@ -192,7 +194,7 @@
                 </td>
                 <!-- 3 -->
                 <td>
-                    <a class="table-column-examname" uiSref="assessment" [uiParams]="{ id: inspection.exam.id }">
+                    <a class="table-column-examname" uiSref="staff.assessment" [uiParams]="{ id: inspection.exam.id }">
                         {{ inspection.exam.name }}
                     </a>
                 </td>

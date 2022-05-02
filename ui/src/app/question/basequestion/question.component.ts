@@ -15,14 +15,14 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, TransitionService, UIRouterGlobals } from '@uirouter/core';
-import * as _ from 'lodash';
+import { clone } from 'lodash';
 import * as toast from 'toastr';
 
-import { ExamSectionQuestion, Question } from '../../exam/exam.model';
 import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../utility/window/window.service';
 import { QuestionService } from '../question.service';
 
+import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
 import type { OnInit } from '@angular/core';
 import type { User } from '../../session/session.service';
 import type { QuestionDraft } from '../question.service';
@@ -32,21 +32,22 @@ import type { QuestionDraft } from '../question.service';
     templateUrl: './question.component.html',
 })
 export class QuestionComponent implements OnInit {
-    @Input() newQuestion: boolean;
-    @Input() questionId: number;
-    @Input() questionDraft: Question;
-    @Input() lotteryOn: boolean;
-    @Input() collaborative: boolean;
-    @Input() examId: number;
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() newQuestion = false;
+    @Input() questionId = 0;
+    @Input() questionDraft!: Question;
+    @Input() lotteryOn = false;
+    @Input() collaborative = false;
+    @Input() examId = 0;
+    @Input() sectionQuestion!: ExamSectionQuestion;
     @Input() nextState?: string;
 
     @Output() onSave = new EventEmitter<Question | QuestionDraft>();
     @Output() onCancel = new EventEmitter<void>();
 
-    currentOwners: User[];
-    question: Question | QuestionDraft;
+    currentOwners: User[] = [];
+    question!: ReverseQuestion | QuestionDraft;
     transitionWatcher?: unknown;
+
     constructor(
         private state: StateService,
         private routing: UIRouterGlobals,
@@ -81,16 +82,16 @@ export class QuestionComponent implements OnInit {
         this.currentOwners = [];
         if (this.newQuestion) {
             this.question = this.Question.getQuestionDraft();
-            this.currentOwners = _.clone(this.question.questionOwners);
+            this.currentOwners = clone(this.question.questionOwners);
         } else if (this.questionDraft && this.collaborative) {
-            this.question = this.questionDraft;
-            this.currentOwners = _.clone(this.question.questionOwners);
+            this.question = { ...this.questionDraft, examSectionQuestions: [] };
+            this.currentOwners = clone(this.question.questionOwners);
             this.window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         } else {
             this.Question.getQuestion(this.questionId || this.state.params.id).subscribe(
-                (question: Question) => {
+                (question: ReverseQuestion) => {
                     this.question = question;
-                    this.currentOwners = _.clone(this.question.questionOwners);
+                    this.currentOwners = clone(this.question.questionOwners);
                     this.window.nativeWindow.onbeforeunload = () =>
                         this.translate.instant('sitnet_unsaved_data_may_be_lost');
                 },

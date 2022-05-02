@@ -23,26 +23,28 @@ import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { FileService } from '../../../utility/file/file.service';
-import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { ExamTabService } from '../examTabs.service';
 
 import type { OnDestroy, OnInit } from '@angular/core';
-import type { ExamType, GradeScale } from '../../exam.model';
+import type { User } from '../../../session/session.service';
+import type { Exam, ExamType, GradeScale } from '../../exam.model';
+
 @Component({
     selector: 'basic-exam-info',
     templateUrl: './basicExamInfo.component.html',
 })
 export class BasicExamInfoComponent implements OnInit, OnDestroy {
-    @Input() exam: Exam;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() collaborative = false;
 
     byodExaminationSupported = false;
-    anonymousReviewEnabled: boolean;
-    gradeScaleSetting: { overridable: boolean };
+    anonymousReviewEnabled = false;
+    gradeScaleSetting = { overridable: false };
     examTypes: (ExamType & { name: string })[] = [];
     gradeScales: GradeScale[] = [];
     pwdInputType = 'password';
+    user: User;
 
     unsubscribe = new Subject<unknown>();
 
@@ -61,6 +63,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
             this.refreshExamTypes();
             this.refreshGradeScales();
         });
+        this.user = this.Session.getUser();
     }
 
     ngOnInit() {
@@ -176,7 +179,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
 
     selectAttachmentFile = () => {
         this.Attachment.selectFile(true, {}).then((data) => {
-            const url = this.collaborative ? '/integration/iop/attachment/exam' : '/app/attachment/exam';
+            const url = this.collaborative ? '/app/iop/collab/attachment/exam' : '/app/attachment/exam';
             this.Files.upload(url, data.$value.attachmentFile, { examId: this.exam.id.toString() }, this.exam);
         });
     };
@@ -191,7 +194,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
 
     nextTab = () => {
         this.Tabs.notifyTabChange(3);
-        this.state.go('examEditor.sections');
+        this.state.go('staff.examEditor.sections');
     };
 
     showDelete = () => {

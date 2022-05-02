@@ -15,16 +15,17 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { Exam } from '../../../exam/exam.model';
 import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../../assessment/assessment.service';
+
+import type { Exam } from '../../../exam/exam.model';
 
 @Component({
     selector: 'speed-review-feedback',
     templateUrl: './feedback.component.html',
 })
 export class SpeedReviewFeedbackComponent {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
 
     constructor(private modal: NgbActiveModal, private Window: WindowRef, private Assessment: AssessmentService) {}
 

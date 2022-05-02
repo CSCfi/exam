@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as moment from 'moment';
+import { addDays, format, parseISO } from 'date-fns';
 
 import { DateTimeService } from '../../utility/date/date.service';
-import { ExamInfo } from '../calendar.component';
 
-import type { Exam } from '../../exam/exam.model';
+import type { ExamInfo } from '../calendar.component';
+
 @Component({
     selector: 'calendar-exam-info',
     template: `
@@ -76,26 +76,28 @@ import type { Exam } from '../../exam/exam.model';
     `,
 })
 export class CalendarExamInfoComponent {
-    @Input() examInfo: ExamInfo;
-    @Input() reservationWindowSize: number;
-    @Input() collaborative: boolean;
+    @Input() examInfo!: ExamInfo;
+    @Input() reservationWindowSize = 0;
+    @Input() collaborative = false;
 
-    reservationWindowEndDate: moment.Moment;
+    reservationWindowEndDate = new Date();
 
     constructor(private translate: TranslateService, private DateTime: DateTimeService) {}
 
     ngOnInit() {
-        this.reservationWindowEndDate = moment().add(this.reservationWindowSize, 'days');
+        this.reservationWindowEndDate = addDays(this.reservationWindowEndDate, this.reservationWindowSize);
     }
 
-    printExamDuration = (exam: Exam) => this.DateTime.printExamDuration(exam);
+    printExamDuration = (exam: { duration: number }) => this.DateTime.printExamDuration(exam);
 
     getReservationWindowDescription(): string {
         const text = this.translate
             .instant('sitnet_description_reservation_window')
             .replace('{}', this.reservationWindowSize.toString());
-        return `${text} (${this.reservationWindowEndDate.format('DD.MM.YYYY')})`;
+        return `${text} (${format(this.reservationWindowEndDate, 'dd.MM.yyyy')})`;
     }
 
-    showReservationWindowInfo = (): boolean => moment(this.examInfo.examActiveEndDate) > this.reservationWindowEndDate;
+    showReservationWindowInfo = (): boolean =>
+        !!this.reservationWindowEndDate &&
+        parseISO(this.examInfo.examActiveEndDate as string) > this.reservationWindowEndDate;
 }

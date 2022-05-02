@@ -14,13 +14,14 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
-import * as moment from 'moment';
+import { UIRouterGlobals } from '@uirouter/core';
+import { parseISO, roundToNearestMinutes } from 'date-fns';
 
 import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
 import { SessionService } from '../../../session/session.service';
-import { LanguageService } from '../../../utility/language/language.service';
+import { DateTimeService } from '../../../utility/date/date.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { WindowRef } from '../../../utility/window/window.service';
 import { AssessmentService } from '../assessment.service';
 
@@ -36,26 +37,29 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
     templateUrl: './printedAssessment.component.html',
 })
 export class PrintedAssessmentComponent {
-    @Input() collaborative: boolean;
-    questionSummary: QuestionAmounts;
-    exam: Exam;
+    @Input() collaborative = false;
+    questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
+    exam!: Exam;
     user: User;
-    participation: ExamParticipation;
-    previousParticipations: PreviousParticipation[];
-    student: User;
-    enrolment: ExamEnrolment;
-    reservation: Reservation;
+    participation!: ExamParticipation;
+    previousParticipations: PreviousParticipation[] = [];
+    student?: User;
+    enrolment?: ExamEnrolment;
+    reservation!: Reservation;
 
     constructor(
-        private state: StateService,
+        private state: UIRouterGlobals,
         private http: HttpClient,
         private Window: WindowRef,
         private Question: QuestionService,
         private Exam: ExamService,
+        private CommonExam: CommonExamService,
         private Assessment: AssessmentService,
         private Session: SessionService,
-        private Language: LanguageService,
-    ) {}
+        private DateTime: DateTimeService,
+    ) {
+        this.user = this.Session.getUser();
+    }
 
     ngAfterViewInit() {
         const path = this.collaborative ? `${this.state.params.id}/${this.state.params.ref}` : this.state.params.id;
@@ -79,11 +83,8 @@ export class PrintedAssessmentComponent {
             this.exam = exam;
             this.user = this.Session.getUser();
             this.participation = participation;
-            const duration = moment.utc(new Date(this.participation.duration));
-            if (duration.second() > 29) {
-                duration.add(1, 'minutes');
-            }
-            this.participation.duration = duration.format();
+            const duration = roundToNearestMinutes(parseISO(this.participation.duration as string));
+            this.participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC');
 
             this.student = this.participation.user;
             this.enrolment = this.exam.examEnrolments[0];
@@ -95,7 +96,7 @@ export class PrintedAssessmentComponent {
             } else {
                 this.http
                     .get<ExamParticipation[]>(
-                        `/integration/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
+                        `/app/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
                     )
                     .subscribe(this.handleParticipations);
             }
@@ -132,15 +133,14 @@ export class PrintedAssessmentComponent {
         this.Window.nativeWindow.setTimeout(() => this.Window.nativeWindow.print(), 2000);
     };
 
-    private getResource = (path: string) =>
-        this.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`;
+    private getResource = (path: string) => (this.collaborative ? `/app/iop/reviews/${path}` : `/app/review/${path}`);
 
-    translateGrade = (participation: ExamParticipation) =>
-        !participation.exam.grade ? 'N/A' : this.Exam.getExamGradeDisplayName(participation.exam.grade.name);
+    translateGrade = (participation: PreviousParticipation) =>
+        !participation.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(participation.exam.grade.name);
 
-    getGrade = () => (!this.exam.grade ? 'N/A' : this.Exam.getExamGradeDisplayName(this.exam.grade.name));
+    getGrade = () => (!this.exam.grade ? 'N/A' : this.CommonExam.getExamGradeDisplayName(this.exam.grade.name));
 
-    getCreditType = () => (!this.exam ? 'N/A' : this.Exam.getExamTypeDisplayName(this.exam.examType.type));
+    getCreditType = () => (!this.exam ? 'N/A' : this.CommonExam.getExamTypeDisplayName(this.exam.examType.type));
 
     getLanguage = () => {
         if (!this.exam) return 'N/A';
@@ -161,5 +161,5 @@ export class PrintedAssessmentComponent {
         return this.exam.examInspections.length + owners.length;
     };
 
-    translateState = (participation: ExamParticipation) => 'sitnet_exam_status_' + participation.exam.state;
+    translateState = (participation: PreviousParticipation) => 'sitnet_exam_status_' + participation.exam.state;
 }

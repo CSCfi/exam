@@ -16,19 +16,20 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../../assessment/assessment.service';
-import { ReviewQuestion } from '../../review.model';
+
+import type { ReviewQuestion } from '../../review.model';
 
 @Component({
     selector: 'essay-answer',
     templateUrl: './essayAnswer.component.html',
 })
 export class EssayAnswerComponent {
-    @Input() answer: ReviewQuestion;
-    @Input() editable: boolean;
-    @Input() action: string;
+    @Input() answer!: ReviewQuestion;
+    @Input() editable = false;
+    @Input() action = '';
     @Output() onSelection = new EventEmitter<ReviewQuestion>();
 
-    name: string;
+    name = '';
 
     constructor(private Assessment: AssessmentService, private Attachment: AttachmentService) {}
 

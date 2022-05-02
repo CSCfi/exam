@@ -24,11 +24,11 @@
                         <strong>{{ 'sitnet_multiplechoice_question_correct' | translate }}:</strong>
                         {{ sectionQuestion.clozeTestAnswer?.score?.correctAnswers }} /
                         {{
-                            sectionQuestion.clozeTestAnswer?.score?.correctAnswers +
-                                sectionQuestion.clozeTestAnswer?.score?.incorrectAnswers
+                            (sectionQuestion.clozeTestAnswer?.score?.correctAnswers || 0) +
+                                (sectionQuestion.clozeTestAnswer?.score?.incorrectAnswers || 0)
                         }}
                         &nbsp;<strong>{{ 'sitnet_word_points' | translate }}: </strong>
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : ''">
+                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                             {{ displayAchievedScore() }}
                         </span>
                         <span *ngIf="hasForcedScore()" class="text text-danger">
@@ -69,7 +69,7 @@
                 <div class="points-title">
                     <span>{{ 'sitnet_exam_answer' | translate | uppercase }}</span>
                 </div>
-                <div [innerHtml]="sectionQuestion.clozeTestAnswer.question"></div>
+                <div [innerHtml]="sectionQuestion.clozeTestAnswer?.question"></div>
                 <div *ngIf="participation.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
                     <div class="points-title">
                         <span class="text text-danger"

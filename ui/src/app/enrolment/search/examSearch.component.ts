@@ -15,16 +15,12 @@
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import * as _ from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { LanguageService } from '../../utility/language/language.service';
-
 import type { OnInit } from '@angular/core';
 import type { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
-
 @Component({
     selector: 'exam-search',
     templateUrl: './examSearch.component.html',
@@ -45,10 +41,10 @@ export class ExamSearchComponent implements OnInit {
     exams: EnrolmentInfo[] = [];
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
-    filter: { text: string };
-    permissionCheck: { active: boolean };
+    filter = { text: '' };
+    permissionCheck = { active: false };
 
-    constructor(private http: HttpClient, private Language: LanguageService) {
+    constructor(private http: HttpClient) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((txt) => {
@@ -106,7 +102,7 @@ export class ExamSearchComponent implements OnInit {
                     exam.reservationMade = false;
                 } else {
                     exam.alreadyEnrolled = true;
-                    exam.reservationMade = enrolments.some((e) => _.isObject(e.reservation));
+                    exam.reservationMade = enrolments.some((e) => e.reservation || e.examinationEventConfiguration);
                 }
             });
         });

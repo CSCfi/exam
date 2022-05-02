@@ -41,6 +41,7 @@ import { CollaborativeExamOwnerSelectorComponent } from './editor/publication/co
 import { ExamParticipantSelectorComponent } from './editor/publication/examParticipantSelector.component';
 import { ExamPreParticipantSelectorComponent } from './editor/publication/examPreParticipantSelector.component';
 import { ExamPublicationComponent } from './editor/publication/examPublication.component';
+import { OrganisationSelectorComponent } from './editor/publication/organisationSelector.component';
 import { PublicationDialogComponent } from './editor/publication/publicationDialog.component';
 import { PublicationErrorDialogComponent } from './editor/publication/publicationErrorDialog.component';
 import { PublicationRevocationDialogComponent } from './editor/publication/publicationRevocationDialog.component';
@@ -53,6 +54,7 @@ import { ExamService } from './exam.service';
 import { ExamListingComponent } from './listing/examList.component';
 import { PrintoutComponent } from './printout/printout.component';
 import { PrintoutListingComponent } from './printout/printoutListing.component';
+import { ByodExamEventSearchComponent } from './search/byodExamEventSearch.component';
 
 @NgModule({
     imports: [NgbModule, UtilityModule, ReviewModule, DragDropModule, UIRouterModule, QuestionModule],
@@ -71,6 +73,7 @@ import { PrintoutListingComponent } from './printout/printoutListing.component';
         ExamOwnerSelectorComponent,
         ExamInspectorSelectorComponent,
         CollaborativeExamOwnerSelectorComponent,
+        OrganisationSelectorComponent,
         CollaborativeExamListingComponent,
         PublicationDialogComponent,
         PublicationErrorDialogComponent,
@@ -87,16 +90,15 @@ import { PrintoutListingComponent } from './printout/printoutListing.component';
         PrintoutComponent,
         PrintoutListingComponent,
         ExaminationTypeSelectorComponent,
+        ByodExamEventSearchComponent,
     ],
-    entryComponents: [
+    bootstrap: [
         PublicationDialogComponent,
         PublicationErrorDialogComponent,
         PublicationRevocationDialogComponent,
-        ExaminationTypeSelectorComponent,
         ExaminationEventDialogComponent,
-        PublicationDialogComponent,
-        PublicationErrorDialogComponent,
-        ExamMaterialSelectorComponent,
+        ExamMaterialComponent,
+        ExaminationTypeSelectorComponent,
     ],
     providers: [ExamService, CoursePickerService, CollaborativeExamService, ExamTabService],
 })

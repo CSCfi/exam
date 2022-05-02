@@ -1,10 +1,3 @@
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import * as _ from 'lodash';
-
-import { Exam } from '../../exam.model';
-import { ExamService } from '../../exam.service';
-
 /*
  * Copyright (c) 2017 Exam Consortium
  *
@@ -19,8 +12,15 @@ import { ExamService } from '../../exam.service';
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
+import { cloneDeep } from 'lodash';
+
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
+import { ExamService } from '../../exam.service';
+
 import type { OnInit, SimpleChanges } from '@angular/core';
-import type { AutoEvaluationConfig, Grade, GradeEvaluation } from '../../exam.model';
+import type { Exam, AutoEvaluationConfig, Grade, GradeEvaluation } from '../../exam.model';
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
 
 type AutoEvaluationConfigurationTemplate = {
@@ -33,19 +33,17 @@ type AutoEvaluationConfigurationTemplate = {
     templateUrl: './autoEvaluation.component.html',
 })
 export class AutoEvaluationComponent implements OnInit {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     @Output() onEnabled = new EventEmitter<void>();
     @Output() onDisabled = new EventEmitter<void>();
     @Output() onUpdate = new EventEmitter<{ config: AutoEvaluationConfig }>();
-    @ViewChild('gradesForm', { static: false }) gradesForm: NgForm;
+    @ViewChild('gradesForm', { static: false }) gradesForm?: NgForm;
 
     autoevaluation: AutoEvaluationConfigurationTemplate;
-    config: AutoEvaluationConfig;
+    config?: AutoEvaluationConfig;
     autoevaluationDisplay: { visible: boolean };
 
-    constructor(private Exam: ExamService) {}
-
-    ngOnInit() {
+    constructor(private Exam: ExamService, private CommonExam: CommonExamService) {
         this.autoevaluation = {
             enabled: false,
             releaseTypes: [
@@ -61,6 +59,9 @@ export class AutoEvaluationComponent implements OnInit {
             ],
         };
         this.autoevaluationDisplay = { visible: false };
+    }
+
+    ngOnInit() {
         this.prepareAutoEvaluationConfig();
     }
 
@@ -79,7 +80,7 @@ export class AutoEvaluationComponent implements OnInit {
             const releaseType = this.selectedReleaseType();
             this.config = {
                 releaseType: releaseType ? releaseType.name : this.autoevaluation.releaseTypes[0].name,
-                gradeEvaluations: this.exam.gradeScale.grades.map((g) => ({ grade: _.cloneDeep(g), percentage: 0 })),
+                gradeEvaluations: this.exam.gradeScale.grades.map((g) => ({ grade: cloneDeep(g), percentage: 0 })),
                 amountDays: 0,
                 releaseDate: new Date(),
             };
@@ -108,7 +109,7 @@ export class AutoEvaluationComponent implements OnInit {
 
     calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
 
-    getGradeDisplayName = (grade: Grade) => this.Exam.getExamGradeDisplayName(grade.name);
+    getGradeDisplayName = (grade: Grade) => this.CommonExam.getExamGradeDisplayName(grade.name);
 
     calculatePointLimit = (evaluation: GradeEvaluation) => {
         const max = this.calculateExamMaxScore();
@@ -119,13 +120,13 @@ export class AutoEvaluationComponent implements OnInit {
         return (ratio / 100).toFixed(2);
     };
 
-    releaseDateChanged = (event: { date: Date }) => {
+    releaseDateChanged = (event: { date: Date | null }) => {
         if (!this.config) return;
         this.config.releaseDate = event.date;
         this.onUpdate.emit({ config: this.config });
     };
 
     propertyChanged = () => {
-        if (this.config && this.gradesForm.valid) this.onUpdate.emit({ config: this.config });
+        if (this.config && this.gradesForm?.valid) this.onUpdate.emit({ config: this.config });
     };
 }

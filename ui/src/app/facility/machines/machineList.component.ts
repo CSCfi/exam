@@ -17,18 +17,17 @@ import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { ExamRoom } from '../../reservation/reservation.model';
-
 import type { OnInit } from '@angular/core';
-import type { ExamMachine } from '../../reservation/reservation.model';
+import type { ExamRoom, ExamMachine } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './machineList.component.html',
     selector: 'machine-list',
 })
 export class MachineListComponent implements OnInit {
-    @Input() room: ExamRoom;
-    showMachines: boolean;
+    @Input() room!: ExamRoom;
+
+    showMachines = false;
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 

@@ -15,12 +15,12 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { CalendarDateFormatter, CalendarView, DAYS_OF_WEEK } from 'angular-calendar';
-import { addWeeks, endOfWeek, startOfWeek, subWeeks } from 'date-fns';
+import { addHours, addWeeks, endOfWeek, startOfWeek, subWeeks } from 'date-fns';
 
-import { ExamRoom } from '../reservation/reservation.model';
 import { DateFormatter } from './bookingCalendarDateFormatter';
 import { CalendarService } from './calendar.service';
 
+import type { ExamRoom } from '../reservation/reservation.model';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import type { CalendarEvent } from 'angular-calendar';
 export type SlotMeta = { availableMachines: number };
@@ -35,21 +35,22 @@ export class BookingCalendarComponent implements OnChanges {
     @Output() onEventSelected = new EventEmitter<CalendarEvent>();
     @Output() onNeedMoreEvents = new EventEmitter<{ date: Date }>();
 
-    @Input() events: CalendarEvent<SlotMeta>[];
-    @Input() visible: boolean;
+    @Input() events: CalendarEvent<SlotMeta>[] = [];
+    @Input() visible = false;
     @Input() minDate?: Date;
     @Input() maxDate?: Date;
-    @Input() room: ExamRoom;
+    @Input() room!: ExamRoom;
+
     view: CalendarView = CalendarView.Week;
-    minHour: number;
-    maxHour: number;
+    minHour = 0;
+    maxHour = 23;
 
     locale: string;
     weekStartsOn: number = DAYS_OF_WEEK.MONDAY;
     hiddenDays: number[] = [];
     activeDayIsOpen = false;
     viewDate: Date = new Date();
-    clickedEvent: CalendarEvent<SlotMeta>;
+    clickedEvent?: CalendarEvent<SlotMeta>;
 
     nextWeekDisabled = false;
     prevWeekDisabled = true;
@@ -92,11 +93,11 @@ export class BookingCalendarComponent implements OnChanges {
     ngOnChanges(changes: SimpleChanges) {
         if (changes.room && this.room) {
             const earliestOpening = this.Calendar.getEarliestOpening(this.room);
-            const minTime = earliestOpening.hours() > 1 ? earliestOpening.add(-1, 'hours') : earliestOpening;
+            const minTime = earliestOpening.getHours() > 1 ? addHours(earliestOpening, -1) : earliestOpening;
             const latestClosing = this.Calendar.getLatestClosing(this.room);
-            const maxTime = latestClosing.hours() < 23 ? latestClosing.add(1, 'hours') : latestClosing;
+            const maxTime = latestClosing.getHours() < 23 ? addHours(latestClosing, 1) : latestClosing;
             this.hiddenDays = this.Calendar.getClosedWeekdays(this.room);
-            [this.minHour, this.maxHour] = [minTime.hour(), maxTime.hour()];
+            [this.minHour, this.maxHour] = [minTime.getHours(), maxTime.getHours()];
         }
     }
 

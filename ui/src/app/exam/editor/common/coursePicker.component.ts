@@ -18,9 +18,9 @@ import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
-import { Course } from '../../exam.model';
 import { CoursePickerService } from './coursePicker.service';
 
+import type { Course } from '../../exam.model';
 import type { OnInit } from '@angular/core';
 import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { Observable } from 'rxjs';
@@ -30,11 +30,11 @@ import type { Observable } from 'rxjs';
     templateUrl: './coursePicker.component.html',
 })
 export class CoursePickerComponent implements OnInit {
-    @Input() course: Course;
+    @Input() course?: Course;
     @Output() onUpdate = new EventEmitter<Course>();
 
-    nameFilter: string;
-    codeFilter: string;
+    nameFilter = '';
+    codeFilter = '';
     loader = {
         name: { isOn: false },
         code: { isOn: false },
@@ -67,10 +67,12 @@ export class CoursePickerComponent implements OnInit {
             }),
         );
 
+    private isCourse = (input: string | Course): input is Course => (input as Course).code !== undefined;
+
     getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
     getCoursesByName$ = (text$: Observable<string>) => this.getCourses$('name', text$);
-    codeFormat = (c: Course) => c.code || c;
-    nameFormat = (c: Course) => c.name || c;
+    codeFormat = (c: Course | string) => (this.isCourse(c) ? c.code : c);
+    nameFormat = (c: Course | string) => (this.isCourse(c) ? c.name : c);
 
     onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
         this.codeFilter = event.item.code.split('_')[0];

@@ -14,15 +14,17 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { ExaminationQuestion, ExaminationService } from '../examination.service';
+import { ExaminationService } from '../examination.service';
+
+import type { ExaminationQuestion } from '../examination.model';
 
 @Component({
     selector: 'examination-cloze-test',
     templateUrl: './examinationClozeTest.component.html',
 })
 export class ExaminationClozeTestComponent {
-    @Input() sq: ExaminationQuestion;
-    @Input() examHash: string;
+    @Input() sq!: ExaminationQuestion;
+    @Input() examHash = '';
 
     constructor(private Examination: ExaminationService) {}
 

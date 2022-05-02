@@ -30,7 +30,7 @@ import type { User } from '../session.service';
             </div>
             <div class="row marl20">
                 <div class="col">
-                    <form (ngSubmit)="login()">
+                    <form (ngSubmit)="login($event, false)">
                         <div class="form-group">
                             <label for="uname">{{ 'sitnet_username' | translate }}</label>
                             <input
@@ -40,7 +40,7 @@ import type { User } from '../session.service';
                                 type="text"
                                 placeholder="{{ 'sitnet_username' | translate }}"
                                 [(ngModel)]="username"
-                                (keydown.enter)="$event.target.blur(); login()"
+                                (keydown.enter)="login($event, true)"
                             />
                         </div>
                         <div class="form-group">
@@ -52,7 +52,7 @@ import type { User } from '../session.service';
                                 name="pwd"
                                 placeholder="{{ 'sitnet_password' | translate }}"
                                 [(ngModel)]="password"
-                                (keydown.enter)="$event.target.blur(); login()"
+                                (keydown.enter)="login($event, true)"
                             />
                         </div>
 
@@ -68,12 +68,13 @@ import type { User } from '../session.service';
 export class DevLoginComponent {
     @Output() onLoggedIn = new EventEmitter<User>();
 
-    username: string;
-    password: string;
+    username = '';
+    password = '';
 
     constructor(private Session: SessionService) {}
 
-    login = () => {
+    login = (event: Event, blur: boolean) => {
+        if (blur) (event.target as HTMLElement).blur();
         this.Session.login$(this.username, this.password).subscribe(
             (user) => this.onLoggedIn.emit(user),
             (err) => console.log(JSON.stringify(err)),

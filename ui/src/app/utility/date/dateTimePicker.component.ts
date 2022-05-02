@@ -22,6 +22,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                 <date-picker
                     [disabled]="disabled"
                     [initialDate]="initialTime"
+                    [examMaxDate]="examMaxDate"
                     (onUpdate)="onDateUpdate($event)"
                 ></date-picker>
             </div>
@@ -30,7 +31,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
                     name="timepicker"
                     [disabled]="disabled"
                     [(ngModel)]="time"
-                    (ngModelChange)="onTimeUpdate($event)"
+                    (ngModelChange)="onTimeUpdate()"
                     [minuteStep]="minuteStep"
                     [hourStep]="hourStep"
                 ></ngb-timepicker>
@@ -39,14 +40,15 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     `,
 })
 export class DateTimePickerComponent {
-    @Input() initialTime: Date;
-    @Input() hourStep: number;
-    @Input() minuteStep: number;
-    @Input() disabled: boolean;
+    @Input() initialTime: Date | null = null;
+    @Input() hourStep = 0;
+    @Input() minuteStep = 0;
+    @Input() disabled = false;
+    @Input() examMaxDate?: string;
     @Output() onUpdate = new EventEmitter<{ date: Date }>();
 
-    date: Date;
-    time: { hour: number; minute: number; second: number; millisecond?: number };
+    date: Date = new Date();
+    time!: { hour: number; minute: number; second: number; millisecond?: number };
 
     private setDateTime = (dt: Date) => {
         this.date.setFullYear(dt.getFullYear());
@@ -74,10 +76,12 @@ export class DateTimePickerComponent {
         this.onUpdate.emit({ date: this.date });
     }
 
-    onDateUpdate(event: { date: Date }) {
-        this.date.setFullYear(event.date.getFullYear());
-        this.date.setMonth(event.date.getMonth(), event.date.getDate());
-        this.date.setHours(this.time.hour);
+    onDateUpdate(event: { date: Date | null }) {
+        if (event.date) {
+            this.date.setFullYear(event.date.getFullYear());
+            this.date.setMonth(event.date.getMonth(), event.date.getDate());
+            this.date.setHours(this.time.hour);
+        }
         this.date.setMinutes(this.time.minute);
         this.date.setSeconds(0);
         this.date.setMilliseconds(0);

@@ -5,11 +5,13 @@ const webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const linkerPlugin = require('@angular/compiler-cli/linker/babel');
 
 /**
  * Base configuration object for Webpack
  */
 const config = {
+    entry: ['./src/polyfills.ts'],
     optimization: {
         usedExports: true,
     },
@@ -39,13 +41,6 @@ const config = {
                 ],
             },
             {
-                test: /\.ts$/,
-                use: [
-                    { loader: 'ts-loader', options: { transpileOnly: true, experimentalWatchApi: true } },
-                    { loader: 'angular2-template-loader' },
-                ],
-            },
-            {
                 test: /\.(png|svg)$/,
                 type: 'asset/resource',
             },
@@ -57,20 +52,35 @@ const config = {
                 test: /\.(woff|woff2)$/,
                 use: ['url-loader'],
             },
+            {
+                test: /\.m?js/,
+                use: {
+                    loader: 'babel-loader',
+                    options: {
+                        plugins: [linkerPlugin],
+                        compact: false,
+                        cacheDirectory: true
+                    }
+                },
+                resolve: {
+                    fullySpecified: false,
+                },
+            },
         ],
     },
     plugins: [
-        new ForkTsCheckerWebpackPlugin({ eslint: { files: './src/**/*.ts'} }),
+        new ForkTsCheckerWebpackPlugin({ eslint: { files: './src/**/*.ts' } }),
         new CleanWebpackPlugin(),
         new webpack.IgnorePlugin({
             resourceRegExp: /^\.\/locale$/,
             contextRegExp: /moment$/,
-          }),
+        }),
         new BundleAnalyzerPlugin({ analyzerMode: 'static', openAnalyzer: false }),
     ],
     resolve: {
         extensions: ['.ts', '.js'],
-        fallback: { buffer: require.resolve('buffer/') },
+        //fallback: { buffer: require.resolve('buffer/') },
+        mainFields: ['es2015', 'main'],
     },
 };
 

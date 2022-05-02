@@ -1,4 +1,11 @@
-import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from '../exam/exam.model';
+import type {
+    CollaborativeExam,
+    Course,
+    Exam,
+    ExaminationEventConfiguration,
+    ExamInspection,
+    ExamSection,
+} from '../exam/exam.model';
 import type { Reservation } from '../reservation/reservation.model';
 import type { User } from '../session/session.service';
 
@@ -37,6 +44,9 @@ export interface ExamEnrolment {
     externalExam?: ExternalExam;
     examinationEventConfiguration?: ExaminationEventConfiguration;
     preEnrolledUserEmail?: string;
+    noShow: boolean;
+    retrialPermitted: boolean;
+    optionalSections: ExamSection[];
 }
 
 export interface EnrolmentInfo extends Exam {
@@ -45,4 +55,15 @@ export interface EnrolmentInfo extends Exam {
     alreadyEnrolled: boolean;
     reservationMade: boolean;
     noTrialsLeft: boolean;
+}
+
+export interface CollaborativeExamInfo extends CollaborativeExam {
+    languages: string[];
+    reservationMade: boolean;
+    alreadyEnrolled: boolean;
+    noTrialsLeft: boolean;
+    implementation: string;
+    course: Course;
+    examInspections: ExamInspection[];
+    parent: null;
 }

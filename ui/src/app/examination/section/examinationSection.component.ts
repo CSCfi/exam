@@ -15,18 +15,20 @@
 import { Component, Input } from '@angular/core';
 
 import { WindowRef } from '../../utility/window/window.service';
-import { Examination, ExaminationSection, ExaminationService } from '../examination.service';
+import { ExaminationService } from '../examination.service';
+
+import type { Examination, ExaminationSection } from '../examination.model';
 
 @Component({
     selector: 'examination-section',
     templateUrl: './examinationSection.component.html',
 })
 export class ExaminationSectionComponent {
-    @Input() exam: Examination;
-    @Input() section: ExaminationSection;
+    @Input() exam!: Examination;
+    @Input() section!: ExaminationSection;
     @Input() index?: number;
-    @Input() isPreview: boolean;
-    @Input() isCollaborative: boolean;
+    @Input() isPreview = false;
+    @Input() isCollaborative = false;
 
     autosaver?: number;
 

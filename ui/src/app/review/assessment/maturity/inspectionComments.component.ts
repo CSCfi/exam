@@ -18,18 +18,17 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
-import { Exam } from '../../../exam/exam.model';
-import type { User } from '../../../session/session.service';
 import { InspectionCommentDialogComponent } from './dialogs/inspectionCommentDialog.component';
 
+import type { Exam } from '../../../exam/exam.model';
+import type { User } from '../../../session/session.service';
 @Component({
     selector: 'r-inspection-comments',
     templateUrl: './inspectionComments.component.html',
 })
 export class InspectionCommentsComponent {
-    @Input() exam: Exam;
-    @Input() addingDisabled: boolean;
-    @Input() addingVisible: boolean;
+    @Input() exam!: Exam;
+    @Input() addingVisible = false;
 
     constructor(private modal: NgbModal, private http: HttpClient) {}
 

@@ -18,18 +18,18 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Exam } from '../../../exam/exam.model';
-import type { Reservation } from '../../../reservation/reservation.model';
+import { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import { SessionService } from '../../../session/session.service';
-import type { Review } from '../../review.model';
 
+import type { Exam } from '../../../exam/exam.model';
+import type { Review } from '../../review.model';
 @Component({
     selector: 'aborted-exams',
     templateUrl: './abortedExams.component.html',
 })
 export class AbortedExamsComponent {
-    @Input() exam: Exam;
-    @Input() abortedExams: Review[];
+    @Input() exam!: Exam;
+    @Input() abortedExams: Review[] = [];
 
     abortedPredicate = 'started';
     reverse = false;
@@ -43,9 +43,9 @@ export class AbortedExamsComponent {
 
     showId = () => this.Session.getUser().isAdmin && this.exam.anonymous;
 
-    permitRetrial = (reservation: Reservation) => {
-        this.http.put(`/app/reservations/${reservation.id}`, {}).subscribe(() => {
-            reservation.retrialPermitted = true;
+    permitRetrial = (enrolment: ExamEnrolment) => {
+        this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe(() => {
+            enrolment.retrialPermitted = true;
             toast.info(this.translate.instant('sitnet_retrial_permitted'));
         });
     };

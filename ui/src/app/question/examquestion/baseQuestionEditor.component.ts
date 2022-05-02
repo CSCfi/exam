@@ -16,9 +16,9 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TransitionService } from '@uirouter/core';
 
-import { ExamSectionQuestion, Question } from '../../exam/exam.model';
 import { WindowRef } from '../../utility/window/window.service';
 
+import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
 import type { QuestionDraft } from '../question.service';
 
 @Component({
@@ -43,13 +43,13 @@ import type { QuestionDraft } from '../question.service';
     `,
 })
 export class BaseQuestionEditorComponent {
-    @Input() newQuestion: boolean;
-    @Input() questionDraft: Question;
-    @Input() questionId: number;
-    @Input() collaborative: boolean;
-    @Input() lotteryOn: boolean;
-    @Input() examId: number;
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() newQuestion = false;
+    @Input() questionDraft!: Question;
+    @Input() questionId = 0;
+    @Input() collaborative = false;
+    @Input() lotteryOn = false;
+    @Input() examId = 0;
+    @Input() sectionQuestion!: ExamSectionQuestion;
 
     transitionWatcher: unknown;
 

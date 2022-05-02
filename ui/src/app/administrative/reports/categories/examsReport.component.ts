@@ -17,10 +17,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
-import { FileType } from '../reports.service';
-
-import type { Exam } from '../../../exam/exam.model';
-import type { ExamName } from '../reports.service';
+import { Option } from '../../../utility/select/dropDownSelect.component';
 
 @Component({
     template: `
@@ -62,19 +59,18 @@ import type { ExamName } from '../reports.service';
     selector: 'exams-report',
 })
 export class ExamsReportComponent {
-    exam: Exam;
-    @Input() examNames: ExamName[];
-    @Input() fileType: FileType;
+    @Input() examNames: Option<string, number>[] = [];
+    @Input() fileType = '';
+
+    exam?: number;
 
     constructor(private translate: TranslateService, private files: FileService) {}
 
-    examSelected = (event: { value: Exam }) => {
-        this.exam = event.value;
-    };
+    examSelected = (event?: Option<string, number>) => (this.exam = event?.id);
 
     getExams = () => {
         if (this.exam) {
-            const url = `/app/statistics/examnames/${this.exam.id}/${this.fileType}`;
+            const url = `/app/statistics/examnames/${this.exam}/${this.fileType}`;
             const fileName = `exams.${this.fileType}`;
             this.files.download(url, fileName);
         } else {

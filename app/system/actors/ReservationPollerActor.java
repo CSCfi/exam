@@ -20,7 +20,7 @@ import impl.NoShowHandler;
 import io.ebean.Ebean;
 import java.util.List;
 import javax.inject.Inject;
-import models.Reservation;
+import models.ExamEnrolment;
 import org.joda.time.DateTime;
 import play.Logger;
 import util.datetime.DateTimeUtils;
@@ -38,29 +38,31 @@ public class ReservationPollerActor extends AbstractActor {
 
     @Override
     public Receive createReceive() {
-        // TODO: how about BYOD examinations and no-shows
         return receiveBuilder()
             .match(
                 String.class,
                 s -> {
                     logger.debug("Starting no-show check ->");
                     DateTime now = DateTimeUtils.adjustDST(DateTime.now());
-                    List<Reservation> reservations = Ebean
-                        .find(Reservation.class)
-                        .fetch("enrolment")
-                        .fetch("enrolment.exam")
-                        .fetch("enrolment.collaborativeExam")
-                        .fetch("enrolment.externalExam")
+                    List<ExamEnrolment> enrolments = Ebean
+                        .find(ExamEnrolment.class)
+                        .fetch("exam")
+                        .fetch("collaborativeExam")
+                        .fetch("externalExam")
+                        .fetch("reservation")
                         .where()
                         .eq("noShow", false)
-                        .lt("endAt", now.toDate())
-                        .isNull("externalReservation")
+                        .or()
+                        .lt("reservation.endAt", now)
+                        .lt("examinationEventConfiguration.examinationEvent.start", now) // FIXME: exam duration
+                        .endOr()
+                        .isNull("reservation.externalReservation")
                         .findList();
 
-                    if (reservations.isEmpty()) {
+                    if (enrolments.isEmpty()) {
                         logger.debug("None found");
                     } else {
-                        handler.handleNoShows(reservations);
+                        handler.handleNoShows(enrolments);
                     }
                     logger.debug("<- done");
                 }

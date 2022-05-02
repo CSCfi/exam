@@ -49,9 +49,26 @@ public class ConfigReaderImpl implements ConfigReader {
     }
 
     @Override
+    public String getExamMaxDate() {
+        DateTime newDate = new DateTime(0);
+        Period period = Period.parse(ConfigFactory.load().getString("sitnet.exam.maxDate"));
+        return newDate.plus(period).toString();
+    }
+
+    @Override
     public List<Integer> getExamDurations() {
         String[] durations = ConfigFactory.load().getString("sitnet.exam.durations").split(",");
         return Arrays.stream(durations).map(Integer::parseInt).collect(Collectors.toList());
+    }
+
+    @Override
+    public Integer getExamMaxDuration() {
+        return ConfigFactory.load().getInt("sitnet.exam.maxDuration");
+    }
+
+    @Override
+    public Integer getExamMinDuration() {
+        return ConfigFactory.load().getInt("sitnet.exam.minDuration");
     }
 
     @Override
@@ -180,5 +197,10 @@ public class ConfigReaderImpl implements ConfigReader {
     @Override
     public String getHomeOrganisationRef() {
         return ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
+    }
+
+    @Override
+    public Integer getMaxByodExaminationParticipantCount() {
+        return ConfigFactory.load().getInt("sitnet.byod.maxConcurrentParticipants");
     }
 }

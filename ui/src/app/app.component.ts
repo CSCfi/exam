@@ -34,14 +34,7 @@ import type { User } from './session/session.service';
         </div>
         <div *ngIf="user">
             <navigation [hidden]="hideNavBar"></navigation>
-            <main
-                id="mainView"
-                class="container-fluid"
-                [ngClass]="{
-                    'vmenu-on': !hideNavBar && !user?.isAdmin,
-                    'vmenu-on-admin': user?.isAdmin
-                }"
-            >
+            <main id="mainView" class="container-fluid pad0" [ngClass]="{ 'vmenu-on': !hideNavBar }">
                 <ui-view></ui-view>
             </main>
         </div>
@@ -50,7 +43,7 @@ import type { User } from './session/session.service';
 export class AppComponent {
     user?: User;
     hideNavBar = false;
-    devLoginRequired: boolean;
+    devLoginRequired = false;
     private ngUnsubscribe = new Subject();
 
     constructor(
@@ -75,17 +68,14 @@ export class AppComponent {
     }
 
     ngOnInit() {
-        const storedUser: string = this.Window.nativeWindow.sessionStorage['EXAM_USER'];
-        if (storedUser) {
-            const user = JSON.parse(storedUser);
+        const user = this.Session.getUser();
+        if (user) {
             if (!user.loginRole) {
                 // This happens if user refreshes the tab before having selected a login role,
                 // lets just throw him out.
                 this.Session.logout();
                 return;
             }
-            this.Session.setEnv();
-            this.Session.setUser(user);
             this.Session.translate(user.lang);
             this.Session.restartSessionCheck();
             this.user = user;

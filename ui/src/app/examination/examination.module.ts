@@ -1,4 +1,5 @@
-import { NgModule } from '@angular/core';
+import { Compiler, COMPILER_OPTIONS, CompilerFactory, NgModule } from '@angular/core';
+import { JitCompilerFactory } from '@angular/platform-browser-dynamic';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
 
@@ -21,6 +22,9 @@ import { ExaminationQuestionComponent } from './question/examinationQuestion.com
 import { ExaminationWeightedMultiChoiceComponent } from './question/examinationWeightedMultiChoice.component';
 import { ExaminationSectionComponent } from './section/examinationSection.component';
 
+export function createCompiler(compilerFactory: CompilerFactory) {
+    return compilerFactory.createCompiler();
+}
 @NgModule({
     imports: [NgbModule, UIRouterModule, QuestionModule, UtilityModule],
     declarations: [
@@ -39,7 +43,12 @@ import { ExaminationSectionComponent } from './section/examinationSection.compon
         ExaminationComponent,
         ClozeTestDisplayComponent,
     ],
-    entryComponents: [ExaminationComponent],
-    providers: [ExaminationService, ExaminationStatusService],
+    providers: [
+        ExaminationService,
+        ExaminationStatusService,
+        { provide: COMPILER_OPTIONS, useValue: {}, multi: true },
+        { provide: CompilerFactory, useClass: JitCompilerFactory, deps: [COMPILER_OPTIONS] },
+        { provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory] },
+    ],
 })
 export class ExaminationModule {}

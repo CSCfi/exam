@@ -18,9 +18,9 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { FileService } from '../../../utility/file/file.service';
+import { Option } from '../../../utility/select/dropDownSelect.component';
 
 import type { User } from '../../../session/session.service';
-
 @Component({
     template: `
         <div class="top-row">
@@ -70,10 +70,10 @@ import type { User } from '../../../session/session.service';
     selector: 'students-report',
 })
 export class StudentsReportComponent {
-    @Input() students: User[];
-    student: User;
-    startDate: Date;
-    endDate: Date;
+    @Input() students: Option<User, number>[] = [];
+    student?: number;
+    startDate: Date | null = null;
+    endDate: Date | null = null;
 
     constructor(private datePipe: DatePipe, private translate: TranslateService, private files: FileService) {}
 
@@ -81,21 +81,21 @@ export class StudentsReportComponent {
         if (this.student) {
             const f = this.datePipe.transform(this.startDate || new Date(), 'dd.MM.yyyy');
             const t = this.datePipe.transform(this.endDate || new Date(), 'dd.MM.yyyy');
-            this.files.download(`/app/statistics/student/${this.student.id}/${f}/${t}`, 'student_activity.xlsx');
+            this.files.download(`/app/statistics/student/${this.student}/${f}/${t}`, 'student_activity.xlsx');
         } else {
             toast.error(this.translate.instant('sitnet_choose_student'));
         }
     };
 
-    studentSelected = (event: { value: User }) => {
-        this.student = event.value;
+    studentSelected = (event?: Option<User, number>) => {
+        this.student = event?.id;
     };
 
-    startDateChanged = (event: { date: Date }) => {
+    startDateChanged = (event: { date: Date | null }) => {
         this.startDate = event.date;
     };
 
-    endDateChanged = (event: { date: Date }) => {
+    endDateChanged = (event: { date: Date | null }) => {
         this.endDate = event.date;
     };
 }

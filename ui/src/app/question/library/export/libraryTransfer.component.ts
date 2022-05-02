@@ -32,13 +32,13 @@ type Organisation = {
 export class LibraryTransferComponent implements OnInit {
     @Input() selections: number[] = [];
     organisations: Organisation[] = [];
-    organisation: Organisation;
+    organisation?: Organisation;
     showOrganisationSelection = false;
 
     constructor(private http: HttpClient, private translate: TranslateService) {}
 
     ngOnInit() {
-        this.http.get<Organisation[]>('/integration/iop/organisations').subscribe((resp) => {
+        this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {
             this.organisations = resp.filter((org) => !org.homeOrg);
         });
     }
@@ -48,9 +48,9 @@ export class LibraryTransferComponent implements OnInit {
             toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
         } else {
             this.http
-                .post('/integration/iop/export', {
+                .post('/app/iop/export', {
                     type: 'QUESTION',
-                    orgRef: this.organisation._id,
+                    orgRef: this.organisation?._id,
                     ids: this.selections,
                 })
                 .subscribe(

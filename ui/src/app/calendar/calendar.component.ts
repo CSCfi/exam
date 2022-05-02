@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
-import * as moment from 'moment';
+import { addDays, format } from 'date-fns';
 import { switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
@@ -27,14 +27,12 @@ import { CalendarService } from './calendar.service';
 import type { OnInit } from '@angular/core';
 import type { Course, Exam, ExamSection } from '../exam/exam.model';
 import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
-
+import { isArray } from 'lodash';
+import { ExamEnrolment } from '../enrolment/enrolment.model';
 export type SelectableSection = ExamSection & { selected: boolean };
-export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Partial<Course> } & {
+export type ExamInfo = Omit<Partial<Exam>, 'course' | 'examSections'> & { course: Course } & {
+    duration: number;
     examSections: (ExamSection & { selected: boolean })[];
-};
-type ReservationInfo = {
-    id: number;
-    optionalSections: ExamSection[];
 };
 export type Organisation = {
     _id: string;
@@ -50,30 +48,31 @@ export type Organisation = {
     templateUrl: './calendar.component.html',
 })
 export class CalendarComponent implements OnInit {
-    @Input() isExternal: boolean;
-    @Input() isCollaborative: boolean;
+    @Input() isExternal = false;
+    @Input() isCollaborative = false;
 
-    isInteroperable: boolean;
+    isInteroperable = false;
     confirming = false;
     examInfo: ExamInfo = {
-        examActiveStartDate: 0,
-        examActiveEndDate: 0,
+        examActiveStartDate: null,
+        examActiveEndDate: null,
         name: '',
+        duration: 0,
         anonymous: false,
         examSections: [],
-        course: { code: '', name: '' },
+        course: { code: '', name: '', id: 0, credits: 0 },
     };
     reservation?: {
         room: ExamRoom;
-        start: moment.Moment;
-        end: moment.Moment;
+        start: Date;
+        end: Date;
         time: string;
         accessibilities: Accessibility[];
     };
-    minDate: Date;
-    maxDate: Date;
-    reservationWindowEndDate: moment.Moment;
-    reservationWindowSize: number;
+    minDate = new Date();
+    maxDate = new Date();
+    reservationWindowEndDate?: Date;
+    reservationWindowSize = 0;
     selectedOrganisation?: Organisation;
 
     constructor(
@@ -86,13 +85,21 @@ export class CalendarComponent implements OnInit {
         private Calendar: CalendarService,
     ) {}
 
-    private prepareOptionalSections = (data: ReservationInfo | null) => {
+    private resolveOptionalSections = (): string[] => {
+        if (!this.uiRouter.params.selected) return [];
+        if (isArray(this.uiRouter.params.selected)) return this.uiRouter.params.selected;
+        else return [this.uiRouter.params.selected];
+    };
+
+    private prepareOptionalSections = (data: ExamEnrolment | null) => {
         this.examInfo.examSections
             .filter((es) => es.optional)
             .forEach((es) => {
                 es.selected =
-                    (data?.optionalSections && data.optionalSections.map((os) => os.id).indexOf(es.id) > -1) ||
-                    (this.uiRouter.params.selected && this.uiRouter.params.selected.indexOf(es.id) > -1);
+                    (data && data.optionalSections.map((os) => os.id).indexOf(es.id) > -1) ||
+                    this.resolveOptionalSections()
+                        .map((p: string) => parseInt(p))
+                        .indexOf(es.id) > -1;
             });
     };
 
@@ -102,7 +109,7 @@ export class CalendarComponent implements OnInit {
         }
 
         const url = this.isCollaborative
-            ? `/integration/iop/exams/${this.uiRouter.params.id}/info`
+            ? `/app/iop/exams/${this.uiRouter.params.id}/info`
             : `/app/student/exam/${this.uiRouter.params.id}/info`;
         this.http
             .get<ExamInfo>(url)
@@ -114,21 +121,22 @@ export class CalendarComponent implements OnInit {
                 switchMap(() => this.http.get<{ value: number }>('/app/settings/reservationWindow')),
                 tap((resp) => {
                     this.reservationWindowSize = resp.value;
-                    this.reservationWindowEndDate = moment().add(resp.value, 'days');
-                    this.minDate = moment.max(moment(), moment(this.examInfo.examActiveStartDate)).toDate();
-                    this.maxDate = moment
-                        .min(this.reservationWindowEndDate, moment(this.examInfo.examActiveEndDate))
-                        .toDate();
+                    this.reservationWindowEndDate = addDays(new Date(), resp.value);
+                    this.minDate = [new Date(), new Date(this.examInfo.examActiveStartDate as string)].reduce((a, b) =>
+                        a > b ? a : b,
+                    );
+                    this.maxDate = [
+                        this.reservationWindowEndDate,
+                        new Date(this.examInfo.examActiveEndDate as string),
+                    ].reduce((a, b) => (a < b ? a : b));
                 }),
                 switchMap(() => this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit')),
                 tap((resp) => (this.isInteroperable = resp.isExamVisitSupported)),
                 switchMap(() =>
                     // TODO: move to section selector
-                    this.http.get<ReservationInfo | null>(
-                        `/app/calendar/enrolment/${this.uiRouter.params.id}/reservation`,
-                    ),
+                    this.http.get<ExamEnrolment | null>(`/app/calendar/enrolment/${this.uiRouter.params.id}/current`),
                 ),
-                tap((resp: ReservationInfo | null) => this.prepareOptionalSections(resp)),
+                tap((resp: ExamEnrolment | null) => this.prepareOptionalSections(resp)),
             )
             .subscribe();
     }
@@ -170,7 +178,7 @@ export class CalendarComponent implements OnInit {
             this.translate.instant('sitnet_confirm_external_reservation'),
         ).result.then(() =>
             this.state.go('externalCalendar', {
-                id: this.state.params.id,
+                id: this.uiRouter.params.id,
                 selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id),
                 isCollaborative: this.isCollaborative,
             }),
@@ -190,9 +198,9 @@ export class CalendarComponent implements OnInit {
     createReservation($event: { start: Date; end: Date; room: ExamRoom; accessibilities: Accessibility[] }) {
         this.reservation = {
             room: $event.room,
-            time: moment($event.start).format('DD.MM.YYYY HH:mm') + ' - ' + moment($event.end).format('HH:mm'),
-            start: moment($event.start),
-            end: moment($event.end),
+            time: format($event.start, 'dd.MM.yyyy HH:mm') + ' - ' + format($event.end, 'HH:mm'),
+            start: $event.start,
+            end: $event.end,
             accessibilities: $event.accessibilities,
         };
     }
@@ -208,7 +216,7 @@ export class CalendarComponent implements OnInit {
 
     sectionSelectionOk = () => this.examInfo.examSections.some((es) => !es.optional || es.selected);
 
-    confirmReservation() {
+    confirmReservation = () => {
         const room = this.reservation?.room;
         if (!room || !this.reservation || this.confirming) {
             return;
@@ -235,13 +243,13 @@ export class CalendarComponent implements OnInit {
                 },
             )
             .add(() => (this.confirming = false));
-    }
+    };
 
     setOrganisation(org: Organisation) {
         this.selectedOrganisation = org;
     }
 
-    printExamDuration(exam: Exam) {
+    printExamDuration(exam: { duration: number }) {
         return this.DateTime.printExamDuration(exam);
     }
 }

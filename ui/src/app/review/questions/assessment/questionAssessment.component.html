@@ -26,18 +26,22 @@
                 </div>
                 <div class="top-row">
                     <div class="col-md-11 col-md-offset-1">
-                        {{ getAssessedAnswerCount(true) }} / {{ selectedReview?.answers.length }}
+                        {{ getAssessedAnswerCount(true) }} / {{ selectedReview && selectedReview.answers.length }}
                         {{ 'sitnet_graded' | translate | lowercase }}
                     </div>
                 </div>
                 <div class="detail-row">
                     <div
-                        [ngClass]="selectedReview?.question.defaultAnswerInstructions ? 'col-md-10' : 'col-md-11'"
+                        [ngClass]="
+                            selectedReview && selectedReview.question.defaultAnswerInstructions
+                                ? 'col-md-10'
+                                : 'col-md-11'
+                        "
                         class="col-md-offset-1"
                     >
-                        <div class="review-question-title" [MathJax]="selectedReview?.question.question"></div>
+                        <div class="review-question-title" [MathJax]="selectedReview.question.question"></div>
                     </div>
-                    <div *ngIf="selectedReview?.question.defaultAnswerInstructions" class="col-md-1">
+                    <div *ngIf="selectedReview && selectedReview.question.defaultAnswerInstructions" class="col-md-1">
                         <a (click)="selectedReview.expanded = !selectedReview.expanded" class="pointer-hand">
                             <img
                                 *ngIf="!selectedReview.expanded"
@@ -56,7 +60,9 @@
                 </div>
                 <div
                     class="main-row"
-                    *ngIf="selectedReview?.expanded && selectedReview?.question.defaultAnswerInstructions"
+                    *ngIf="
+                        selectedReview && selectedReview.expanded && selectedReview.question.defaultAnswerInstructions
+                    "
                 >
                     <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box">
                         <img
@@ -64,15 +70,15 @@
                             alt="exam"
                             onerror="this.onerror=null;this.src='/assets/assets/images/icon_info.png';"
                         />
-                        <span class="padl10">{{ selectedReview?.question.defaultAnswerInstructions }}</span>
+                        <span class="padl10">{{ selectedReview.question.defaultAnswerInstructions }}</span>
                     </div>
                 </div>
-                <div class="main-row" *ngIf="selectedReview?.question.attachment">
+                <div class="main-row" *ngIf="selectedReview && selectedReview.question.attachment">
                     <div class="col-md-10 col-md-offset-1">
                         <span>
                             <i class="bi-paperclip text-primary"></i>&nbsp;
                             <a class="pointer" (click)="downloadQuestionAttachment()">
-                                {{ selectedReview.question.attachment.fileName }}</a
+                                {{ selectedReview.question.attachment?.fileName }}</a
                             >
                         </span>
                     </div>
@@ -95,13 +101,13 @@
             </div>
             <div class="top-row">
                 <div class="col-md-12">
-                    <ngb-tabset>
-                        <ngb-tab id="1">
-                            <ng-template ngbTabTitle>
+                    <ul ngbNav #nav="ngbNav" class="nav-tabs">
+                        <li ngbNavItem>
+                            <a ngbNavLink>
                                 {{ 'sitnet_unassessed_exams' | translate }}
                                 <span class="badge badge-danger">{{ getUnassessedAnswerCount() }}</span>
-                            </ng-template>
-                            <ng-template ngbTabContent>
+                            </a>
+                            <ng-template ngbNavContent>
                                 <essay-answers
                                     [answers]="unassessedAnswers"
                                     [editable]="true"
@@ -110,13 +116,13 @@
                                 >
                                 </essay-answers>
                             </ng-template>
-                        </ngb-tab>
-                        <ngb-tab id="2">
-                            <ng-template ngbTabTitle>
+                        </li>
+                        <li ngbNavItem>
+                            <a ngbNavLink>
                                 {{ 'sitnet_assessed_exams' | translate }}
-                                <span class="badge badge-danger">{{ getAssessedAnswerCount() }}</span>
-                            </ng-template>
-                            <ng-template ngbTabContent>
+                                <span class="badge badge-danger">{{ getAssessedAnswerCount(false) }}</span>
+                            </a>
+                            <ng-template ngbNavContent>
                                 <essay-answers
                                     [answers]="assessedAnswers"
                                     [editable]="true"
@@ -125,13 +131,13 @@
                                 >
                                 </essay-answers>
                             </ng-template>
-                        </ngb-tab>
-                        <ngb-tab id="3">
-                            <ng-template ngbTabTitle>
+                        </li>
+                        <li ngbNavItem>
+                            <a ngbNavLink>
                                 {{ 'sitnet_graded_logged_exams' | translate }}
                                 <span class="badge badge-danger">{{ getLockedAnswerCount() }}</span>
-                            </ng-template>
-                            <ng-template ngbTabContent>
+                            </a>
+                            <ng-template ngbNavContent>
                                 <essay-answers
                                     [answers]="lockedAnswers"
                                     [editable]="false"
@@ -139,8 +145,9 @@
                                 >
                                 </essay-answers>
                             </ng-template>
-                        </ngb-tab>
-                    </ngb-tabset>
+                        </li>
+                    </ul>
+                    <div [ngbNavOutlet]="nav"></div>
                 </div>
             </div>
             <div class="ballast"></div>

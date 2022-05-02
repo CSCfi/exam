@@ -15,7 +15,8 @@
 import { Component, Input } from '@angular/core';
 
 import { DateTimeService } from '../../utility/date/date.service';
-import { Examination } from '../examination.service';
+
+import type { Examination } from '../examination.model';
 
 @Component({
     selector: 'answer-instructions',
@@ -53,7 +54,9 @@ import { Examination } from '../examination.service';
     `,
 })
 export class AnswerInstructionsComponent {
-    @Input() exam: Examination;
+    @Input() exam!: Examination;
+
     constructor(private DateTime: DateTimeService) {}
+
     printExamDuration = () => this.DateTime.printExamDuration(this.exam);
 }

@@ -23,16 +23,16 @@ import { SessionService } from '../session/session.service';
 import { WindowRef } from '../utility/window/window.service';
 import { ExaminationService } from './examination.service';
 
-import type { Examination, ExaminationSection } from './examination.service';
+import type { Examination, ExaminationSection, NavigationPage } from './examination.model';
 @Component({
     selector: 'examination',
     templateUrl: './examination.component.html',
 })
 export class ExaminationComponent {
-    @Input() isCollaborative: boolean;
-    exam: Examination;
+    @Input() isCollaborative = false;
+    exam!: Examination;
     activeSection?: ExaminationSection;
-    isPreview: boolean;
+    isPreview = false;
 
     constructor(
         private state: StateService,
@@ -77,7 +77,7 @@ export class ExaminationComponent {
         this.Window.nativeWindow.onbeforeunload = null;
     }
 
-    selectNewPage = ($event: { page: { type: string; id?: number } }) => this.setActiveSection($event.page);
+    selectNewPage = (event: { page: Partial<NavigationPage> }) => this.setActiveSection(event.page);
 
     timedOut = () =>
         // Save all textual answers regardless of empty or not
@@ -94,7 +94,7 @@ export class ExaminationComponent {
     private logout = (msg: string, canFail: boolean) =>
         this.Examination.logout(msg, this.exam.hash, this.exam.implementation === 'CLIENT_AUTH', canFail);
 
-    private setActiveSection = (page: { type: string; id?: number }) => {
+    private setActiveSection = (page: Partial<NavigationPage>) => {
         if (this.activeSection) {
             this.Examination.saveAllTextualAnswersOfSection$(
                 this.activeSection,

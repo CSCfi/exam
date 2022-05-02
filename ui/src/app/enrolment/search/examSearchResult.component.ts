@@ -15,18 +15,19 @@
 import { Component, Input } from '@angular/core';
 import { StateService } from '@uirouter/core';
 
-import { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
+import type { Exam } from '../../exam/exam.model';
+import type { EnrolmentInfo, CollaborativeExamInfo } from '../enrolment.model';
 @Component({
     selector: 'exam-search-result',
     templateUrl: './examSearchResult.component.html',
 })
 export class ExamSearchResultComponent {
-    @Input() exam: EnrolmentInfo;
-    @Input() collaborative: boolean;
+    @Input() exam!: EnrolmentInfo | CollaborativeExamInfo;
+    @Input() collaborative = false;
 
-    enrolling: boolean;
+    enrolling = false; // DO WE NEED THIS?
 
     constructor(private State: StateService, private Enrolment: EnrolmentService) {}
 
@@ -35,7 +36,7 @@ export class ExamSearchResultComponent {
             return;
         }
         this.enrolling = true;
-        this.Enrolment.checkAndEnroll(this.exam, this.collaborative).subscribe(() => (this.enrolling = false));
+        this.Enrolment.checkAndEnroll(this.exam as Exam, this.collaborative).subscribe(() => (this.enrolling = false));
     };
 
     makeReservation = () => {

@@ -3,7 +3,7 @@
         <h2>
             <span class="exam-title">{{ index }}. {{ section.name }}</span>
             <span *ngIf="isPreview && section.lotteryOn" class="sitnet-text-medium">
-                <small>({{ 'sitnet_lottery_questions' | translate }})</small>
+                <small class="ml-3">({{ 'sitnet_lottery_questions' | translate }})</small>
             </span>
         </h2>
         <div class="section-score-details">
@@ -15,7 +15,7 @@
             </div>
         </div>
         <!-- DESCRIPTION FOR SECTION -->
-        <div *ngIf="section.description?.length > 0">
+        <div *ngIf="section.description && section.description.length > 0">
             <img
                 src="/assets/assets/images/icon_info.svg"
                 alt="info-icon"
@@ -39,10 +39,11 @@
         </div>
         <examination-question
             *ngFor="let sq of section.sectionQuestions | orderBy: 'sequenceNumber'"
-            [sq]="sq"
+            [question]="sq"
             [exam]="exam"
             [isPreview]="isPreview"
             [isCollaborative]="isCollaborative"
+            tabindex="0"
         ></examination-question>
     </div>
 </div>

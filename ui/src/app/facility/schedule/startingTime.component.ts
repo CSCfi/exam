@@ -13,22 +13,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import * as moment from 'moment';
+import { format, parseISO } from 'date-fns';
 
 import { RoomService } from '../rooms/room.service';
 
 import type { OnInit } from '@angular/core';
 import type { WorkingHour } from '../rooms/room.service';
-
 @Component({
     templateUrl: './startingTime.component.html',
     selector: 'starting-time',
 })
 export class StartingTimeComponent implements OnInit {
-    @Input() roomIds: number[];
-    @Input() startingHours: WorkingHour[];
-    examStartingHours: WorkingHour[];
-    examStartingHourOffset: number;
+    @Input() roomIds: number[] = [];
+    @Input() startingHours: WorkingHour[] = [];
+
+    examStartingHours: WorkingHour[] = [];
+    examStartingHourOffset = 0;
 
     constructor(private room: RoomService) {}
 
@@ -37,13 +37,11 @@ export class StartingTimeComponent implements OnInit {
             return { startingHour: i + ':00', selected: true };
         });
         if (this.startingHours && this.startingHours.length > 0) {
-            const startingHourDates = this.startingHours.map(function (hour) {
-                return moment(hour.startingHour);
-            });
-            this.examStartingHourOffset = startingHourDates[0].minute();
-            const startingHours = startingHourDates.map((hour) => {
-                return hour.format('H:mm');
-            });
+            const startingHourDates = this.startingHours.map((hour) => parseISO(hour.startingHour));
+
+            this.examStartingHourOffset = startingHourDates[0].getMinutes();
+            const startingHours = startingHourDates.map((hour) => format(hour, 'H:mm'));
+
             this.setStartingHourOffset();
             this.examStartingHours.forEach((hour) => {
                 hour.selected = startingHours.indexOf(hour.startingHour) !== -1;

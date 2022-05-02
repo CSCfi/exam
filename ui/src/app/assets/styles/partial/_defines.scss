@@ -242,6 +242,10 @@ $sitnet-background: #ffffff;
   color: $sitnet-ready;
 }
 
+.background-gray{
+background: gainsboro;
+}
+
 .sitnet-horizontal-line {
   background-color: $sitnet-common-light;
   height: 0.15em;
@@ -476,9 +480,23 @@ $sitnet-icon-size: 32px;
   font-weight: normal;
 }
 
+.examination-event-list-item{
+  background: #00A34B;
+  color: #FFFFFF;
+  font-variant-numeric: tabular-nums !important;
+  padding: 6px 12px;
+  &:hover{
+    background: #2c7639;
+  }
+}
+
 .icon_fix {
   margin-left: 1em;
   line-height: 1.8em;
+}
+
+.rotate90 {
+  transform: rotate(90deg);
 }
 
 .light-table {
@@ -502,6 +520,10 @@ $sitnet-icon-size: 32px;
   margin: 0.1em;
   text-align: center;
 
+}
+
+.width-100{
+ width: 100%;
 }
 
 .width15 {
@@ -566,9 +588,21 @@ $sitnet-icon-size: 32px;
   padding: 5px;
 }
 
+.pad6{
+  padding: 6px;
+}
+
 .pad30 {
   padding-top: 30px !important;
   padding-bottom: 30px !important;
+}
+
+.padt4 {
+  padding-top: 4px !important;
+}
+
+.padt8 {
+  padding-top: 8px !important;
 }
 
 .padt20 {
@@ -851,6 +885,10 @@ $sitnet-icon-size: 32px;
   width: 350px !important;
 }
 
+.max-w-1100 {
+  max-width: 1100px !important;
+}
+
 .max-w-100perc{
   max-width: 100% !important;
 }
@@ -863,3 +901,82 @@ $sitnet-icon-size: 32px;
 .flex-grow {
   flex-grow: 1;
 }
+
+.hover-grey:hover {
+  background-color: $sitnet-grey;
+}
+
+.flex{
+  display: flex;
+}
+.flex-middle{
+  display: flex;
+  justify-content: center;
+  align-content: center;
+}
+
+.flex-align-l{
+  display: flex;
+  align-content: flex-start;
+}
+
+button.skip-main {
+  left:-999px;
+  display:flex;
+  position:absolute;
+  top:auto;
+  z-index:-999;
+
+  background-color: $sitnet-light-grey;
+  border: $sitnet-dark-grey;
+  border-radius: 4px;
+  color: $sitnet-black;
+}
+button.skip-main:focus, button.skip-main:active {
+  white-space: nowrap;
+  margin: 20px;
+  padding: 0 5px !important;
+  left: auto;
+  top: auto;
+  z-index:999;
+}
+a.skip-main {
+  left:-999px;
+  display:flex;
+  position:absolute;
+  top:auto;
+  z-index:-999;
+
+  margin: 20px;
+  padding: 0 5px !important;
+  white-space: nowrap;
+  background-color: $sitnet-light-grey;
+  border: $sitnet-dark-grey;
+  border-radius: 4px;
+  color: $sitnet-black;
+}
+a.skip-main:focus, a.skip-main:active {
+  left: auto;
+  top: auto;
+  z-index:999;
+}
+.skip {
+  left:-999px;
+  display:flex;
+  position:absolute;
+  top:auto;
+  z-index:-999;
+  display:flex;
+
+  margin: 5px;
+  white-space: nowrap;
+  background-color: $sitnet-light-grey;
+  border: $sitnet-dark-grey;
+  color: $sitnet-black;
+}
+.skip:focus, .skip:active {
+  left: auto;
+  top: auto;
+  z-index:999;
+}
+

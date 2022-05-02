@@ -14,11 +14,11 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { Exam } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { ReviewListService } from '../reviewList.service';
 
+import type { Exam } from '../../../exam/exam.model';
 import type { Review } from '../../review.model';
 import type { ReviewListView } from '../reviewList.service';
 @Component({
@@ -27,11 +27,15 @@ import type { ReviewListView } from '../reviewList.service';
 })
 export class RejectedReviewsComponent {
     @Input() reviews: Review[] = [];
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
 
-    view: ReviewListView;
+    view!: ReviewListView;
 
-    constructor(private ReviewList: ReviewListService, private Exam: ExamService, private Session: SessionService) {}
+    constructor(
+        private ReviewList: ReviewListService,
+        private CommonExam: CommonExamService,
+        private Session: SessionService,
+    ) {}
 
     ngOnInit() {
         this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'displayedGradingTime');
@@ -45,7 +49,7 @@ export class RejectedReviewsComponent {
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.Exam.getExamGradeDisplayName(grade);
+        return this.CommonExam.getExamGradeDisplayName(grade);
     };
 
     handleGradedReviews = (r: Review) => {
@@ -53,7 +57,7 @@ export class RejectedReviewsComponent {
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
-        r.displayedCredit = this.Exam.getExamDisplayCredit(r.examParticipation.exam);
+        r.displayedCredit = this.CommonExam.getExamDisplayCredit(r.examParticipation.exam);
     };
 
     setPredicate = (predicate: string) => {

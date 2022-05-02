@@ -100,17 +100,24 @@
         </button>
     </div>
     <div class="col-md-6 justify-content-center">
-        <ul class="list-inline">
-            <li *ngFor="let config of exam.examinationEventConfigurations" class="list-inline-item">
-                <span (click)="modifyExaminationEvent(config)" class="pointer">{{
-                    config.examinationEvent.start | date
-                }}</span>
+        <ul class="list-inline padt20">
+            <li
+                *ngFor="let config of sortByString(exam.examinationEventConfigurations)"
+                class="list-inline-item marb20"
+            >
+                <span
+                    title="{{ 'sitnet_edit' | translate }}"
+                    (click)="modifyExaminationEvent(config)"
+                    class="pointer examination-event-list-item rounded-left"
+                >
+                    {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}<i class="bi-pencil marl5"></i>
+                </span>
                 <span
                     *ngIf="config.examEnrolments.length === 0"
                     (click)="removeExaminationEvent(config)"
                     class="text text-danger pointer"
                 >
-                    <i title="{{ 'sitnet_remove' | translate }}" class="ml-2 bi-x"></i
+                    <i title="{{ 'sitnet_remove' | translate }}" class="bi-x rounded-right background-gray pad6"></i
                 ></span>
 
                 <span *ngIf="config.examEnrolments.length > 0" class="ml-2 text text-muted">
@@ -141,12 +148,66 @@
             <button
                 class="btn btn-publish"
                 [ngClass]="checkDuration(duration)"
-                (click)="setExamDuration(duration)"
+                (click)="setExamDuration(0, duration)"
                 [disabled]="!user.isAdmin && exam.hasEnrolmentsInEffect"
             >
                 {{ duration }}
             </button>
         </span>
+        <span *ngIf="exam.implementation === 'WHATEVER' || exam.implementation === 'CLIENT_AUTH'">
+            <button class="btn btn-primary green border-green marl30" (click)="toggleCustomTimeField()">
+                {{ 'sitnet_custom' | translate }} {{ ('sitnet_exam_time' | translate).toLowerCase() }}
+                <img
+                    class="{{ showCustomTimeField && 'rotate90' }}"
+                    src="/assets/assets/images/icon_right_white.png"
+                    alt="exam"
+                />
+            </button>
+            <span *ngIf="showCustomTimeField" class="wdt400">
+                <div class="mart10">
+                    <div class="mart10">
+                        <input
+                            id="hourValue"
+                            name="examDuration-hours"
+                            class="wdt50 time-display"
+                            type="number"
+                            [(ngModel)]="hourValue"
+                            [max]="23"
+                            [min]="0"
+                            (change)="setHourValue($event)"
+                        />
+                        <label for="hourValue">{{ 'sitnet_hours' | translate }}</label>
+                    </div>
+                    <div class="mart10">
+                        <input
+                            id="minuteValue"
+                            name="examDuration-minutes"
+                            class="wdt50 time-display"
+                            type="number"
+                            [(ngModel)]="minuteValue"
+                            [max]="59"
+                            [min]="0"
+                            (change)="setMinuteValue($event)"
+                        />
+                        <label for="minuteValue">{{ 'sitnet_minutes' | translate }}</label>
+                    </div>
+                    <button
+                        class="btn btn-primary green border-green mart10"
+                        (click)="setExamDuration(hourValue, minuteValue)"
+                    >
+                        {{ 'sitnet_save_custom_time' | translate }}
+                    </button>
+                </div>
+                <div>
+                    {{ 'sitnet_between' | translate }}: {{ toHoursAndMinutes(minDuration) }} -
+                    {{ toHoursAndMinutes(maxDuration) }}
+                </div>
+            </span>
+        </span>
+        <div class="marl50 mart10">
+            {{ 'sitnet_saved' | translate }} {{ ('sitnet_exam_duration' | translate).toLowerCase() }}:
+            {{ toHoursAndMinutes(exam.duration) }}
+        </div>
     </div>
 </div>
 
@@ -187,7 +248,7 @@
         <button
             *ngIf="exam.executionType.type === 'PRIVATE'"
             class="btn btn-publish"
-            [ngClass]="checkTrialCount()"
+            [ngClass]="checkTrialCount(null)"
             [disabled]="true"
         >
             1
@@ -247,6 +308,9 @@
 <!-- Collaborative exam owners -->
 <collaborative-exam-owner-selector *ngIf="collaborative" [exam]="exam"> </collaborative-exam-owner-selector>
 
+<!-- Collaborative exam organisations -->
+<exam-organisation-selector *ngIf="collaborative" [exam]="exam"></exam-organisation-selector>
+
 <!-- Link to enrolment -->
 <div class="row marr30" *ngIf="exam.executionType.type === 'PUBLIC' && !collaborative">
     <div class="col-md-12 mart40">
@@ -267,8 +331,8 @@
 </div>
 <div class="row" *ngIf="exam.executionType.type === 'PUBLIC' && !collaborative">
     <div class="col-md-12 mart20">
-        <a href="{{ hostName }}/enroll/exam/{{ exam.id }}?code={{ exam.course.code }}">
-            {{ hostName }}/enroll/exam/{{ exam.id }}?code={{ exam.course.code }}
+        <a href="{{ hostName }}/enroll/exam/{{ exam.id }}?code={{ exam.course?.code }}">
+            {{ hostName }}/enroll/exam/{{ exam.id }}?code={{ exam.course?.code }}
         </a>
     </div>
 </div>
@@ -277,8 +341,8 @@
 <div *ngIf="canBeAutoEvaluated()">
     <auto-evaluation
         [exam]="exam"
-        (onDisabled)="autoEvaluationDisabled($event)"
-        (onEnabled)="autoEvaluationEnabled($event)"
+        (onDisabled)="autoEvaluationDisabled()"
+        (onEnabled)="autoEvaluationEnabled()"
         (onUpdate)="autoEvaluationConfigChanged($event)"
     >
     </auto-evaluation>

@@ -14,8 +14,8 @@
  */
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
-import * as _ from 'lodash';
+import { UIRouterGlobals } from '@uirouter/core';
+import { cloneDeep, isNumber } from 'lodash';
 import { forkJoin } from 'rxjs';
 import * as toast from 'toastr';
 
@@ -26,6 +26,7 @@ import { QuestionReviewService } from '../questionReview.service';
 
 import type { User } from '../../../session/session.service';
 import type { QuestionReview, ReviewQuestion } from '../../review.model';
+
 @Component({
     selector: 'question-assessment',
     templateUrl: './questionAssessment.component.html',
@@ -33,25 +34,25 @@ import type { QuestionReview, ReviewQuestion } from '../../review.model';
 export class QuestionAssessmentComponent {
     user: User;
     examId: number;
-    ids: number[];
     reviews: QuestionReview[] = [];
-    selectedReview: QuestionReview & { expanded: boolean };
+    selectedReview!: QuestionReview & { expanded: boolean };
     assessedAnswers: ReviewQuestion[] = [];
     unassessedAnswers: ReviewQuestion[] = [];
     lockedAnswers: ReviewQuestion[] = [];
 
     constructor(
-        private state: StateService,
+        private state: UIRouterGlobals,
         private $translate: TranslateService,
         private QuestionReview: QuestionReviewService,
         private Assessment: AssessmentService,
         private Session: SessionService,
         private Attachment: AttachmentService,
-    ) {}
-
-    ngOnInit() {
+    ) {
         this.user = this.Session.getUser();
         this.examId = this.state.params.id;
+    }
+
+    ngOnInit() {
         const ids = this.state.params.q || [];
         this.QuestionReview.getReviews$(this.examId, ids).subscribe(
             (reviews) => {
@@ -98,7 +99,7 @@ export class QuestionAssessmentComponent {
                             (a) => a.id === answer.id,
                         );
                         if (this.reviews[currentReviewIndex].answers[currentAnswerIndex]) {
-                            this.reviews[currentReviewIndex].answers[currentAnswerIndex] = _.cloneDeep(answer);
+                            this.reviews[currentReviewIndex].answers[currentAnswerIndex] = cloneDeep(answer);
                         }
                     }
                 }
@@ -114,17 +115,17 @@ export class QuestionAssessmentComponent {
     };
 
     saveAssessments = (answers: ReviewQuestion[]) =>
-        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = _.cloneDeep(this.reviews)));
+        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = cloneDeep(this.reviews)));
 
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
 
     setSelectedReview = (review: QuestionReview) => {
         this.selectedReview = { ...review, expanded: true };
         this.assessedAnswers = this.selectedReview.answers.filter(
-            (a) => a.essayAnswer && _.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
+            (a) => a.essayAnswer && isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a),
         );
         this.unassessedAnswers = this.selectedReview.answers.filter(
-            (a) => !a.essayAnswer || (!_.isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
+            (a) => !a.essayAnswer || (!isNumber(a.essayAnswer.evaluatedScore) && !this.isLocked(a)),
         );
         this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);
     };

@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
-import * as _ from 'lodash';
-import * as moment from 'moment';
+import { addDays } from 'date-fns';
+import { isEmpty } from 'lodash';
 
 import { LanguageService } from '../utility/language/language.service';
 import { LanguageInspectionService } from './languageInspections.service';
@@ -22,7 +22,6 @@ import { LanguageInspectionService } from './languageInspections.service';
 import type { OnInit } from '@angular/core';
 import type { QueryParams } from './languageInspections.service';
 import type { LanguageInspection } from './maturity.model';
-
 export interface LanguageInspectionData extends LanguageInspection {
     ownerAggregate: string;
     studentName: string;
@@ -37,10 +36,10 @@ export interface LanguageInspectionData extends LanguageInspection {
     templateUrl: './languageInspections.component.html',
 })
 export class LanguageInspectionsComponent implements OnInit {
-    private startDate: Date;
-    private endDate: Date;
-    public ongoingInspections: LanguageInspectionData[];
-    public processedInspections: LanguageInspectionData[];
+    private startDate: Date | null = null;
+    private endDate: Date | null = null;
+    public ongoingInspections: LanguageInspectionData[] = [];
+    public processedInspections: LanguageInspectionData[] = [];
 
     constructor(private Language: LanguageService, private LanguageInspection: LanguageInspectionService) {}
 
@@ -55,13 +54,12 @@ export class LanguageInspectionsComponent implements OnInit {
             params.start = this.startDate.getTime() + tzOffset;
         }
         if (this.endDate) {
-            const m = moment(this.endDate).add(1, 'days');
-            params.end = Date.parse(m.format());
+            params.end = addDays(this.endDate, 1).getTime();
         }
-        const refreshAll = _.isEmpty(params);
+        const refreshAll = isEmpty(params);
         this.LanguageInspection.query(params).subscribe((resp: LanguageInspection[]) => {
             const inspections: LanguageInspectionData[] = resp.map((i) =>
-                _.assign(i, {
+                Object.assign(i, {
                     ownerAggregate: i.exam.parent
                         ? i.exam.parent.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join(', ')
                         : '',
@@ -83,12 +81,12 @@ export class LanguageInspectionsComponent implements OnInit {
         });
     };
 
-    startDateChanged = (event: { date: Date }) => {
+    startDateChanged = (event: { date: Date | null }) => {
         this.startDate = event.date;
         this.query();
     };
 
-    endDateChanged = (event: { date: Date }) => {
+    endDateChanged = (event: { date: Date | null }) => {
         this.endDate = event.date;
         this.query();
     };

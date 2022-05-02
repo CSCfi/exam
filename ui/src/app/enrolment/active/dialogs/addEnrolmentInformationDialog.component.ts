@@ -16,14 +16,14 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { EnrolmentInfo } from '../../enrolment.model';
+import type { EnrolmentInfo } from '../../enrolment.model';
 
 @Component({
     selector: 'add-enrolment-information-dialog',
     templateUrl: './addEnrolmentInformationDialog.component.html',
 })
 export class AddEnrolmentInformationDialogComponent {
-    @Input() information: EnrolmentInfo;
+    @Input() information!: EnrolmentInfo;
 
     constructor(public activeModal: NgbActiveModal) {}
 

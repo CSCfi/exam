@@ -13,23 +13,22 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { merge } from 'lodash';
 
-import type { ExaminationEventConfiguration } from '../../../exam/exam.model';
-import { Exam } from '../../../exam/exam.model';
+import type { OnInit } from '@angular/core';
+import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.model';
 
 @Component({
     selector: 'select-examination-event-dialog',
     templateUrl: './selectExaminationEventDialog.component.html',
 })
 export class SelectExaminationEventDialogComponent implements OnInit {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     @Input() existingEventId?: number;
 
-    configs: ExaminationEventConfiguration[];
+    configs: ExaminationEventConfiguration[] = [];
 
     constructor(public activeModal: NgbActiveModal) {}
 

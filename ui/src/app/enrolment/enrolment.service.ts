@@ -17,23 +17,23 @@ import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as _ from 'lodash';
+import { isObject } from 'lodash';
 import { forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
+import { CollaborativeParticipation } from '../exam/collaborative/collaborativeExam.service';
+import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import { LanguageService } from '../utility/language/language.service';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
 import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
 
 import type { Observable } from 'rxjs';
-import type { Exam, ExaminationEventConfiguration } from '../exam/exam.model';
+import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from '../exam/exam.model';
 import type { ExamRoom } from '../reservation/reservation.model';
 import type { User } from '../session/session.service';
-import type { EnrolmentInfo, ExamEnrolment } from './enrolment.model';
-
+import type { EnrolmentInfo, ExamEnrolment, ReviewedExam } from './enrolment.model';
 @Injectable()
 export class EnrolmentService {
     constructor(
@@ -42,7 +42,7 @@ export class EnrolmentService {
         private State: StateService,
         private ngbModal: NgbModal,
         private Confirmation: ConfirmationDialogService,
-        private Language: LanguageService,
+        private Session: SessionService,
     ) {}
 
     private getMaturityInstructions = (exam: Exam): Observable<string> => {
@@ -59,7 +59,7 @@ export class EnrolmentService {
     };
 
     private getResource = (path: string, collaborative: boolean) =>
-        (collaborative ? '/integration/iop/enrolments/' : '/app/enrolments/') + path;
+        (collaborative ? '/app/iop/enrolments/' : '/app/enrolments/') + path;
 
     selectExaminationEvent = (exam: Exam, enrolment: ExamEnrolment, nextState?: string) => {
         const modalRef = this.ngbModal.open(SelectExaminationEventDialogComponent, {
@@ -71,12 +71,15 @@ export class EnrolmentService {
             ? enrolment.examinationEventConfiguration.id
             : undefined;
         modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.http.post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {}).subscribe(() => {
-                enrolment.examinationEventConfiguration = data;
-                if (nextState) {
-                    this.State.go(nextState);
-                }
-            });
+            this.http.post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {}).subscribe(
+                () => {
+                    enrolment.examinationEventConfiguration = data;
+                    if (nextState) {
+                        this.State.go(nextState);
+                    }
+                },
+                (err) => toast.error(err),
+            );
         });
     };
 
@@ -94,6 +97,27 @@ export class EnrolmentService {
             );
         });
     };
+
+    removeReservation(enrolment: ExamEnrolment) {
+        if (!enrolment.reservation) {
+            return;
+        }
+        const externalRef = enrolment.reservation.externalRef;
+        const dialog = this.Confirmation.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_are_you_sure'),
+        );
+        const successFn = () => {
+            delete enrolment.reservation;
+            enrolment.reservationCanceled = true;
+        };
+        const errorFn = (resp: { data: string }) => toast.error(resp.data);
+        const url = externalRef
+            ? `/app/iop/reservations/external/${externalRef}`
+            : `/app/calendar/reservation/${enrolment.reservation.id}`;
+
+        dialog.result.then(() => this.http.delete(url).subscribe(successFn, errorFn));
+    }
 
     enroll = (exam: Exam, collaborative = false): Observable<ExamEnrolment> =>
         this.http
@@ -157,7 +181,7 @@ export class EnrolmentService {
                     map((resp) => {
                         if (resp.length > 0) {
                             ei.alreadyEnrolled = true;
-                            ei.reservationMade = resp.some((e) => _.isObject(e.reservation));
+                            ei.reservationMade = resp.some((e) => isObject(e.reservation));
                         }
                         return ei;
                     }),
@@ -174,7 +198,7 @@ export class EnrolmentService {
             map((resp) => {
                 if (resp.length > 0) {
                     info.alreadyEnrolled = true;
-                    info.reservationMade = resp.some((e) => _.isObject(e.reservation));
+                    info.reservationMade = resp.some((e) => isObject(e.reservation));
                 } else {
                     info.alreadyEnrolled = info.reservationMade = false;
                 }
@@ -208,6 +232,18 @@ export class EnrolmentService {
             switchMap(this.checkEnrolments),
         );
 
+    listStudentParticipations$ = (): Observable<CollaborativeParticipation[]> =>
+        this.http.get<CollaborativeParticipation[]>('/app/iop/student/finishedExams');
+
+    searchExams$ = (searchTerm: string): Observable<CollaborativeExam[]> => {
+        const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? encodeURIComponent(searchTerm) : '');
+        // This path is used to search from student view only
+        const path = this.Session.getUser().isStudent
+            ? `/app/iop/enrolment/search${paramStr}`
+            : `/app/iop/exams/search${paramStr}`;
+        return this.http.get<CollaborativeExam[]>(path);
+    };
+
     removeEnrolment = (enrolment: ExamEnrolment) => this.http.delete<void>(`/app/enrolments/${enrolment.id}`);
 
     addEnrolmentInformation = (enrolment: ExamEnrolment): void => {
@@ -226,6 +262,28 @@ export class EnrolmentService {
             );
         });
     };
+
+    private isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
+
+    setCommentRead = (exam: Exam | ReviewedExam) => {
+        if (!this.isCommentRead(exam)) {
+            const examFeedback = {
+                feedbackStatus: true,
+            };
+            this.http
+                .put<void>(`/app/review/${exam.id}/comment/${exam.examFeedback?.id}/feedbackstatus`, examFeedback)
+                .subscribe(() => {
+                    if (exam.examFeedback) {
+                        exam.examFeedback.feedbackStatus = true;
+                    }
+                });
+        }
+    };
+
+    setCommentRead$(examId: string, examRef: string, revision: string) {
+        const url = `/app/iop/reviews/${examId}/${examRef}/comment`;
+        return this.http.post(url, { rev: revision });
+    }
 
     getRoomInstructions = (hash: string): Observable<ExamRoom> =>
         this.http.get<ExamRoom>(`/app/enrolments/room/${hash}`);

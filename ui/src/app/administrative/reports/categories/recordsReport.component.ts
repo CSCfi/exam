@@ -34,7 +34,7 @@ import { FileService } from '../../../utility/file/file.service';
             <div class="col-lg-5 mb-2">
                 <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
                 <div id="endAt">
-                    <date-picker (oUpdate)="endDateChanged($event)"></date-picker>
+                    <date-picker (onUpdate)="endDateChanged($event)"></date-picker>
                 </div>
             </div>
             <div class="col-lg-2 mb-2">
@@ -57,8 +57,8 @@ import { FileService } from '../../../utility/file/file.service';
     selector: 'records-report',
 })
 export class RecordsReportComponent {
-    startDate: Date;
-    endDate: Date;
+    startDate: Date | null = null;
+    endDate: Date | null = null;
 
     constructor(private files: FileService) {}
 
@@ -73,11 +73,11 @@ export class RecordsReportComponent {
         });
     };
 
-    startDateChanged = (event: { date: Date }) => {
+    startDateChanged = (event: { date: Date | null }) => {
         this.startDate = event.date;
     };
 
-    endDateChanged = (event: { date: Date }) => {
+    endDateChanged = (event: { date: Date | null }) => {
         this.endDate = event.date;
     };
 }

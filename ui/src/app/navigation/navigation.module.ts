@@ -24,7 +24,6 @@ import { NavigationService } from './navigation.service';
     imports: [CommonModule, TranslateModule, UIRouterModule],
     exports: [NavigationComponent],
     declarations: [NavigationComponent],
-    entryComponents: [NavigationComponent],
     providers: [NavigationService],
 })
 export class NavigationModule {}

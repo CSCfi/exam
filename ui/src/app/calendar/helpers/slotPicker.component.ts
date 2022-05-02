@@ -3,19 +3,21 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
-import { startOfWeek } from 'date-fns';
-import * as moment from 'moment';
+import { addHours, format, startOfWeek } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import * as toast from 'toastr';
 
-import { Organisation } from '../calendar.component';
+import { MaintenancePeriod } from '../../exam/exam.model';
+import { DateTimeService } from '../../utility/date/date.service';
+import { CalendarService } from '../calendar.service';
 
+import type { Organisation } from '../calendar.component';
 import type { SimpleChanges } from '@angular/core';
 import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
 import type { CalendarEvent } from 'angular-calendar';
 import type { SlotMeta } from '../bookingCalendar.component';
 import type { Slot } from '../calendar.service';
 import type { Observable } from 'rxjs';
-
 type FilterableAccessibility = Accessibility & { filtered: boolean };
 type FilterableRoom = ExamRoom & { filtered: boolean };
 type AvailableSlot = Slot & { availableMachines: number };
@@ -47,15 +49,14 @@ type AvailableSlot = Slot & { availableMachines: number };
             </div>
             <div class="row mt-2 mb-2">
                 <!-- todo: make this a component -->
-                <div class="col-md-12" [hidden]="isExternal">
+                <div class="col-md-12 mart10 marb20" [hidden]="isExternal">
                     <div class="row">
                         <span class="col-md-12">
-                            <a
-                                class="infolink pointer"
+                            <button
+                                class="infolink pointer border rounded"
                                 *ngIf="!disabled"
                                 tabindex="0"
                                 (click)="showAccessibilityMenu = !showAccessibilityMenu"
-                                (keyup.enter)="showAccessibilityMenu = !showAccessibilityMenu"
                             >
                                 {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                                 <img
@@ -70,7 +71,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                                     alt="hide accessibility selection"
                                     src="/assets/assets/images/arrow_down.png"
                                 />
-                            </a>
+                            </button>
                             <span *ngIf="disabled" class="text text-muted">
                                 {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                             </span>
@@ -83,7 +84,7 @@ type AvailableSlot = Slot & { availableMachines: number };
                             </div>
                             <div class="row" [hidden]="!showAccessibilityMenu">
                                 <div class="col-md-12 calendar-accs-checkboxes">
-                                    <span class="marr10" *ngFor="let accessibility of accessibilities">
+                                    <span class="marr10 accs-list" *ngFor="let accessibility of accessibilities">
                                         <input
                                             aria-label="search for accessibility criteria"
                                             type="checkbox"
@@ -99,41 +100,41 @@ type AvailableSlot = Slot & { availableMachines: number };
                     </div>
                 </div>
             </div>
-            <div class="row mart10">
-                <div class="col student-exam-row-title" ngbDropdown>
+            <div class="row ml-1 mt-3">
+                <div class="dropdown" ngbDropdown>
                     <button
                         ngbDropdownToggle
                         class="btn btn-outline-dark"
                         type="button"
                         id="dropDownMenu1"
+                        aria-expanded="true"
                         [disabled]="(isExternal && !organisation) || disabled"
                     >
-                        {{ 'sitnet_room' | translate }}&nbsp;
+                        {{ 'sitnet_room' | translate }}
                         <span class="caret"></span>
                     </button>
-                    <ul class="student-select-room" ngbDropdownMenu aria-labelledby="dropDownMenu1">
-                        <li
+                    <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
+                        <button
+                            ngbDropdownItem
                             *ngFor="let room of rooms"
-                            [hidden]="room.filtered"
                             role="presentation"
                             (click)="selectRoom(room)"
-                            tabindex="0"
-                            (ngEnter)="selectRoom(room)"
-                            ngbPopover="{{ outOfServiceGate(room, getDescription(room)) }}"
-                            popoverTitle="{{ outOfServiceGate(room, 'sitnet_instructions' | translate) }}"
-                            container="body"
-                            triggers="mouseenter:mouseleave"
+                            title="{{ room.name }}"
                         >
                             <div ngbDropdownItem [disabled]="room.outOfService" role="menuitem">
                                 <a> {{ room.name }}</a>
                             </div>
-                        </li>
-                    </ul>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="row mart10" *ngIf="selectedRoom">
                 <div class="col-md-12">
-                    <calendar-selected-room [room]="selectedRoom" [viewStart]="currentWeek"></calendar-selected-room>
+                    <calendar-selected-room
+                        [room]="selectedRoom"
+                        [viewStart]="currentWeek"
+                        [maintenancePeriods]="maintenancePeriods"
+                    ></calendar-selected-room>
                 </div>
             </div>
             <div class="row mart10" *ngIf="selectedRoom">
@@ -162,14 +163,14 @@ type AvailableSlot = Slot & { availableMachines: number };
     encapsulation: ViewEncapsulation.None,
 })
 export class SlotPickerComponent {
-    @Input() sequenceNumber: number;
-    @Input() isInteroperable: boolean;
-    @Input() isCollaborative: boolean;
-    @Input() isExternal: boolean;
+    @Input() sequenceNumber = 0;
+    @Input() isInteroperable = false;
+    @Input() isCollaborative = false;
+    @Input() isExternal = false;
     @Input() organisation?: Organisation;
-    @Input() disabled: boolean;
-    @Input() minDate: Date;
-    @Input() maxDate: Date;
+    @Input() disabled = false;
+    @Input() minDate = new Date();
+    @Input() maxDate = new Date();
     @Output() onCancel = new EventEmitter<void>();
     @Output() onEventSelected = new EventEmitter<{
         start: Date;
@@ -179,13 +180,20 @@ export class SlotPickerComponent {
     }>();
 
     rooms: FilterableRoom[] = [];
+    maintenancePeriods: MaintenancePeriod[] = [];
     selectedRoom?: ExamRoom;
     accessibilities: FilterableAccessibility[] = [];
     showAccessibilityMenu = false;
     currentWeek = new Date();
     events: CalendarEvent<SlotMeta>[] = [];
 
-    constructor(private http: HttpClient, private translate: TranslateService, private uiRouter: UIRouterGlobals) {}
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private uiRouter: UIRouterGlobals,
+        private Calendar: CalendarService,
+        private DateTime: DateTimeService,
+    ) {}
 
     ngOnInit() {
         this.http
@@ -195,6 +203,7 @@ export class SlotPickerComponent {
             const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false })).filter((r) => r.name);
             this.rooms = rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
         });
+        this.Calendar.listMaintenancePeriods$().subscribe((periods) => (this.maintenancePeriods = periods));
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -213,8 +222,8 @@ export class SlotPickerComponent {
         });
 
     private getTitle(slot: AvailableSlot): string {
-        const start = moment(this.adjust(slot.start, this.selectedRoom?.localTimezone as string)).format('HH:mm');
-        const end = moment(this.adjust(slot.end, this.selectedRoom?.localTimezone as string)).format('HH:mm');
+        const start = format(this.adjust(slot.start, this.selectedRoom?.localTimezone as string), 'HH:mm');
+        const end = format(this.adjust(slot.end, this.selectedRoom?.localTimezone as string), 'HH:mm');
         if (slot.availableMachines > 0) {
             return `${start}-${end} ${this.translate.instant('sitnet_slot_available')} (${slot.availableMachines})`;
         } else {
@@ -228,8 +237,8 @@ export class SlotPickerComponent {
         const room = this.selectedRoom as ExamRoom;
         if (this.isExternal && this.organisation) {
             const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.uiRouter.params.id}/external/calendar/${room._id}`
-                : `/integration/iop/calendar/${this.uiRouter.params.id}/${room._id}`;
+                ? `/app/iop/exams/${this.uiRouter.params.id}/external/calendar/${room._id}`
+                : `/app/iop/calendar/${this.uiRouter.params.id}/${room._id}`;
             return this.http.get<AvailableSlot[]>(url, {
                 params: {
                     org: this.organisation._id,
@@ -238,7 +247,7 @@ export class SlotPickerComponent {
             });
         } else {
             const url = this.isCollaborative
-                ? `/integration/iop/exams/${this.uiRouter.params.id}/calendar/${room.id}`
+                ? `/app/iop/exams/${this.uiRouter.params.id}/calendar/${room.id}`
                 : `/app/calendar/${this.uiRouter.params.id}/${room.id}`;
             const params = new HttpParams({
                 fromObject: { day: date, aids: accessibilityIds.map((i) => i.toString()) },
@@ -250,9 +259,9 @@ export class SlotPickerComponent {
     }
 
     private adjust = (date: string, tz: string): Date => {
-        const adjusted: moment.Moment = moment.tz(date, tz);
-        const offset = adjusted.isDST() ? -1 : 0;
-        return adjusted.add(offset, 'hour').toDate();
+        const adjusted = zonedTimeToUtc(date, tz);
+        const offset = this.DateTime.isDST(adjusted) ? -1 : 0;
+        return addHours(adjusted, offset);
     };
 
     refresh($event: { date: Date }) {
@@ -284,7 +293,7 @@ export class SlotPickerComponent {
             this.events = events;
         };
         const errorFn = (resp: string) => toast.error(resp);
-        this.query(moment($event.date).format('YYYY-MM-DD'), accessibilities).subscribe(successFn, errorFn);
+        this.query(format($event.date, 'yyyy-MM-dd'), accessibilities).subscribe(successFn, errorFn);
     }
 
     makeExternalReservation = () => {

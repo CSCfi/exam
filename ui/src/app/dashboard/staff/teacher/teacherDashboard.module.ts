@@ -13,19 +13,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
 
-import { UtilityModule } from '../utility/utility.module';
-import { AdminDashboardModule } from './admin/adminDashboard.module';
-import { DashboardComponent } from './dashboard.component';
-import { StudentDashboardModule } from './student/studentDashboard.module';
-import { TeacherDashboardModule } from './teacher/teacherDashboard.module';
+import { ReservationModule } from '../../../reservation/reservation.module';
+import { UtilityModule } from '../../../utility/utility.module';
+import { ExamListCategoryComponent } from './categories/examListCategory.component';
+import { ExamSearchPipe } from './examSearch.pipe';
+import { TeacherDashboardComponent } from './teacherDashboard.component';
+import { TeacherDashboardService } from './teacherDashboard.service';
 
-// TODO: Student & teacher dashboard + reservation modules should be lazy loaded to decrease bundle size
-// We need a router setup that supports this first
 @NgModule({
-    imports: [UtilityModule, StudentDashboardModule, TeacherDashboardModule, AdminDashboardModule, UIRouterModule],
-    declarations: [DashboardComponent],
-    entryComponents: [DashboardComponent],
+    imports: [NgbModule, ReservationModule, UtilityModule, UIRouterModule],
+    exports: [TeacherDashboardComponent],
+    declarations: [ExamListCategoryComponent, TeacherDashboardComponent],
+    providers: [TeacherDashboardService, ExamSearchPipe],
 })
-export class DashboardModule {}
+export class TeacherDashboardModule {}

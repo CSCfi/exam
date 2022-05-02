@@ -15,7 +15,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as _ from 'lodash';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -52,13 +51,10 @@ export class ReviewListService {
             return true;
         }
         const s = filter.toLowerCase();
-        const name =
-            _.get(review, 'examParticipation.user.firstName', '') +
-            ' ' +
-            _.get(review, 'examParticipation.user.lastName', '');
+        const name = `${review.examParticipation.user.firstName || ''} ${review.examParticipation.user.lastName || ''}`;
         return (
             name.toLowerCase().indexOf(s) > -1 ||
-            _.get(review, 'examParticipation.user.email', '').toLowerCase().indexOf(s) > -1
+            (review.examParticipation.user.email || ' ').toLowerCase().indexOf(s) > -1
         );
     };
 
@@ -168,7 +164,7 @@ export class ReviewListService {
                 rev: review._rev,
             };
             if (examId) {
-                const url = `/integration/iop/reviews/${examId}/${review._id}/record`;
+                const url = `/app/iop/reviews/${examId}/${review._id}/record`;
                 return this.http
                     .put<ExamParticipation & { rev: string }>(url, examToRecord)
                     .pipe(map((resp) => ({ ...review, _rev: resp.rev })));
@@ -185,11 +181,9 @@ export class ReviewListService {
     sendToArchive$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'ARCHIVED', examId);
     sendToRegistry$ = (review: ExamParticipation, examId?: number) => this.send$(review, 'GRADED_LOGGED', examId);
 
-    getReviews = (examId: number, collaborative = false) => {
-        return this.http.get<ExamParticipation[]>(this.getResource(examId, collaborative)).toPromise();
-        //this.activeTab = this.routing.params.tab; // seems that this can not be set until all async init operations are done
-    };
+    getReviews$ = (examId: number, collaborative = false) =>
+        this.http.get<ExamParticipation[]>(this.getResource(examId, collaborative)).toPromise();
 
     private getResource = (examId: number, collaborative: boolean) =>
-        collaborative ? `/integration/iop/reviews/${examId}` : `/app/reviews/${examId}`;
+        collaborative ? `/app/iop/reviews/${examId}` : `/app/reviews/${examId}`;
 }

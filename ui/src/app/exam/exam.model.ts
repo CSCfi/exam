@@ -25,7 +25,7 @@ export interface GradeEvaluation {
 
 export interface AutoEvaluationConfig {
     id?: number;
-    releaseDate: Date;
+    releaseDate: Date | null;
     amountDays?: number;
     releaseType?: string;
     gradeEvaluations: GradeEvaluation[];
@@ -55,7 +55,7 @@ export interface GradeScale {
 
 export interface ExaminationDate {
     id: number;
-    date: Date | number;
+    date: string;
 }
 
 export interface ExamLanguage {
@@ -103,6 +103,8 @@ export interface Question {
     parent?: Question;
     state: string;
     defaultMaxScore?: number;
+    modifier?: User;
+    modified?: Date;
     shared?: boolean;
     defaultAnswerInstructions?: string;
     defaultEvaluationCriteria?: string;
@@ -127,7 +129,7 @@ export interface MultipleChoiceOption {
 }
 
 export interface ExamSectionQuestionOption {
-    id: number;
+    id?: number;
     score: number;
     answered: boolean;
     option: MultipleChoiceOption;
@@ -173,6 +175,7 @@ export interface ExamSectionQuestion {
     expectedWordCount?: number;
     sequenceNumber: number;
     expanded: boolean;
+    derivedMaxScore?: number;
 }
 
 export interface ExamMaterial {
@@ -225,11 +228,14 @@ export interface ExaminationEvent {
     id?: number;
     start: string;
     description: string;
+    capacity: number;
+    examinationEventConfiguration: ExaminationEventConfiguration;
 }
 
 export interface ExaminationEventConfiguration {
     id?: number;
     settingsPassword?: string;
+    exam: Exam;
     examinationEvent: ExaminationEvent;
     examEnrolments: ExamEnrolment[];
 }
@@ -237,7 +243,7 @@ export interface ExaminationEventConfiguration {
 export type Implementation = 'AQUARIUM' | 'CLIENT_AUTH' | 'WHATEVER';
 
 export interface ExamInspection {
-    id?: number;
+    id: number;
     user: User;
     ready: boolean;
 }
@@ -260,8 +266,8 @@ export interface ExamImpl {
     attachment?: Attachment;
     hasEnrolmentsInEffect: boolean;
     name: string | null;
-    examActiveStartDate: string | number;
-    examActiveEndDate: string | number;
+    examActiveStartDate: string | null;
+    examActiveEndDate: string | null;
     duration: number;
     course?: Course;
     external: boolean;
@@ -291,7 +297,7 @@ export interface ExamImpl {
     assessmentInfo: string;
     internalRef: string;
     objectVersion: number;
-    examFeedback?: Feedback;
+    examFeedback: Feedback;
     grade?: SelectableGrade;
     gradedTime?: Date;
     contentGrade?: string;
@@ -306,11 +312,12 @@ export interface ExamImpl {
     additionalInfo: string;
     instruction: string;
     autoEvaluationNotified: boolean;
-    languageInspection?: LanguageInspection;
+    languageInspection: LanguageInspection;
     inspectionComments: { comment: string; creator: User; created: Date }[];
     examInspections: ExamInspection[];
     examinationEventConfigurations: ExaminationEventConfiguration[];
     totalScore: number;
+    organisations?: string;
 }
 
 export interface Exam extends ExamImpl {
@@ -328,9 +335,18 @@ export interface ExamParticipation {
     externalExam?: { started: Date };
     user: User;
     duration: string;
+    deadline: string;
     displayName?: string;
     _id?: string;
     _rev?: string;
+}
+
+export function isParticipation(event: ExamParticipation | ExamEnrolment): event is ExamParticipation {
+    return (
+        event.reservation !== null &&
+        event.reservation !== undefined &&
+        event.reservation.enrolment.noShow === undefined // FIXME: check this
+    );
 }
 
 export enum ClaimChoiceOptionType {
@@ -338,3 +354,10 @@ export enum ClaimChoiceOptionType {
     IncorrectOption = 'IncorrectOption',
     SkipOption = 'SkipOption',
 }
+
+export type MaintenancePeriod = {
+    id?: number;
+    startsAt: string;
+    endsAt: string;
+    description: string;
+};

@@ -12,13 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Directive, ElementRef, HostListener, Input } from '@angular/core';
+import { Directive, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
 
 @Directive({
     selector: '[fixedPrecision]',
 })
 export class FixedPrecisionValidatorDirective {
-    @Input() ngModel?: number;
+    @Input() ngModel: number | null | undefined;
+    @Output() ngModelChange = new EventEmitter<number>();
 
     constructor(private el: ElementRef) {}
 
@@ -26,11 +27,12 @@ export class FixedPrecisionValidatorDirective {
     onChange() {
         const fixed = this.toFixed();
         (this.el.nativeElement as HTMLInputElement).value = fixed;
+        this.ngModelChange.emit(parseFloat(fixed));
     }
 
     private toFixed = () => {
-        if (!this.ngModel) {
-            return '0';
+        if (this.ngModel == null || this.ngModel == undefined) {
+            return '';
         }
         const re = /^-?[0-9]+(\.[0-9]{1,2})?$/i;
         if (!this.ngModel.toString().match(re)) {

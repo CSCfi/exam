@@ -27,27 +27,23 @@ enum Tab {
     EXAMS = 'EXAMS',
     RESERVATIONS = 'RESERVATIONS',
 }
-
+export type QueryParams = { start?: string; end?: string; dept?: string };
 @Component({
     templateUrl: './statistics.component.html',
     selector: 'statistics',
 })
 export class StatisticsComponent implements OnInit {
     view: Tab = Tab.RESPONSES;
-    departments: Departments[];
-    filteredDepartments: Departments[];
-    limitations: { department: string };
-    queryParams: { start?: string; end?: string; dept?: string };
-    startDate: Date;
-    endDate: Date;
+    departments: Departments[] = [];
+    filteredDepartments: Departments[] = [];
+    limitations = { department: '' };
+    queryParams: QueryParams = {};
+    startDate: Date | null = null;
+    endDate: Date | null = null;
 
     constructor(private http: HttpClient) {}
 
     ngOnInit() {
-        this.departments = [];
-        this.limitations = { department: '' };
-        this.queryParams = {};
-
         this.http.get<{ departments: string[] }>('/app/reports/departments').subscribe((resp) => {
             this.departments = resp.departments.map((d) => ({ name: d, filtered: false }));
             this.filteredDepartments = this.departments;
@@ -74,12 +70,12 @@ export class StatisticsComponent implements OnInit {
         this.setQueryParams();
     };
 
-    startDateChanged = (event: { date: Date }) => {
+    startDateChanged = (event: { date: Date | null }) => {
         this.startDate = event.date;
         this.setQueryParams();
     };
 
-    endDateChanged = (event: { date: Date }) => {
+    endDateChanged = (event: { date: Date | null }) => {
         this.endDate = event.date;
         this.setQueryParams();
     };

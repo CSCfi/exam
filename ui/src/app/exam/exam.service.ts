@@ -16,17 +16,16 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
-import * as _ from 'lodash';
-import * as moment from 'moment';
+import { parseISO } from 'date-fns';
 import { map } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { QuestionService } from '../question/question.service';
 import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
+import { CommonExamService } from '../utility/miscellaneous/commonExam.service';
 
 import type { Observable } from 'rxjs';
-import type { ReviewedExam } from '../enrolment/enrolment.model';
 import type {
     Exam,
     ExamExecutionType,
@@ -37,14 +36,26 @@ import type {
     Implementation,
 } from './exam.model';
 
-type SectionContainer = { examSections: ExamSection[] };
+export type ExaminationEventConfigurationInput = {
+    id?: number;
+    config: {
+        examinationEvent: {
+            start: string;
+            description: string;
+            capacity: number;
+        };
+        settingsPassword?: string;
+    };
+};
 
+type SectionContainer = { examSections: ExamSection[] };
 @Injectable()
 export class ExamService {
     constructor(
         private translate: TranslateService,
         private State: StateService,
         private http: HttpClient,
+        private CommonExam: CommonExamService,
         private Question: QuestionService,
         private Session: SessionService,
         private ConfirmationDialog: ConfirmationDialogService,
@@ -62,7 +73,7 @@ export class ExamService {
         this.http.post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType }).subscribe(
             (response) => {
                 toast.info(this.translate.instant('sitnet_exam_added'));
-                this.State.go('courseSelector', { id: response.id });
+                this.State.go('staff.courseSelector', { id: response.id });
             },
             (err) => toast.error(err.data),
         );
@@ -90,69 +101,12 @@ export class ExamService {
             objectVersion: exam.objectVersion,
             attachment: exam.attachment,
             anonymous: exam.anonymous,
+            organisations: exam.organisations,
             implementation: exam.implementation,
         };
         Object.assign(data, overrides);
-        const url = collaborative ? '/integration/iop/exams' : '/app/exams';
+        const url = collaborative ? '/app/iop/exams' : '/app/exams';
         return this.http.put<Exam>(`${url}/${exam.id}`, data);
-    };
-
-    getExamTypeDisplayName = (type: string): string => {
-        let name = '';
-        switch (type) {
-            case 'PARTIAL':
-                name = 'sitnet_exam_credit_type_partial';
-                break;
-            case 'FINAL':
-                name = 'sitnet_exam_credit_type_final';
-                break;
-            default:
-                break;
-        }
-        return this.translate.instant(name);
-    };
-
-    getExamGradeDisplayName = (grade: string): string => {
-        let name;
-        switch (grade) {
-            case 'NONE':
-                name = this.translate.instant('sitnet_no_grading');
-                break;
-            case 'I':
-                name = 'Improbatur';
-                break;
-            case 'A':
-                name = 'Approbatur';
-                break;
-            case 'B':
-                name = 'Lubenter approbatur';
-                break;
-            case 'N':
-                name = 'Non sine laude approbatur';
-                break;
-            case 'C':
-                name = 'Cum laude approbatur';
-                break;
-            case 'M':
-                name = 'Magna cum laude approbtur';
-                break;
-            case 'E':
-                name = 'Eximia cum laude approbatur';
-                break;
-            case 'L':
-                name = 'Laudatur approbatur';
-                break;
-            case 'REJECTED':
-                name = this.translate.instant('sitnet_rejected');
-                break;
-            case 'APPROVED':
-                name = this.translate.instant('sitnet_approved');
-                break;
-            default:
-                name = grade;
-                break;
-        }
-        return name;
     };
 
     refreshExamTypes$ = (): Observable<(ExamType & { name: string })[]> =>
@@ -160,59 +114,22 @@ export class ExamService {
             map((resp) =>
                 resp.map((et) => ({
                     ...et,
-                    name: this.getExamTypeDisplayName(et.type),
+                    name: this.CommonExam.getExamTypeDisplayName(et.type),
                 })),
             ),
         );
 
-    getScaleDisplayName = (gs?: GradeScale): string => {
-        if (!gs) {
-            return '';
-        }
-        let name = '';
-        const description = gs.description;
-        switch (description) {
-            case 'ZERO_TO_FIVE':
-                name = '0-5';
-                break;
-            case 'LATIN':
-                name = 'Improbatur-Laudatur';
-                break;
-            case 'APPROVED_REJECTED':
-                name = this.translate.instant('sitnet_evaluation_select');
-                break;
-            case 'OTHER':
-                name = gs.displayName;
-        }
-        return name;
-    };
-
     refreshGradeScales$ = (isCollaborative: boolean): Observable<GradeScale[]> => {
-        const url = isCollaborative ? '/integration/iop/gradescales' : '/app/gradescales';
+        const url = isCollaborative ? '/app/iop/gradescales' : '/app/gradescales';
         return this.http.get<GradeScale[]>(url).pipe(
             map((resp) =>
                 resp.map((gs) =>
                     Object.assign(gs, {
-                        name: this.getScaleDisplayName(gs),
+                        name: this.CommonExam.getScaleDisplayName(gs),
                     }),
                 ),
             ),
         );
-    };
-
-    getCredit = (exam: Exam | ReviewedExam) => {
-        if (this.hasCustomCredit(exam)) {
-            return exam.customCredit;
-        } else {
-            return exam.course && exam.course.credits ? exam.course.credits : 0;
-        }
-    };
-
-    hasCustomCredit = (exam: Exam | ReviewedExam) => _.isNumber(exam.customCredit) && exam.customCredit >= 0;
-
-    getExamDisplayCredit = (exam: Exam) => {
-        const courseCredit = exam.course ? exam.course.credits : 0;
-        return this.hasCustomCredit(exam) ? exam.customCredit : courseCredit;
     };
 
     getExecutionTypeTranslation = (et: ExamExecutionType) => {
@@ -240,17 +157,6 @@ export class ExamService {
                 ),
             ),
         );
-
-    getExamImplementationTranslation = (impl: Implementation) => {
-        switch (impl) {
-            case 'AQUARIUM':
-                return 'sitnet_examination_type_aquarium';
-            case 'CLIENT_AUTH':
-                return 'sitnet_examination_type_seb';
-            case 'WHATEVER':
-                return 'sitnet_examination_type_home_exam';
-        }
-    };
 
     private isInteger = (n: number) => isFinite(n) && Math.floor(n) === n;
 
@@ -334,7 +240,7 @@ export class ExamService {
     };
 
     getResource = (url: string, collaborative = false) =>
-        collaborative ? url.replace('/app/exams/', '/integration/iop/exams/') : url;
+        collaborative ? url.replace('/app/exams/', '/app/iop/exams/') : url;
 
     isAllowedToUnpublishOrRemove = (exam: Exam, collaborative = false) => {
         if (collaborative) {
@@ -347,11 +253,11 @@ export class ExamService {
     previewExam = (exam: Exam, fromTab: number, collaborative: boolean) => {
         const params = { id: exam.id, tab: fromTab };
         if (collaborative) {
-            this.State.go('collaborativePreview', params);
+            this.State.go('staff.collaborativePreview', params);
         } else if (exam.executionType.type === 'PRINTOUT') {
-            this.State.go('printout', params);
+            this.State.go('staff.printout', params);
         } else {
-            this.State.go('examPreview', params);
+            this.State.go('staff.examPreview', params);
         }
     };
 
@@ -366,13 +272,13 @@ export class ExamService {
 
     addExaminationEvent$ = (
         examId: number,
-        config: ExaminationEventConfiguration,
+        config: ExaminationEventConfigurationInput,
     ): Observable<ExaminationEventConfiguration> =>
         this.http.post<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents`, config);
 
     updateExaminationEvent$ = (
         examId: number,
-        config: ExaminationEventConfiguration,
+        config: ExaminationEventConfigurationInput,
     ): Observable<ExaminationEventConfiguration> =>
         this.http.put<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents/${config.id}`, config);
 
@@ -390,5 +296,5 @@ export class ExamService {
     };
 
     private hasEffectiveEnrolments = (exam: Exam) =>
-        exam.examEnrolments.some((ee) => ee.reservation && moment(ee.reservation.endAt) > moment());
+        exam.examEnrolments.some((ee) => ee.reservation && parseISO(ee.reservation.endAt) > new Date());
 }

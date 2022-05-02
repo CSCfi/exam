@@ -13,18 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import * as _ from 'lodash';
+import { isNumber } from 'lodash';
 
-import { ExamSectionQuestion } from '../../../exam/exam.model';
+import type { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'printed-cloze-test',
     templateUrl: './templates/clozeTest.component.html',
 })
 export class PrintedClozeTestComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() sectionQuestion!: ExamSectionQuestion;
 
-    hasForcedScore = () => _.isNumber(this.sectionQuestion.forcedScore);
+    hasForcedScore = () => isNumber(this.sectionQuestion.forcedScore);
 
     displayAchievedScore = () => {
         const max = this.sectionQuestion.maxScore;

@@ -13,24 +13,25 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
+
+import { SessionService } from '../../../session/session.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
+import { WindowRef } from '../../../utility/window/window.service';
 
 import type { ExamParticipation } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
-import { SessionService } from '../../../session/session.service';
-import { WindowRef } from '../../../utility/window/window.service';
 
 @Component({
     selector: 'r-participation',
     templateUrl: './participation.component.html',
 })
 export class ParticipationComponent {
-    @Input() participation: ExamParticipation & { noShow: boolean };
-    @Input() collaborative: boolean;
+    @Input() participation!: ExamParticipation;
+    @Input() collaborative = false;
 
     constructor(
-        private state: StateService,
-        private Exam: ExamService,
+        private state: UIRouterGlobals,
+        private Exam: CommonExamService,
         private Session: SessionService,
         private Window: WindowRef,
     ) {}
@@ -38,25 +39,21 @@ export class ParticipationComponent {
     viewAnswers = () => {
         const url = this.collaborative
             ? `/assessments/collaborative/${this.state.params.id}/${this.participation._id}`
-            : `/assessments/${this.participation.exam.id}`;
+            : `/assessments/${this.participation.exam?.id}`;
         this.Window.nativeWindow.open(url, '_blank');
     };
 
-    hideGrade = () => this.participation.noShow || !this.participation.exam.grade;
+    hideGrade = () => !this.participation.exam?.grade;
 
     hideAnswerLink = () => {
         const anonymous =
             (this.participation.collaborativeExam && this.participation.collaborativeExam.anonymous) ||
-            this.participation.exam.anonymous;
-        return (
-            this.participation.exam.state === 'ABORTED' ||
-            this.participation.noShow ||
-            (anonymous && !this.Session.getUser().isAdmin)
-        );
+            this.participation.exam?.anonymous;
+        return this.participation.exam?.state === 'ABORTED' || (anonymous && !this.Session.getUser().isAdmin);
     };
 
     translateGrade = () => {
-        if (!this.participation.exam.grade) {
+        if (!this.participation.exam?.grade) {
             return;
         }
         return this.Exam.getExamGradeDisplayName(this.participation.exam.grade.name);

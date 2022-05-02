@@ -31,13 +31,11 @@ import { ConfirmationDialogComponent } from './dialogs/confirmationDialog.compon
 import { ConfirmationDialogService } from './dialogs/confirmationDialog.service';
 import { FileService } from './file/file.service';
 import { FilterByPipe } from './filter/filterBy.pipe';
-import { DynamicFormComponent } from './forms/dynamicForm.component';
-import { DynamicFormQuestionComponent } from './forms/dynamicFormQuestion.component';
-import { QuestionControlService } from './forms/questionControl.service';
 import { HistoryBackComponent } from './history/historyBack.component';
 import { SanitizedHtmlPipe } from './html/sanitizedHtml.pipe';
 import { LanguageService } from './language/language.service';
 import { MathJaxDirective } from './math/mathJax.directive';
+import { CommonExamService } from './miscellaneous/commonExam.service';
 import { CourseCodeComponent } from './miscellaneous/courseCode.component';
 import { PageFillPipe } from './paginator/pageFill.pipe';
 import { PaginatorComponent } from './paginator/paginator.component';
@@ -47,6 +45,7 @@ import { TableSortComponent } from './sorting/tableSort.component';
 import { TeacherListComponent } from './user/teacherList.component';
 import { UserService } from './user/user.service';
 import { FixedPrecisionValidatorDirective } from './validation/fixedPrecision.directive';
+import { LowerCaseValidatorDirective } from './validation/lowerCase.directive';
 import { MaxDirective } from './validation/maxValue.directive';
 import { MinDirective } from './validation/minValue.directive';
 import { UniqueValuesValidatorDirective } from './validation/uniqueValues.directive';
@@ -71,11 +70,11 @@ import { WindowRef } from './window/window.service';
         MathJaxDirective,
         UniqueValuesValidatorDirective,
         FixedPrecisionValidatorDirective,
+        LowerCaseValidatorDirective,
         CourseCodeComponent,
         SanitizedHtmlPipe,
         DiffInMinutesPipe,
         DiffInDaysPipe,
-        DynamicFormComponent,
         FilterByPipe,
         MinDirective,
         MaxDirective,
@@ -98,36 +97,25 @@ import { WindowRef } from './window/window.service';
         ApplyDstPipe,
         UniqueValuesValidatorDirective,
         FixedPrecisionValidatorDirective,
+        LowerCaseValidatorDirective,
         SanitizedHtmlPipe,
         DiffInMinutesPipe,
         DiffInDaysPipe,
-        DynamicFormComponent,
-        DynamicFormQuestionComponent,
         FilterByPipe,
         MinDirective,
         MaxDirective,
         OrderByPipe,
     ],
-    entryComponents: [
-        AttachmentSelectorComponent,
-        ConfirmationDialogComponent,
-        DatePickerComponent,
-        DateTimePickerComponent,
-        HistoryBackComponent,
-        PaginatorComponent,
-        TeacherListComponent,
-        TableSortComponent,
-        CourseCodeComponent,
-    ],
+    bootstrap: [ConfirmationDialogComponent, AttachmentSelectorComponent],
     providers: [
         AttachmentService,
         ConfirmationDialogService,
         DateTimeService,
         FileService,
         LanguageService,
+        CommonExamService,
         UserService,
         WindowRef,
-        QuestionControlService,
     ],
 })
 export class UtilityModule {}

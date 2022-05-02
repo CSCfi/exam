@@ -117,7 +117,7 @@
             >
                 <td *ngIf="showId()">{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
                 <td class="table-column-13 table-column-bold">
-                    <a class="pointer" uiSref="assessment" [uiParams]="{ id: review.examParticipation.exam.id }">
+                    <a class="pointer" uiSref="staff.assessment" [uiParams]="{ id: review.examParticipation.exam.id }">
                         {{ review.displayName }}
                         <span *ngIf="review.examParticipation.user?.userIdentifier">
                             <br />({{ review.examParticipation.user?.userIdentifier }})</span
@@ -137,7 +137,7 @@
                     {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
                 </td>
                 <td class="table-column-15">
-                    {{ 'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
+                    {{ review.displayedGrade }}
                 </td>
                 <td class="table-column-10">
                     {{ review.displayedCredit }}

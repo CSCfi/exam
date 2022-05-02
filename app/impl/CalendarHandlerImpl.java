@@ -33,6 +33,7 @@ import models.ExamStartingHour;
 import models.MailAddress;
 import models.Reservation;
 import models.User;
+import models.calendar.MaintenancePeriod;
 import models.iop.ExternalReservation;
 import models.json.CollaborativeExam;
 import models.sections.ExamSection;
@@ -97,9 +98,18 @@ public class CalendarHandlerImpl implements CalendarHandler {
                 .findList();
             // Resolve eligible machines based on software and accessibility requirements
             List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
+            // Maintenance periods
+            List<Interval> periods = Ebean
+                .find(MaintenancePeriod.class)
+                .where()
+                .gt("endsAt", searchDate.toDate())
+                .findList()
+                .stream()
+                .map(p -> new Interval(p.getStartsAt(), p.getEndsAt()))
+                .collect(Collectors.toList());
             LocalDate endOfSearch = getEndSearchDate(searchDate, new LocalDate(exam.getExamActiveEndDate()));
             while (!searchDate.isAfter(endOfSearch)) {
-                Set<TimeSlot> timeSlots = getExamSlots(user, room, exam, searchDate, reservations, machines);
+                Set<TimeSlot> timeSlots = getExamSlots(user, room, exam, searchDate, reservations, machines, periods);
                 if (!timeSlots.isEmpty()) {
                     slots.addAll(timeSlots);
                 }
@@ -127,13 +137,23 @@ public class CalendarHandlerImpl implements CalendarHandler {
             aids,
             reservation.getEnrolment().getExam()
         );
+        // Maintenance periods
+        List<Interval> periods = Ebean
+            .find(MaintenancePeriod.class)
+            .where()
+            .gt("endsAt", searchDate.toDate())
+            .findList()
+            .stream()
+            .map(p -> new Interval(p.getStartsAt(), p.getEndsAt()))
+            .collect(Collectors.toList());
         Set<TimeSlot> slots = getExamSlots(
             reservation.getUser(),
             reservation.getMachine().getRoom(),
             reservation.getEnrolment().getExam(),
             searchDate,
             reservations,
-            machines
+            machines,
+            periods
         );
         return slots.stream().anyMatch(s -> s.interval.contains(reservation.toInterval()));
     }
@@ -145,16 +165,17 @@ public class CalendarHandlerImpl implements CalendarHandler {
     @Override
     public LocalDate parseSearchDate(String day, Exam exam, ExamRoom room) throws NotFoundException {
         int windowSize = getReservationWindowSize();
-
-        int offset = room != null
-            ? DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now())
-            : configReader.getDefaultTimeZone().getOffset(DateTime.now());
+        DateTimeZone dtz = room != null
+            ? DateTimeZone.forID(room.getLocalTimezone())
+            : configReader.getDefaultTimeZone();
+        int startOffset = dtz.getOffset((exam.getExamActiveStartDate()));
+        int offset = dtz.getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
 
         LocalDate examEndDate = new DateTime(exam.getExamActiveEndDate()).plusMillis(offset).toLocalDate();
         LocalDate searchEndDate = reservationWindowDate.isBefore(examEndDate) ? reservationWindowDate : examEndDate;
-        LocalDate examStartDate = new DateTime(exam.getExamActiveStartDate()).plusMillis(offset).toLocalDate();
+        LocalDate examStartDate = new DateTime(exam.getExamActiveStartDate()).plusMillis(startOffset).toLocalDate();
         LocalDate searchDate = day.equals("") ? now : ISODateTimeFormat.dateTimeParser().parseLocalDate(day);
         searchDate = searchDate.withDayOfWeek(1);
         if (searchDate.isBefore(now)) {
@@ -204,13 +225,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     @Override
-    public Reservation createReservation(
-        DateTime start,
-        DateTime end,
-        ExamMachine machine,
-        User user,
-        Collection<Long> sectionIds
-    ) {
+    public Reservation createReservation(DateTime start, DateTime end, ExamMachine machine, User user) {
         Reservation reservation = new Reservation();
         reservation.setEndAt(end);
         reservation.setStartAt(start);
@@ -221,10 +236,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         if (start.minusDays(1).isBeforeNow()) {
             reservation.setReminderSent(true);
         }
-        if (!sectionIds.isEmpty()) {
-            Set<ExamSection> sections = Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
-            reservation.setOptionalSections(sections);
-        }
+
         return reservation;
     }
 
@@ -319,10 +331,14 @@ public class CalendarHandlerImpl implements CalendarHandler {
         Exam exam,
         LocalDate date,
         Collection<Reservation> reservations,
-        Collection<ExamMachine> machines
+        Collection<ExamMachine> machines,
+        Collection<Interval> maintenancePeriods
     ) {
         Integer examDuration = exam.getDuration();
-        Collection<Interval> examSlots = gatherSuitableSlots(room, date, examDuration);
+        Collection<Interval> examSlots = gatherSuitableSlots(room, date, examDuration)
+            .stream()
+            .filter(slot -> maintenancePeriods.stream().noneMatch(p -> p.overlaps(slot)))
+            .collect(Collectors.toList());
         Map<Interval, Optional<Integer>> map = examSlots
             .stream()
             .collect(
@@ -430,7 +446,30 @@ public class CalendarHandlerImpl implements CalendarHandler {
                     LinkedHashMap::new
                 )
             );
-            return handleReservations(map, reservations, exam, null, user);
+            List<Interval> periods = Ebean
+                .find(MaintenancePeriod.class)
+                .where()
+                .gt("endsAt", searchDate.toDate())
+                .findList()
+                .stream()
+                .map(p -> new Interval(p.getStartsAt(), p.getEndsAt()))
+                .collect(Collectors.toList());
+            // Filter out slots that overlap a local maintenance period
+            Map<Interval, Optional<Integer>> map2 = map
+                .entrySet()
+                .stream()
+                .filter(e -> periods.stream().noneMatch(m -> m.overlaps(e.getKey())))
+                .collect(
+                    Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (u, v) -> {
+                            throw new IllegalStateException(String.format("Duplicate key %s", u));
+                        },
+                        LinkedHashMap::new
+                    )
+                );
+            return handleReservations(map2, reservations, exam, null, user);
         }
         return Collections.emptySet();
     }
@@ -453,10 +492,6 @@ public class CalendarHandlerImpl implements CalendarHandler {
         reservation.setStartAt(start);
         reservation.setUser(user);
         reservation.setExternalRef(node.get("id").asText());
-        Set<ExamSection> sections = sectionIds.isEmpty()
-            ? Collections.emptySet()
-            : Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
-        reservation.setOptionalSections(sections);
 
         // If this is due in less than a day, make sure we won't send a reminder
         if (start.minusDays(1).isBeforeNow()) {
@@ -492,6 +527,12 @@ public class CalendarHandlerImpl implements CalendarHandler {
         Ebean.save(reservation);
         enrolment.setReservation(reservation);
         enrolment.setReservationCanceled(false);
+        Set<ExamSection> sections = sectionIds.isEmpty()
+            ? Collections.emptySet()
+            : Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
+        enrolment.getOptionalSections().clear();
+        enrolment.update();
+        enrolment.setOptionalSections(sections);
         Ebean.save(enrolment);
 
         // Finally nuke the old reservation if any

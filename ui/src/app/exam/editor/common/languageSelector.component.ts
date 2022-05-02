@@ -18,19 +18,20 @@ import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
 import { LanguageService } from '../../../utility/language/language.service';
-import { Exam } from '../../exam.model';
 
 import type { OnInit } from '@angular/core';
-import type { ExamLanguage } from '../../exam.model';
+import type { Exam, ExamLanguage } from '../../exam.model';
+
 @Component({
     selector: 'language-selector',
     templateUrl: './languageSelector.component.html',
 })
 export class LanguageSelectorComponent implements OnInit {
-    @Input() exam: Exam;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() collaborative = false;
+    @Input() disabled = false;
 
-    examLanguages: ExamLanguage[];
+    examLanguages: ExamLanguage[] = [];
 
     constructor(private http: HttpClient, private translate: TranslateService, private Language: LanguageService) {}
 
@@ -48,7 +49,7 @@ export class LanguageSelectorComponent implements OnInit {
     isSelected = (lang: ExamLanguage) => this.exam.examLanguages.map((el) => el.code).indexOf(lang.code) > -1;
 
     updateExamLanguage = (lang: ExamLanguage) => {
-        const resource = this.collaborative ? '/integration/iop/exams' : '/app/exams';
+        const resource = this.collaborative ? '/app/iop/exams' : '/app/exams';
         this.http.put(`${resource}/${this.exam.id}/language/${lang.code}`, {}).subscribe(
             () => {
                 if (this.isSelected(lang)) {

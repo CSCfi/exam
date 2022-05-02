@@ -18,36 +18,36 @@ import { ControlContainer, NgForm } from '@angular/forms';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 
-import { ExamSectionQuestion } from '../../exam/exam.model';
 import { SessionService } from '../../session/session.service';
 import { AttachmentService } from '../../utility/attachment/attachment.service';
 import { QuestionService } from '../question.service';
 
 import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { Observable } from 'rxjs';
-import type { ReverseQuestion, Tag } from '../../exam/exam.model';
+import type { ExamSectionQuestion, ReverseQuestion, Tag } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
 import type { QuestionDraft } from '../question.service';
+
 @Component({
     selector: 'question-body',
     templateUrl: './questionBody.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
 })
 export class QuestionBodyComponent {
-    @Input() question: ReverseQuestion | QuestionDraft;
-    @Input() currentOwners: User[];
-    @Input() lotteryOn: boolean;
-    @Input() examId: number;
-    @Input() sectionQuestion: ExamSectionQuestion;
-    @Input() collaborative: boolean;
+    @Input() question!: ReverseQuestion | QuestionDraft;
+    @Input() currentOwners: User[] = [];
+    @Input() lotteryOn = false;
+    @Input() examId = 0;
+    @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() collaborative = false;
 
-    isInPublishedExam: boolean;
-    examNames: string[];
-    sectionNames: string[];
+    isInPublishedExam = false;
+    examNames: string[] = [];
+    sectionNames: string[] = [];
     newOwner: { name?: string } = {};
     newOwnerTemplate?: User;
-    newType: string;
-    questionTypes: { type: string; name: string }[];
+    newType = '';
+    questionTypes: { type: string; name: string }[] = [];
 
     constructor(
         private http: HttpClient,

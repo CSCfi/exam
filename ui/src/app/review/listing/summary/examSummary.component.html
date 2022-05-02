@@ -36,7 +36,7 @@
                     />
                 </sup>
             </div>
-            <div class="col-md-6">{{ exam.course.name }}</div>
+            <div class="col-md-6">{{ exam.course?.name }}</div>
         </div>
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
@@ -196,7 +196,7 @@
 
         <div class="row align-items-center">
             <div class="col-md-6">
-                <canvas height="100" id="gradeDistributionChart"></canvas>
+                <canvas height="200" id="gradeDistributionChart"></canvas>
             </div>
         </div>
 

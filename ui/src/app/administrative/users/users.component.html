@@ -15,8 +15,8 @@
                         class="form-control"
                         (ngModelChange)="loader.loading = true; textChanged.next($event)"
                         placeholder="{{ 'sitnet_search' | translate }}"
-                        openDelay="500"
-                        closeDelay="500"
+                        [openDelay]="500"
+                        [closeDelay]="500"
                         triggers="mouseenter:mouseleave"
                         popoverTitle="{{ 'sitnet_instructions' | translate }}"
                         ngbPopover="{{ 'sitnet_user_search_description' | translate }}"
@@ -80,8 +80,8 @@
                             (keydown.enter)="applyPermissionFilter(permission)"
                         >
                             <a role="menuitem" title="{{ permission.name }}">
-                                <i class="pull-right" [ngClass]="permission.icon"></i>
-                                {{ permission.name | translate }}&nbsp;
+                                <i class="pull-right" [ngClass]="permission.icon || ''"></i>
+                                {{ permission.name || '' | translate }}&nbsp;
                             </a>
                         </li>
                     </ul>
@@ -247,8 +247,8 @@
                                             (keydown.enter)="addPermission(user, permission)"
                                         >
                                             <a role="menuitem">
-                                                <i class="pull-right" [ngClass]="permission.icon"></i>
-                                                {{ permission.name | translate }}
+                                                <i class="pull-right" [ngClass]="permission.icon || ''"></i>
+                                                {{ permission.name || '' | translate }}
                                             </a>
                                         </li>
                                     </ul>
@@ -281,8 +281,8 @@
                                             (keydown.enter)="removePermission(user, permission)"
                                         >
                                             <a role="menuitem">
-                                                <i class="pull-right" [ngClass]="permission.icon"></i
-                                                >{{ permission.name | translate }}
+                                                <i class="pull-right" [ngClass]="permission.icon || ''"></i
+                                                >{{ permission.name || '' | translate }}
                                             </a>
                                         </li>
                                     </ul>

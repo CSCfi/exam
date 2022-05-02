@@ -25,7 +25,7 @@ import type { QuestionReview } from '../../review.model';
     templateUrl: './questionReviews.component.html',
 })
 export class QuestionReviewsComponent {
-    @Input() examId: number;
+    @Input() examId = 0;
     reviews: QuestionReview[] = [];
     selectedReviews: number[] = [];
     selectionToggle = false;
@@ -66,5 +66,8 @@ export class QuestionReviewsComponent {
     selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
 
     startReview = () =>
-        this.state.go('questionAssessment', { id: this.examId, q: this.selectedReviews.map((r) => r.toString()) });
+        this.state.go('staff.questionAssessment', {
+            id: this.examId,
+            q: this.selectedReviews.map((r) => r.toString()),
+        });
 }

@@ -12,30 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-import { Examination, ExaminationSection } from '../examination.service';
-
-interface NavigationPage {
-    id: number;
-    text: string;
-    type: string;
-    valid: boolean;
-}
+import type { SimpleChanges } from '@angular/core';
+import type { Examination, ExaminationSection, NavigationPage } from '../examination.model';
 
 @Component({
     selector: 'examination-navigation',
     templateUrl: './examinationNavigation.component.html',
 })
 export class ExaminationNavigationComponent {
-    @Input() exam: Examination;
-    @Input() activeSection: ExaminationSection;
+    @Input() exam!: Examination;
+    @Input() activeSection?: ExaminationSection;
     @Output() onSelect = new EventEmitter<{ page: Partial<NavigationPage> }>();
 
-    pages: Partial<NavigationPage>[];
-    next: Partial<NavigationPage>;
-    prev: Partial<NavigationPage>;
+    pages: Partial<NavigationPage>[] = [];
+    next!: Partial<NavigationPage>;
+    prev!: Partial<NavigationPage>;
 
     ngOnInit() {
         this.pages = this.exam.examSections.map((es) => ({ id: es.id, text: es.name, type: 'section', valid: true }));
@@ -63,7 +56,7 @@ export class ExaminationNavigationComponent {
     };
 
     private activePageIndex = () => {
-        const page = this.pages.filter((p) => this.activeSection.id === p.id)[0];
+        const page = this.pages.filter((p) => this.activeSection?.id === p.id)[0];
         return this.pages.indexOf(page);
     };
 

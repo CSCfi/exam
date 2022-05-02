@@ -33,8 +33,8 @@ interface SoftwareWithClass extends Software {
     selector: 'machine',
 })
 export class MachineComponent implements OnInit {
-    machine: ExamMachine;
-    software: SoftwareWithClass[];
+    machine!: ExamMachine;
+    software: SoftwareWithClass[] = [];
 
     constructor(
         private Confirmation: ConfirmationDialogService,
@@ -77,7 +77,7 @@ export class MachineComponent implements OnInit {
             this.machines.removeMachine(machine.id).subscribe(
                 () => {
                     toast.info(this.translate.instant('sitnet_machine_removed'));
-                    this.state.go('rooms');
+                    this.state.go('staff.rooms');
                 },
                 (error) => {
                     toast.error(error.data);
@@ -106,7 +106,7 @@ export class MachineComponent implements OnInit {
             },
         );
 
-    updateMachineAndExit = () => this.updateMachine(() => this.state.go('rooms'));
+    updateMachineAndExit = () => this.updateMachine(() => this.state.go('staff.rooms'));
 
     setReason = () => {
         if (!this.machine.outOfService) {

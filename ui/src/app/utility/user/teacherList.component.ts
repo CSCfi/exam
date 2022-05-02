@@ -14,9 +14,11 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { Exam } from '../../exam/exam.model';
-
+import type { User } from '../../session/session.service';
+import type { ExamInspection } from '../../exam/exam.model';
 import type { OnInit } from '@angular/core';
+
+type Personnel = { examInspections: ExamInspection[]; examOwners: User[] };
 @Component({
     selector: 'teacher-list',
     template: `
@@ -27,7 +29,7 @@ import type { OnInit } from '@angular/core';
     `,
 })
 export class TeacherListComponent implements OnInit {
-    @Input() exam: Exam;
+    @Input() exam!: Personnel & { parent: Personnel | null };
     @Input() useParent = false;
 
     owners = '';

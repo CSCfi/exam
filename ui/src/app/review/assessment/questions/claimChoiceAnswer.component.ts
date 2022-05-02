@@ -14,16 +14,16 @@
  */
 import { Component, Input } from '@angular/core';
 
-import type { ExamSectionQuestionOption } from '../../../exam/exam.model';
-import { ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
+
+import type { ExamSectionQuestion, ExamSectionQuestionOption } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-claim-choice-answer',
     templateUrl: './claimChoiceAnswer.component.html',
 })
 export class ClaimChoiceAnswerComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() sectionQuestion!: ExamSectionQuestion;
 
     reviewExpanded = true;
 

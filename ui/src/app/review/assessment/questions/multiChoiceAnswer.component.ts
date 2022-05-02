@@ -14,13 +14,13 @@
  */
 import { Component, Input } from '@angular/core';
 
-import { ExamSectionQuestion } from '../../../exam/exam.model';
+import type { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({
     selector: 'r-multi-choice-answer',
     templateUrl: './multiChoiceAnswer.component.html',
 })
 export class MultiChoiceAnswerComponent {
-    @Input() sectionQuestion: ExamSectionQuestion;
+    @Input() sectionQuestion!: ExamSectionQuestion;
     reviewExpanded = true;
 }

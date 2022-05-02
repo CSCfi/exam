@@ -15,15 +15,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as moment from 'moment';
+import { format } from 'date-fns';
 import * as toast from 'toastr';
 
-import { Exam } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { FileService } from '../../../utility/file/file.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { ReviewListService } from '../reviewList.service';
 
+import type { Exam } from '../../../exam/exam.model';
 import type { SimpleChanges } from '@angular/core';
 import type { Review } from '../../review.model';
 import type { ReviewListView } from '../reviewList.service';
@@ -33,24 +33,24 @@ import type { ReviewListView } from '../reviewList.service';
 })
 export class GradedLoggedReviewsComponent {
     @Input() reviews: Review[] = [];
-    @Input() exam: Exam;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() collaborative = false;
     @Output() onArchive = new EventEmitter<Review[]>();
-    view: ReviewListView;
-    selections: { all: boolean; page: boolean };
+    view!: ReviewListView;
+    selections: { all: boolean; page: boolean } = { all: false, page: false };
 
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
         private ReviewList: ReviewListService,
         private Files: FileService,
-        private Exam: ExamService,
+        private CommonExam: CommonExamService,
         private Session: SessionService,
     ) {}
 
     private init = () => {
         this.view = {
-            ...this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'started'),
+            ...this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.started'),
             reverse: true,
         };
         this.selections = { all: false, page: false };
@@ -103,7 +103,7 @@ export class GradedLoggedReviewsComponent {
         if (selection.length == 0) {
             return;
         }
-        let url = this.collaborative ? '/integration/iop/reviews/' : '/app/exam/record/export/';
+        let url = this.collaborative ? '/app/iop/reviews/' : '/app/exam/record/export/';
         if (asReport) {
             url += 'report/';
         }
@@ -114,7 +114,7 @@ export class GradedLoggedReviewsComponent {
 
         this.Files.download(
             url + this.exam.id,
-            `${this.translate.instant('sitnet_grading_info')}_${moment().format('dd-MM-yyyy')}.${fileType}`,
+            `${this.translate.instant('sitnet_grading_info')}_${format(new Date(), 'dd-MM-yyyy')}.${fileType}`,
             { childIds: ids.map((i) => i.toString()) },
             true,
         );
@@ -126,7 +126,7 @@ export class GradedLoggedReviewsComponent {
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.Exam.getExamGradeDisplayName(grade);
+        return this.CommonExam.getExamGradeDisplayName(grade);
     };
 
     private handleGradedReviews = (r: Review) => {
@@ -134,6 +134,6 @@ export class GradedLoggedReviewsComponent {
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
-        r.displayedCredit = this.Exam.getExamDisplayCredit(r.examParticipation.exam);
+        r.displayedCredit = this.CommonExam.getExamDisplayCredit(r.examParticipation.exam);
     };
 }

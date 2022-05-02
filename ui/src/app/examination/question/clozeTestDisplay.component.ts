@@ -32,12 +32,13 @@ type ClozeTestAnswer = { [key: string]: string };
     template: ` <div #clozeContainer></div> `,
 })
 export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
-    @Input() answer: ClozeTestAnswer;
-    @Input() content: string;
-    @Input() editable: boolean;
-    @Output() onAnswerChange: EventEmitter<ClozeTestAnswer> = new EventEmitter();
-    @ViewChild('clozeContainer', { read: ViewContainerRef, static: true }) container: ViewContainerRef;
-    componentRef: ComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
+    @Input() answer: ClozeTestAnswer = {};
+    @Input() content = '';
+    @Input() editable = false;
+    @Output() onAnswerChange = new EventEmitter<ClozeTestAnswer>();
+    @ViewChild('clozeContainer', { read: ViewContainerRef, static: true }) container?: ViewContainerRef;
+
+    componentRef?: ComponentRef<{ el: ElementRef; onInput: (_: { target: HTMLInputElement }) => void }>;
 
     constructor(private compiler: Compiler, private el: ElementRef) {}
 
@@ -72,12 +73,12 @@ export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
         // Compile component and module with formatted cloze template
         const clozeComponent = Component({ template: clozeTemplate, selector: 'dyn-cloze-test' })(
             class ClozeComponent {
-                el: ElementRef;
-                onInput: (_: { target: HTMLInputElement }) => void;
+                el!: ElementRef;
+                onInput!: (_: { target: HTMLInputElement }) => void;
                 ngAfterViewInit() {
                     // this is ugly but I didn't find any other way
                     // see: https://github.com/angular/angular/issues/11859
-                    Array.from(this.el.nativeElement.querySelectorAll('*'))
+                    Array.from(this.el.nativeElement.querySelectorAll('*') as Element[])
                         .flatMap((e: Element) => Array.from(e.childNodes))
                         .filter((n) => n.nodeName === '#text')
                         .forEach((n) => {
@@ -94,7 +95,7 @@ export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
         const clozeModule = NgModule({ declarations: [clozeComponent] })(class {});
         this.compiler.compileModuleAndAllComponentsAsync(clozeModule).then((factories) => {
             const f = factories.componentFactories.find((cf) => cf.selector === 'dyn-cloze-test');
-            if (f) {
+            if (f && this.container) {
                 this.componentRef = this.container.createComponent(f);
                 this.componentRef.instance.el = this.el;
                 this.componentRef.instance.onInput = this.handleInputChange;
@@ -103,7 +104,7 @@ export class ClozeTestDisplayComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.componentRef.destroy();
+        if (this.componentRef) this.componentRef.destroy();
     }
 
     handleInputChange = (event: { target: HTMLInputElement }) => {

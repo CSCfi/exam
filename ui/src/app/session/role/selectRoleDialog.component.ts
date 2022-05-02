@@ -16,7 +16,7 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
-import { User } from '../session.service';
+import type { User } from '../session.service';
 
 @Component({
     selector: 'role-selector-dialog',
@@ -34,10 +34,10 @@ import { User } from '../session.service';
                         <button
                             ngbDropdownItem
                             *ngFor="let role of user.roles"
-                            title="{{ role.displayName | translate }}"
+                            title="{{ role.displayName || '' | translate }}"
                             (click)="activeModal.close(role)"
                         >
-                            {{ role.displayName | translate }} <i [ngClass]="role.icon"></i>
+                            {{ role.displayName || '' | translate }} <i [ngClass]="role.icon || ''"></i>
                         </button>
                     </div>
                 </div>
@@ -51,7 +51,7 @@ import { User } from '../session.service';
     `,
 })
 export class SelectRoleDialogComponent {
-    @Input() user: User;
+    @Input() user!: User;
 
     constructor(public activeModal: NgbActiveModal) {}
 }

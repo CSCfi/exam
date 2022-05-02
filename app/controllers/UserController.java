@@ -18,7 +18,6 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import io.ebean.Ebean;
@@ -30,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import models.Exam;
 import models.ExamEnrolment;
 import models.ExamInspection;
 import models.Language;
@@ -98,15 +96,6 @@ public class UserController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN") })
-    public Result getUser(Long id) {
-        User user = Ebean.find(User.class).fetch("roles", "name").fetch("language").where().idEq(id).findOne();
-        if (user == null) {
-            return notFound();
-        }
-        return ok(user);
-    }
-
-    @Restrict({ @Group("ADMIN") })
     public Result findUsers(Optional<String> filter) {
         PathProperties pp = PathProperties.parse("(*, roles(*), permissions(*))");
         Query<User> query = Ebean.find(User.class);
@@ -167,31 +156,41 @@ public class UserController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getUsersByRole(String role) {
         List<User> users = Ebean.find(User.class).where().eq("roles.name", role).orderBy("lastName").findList();
-
-        ArrayNode array = JsonNodeFactory.instance.arrayNode();
-        for (User u : users) {
-            ObjectNode part = Json.newObject();
-            part.put("id", u.getId());
-            part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
-            array.add(part);
-        }
-
+        ArrayNode array = Json.newArray();
+        array.addAll(
+            users
+                .stream()
+                .map(u -> {
+                    ObjectNode part = Json.newObject();
+                    part.put("id", u.getId());
+                    part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
+                    return part;
+                })
+                .collect(Collectors.toList())
+        );
         return ok(Json.toJson(array));
     }
 
     private static ArrayNode asArray(List<User> users) {
-        ArrayNode array = JsonNodeFactory.instance.arrayNode();
-        for (User u : users) {
-            ObjectNode part = Json.newObject();
-            part.put("id", u.getId());
-            String uid = u.getUserIdentifier();
-            String uidString = uid != null && !uid.isEmpty() ? String.format(" (%s)", u.getUserIdentifier()) : "";
-            part.put("name", String.format("%s %s%s", u.getFirstName(), u.getLastName(), uidString));
-            part.put("firstName", u.getFirstName());
-            part.put("lastName", u.getLastName());
-            part.put("email", u.getEmail());
-            array.add(part);
-        }
+        ArrayNode array = Json.newArray();
+        array.addAll(
+            users
+                .stream()
+                .map(u -> {
+                    ObjectNode part = Json.newObject();
+                    part.put("id", u.getId());
+                    String uid = u.getUserIdentifier();
+                    String uidString = uid != null && !uid.isEmpty()
+                        ? String.format(" (%s)", u.getUserIdentifier())
+                        : "";
+                    part.put("name", String.format("%s %s%s", u.getFirstName(), u.getLastName(), uidString));
+                    part.put("firstName", u.getFirstName());
+                    part.put("lastName", u.getLastName());
+                    part.put("email", u.getEmail());
+                    return part;
+                })
+                .collect(Collectors.toList())
+        );
         return array;
     }
 
@@ -199,17 +198,6 @@ public class UserController extends BaseController {
         ExpressionList<User> el = Ebean.find(User.class).where().eq("roles.name", role).disjunction();
         el = applyUserFilter(null, el, nameFilter);
         return el.endJunction().findList();
-    }
-
-    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
-    public Result getExamOwnersByRoleFilter(String role, Long eid, String criteria) {
-        Exam exam = Ebean.find(Exam.class, eid);
-        if (exam == null) {
-            return notFound();
-        }
-        List<User> users = findUsersByRoleAndName(role, criteria);
-        users.removeAll(exam.getExamOwners());
-        return ok(Json.toJson(asArray(users)));
     }
 
     @Authenticated
@@ -266,7 +254,7 @@ public class UserController extends BaseController {
         } else {
             user.setUserAgreementAccepted(true);
             user.update();
-            result = ok(user);
+            result = ok();
         }
         return result;
     }

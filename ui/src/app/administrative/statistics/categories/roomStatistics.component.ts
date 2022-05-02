@@ -15,7 +15,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 
+import type { QueryParams } from '../statistics.component';
 import type { ExamParticipation } from '../../../exam/exam.model';
+
 interface Participations {
     [room: string]: ExamParticipation[];
 }
@@ -51,7 +53,7 @@ interface Participations {
                             <td colspan="2">
                                 <b>{{ 'sitnet_total' | translate }}</b>
                             </td>
-                            <td *ngFor="let room of rooms">{{ totalParticipations(null, room) }}</td>
+                            <td *ngFor="let room of rooms">{{ totalParticipations(undefined, room) }}</td>
                             <td>
                                 <b>{{ totalParticipations() }}</b>
                             </td>
@@ -64,8 +66,8 @@ interface Participations {
     selector: 'room-statistics',
 })
 export class RoomStatisticsComponent {
-    @Input() queryParams: { start: string; end: string };
-    participations: Participations;
+    @Input() queryParams: QueryParams = {};
+    participations: Participations = {};
     rooms: string[] = [];
     months: Date[] = [];
 
@@ -84,11 +86,11 @@ export class RoomStatisticsComponent {
         });
     };
 
-    totalParticipations = (month: Date, room: string) => {
+    totalParticipations = (month?: Date, room?: string) => {
         if (!this.participations) return 0;
         const isWithinBounds = (p: ExamParticipation) => {
             const date = new Date(p.externalExam ? p.externalExam.started : p.exam.created);
-            const current = new Date(month);
+            const current = month ? new Date(month) : new Date();
             const min = new Date(current.getFullYear(), current.getMonth(), 1);
             const max = new Date(current.getFullYear(), current.getMonth() + 1, 0, 23, 59, 59);
             return date > min && date < max;

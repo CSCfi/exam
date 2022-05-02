@@ -15,14 +15,14 @@
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import * as toast from 'toastr';
 
-import { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../utility/attachment/attachment.service';
 import { AssessmentService } from '../assessment.service';
 
-import type { ExaminationQuestion } from '../../../examination/examination.service';
+import type { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
+import type { ExaminationQuestion } from '../../../examination/examination.model';
 import type { ReviewQuestion } from '../../review.model';
 
 @Component({
@@ -30,19 +30,19 @@ import type { ReviewQuestion } from '../../review.model';
     templateUrl: './essayQuestion.component.html',
 })
 export class EssayQuestionComponent {
-    @Input() participation: ExamParticipation;
-    @Input() exam: Exam;
-    @Input() sectionQuestion: ExamSectionQuestion;
-    @Input() isScorable: boolean;
-    @Input() collaborative: boolean;
+    @Input() participation!: ExamParticipation;
+    @Input() exam!: Exam;
+    @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() isScorable = false;
+    @Input() collaborative = false;
     @Output() onScore = new EventEmitter<string>();
-    @ViewChild('essayPoints', { static: false }) form: NgForm;
+    @ViewChild('essayPoints', { static: false }) form?: NgForm;
 
     reviewExpanded = true;
     _score: number | undefined = undefined;
 
     constructor(
-        private state: StateService,
+        private routing: UIRouterGlobals,
         private translate: TranslateService,
         private Assessment: AssessmentService,
         private Attachment: AttachmentService,
@@ -92,8 +92,8 @@ export class EssayQuestionComponent {
         if (this.collaborative) {
             return this.Assessment.saveCollaborativeEssayScore$(
                 this.sectionQuestion as ExaminationQuestion,
-                this.state.params.id,
-                this.state.params.ref,
+                this.routing.params.id,
+                this.routing.params.ref,
                 this.participation._rev as string,
             ).subscribe((resp) => {
                 toast.info(this.translate.instant('sitnet_graded'));

@@ -17,12 +17,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import * as toast from 'toastr';
 
-import { Exam } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
+import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
 import { ReviewListService } from '../reviewList.service';
 
+import type { Exam } from '../../../exam/exam.model';
 import type { SimpleChanges } from '@angular/core';
 import type { Review } from '../../review.model';
 import type { ReviewListView } from '../reviewList.service';
@@ -31,23 +31,23 @@ import type { ReviewListView } from '../reviewList.service';
     templateUrl: './graded.component.html',
 })
 export class GradedReviewsComponent {
-    @Input() exam: Exam;
+    @Input() exam!: Exam;
     @Input() reviews: Review[] = [];
-    @Input() collaborative: boolean;
+    @Input() collaborative = false;
     @Output() onRegistered = new EventEmitter<Review[]>();
-    view: ReviewListView;
-    selections: { all: boolean; page: boolean };
+    view!: ReviewListView;
+    selections: { all: boolean; page: boolean } = { all: false, page: false };
 
     constructor(
         private translate: TranslateService,
         private Confirmation: ConfirmationDialogService,
         private ReviewList: ReviewListService,
-        private Exam: ExamService,
+        private CommonExam: CommonExamService,
         private Session: SessionService,
     ) {}
 
     private init() {
-        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'deadline');
+        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.deadline');
         this.selections = { all: false, page: false };
     }
 
@@ -105,7 +105,7 @@ export class GradedReviewsComponent {
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.Exam.getExamGradeDisplayName(grade);
+        return this.CommonExam.getExamGradeDisplayName(grade);
     };
 
     private handleGradedReviews = (r: Review) => {
@@ -113,6 +113,6 @@ export class GradedReviewsComponent {
             ? r.examParticipation.exam.languageInspection.finishedAt
             : r.examParticipation.exam.gradedTime;
         r.displayedGrade = this.translateGrade(r.examParticipation.exam);
-        r.displayedCredit = this.Exam.getExamDisplayCredit(r.examParticipation.exam);
+        r.displayedCredit = this.CommonExam.getExamDisplayCredit(r.examParticipation.exam);
     };
 }

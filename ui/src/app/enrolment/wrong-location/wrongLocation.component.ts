@@ -16,7 +16,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { UIRouterGlobals } from '@uirouter/core';
-import * as moment from 'moment';
+import { addHours, format, parseISO } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import * as toast from 'toastr';
 
 import { DateTimeService } from '../../utility/date/date.service';
@@ -30,13 +31,14 @@ import type { ExamEnrolment } from '../enrolment.model';
     templateUrl: './wrongLocation.component.html',
 })
 export class WrongLocationComponent implements OnInit {
-    @Input() cause: string;
+    @Input() cause = '';
 
-    enrolment: ExamEnrolment;
-    isUpcoming: boolean;
-    roomInstructions: string;
-    currentMachine: ExamMachine;
-    occasion: { startAt: string; endAt: string };
+    enrolment!: ExamEnrolment;
+    reservation!: Reservation;
+    isUpcoming = false;
+    roomInstructions = '';
+    currentMachine!: ExamMachine;
+    occasion = { startAt: '', endAt: '' };
 
     constructor(
         private http: HttpClient,
@@ -67,7 +69,8 @@ export class WrongLocationComponent implements OnInit {
                     }
                     this.setOccasion(enrolment.reservation);
                     this.enrolment = enrolment;
-                    const room = enrolment.reservation.machine.room;
+                    this.reservation = enrolment.reservation;
+                    const room = this.reservation.machine.room;
                     const code = this.translate.currentLang.toUpperCase();
                     this.roomInstructions = this.getRoomInstructions(code, room);
                     this.http
@@ -83,17 +86,17 @@ export class WrongLocationComponent implements OnInit {
 
     private setOccasion = (reservation: Reservation) => {
         const tz = reservation.machine.room.localTimezone;
-        const start = moment.tz(reservation.startAt, tz);
-        const end = moment.tz(reservation.endAt, tz);
-        if (start.isDST()) {
-            start.add(-1, 'hour');
+        let start = zonedTimeToUtc(parseISO(reservation.startAt), tz);
+        let end = zonedTimeToUtc(parseISO(reservation.endAt), tz);
+        if (this.DateTime.isDST(start)) {
+            start = addHours(start, -1);
         }
-        if (end.isDST()) {
-            end.add(-1, 'hour');
+        if (this.DateTime.isDST(end)) {
+            end = addHours(end, -1);
         }
         this.occasion = {
-            startAt: start.format('HH:mm'),
-            endAt: end.format('HH:mm'),
+            startAt: format(start, 'HH:mm'),
+            endAt: format(end, 'HH:mm'),
         };
     };
 

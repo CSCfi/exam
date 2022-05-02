@@ -15,7 +15,7 @@
 import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import * as moment from 'moment';
+import { format } from 'date-fns';
 import * as toast from 'toastr';
 
 @Component({
@@ -23,36 +23,32 @@ import * as toast from 'toastr';
     templateUrl: './archiveDownload.component.html',
 })
 export class ArchiveDownloadComponent {
-    params: { startDate: Date; endDate: Date };
+    params: { startDate: Date | null; endDate: Date | null } = { startDate: new Date(), endDate: new Date() };
+
     constructor(private modal: NgbActiveModal, private translate: TranslateService) {}
 
-    ngOnInit() {
-        this.params = { startDate: new Date(), endDate: new Date() };
-    }
-    startDateChanged = (date: Date) => (this.params.startDate = date);
+    startDateChanged = (event: { date: Date | null }) => (this.params.startDate = event.date);
 
-    endDateChanged = (date: Date) => (this.params.endDate = date);
+    endDateChanged = (event: { date: Date | null }) => (this.params.endDate = event.date);
 
     ok = () => {
         let start, end;
         if (this.params.startDate) {
-            start = moment(this.params.startDate);
+            start = this.params.startDate;
         }
         if (this.params.endDate) {
-            end = moment(this.params.endDate);
+            end = this.params.endDate;
         }
         if (start && end && end < start) {
             toast.error(this.translate.instant('sitnet_endtime_before_starttime'));
         } else if (start && end) {
             this.modal.close({
                 $value: {
-                    start: start.format('DD.MM.YYYY'),
-                    end: end.format('DD.MM.YYYY'),
+                    start: format(start, 'dd.MM.yyyy'),
+                    end: format(end, 'dd.MM.yyyy'),
                 },
             });
         }
     };
-    cancel = function () {
-        this.modal.dismiss();
-    };
+    cancel = () => this.modal.dismiss();
 }

@@ -62,9 +62,7 @@ interface Env {
 @Injectable()
 export class SessionService implements OnDestroy {
     private PING_INTERVAL: number = 30 * 1000;
-    private user: User;
-    private env: { isProd: boolean };
-    private sessionCheckSubscription: Unsubscribable;
+    private sessionCheckSubscription?: Unsubscribable;
     private userChangeSubscription = new Subject<User>();
     private devLogoutSubscription = new Subject<void>();
 
@@ -85,25 +83,19 @@ export class SessionService implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.sessionCheckSubscription.unsubscribe();
+        if (this.sessionCheckSubscription) this.sessionCheckSubscription.unsubscribe();
     }
 
-    getUser = () => this.user;
+    getUser = (): User => {
+        const user = this.webStorageService.get('EXAM_USER');
+        if (!user) console.log('Tried to fetch a logged-out user.');
+        return user;
+    };
 
-    getUserName = () => (this.user ? this.user.firstName + ' ' + this.user.lastName : '');
-
-    setUser(user: User) {
-        this.user = user;
-    }
-
-    setEnv = () => this.init().subscribe((e) => (this.env = e));
-
-    private init(): Observable<Env> {
-        if (this.env) {
-            return of(this.env);
-        }
-        return this.http.get<Env>('/app/settings/environment');
-    }
+    getUserName = () => {
+        const user = this.getUser();
+        return user ? user.firstName + ' ' + user.lastName : '';
+    };
 
     private static hasPermission(user: User, permission: string) {
         if (!user) {
@@ -117,10 +109,12 @@ export class SessionService implements OnDestroy {
     }
 
     getEnv$ = (): Observable<'DEV' | 'PROD'> =>
-        this.init().pipe(
-            tap((env) => (this.env = env)),
+        this.http.get<Env>('/app/settings/environment').pipe(
+            tap((env) => this.webStorageService.set('EXAM-ENV', env)),
             map((env) => (env.isProd ? 'PROD' : 'DEV')),
         );
+
+    getEnv = (): Env | undefined => this.webStorageService.get('EXAM-ENV');
 
     private onLogoutSuccess(data: { logoutUrl: string }): void {
         this.userChangeSubscription.next(undefined);
@@ -129,9 +123,10 @@ export class SessionService implements OnDestroy {
         this.windowRef.nativeWindow.onbeforeunload = () => null;
         const location = this.windowRef.nativeWindow.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
+        const env = this.getEnv();
         if (data && data.logoutUrl) {
             location.href = `${localLogout}?return=${data.logoutUrl}`;
-        } else if (!this.env || this.env.isProd) {
+        } else if (!env || env.isProd) {
             // redirect to SP-logout directly
             location.href = localLogout;
         } else {
@@ -141,36 +136,47 @@ export class SessionService implements OnDestroy {
         this.windowRef.nativeWindow.setTimeout(toastr.clear, 300);
     }
 
-    private redirect(): void {
-        if (this.routing.current.name === 'app' && this.user?.isLanguageInspector) {
-            this.state.go('languageInspections');
+    private redirect(user: User): void {
+        if (this.routing.current.name === 'app' && user.isLanguageInspector) {
+            this.state.go('staff.languageInspections');
         } else if (this.routing.current.name === 'app') {
-            this.state.go('dashboard');
+            let state;
+            if (user.loginRole === 'STUDENT') state = 'dashboard';
+            else if (user.loginRole === 'TEACHER') state = 'staff.teacher';
+            else state = 'staff.admin';
+            this.state.go(state);
+        } else if (this.routing.current.name === '') {
+            // Hackish but will have to try
+            this.windowRef.nativeWindow.location.reload();
         }
     }
 
     logout(): void {
-        this.http.post<{ logoutUrl: string }>('/app/logout', {}).subscribe((resp) => {
+        this.http.delete<{ logoutUrl: string }>('/app/session', {}).subscribe((resp) => {
             this.webStorageService.remove('EXAM_USER');
             // delete this.user;
             this.onLogoutSuccess(resp);
         }, toastr.error);
     }
 
-    getLocale = () => (this.user ? this.user.lang : 'en');
+    getLocale = () => {
+        const user = this.getUser();
+        return user ? user.lang : 'en';
+    };
 
     translate(lang: string) {
         this.i18n.use(lang);
     }
 
     switchLanguage(lang: string) {
-        if (!this.user) {
+        const user = this.getUser();
+        if (!user) {
             this.translate(lang);
         } else {
             this.http.put('/app/user/lang', { lang: lang }).subscribe(
                 () => {
-                    this.user.lang = lang;
-                    this.webStorageService.set('EXAM_USER', this.user);
+                    user.lang = lang;
+                    this.webStorageService.set('EXAM_USER', user);
                     this.translate(lang);
                 },
                 () => toastr.error('failed to switch language'),
@@ -191,7 +197,7 @@ export class SessionService implements OnDestroy {
     }
 
     checkSession = () => {
-        this.http.get('/app/checkSession', { responseType: 'text' }).subscribe(
+        this.http.get('/app/session', { responseType: 'text' }).subscribe(
             (resp) => {
                 if (resp === 'alarm') {
                     toastr.warning(
@@ -201,7 +207,7 @@ export class SessionService implements OnDestroy {
                             timeOut: 0,
                             preventDuplicates: true,
                             onclick: () => {
-                                this.http.put('/app/extendSession', {}).subscribe(
+                                this.http.put('/app/session', {}).subscribe(
                                     () => {
                                         toastr.info(this.i18n.instant('sitnet_session_extended'), '', {
                                             timeOut: 1000,
@@ -288,7 +294,7 @@ export class SessionService implements OnDestroy {
 
     login$ = (username: string, password: string): Observable<User> =>
         this.http
-            .post<User>('/app/login', {
+            .post<User>('/app/session', {
                 username: username,
                 password: password,
             })
@@ -296,19 +302,16 @@ export class SessionService implements OnDestroy {
                 map((u) => this.prepareUser(u)),
                 switchMap((u) => this.processLogin$(u)),
                 tap((u) => {
-                    this.user = u;
-                    this.webStorageService.set('EXAM_USER', this.user);
+                    this.webStorageService.set('EXAM_USER', u);
                     this.restartSessionCheck();
                     this.userChangeSubscription.next(u);
                     const welcome = () => {
-                        if (this.user) {
-                            toastr.success(
-                                `${this.i18n.instant('sitnet_welcome')} ${this.user.firstName} ${this.user.lastName}`,
-                            );
+                        if (u) {
+                            toastr.success(`${this.i18n.instant('sitnet_welcome')} ${u.firstName} ${u.lastName}`);
                         }
                     };
                     this.windowRef.nativeWindow.setTimeout(welcome, 2000);
-                    this.redirect();
+                    this.redirect(u);
                 }),
                 catchError((resp) => {
                     if (resp) toastr.error(this.i18n.instant(resp));

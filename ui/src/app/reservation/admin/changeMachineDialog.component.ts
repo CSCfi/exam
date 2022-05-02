@@ -20,7 +20,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import * as toast from 'toastr';
 
-import { Reservation } from '../reservation.model';
+import type { Reservation } from '../reservation.model';
 
 import type { OnInit } from '@angular/core';
 import type { Option } from '../../utility/select/dropDownSelect.component';
@@ -30,10 +30,10 @@ import type { ExamMachine } from '../reservation.model';
     templateUrl: './changeMachineDialog.component.html',
 })
 export class ChangeMachineDialogComponent implements OnInit {
-    @Input() reservation: Reservation;
+    @Input() reservation!: Reservation;
 
-    selection: ExamMachine;
-    availableMachineOptions: Option[] = [];
+    selection?: ExamMachine;
+    availableMachineOptions: Option<ExamMachine, number>[] = [];
 
     constructor(public activeModal: NgbActiveModal, private http: HttpClient, private translate: TranslateService) {}
 
@@ -50,11 +50,11 @@ export class ChangeMachineDialogComponent implements OnInit {
         );
     }
 
-    machineChanged = (event: { value: ExamMachine }) => (this.selection = event.value);
+    machineChanged = (event: Option<ExamMachine, number> | undefined) => (this.selection = event?.value);
 
     ok = () =>
         this.http
-            .put<ExamMachine>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection.id })
+            .put<ExamMachine>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection?.id })
             .subscribe(
                 (resp) => {
                     toast.info(this.translate.instant('sitnet_updated'));

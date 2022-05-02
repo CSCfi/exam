@@ -17,8 +17,8 @@ import { Component, Input } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
-import * as _ from 'lodash';
-import * as moment from 'moment';
+import { format, parseISO } from 'date-fns';
+import { isBoolean, isEmpty, toNumber } from 'lodash';
 import { throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
@@ -26,7 +26,6 @@ import * as toast from 'toastr';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
 import { WindowRef } from '../../../utility/window/window.service';
-import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { ExaminationEventDialogComponent } from '../events/examinationEventDialog.component';
 import { ExamTabService } from '../examTabs.service';
@@ -37,20 +36,34 @@ import { PublicationRevocationDialogComponent } from './publicationRevocationDia
 import type { OnInit } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { User } from '../../../session/session.service';
-import type { AutoEvaluationConfig, ExaminationDate, ExaminationEventConfiguration } from '../../exam.model';
+import type {
+    Exam,
+    AutoEvaluationConfig,
+    ExaminationDate,
+    ExaminationEventConfiguration,
+    MaintenancePeriod,
+} from '../../exam.model';
 @Component({
     selector: 'exam-publication',
     templateUrl: './examPublication.component.html',
 })
 export class ExamPublicationComponent implements OnInit {
-    @Input() exam: Exam;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() collaborative = false;
 
     user: User;
     hostName: string;
-    autoEvaluation: { enabled: boolean };
-    examDurations: number[];
+    autoEvaluation: { enabled: boolean } = { enabled: false };
+    examDurations: number[] = [];
+    maintenancePeriods: MaintenancePeriod[] = [];
     visibleParticipantSelector = 'participant';
+    examMaxDate?: Date;
+    timeValue?: number;
+    hourValue?: number;
+    minuteValue?: number;
+    maxDuration = 300; //DEFAULT
+    minDuration = 1; //DEFAULT
+    showCustomTimeField = false;
 
     constructor(
         private http: HttpClient,
@@ -62,26 +75,43 @@ export class ExamPublicationComponent implements OnInit {
         private Exam: ExamService,
         private Confirmation: ConfirmationDialogService,
         private Tabs: ExamTabService,
-    ) {}
-
-    ngOnInit() {
+    ) {
         this.hostName = this.windowRef.nativeWindow.location.origin;
         this.user = this.Session.getUser();
-        this.autoEvaluation = {
-            enabled: !!this.exam.autoEvaluationConfig,
-        };
+    }
+
+    ngOnInit() {
+        this.autoEvaluation = { enabled: !!this.exam.autoEvaluationConfig };
         this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe(
             (data) => (this.examDurations = data.examDurations),
             (error) => toast.error(error),
         );
+        this.http.get<{ maxDate: Date }>('/app/settings/maxDate').subscribe(
+            (data) => (this.examMaxDate = data.maxDate),
+            (error) => toast.error(error),
+        );
+        this.http.get<{ maxDuration: number }>('/app/settings/maxDuration').subscribe(
+            (data) => (this.maxDuration = data.maxDuration),
+            (error) => toast.error(error),
+        );
+        this.http.get<{ minDuration: number }>('/app/settings/minDuration').subscribe(
+            (data) => (this.minDuration = data.minDuration),
+            (error) => toast.error(error),
+        );
+        if (this.exam.implementation !== 'AQUARIUM') {
+            this.http
+                .get<MaintenancePeriod[]>('/app/maintenance')
+                .subscribe((periods) => (this.maintenancePeriods = periods));
+        }
         this.Tabs.notifyTabChange(3);
     }
 
-    addExaminationDate = (date: Date) => {
+    addExaminationDate = (event: { date: Date | null }) => {
+        if (!event.date) return;
         const fmt = 'DD/MM/YYYY';
-        const formattedDate = moment(date).format(fmt);
+        const formattedDate = format(event.date, fmt);
         const alreadyExists: boolean = this.exam.examinationDates
-            .map((ed: { date: Date | number }) => moment(ed.date).format(fmt))
+            .map((ed) => format(parseISO(ed.date), fmt))
             .some((d: string) => d === formattedDate);
         if (!alreadyExists) {
             this.http
@@ -92,6 +122,10 @@ export class ExamPublicationComponent implements OnInit {
         }
     };
 
+    toggleCustomTimeField() {
+        this.showCustomTimeField = !this.showCustomTimeField;
+    }
+
     removeExaminationDate = (date: ExaminationDate) => {
         this.http.delete(`/app/exam/${this.exam.id}/examinationdate/${date.id}`).subscribe(() => {
             const i = this.exam.examinationDates.indexOf(date);
@@ -99,8 +133,10 @@ export class ExamPublicationComponent implements OnInit {
         });
     };
 
-    startDateChanged = (event: { date: string }) => (this.exam.examActiveStartDate = event.date);
-    endDateChanged = (event: { date: string }) => (this.exam.examActiveEndDate = event.date);
+    startDateChanged = (event: { date: Date | null }) =>
+        (this.exam.examActiveStartDate = event.date ? event.date.toISOString() : null);
+    endDateChanged = (event: { date: Date | null }) =>
+        (this.exam.examActiveEndDate = event.date ? event.date.toISOString() : null);
 
     autoEvaluationConfigChanged = (event: { config: AutoEvaluationConfig }) => {
         this.exam.autoEvaluationConfig = event.config;
@@ -143,11 +179,34 @@ export class ExamPublicationComponent implements OnInit {
 
     updateExam = () => this.updateExam$().subscribe();
 
-    setExamDuration = (duration: number) => {
+    setExamDuration = (hours?: number, minutes?: number) => {
+        // Fix undefined values
+        const fixHour = hours || 0;
+        const fixMinutes = minutes || 0;
+        const duration = fixHour * 60 + fixMinutes;
+        if (duration < this.minDuration || duration > this.maxDuration) {
+            toast.warning(this.translate.instant('DIALOGS_ERROR'));
+            return null;
+        }
         this.exam.duration = duration;
         this.updateExam$().subscribe();
     };
 
+    setHourValue = (event: Event) => {
+        this.hourValue = toNumber((event.target as HTMLInputElement).value);
+    };
+    setMinuteValue = (event: Event) => {
+        this.minuteValue = toNumber((event.target as HTMLInputElement).value);
+    };
+
+    toHoursAndMinutes = (minutes: number): string => {
+        const hours = minutes / 60;
+        const fullHours = Math.floor(hours);
+        const spareMinutes = Math.round((hours - fullHours) * 60);
+        const hourString = fullHours + ' ' + this.translate.instant('sitnet_hours');
+        const minuteString = spareMinutes + ' ' + this.translate.instant('sitnet_minutes');
+        return (fullHours > 0 ? hourString : '') + ' ' + (spareMinutes > 0 ? minuteString : '') + ' (' + minutes + ')';
+    };
     checkDuration = (duration: number) => (this.exam.duration === duration ? 'btn-primary' : '');
 
     range = (min: number, max: number, step = 1) => {
@@ -158,9 +217,9 @@ export class ExamPublicationComponent implements OnInit {
         return input;
     };
 
-    checkTrialCount = (x: number) => (this.exam.trialCount === x ? 'btn-primary' : '');
+    checkTrialCount = (x: number | null) => (this.exam.trialCount === x ? 'btn-primary' : '');
 
-    setTrialCount = (x: number) => {
+    setTrialCount = (x: number | null) => {
         this.exam.trialCount = x;
         this.updateExam$().subscribe();
     };
@@ -169,11 +228,11 @@ export class ExamPublicationComponent implements OnInit {
 
     nextTab = () => {
         this.Tabs.notifyTabChange(4);
-        this.state.go('examEditor.assessments');
+        this.state.go('staff.examEditor.assessments');
     };
     previousTab = () => {
         this.Tabs.notifyTabChange(2);
-        this.state.go('examEditor.sections');
+        this.state.go('staff.examEditor.sections');
     };
 
     saveAndPublishExam = () => {
@@ -205,7 +264,7 @@ export class ExamPublicationComponent implements OnInit {
                             ? 'sitnet_exam_saved_and_pre_published'
                             : 'sitnet_exam_saved_and_published';
                         toast.success(this.translate.instant(text));
-                        this.state.go('dashboard');
+                        this.state.go(this.user.isAdmin ? 'staff.admin' : 'staff.teacher');
                     },
                     (err) => toast.error(err.data),
                 );
@@ -249,11 +308,12 @@ export class ExamPublicationComponent implements OnInit {
             size: 'lg',
         });
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
-        modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.addExaminationEvent$(this.exam.id, data).subscribe((config: ExaminationEventConfiguration) => {
-                this.exam.examinationEventConfigurations.push(config);
-            });
-        });
+        modalRef.componentInstance.examMaxDate = this.examMaxDate;
+        modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
+        modalRef.componentInstance.examId = this.exam.id;
+        modalRef.result
+            .then((data: ExaminationEventConfiguration) => this.exam.examinationEventConfigurations.push(data))
+            .catch((err) => toast.error(err));
     };
 
     modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
@@ -264,16 +324,15 @@ export class ExamPublicationComponent implements OnInit {
         });
         modalRef.componentInstance.config = configuration;
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
-        modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.Exam.updateExaminationEvent$(this.exam.id, Object.assign(data, { id: configuration.id })).subscribe(
-                (config: ExaminationEventConfiguration) => {
-                    const index = this.exam.examinationEventConfigurations.indexOf(configuration);
-                    console.log(index);
-                    this.exam.examinationEventConfigurations.splice(index, 1, config);
-                    console.log(this.exam.examinationEventConfigurations[0].settingsPassword);
-                },
-            );
-        });
+        modalRef.componentInstance.examMaxDate = this.examMaxDate;
+        modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
+        modalRef.componentInstance.examId = this.exam.id;
+        modalRef.result
+            .then((config: ExaminationEventConfiguration) => {
+                const index = this.exam.examinationEventConfigurations.indexOf(configuration);
+                this.exam.examinationEventConfigurations.splice(index, 1, config);
+            })
+            .catch((err) => toast.error(err));
     };
 
     removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {
@@ -292,10 +351,10 @@ export class ExamPublicationComponent implements OnInit {
                             1,
                         );
                     },
-                    (resp) => toast.error(resp),
+                    (err) => toast.error(err),
                 ),
             )
-            .catch((err) => toast.error(err.data));
+            .catch((err) => toast.error(err));
     };
 
     private isAllowedToUnpublishOrRemove = () =>
@@ -366,7 +425,7 @@ export class ExamPublicationComponent implements OnInit {
             errors.push('sitnet_exam_has_no_questions');
         }
 
-        const allSectionsNamed = this.exam.examSections.every((section) => !_.isEmpty(section.name));
+        const allSectionsNamed = this.exam.examSections.every((section) => !isEmpty(section.name));
         if (!allSectionsNamed) {
             errors.push('sitnet_exam_contains_unnamed_sections');
         }
@@ -375,7 +434,7 @@ export class ExamPublicationComponent implements OnInit {
             errors.push('sitnet_no_participants');
         }
 
-        if (this.exam.executionType.type === 'MATURITY' && !_.isBoolean(this.exam.subjectToLanguageInspection)) {
+        if (this.exam.executionType.type === 'MATURITY' && !isBoolean(this.exam.subjectToLanguageInspection)) {
             errors.push('sitnet_language_inspection_setting_not_chosen');
         }
 
@@ -387,5 +446,11 @@ export class ExamPublicationComponent implements OnInit {
             errors.push('sitnet_missing_examination_event_configurations');
         }
         return errors.map((e) => this.translate.instant(e));
+    }
+
+    sortByString(prop: ExaminationEventConfiguration[]): Array<ExaminationEventConfiguration> {
+        return prop.sort((a, b) => {
+            return Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start);
+        });
     }
 }

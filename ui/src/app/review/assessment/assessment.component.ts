@@ -24,19 +24,21 @@ import { WindowRef } from '../../utility/window/window.service';
 import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborativeAssessment.service';
 
-import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../exam/exam.model';
+import type { Examination } from '../../examination/examination.model';
+import type { ClozeTestAnswer, ExamParticipation } from '../../exam/exam.model';
 import type { QuestionAmounts } from '../../question/question.service';
 import type { User } from '../../session/session.service';
+
 @Component({
     selector: 'assessment',
     templateUrl: './assessment.component.html',
 })
 export class AssessmentComponent {
-    @Input() collaborative: boolean;
+    @Input() collaborative = false;
 
-    questionSummary: QuestionAmounts;
-    exam: Exam;
-    participation: ExamParticipation;
+    questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
+    exam!: Examination;
+    participation!: ExamParticipation;
     user: User;
     hideGeneralInfo = false;
     hideGradeInfo = false;
@@ -51,12 +53,16 @@ export class AssessmentComponent {
         private Exam: ExamService,
         private Session: SessionService,
         private Window: WindowRef,
-    ) {}
+    ) {
+        this.user = this.Session.getUser();
+    }
 
     ngOnInit() {
-        const path = this.collaborative ? `${this.state.params.id}/${this.state.params.ref}` : this.state.params.id;
+        const path = this.collaborative
+            ? `${this.routing.params.id}/${this.routing.params.ref}`
+            : this.routing.params.id;
         const url = this.getResource(path);
-        this.http.get<ExamParticipation>(url).subscribe(
+        this.http.get<Omit<ExamParticipation, 'exam'> & { exam: Examination }>(url).subscribe(
             (participation) => {
                 const exam = participation.exam;
                 exam.examSections.forEach((es) =>
@@ -78,7 +84,6 @@ export class AssessmentComponent {
                 this.questionSummary = this.Question.getQuestionAmounts(exam);
                 this.exam = exam;
                 this.participation = participation;
-                this.user = this.Session.getUser();
             },
             (err) => toast.error(err.data),
         );
@@ -93,8 +98,8 @@ export class AssessmentComponent {
 
     print = () => {
         const url = this.collaborative
-            ? `/print/exam/${this.routing.params.id}/${this.routing.params.ref}`
-            : `/print/exam/${this.exam.id}`;
+            ? `/staff/print/exam/${this.routing.params.id}/${this.routing.params.ref}`
+            : `/staff/print/exam/${this.exam.id}`;
         this.Window.nativeWindow.open(url, '_blank');
     };
 
@@ -110,10 +115,8 @@ export class AssessmentComponent {
     isReadOnly = () => this.Assessment.isReadOnly(this.exam);
     isGraded = () => this.Assessment.isGraded(this.exam);
 
-    setCommentRead = () => this.Assessment.setCommentRead(this.exam);
-
     goToAssessment = () =>
-        this.state.go('examEditor.assessments', {
+        this.state.go('staff.examEditor.assessments', {
             id: this.collaborative ? this.routing.params.id : this.exam.parent?.id,
             collaborative: this.collaborative ? 'collaborative' : 'regular',
         });
@@ -131,7 +134,7 @@ export class AssessmentComponent {
                     state,
                     this.participation._rev as string,
                 );
-                const url = `/integration/iop/reviews/${this.state.params.id}/${this.state.params.ref}`;
+                const url = `/app/iop/reviews/${this.routing.params.id}/${this.routing.params.ref}`;
                 this.http.put<{ rev: string }>(url, review).subscribe((resp) => {
                     this.participation._rev = resp.rev;
                     this.exam.state = state;
@@ -140,6 +143,5 @@ export class AssessmentComponent {
         }
     };
 
-    private getResource = (path: string) =>
-        this.collaborative ? `/integration/iop/reviews/${path}` : `/app/review/${path}`;
+    private getResource = (path: string) => (this.collaborative ? `/app/iop/reviews/${path}` : `/app/review/${path}`);
 }

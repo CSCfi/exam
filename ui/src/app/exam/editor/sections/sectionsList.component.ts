@@ -16,27 +16,27 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { StateService } from '@uirouter/core';
 import { catchError, tap } from 'rxjs/operators';
 import * as toast from 'toastr';
 
 import { SessionService } from '../../../session/session.service';
-import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
+import { ExamTabService } from '../examTabs.service';
 
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import type { OnChanges, SimpleChanges } from '@angular/core';
-import type { ExamMaterial, ExamSection } from '../../exam.model';
-import { ExamTabService } from '../examTabs.service';
-import { StateService } from '@uirouter/core';
+import type { Exam, ExamMaterial, ExamSection } from '../../exam.model';
+
 @Component({
     selector: 'sections',
     templateUrl: './sectionsList.component.html',
 })
 export class SectionsListComponent implements OnChanges {
-    @Input() exam: Exam;
-    @Input() collaborative: boolean;
+    @Input() exam!: Exam;
+    @Input() collaborative = false;
 
-    materials: ExamMaterial[];
+    materials: ExamMaterial[] = [];
 
     constructor(
         private http: HttpClient,
@@ -121,12 +121,12 @@ export class SectionsListComponent implements OnChanges {
 
     nextTab = () => {
         this.Tabs.notifyTabChange(3);
-        this.State.go('examEditor.publication');
+        this.State.go('staff.examEditor.publication');
     };
 
     previousTab = () => {
         this.Tabs.notifyTabChange(1);
-        this.State.go('examEditor.basic');
+        this.State.go('staff.examEditor.basic');
     };
 
     showDelete = () => {

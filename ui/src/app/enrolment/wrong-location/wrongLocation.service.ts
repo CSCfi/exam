@@ -14,9 +14,10 @@
  */
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as moment from 'moment';
+import { addHours, format, parseISO } from 'date-fns';
 import * as toast from 'toastr';
 
+import { DateTimeService } from '../../utility/date/date.service';
 import { WindowRef } from '../../utility/window/window.service';
 
 @Injectable()
@@ -26,22 +27,22 @@ export class WrongLocationService {
         preventDuplicates: true,
     };
 
-    constructor(private translate: TranslateService, private Window: WindowRef) {}
+    constructor(private translate: TranslateService, private DateTime: DateTimeService, private Window: WindowRef) {}
 
     display = (data: string[]) => {
         this.Window.nativeWindow.setTimeout(() => {
-            const startsAt = moment(data[4]);
-            const now = moment();
-            if (now.isDST()) {
-                startsAt.add(-1, 'hour');
+            let startsAt = parseISO(data[4]);
+            const now = new Date();
+            if (this.DateTime.isDST(now)) {
+                startsAt = addHours(startsAt, -1);
             }
             const i18nRoom = this.translate.instant('sitnet_at_room');
             const i18nMachine = this.translate.instant('sitnet_at_machine');
-            if (startsAt.isAfter(now)) {
+            if (startsAt > now) {
                 const i18nLocation = this.translate.instant('sitnet_at_location');
                 const i18nTime = this.translate.instant('sitnet_your_exam_will_start_at');
                 toast.warning(
-                    `${i18nTime} ${startsAt.format('HH:mm')} ${i18nLocation} ${data[0]}: ${data[1]}, ${i18nRoom} ${
+                    `${i18nTime} ${format(startsAt, 'HH:mm')} ${i18nLocation} ${data[0]}: ${data[1]}, ${i18nRoom} ${
                         data[2]
                     } ${i18nMachine} ${data[3]}`,
                     '',
@@ -63,11 +64,10 @@ export class WrongLocationService {
             timeOut: 10000,
             preventDuplicates: true,
         };
-        const startsAt = moment(startsAtTxt);
-        const now = moment();
-        if (startsAt.isAfter(now)) {
+        const startsAt = parseISO(startsAtTxt);
+        if (startsAt > new Date()) {
             toast.warning(
-                `${this.translate.instant('sitnet_seb_exam_about_to_begin')} ${startsAt.format('HH:mm')}`,
+                `${this.translate.instant('sitnet_seb_exam_about_to_begin')} ${format(startsAt, 'HH:mm')}`,
                 '',
                 opts,
             );
