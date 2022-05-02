@@ -347,14 +347,14 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             node.has("institutionName")
         ) {
             Course course = new Course();
-            if (node.has("endDate")) {
+            if (node.has("endDate") && node.get("endDate").isTextual()) {
                 Date endDate = DF.parse(node.get("endDate").asText());
                 if (endDate.before(new Date())) {
                     return Optional.empty();
                 }
                 course.setEndDate(endDate);
             }
-            if (node.has("startDate")) {
+            if (node.has("startDate") && node.get("startDate").isTextual()) {
                 DateTime startDate = new DateTime(DF.parse(node.get("startDate").asText()));
                 DateTime validityDate = configReader.getCourseValidityDate(startDate);
                 if (validityDate.isAfterNow()) {

@@ -259,7 +259,7 @@ export class SectionComponent implements OnInit {
                 }
                 // Collaborative exam question handling.
                 const newSectionQuestion = resp as ExamSectionQuestion;
-                this.addAttachment(newSectionQuestion, question, () => {
+                this.addACollabAttachment(newSectionQuestion, question, () => {
                     const uploadedAttachment = question.attachment;
                     if (uploadedAttachment) {
                         newSectionQuestion.question.attachment = uploadedAttachment;
@@ -271,7 +271,7 @@ export class SectionComponent implements OnInit {
         });
     };
 
-    private addAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
+    private addACollabAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
         const attachment = question.attachment;
         if (!attachment) {
             return;
@@ -279,7 +279,7 @@ export class SectionComponent implements OnInit {
 
         if (attachment.modified && attachment.file) {
             this.Files.upload(
-                '/app/iop/attachment/question',
+                '/app/iop/collab/attachment/question',
                 attachment.file,
                 { examId: this.examId.toString(), questionId: data.id.toString() },
                 question,

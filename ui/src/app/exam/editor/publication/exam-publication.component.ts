@@ -155,7 +155,8 @@ export class ExamPublicationComponent implements OnInit {
             this.toast.warning(this.translate.instant('DIALOGS_ERROR'));
             return;
         }
-        this.updateExam$().subscribe(() => (this.exam.duration = duration));
+        this.exam.duration = duration;
+        this.updateExam$().subscribe();
     };
 
     setHourValue = (event: Event) => {
