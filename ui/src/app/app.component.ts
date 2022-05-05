@@ -32,7 +32,7 @@ import { SessionService } from './session/session.service';
         </div>
         <div *ngIf="user">
             <xm-navigation [hidden]="hideNavBar"></xm-navigation>
-            <main id="mainView" class="container-fluid pad0" [ngClass]="{ 'vmenu-on': !hideNavBar }">
+            <main id="mainView" class="container-fluid pad0 w-auto" [ngClass]="{ 'vmenu-on': !hideNavBar }">
                 <ui-view></ui-view>
             </main>
         </div>
