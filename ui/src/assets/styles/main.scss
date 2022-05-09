@@ -2,7 +2,7 @@
 @import "partial/defines";
 @import "partial/vmenu";
 @import "partial/header";
-@import "partial/exam"; 
+@import "partial/exam";
 @import "partial/library";
 @import "partial/question-editor";
 @import "partial/student_exam";
@@ -42,7 +42,7 @@ p, li {
   margin-left: 17.025em !important;
 
   @media (max-width: $sitnet-mobile) {
-    margin-left: 0;
+    margin-left: 0 !important;
     padding-left: 0;
     padding-right: 0;
   }
@@ -107,6 +107,14 @@ p, li {
   }
 }
 
+.enroll-result-buttons{
+  justify-self: end;
+  grid-column-start: span 3;
+  display: flex;
+  justify-items: flex-end;
+
+}
+
 .student-message-dialog-button-save {
   float:right;
 
@@ -130,9 +138,9 @@ p, li {
   }
 
   button:disabled {
-      opacity: 0.3;
-      pointer-events: none;
-      cursor: not-allowed;
+    opacity: 0.3;
+    pointer-events: none;
+    cursor: not-allowed;
   }
 
   a {
@@ -375,14 +383,14 @@ p, li {
   display: inline-block;
   padding-right:10px;
   @media (max-width: $sitnet-mobile) {
-  input[type=checkbox]
-  {
-    margin: 10px;
-    -ms-transform: scale(2); /* IE */
-    -moz-transform: scale(2); /* FF */
-    -webkit-transform: scale(2); /* Safari and Chrome */
-    -o-transform: scale(2); /* Opera */
-  }
+    input[type=checkbox]
+    {
+      margin: 10px;
+      -ms-transform: scale(2); /* IE */
+      -moz-transform: scale(2); /* FF */
+      -webkit-transform: scale(2); /* Safari and Chrome */
+      -o-transform: scale(2); /* Opera */
+    }
   }
 }
 
@@ -466,11 +474,11 @@ p, li {
   .disabled {
     display:none;
   }
-  
+
   li {
     display: inline-block;
     padding: 5px;
-    
+
     a, a:focus {
       padding: 8px;
       color: black;

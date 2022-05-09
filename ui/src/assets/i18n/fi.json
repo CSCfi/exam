@@ -1031,5 +1031,6 @@
   "sitnet_exam_organisations_description": "Yhteistentin tiedot näkyvät vain näille organisaatioille. Yhteistentin luonut taho on automaattisesti näiden joukossa.",
   "sitnet_error_examination_event_in_the_past": "Tenttitilaisuuden ajankohta ei voi olla menneisyydessä",
   "sitnet_error_conflicts_with_maintenance_period": "Tenttitilaisuuden ajankohta ei voi olla huoltokatkon aikana",
-  "sitnet_save_custom_time": "Tallenna mukautettu aika"
+  "sitnet_save_custom_time": "Tallenna mukautettu aika",
+  "sitnet_edit_enrolment": "Muokkaa ilmoittautumista FI"
 }

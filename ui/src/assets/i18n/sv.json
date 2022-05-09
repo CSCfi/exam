@@ -1031,5 +1031,6 @@
   "sitnet_exam_organisations_description": "Information om en gemensam tentamen syns endast för dessa organisationer. Den organisation som skapat tentamen ingår automatiskt.",
   "sitnet_error_examination_event_in_the_past": "Tentamenstillfället kan inte vara i förfluten tid",
   "sitnet_error_conflicts_with_maintenance_period": "Tentamenstillfället kan inte ordnas under ett serviceunderhåll",
-  "sitnet_save_custom_time": "Tallenna mukautettu aika SV"
+  "sitnet_save_custom_time": "Tallenna mukautettu aika SV",
+  "sitnet_edit_enrolment": "Edit enrolment SV"
 }

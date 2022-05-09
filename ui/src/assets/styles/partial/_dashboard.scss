@@ -14,7 +14,7 @@
     @media (min-width: $sitnet-mobile) {
       padding-left: 1em;
       padding-right: 1em;
-    }  
+    }
   }
 
   .mar-lr-0{
@@ -25,7 +25,7 @@
   .search-list-wrapper {
     padding: 3em;
     @media (max-width: $sitnet-mobile) {
-    padding: 5px;
+      padding: 5px;
     }
   }
 
@@ -40,11 +40,20 @@
     padding: 30px;
     margin-bottom: 6px;
     @media (max-width: $sitnet-mobile) {
-      grid-template-columns: auto 1fr;
+      grid-template-columns: auto 1fr !important;
       grid-template-rows: repeat(3, auto);
       gap: 5px;
       padding: 5px;
     }
+  }
+  .grid-expand-row-3{
+    grid-column: span 3;
+  }
+  .grid-expand-row-2{
+    grid-column: span 2;
+  }
+  .grid-self-center{
+    justify-self: center;
   }
 
   .student-enrolment-wrapper {
@@ -990,7 +999,7 @@
     }
     a {
       color: #555555;
-      
+
     }
   }
 
@@ -1303,7 +1312,7 @@
     text-transform: uppercase;
     //white-space: nowrap;
 
-}
+  }
 
   .btn {
     &.green {
@@ -1673,7 +1682,7 @@
 
   .question-editor-option {
     margin: 0px;
-    padding: 0px;  
+    padding: 0px;
   }
 
   .question-editor-claim-choice-option {
