@@ -66,10 +66,10 @@
         <div class="col-md-2 general-info-title">
             {{ 'sitnet_additional_info_for_registry' | translate }}:
             <sup
+                ngbPopover="{{ 'sitnet_additional_info_for_registry_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
                 ><img
-                    ngbPopover="{{ 'sitnet_additional_info_for_registry_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
                     src="/assets/images/icon_tooltip.svg"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"

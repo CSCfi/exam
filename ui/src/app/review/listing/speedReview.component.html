@@ -187,11 +187,12 @@
             <div>
                 <div class="speed-review-csv ml-3 mb-1">
                     <a class="pointer" (click)="importGrades()">{{ 'sitnet_import_grades_from_csv' | translate }}</a>
-                    <sup>
+                    <sup
+                        ngbPopover="{{ 'sitnet_grade_import_file_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    >
                         <img
-                            ngbPopover="{{ 'sitnet_grade_import_file_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
                             src="/assets/images/icon_tooltip.svg"
                             alt="exam"
                             onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -203,11 +204,12 @@
                     <a class="pointer" (click)="createGradingTemplate()">{{
                         'sitnet_create_grading_template' | translate
                     }}</a>
-                    <sup>
+                    <sup
+                        ngbPopover="{{ 'sitnet_create_grading_template_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    >
                         <img
-                            ngbPopover="{{ 'sitnet_create_grading_template_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
                             src="/assets/images/icon_tooltip.svg"
                             alt="exam"
                             onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"

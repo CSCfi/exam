@@ -2067,6 +2067,16 @@
       display:none;
     }
   }
+
+  .flex-wrap-gap{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .min-width-300{
+    min-width: 300px;
+  }
   
 }
 

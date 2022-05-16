@@ -27,15 +27,13 @@ import { QuestionDraft } from '../question.service';
         <div class="col-md-3 exam-basic-title">
             {{ 'sitnet_tag_question' | translate }}
             <sup
-                ><img
-                    ngbPopover="{{ 'sitnet_question_tag_question_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                    src="/assets/images/icon_tooltip.svg"
-                    alt="exam"
+                ngbPopover="{{ 'sitnet_question_tag_question_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+                ><img src="/assets/images/icon_tooltip.svg" alt="exam"
             /></sup>
         </div>
-        <div class="col-md-9">
+        <div class="flex">
             <input
                 id="newTag"
                 name="newTag"
@@ -48,31 +46,29 @@ import { QuestionDraft } from '../question.service';
                 [resultFormatter]="nameFormat"
                 [inputFormatter]="nameFormat"
             />
-            <span>
-                <button
-                    (click)="addTag()"
-                    [disabled]="!newTag || newTag.name.length < 2"
-                    class="btn btn-primary green border-green"
-                >
-                    {{ 'sitnet_add' | translate }}
-                </button>
-            </span>
-            <ul class="list-inline mart10">
-                <li *ngFor="let tag of question.tags">
-                    {{ tag.name }}
-                    <button
-                        class="reviewer-remove"
-                        ngbPopover="{{ 'sitnet_remove' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                        (click)="removeTag(tag)"
-                        title="{{ 'sitnet_remove' | translate }}"
-                    >
-                        <img src="/assets/images/icon_remove.svg" alt="exam" />
-                    </button>
-                </li>
-            </ul>
+            <button
+                (click)="addTag()"
+                [disabled]="!newTag || newTag.name.length < 2"
+                class="btn btn-primary green border-green marl5"
+            >
+                {{ 'sitnet_add' | translate }}
+            </button>
         </div>
+        <ul class="list-inline mart10">
+            <li *ngFor="let tag of question.tags">
+                {{ tag.name }}
+                <button
+                    class="reviewer-remove"
+                    ngbPopover="{{ 'sitnet_remove' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                    (click)="removeTag(tag)"
+                    title="{{ 'sitnet_remove' | translate }}"
+                >
+                    <img src="/assets/images/icon_remove.svg" alt="exam" />
+                </button>
+            </li>
+        </ul>
     </div> `,
 })
 export class TagPickerComponent {

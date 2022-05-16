@@ -58,7 +58,7 @@ import type { ExamSection, Question } from '../../exam/exam.model';
 
             <!-- Buttons -->
             <div class="row">
-                <div class="col-md-12 marr20 marb20">
+                <div class="flex flex-middle marr20 marb20">
                     <span class="float-right">
                         <div class="library-button make-inline">
                             <a class="pointer preview" (click)="cancel()">

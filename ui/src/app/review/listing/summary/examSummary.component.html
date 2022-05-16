@@ -9,11 +9,13 @@
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_name' | translate }}
-                <sup class="padl05">
+                <sup
+                    class="padl05"
+                    ngbPopover="{{ 'sitnet_exam_name_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_exam_name_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -25,11 +27,13 @@
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_course_name' | translate }}
-                <sup class="padl05">
+                <sup
+                    class="padl05"
+                    ngbPopover="{{ 'sitnet_course_name_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_course_name_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -41,11 +45,13 @@
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_validity' | translate }}
-                <sup class="padl05">
+                <sup
+                    class="padl05"
+                    ngbPopover="{{ 'sitnet_exam_validity_period_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_exam_validity_period_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -60,11 +66,13 @@
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_amount_questions' | translate }}
-                <sup class="padl05">
+                <sup
+                    class="padl05"
+                    ngbPopover="{{ 'sitnet_exam_amount_questions_description' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_exam_amount_questions_description' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -79,11 +87,13 @@
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_amount_reservations' | translate }} /
                 {{ 'sitnet_exam_amount_participations' | translate }}
-                <sup class="padl05">
+                <sup
+                    class="padl05"
+                    ngbPopover="{{ 'sitnet_exam_amount_reservations_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_exam_amount_reservations_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -99,11 +109,13 @@
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_average_time' | translate }}
-                <sup class="padl05">
+                <sup
+                    class="padl05"
+                    ngbPopover="{{ 'sitnet_exam_average_time_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_exam_average_time_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -115,11 +127,13 @@
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_aborted_exams' | translate }}
-                <sup class="padl05">
+                <sup
+                    class="padl05"
+                    ngbPopover="{{ 'sitnet_aborted_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_aborted_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -135,11 +149,13 @@
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_no_shows' | translate }}
-                <sup class="padl05">
+                <sup
+                    class="padl05"
+                    ngbPopover="{{ 'sitnet_no_shows_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_no_shows_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -162,11 +178,13 @@
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_feedback_messages_read' | translate }}
-                <sup class="padl05">
+                <sup
+                    class="padl05"
+                    ngbPopover="{{ 'sitnet_feedback_summary_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_feedback_summary_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -174,18 +192,22 @@
                 </sup>
             </div>
             <div class="col-md-6" *ngIf="reviews">
-                {{ getReadFeedback() }} / {{ getTotalFeedback() }} ({{ getFeedbackPercentage() | number: '1.0-1' }}%)
+                {{ this.getReadFeedback }} / {{ this.getTotalFeedback }} ({{
+                    getFeedbackPercentage() | number: '1.0-1'
+                }}%)
             </div>
         </div>
 
         <div class="row mart40">
             <div class="col-md-12 review-list-title">
                 {{ 'sitnet_exam_grade_distribution' | translate }}
-                <sup class="padl05">
+                <sup
+                    class="padl05"
+                    ngbPopover="{{ 'sitnet_exam_grade_distribution_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_exam_grade_distribution_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -203,11 +225,13 @@
         <div class="row mart40">
             <div class="col-md-12 review-list-title">
                 {{ 'sitnet_section_averages' | translate }}
-                <sup class="padl05">
+                <sup
+                    class="padl05"
+                    ngbPopover="{{ 'sitnet_section_averages_tooltip' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_section_averages_tooltip' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"

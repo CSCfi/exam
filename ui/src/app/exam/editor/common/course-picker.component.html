@@ -28,9 +28,8 @@
                         ngbPopover="{{ 'sitnet_course_unique_code' | translate }}"
                         triggers="mouseenter:mouseleave"
                     ></i>
-                    <span class="spinner-border spinner-border-sm" role="status" *ngIf="loader.code.isOn">
-                        <span class="sr-only">Loading...</span>
-                    </span>
+                    <span class="spinner-border spinner-border-sm" role="status" *ngIf="loader.code.isOn"> </span>
+                    <span *ngIf="loader.code.isOn" class="sr-only">Loading...</span>
                 </span>
             </div>
         </div>
@@ -65,10 +64,9 @@
                         triggers="mouseenter:mouseleave"
                     ></i>
                     <span *ngIf="loader.name.isOn" class="horizontal-padding-05">
-                        <span class="spinner-border-sm" role="status">
-                            <span class="sr-only">Loading...</span>
-                        </span>
+                        <span class="spinner-border-sm" role="status"></span>
                     </span>
+                    <span *ngIf="loader.name.isOn" class="sr-only">Loading...</span>
                 </span>
             </div>
         </div>

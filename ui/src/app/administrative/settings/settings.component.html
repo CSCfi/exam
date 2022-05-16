@@ -8,7 +8,7 @@
     <div class="top-row" *ngIf="config">
         <div class="col-md-12 form-group">
             <label for="editor">{{ 'sitnet_user_agreement' | translate }}</label>
-            <ckeditor
+            <xm-ckeditor
                 id="editor"
                 #ck="ngModel"
                 name="editor"
@@ -16,10 +16,10 @@
                 rows="10"
                 cols="80"
                 [(ngModel)]="config.eula"
-            ></ckeditor>
+            ></xm-ckeditor>
         </div>
     </div>
-    <div class="bottom-row">
+    <div class="bottom-row mart10">
         <div class="col-md-12">
             <button (click)="updateAgreement()" class="btn btn-success">
                 {{ 'sitnet_button_save' | translate }}
@@ -28,7 +28,7 @@
     </div>
 
     <div class="top-row" *ngIf="config">
-        <div class="col-md-2 form-group">
+        <div class="col-md-2 form-group max-w-350">
             <label for="deadline">{{ 'sitnet_review_deadline' | translate }} ({{ 'sitnet_days' | translate }})</label>
             <input
                 id="deadline"
@@ -44,7 +44,7 @@
             />
         </div>
     </div>
-    <div class="bottom-row">
+    <div class="bottom-row mart10">
         <div class="col-md-12">
             <button (click)="updateDeadline()" class="btn btn-success">
                 {{ 'sitnet_button_save' | translate }}
@@ -53,7 +53,7 @@
     </div>
 
     <div class="top-row" *ngIf="config">
-        <div class="col-md-2 form-group">
+        <div class="col-md-2 form-group max-w-350">
             <label for="reservationWindow"
                 >{{ 'sitnet_reservation_window' | translate }} ({{ 'sitnet_days' | translate }})</label
             >
@@ -71,7 +71,7 @@
             />
         </div>
     </div>
-    <div class="bottom-row">
+    <div class="bottom-row mart10">
         <div class="col-md-12">
             <button (click)="updateReservationWindow()" class="btn btn-success">
                 {{ 'sitnet_button_save' | translate }}
@@ -181,7 +181,7 @@
         </div>
     </div>
 
-    <div class="bottom-row">
+    <div class="bottom-row mart10">
         <div class="col-md-12">
             <a [hidden]="attributes" (click)="showAttributes()" class="pointer">{{
                 'sitnet_show_http_headers' | translate
