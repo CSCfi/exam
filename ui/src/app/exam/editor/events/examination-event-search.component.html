@@ -12,37 +12,49 @@
                 <div class="col-auto"><img src="/assets/images/icon_info.png" alt="info-icon" /></div>
                 <div class="col">
                     {{ 'sitnet_byod_exam_search_description' | translate }}
-                </div>
+                </span>
+            </span>
+        </div>
+    </div>
+    <div class="top-row marb20 padt20">
+        <!-- Start & End time datepickers -->
+        <div class="flex flex-wrap">
+            <div class="marr20 max-w-350 min-w-100">
+                <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
+                <xm-date-picker
+                    [optional]="true"
+                    [initialDate]="date"
+                    (updated)="startDateChanged($event)"
+                ></xm-date-picker>
             </div>
-            <div class="row mt-3">
-                <!-- Start & End time datepickers -->
-                <div class="col-md-4">
-                    <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
-                    <xm-date-picker [initiallyEmpty]="true" (updated)="startDateChanged($event)"></xm-date-picker>
-                </div>
-                <div class="col-md-4">
-                    <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
-                    <xm-date-picker [initiallyEmpty]="true" (updated)="endDateChanged($event)"></xm-date-picker>
-                </div>
-                <div class="col-md-4">
-                    <span class="exam-basic-selecttitle">&nbsp;</span>
-                    <div class="input-group">
-                        <input
-                            [(ngModel)]="filterText"
-                            (ngModelChange)="query()"
-                            class="form-control"
-                            placeholder="{{ 'sitnet_search' | translate }}"
-                            ngbPopover="{{ 'sitnet_maturity_search_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                        />
+            <div class="marr20 max-w-350 min-w-100">
+                <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
+                <xm-date-picker
+                    [optional]="true"
+                    [initialDate]="datePlus"
+                    (updated)="endDateChanged($event)"
+                ></xm-date-picker>
+            </div>
+            <div class="marr20 max-w-350 min-w-100">
+                <span class="exam-basic-selecttitle">&nbsp;</span>
+                <div class="input-group">
+                    <input
+                        [(ngModel)]="filterText"
+                        (ngModelChange)="query()"
+                        class="form-control hgt40"
+                        placeholder="{{ 'sitnet_search' | translate }}"
+                        ngbPopover="{{ 'sitnet_maturity_search_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    />
 
-                        <div class="input-group-append search">
-                            <img src="/assets/images/icon_search.png" />
-                        </div>
+                    <div class="input-group-append search">
+                        <img class="nopad" src="/assets/images/icon_search.png" width="49" height="40" />
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
             <div class="mt-4 overflow-x-auto" *ngIf="events.length > 0">
                 <div class="col-md-12">
@@ -100,7 +112,14 @@
                                     </xm-table-sort>
                                 </th>
                                 <th class="with-top">
-                                    {{ 'sitnet_control' | translate }}
+                                    <xm-table-sort
+                                            by="examEnrolments.length"
+                                            text="sitnet_control"
+                                            [predicate]="sorting.predicate"
+                                            [reverse]="sorting.reverse"
+                                            (click)="setPredicate('examEnrolments.length')"
+                                    >
+                                    </xm-table-sort>
                                 </th>
                             </tr>
                         </thead>
