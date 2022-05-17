@@ -37,8 +37,10 @@ import { ExaminationEventConfiguration } from '../../exam.model';
     ],
 })
 export class ExaminationEventSearchComponent implements OnInit {
-    startDate: Date | null = null;
-    endDate: Date | null = null;
+    date = new Date();
+    datePlus = new Date(new Date().setMonth(this.date.getMonth() + 2)); // Might need configurable value for the month
+    startDate: Date | null = this.date;
+    endDate: Date | null = this.date;
     processedEvents: ExaminationEventConfiguration[] = [];
     sorting = {
         predicate: 'exam.created',
