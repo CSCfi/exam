@@ -517,3 +517,14 @@ p, li {
   }
 
 }
+
+.warning{
+  background-color: white;
+  border: #E3162E 1px solid;
+  color: #E3162E;
+}
+.warning:hover{
+  background-color: #BE1327;
+  border: #BE1327 1px solid;
+  color: #ffffff;
+}

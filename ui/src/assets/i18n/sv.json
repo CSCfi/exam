@@ -1032,5 +1032,7 @@
   "sitnet_error_examination_event_in_the_past": "Tentamenstillfället kan inte vara i förfluten tid",
   "sitnet_error_conflicts_with_maintenance_period": "Tentamenstillfället kan inte ordnas under ett serviceunderhåll",
   "sitnet_save_custom_time": "Tallenna mukautettu aika SV",
-  "sitnet_edit_enrolment": "Edit enrolment SV"
+  "sitnet_edit_enrolment": "Edit enrolment SV",
+  "sitnet_remove_byod_exam": "Poista omakonetentttitilaisuus. Poistoa ei voi peruuttaa. Ilmoittautuneille sekä kurssin opettajille lähetetään sähköposti tileisuuden peruuntumisesta. SV",
+  "sitnet_control": "Hallinta SV"
 }

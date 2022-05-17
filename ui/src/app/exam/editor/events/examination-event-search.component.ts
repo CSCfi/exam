@@ -16,8 +16,10 @@ import { animate, query, stagger, style, transition, trigger } from '@angular/an
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { addDays } from 'date-fns';
 import { Observable } from 'rxjs';
+import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
 import { ExaminationEventConfiguration } from '../../exam.model';
 
 @Component({
@@ -46,7 +48,11 @@ export class ExaminationEventSearchComponent implements OnInit {
     };
     filterText = '';
 
-    constructor(private http: HttpClient) {}
+    constructor(
+        private translate: TranslateService,
+        private http: HttpClient,
+        private ConfirmationDialog: ConfirmationDialogService,
+    ) {}
 
     ngOnInit() {
         this.query();
@@ -110,6 +116,15 @@ export class ExaminationEventSearchComponent implements OnInit {
             this.sorting.reverse = !this.sorting.reverse;
         }
         this.sorting.predicate = predicate;
+    };
+
+    removeExamination = () => {
+        const dialog = this.ConfirmationDialog.open(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_remove_byod_exam'),
+        );
+        /*TODO        dialog.result.then(() =>
+        );*/
     };
 
     private examToString = (eec: ExaminationEventConfiguration) => {

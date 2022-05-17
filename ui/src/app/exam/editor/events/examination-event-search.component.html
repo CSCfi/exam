@@ -112,6 +112,9 @@
                         >
                         </xm-table-sort>
                     </th>
+                    <th class="with-top">
+                        {{ 'sitnet_control' | translate }}
+                    </th>
                 </tr>
             </thead>
 
@@ -147,6 +150,12 @@
                     <!-- 5 -->
                     <td>
                         {{ event.examEnrolments?.length }}
+                    </td>
+                    <!-- 6 -->
+                    <td>
+                        <button class="rounded warning" (click)="removeExamination()">
+                            {{ 'sitnet_remove' | translate }}
+                        </button>
                     </td>
                 </tr>
             </tbody>
