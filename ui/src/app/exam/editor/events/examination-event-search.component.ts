@@ -16,7 +16,7 @@ import { animate, query, stagger, style, transition, trigger } from '@angular/an
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { addDays } from 'date-fns';
+import { addDays, addMonths } from 'date-fns';
 import { Observable } from 'rxjs';
 import { ExaminationEventConfiguration } from '../../exam.model';
 
@@ -38,7 +38,7 @@ import { ExaminationEventConfiguration } from '../../exam.model';
 })
 export class ExaminationEventSearchComponent implements OnInit {
     date = new Date();
-    datePlus = new Date(new Date().setMonth(this.date.getMonth() + 2)); // Might need configurable value for the month
+    datePlus = addMonths(new Date(), 1); // Might need configurable value for the month
     startDate: Date | null = this.date;
     endDate: Date | null = this.date;
     processedEvents: ExaminationEventConfiguration[] = [];
