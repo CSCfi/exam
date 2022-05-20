@@ -6,9 +6,9 @@
 <div id="dashboard">
     <div class="main-row">
         <label class="col-md-12" for="userSearch">{{ 'sitnet_search_for_users' | translate }}</label>
-        <div id="userSearch">
-            <div class="col-md-4">
-                <div class="form-group input-group">
+        <div id="userSearch" class="flex-wrap-gap">
+            <div class="">
+                <div class="form-group input-group min-width-300">
                     <input
                         [ngModel]="filter.text"
                         type="text"
@@ -22,70 +22,68 @@
                         ngbPopover="{{ 'sitnet_user_search_description' | translate }}"
                     />
                     <div class="input-group-append">
-                        <span class="input-group-text">
+                        <span class="input-group-text rounded-0 rounded-end">
                             <i class="bi-search"></i>
                         </span>
                     </div>
                 </div>
             </div>
-            <span class="col-md-8">
-                <span class="dropdown mr-2" ngbDropdown>
-                    <button
-                        ngbDropdownToggle
-                        class="btn btn-outline-secondary"
-                        type="button"
-                        id="dropDownMenu1"
-                        aria-expanded="true"
-                    >
-                        {{ 'sitnet_filter_by_role' | translate }}&nbsp;<span class="caret"></span>
-                    </button>
-                    <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
-                        <li
-                            ngbDropdownItem
-                            tabindex="0"
-                            *ngFor="let role of roles"
-                            role="presentation"
-                            [ngClass]="role.filtered ? 'active' : ''"
-                            (click)="applyRoleFilter(role)"
-                            (keydown.enter)="applyRoleFilter(role)"
-                        >
-                            <a role="menuitem" title="{{ role.name }}">
-                                <i class="pull-right" [ngClass]="role.icon"></i>
-                                {{ role.name | translate }}
-                            </a>
-                        </li>
-                    </ul>
-                </span>
-                <!-- ng-show="permissions.length > 0" -->
-                <span class="dropdown" ngbDropdown>
-                    <button
-                        ngbDropdownToggle
+            <span class="dropdown" ngbDropdown>
+                <button
+                    ngbDropdownToggle
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    id="dropDownMenu1"
+                    aria-expanded="true"
+                >
+                    {{ 'sitnet_filter_by_role' | translate }}&nbsp;<span class="caret"></span>
+                </button>
+                <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
+                    <li
+                        ngbDropdownItem
                         tabindex="0"
-                        class="btn btn-outline-secondary"
-                        type="button"
-                        id="dropDownMenu2"
-                        data-toggle="dropdown"
-                        aria-expanded="true"
+                        *ngFor="let role of roles"
+                        role="presentation"
+                        [ngClass]="role.filtered ? 'active' : ''"
+                        (click)="applyRoleFilter(role)"
+                        (keydown.enter)="applyRoleFilter(role)"
                     >
-                        {{ 'sitnet_filter_by_permission' | translate }}&nbsp;<span class="caret"></span>
-                    </button>
-                    <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
-                        <li
-                            ngbDropdownItem
-                            tabindex="0"
-                            *ngFor="let permission of permissions"
-                            role="presentation"
-                            [ngClass]="permission.filtered ? 'active' : ''"
-                            (click)="applyPermissionFilter(permission)"
-                            (keydown.enter)="applyPermissionFilter(permission)"
-                        >
-                            <a role="menuitem" title="{{ permission.name }}">
-                                <i class="pull-right" [ngClass]="permission.icon || ''"></i>
-                                {{ permission.name || '' | translate }}&nbsp;
-                            </a>
-                        </li>
-                    </ul>
-                </span>
+                        <a role="menuitem" title="{{ role.name }}">
+                            <i class="pull-right" [ngClass]="role.icon"></i>
+                            {{ role.name | translate }}
+                        </a>
+                    </li>
+                </ul>
+            </span>
+            <!-- ng-show="permissions.length > 0" -->
+            <span class="dropdown" ngbDropdown>
+                <button
+                    ngbDropdownToggle
+                    tabindex="0"
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    id="dropDownMenu2"
+                    data-toggle="dropdown"
+                    aria-expanded="true"
+                >
+                    {{ 'sitnet_filter_by_permission' | translate }}&nbsp;<span class="caret"></span>
+                </button>
+                <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
+                    <li
+                        ngbDropdownItem
+                        tabindex="0"
+                        *ngFor="let permission of permissions"
+                        role="presentation"
+                        [ngClass]="permission.filtered ? 'active' : ''"
+                        (click)="applyPermissionFilter(permission)"
+                        (keydown.enter)="applyPermissionFilter(permission)"
+                    >
+                        <a role="menuitem" title="{{ permission.name }}">
+                            <i class="pull-right" [ngClass]="permission.icon || ''"></i>
+                            {{ permission.name || '' | translate }}&nbsp;
+                        </a>
+                    </li>
+                </ul>
             </span>
         </div>
     </div>

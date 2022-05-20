@@ -49,11 +49,12 @@
                 <div class="col-md-3">
                     <div class="exam-basic-title">
                         {{ 'sitnet_exam_validity' | translate }}
-                        <sup>
+                        <sup
+                            ngbPopover="{{ 'sitnet_exam_validity_description' | translate }}"
+                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
                             <img
-                                ngbPopover="{{ 'sitnet_exam_validity_description' | translate }}"
-                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
                                 src="/assets/images/icon_tooltip.svg"
                                 alt="exam"
                                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -84,11 +85,12 @@
 <div class="row mt-2" *ngIf="exam.implementation !== 'AQUARIUM'">
     <div class="col-md-3 exam-basic-title">
         {{ 'sitnet_examination_events' | translate }}
-        <sup>
+        <sup
+            triggers="mouseenter:mouseleave"
+            ngbPopover="{{ 'sitnet_examination_events_description' | translate }}"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+        >
             <img
-                triggers="mouseenter:mouseleave"
-                ngbPopover="{{ 'sitnet_examination_events_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
                 src="/assets/images/icon_tooltip.svg"
                 alt="exam"
                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -109,7 +111,7 @@
                 <span
                     title="{{ 'sitnet_edit' | translate }}"
                     (click)="modifyExaminationEvent(config)"
-                    class="pointer examination-event-list-item rounded-left"
+                    class="pointer examination-event-list-item rounded-start"
                 >
                     {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}<i class="bi-pencil marl5"></i>
                 </span>
@@ -118,10 +120,10 @@
                     (click)="removeExaminationEvent(config)"
                     class="text text-danger pointer"
                 >
-                    <i title="{{ 'sitnet_remove' | translate }}" class="bi-x rounded-right background-gray pad6"></i
+                    <i title="{{ 'sitnet_remove' | translate }}" class="bi-x rounded-end background-gray pad6"></i
                 ></span>
 
-                <span *ngIf="config.examEnrolments.length > 0" class="ml-2 text text-muted">
+                <span *ngIf="config.examEnrolments.length > 0" class="rounded-end text text-muted background-gray pad6">
                     <i title="{{ 'sitnet_event_enrolments_exist' | translate }}" class="bi-x"></i>
                 </span>
             </li>
@@ -133,11 +135,12 @@
 <div class="row mt-2">
     <div class="col-md-3 exam-basic-title">
         {{ 'sitnet_exam_duration' | translate }} ({{ 'sitnet_minutes' | translate }}):
-        <sup>
+        <sup
+            ngbPopover="{{ 'sitnet_exam_duration_description' | translate }}"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
+        >
             <img
-                ngbPopover="{{ 'sitnet_exam_duration_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
                 src="/assets/images/icon_tooltip.svg"
                 alt="exam"
                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -145,7 +148,7 @@
         </sup>
     </div>
     <div class="col-md-9">
-        <span *ngFor="let duration of examDurations" class="pr-2">
+        <span *ngFor="let duration of examDurations" class="marr10">
             <button
                 class="btn btn-publish"
                 [ngClass]="checkDuration(duration)"
@@ -159,12 +162,14 @@
             <button class="btn btn-primary green border-green marl30" (click)="toggleCustomTimeField()">
                 {{ 'sitnet_custom' | translate }} {{ ('sitnet_exam_time' | translate).toLowerCase() }}
                 <img
-                    class="{{ showCustomTimeField && 'rotate90' }}"
+                    *ngIf="this.showCustomTimeField"
+                    class="rotate90"
                     src="/assets/images/icon_right_white.png"
                     alt="exam"
                 />
+                <img *ngIf="!this.showCustomTimeField" src="/assets/images/icon_right_white.png" alt="exam" />
             </button>
-            <span *ngIf="showCustomTimeField" class="wdt400">
+            <div *ngIf="this.showCustomTimeField" class="wdt400">
                 <div class="mart10">
                     <div class="mart10">
                         <input
@@ -203,7 +208,7 @@
                     {{ 'sitnet_between' | translate }}: {{ toHoursAndMinutes(minDuration) }} -
                     {{ toHoursAndMinutes(maxDuration) }}
                 </div>
-            </span>
+            </div>
         </span>
         <div class="marl50 mart10">
             {{ 'sitnet_saved' | translate }} {{ ('sitnet_exam_duration' | translate).toLowerCase() }}:
@@ -221,11 +226,12 @@
 <div class="row mt-2" [hidden]="exam.executionType.type === 'MATURITY' || exam.executionType.type === 'PRINTOUT'">
     <div class="col-md-3 exam-basic-title">
         {{ 'sitnet_publish_max_count' | translate }}
-        <sup>
+        <sup
+            ngbPopover="{{ 'sitnet_exam_trial_count_description' | translate }}"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
+        >
             <img
-                ngbPopover="{{ 'sitnet_exam_trial_count_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
                 src="/assets/images/icon_tooltip.svg"
                 alt="exam"
                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -269,10 +275,10 @@
             <input type="radio" [(ngModel)]="visibleParticipantSelector" value="participant" />
             {{ 'sitnet_exam_participant_selector_label' | translate }}
             <sup
+                ngbPopover="{{ 'sitnet_exam_participants_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
                 ><img
-                    ngbPopover="{{ 'sitnet_exam_participants_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
                     src="/assets/images/icon_tooltip.svg"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -282,10 +288,10 @@
             <input type="radio" [(ngModel)]="visibleParticipantSelector" value="pre-participant" />
             {{ 'sitnet_exam_pre_participant_selector_label' | translate }}
             <sup
+                ngbPopover="{{ 'sitnet_exam_pre_participants_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
                 ><img
-                    ngbPopover="{{ 'sitnet_exam_pre_participants_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
                     src="/assets/images/icon_tooltip.svg"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -317,11 +323,12 @@
     <div class="col-md-12 mart40">
         <div class="review-list-title">
             {{ 'sitnet_enrolment_url' | translate }}
-            <sup>
+            <sup
+                ngbPopover="{{ 'sitnet_enrolment_url_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
                 <img
-                    ngbPopover="{{ 'sitnet_enrolment_url_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
                     src="/assets/images/icon_tooltip.svg"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"

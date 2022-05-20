@@ -16,11 +16,13 @@
             <a class="pointer" (click)="openAborted()">
                 {{ 'sitnet_aborted_exams' | translate }} ({{ abortedExamsToBeFreed() }})</a
             >
-            <sup class="padl05">
+            <sup
+                class="padl05"
+                ngbPopover="{{ 'sitnet_aborted_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
                 <img
-                    ngbPopover="{{ 'sitnet_aborted_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
                     src="/assets/images/icon_tooltip.svg"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -30,11 +32,13 @@
             <a style="margin-left: 100px" class="pointer" (click)="openNoShows()">
                 {{ 'sitnet_no_shows' | translate }} ({{ noShows.length }})</a
             >
-            <sup class="padl05">
+            <sup
+                class="padl05"
+                ngbPopover="{{ 'sitnet_no_shows_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
                 <img
-                    ngbPopover="{{ 'sitnet_no_shows_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
                     src="/assets/images/icon_tooltip.svg"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"

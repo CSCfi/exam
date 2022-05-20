@@ -60,11 +60,12 @@
     <div class="row mt-2">
         <div class="col-md-3 exam-basic-title">
             {{ 'sitnet_new_question_type' | translate }}
-            <sup>
+            <sup
+                ngbPopover="{{ 'sitnet_question_type_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
                 <img
-                    ngbPopover="{{ 'sitnet_question_type_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
                     src="/assets/images/icon_tooltip.svg"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -103,11 +104,12 @@
         <div class="row">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_question_text' | translate }}
-                <sup>
+                <sup
+                    ngbPopover="{{ 'sitnet_question_text_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_question_text_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -233,18 +235,19 @@
         <div class="row mt-2">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_question_owners' | translate }}
-                <sup>
+                <sup
+                    ngbPopover="{{ 'sitnet_question_owners_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_question_owners_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
                     />
                 </sup>
             </div>
-            <div class="col-md-9" *ngIf="isUserAllowedToModifyOwners()">
+            <div class="flex" *ngIf="isUserAllowedToModifyOwners()">
                 <input
                     type="text"
                     name="questionOnwers"
@@ -256,11 +259,9 @@
                     [resultFormatter]="nameFormat"
                     (selectItem)="setQuestionOwner($event)"
                 />
-                <span>
-                    <button (click)="addQuestionOwner()" class="btn btn-primary green border-green">
-                        {{ 'sitnet_add' | translate }}
-                    </button>
-                </span>
+                <button (click)="addQuestionOwner()" class="btn btn-primary green border-green marl5">
+                    {{ 'sitnet_add' | translate }}
+                </button>
             </div>
         </div>
         <div class="row mt-2">
@@ -295,11 +296,12 @@
         <div class="row mt-2">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_question_attachment' | translate }}
-                <sup>
+                <sup
+                    ngbPopover="{{ 'sitnet_attachment_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_attachment_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -343,11 +345,12 @@
         <div class="row mt-2">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_question_instruction' | translate }}
-                <sup>
+                <sup
+                    ngbPopover="{{ 'sitnet_question_instruction_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_question_instruction_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -371,11 +374,12 @@
         <div class="row mt-2" *ngIf="question.type === 'EssayQuestion'">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_evaluation_criteria' | translate }}
-                <sup>
+                <sup
+                    ngbPopover="{{ 'sitnet_question_evaluation_criteria_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_question_evaluation_criteria_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"

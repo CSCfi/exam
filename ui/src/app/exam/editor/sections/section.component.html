@@ -24,11 +24,12 @@
     <div class="row margin-20">
         <div class="col-md-3 exam-basic-title">
             {{ 'sitnet_section_order' | translate }}
-            <sup>
+            <sup
+                ngbPopover="{{ 'sitnet_exam_section_order_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
                 <img
-                    ngbPopover="{{ 'sitnet_exam_section_order_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
                     src="/assets/images/icon_tooltip.svg"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -43,11 +44,12 @@
                 <div class="form-group">
                     <label for="sectionName_{{ section.id }}">
                         {{ 'sitnet_section_name' | translate }}
-                        <sup>
+                        <sup
+                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            ngbPopover="{{ 'sitnet_exam_section_name_description' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
                             <img
-                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                ngbPopover="{{ 'sitnet_exam_section_name_description' | translate }}"
-                                triggers="mouseenter:mouseleave"
                                 src="/assets/images/icon_tooltip.svg"
                                 alt="exam"
                                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -67,11 +69,12 @@
                 <div class="form-group">
                     <label for="sectionDescription_{{ section.id }}">
                         {{ 'sitnet_section_description' | translate }}
-                        <sup>
+                        <sup
+                            ngbPopover="{{ 'sitnet_exam_section_description_description' | translate }}"
+                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
                             <img
-                                ngbPopover="{{ 'sitnet_exam_section_description_description' | translate }}"
-                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
                                 src="/assets/images/icon_tooltip.svg"
                                 alt="exam"
                                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -107,11 +110,12 @@
                     />
                     <label for="sectionOptionality_{{ section.id }}" class="form-check-label">
                         {{ 'sitnet_optional_section' | translate }}
-                        <sup>
+                        <sup
+                            ngbPopover="{{ 'sitnet_optional_section_description' | translate }}"
+                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
                             <img
-                                ngbPopover="{{ 'sitnet_optional_section_description' | translate }}"
-                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
                                 src="/assets/images/icon_tooltip.svg"
                                 alt="exam"
                                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -131,11 +135,12 @@
                     />
                     <label for="sectionRandomized_{{ section.id }}" class="form-check-label">
                         {{ 'sitnet_randomize_questions' | translate }}
-                        <sup>
+                        <sup
+                            ngbPopover="{{ 'sitnet_exam_section_randomize_description' | translate }}"
+                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
                             <img
-                                ngbPopover="{{ 'sitnet_exam_section_randomize_description' | translate }}"
-                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
                                 src="/assets/images/icon_tooltip.svg"
                                 alt="exam"
                                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -177,11 +182,12 @@
     <div class="row" *ngIf="getAmountOfSelectionEvaluatedQuestions() > 0">
         <div class="col-md-3 exam-basic-title">
             {{ 'sitnet_evaluation_select' | translate }}
-            <sup>
+            <sup
+                ngbPopover="{{ 'sitnet_evaluation_select_amount_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
                 <img
-                    ngbPopover="{{ 'sitnet_evaluation_select_amount_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
                     src="/assets/images/icon_tooltip.svg"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
