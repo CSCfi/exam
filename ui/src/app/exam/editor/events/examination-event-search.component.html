@@ -16,43 +16,40 @@
         </div>
     </div>
     <div class="top-row marb20 padt20">
-        <div class="col-md-12">
-            <!-- Start & End time datepickers -->
-            <div class="row">
-                <div class="marr20">
-                    <span class="exam-basic-selecttitle">&nbsp;</span>
-                    <div class="input-group">
-                        <input
-                            [(ngModel)]="filterText"
-                            (ngModelChange)="query()"
-                            class="form-control hgt40"
-                            placeholder="{{ 'sitnet_search' | translate }}"
-                            ngbPopover="{{ 'sitnet_maturity_search_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                        />
+        <!-- Start & End time datepickers -->
+        <div class="flex flex-wrap">
+            <div class="marr20 max-w-350 min-w-100">
+                <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
+                <xm-date-picker
+                    [optional]="true"
+                    [initialDate]="date"
+                    (updated)="startDateChanged($event)"
+                ></xm-date-picker>
+            </div>
+            <div class="marr20 max-w-350 min-w-100">
+                <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
+                <xm-date-picker
+                    [optional]="true"
+                    [initialDate]="datePlus"
+                    (updated)="endDateChanged($event)"
+                ></xm-date-picker>
+            </div>
+            <div class="marr20 max-w-350 min-w-100">
+                <span class="exam-basic-selecttitle">&nbsp;</span>
+                <div class="input-group">
+                    <input
+                        [(ngModel)]="filterText"
+                        (ngModelChange)="query()"
+                        class="form-control hgt40"
+                        placeholder="{{ 'sitnet_search' | translate }}"
+                        ngbPopover="{{ 'sitnet_maturity_search_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    />
 
-                        <div class="input-group-append search">
-                            <img class="nopad" src="/assets/images/icon_search.png" width="49" height="40" />
-                        </div>
+                    <div class="input-group-append search">
+                        <img class="nopad" src="/assets/images/icon_search.png" width="49" height="40" />
                     </div>
-                </div>
-
-                <div class="marr20">
-                    <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
-                    <xm-date-picker
-                        [optional]="true"
-                        [initiallyEmpty]="true"
-                        (updated)="startDateChanged($event)"
-                    ></xm-date-picker>
-                </div>
-                <div class="marr20">
-                    <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
-                    <xm-date-picker
-                        [optional]="true"
-                        [initiallyEmpty]="true"
-                        (updated)="endDateChanged($event)"
-                    ></xm-date-picker>
                 </div>
             </div>
         </div>
@@ -64,11 +61,11 @@
                 <tr>
                     <th class="with-top">
                         <xm-table-sort
-                            by="examinationEvent.id"
+                            by="exam.course.code"
                             text="sitnet_code"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
-                            (click)="setPredicate('examinationEvent.id')"
+                            (click)="setPredicate('exam.course.code')"
                         >
                         </xm-table-sort>
                     </th>
@@ -112,6 +109,16 @@
                         >
                         </xm-table-sort>
                     </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="examEnrolments.length"
+                            text="sitnet_control"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('examEnrolments.length')"
+                        >
+                        </xm-table-sort>
+                    </th>
                 </tr>
             </thead>
 
@@ -119,7 +126,7 @@
                 <tr *ngFor="let event of processedEvents | orderBy: sorting.predicate:sorting.reverse">
                     <!-- 1 -->
                     <td>
-                        {{ event.examinationEvent?.id }}
+                        {{ event.exam.course?.code }}
                     </td>
                     <!-- 2 -->
                     <td>

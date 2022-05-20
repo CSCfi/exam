@@ -881,8 +881,12 @@ $sitnet-icon-size: 32px;
   padding: 0 2rem !important;
 }
 
+.min-w-100{
+  min-width: 100px !important;
+}
+
 .max-w-350 {
-  width: 350px !important;
+  max-width: 350px !important;
 }
 
 .max-w-1100 {
