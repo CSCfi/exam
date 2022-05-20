@@ -16,6 +16,8 @@ import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { FileService } from 'src/app/shared/file/file.service';
 import type { Question } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
 
@@ -26,6 +28,15 @@ import type { User } from '../../session/session.service';
             <div class="col-md-12">
                 <div class="student-enroll-title-wrap">
                     <div class="student-enroll-title marl20 marr-20">{{ 'sitnet_library_new' | translate }}</div>
+                </div>
+                <div class="teacher-toolbar">
+                    <div class="make-inline">
+                        <div class="review-attachment-button print-button">
+                            <a (click)="import()" class="pointer">
+                                {{ 'sitnet_toolbar_import_questions' | translate }}
+                            </a>
+                        </div>
+                    </div>
                 </div>
                 <div class="teacher-toolbar">
                     <div class="make-inline">
@@ -73,7 +84,13 @@ export class LibraryComponent {
     questions: Question[] = [];
     selections: number[] = [];
 
-    constructor(private state: StateService, private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        private state: StateService,
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Attachment: AttachmentService,
+        private Files: FileService,
+    ) {}
 
     resultsUpdated(results: Question[]) {
         this.questions = results;
@@ -91,5 +108,16 @@ export class LibraryComponent {
     ownerSelected(event: { user: User; selections: number[] }) {
         const questions = this.questions.filter((q) => event.selections.indexOf(q.id) > -1);
         questions.forEach((q) => q.questionOwners.push(event.user));
+    }
+
+    import() {
+        this.Attachment.selectFile(false, {}, 'sitnet_import_questions_detail')
+            .then((result) => {
+                this.Files.upload('/app/questions/import', result.$value.attachmentFile, {}, undefined, () =>
+                    this.state.reload(),
+                );
+                this.toast.success(`${this.translate.instant('sitnet_questions_imported_successfully')}`);
+            })
+            .catch((err) => this.toast.error(err));
     }
 }

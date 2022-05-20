@@ -1032,5 +1032,8 @@
   "sitnet_error_examination_event_in_the_past": "Tenttitilaisuuden ajankohta ei voi olla menneisyydessä",
   "sitnet_error_conflicts_with_maintenance_period": "Tenttitilaisuuden ajankohta ei voi olla huoltokatkon aikana",
   "sitnet_save_custom_time": "Tallenna mukautettu aika",
-  "sitnet_edit_enrolment": "Muokkaa ilmoittautumista FI"
+  "sitnet_edit_enrolment": "Muokkaa ilmoittautumista FI",
+  "sitnet_toolbar_import_questions": "Tuo kysymyksiä Moodlesta",
+  "sitnet_import_questions_detail": "Valitse Moodlen kysymysformaatissa oleva XML-tiedosto",
+  "sitnet_questions_imported_successfully": "Kysymykset tuotu onnistuneesti"
 }

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+    <!-- question: 1344 -->
+    <question type="multichoice">
+        <name>
+            <text>Monivalinta yksi valitaan - yksi täysin oikein, muut nolla</text>
+        </name>
+        <questiontext format="html">
+            <text><![CDATA[<p>Monivalinnan kysymysteksti<br></p>]]></text>
+        </questiontext>
+        <generalfeedback format="html">
+            <text></text>
+        </generalfeedback>
+        <defaultgrade>1</defaultgrade>
+        <penalty>0.3333333</penalty>
+        <hidden>0</hidden>
+        <idnumber></idnumber>
+        <single>true</single>
+        <shuffleanswers>true</shuffleanswers>
+        <answernumbering>abc</answernumbering>
+        <correctfeedback format="html">
+            <text>Vastauksesi on oikein.</text>
+        </correctfeedback>
+        <partiallycorrectfeedback format="html">
+            <text>Vastauksesi on osittain oikein.</text>
+        </partiallycorrectfeedback>
+        <incorrectfeedback format="html">
+            <text>Vastauksesi on väärin.</text>
+        </incorrectfeedback>
+        <shownumcorrect/>
+        <answer fraction="100" format="html">
+            <text><![CDATA[<p>eka<br></p>]]></text>
+            <feedback format="html">
+                <text></text>
+            </feedback>
+        </answer>
+        <answer fraction="0" format="html">
+            <text><![CDATA[<p>toka<br></p>]]></text>
+            <feedback format="html">
+                <text></text>
+            </feedback>
+        </answer>
+        <answer fraction="0" format="html">
+            <text><![CDATA[<p>kolmas<br></p>]]></text>
+            <feedback format="html">
+                <text></text>
+            </feedback>
+        </answer>
+        <answer fraction="0" format="html">
+            <text><![CDATA[<p>neljäs<br></p>]]></text>
+            <feedback format="html">
+                <text></text>
+            </feedback>
+        </answer>
+    </question>
+
+</quiz>
