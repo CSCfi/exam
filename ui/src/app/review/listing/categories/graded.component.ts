@@ -67,17 +67,19 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
             return;
         }
         const examId = this.collaborative ? this.exam.id : undefined;
-        this.Confirmation.open(
+        this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_confirm_record_review'),
-        ).result.then(() =>
-            forkJoin(selection.map((s) => this.ReviewList.sendToRegistry$(s.examParticipation, examId))).subscribe(
-                () => {
-                    this.registered.emit(selection);
-                    this.toast.info(this.translate.instant('sitnet_results_send_ok'));
-                },
-            ),
-        );
+        ).subscribe({
+            next: () =>
+                forkJoin(selection.map((s) => this.ReviewList.sendToRegistry$(s.examParticipation, examId))).subscribe(
+                    () => {
+                        this.registered.emit(selection);
+                        this.toast.info(this.translate.instant('sitnet_results_send_ok'));
+                    },
+                ),
+            error: this.toast.error,
+        });
     };
 
     getLinkToAssessment = (review: Review) =>

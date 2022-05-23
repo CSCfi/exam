@@ -134,16 +134,18 @@ export class CalendarComponent implements OnInit {
     }
 
     makeExternalReservation() {
-        this.Dialog.open(
+        this.Dialog.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_confirm_external_reservation'),
-        ).result.then(() =>
-            this.state.go('externalCalendar', {
-                id: this.uiRouter.params.id,
-                selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id),
-                isCollaborative: this.isCollaborative,
-            }),
-        );
+        ).subscribe({
+            next: () =>
+                this.state.go('externalCalendar', {
+                    id: this.uiRouter.params.id,
+                    selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id),
+                    isCollaborative: this.isCollaborative,
+                }),
+            error: this.toast.error,
+        });
     }
 
     makeInternalReservation() {

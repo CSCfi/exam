@@ -183,21 +183,20 @@ export class RoomService {
 
     getWeek = () => cloneDeep(this.week);
 
-    disableRoom = (room: ExamRoom) => {
-        const dialog = this.dialogs.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_room_inactivation'),
-        );
-        dialog.result.then(() =>
-            this.inactivateRoom$(room.id).subscribe({
-                next: () => {
-                    this.toast.info(this.translate.instant('sitnet_room_inactivated'));
-                    room.state = 'INACTIVE';
-                },
+    disableRoom = (room: ExamRoom) =>
+        this.dialogs
+            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_confirm_room_inactivation'))
+            .subscribe({
+                next: () =>
+                    this.inactivateRoom$(room.id).subscribe({
+                        next: () => {
+                            this.toast.info(this.translate.instant('sitnet_room_inactivated'));
+                            room.state = 'INACTIVE';
+                        },
+                        error: this.toast.error,
+                    }),
                 error: this.toast.error,
-            }),
-        );
-    };
+            });
 
     enableRoom = (room: ExamRoom) =>
         this.activateRoom$(room.id).subscribe({

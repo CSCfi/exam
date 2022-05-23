@@ -60,18 +60,16 @@ export class ExamQuestionComponent implements OnInit {
         this.transitionWatcher = this.transition.onBefore({}, () => {
             if (this.Window.nativeWindow.onbeforeunload) {
                 // we got changes in the model, ask confirmation
-                return this.Confirmation.open(
+                this.Confirmation.open$(
                     this.translate.instant('sitnet_confirm_exit'),
                     this.translate.instant('sitnet_unsaved_question_data'),
-                ).result.then(() => {
+                ).subscribe(() => {
                     // ok to reroute
                     this.Window.nativeWindow.onbeforeunload = null;
                     delete this.transitionWatcher;
                 });
             } else {
                 this.Window.nativeWindow.onbeforeunload = null;
-
-                return true;
             }
         });
     }
