@@ -44,7 +44,7 @@
             <div class="review-list-title">
                 {{ 'sitnet_exam_basic_information_tab' | translate }}
                 <i *ngIf="showWarning()" class="bi-exclamation-circle padl20 reddish"></i>
-                <span class="warning-text-small pl-2" *ngIf="showWarning()">
+                <span class="warning-text-small ps-2" *ngIf="showWarning()">
                     {{ 'sitnet_shared_question_property_info' | translate }}
                 </span>
             </div>
@@ -286,7 +286,7 @@
                 </ul>
             </div>
             <div class="col-md-9" *ngIf="!isUserAllowedToModifyOwners()">
-                <span *ngFor="let user of currentOwners" class="label label-default pr-2">
+                <span *ngFor="let user of currentOwners" class="label label-default pe-2">
                     {{ user.firstName }} {{ user.lastName }}
                 </span>
             </div>

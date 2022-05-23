@@ -65,7 +65,7 @@ import { EnrolmentService } from '../enrolment.service';
         </div>
 
         <div class="row">
-            <div class="col-12 ml-4">
+            <div class="col-12 ms-4">
                 <div class="exams-list list-item" [hidden]="loader.loading" *ngFor="let exam of exams">
                     <xm-exam-search-result [exam]="exam" [collaborative]="true"></xm-exam-search-result>
                 </div>

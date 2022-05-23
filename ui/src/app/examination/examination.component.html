@@ -2,7 +2,7 @@
     <!-- HEADER ROW -->
     <xm-examination-header *ngIf="exam" [exam]="exam" (onTimeout)="timedOut()" [isPreview]="isPreview">
     </xm-examination-header>
-    <div class="row ml-3">
+    <div class="row ms-3">
         <!-- LEFT COLUMN -->
         <div class="col-md-8 col-xs-8">
             <!-- EXAM AREA -->
@@ -31,7 +31,7 @@
         </div>
 
         <!-- RIGHT COLUMN -->
-        <div class="col-md-4 col-xs-4 pr-4">
+        <div class="col-md-4 col-xs-4 pe-4">
             <!-- TOOLBAR -->
             <xm-examination-toolbar
                 *ngIf="exam"

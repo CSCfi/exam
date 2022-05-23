@@ -1,168 +1,168 @@
-<div class="row ml-3 mt-3 mr-3" *ngIf="user.isAdmin">
-    <div class="col-md-12 ml-1">
+<div class="row ms-3 mt-3 me-3" *ngIf="user.isAdmin">
+    <div class="col-md-12 ms-1">
         {{ 'sitnet_choose_atleast_one' | translate }}
     </div>
 </div>
-<div class="row ml-3 mr-3 align-items-center" [ngClass]="user.isAdmin ? 'mt-1' : 'mt-3'">
+<div class="row ms-3 me-3 align-items-center" [ngClass]="user.isAdmin ? 'mt-1' : 'mt-3'">
     <div class="col-md-4">
-        <div id="filters" class="form-group">
-            <span class="m-1" ngbDropdown [autoClose]="'outside'">
-                <button
-                    class="btn btn-outline-secondary btn-sm"
-                    type="button"
-                    id="dropDownMenu1"
-                    ngbDropdownToggle
-                    (click)="listCourses()"
-                >
-                    {{ 'sitnet_course' | translate }}&nbsp;
-                    <span class="caret"></span>
-                </button>
-                <ul class="scrollable-menu" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
-                    <li ngbDropdownItem role="presentation" class="input-group">
-                        <input
-                            [(ngModel)]="limitations.course"
-                            (ngModelChange)="filterCourses()"
-                            class="form-control"
-                            placeholder="{{ 'sitnet_search' | translate }}"
-                            aria-describedby="search-icon-1"
-                        />
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <i id="search-icon-1" class="bi-search"></i>
-                            </div>
+        <span class="m-1" ngbDropdown [autoClose]="'outside'">
+            <button
+                class="btn btn-outline-secondary btn-sm"
+                type="button"
+                id="dropDownMenu1"
+                ngbDropdownToggle
+                (click)="listCourses()"
+            >
+                {{ 'sitnet_course' | translate }}&nbsp;
+                <span class="caret"></span>
+            </button>
+            <ul class="scrollable-menu" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
+                <li ngbDropdownItem role="presentation" class="input-group">
+                    <input
+                        [(ngModel)]="limitations.course"
+                        (ngModelChange)="filterCourses()"
+                        class="form-control"
+                        placeholder="{{ 'sitnet_search' | translate }}"
+                        aria-describedby="search-icon-1"
+                    />
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <i id="search-icon-1" class="bi-search"></i>
                         </div>
-                    </li>
-                    <li
-                        *ngFor="let course of filteredCourses"
-                        [hidden]="course.filtered"
-                        role="presentation"
-                        (click)="applyFilter(course)"
-                        ngbDropdownItem
-                    >
-                        <a role="menuitem">{{ course.name }}</a>
-                    </li>
-                </ul>
-            </span>
-            <span class="m-1" ngbDropdown [autoClose]="'outside'">
-                <button
-                    ngbDropdownToggle
-                    class="btn btn-outline-secondary btn-sm"
-                    type="button"
-                    id="dropDownMenu2"
-                    (click)="listExams$().subscribe()"
+                    </div>
+                </li>
+                <li
+                    *ngFor="let course of filteredCourses"
+                    [hidden]="course.filtered"
+                    role="presentation"
+                    (click)="applyFilter(course)"
+                    ngbDropdownItem
                 >
-                    {{ 'sitnet_exam' | translate }}&nbsp;
-                </button>
-                <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
-                    <li ngbDropdownItem role="presentation" class="input-group">
-                        <input
-                            [(ngModel)]="limitations.exam"
-                            (ngModelChange)="filterExams()"
-                            class="form-control"
-                            placeholder="{{ 'sitnet_search' | translate }}"
-                            aria-describedby="search-icon-2"
-                        />
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <i id="search-icon-2" class="bi-search"></i>
-                            </div>
+                    <a role="menuitem">{{ course.name }}</a>
+                </li>
+            </ul>
+        </span>
+        <span class="m-1" ngbDropdown [autoClose]="'outside'">
+            <button
+                ngbDropdownToggle
+                class="btn btn-outline-secondary btn-sm"
+                type="button"
+                id="dropDownMenu2"
+                (click)="listExams$().subscribe()"
+            >
+                {{ 'sitnet_exam' | translate }}&nbsp;
+            </button>
+            <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
+                <li ngbDropdownItem role="presentation" class="input-group">
+                    <input
+                        [(ngModel)]="limitations.exam"
+                        (ngModelChange)="filterExams()"
+                        class="form-control"
+                        placeholder="{{ 'sitnet_search' | translate }}"
+                        aria-describedby="search-icon-2"
+                    />
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <i id="search-icon-2" class="bi-search"></i>
                         </div>
-                    </li>
-                    <li
-                        *ngFor="let exam of filteredExams"
-                        [hidden]="exam.filtered"
-                        role="presentation"
-                        (click)="applyFilter(exam)"
-                        ngbDropdownItem
-                    >
-                        <a role="menuitem">{{ exam.name }}</a>
-                    </li>
-                </ul>
-            </span>
+                    </div>
+                </li>
+                <li
+                    *ngFor="let exam of filteredExams"
+                    [hidden]="exam.filtered"
+                    role="presentation"
+                    (click)="applyFilter(exam)"
+                    ngbDropdownItem
+                >
+                    <a role="menuitem">{{ exam.name }}</a>
+                </li>
+            </ul>
+        </span>
 
-            <span class="m-1" ngbDropdown [autoClose]="'outside'">
-                <button
-                    ngbDropdownToggle
-                    class="btn btn-outline-secondary btn-sm"
-                    type="button"
-                    id="dropDownMenu3"
-                    (click)="listTags()"
+        <span class="m-1" ngbDropdown [autoClose]="'outside'">
+            <button
+                ngbDropdownToggle
+                class="btn btn-outline-secondary btn-sm"
+                type="button"
+                id="dropDownMenu3"
+                (click)="listTags()"
+            >
+                {{ 'sitnet_category' | translate }}&nbsp;
+                <span class="caret"></span>
+            </button>
+            <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
+                <li ngbDropdownItem role="presentation" class="input-group">
+                    <input
+                        [(ngModel)]="limitations.tag"
+                        (ngModelChange)="filterTags()"
+                        class="form-control"
+                        placeholder="{{ 'sitnet_search' | translate }}"
+                        aria-describedby="search-icon-3"
+                    />
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <i id="search-icon-3" class="bi-search"></i>
+                        </div>
+                    </div>
+                </li>
+                <li
+                    *ngFor="let tag of filteredTags"
+                    [hidden]="tag.filtered"
+                    role="presentation"
+                    (click)="applyFilter(tag)"
+                    ngbDropdownItem
                 >
-                    {{ 'sitnet_category' | translate }}&nbsp;
-                    <span class="caret"></span>
-                </button>
-                <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
-                    <li ngbDropdownItem role="presentation" class="input-group">
-                        <input
-                            [(ngModel)]="limitations.tag"
-                            (ngModelChange)="filterTags()"
-                            class="form-control"
-                            placeholder="{{ 'sitnet_search' | translate }}"
-                            aria-describedby="search-icon-3"
-                        />
-                        <div class="input-group-append">
-                            <div class="input-group-text">
-                                <i id="search-icon-3" class="bi-search"></i>
-                            </div>
-                        </div>
-                    </li>
-                    <li
-                        *ngFor="let tag of filteredTags"
-                        [hidden]="tag.filtered"
-                        role="presentation"
-                        (click)="applyFilter(tag)"
-                        ngbDropdownItem
+                    <div
+                        role="menuitem"
+                        [ngClass]="tag.isSectionTag ? 'text-dim' : 'text'"
+                        title="{{ tag.isSectionTag ? 'sitnet_exam_section' : ('sitnet_category' | translate) }}"
                     >
-                        <div
-                            role="menuitem"
-                            [ngClass]="tag.isSectionTag ? 'text-dim' : 'text'"
-                            title="{{ tag.isSectionTag ? 'sitnet_exam_section' : ('sitnet_category' | translate) }}"
-                        >
-                            {{ tag.name }}
-                        </div>
-                    </li>
-                </ul>
-            </span>
-        </div>
+                        {{ tag.name }}
+                    </div>
+                </li>
+            </ul>
+        </span>
     </div>
     <div class="col-md-8">
         <div class="row">
             <div [ngClass]="user.isAdmin ? 'col-md-6' : 'col-md-12'">
-                <div class="form-group">
+                <form>
                     <div class="input-group">
                         <input
                             class="form-control"
+                            name="filterSearcg"
                             (input)="applySearchFilter()"
                             [(ngModel)]="filter.text"
                             placeholder="{{ 'sitnet_search_by_question_text' | translate }}"
                         />
-                        <div class="input-group-append">
-                            <img class="nopad" src="/assets/images/icon_search.png" width="46" height="38" />
+                        <div class="input-group-text p-0">
+                            <img src="/assets/images/icon_search.png" width="46" height="38" />
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
             <div class="col-md-6" *ngIf="user.isAdmin">
-                <div class="form-group">
+                <form>
                     <div class="input-group">
                         <input
                             class="form-control"
+                            name="ownerSearch"
                             (input)="applySearchFilter()"
                             [(ngModel)]="filter.owner"
                             placeholder="{{ 'sitnet_search_by_owner' | translate }}"
                         />
-                        <div class="input-group-append search">
-                            <img class="nopad" src="/assets/images/icon_search.png" width="46" height="38" />
+                        <div class="input-group-text p-0">
+                            <img src="/assets/images/icon_search.png" width="46" height="38" />
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
-<div class="row ml-3">
+<div class="row ms-3">
     <div class="col-md-12">
-        <ul class="inline-list pl-1">
+        <ul class="inline-list ps-1">
             <li *ngFor="let tag of getTags()">
                 {{ tag.name }}
                 <button class="reviewer-remove" (click)="applyFilter(tag)" title="{{ 'sitnet_remove' | translate }}">

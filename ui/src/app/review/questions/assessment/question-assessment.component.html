@@ -105,7 +105,7 @@
                         <li ngbNavItem>
                             <a ngbNavLink>
                                 {{ 'sitnet_unassessed_exams' | translate }}
-                                <span class="badge badge-danger">{{ getUnassessedAnswerCount() }}</span>
+                                <span class="badge bg-danger">{{ getUnassessedAnswerCount() }}</span>
                             </a>
                             <ng-template ngbNavContent>
                                 <xm-essay-answers
@@ -120,7 +120,7 @@
                         <li ngbNavItem>
                             <a ngbNavLink>
                                 {{ 'sitnet_assessed_exams' | translate }}
-                                <span class="badge badge-danger">{{ getAssessedAnswerCount(false) }}</span>
+                                <span class="badge bg-danger">{{ getAssessedAnswerCount(false) }}</span>
                             </a>
                             <ng-template ngbNavContent>
                                 <xm-essay-answers
@@ -135,7 +135,7 @@
                         <li ngbNavItem>
                             <a ngbNavLink>
                                 {{ 'sitnet_graded_logged_exams' | translate }}
-                                <span class="badge badge-danger">{{ getLockedAnswerCount() }}</span>
+                                <span class="badge bg-danger">{{ getLockedAnswerCount() }}</span>
                             </a>
                             <ng-template ngbNavContent>
                                 <xm-essay-answers

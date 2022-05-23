@@ -1,82 +1,86 @@
 <div class="detail-row p-3" [hidden]="room.state === 'INACTIVE'">
-    <h5 class="ml-3">
-        <span class="pointer user-select-none" (click)="toggleShow()">
-            <i [hidden]="!showMachines" class="bi-chevron-down fa-stack-1x"></i>
-            <i [hidden]="showMachines" class="bi-chevron-right fa-stack-1x"></i>
-            {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp;
-        </span>
-        <span
-            triggers="mouseenter:mouseleave"
-            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-            ngbPopover="{{ 'sitnet_status_machine_available' | translate }}"
-        >
-            <span class="badge badge-success">
-                {{ room.examMachines.length - countMachineAlerts() - countMachineNotices() }}
+    <div class="col-md-12">
+        <h5 class="ms-3">
+            <span class="pointer user-select-none" (click)="toggleShow()">
+                <i [hidden]="!showMachines" class="bi-chevron-down fa-stack-1x"></i>
+                <i [hidden]="showMachines" class="bi-chevron-right fa-stack-1x"></i>
+                {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp;
             </span>
-        </span>
-        <span
-            triggers="mouseenter:mouseleave"
-            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-            ngbPopover="{{ 'sitnet_status_inservice' | translate }}"
-        >
-            <span class="badge badge-danger marl10">
-                {{ countMachineAlerts() }}
+            <span
+                triggers="mouseenter:mouseleave"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                ngbPopover="{{ 'sitnet_status_machine_available' | translate }}"
+            >
+                <span class="badge bg-success">
+                    {{ room.examMachines.length - countMachineAlerts() - countMachineNotices() }}
+                </span>
             </span>
-        </span>
-        <a
-            class="pl-2 text text-success pointer"
-            (click)="addNewMachine()"
-            triggers="mouseenter:mouseleave"
-            ngbPopover="{{ 'sitnet_add' | translate }}"
-        >
-            <i class="pt-2 bi bi-plus-circle"></i>
-        </a>
-    </h5>
-</div>
-<div class="col-md-12" [hidden]="!showMachines">
-    <table class="table table-bordered table-striped room-machines-table">
-        <thead>
-            <tr>
-                <th>{{ 'sitnet_name' | translate }}</th>
-                <th>{{ 'sitnet_machine_other_identifier' | translate }}</th>
-                <th>{{ 'sitnet_room_accessibility_info' | translate }}</th>
-                <th>{{ 'sitnet_machine_softwares' | translate }}</th>
-                <th>{{ 'sitnet_status' | translate }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let machine of room.examMachines | orderBy: 'name'">
-                <td>
-                    <a
-                        [ngClass]="{ 'text-danger': !machine.name }"
-                        class="exams-info-title bold-button"
-                        uiSref="staff.machine"
-                        [uiParams]="{ id: machine.id }"
-                    >
-                        {{ !machine.name ? ('sitnet_no_name' | translate) : machine.name }}
-                    </a>
-                </td>
-                <td>{{ machine.otherIdentifier }}</td>
-                <td>{{ machine.accessibilityInfo }}</td>
-                <td>
-                    <ul>
-                        <li *ngFor="let software of machine.softwareInfo; let l = last" class="pull-left">
-                            <span *ngIf="software.status !== 'DISABLED'">
-                                {{ software.name }}<span *ngIf="!l">, </span>
-                            </span>
-                        </li>
-                    </ul>
-                </td>
-                <td>
-                    <span class="status_red" *ngIf="machine.outOfService">{{
-                        'sitnet_status_inactive' | translate
-                    }}</span>
-                    <span class="status_green" *ngIf="!machine.outOfService">{{
-                        'sitnet_status_active' | translate
-                    }}</span>
-                    <span class="status_comment col-md-12">{{ machine.statusComment }}</span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+            <span
+                triggers="mouseenter:mouseleave"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                ngbPopover="{{ 'sitnet_status_inservice' | translate }}"
+            >
+                <span class="badge bg-danger marl10">
+                    {{ countMachineAlerts() }}
+                </span>
+            </span>
+            <a
+                class="ps-2 text text-success pointer"
+                (click)="addNewMachine()"
+                triggers="mouseenter:mouseleave"
+                ngbPopover="{{ 'sitnet_add' | translate }}"
+            >
+                <i class="pt-2 bi bi-plus-circle"></i>
+            </a>
+        </h5>
+    </div>
+    <div class="detail-row">
+        <div class="col-md-12 ms-3" [hidden]="!showMachines">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{ 'sitnet_name' | translate }}</th>
+                        <th>{{ 'sitnet_machine_other_identifier' | translate }}</th>
+                        <th>{{ 'sitnet_room_accessibility_info' | translate }}</th>
+                        <th>{{ 'sitnet_machine_softwares' | translate }}</th>
+                        <th>{{ 'sitnet_status' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let machine of room.examMachines | orderBy: 'name'">
+                        <td>
+                            <a
+                                [ngClass]="{ 'text-danger': !machine.name }"
+                                class="exams-info-title bold-button"
+                                uiSref="staff.machine"
+                                [uiParams]="{ id: machine.id }"
+                            >
+                                {{ !machine.name ? ('sitnet_no_name' | translate) : machine.name }}
+                            </a>
+                        </td>
+                        <td>{{ machine.otherIdentifier }}</td>
+                        <td>{{ machine.accessibilityInfo }}</td>
+                        <td>
+                            <ul>
+                                <li *ngFor="let software of machine.softwareInfo; let l = last" class="pull-left">
+                                    <span *ngIf="software.status !== 'DISABLED'">
+                                        {{ software.name }}<span *ngIf="!l">, </span>
+                                    </span>
+                                </li>
+                            </ul>
+                        </td>
+                        <td>
+                            <span class="status_red" *ngIf="machine.outOfService">{{
+                                'sitnet_status_inactive' | translate
+                            }}</span>
+                            <span class="status_green" *ngIf="!machine.outOfService">{{
+                                'sitnet_status_active' | translate
+                            }}</span>
+                            <span class="ms-2">{{ machine.statusComment }}</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>

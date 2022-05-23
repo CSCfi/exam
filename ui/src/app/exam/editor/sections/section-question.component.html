@@ -3,7 +3,7 @@
         <strong>#{{ sectionQuestion.question.id }}</strong>
         <a
             *ngIf="sectionQuestion.question.attachment?.id || sectionQuestion.question.attachment?.externalId"
-            class="infolink pointer attachment-link float-right"
+            class="infolink pointer attachment-link float-end"
             ngbPopover="{{ sectionQuestion.question.attachment?.fileName }}"
             popoverTitle="{{ 'sitnet_instructions' | translate }}"
             triggers="mouseenter:mouseleave"
@@ -82,7 +82,7 @@
         >
         <ul class="exam-section-question-options mt-2">
             <li
-                class="ml-2"
+                class="ms-2"
                 [hidden]="sectionQuestion.question.type !== 'MultipleChoiceQuestion'"
                 *ngFor="let option of sectionQuestion.options"
             >
@@ -98,10 +98,10 @@
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                 />
-                <span class="exam-question-option-text pl-2">{{ option.option.option }}</span>
+                <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
             </li>
             <li
-                class="ml-2"
+                class="ms-2"
                 [hidden]="sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion'"
                 *ngFor="let option of sectionQuestion.options"
             >
@@ -117,8 +117,8 @@
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer_checkbox.png'"
                 />
-                <span class="exam-question-option-text pl-2">{{ option.option.option }}</span>
-                <span class="exam-question-option-text pl-2"
+                <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
+                <span class="exam-question-option-text ps-2"
                     >{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
                 >
             </li>
@@ -145,8 +145,8 @@
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                 />
-                <span class="exam-question-option-text pl-2">{{ option.option.option }}</span>
-                <span class="exam-question-option-text pl-2"
+                <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
+                <span class="exam-question-option-text ps-2"
                     >{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
                 >
             </li>

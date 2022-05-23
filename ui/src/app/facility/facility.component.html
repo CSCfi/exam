@@ -1,34 +1,30 @@
 <div id="dashboard">
-    <div class="top-row d-flex justify-content-between align-items-center">
-        <div class="student-enroll-title-wrap marb20">
-            <div>
-                <span class="student-enroll-title">{{ 'sitnet_exam_rooms_administration' | translate }}</span>
-                <a (click)="createExamRoom()" class="font-6 marl20 pointer">
-                    <i class="bi-plus-square"></i>
-                </a>
-            </div>
-        </div>
-        <div>
-            <a class="header-top-link" (click)="editMultipleRooms()">
-                <i class="bi-building"></i>
-                <span>
-                    {{ 'sitnet_edit_all_rooms' | translate }}
-                </span>
+    <span class="row mt-4 ms-3 align-items-center">
+        <span class="col-md">
+            <span class="student-enroll-title">{{ 'sitnet_exam_rooms_administration' | translate }}</span>
+            <a (click)="createExamRoom()" class="font-6 marl20 pointer">
+                <i class="bi-plus-square"></i>
             </a>
-        </div>
-    </div>
-    <div class="top-row">
-        <div class="col-md-12 ml-4">
+        </span>
+        <span class="col-md-6">
+            <a class="header-top-link float-end me-4" (click)="editMultipleRooms()">
+                <i class="bi-building"></i>
+                {{ 'sitnet_edit_all_rooms' | translate }}
+            </a>
+        </span>
+    </span>
+    <div class="top-row ms-1">
+        <div class="col-md-12">
             <strong>{{ 'sitnet_maintenance_periods' | translate }}</strong>
-            <a (click)="createPeriod()" class="ml-2"><i class="pointer bi-plus-square"></i></a>
+            <a (click)="createPeriod()" class="ms-2"><i class="pointer bi-plus-square"></i></a>
         </div>
     </div>
-    <div class="row ml-3" *ngFor="let period of maintenancePeriods | orderBy: 'startsAt'">
-        <div class="col-md-12 ml-4">
+    <div class="detail-row ms-1" *ngFor="let period of maintenancePeriods | orderBy: 'startsAt'">
+        <div class="col-md-12">
             {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
             {{ period.description }}
-            <a (click)="updatePeriod(period)" class="pointer ml-2"><i class="bi-pencil-square"></i></a>
-            <a (click)="removePeriod(period)" class="pointer ml-2"><i class="bi-x-square"></i></a>
+            <a (click)="updatePeriod(period)" class="pointer ms-2"><i class="bi-pencil-square"></i></a>
+            <a (click)="removePeriod(period)" class="pointer ms-2"><i class="bi-x-square"></i></a>
         </div>
     </div>
 

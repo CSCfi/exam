@@ -26,7 +26,7 @@ import { QuestionDraft, QuestionService } from '../question.service';
                 <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
                 <br /><span>
                     <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
-                    <small class="pl-2" *ngIf="showWarning">{{
+                    <small class="ps-2" *ngIf="showWarning">{{
                         'sitnet_shared_question_property_info' | translate
                     }}</small>
                 </span>
