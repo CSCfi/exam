@@ -1,9 +1,9 @@
-<div class="row ml-3 mt-3 mr-3" *ngIf="user.isAdmin">
-    <div class="col-md-12 ml-1">
+<div class="row ms-3 mt-3 me-3" *ngIf="user.isAdmin">
+    <div class="col-md-12 ms-1">
         {{ 'sitnet_choose_atleast_one' | translate }}
     </div>
 </div>
-<div class="row ml-3 mr-3 align-items-center" [ngClass]="user.isAdmin ? 'mt-1' : 'mt-3'">
+<div class="row ms-3 me-3 align-items-center" [ngClass]="user.isAdmin ? 'mt-1' : 'mt-3'">
     <div class="col-md-4">
         <div id="filters" class="form-group">
             <span class="m-1" ngbDropdown [autoClose]="'outside'">
@@ -160,9 +160,9 @@
         </div>
     </div>
 </div>
-<div class="row ml-3">
+<div class="row ms-3">
     <div class="col-md-12">
-        <ul class="inline-list pl-1">
+        <ul class="inline-list ps-1">
             <li *ngFor="let tag of getTags()">
                 {{ tag.name }}
                 <button class="reviewer-remove" (click)="applyFilter(tag)" title="{{ 'sitnet_remove' | translate }}">

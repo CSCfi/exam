@@ -59,7 +59,7 @@ import type { ExamSection, Question } from '../../exam/exam.model';
             <!-- Buttons -->
             <div class="row">
                 <div class="flex flex-middle marr20 marb20">
-                    <span class="float-right">
+                    <span class="float-end">
                         <div class="library-button make-inline">
                             <a class="pointer preview" (click)="cancel()">
                                 {{ 'sitnet_button_cancel' | translate }}

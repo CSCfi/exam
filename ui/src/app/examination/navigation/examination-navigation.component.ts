@@ -20,14 +20,14 @@ import type { Examination, ExaminationSection, NavigationPage } from '../examina
     selector: 'xm-examination-navigation',
     template: `<!-- SECTION NAVIGATION ARROWS AND LABELS -->
         <div class="row exam-navigation mb-3">
-            <span class="col-md-12 ml-2">
+            <span class="col-md-12 ms-2">
                 <!-- PREVIOUS SECTION BUTTON -->
                 <button class="green_button" [hidden]="!prev.valid" tabindex="0" (click)="previousPage()">
                     <img class="arrow_icon" alt="previous page" src="/assets/images/icon_left_white.png" />
                     {{ prev.text || '' | translate }}
                 </button>
                 <!-- NEXT SECTION BUTTON -->
-                <button class="green_button float-right mr-2" [hidden]="!next.valid" (click)="nextPage()" tabindex="0">
+                <button class="green_button float-end me-2" [hidden]="!next.valid" (click)="nextPage()" tabindex="0">
                     {{ next.text || '' | translate }}
                     <img class="arrow_icon" alt="next page" src="/assets/images/icon_right_white.png" />
                 </button>

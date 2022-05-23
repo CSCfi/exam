@@ -1,5 +1,5 @@
 <div class="detail-row p-3" [hidden]="room.state === 'INACTIVE'">
-    <h5 class="ml-3">
+    <h5 class="ms-3">
         <span class="pointer user-select-none" (click)="toggleShow()">
             <i [hidden]="!showMachines" class="bi-chevron-down fa-stack-1x"></i>
             <i [hidden]="showMachines" class="bi-chevron-right fa-stack-1x"></i>
@@ -24,7 +24,7 @@
             </span>
         </span>
         <a
-            class="pl-2 text text-success pointer"
+            class="ps-2 text text-success pointer"
             (click)="addNewMachine()"
             triggers="mouseenter:mouseleave"
             ngbPopover="{{ 'sitnet_add' | translate }}"

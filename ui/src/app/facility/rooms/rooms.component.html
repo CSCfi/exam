@@ -6,7 +6,7 @@
         [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }"
     >
         <div class="col-md-12">
-            <h2 class="room-name-title mr-2 mb-0">{{ room.name || 'sitnet_no_name' | translate }}</h2>
+            <h2 class="room-name-title me-2 mb-0">{{ room.name || 'sitnet_no_name' | translate }}</h2>
             <a
                 [hidden]="room.state === 'INACTIVE'"
                 (click)="disableRoom(room)"
@@ -41,7 +41,7 @@
                         </a>
                     </div>
                     <div>
-                        <span class="mr-1">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
+                        <span class="me-1">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
                         <i class="bi-chevron-up" *ngIf="room.addressVisible" (click)="room.addressVisible = false"></i>
                         <i
                             class="bi-chevron-down"
