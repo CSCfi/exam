@@ -45,7 +45,7 @@ import { RoomService } from '../rooms/room.service';
                 <span
                     *ngFor="let hour of examStartingHours"
                     class="badge pointer"
-                    [ngClass]="hour.selected ? 'badge-success' : 'badge-default'"
+                    [ngClass]="hour.selected ? 'bg-success' : 'bg-default'"
                     (click)="hour.selected = !hour.selected"
                     style="margin: 0.2em"
                     >{{ hour.startingHour }}</span

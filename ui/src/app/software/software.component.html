@@ -1,24 +1,20 @@
-<div class="container py-4">
+<div id="room">
     <div class="row">
         <div class="col-md-12">
-            <h3 class="header-text mb-4">{{ 'sitnet_softwares' | translate }}</h3>
+            <h2 class="room-name-title">{{ 'sitnet_softwares' | translate }}</h2>
         </div>
     </div>
-    <div class="row">
-        <div class="col-lg-4">
-            <form class="form-inline align-items-end" role="form">
-                <div class="form-group">
-                    <label for="new-software-name" class="sitnet-info-text">{{
-                        'sitnet_software_name' | translate
-                    }}</label>
-                    <input
-                        type="text"
-                        id="new-software-name"
-                        name="name"
-                        class="form-control col-md-12"
-                        [(ngModel)]="newSoftware.name"
-                    />
-                </div>
+    <div class="row ms-3">
+        <div class="col-md-12">
+            <form role="form">
+                <label for="new-software-name" class="form-label">{{ 'sitnet_software_name' | translate }}</label>
+                <input
+                    type="text"
+                    id="new-software-name"
+                    name="name"
+                    class="form-control"
+                    [(ngModel)]="newSoftware.name"
+                />
                 <button
                     (click)="addSoftware()"
                     [disabled]="!newSoftware.name"
@@ -29,71 +25,55 @@
                 </button>
             </form>
         </div>
-        <div class="col-lg-8">
-            <div class="row">
-                <div class="col-md-12">
-                    <table class="table table-bordered table-sm room-machines-table">
-                        <thead>
-                            <tr>
-                                <th scope="col">{{ 'sitnet_name' | translate }}</th>
-                                <th scope="col"></th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let sw of software | orderBy: 'name'" scope="row">
-                                <td class="text-center">
-                                    <div [hidden]="sw.showName">
-                                        {{ sw.name }}
+    </div>
+    <div class="row ms-3 mt-3">
+        <div class="col-md-12">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'sitnet_name' | translate }}</th>
+                        <th scope="col">{{ 'sitnet_edit' | translate }}</th>
+                        <th scope="col">{{ 'sitnet_remove' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let sw of software | orderBy: 'name'" scope="row">
+                        <td>
+                            <div [hidden]="sw.showName">
+                                {{ sw.name }}
+                            </div>
+                            <div *ngIf="sw.showName">
+                                <form role="form">
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            class="form-control input-sm"
+                                            name="accessibility-name"
+                                            [(ngModel)]="sw.name"
+                                            autofocus
+                                        />
+                                        <span
+                                            class="input-group-text pointer"
+                                            (click)="sw.showName = !sw.showName; updateSoftware(sw)"
+                                            >{{ 'sitnet_add' | translate }}</span
+                                        >
                                     </div>
-                                    <div *ngIf="sw.showName">
-                                        <form class="form-inline" role="form">
-                                            <div class="form-group">
-                                                <label>
-                                                    <input
-                                                        type="text"
-                                                        class="form-control"
-                                                        [(ngModel)]="sw.name"
-                                                        name="software-name"
-                                                        autofocus
-                                                    />
-                                                </label>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                class="btn btn-primary btn-sm"
-                                                (click)="sw.showName = !sw.showName; updateSoftware(sw)"
-                                            >
-                                                <i class="bi-check"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                                <td>
-                                    <a
-                                        (click)="sw.showName = !sw.showName"
-                                        ngbPopover="{{ 'sitnet_edit' | translate }}"
-                                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                        triggers="mouseenter:mouseleave"
-                                    >
-                                        <i class="bi-pencil"></i>
-                                    </a>
-                                </td>
-                                <td>
-                                    <a
-                                        (click)="removeSoftware(sw)"
-                                        ngbPopover="{{ 'sitnet_remove_software' | translate }}"
-                                        triggers="mouseenter:mouseleave"
-                                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                    >
-                                        <i class="sitnet-red bi-x"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                </form>
+                            </div>
+                        </td>
+                        <td>
+                            <a (click)="sw.showName = !sw.showName">
+                                <i class="bi-pencil"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a (click)="removeSoftware(sw)">
+                                <i class="sitnet-red bi-x"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

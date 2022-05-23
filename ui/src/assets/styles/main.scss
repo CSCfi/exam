@@ -62,9 +62,7 @@ p, li {
   font-size: 2em;
   color: #2c2c2c;
   border-bottom: 2px solid $sitnet-green-new;
-  width: 100%;
   padding-bottom: 7px;
-
 }
 .student-enroll-title-wrap {
   margin-left: 1.4em;
@@ -390,6 +388,7 @@ p, li {
       -moz-transform: scale(2); /* FF */
       -webkit-transform: scale(2); /* Safari and Chrome */
       -o-transform: scale(2); /* Opera */
+      transform: scale(2);
     }
   }
 }
@@ -501,7 +500,7 @@ p, li {
   .active {
 
     a, a:focus {
-      color: #fff;
+      color: #fff !important;
       background: $sitnet-green-new;
       -moz-border-radius: 50%;
       -webkit-border-radius: 50%;
@@ -510,7 +509,7 @@ p, li {
     }
 
     a:hover {
-      color: #fff;
+      color: #fff !important;
       background: $sitnet-green-new;
     }
 

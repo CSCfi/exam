@@ -1,12 +1,7 @@
 <div id="dashboard">
-    <div
-        class="rooms-basic-info row"
-        id="room"
-        *ngFor="let room of rooms"
-        [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }"
-    >
+    <div class="row" id="room" *ngFor="let room of rooms" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
         <div class="col-md-12">
-            <h2 class="room-name-title me-2 mb-0">{{ room.name || 'sitnet_no_name' | translate }}</h2>
+            <h2 class="room-name-title">{{ room.name || 'sitnet_no_name' | translate }}</h2>
             <a
                 [hidden]="room.state === 'INACTIVE'"
                 (click)="disableRoom(room)"
@@ -14,7 +9,7 @@
                 triggers="mouseenter:mouseleave"
                 ngbPopover="{{ 'sitnet_inactivate_room' | translate }}"
             >
-                <i class="bi-trash text-danger pointer"></i>
+                <i class="bi-trash ms-2 text-danger pointer"></i>
             </a>
             <a
                 [hidden]="room.state !== 'INACTIVE'"
@@ -42,9 +37,13 @@
                     </div>
                     <div>
                         <span class="me-1">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
-                        <i class="bi-chevron-up" *ngIf="room.addressVisible" (click)="room.addressVisible = false"></i>
                         <i
                             class="bi-chevron-down"
+                            *ngIf="room.addressVisible"
+                            (click)="room.addressVisible = false"
+                        ></i>
+                        <i
+                            class="bi-chevron-right"
                             *ngIf="!room.addressVisible"
                             (click)="room.addressVisible = true"
                         ></i>

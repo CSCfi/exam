@@ -357,18 +357,12 @@ $sitnet-icon-size: 32px;
 
 .header-top-link {
   display: flex;
-  margin: 0 0.8em;
+  align-items: center;
   color: $sitnet-text;
   font-size: 0.9em;
-  line-height: 0.5em;
   font-weight: bold;
   cursor: pointer;
-  align-items: center;
-  text-decoration: none !important;
-
-  span:hover {
-    text-decoration: underline;
-  }
+  text-decoration: none;
 
   i {
     display: inline-flex;

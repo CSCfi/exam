@@ -25,8 +25,7 @@ import { AccessibilityService } from './accessibility.service';
 })
 export class AccessibilityComponent implements OnInit {
     newItem: { name: string } = { name: '' };
-    accessibilities: Accessibility[] = [];
-    showName = false;
+    accessibilities: (Accessibility & { showName: boolean })[] = [];
 
     constructor(
         private translate: TranslateService,
@@ -37,7 +36,7 @@ export class AccessibilityComponent implements OnInit {
     ngOnInit() {
         this.newItem = { name: '' };
         this.accessibilityService.getAccessibilities().subscribe((resp) => {
-            this.accessibilities = resp;
+            this.accessibilities = resp.map((acc) => ({ ...acc, showName: false }));
         });
     }
 
@@ -47,7 +46,7 @@ export class AccessibilityComponent implements OnInit {
 
     add = () =>
         this.accessibilityService.addAccessibility(this.newItem).subscribe((resp) => {
-            this.accessibilities.push(resp);
+            this.accessibilities.push({ ...resp, showName: false });
             this.toast.info(this.translate.instant('sitnet_accessibility_added'));
             this.initItem();
         });
@@ -57,7 +56,7 @@ export class AccessibilityComponent implements OnInit {
             this.toast.info(this.translate.instant('sitnet_accessibility_updated'));
         });
 
-    remove = (accessibility: Accessibility) =>
+    remove = (accessibility: Accessibility & { showName: boolean }) =>
         this.accessibilityService.removeAccessibility(accessibility.id).subscribe(() => {
             this.accessibilities.splice(this.accessibilities.indexOf(accessibility), 1);
             this.toast.info(this.translate.instant('sitnet_accessibility_removed'));
