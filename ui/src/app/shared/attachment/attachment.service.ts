@@ -68,71 +68,73 @@ export class AttachmentService {
         this.removeAnswerAttachment(this.externalAnswerAttachmentApi(question.id, hash), question);
     }
 
-    removeExamAttachment(exam: Exam, collaborative = false) {
-        const dialog = this.dialogs.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
-        );
-        dialog.result.then(() => {
-            const api = collaborative ? this.collaborativeExamAttachmentApi : this.examAttachmentApi;
-            this.http.delete(api(exam.id)).subscribe({
+    removeExamAttachment = (exam: Exam, collaborative = false) =>
+        this.dialogs
+            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_are_you_sure'))
+            .subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_attachment_removed'));
-                    delete exam.attachment;
+                    const api = collaborative ? this.collaborativeExamAttachmentApi : this.examAttachmentApi;
+                    this.http.delete(api(exam.id)).subscribe({
+                        next: () => {
+                            this.toast.info(this.translate.instant('sitnet_attachment_removed'));
+                            delete exam.attachment;
+                        },
+                        error: (err) => this.toast.error(err),
+                    });
                 },
-                error: (err) => this.toast.error(err),
+                error: this.toast.error,
             });
-        });
-    }
 
-    removeFeedbackAttachment(exam: Examination) {
-        const dialog = this.dialogs.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
-        );
-        dialog.result.then(() => {
-            this.http.delete(this.feedbackAttachmentApi(exam.id)).subscribe({
+    removeFeedbackAttachment = (exam: Examination) =>
+        this.dialogs
+            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_are_you_sure'))
+            .subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_attachment_removed'));
-                    delete exam.examFeedback?.attachment;
+                    this.http.delete(this.feedbackAttachmentApi(exam.id)).subscribe({
+                        next: () => {
+                            this.toast.info(this.translate.instant('sitnet_attachment_removed'));
+                            delete exam.examFeedback?.attachment;
+                        },
+                        error: (err) => this.toast.error(err),
+                    });
                 },
-                error: (err) => this.toast.error(err),
+                error: this.toast.error,
             });
-        });
-    }
 
-    removeCollaborativeExamFeedbackAttachment = (id: string, ref: string, participation: ExamParticipation) => {
-        const dialog = this.dialogs.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
-        );
-        dialog.result.then(() => {
-            this.http.delete<{ rev: string }>(`/app/iop/collab/attachment/exam/${id}/${ref}/feedback`).subscribe({
-                next: (resp) => {
-                    this.toast.info(this.translate.instant('sitnet_attachment_removed'));
-                    participation._rev = resp.rev;
-                    delete participation.exam.examFeedback?.attachment;
-                },
-                error: (resp) => this.toast.error(resp),
-            });
-        });
-    };
-
-    removeStatementAttachment(exam: Exam) {
-        const dialog = this.dialogs.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
-        );
-        dialog.result.then(() => {
-            this.http.delete(this.statementAttachmentApi(exam.id)).subscribe({
+    removeCollaborativeExamFeedbackAttachment = (id: string, ref: string, participation: ExamParticipation) =>
+        this.dialogs
+            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_are_you_sure'))
+            .subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_attachment_removed'));
-                    delete exam.languageInspection?.statement.attachment;
+                    this.http
+                        .delete<{ rev: string }>(`/app/iop/collab/attachment/exam/${id}/${ref}/feedback`)
+                        .subscribe({
+                            next: (resp) => {
+                                this.toast.info(this.translate.instant('sitnet_attachment_removed'));
+                                participation._rev = resp.rev;
+                                delete participation.exam.examFeedback?.attachment;
+                            },
+                            error: (resp) => this.toast.error(resp),
+                        });
                 },
-                error: (err) => this.toast.error(err),
+                error: this.toast.error,
             });
-        });
-    }
+
+    removeStatementAttachment = (exam: Exam) =>
+        this.dialogs
+            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_are_you_sure'))
+            .subscribe({
+                next: () => {
+                    this.http.delete(this.statementAttachmentApi(exam.id)).subscribe({
+                        next: () => {
+                            this.toast.info(this.translate.instant('sitnet_attachment_removed'));
+                            delete exam.languageInspection?.statement.attachment;
+                        },
+                        error: (err) => this.toast.error(err),
+                    });
+                },
+                error: this.toast.error,
+            });
 
     downloadExternalQuestionAttachment(exam: Exam, sq: ExamSectionQuestion) {
         if (sq.question.attachment) {
@@ -224,22 +226,22 @@ export class AttachmentService {
             });
         });
 
-    private removeAnswerAttachment(url: string, question: AnsweredQuestion) {
-        const dialog = this.dialogs.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
-        );
-        dialog.result.then(() => {
-            this.http.delete<{ objectVersion?: number }>(url, {}).subscribe({
-                next: (resp) => {
-                    this.toast.info(this.translate.instant('sitnet_attachment_removed'));
-                    question.essayAnswer.objectVersion = resp?.objectVersion ? resp.objectVersion : 0;
-                    delete question.essayAnswer.attachment;
+    private removeAnswerAttachment = (url: string, question: AnsweredQuestion) =>
+        this.dialogs
+            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_are_you_sure'))
+            .subscribe({
+                next: () => {
+                    this.http.delete<{ objectVersion?: number }>(url, {}).subscribe({
+                        next: (resp) => {
+                            this.toast.info(this.translate.instant('sitnet_attachment_removed'));
+                            question.essayAnswer.objectVersion = resp?.objectVersion ? resp.objectVersion : 0;
+                            delete question.essayAnswer.attachment;
+                        },
+                        error: (err) => this.toast.error(err),
+                    });
                 },
-                error: (err) => this.toast.error(err),
+                error: this.toast.error,
             });
-        });
-    }
 
     private questionAttachmentApi = (id: number) => `/app/attachment/question/${id}`;
     private collaborativeQuestionAttachmentApi = (eid: number, qid: number) =>

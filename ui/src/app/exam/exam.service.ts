@@ -220,19 +220,20 @@ export class ExamService {
 
     removeExam = (exam: Exam, collaborative = false) => {
         if (this.isAllowedToUnpublishOrRemove(exam, collaborative)) {
-            const dialog = this.ConfirmationDialog.open(
+            this.ConfirmationDialog.open$(
                 this.translate.instant('sitnet_confirm'),
                 this.translate.instant('sitnet_remove_exam'),
-            );
-            dialog.result.then(() =>
-                this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe({
-                    next: () => {
-                        this.toast.success(this.translate.instant('sitnet_exam_removed'));
-                        this.State.go('dashboard');
-                    },
-                    error: this.toast.error,
-                }),
-            );
+            ).subscribe({
+                next: () =>
+                    this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe({
+                        next: () => {
+                            this.toast.success(this.translate.instant('sitnet_exam_removed'));
+                            this.State.go('dashboard');
+                        },
+                        error: this.toast.error,
+                    }),
+                error: this.toast.error,
+            });
         } else {
             this.toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));
         }

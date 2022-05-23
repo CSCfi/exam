@@ -17,6 +17,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
 import { ToastrService } from 'ngx-toastr';
+import { from } from 'rxjs';
 import type { MaintenancePeriod } from '../exam/exam.model';
 import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
@@ -64,8 +65,8 @@ export class FacilityComponent implements OnInit {
             keyboard: true,
             size: 'lg',
         });
-        modalRef.result
-            .then((res: MaintenancePeriod) => {
+        from(modalRef.result).subscribe({
+            next: (res: MaintenancePeriod) => {
                 this.room.createMaintenancePeriod$(res).subscribe({
                     next: (mp) => {
                         this.toast.info(this.translate.instant('sitnet_created'));
@@ -73,8 +74,9 @@ export class FacilityComponent implements OnInit {
                     },
                     error: this.toast.error,
                 });
-            })
-            .catch((err) => this.toast.error(err));
+            },
+            error: this.toast.error,
+        });
     };
 
     updatePeriod = (period: MaintenancePeriod) => {
@@ -84,8 +86,8 @@ export class FacilityComponent implements OnInit {
             size: 'lg',
         });
         modalRef.componentInstance.period = period;
-        modalRef.result
-            .then((res: MaintenancePeriod) => {
+        from(modalRef.result).subscribe({
+            next: (res: MaintenancePeriod) => {
                 this.room.updateMaintenancePeriod$(res).subscribe({
                     next: () => {
                         this.toast.info(this.translate.instant('sitnet_updated'));
@@ -94,8 +96,9 @@ export class FacilityComponent implements OnInit {
                     },
                     error: this.toast.error,
                 });
-            })
-            .catch((err) => this.toast.error(err));
+            },
+            error: this.toast.error,
+        });
     };
 
     removePeriod = (period: MaintenancePeriod) => {

@@ -70,51 +70,51 @@ export class ExaminationToolbarComponent implements OnInit {
         return `${user.firstName} ${user.lastName} ${userId}`;
     };
 
-    turnExam = () => {
-        const dialog = this.Confirmation.open(
+    turnExam = () =>
+        this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_confirm_turn_exam'),
-        );
-        dialog.result.then(() =>
-            // Save all textual answers regardless of empty or not
-            this.Examination.saveAllTextualAnswersOfExam$(this.exam)
-                .pipe(
-                    catchError((err) => {
-                        if (err) console.log(err);
-                        return of(err);
-                    }),
-                    finalize(() =>
-                        this.Examination.logout(
-                            'sitnet_exam_returned',
-                            this.exam.hash,
-                            this.exam.implementation === 'CLIENT_AUTH',
-                            false,
+        ).subscribe({
+            next: () =>
+                // Save all textual answers regardless of empty or not
+                this.Examination.saveAllTextualAnswersOfExam$(this.exam)
+                    .pipe(
+                        catchError((err) => {
+                            if (err) console.log(err);
+                            return of(err);
+                        }),
+                        finalize(() =>
+                            this.Examination.logout(
+                                'sitnet_exam_returned',
+                                this.exam.hash,
+                                this.exam.implementation === 'CLIENT_AUTH',
+                                false,
+                            ),
                         ),
-                    ),
-                )
-                .subscribe(),
-        );
-    };
+                    )
+                    .subscribe(),
+            error: this.toast.error,
+        });
 
-    abortExam = () => {
-        const dialog = this.Confirmation.open(
+    abortExam = () =>
+        this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_confirm_abort_exam'),
-        );
-        dialog.result.then(() =>
-            this.Examination.abort$(this.exam.hash).subscribe({
-                next: () => {
-                    this.toast.info(this.translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
-                    this.Window.nativeWindow.onbeforeunload = null;
-                    this.state.go('examinationLogout', {
-                        reason: 'aborted',
-                        quitLinkEnabled: this.exam.implementation === 'CLIENT_AUTH',
-                    });
-                },
-                error: this.toast.error,
-            }),
-        );
-    };
+        ).subscribe({
+            next: () =>
+                this.Examination.abort$(this.exam.hash).subscribe({
+                    next: () => {
+                        this.toast.info(this.translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
+                        this.Window.nativeWindow.onbeforeunload = null;
+                        this.state.go('examinationLogout', {
+                            reason: 'aborted',
+                            quitLinkEnabled: this.exam.implementation === 'CLIENT_AUTH',
+                        });
+                    },
+                    error: this.toast.error,
+                }),
+            error: this.toast.error,
+        });
 
     downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.isCollaborative);
 

@@ -19,8 +19,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { isObject } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
-import type { Observable } from 'rxjs';
-import { forkJoin, of, throwError } from 'rxjs';
+import { forkJoin, from, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { CollaborativeParticipation } from '../exam/collaborative/collaborative-exam.service';
 import type { CollaborativeExam, Exam, ExaminationEventConfiguration, ExamParticipation } from '../exam/exam.model';
@@ -58,31 +57,36 @@ export class EnrolmentService {
         modalRef.componentInstance.existingEventId = enrolment.examinationEventConfiguration
             ? enrolment.examinationEventConfiguration.id
             : undefined;
-        modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.http.post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {}).subscribe({
-                next: () => {
-                    enrolment.examinationEventConfiguration = data;
-                    if (nextState) {
-                        this.State.go(nextState);
-                    }
-                },
-                error: (err) => this.toast.error(err),
-            });
+        from(modalRef.result).subscribe({
+            next: (data: ExaminationEventConfiguration) => {
+                this.http.post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {}).subscribe({
+                    next: () => {
+                        enrolment.examinationEventConfiguration = data;
+                        if (nextState) {
+                            this.State.go(nextState);
+                        }
+                    },
+                    error: (err) => this.toast.error(err),
+                });
+            },
+            error: this.toast.error,
         });
     };
 
     removeExaminationEvent = (enrolment: ExamEnrolment) => {
-        this.Confirmation.open(
+        this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_are_you_sure'),
-        ).result.then(() => {
-            this.http.delete(`/app/enrolments/${enrolment.id}/examination`).subscribe({
-                next: () => {
-                    this.toast.info(this.translate.instant('sitnet_examination_event_removed'));
-                    delete enrolment.examinationEventConfiguration;
-                },
-                error: this.toast.error,
-            });
+        ).subscribe({
+            next: () =>
+                this.http.delete(`/app/enrolments/${enrolment.id}/examination`).subscribe({
+                    next: () => {
+                        this.toast.info(this.translate.instant('sitnet_examination_event_removed'));
+                        delete enrolment.examinationEventConfiguration;
+                    },
+                    error: this.toast.error,
+                }),
+            error: this.toast.error,
         });
     };
 
@@ -91,10 +95,6 @@ export class EnrolmentService {
             return;
         }
         const externalRef = enrolment.reservation.externalRef;
-        const dialog = this.Confirmation.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
-        );
         const successFn = () => {
             delete enrolment.reservation;
             enrolment.reservationCanceled = true;
@@ -104,7 +104,13 @@ export class EnrolmentService {
             ? `/app/iop/reservations/external/${externalRef}`
             : `/app/calendar/reservation/${enrolment.reservation.id}`;
 
-        dialog.result.then(() => this.http.delete(url).subscribe({ next: successFn, error: errorFn }));
+        this.Confirmation.open$(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_are_you_sure'),
+        ).subscribe({
+            next: () => this.http.delete(url).subscribe({ next: successFn, error: errorFn }),
+            error: this.toast.error,
+        });
     }
 
     enroll = (exam: Exam, collaborative = false): Observable<ExamEnrolment> =>
