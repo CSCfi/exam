@@ -1,86 +1,76 @@
-<div class="container py-4">
+<div id="room">
     <div class="row">
         <div class="col-md-12">
-            <h3 class="header-text mb-4">{{ 'sitnet_room_accessibility_info' | translate }}</h3>
+            <h2 class="room-name-title">{{ 'sitnet_room_accessibility_info' | translate }}</h2>
         </div>
     </div>
-    <div class="row">
-        <div class="col-lg-4">
-            <form class="form-inline align-items-end" role="form">
-                <div class="form-group me-2">
-                    <label for="new-accessibility-name" class="sitnet-info-text">{{ 'sitnet_name' | translate }}</label>
-                    <input
-                        type="text"
-                        id="new-accessibility-name"
-                        name="name"
-                        class="form-control col-md-12"
-                        [(ngModel)]="newItem.name"
-                    />
-                </div>
+    <div class="row ms-3">
+        <div class="col-md-12">
+            <form role="form">
+                <label for="new-accessibility-name" class="form-label">{{ 'sitnet_name' | translate }}</label>
+                <input
+                    type="text"
+                    id="new-accessibility-name"
+                    name="name"
+                    class="form-control col-md-12"
+                    [(ngModel)]="newItem.name"
+                />
                 <button type="button" [disabled]="!newItem.name" (click)="add()" class="btn btn-primary mt-2">
                     {{ 'sitnet_create_new' | translate }}
                 </button>
             </form>
         </div>
-        <div class="col-lg-8">
-            <div class="row">
-                <table class="table table-bordered table-sm room-machines-table m-0">
-                    <thead>
-                        <tr>
-                            <th scope="col">{{ 'sitnet_name' | translate }}</th>
-                            <th scope="col"></th>
-                            <th scope="col"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let accessibility of accessibilities" scope="row">
-                            <td class="w-100 text-center">
-                                <div [hidden]="showName" class="editable" (click)="showName = !showName">
-                                    {{ accessibility.name }}
-                                </div>
-                                <div *ngIf="showName">
-                                    <form class="form-inline" role="form">
-                                        <div class="form-group">
-                                            <label>
-                                                <input
-                                                    type="text"
-                                                    class="form-control input-sm"
-                                                    name="accessibility-name"
-                                                    [(ngModel)]="accessibility.name"
-                                                    autofocus
-                                                />
-                                            </label>
-                                        </div>
-                                        <button
-                                            class="btn btn-primary btn-sm"
-                                            type="button"
-                                            (click)="showName = !showName; update(accessibility)"
+    </div>
+    <div class="row ms-3 mt-3">
+        <div class="col-md-12">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'sitnet_name' | translate }}</th>
+                        <th scope="col">{{ 'sitnet_edit' | translate }}</th>
+                        <th scope="col">{{ 'sitnet_remove' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let accessibility of accessibilities" scope="row">
+                        <td>
+                            <div [hidden]="accessibility.showName">
+                                {{ accessibility.name }}
+                            </div>
+                            <div *ngIf="accessibility.showName">
+                                <form role="form">
+                                    <div class="input-group">
+                                        <input
+                                            type="text"
+                                            class="form-control input-sm"
+                                            name="accessibility-name"
+                                            [(ngModel)]="accessibility.name"
+                                            autofocus
+                                        />
+                                        <span
+                                            class="input-group-text pointer"
+                                            (click)="
+                                                accessibility.showName = !accessibility.showName; update(accessibility)
+                                            "
+                                            >{{ 'sitnet_add' | translate }}</span
                                         >
-                                            <i class="bi-check"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                            <td>
-                                <a (click)="showName = !showName">
-                                    <i class="bi-pencil"></i>
-                                </a>
-                            </td>
-                            <td>
-                                <a
-                                    class="fa-stack fa-lg"
-                                    (click)="remove(accessibility)"
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'sitnet_remove_room_accessibility_info' | translate }}"
-                                >
-                                    <i class="sitnet-red bi-x"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </td>
+                        <td>
+                            <a (click)="accessibility.showName = !accessibility.showName">
+                                <i class="bi-pencil"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <a class="fa-stack fa-lg" (click)="remove(accessibility)">
+                                <i class="sitnet-red bi-x"></i>
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

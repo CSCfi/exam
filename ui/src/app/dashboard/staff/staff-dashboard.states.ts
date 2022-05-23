@@ -59,7 +59,7 @@ export const STAFF_STATES: Ng2StateDeclaration[] = [
     },
     {
         name: 'staff.newQuestion',
-        url: '/questions/newQuestion/:nextState',
+        url: '/questions/newQuestion?{nextState}',
         component: QuestionComponent,
         resolve: {
             newQuestion: () => true,
