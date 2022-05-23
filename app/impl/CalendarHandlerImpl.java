@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
-import models.Accessibility;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamMachine;
@@ -105,7 +104,9 @@ public class CalendarHandlerImpl implements CalendarHandler {
                 .gt("endsAt", searchDate.toDate())
                 .findList()
                 .stream()
-                .map(p -> new Interval(p.getStartsAt(), p.getEndsAt()))
+                .map(p ->
+                    new Interval(normalizeMaintenanceTime(p.getStartsAt()), normalizeMaintenanceTime(p.getEndsAt()))
+                )
                 .collect(Collectors.toList());
             LocalDate endOfSearch = getEndSearchDate(searchDate, new LocalDate(exam.getExamActiveEndDate()));
             while (!searchDate.isAfter(endOfSearch)) {
@@ -144,7 +145,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
             .gt("endsAt", searchDate.toDate())
             .findList()
             .stream()
-            .map(p -> new Interval(p.getStartsAt(), p.getEndsAt()))
+            .map(p -> new Interval(normalizeMaintenanceTime(p.getStartsAt()), normalizeMaintenanceTime(p.getEndsAt())))
             .collect(Collectors.toList());
         Set<TimeSlot> slots = getExamSlots(
             reservation.getUser(),
@@ -452,7 +453,9 @@ public class CalendarHandlerImpl implements CalendarHandler {
                 .gt("endsAt", searchDate.toDate())
                 .findList()
                 .stream()
-                .map(p -> new Interval(p.getStartsAt(), p.getEndsAt()))
+                .map(p ->
+                    new Interval(normalizeMaintenanceTime(p.getStartsAt()), normalizeMaintenanceTime(p.getEndsAt()))
+                )
                 .collect(Collectors.toList());
             // Filter out slots that overlap a local maintenance period
             Map<Interval, Optional<Integer>> map2 = map
@@ -612,21 +615,21 @@ public class CalendarHandlerImpl implements CalendarHandler {
             return true;
         }
         // The following is always empty because no UI-support for adding
-        List<Accessibility> machineAccessibility = machine.getAccessibilities();
-        return machineAccessibility
+        Set<Integer> machineAccessibility = machine
+            .getAccessibilities()
             .stream()
             .map(accessibility -> accessibility.getId().intValue())
-            .collect(Collectors.toList())
-            .containsAll(wanted);
+            .collect(Collectors.toSet());
+        return machineAccessibility.containsAll(wanted);
     }
 
     private static boolean isRoomAccessibilitySatisfied(ExamRoom room, Collection<Integer> wanted) {
-        List<Accessibility> roomAccessibility = room.getAccessibilities();
-        return roomAccessibility
+        Set<Integer> roomAccessibility = room
+            .getAccessibilities()
             .stream()
             .map(accessibility -> accessibility.getId().intValue())
-            .collect(Collectors.toList())
-            .containsAll(wanted);
+            .collect(Collectors.toSet());
+        return roomAccessibility.containsAll(wanted);
     }
 
     private boolean isReservedByUser(Reservation reservation, User user) {
@@ -682,5 +685,10 @@ public class CalendarHandlerImpl implements CalendarHandler {
             .map(oh -> oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset()))
             .findFirst()
             .orElseThrow(() -> new RuntimeException("slot not contained within opening hours, recheck logic!"));
+    }
+
+    private DateTime normalizeMaintenanceTime(DateTime dateTime) {
+        DateTimeZone dtz = configReader.getDefaultTimeZone();
+        return dtz.isStandardOffset(dateTime.getMillis()) ? dateTime : dateTime.plusHours(1);
     }
 }

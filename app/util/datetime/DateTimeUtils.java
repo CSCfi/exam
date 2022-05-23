@@ -158,8 +158,6 @@ public class DateTimeUtils {
     }
 
     public static DateTime adjustDST(DateTime dateTime) {
-        // FIXME: this method should be made unnecessary, DST adjustments should always be done based on reservation data.
-        // Until we get some of the queries rephrased, we have to live with this quick-fix
         return doAdjustDST(dateTime, null);
     }
 
@@ -210,16 +208,6 @@ public class DateTimeUtils {
 
     public static DateTime normalize(DateTime dateTime, DateTimeZone dtz) {
         return !dtz.isStandardOffset(dateTime.getMillis()) ? dateTime.minusHours(1) : dateTime;
-    }
-
-    public static DateTime withTimeAtStartOfDayConsideringTz(DateTime src) {
-        DateTimeZone dtz = getDefaultTimeZone();
-        return src.withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
-    }
-
-    public static DateTime withTimeAtEndOfDayConsideringTz(DateTime src) {
-        DateTimeZone dtz = getDefaultTimeZone();
-        return src.plusDays(1).withTimeAtStartOfDay().plusMillis(dtz.getOffset(src));
     }
 
     private static int resolveMillisOfDay(DateTime date, long offset) {
