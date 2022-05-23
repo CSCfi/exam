@@ -1,4 +1,4 @@
-<div class="row mt-4 mr-2 ml-2">
+<div class="row mt-4 me-2 ms-2">
     <div class="col-md-12 mt-2">
         <div class="student-details-title-wrap">
             <xm-history-back></xm-history-back>
@@ -8,7 +8,7 @@
 </div>
 
 <div class="student-enrolment-wrapper details-view marr20">
-    <div class="student-exam-header-row row ml-2">
+    <div class="student-exam-header-row row ms-2">
         <div class="student-details-title col-md-9 col-6">
             <span>{{ exam.name }}</span>
             <div class="student-details-subtitle">
@@ -37,7 +37,7 @@
             {{ 'sitnet_enrolled_to_exam' | translate }}
         </div>
     </div>
-    <div class="row ml-2 mt-1">
+    <div class="row ms-2 mt-1">
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_course_name' | translate }}:</div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">
             <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code> {{ exam.course?.name }}
@@ -48,7 +48,7 @@
         </div>
     </div>
 
-    <div class="row ml-2 mt-1">
+    <div class="row ms-2 mt-1">
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_start_time' | translate }}:</div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">
             {{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }} - {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}
@@ -59,7 +59,7 @@
         </div>
     </div>
 
-    <div class="row ml-2 mt-1">
+    <div class="row ms-2 mt-1">
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_course_scope' | translate }}:</div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">
             {{ exam.course?.credits }}
@@ -70,7 +70,7 @@
         </div>
     </div>
 
-    <div class="row ml-2 mt-1">
+    <div class="row ms-2 mt-1">
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_exam_duration' | translate }}:</div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">
             {{ printExamDuration() }}
@@ -80,13 +80,13 @@
             {{ translateGradeScale() }}
         </div>
     </div>
-    <div class="row ml-2 mt-1">
+    <div class="row ms-2 mt-1">
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'sitnet_exam_credit_type' | translate }}:</div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">
             {{ translateExamType() }}
         </div>
     </div>
-    <div class="row ml-2 mt-1">
+    <div class="row ms-2 mt-1">
         <div class="col-12">
             <div class="student-exam-row-infolink infotitle" [hidden]="exam.executionType.type === 'MATURITY'">
                 {{ 'sitnet_view_instructions' | translate }}
@@ -95,7 +95,7 @@
         </div>
     </div>
 
-    <div class="row ml-2 mt-1" [hidden]="exam.executionType.type !== 'MATURITY'">
+    <div class="row ms-2 mt-1" [hidden]="exam.executionType.type !== 'MATURITY'">
         <div class="col-md-12">
             <div class="student-exam-row-infolink">
                 {{ 'sitnet_maturity_instructions' | translate }}
@@ -104,9 +104,9 @@
         </div>
     </div>
 
-    <div *ngIf="!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft" class="row ml-2 mt-1 mr-1">
+    <div *ngIf="!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft" class="row ms-2 mt-1 me-1">
         <div class="col-md-12 student-message-dialog-button-save">
-            <button class="link-button float-right" (click)="makeReservation()">
+            <button class="link-button float-end" (click)="makeReservation()">
                 {{ 'sitnet_student_new_reservation' | translate }}
             </button>
         </div>

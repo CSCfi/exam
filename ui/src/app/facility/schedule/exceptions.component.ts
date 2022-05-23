@@ -25,13 +25,13 @@ import { RoomService } from '../rooms/room.service';
 
         <div class="col-md-12">
             <div class="detail-row" *ngFor="let exception of exceptions | filterBy: filter">
-                <div class="mr-4">
+                <div class="me-4">
                     {{ formatDate(exception) }}
                 </div>
-                <div class="text-danger mr-4" *ngIf="exception.outOfService">
+                <div class="text-danger me-4" *ngIf="exception.outOfService">
                     {{ 'sitnet_room_out_of_service' | translate }}
                 </div>
-                <div class="text-info mr-4" *ngIf="!exception.outOfService">
+                <div class="text-info me-4" *ngIf="!exception.outOfService">
                     {{ 'sitnet_room_in_service' | translate }}
                 </div>
                 <div>

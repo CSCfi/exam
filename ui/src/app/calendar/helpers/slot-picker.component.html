@@ -4,7 +4,7 @@
             <span class="col-md-11 col-9">
                 <span class="calendar-phase-title">
                     {{ sequenceNumber }}. {{ 'sitnet_calendar_phase_2' | translate }}
-                    <small class="col-12 pl-0">
+                    <small class="col-12 ps-0">
                         <button
                             class="btn btn-sm btn-outline-dark"
                             (click)="makeExternalReservation()"
@@ -16,7 +16,7 @@
                 </span>
             </span>
             <span class="col-md-1 col-3">
-                <span class="calendar-phase-icon float-right" *ngIf="selectedRoom">
+                <span class="calendar-phase-icon float-end" *ngIf="selectedRoom">
                     <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="choose room" />
                 </span>
             </span>
@@ -74,7 +74,7 @@
                 </div>
             </div>
         </div>
-        <div class="row ml-1 mt-3">
+        <div class="row ms-1 mt-3">
             <div class="dropdown" ngbDropdown>
                 <button
                     ngbDropdownToggle

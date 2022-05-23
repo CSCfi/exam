@@ -37,8 +37,8 @@
         </span>
     </div>
     <div *ngIf="exam.implementation !== 'CLIENT_AUTH' && sq.essayAnswer?.attachment?.fileName" class="col-md-9 mt-2">
-        <span class="float-right">
-            <span class="pr-2 filename-text">{{ sq.essayAnswer?.attachment?.fileName | uppercase }}</span>
+        <span class="float-end">
+            <span class="pe-2 filename-text">{{ sq.essayAnswer?.attachment?.fileName | uppercase }}</span>
             <button tabindex="0" class="pointer green_button" (click)="removeQuestionAnswerAttachment()">
                 {{ 'sitnet_remove_answer_attachment' | translate }}
                 <img
@@ -57,7 +57,7 @@
         </button>
     </div>
     <div class="col-md-6" *ngIf="exam.implementation !== 'CLIENT_AUTH' && sq.essayAnswer">
-        <div class="float-right mart10">
+        <div class="float-end mart10">
             <div class="filename-text" *ngIf="!sq.essayAnswer.attachment?.fileName">
                 {{ 'sitnet_no_attachment' | translate }}
             </div>

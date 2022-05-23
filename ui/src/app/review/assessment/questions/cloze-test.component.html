@@ -2,8 +2,8 @@
     <div class="student-enrolment-wrapper review-view">
         <div class="col-md-12">
             <!-- question text -->
-            <div class="float-right">
-                <a class="float-right" (click)="reviewExpanded = !reviewExpanded">
+            <div class="float-end">
+                <a class="float-end" (click)="reviewExpanded = !reviewExpanded">
                     <img
                         *ngIf="!reviewExpanded"
                         src="/assets/images/icon_list_show_right.svg"
@@ -18,7 +18,7 @@
                     />
                 </a>
                 <!-- grade -->
-                <div class="review-points mr-2">
+                <div class="review-points me-2">
                     <!-- grade -->
                     <div>
                         <strong>{{ 'sitnet_multiplechoice_question_correct' | translate }}:</strong>

@@ -24,19 +24,19 @@ import { EnrolmentService } from '../enrolment.service';
     selector: 'xm-exam-enrolments',
     template: `
         <div id="dashboard">
-            <div class="row mt-2 ml-2 mr-2" *ngIf="exam?.noTrialsLeft">
+            <div class="row mt-2 ms-2 me-2" *ngIf="exam?.noTrialsLeft">
                 <div class="col-md-12 alert-danger">
                     <h1>{{ 'sitnet_no_trials_left' | translate }}</h1>
                 </div>
             </div>
             <xm-enrolment-details *ngIf="exam" [exam]="exam"></xm-enrolment-details>
             <div *ngIf="exams.length > 0">
-                <div class="row mt-2 ml-4 mr-4">
-                    <div class="col-md-12 mt-2 ml-4 mr-4">
+                <div class="row mt-2 ms-4 me-4">
+                    <div class="col-md-12 mt-2 ms-4 me-4">
                         <h3>{{ 'sitnet_student_exams' | translate }}</h3>
                     </div>
                 </div>
-                <div class="row mt-2 ml-4 mr-4 " *ngFor="let exam of exams">
+                <div class="row mt-2 ms-4 me-4 " *ngFor="let exam of exams">
                     <div class="col-md-12">
                         <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
                     </div>

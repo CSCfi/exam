@@ -25,7 +25,7 @@ import type { Examination } from '../examination.model';
                 <h2 class="exam-title">{{ 'sitnet_exam_guide' | translate }}</h2>
             </div>
         </div>
-        <div class="row ml-2 guide-wrapper">
+        <div class="row ms-2 guide-wrapper">
             <div class="col-md-12">
                 <div class="row" *ngIf="exam.course">
                     <div class="header col-md-4">{{ 'sitnet_course_name' | translate }}:</div>

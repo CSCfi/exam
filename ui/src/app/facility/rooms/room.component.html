@@ -17,9 +17,9 @@
                 <div class="row">
                     <span class="col-md-6 font-6">
                         <span [hidden]="!showName" onclick="document.getElementById('name_field').select();">
-                            <span class="room-name mr-2" (click)="showName = !showName">
+                            <span class="room-name me-2" (click)="showName = !showName">
                                 {{ room.name || 'sitnet_no_name' | translate }}
-                                <i class="bi-pencil ml-2"></i>
+                                <i class="bi-pencil ms-2"></i>
                             </span>
                             <a
                                 class="room-name"
@@ -263,7 +263,7 @@
     <div class="top-row">
         <div class="col-md-12">
             <label>
-                <input class="mr-2" type="checkbox" [(ngModel)]="room.outOfService" (change)="updateRoom()" />
+                <input class="me-2" type="checkbox" [(ngModel)]="room.outOfService" (change)="updateRoom()" />
                 <strong>{{ 'sitnet_out_of_service' | translate }}</strong>
             </label>
         </div>

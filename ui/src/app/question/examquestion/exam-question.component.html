@@ -65,7 +65,7 @@
                             <div class="review-list-title">
                                 {{ 'sitnet_exam_basic_information_tab' | translate }}
                                 <i *ngIf="showWarning()" class="bi-exclamation-circle padl20 reddish"></i>
-                                <span class="warning-text-small pl-2" *ngIf="showWarning()">{{
+                                <span class="warning-text-small ps-2" *ngIf="showWarning()">{{
                                     'sitnet_shared_question_property_info' | translate
                                 }}</span>
                             </div>
@@ -319,7 +319,7 @@
                                 <br />
                                 <span>
                                     <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
-                                    <small class="pl-2" *ngIf="showWarning">{{
+                                    <small class="ps-2" *ngIf="showWarning">{{
                                         'sitnet_shared_question_property_info' | translate
                                     }}</small>
                                 </span>
@@ -476,7 +476,7 @@
                             </sup>
                         </div>
                         <div class="col-md-9">
-                            <ul class="list-inline pl-2" *ngIf="question?.questionOwners">
+                            <ul class="list-inline ps-2" *ngIf="question?.questionOwners">
                                 <li *ngFor="let user of question!.questionOwners">
                                     {{ user.firstName }} {{ user.lastName }}
                                 </li>
@@ -532,7 +532,7 @@
                             </div>
                             <div class="mart10" *ngIf="showWarning()">
                                 <i class="bi-exclamation-circle reddish"></i>
-                                <span class="warning-text-small pl-2">{{
+                                <span class="warning-text-small ps-2">{{
                                     'sitnet_shared_question_property_info' | translate
                                 }}</span>
                             </div>

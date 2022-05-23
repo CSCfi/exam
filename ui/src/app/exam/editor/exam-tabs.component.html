@@ -21,7 +21,7 @@
         #nav="ngbNav"
         [(activeId)]="activeTab"
         [destroyOnHide]="false"
-        class="nav-tabs ml-4 mr-4"
+        class="nav-tabs ms-4 me-4"
         (navChange)="navChanged($event)"
     >
         <li [disabled]="!isOwner() && !user.isAdmin" [ngbNavItem]="1">
