@@ -21,7 +21,7 @@
                 <li role="presentation" [ngbNavItem]="0">
                     <a ngbNavLink>
                         {{ 'sitnet_published_exams' | translate }}
-                        <span class="badge badge-secondary">{{
+                        <span class="badge bg-secondary">{{
                             filterByStateAndExpiration('PUBLISHED', false).length
                         }}</span>
                     </a>
@@ -29,7 +29,7 @@
                 <li role="presentation" [ngbNavItem]="1">
                     <a ngbNavLink>
                         {{ 'sitnet_expired_exams' | translate }}
-                        <span class="badge badge-secondary">{{
+                        <span class="badge bg-secondary">{{
                             filterByStateAndExpiration('PUBLISHED', true).length
                         }}</span>
                     </a>
@@ -37,13 +37,13 @@
                 <li role="presentation" [ngbNavItem]="2">
                     <a ngbNavLink>
                         {{ 'sitnet_saved_exams' | translate }}
-                        <span class="badge badge-secondary">{{ filterByState('SAVED').length }}</span>
+                        <span class="badge bg-secondary">{{ filterByState('SAVED').length }}</span>
                     </a>
                 </li>
                 <li role="presentation" [ngbNavItem]="3">
                     <a ngbNavLink>
                         {{ 'sitnet_draft_exams' | translate }}
-                        <span class="badge badge-secondary">{{ filterByState('DRAFT').length }}</span>
+                        <span class="badge bg-secondary">{{ filterByState('DRAFT').length }}</span>
                     </a>
                 </li>
             </ul>

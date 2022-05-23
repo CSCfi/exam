@@ -41,9 +41,13 @@ import type { User } from '../../session/session.service';
                 <div class="teacher-toolbar">
                     <div class="make-inline">
                         <div class="review-attachment-button print-button">
-                            <a uiSref="staff.newQuestion" [uiParams]="{ nextState: 'staff.library' }" class="pointer">
+                            <button
+                                uiSref="staff.newQuestion"
+                                [uiParams]="{ nextState: 'staff.library' }"
+                                class="pointer"
+                            >
                                 {{ 'sitnet_toolbar_new_question' | translate }}
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
