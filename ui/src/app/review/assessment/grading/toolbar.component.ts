@@ -25,7 +25,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
 @Component({
     selector: 'xm-r-toolbar',
     template: `<!-- Buttons -->
-        <div class="review-toolbar-wrapper pt-4 padl0 padr0 marb20 float-right">
+        <div class="review-toolbar-wrapper pt-4 padl0 padr0 marb20 float-end">
             <div class="review-attachment-button exam-questions-buttons marl15">
                 <a
                     class="pointer preview"

@@ -24,9 +24,9 @@
                     [resultFormatter]="nameFormatter"
                     placeholder="{{ 'sitnet_name' | translate }}"
                 />
-                <label class="ml-2">
+                <label class="ms-2">
                     <input type="checkbox" [(ngModel)]="newInspector.sendMessage" [disabled]="!newInspector.id" />
-                    <span class="pl-1">{{ 'sitnet_write_message' | translate }}</span>
+                    <span class="ps-1">{{ 'sitnet_write_message' | translate }}</span>
                 </label>
             </div>
         </div>
@@ -43,7 +43,7 @@
                     [disabled]="!newInspector.sendMessage"
                 >
                 </textarea>
-                <span class="ml-2"
+                <span class="ms-2"
                     ><button (click)="addInspector()" class="btn btn-primary green border-green vbottom marb5">
                         {{ 'sitnet_add' | translate }}
                     </button>

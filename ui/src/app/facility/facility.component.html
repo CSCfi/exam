@@ -18,17 +18,17 @@
         </div>
     </div>
     <div class="top-row">
-        <div class="col-md-12 ml-4">
+        <div class="col-md-12 ms-4">
             <strong>{{ 'sitnet_maintenance_periods' | translate }}</strong>
-            <a (click)="createPeriod()" class="ml-2"><i class="pointer bi-plus-square"></i></a>
+            <a (click)="createPeriod()" class="ms-2"><i class="pointer bi-plus-square"></i></a>
         </div>
     </div>
-    <div class="row ml-3" *ngFor="let period of maintenancePeriods | orderBy: 'startsAt'">
-        <div class="col-md-12 ml-4">
+    <div class="row ms-3" *ngFor="let period of maintenancePeriods | orderBy: 'startsAt'">
+        <div class="col-md-12 ms-4">
             {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
             {{ period.description }}
-            <a (click)="updatePeriod(period)" class="pointer ml-2"><i class="bi-pencil-square"></i></a>
-            <a (click)="removePeriod(period)" class="pointer ml-2"><i class="bi-x-square"></i></a>
+            <a (click)="updatePeriod(period)" class="pointer ms-2"><i class="bi-pencil-square"></i></a>
+            <a (click)="removePeriod(period)" class="pointer ms-2"><i class="bi-x-square"></i></a>
         </div>
     </div>
 

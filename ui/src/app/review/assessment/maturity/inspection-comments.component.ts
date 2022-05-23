@@ -41,7 +41,7 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
 
         <div class="main-row">
             <span class="col-md-12">
-                <div class="review-attachment-button exam-questions-buttons mr-2">
+                <div class="review-attachment-button exam-questions-buttons me-2">
                     <button class="btn btn-link" *ngIf="addingVisible" (click)="addInspectionComment()">
                         {{ 'sitnet_inspection_comment_title' | translate }}
                     </button>

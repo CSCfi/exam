@@ -23,7 +23,7 @@ import { MaturityService } from './maturity.service';
 @Component({
     selector: 'xm-r-maturity-toolbar',
     template: `<!-- language inspection controls  -->
-        <div class="float-right" *ngIf="isOwnerOrAdmin() || isUnderLanguageInspection()">
+        <div class="float-end" *ngIf="isOwnerOrAdmin() || isUnderLanguageInspection()">
             <span [hidden]="isUnderLanguageInspection()">
                 <div *ngIf="!isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
                     <button (click)="saveAssessment()" [disabled]="!valid" class="btn inspection-button">

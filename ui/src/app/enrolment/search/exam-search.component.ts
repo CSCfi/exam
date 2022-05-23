@@ -24,16 +24,16 @@ import { ExamSearchService } from './exam-search.service';
 @Component({
     selector: 'xm-exam-search',
     template: `<div id="dashboard">
-        <div class="top-row ml-2 mr-2">
+        <div class="top-row ms-2 me-2">
             <div class="col-md-12">
                 <div class="student-title-wrap">
                     <h1 class="student-enroll-title">{{ 'sitnet_exams' | translate }}</h1>
                 </div>
             </div>
         </div>
-        <div class="detail-row ml-2 mr-2 mt-3">
+        <div class="detail-row ms-2 me-2 mt-3">
             <span class="col-md-12 mt-1 align-items-center">
-                <img class="nopad" src="/assets/images/icon_info.png" class="pr-1" alt="info-icon" />
+                <img class="nopad" src="/assets/images/icon_info.png" class="pe-1" alt="info-icon" />
                 &nbsp;
                 <span *ngIf="permissionCheck.active === false">
                     {{ 'sitnet_exam_search_description' | translate }}
@@ -41,7 +41,7 @@ import { ExamSearchService } from './exam-search.service';
                 <span *ngIf="permissionCheck.active === true">{{ 'sitnet_search_restricted' | translate }}</span>
             </span>
         </div>
-        <div class="detail-row ml-2 mr-2 mt-2" *ngIf="permissionCheck.active === false">
+        <div class="detail-row ms-2 me-2 mt-2" *ngIf="permissionCheck.active === false">
             <div class="col-md-12">
                 <div class="form-group input-group search">
                     <input
@@ -65,7 +65,7 @@ import { ExamSearchService } from './exam-search.service';
             </div>
         </div>
 
-        <div class="row mt-2 mr-2 ml-2" *ngIf="exams.length > 0">
+        <div class="row mt-2 me-2 ms-2" *ngIf="exams.length > 0">
             <div class="col-md-12">
                 {{ 'sitnet_student_exam_search_result' | translate }} {{ exams.length }}
                 {{ 'sitnet_student_exam_search_result_continues' | translate }}
