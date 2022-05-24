@@ -21,8 +21,7 @@ import { StateService } from '@uirouter/core';
 import { format, parseISO } from 'date-fns';
 import { isBoolean, isEmpty, toNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
-import type { Observable } from 'rxjs';
-import { throwError } from 'rxjs';
+import { from, Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
@@ -220,21 +219,24 @@ export class ExamPublicationComponent implements OnInit {
             });
             modal.componentInstance.exam = this.exam;
             modal.componentInstance.prePublication = this.isDraftCollaborativeExam();
-            modal.result.then(() => {
-                const state = {
-                    state: this.isDraftCollaborativeExam() ? 'PRE_PUBLISHED' : 'PUBLISHED',
-                };
-                // OK button clicked
-                this.updateExam$(true, state).subscribe({
-                    next: () => {
-                        const text = this.isDraftCollaborativeExam()
-                            ? 'sitnet_exam_saved_and_pre_published'
-                            : 'sitnet_exam_saved_and_published';
-                        this.toast.success(this.translate.instant(text));
-                        this.state.go(this.user.isAdmin ? 'staff.admin' : 'staff.teacher');
-                    },
-                    error: this.toast.error,
-                });
+            from(modal.result).subscribe({
+                next: () => {
+                    const state = {
+                        state: this.isDraftCollaborativeExam() ? 'PRE_PUBLISHED' : 'PUBLISHED',
+                    };
+                    // OK button clicked
+                    this.updateExam$(true, state).subscribe({
+                        next: () => {
+                            const text = this.isDraftCollaborativeExam()
+                                ? 'sitnet_exam_saved_and_pre_published'
+                                : 'sitnet_exam_saved_and_published';
+                            this.toast.success(this.translate.instant(text));
+                            this.state.go(this.user.isAdmin ? 'staff.admin' : 'staff.teacher');
+                        },
+                        error: this.toast.error,
+                    });
+                },
+                error: this.toast.error,
             });
         }
     };
@@ -306,11 +308,11 @@ export class ExamPublicationComponent implements OnInit {
         if (configuration.examEnrolments.length > 0) {
             return;
         }
-        this.Confirmation.open(
+        this.Confirmation.open$(
             this.translate.instant('sitnet_remove_examination_event'),
             this.translate.instant('sitnet_are_you_sure'),
-        )
-            .result.then(() =>
+        ).subscribe({
+            next: () =>
                 this.Exam.removeExaminationEvent$(this.exam.id, configuration).subscribe({
                     next: () => {
                         this.exam.examinationEventConfigurations.splice(
@@ -320,8 +322,8 @@ export class ExamPublicationComponent implements OnInit {
                     },
                     error: this.toast.error,
                 }),
-            )
-            .catch((err) => this.toast.error(err));
+            error: this.toast.error,
+        });
     };
 
     sortByString = (prop: ExaminationEventConfiguration[]): Array<ExaminationEventConfiguration> =>
