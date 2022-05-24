@@ -11,20 +11,18 @@ import type { MaintenancePeriod } from '../../exam/exam.model';
         </div>
 
         <div class="modal-body">
-            <form class="modal-body" #periodForm="ngForm" name="periodForm">
+            <form #periodForm="ngForm" name="periodForm">
                 <div class="row">
-                    <div class="col">
-                        <div class="form-group">
-                            <label for="description">{{ 'sitnet_description' | translate }}:</label>
-                            <input
-                                class="form-control"
-                                id="description"
-                                name="description"
-                                class="form-control"
-                                [(ngModel)]="description"
-                                required
-                            />
-                        </div>
+                    <div class="col-md-12 mb-2">
+                        <label for="description" class="form-label">{{ 'sitnet_description' | translate }}:</label>
+                        <input
+                            class="form-control"
+                            id="description"
+                            name="description"
+                            class="form-control"
+                            [(ngModel)]="description"
+                            required
+                        />
                     </div>
                 </div>
                 <div class="row">

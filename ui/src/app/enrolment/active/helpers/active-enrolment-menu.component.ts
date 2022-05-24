@@ -34,12 +34,16 @@ export class ActiveEnrolmentMenuComponent {
         if (this.enrolment.reservation) {
             this.toast.error(this.translate.instant('sitnet_cancel_reservation_first'));
         } else {
-            this.Confirmation.open(
+            this.Confirmation.open$(
                 this.translate.instant('sitnet_confirm'),
                 this.translate.instant('sitnet_are_you_sure'),
-            ).result.then(() =>
-                this.Enrolment.removeEnrolment$(this.enrolment).subscribe(() => this.removed.emit(this.enrolment.id)),
-            );
+            ).subscribe({
+                next: () =>
+                    this.Enrolment.removeEnrolment$(this.enrolment).subscribe(() =>
+                        this.removed.emit(this.enrolment.id),
+                    ),
+                error: this.toast.error,
+            });
         }
     };
 

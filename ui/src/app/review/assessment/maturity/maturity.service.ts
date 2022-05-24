@@ -17,7 +17,7 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
-import { from, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import type { Exam } from '../../../exam/exam.model';
 import type { LanguageInspection } from '../../../maturity/maturity.model';
@@ -210,11 +210,9 @@ export class MaturityService {
     };
 
     private sendForLanguageInspection = (exam: Exam) =>
-        from(
-            this.Confirmation.open(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_confirm_maturity_approval'),
-            ).result,
+        this.Confirmation.open$(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_confirm_maturity_approval'),
         )
             .pipe(
                 switchMap(() => this.Assessment.saveFeedback$(exam)),
@@ -232,11 +230,9 @@ export class MaturityService {
             });
 
     private finalizeLanguageInspection = (exam: Exam, reject: boolean) => {
-        from(
-            this.Confirmation.open(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_confirm_language_inspection_approval'),
-            ).result,
+        this.Confirmation.open$(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_confirm_language_inspection_approval'),
         )
             .pipe(
                 switchMap(() => this.saveInspectionStatement$(exam)),

@@ -59,19 +59,18 @@ export class QuestionComponent implements OnInit, OnDestroy {
         this.transitionWatcher = this.transition.onBefore({}, () => {
             if (this.window.nativeWindow.onbeforeunload) {
                 // we got changes in the model, ask confirmation
-                return this.dialogs
-                    .open(
+                this.dialogs
+                    .open$(
                         this.translate.instant('sitnet_confirm_exit'),
                         this.translate.instant('sitnet_unsaved_question_data'),
                     )
-                    .result.then(() => {
+                    .subscribe(() => {
                         // ok to reroute
                         this.window.nativeWindow.onbeforeunload = null;
                         delete this.transitionWatcher;
                     });
             } else {
                 this.window.nativeWindow.onbeforeunload = null;
-                return true;
             }
         });
     }

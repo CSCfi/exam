@@ -135,19 +135,20 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
             });
 
     deleteExam = (exam: Exam) => {
-        const dialog = this.Dialog.open(
+        this.Dialog.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_exam'),
-        );
-        dialog.result.then(() =>
-            this.Dashboard.deleteExam$(exam.id).subscribe({
-                next: () => {
-                    this.toast.success(this.translate.instant('sitnet_exam_removed'));
-                    this.items.splice(this.items.indexOf(exam), 1);
-                },
-                error: this.toast.error,
-            }),
-        );
+        ).subscribe({
+            next: () =>
+                this.Dashboard.deleteExam$(exam.id).subscribe({
+                    next: () => {
+                        this.toast.success(this.translate.instant('sitnet_exam_removed'));
+                        this.items.splice(this.items.indexOf(exam), 1);
+                    },
+                    error: this.toast.error,
+                }),
+            error: this.toast.error,
+        });
     };
 
     isOwner = (exam: Exam) => exam.examOwners.some((eo) => eo.id === this.userId);
