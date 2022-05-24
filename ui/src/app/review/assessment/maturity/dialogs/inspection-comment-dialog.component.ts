@@ -44,7 +44,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
                         </button>
                     </div>
                     <div class="student-message-dialog-button-cancel">
-                        <button class="btn btn-sm btn-danger pull-left" (click)="cancel()">
+                        <button class="btn btn-sm btn-danger float-start" (click)="cancel()">
                             {{ 'sitnet_button_cancel' | translate }}
                         </button>
                     </div>

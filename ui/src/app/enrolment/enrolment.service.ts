@@ -103,7 +103,6 @@ export class EnrolmentService {
         const url = externalRef
             ? `/app/iop/reservations/external/${externalRef}`
             : `/app/calendar/reservation/${enrolment.reservation.id}`;
-
         this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_are_you_sure'),

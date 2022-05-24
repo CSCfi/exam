@@ -43,7 +43,7 @@ import { QuestionReviewService } from '../question-review.service';
                 <div>
                     <button
                         [disabled]="selectedReviews.length === 0"
-                        class="btn btn-success pull-right"
+                        class="btn btn-success float-end"
                         (click)="startReview()"
                     >
                         {{ 'sitnet_review_selected' | translate }} ({{ selectedReviews.length }})

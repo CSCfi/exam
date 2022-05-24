@@ -2,9 +2,21 @@
     <div class="row">
         <div class="col-md-12">
             <div class="review-list-title pb-4">
-                {{ 'sitnet_section_title' | translate }}
+                {{ 'sitnet_section_title' | translate }} {{ index }}
+                <sup
+                    ngbPopover="{{ 'sitnet_exam_section_order_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                    class="me-4"
+                >
+                    <img
+                        src="/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                    />
+                </sup>
                 <!-- settings -->
-                <div class="pull-right exam-section-settings" ngbDropdown>
+                <div class="float-end exam-section-settings" ngbDropdown>
                     <button class="btn btn-outline-dark" ngbDropdownToggle>
                         {{ 'sitnet_edit' | translate }}
                     </button>
@@ -21,83 +33,64 @@
             </div>
         </div>
     </div>
-    <div class="row margin-20">
-        <div class="col-md-3 exam-basic-title">
-            {{ 'sitnet_section_order' | translate }}
-            <sup
-                ngbPopover="{{ 'sitnet_exam_section_order_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-            >
-                <img
-                    src="/assets/images/icon_tooltip.svg"
-                    alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                />
-            </sup>
-        </div>
-        <div class="col-md-9">{{ index }}.</div>
-    </div>
-    <div class="row mt-2">
+
+    <div class="row mt-4">
         <div class="col-md-12">
             <form>
-                <div class="form-group">
-                    <label for="sectionName_{{ section.id }}">
-                        {{ 'sitnet_section_name' | translate }}
-                        <sup
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            ngbPopover="{{ 'sitnet_exam_section_name_description' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                        >
-                            <img
-                                src="/assets/images/icon_tooltip.svg"
-                                alt="exam"
-                                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                            />
-                        </sup>
-                    </label>
-                    <input
-                        id="sectionName_{{ section.id }}"
-                        name="sectionName"
-                        type="text"
-                        required
-                        class="form-control"
-                        [(ngModel)]="section.name"
-                        (change)="renameSection()"
-                    />
-                </div>
-                <div class="form-group">
-                    <label for="sectionDescription_{{ section.id }}">
-                        {{ 'sitnet_section_description' | translate }}
-                        <sup
-                            ngbPopover="{{ 'sitnet_exam_section_description_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                        >
-                            <img
-                                src="/assets/images/icon_tooltip.svg"
-                                alt="exam"
-                                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                            />
-                        </sup>
-                    </label>
-                    <textarea
-                        (focus)="$event.stopPropagation()"
-                        id="sectionDescription_{{ section.id }}"
-                        class="form-control"
-                        rows="4"
-                        cols="150"
-                        name="description"
-                        [(ngModel)]="section.description"
-                        (change)="renameSection()"
+                <label for="sectionName_{{ section.id }}" class="form-label">
+                    {{ 'sitnet_section_name' | translate }}
+                    <sup
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'sitnet_exam_section_name_description' | translate }}"
+                        triggers="mouseenter:mouseleave"
                     >
-                    </textarea>
-                </div>
+                        <img
+                            src="/assets/images/icon_tooltip.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                        />
+                    </sup>
+                </label>
+                <input
+                    id="sectionName_{{ section.id }}"
+                    name="sectionName"
+                    type="text"
+                    required
+                    class="form-control mb-3"
+                    [(ngModel)]="section.name"
+                    (change)="renameSection()"
+                />
+
+                <label for="sectionDescription_{{ section.id }}" class="form-label">
+                    {{ 'sitnet_section_description' | translate }}
+                    <sup
+                        ngbPopover="{{ 'sitnet_exam_section_description_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    >
+                        <img
+                            src="/assets/images/icon_tooltip.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                        />
+                    </sup>
+                </label>
+                <textarea
+                    (focus)="$event.stopPropagation()"
+                    id="sectionDescription_{{ section.id }}"
+                    class="form-control mb-3"
+                    rows="4"
+                    cols="150"
+                    name="description"
+                    [(ngModel)]="section.description"
+                    (change)="renameSection()"
+                >
+                </textarea>
                 <!-- Section material resources-->
                 <!-- HIDE THIS FOR TIME BEING (See CSCEXAM-117 comments) -->
                 <!-- exam-material-selector [section]="section" [allMaterials]="materials"
                     (onChanges)="materialsChanged($event)"></exam-material-selector -->
-                <div class="form-group form-check" *ngIf="!collaborative && canBeOptional">
+                <div class="form-check mb-3" *ngIf="!collaborative && canBeOptional">
                     <input
                         id="sectionOptionality_{{ section.id }}"
                         class="form-check-input"
@@ -123,7 +116,7 @@
                         </sup>
                     </label>
                 </div>
-                <div class="form-group form-check">
+                <div class="form-check">
                     <input
                         id="sectionRandomized_{{ section.id }}"
                         type="checkbox"
@@ -145,19 +138,19 @@
                                 alt="exam"
                                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
                             />
-                            <span class="text text-danger ms-2" *ngIf="!questionPointsMatch()">{{
-                                'sitnet_error_lottery_points_not_match' | translate
-                            }}</span>
                         </sup>
+                        <span class="text text-danger ms-2" *ngIf="!questionPointsMatch()">{{
+                            'sitnet_error_lottery_points_not_match' | translate
+                        }}</span>
                     </label>
                 </div>
-                <span class="form-group" *ngIf="section.lotteryOn">
+                <div class="form-check" *ngIf="section.lotteryOn">
                     <label for="sectionLotteryCount_{{ section.id }}">
-                        Arvottujen kysymysten määrä [1...{{ section.sectionQuestions.length }}]</label
+                        {{ 'sitnet_lottery_questions' | translate }} [1...{{ section.sectionQuestions.length }}]</label
                     >
                     <input
                         id="sectionLotteryCount_{{ section.id }}"
-                        class="form-control col-1"
+                        class="form-check-input"
                         type="number"
                         lang="en"
                         name="lotteryItemCount"
@@ -166,12 +159,12 @@
                         [(ngModel)]="section.lotteryItemCount"
                         (change)="updateLotteryCount()"
                     />
-                </span>
+                </div>
             </form>
         </div>
     </div>
 
-    <div class="row mt-2" *ngIf="getSectionTotalScore() > 0">
+    <div class="row mt-4" *ngIf="getSectionTotalScore() > 0">
         <div class="col-md-3 exam-basic-title">
             {{ 'sitnet_section_max_score' | translate }}
         </div>
@@ -179,7 +172,7 @@
             {{ getSectionTotalScore() }}
         </div>
     </div>
-    <div class="row" *ngIf="getAmountOfSelectionEvaluatedQuestions() > 0">
+    <div class="row mt-3" *ngIf="getAmountOfSelectionEvaluatedQuestions() > 0">
         <div class="col-md-3 exam-basic-title">
             {{ 'sitnet_evaluation_select' | translate }}
             <sup
@@ -199,8 +192,8 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-12 mart20 mb-3">
+    <div class="row mt-4 mb-4">
+        <div class="col-md-12">
             <div class="review-list-title">
                 {{ 'sitnet_exam_questions' | translate }}
                 <a
@@ -227,10 +220,10 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-12 mart10" *ngIf="section.expanded">
+    <div class="row ms-2 me-2">
+        <div class="col-md-12 mt-2" *ngIf="section.expanded">
             <div id="exam" cdkDropList (cdkDropListDropped)="moveQuestion($event)" class="sortable no-padding mb-2">
-                <div *ngFor="let sectionQuestion of section.sectionQuestions" cdkDrag cdkDragLockAxis="y">
+                <div *ngFor="let sectionQuestion of section.sectionQuestions" cdkDrag cdkDragLockAxis="y" class="mb-4">
                     <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
                     <div class="drag-preview" *cdkDragPreview [innerHtml]="sectionQuestion.question.question"></div>
                     <xm-section-question
@@ -246,13 +239,13 @@
                 </div>
             </div>
 
-            <div *ngIf="!collaborative" class="review-attachment-button exam-questions-buttons marl30 mart20">
+            <div *ngIf="!collaborative" class="review-attachment-button exam-questions-buttons mt-3">
                 <a class="pointer" (click)="openLibrary()">
                     <i class="bi-plus"></i>&nbsp;{{ 'sitnet_add_from_library' | translate }}
                 </a>
             </div>
 
-            <div class="review-attachment-button exam-questions-buttons marl30 mart20">
+            <div class="review-attachment-button exam-questions-buttons ms-3 mt-3">
                 <a class="pointer" (click)="addNewQuestion()">
                     <i class="bi-plus"></i>&nbsp;{{ 'sitnet_exam_new_question' | translate }}
                 </a>

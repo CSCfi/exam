@@ -36,7 +36,7 @@ import { QuestionReviewService } from '../question-review.service';
                     {{ 'sitnet_graded' | translate | lowercase }}
                 </span>
             </div>
-            <span class="pull-right dropdown pointer-hand single-question-icon" uib-dropdown>
+            <span class="float-end dropdown pointer-hand single-question-icon" uib-dropdown>
                 <input
                     type="checkbox"
                     (change)="reviewSelected()"

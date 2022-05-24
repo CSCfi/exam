@@ -24,53 +24,60 @@ import { QuestionDraft } from '../question.service';
 @Component({
     selector: 'xm-tag-picker',
     template: `
-        <div class="row mt-2">
-            <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_tag_question' | translate }}
-                <sup
-                    ngbPopover="{{ 'sitnet_question_tag_question_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                    ><img src="/assets/images/icon_tooltip.svg" alt="exam"
-                /></sup>
-            </div>
-            <div class="flex">
-                <input
-                    id="newTag"
-                    name="newTag"
-                    maxlength="30"
-                    class="form-control wdth-30 make-inline"
-                    [(ngModel)]="tagName"
-                    lowerCase
-                    [ngbTypeahead]="getTags$"
-                    (selectItem)="onTagSelect($event)"
-                    [resultFormatter]="nameFormat"
-                    [inputFormatter]="nameFormat"
-                />
-                <button
-                    (click)="addTag()"
-                    [disabled]="!newTag || newTag.name.length < 2"
-                    class="btn btn-primary green border-green marl5"
-                >
-                    {{ 'sitnet_add' | translate }}
-                </button>
-            </div>
-            <ul class="list-inline mart10">
-                <li *ngFor="let tag of question.tags">
-                    {{ tag.name }}
-                    <button
-                        class="reviewer-remove"
-                        ngbPopover="{{ 'sitnet_remove' | translate }}"
+        <form>
+            <div class="row mt-3 align-items-center">
+                <label class="col-md-3 col-form-label" for="newTag"
+                    >{{ 'sitnet_tag_question' | translate
+                    }}<sup
+                        class="ms-1"
+                        ngbPopover="{{ 'sitnet_question_tag_question_description' | translate }}"
                         popoverTitle="{{ 'sitnet_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
-                        (click)="removeTag(tag)"
-                        title="{{ 'sitnet_remove' | translate }}"
-                    >
-                        <img src="/assets/images/icon_remove.svg" alt="exam" />
-                    </button>
-                </li>
-            </ul>
-        </div>
+                        ><img src="/assets/images/icon_tooltip.svg" alt="exam" /></sup
+                ></label>
+
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <input
+                            id="newTag"
+                            name="newTag"
+                            maxlength="30"
+                            class="form-control col-md-8"
+                            [(ngModel)]="tagName"
+                            lowerCase
+                            [ngbTypeahead]="getTags$"
+                            (selectItem)="onTagSelect($event)"
+                            [resultFormatter]="nameFormat"
+                            [inputFormatter]="nameFormat"
+                        />
+                        <button
+                            class="input-group-text btn btn-primary green border-green"
+                            (click)="addTag()"
+                            [disabled]="!newTag || newTag.name.length < 2"
+                        >
+                            {{ 'sitnet_add' | translate }}
+                        </button>
+                    </div>
+                </div>
+                <div class="col">
+                    <ul class="list-inline mart10">
+                        <li *ngFor="let tag of question.tags" class="list-inline-item">
+                            {{ tag.name }}
+                            <button
+                                class="reviewer-remove"
+                                ngbPopover="{{ 'sitnet_remove' | translate }}"
+                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                triggers="mouseenter:mouseleave"
+                                (click)="removeTag(tag)"
+                                title="{{ 'sitnet_remove' | translate }}"
+                            >
+                                <img src="/assets/images/icon_remove.svg" alt="exam" />
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </form>
     `,
 })
 export class TagPickerComponent {

@@ -62,7 +62,7 @@
                         <td>{{ machine.accessibilityInfo }}</td>
                         <td>
                             <ul>
-                                <li *ngFor="let software of machine.softwareInfo; let l = last" class="pull-left">
+                                <li *ngFor="let software of machine.softwareInfo; let l = last" class="float-start">
                                     <span *ngIf="software.status !== 'DISABLED'">
                                         {{ software.name }}<span *ngIf="!l">, </span>
                                     </span>

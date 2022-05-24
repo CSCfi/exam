@@ -171,7 +171,7 @@
                         r.enrolment.exam.implementation === 'AQUARIUM'
                     "
                     (click)="removeReservation(r)"
-                    class="btn btn-sm btn-primary pull-left"
+                    class="btn btn-sm btn-primary float-start"
                 >
                     {{ 'sitnet_remove_reservation' | translate }}
                 </button>
@@ -179,7 +179,7 @@
                     *ngIf="r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.implementation === 'AQUARIUM'"
                     (click)="permitRetrial(r.enrolment)"
                     [disabled]="!r.enrolment.exam.trialCount || r.enrolment.retrialPermitted"
-                    class="btn btn-sm btn-primary pull-left"
+                    class="btn btn-sm btn-primary float-start"
                 >
                     {{
                         !r.enrolment.exam.trialCount || r.enrolment.retrialPermitted
@@ -197,7 +197,7 @@
                         r.enrolment.exam.implementation === 'AQUARIUM'
                     "
                     (click)="changeReservationMachine(r)"
-                    class="btn btn-sm btn-primary pull-left"
+                    class="btn btn-sm btn-primary float-start"
                 >
                     {{ 'sitnet_change_reservation_machine' | translate }}
                 </button>

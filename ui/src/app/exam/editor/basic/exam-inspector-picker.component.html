@@ -57,7 +57,7 @@
         <div class="row">
             <div class="col-md-9 offset-md-3">
                 <ul class="list-inline mart10">
-                    <li *ngFor="let inspection of examInspections">
+                    <li *ngFor="let inspection of examInspections" class="list-inline-item">
                         {{ inspection.user.firstName }} {{ inspection.user.lastName }} ({{ inspection.user.email }})
                         <button
                             class="reviewer-remove"

@@ -26,7 +26,7 @@ import { QuestionReviewService } from '../question-review.service';
                 <span class="badge bg-danger">{{ reviews.length }}</span>
             </span>
             <div class="col-md-2">
-                <a (click)="hideCategory = !hideCategory" class="pointer-hand pull-right">
+                <a (click)="hideCategory = !hideCategory" class="pointer-hand float-end">
                     <img
                         *ngIf="hideCategory"
                         src="/assets/images/icon_list_show_right.svg"
