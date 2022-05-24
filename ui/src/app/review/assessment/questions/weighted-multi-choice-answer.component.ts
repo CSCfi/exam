@@ -24,31 +24,31 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
     >
         <div *ngIf="option.answered">
             <div *ngIf="option.score >= 0" class="exam-answered-correct">
-                <div class="make-inline pull-left">
+                <div class="make-inline float-start">
                     <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="exam" />
                 </div>
                 <div class="make-inline middle-column">
                     <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                 </div>
-                <div class="make-inline pull-right">
+                <div class="make-inline float-end">
                     <span class="text-success"> {{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
                 </div>
             </div>
             <div *ngIf="option.score < 0" class="exam-answered-wrong">
-                <div class="make-inline pull-left">
+                <div class="make-inline float-start">
                     <img src="/assets/images/icon_wrong_answer_checkbox_red.svg" alt="exam" />
                 </div>
                 <div class="make-inline middle-column">
                     <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                 </div>
-                <div class="make-inline pull-right">
+                <div class="make-inline float-end">
                     <span class="text-danger"> {{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
                 </div>
             </div>
         </div>
         <div *ngIf="!option.answered">
             <div class="exam-not-answered">
-                <div class="make-inline pull-left">
+                <div class="make-inline float-start">
                     <div *ngIf="option.score >= 0">
                         <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="exam" />
                     </div>
@@ -57,7 +57,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                 <div class="make-inline middle-column">
                     <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                 </div>
-                <div class="make-inline pull-right">
+                <div class="make-inline float-end">
                     <span [ngClass]="option.score >= 0 ? 'text-success' : 'text-danger'">
                         {{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
                     >

@@ -52,7 +52,7 @@ import { ToastrService } from 'ngx-toastr';
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-danger pull-right" (click)="cancel()">
+            <button class="btn btn-danger float-end" (click)="cancel()">
                 {{ 'sitnet_button_cancel' | translate }}
             </button>
             <button class="btn btn-primary" (click)="ok()">

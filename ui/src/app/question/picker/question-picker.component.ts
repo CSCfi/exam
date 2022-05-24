@@ -21,43 +21,42 @@ import type { ExamSection, Question } from '../../exam/exam.model';
 
 @Component({
     selector: 'xm-question-selector',
-    template: `<div id="library">
-        <div class="library">
+    template: `
+        <div id="library">
             <!-- title row and add new question button -->
-            <div class="top-row">
-                <div class="col-md-12 marb20">
-                    <div class="student-enroll-title-wrap">
-                        <div class="student-enroll-title">{{ 'sitnet_library_choose' | translate }}</div>
+            <div class="modal-header">
+                <div class="student-enroll-title-wrap">
+                    <div class="student-enroll-title">{{ 'sitnet_library_choose' | translate }}</div>
+                </div>
+            </div>
+            <div class="modal-content">
+                <!-- search bar and search parameters -->
+                <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
+
+                <div class="row">
+                    <div class="col-md-12 padl0 padr0 marb20">
+                        <span class="float-start marl20">
+                            <div class="library-button make-inline mart20 marr30 marl10">
+                                <a class="pointer" (click)="addQuestions()"
+                                    >{{ 'sitnet_add_chosen' | translate }} ( {{ selections.length }} )
+                                </a>
+                            </div>
+                        </span>
                     </div>
                 </div>
+
+                <!-- resulting table with questions -->
+                <xm-library-results
+                    [questions]="questions"
+                    (selected)="questionSelected($event)"
+                    (copied)="questionCopied()"
+                    tableClass="library-table"
+                    [disableLinks]="true"
+                ></xm-library-results>
             </div>
-
-            <!-- search bar and search parameters -->
-            <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
-
-            <div class="row">
-                <div class="col-md-12 padl0 padr0 marb20">
-                    <span class="pull-left marl20">
-                        <div class="library-button make-inline mart20 marr30 marl10">
-                            <a class="pointer" (click)="addQuestions()"
-                                >{{ 'sitnet_add_chosen' | translate }} ( {{ selections.length }} )
-                            </a>
-                        </div>
-                    </span>
-                </div>
-            </div>
-
-            <!-- resulting table with questions -->
-            <xm-library-results
-                [questions]="questions"
-                (selected)="questionSelected($event)"
-                (copied)="questionCopied()"
-                tableClass="library-table"
-                [disableLinks]="true"
-            ></xm-library-results>
 
             <!-- Buttons -->
-            <div class="row">
+            <div class="modal-footer">
                 <div class="flex flex-middle marr20 marb20">
                     <span class="float-end">
                         <div class="library-button make-inline">
@@ -74,7 +73,7 @@ import type { ExamSection, Question } from '../../exam/exam.model';
                 </div>
             </div>
         </div>
-    </div> `,
+    `,
 })
 export class QuestionSelectorComponent {
     @Input() questionCount = 0;

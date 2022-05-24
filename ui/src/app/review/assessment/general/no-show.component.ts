@@ -17,15 +17,9 @@ import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
 @Component({
     selector: 'xm-r-no-show',
-    template: ` <div class="detail-row">
-            <div class="col-md-12">{{ started | date: 'dd.MM.yyyy' }}</div>
-        </div>
-        <div class="detail-row mb-2">
-            <div class="col-md-12">
-                <span [ngStyle]="{ color: '#F35D6C' }">
-                    {{ 'sitnet_exam_status_no_show' | translate }}
-                </span>
-            </div>
+    template: ` <div class="col-md-2 general-info-title">{{ started | date: 'dd.MM.yyyy' }}</div>
+        <div class="col-md-10 general-info-content" [ngStyle]="{ color: '#F35D6C' }">
+            {{ 'sitnet_exam_status_no_show' | translate }}
         </div>`,
 })
 export class NoShowComponent implements OnInit {

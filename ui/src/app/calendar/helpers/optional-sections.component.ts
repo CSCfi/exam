@@ -8,7 +8,7 @@ import type { ExamInfo } from '../calendar.service';
             <div class="row mb-3" [ngClass]="sectionSelectionOk() ? '' : 'notactive'">
                 <span class="col-md-12">
                     <span class="calendar-phase-title">2. {{ 'sitnet_exam_materials' | translate }}</span>
-                    <span class="calendar-phase-icon pull-right" *ngIf="sectionSelectionOk()">
+                    <span class="calendar-phase-icon float-end" *ngIf="sectionSelectionOk()">
                         <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="phase 1" />
                     </span>
                 </span>

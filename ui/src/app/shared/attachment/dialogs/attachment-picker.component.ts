@@ -57,10 +57,10 @@ export interface FileResult {
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-primary pull-left" (click)="activeModal.dismiss()">
+            <button class="btn btn-primary float-start" (click)="activeModal.dismiss()">
                 {{ 'sitnet_button_cancel' | translate }}
             </button>
-            <button class="btn btn btn-success pull-right" (click)="confirmed()" [disabled]="!fileObject">
+            <button class="btn btn btn-success float-end" (click)="confirmed()" [disabled]="!fileObject">
                 {{ 'sitnet_button_save' | translate }}
             </button>
         </div>

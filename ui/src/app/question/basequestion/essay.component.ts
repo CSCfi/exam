@@ -24,7 +24,7 @@ import { QuestionDraft } from '../question.service';
                 <div class="col-md-3 exam-basic-title">
                     {{ 'sitnet_essay_length_recommendation' | translate }}
                 </div>
-                <div class="col-md-9">
+                <div class="col-md-3">
                     <div class="input-group">
                         <input
                             id="wc"

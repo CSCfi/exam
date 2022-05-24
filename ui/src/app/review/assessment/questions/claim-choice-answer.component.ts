@@ -21,7 +21,7 @@ import { QuestionService } from '../../../question/question.service';
     template: `<div *ngIf="reviewExpanded">
         <div class="padl15 marb10" *ngFor="let option of sectionQuestion.options | orderBy: 'option.id'">
             <div [ngClass]="getSelectedOptionClass(option)">
-                <div class="make-inline pull-left">
+                <div class="make-inline float-start">
                     <img
                         *ngIf="determineClaimOptionType(option) === 'CorrectOption'"
                         src="/assets/images/icon_correct_answer_radio.png"
@@ -41,7 +41,7 @@ import { QuestionService } from '../../../question/question.service';
                 <div class="make-inline middle-column">
                     <span class="exam-question-option-text" [innerHtml]="option.option.option"></span>
                 </div>
-                <div class="make-inline pull-right answer-score-text">
+                <div class="make-inline float-end answer-score-text">
                     <span> {{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
                 </div>
             </div>

@@ -30,7 +30,7 @@
                             <div class="col warning-text">
                                 {{ 'sitnet_exam_question_edit_instructions' | translate }}
                                 <ul class="list-inline margin-10">
-                                    <li>
+                                    <li class="list-inline-item">
                                         <span *ngFor="let name of examNames" class="exists-text">
                                             <span class="padr10">{{ name }}</span>
                                         </span>
@@ -49,7 +49,7 @@
                             <div class="col warning-text">
                                 {{ 'sitnet_added_to_exams' | translate }}
                                 <ul class="list-inline margin-10">
-                                    <li>
+                                    <li class="list-inline-item">
                                         <span *ngFor="let name of examNames" class="exists-text">
                                             {{ name }}
                                         </span>
@@ -477,7 +477,7 @@
                         </div>
                         <div class="col-md-9">
                             <ul class="list-inline ps-2" *ngIf="question?.questionOwners">
-                                <li *ngFor="let user of question!.questionOwners">
+                                <li *ngFor="let user of question!.questionOwners" class="list-inline-item">
                                     {{ user.firstName }} {{ user.lastName }}
                                 </li>
                             </ul>
@@ -615,7 +615,7 @@
                         </div>
                         <div class="col-md-9">
                             <ul class="list-inline" *ngIf="question?.tags">
-                                <li *ngFor="let tag of question!.tags">{{ tag.name }}</li>
+                                <li *ngFor="let tag of question!.tags" class="list-inline-item">{{ tag.name }}</li>
                             </ul>
                         </div>
                     </div>
@@ -627,7 +627,7 @@
                         </div>
                         <div class="col-md-9">
                             <ul class="list-inline">
-                                <li *ngFor="let name of sectionNames">{{ name }}</li>
+                                <li *ngFor="let name of sectionNames" class="list-inline-item">{{ name }}</li>
                             </ul>
                         </div>
                     </div>
@@ -647,7 +647,7 @@
                     </button>
                 </div>
                 <div class="question-cancel marr20">
-                    <button (click)="cancel()" type="submit" class="btn btn-cancel pull-right bigbutton">
+                    <button (click)="cancel()" type="submit" class="btn btn-cancel float-end bigbutton">
                         {{ 'sitnet_button_cancel' | translate }}
                     </button>
                 </div>

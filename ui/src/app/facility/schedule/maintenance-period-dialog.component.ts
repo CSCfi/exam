@@ -52,7 +52,7 @@ import type { MaintenancePeriod } from '../../exam/exam.model';
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-danger pull-right" (click)="cancel()">
+            <button class="btn btn-danger float-end" (click)="cancel()">
                 {{ 'sitnet_button_cancel' | translate }}
             </button>
             <button class="btn btn-primary" [disabled]="periodForm.invalid" (click)="ok()">
