@@ -190,6 +190,7 @@ POST          /app/question/:id                                        controlle
 DELETE        /app/questions/:id                                       controllers.QuestionController.deleteQuestion(id: Long, request: Request)
 POST          /app/questions/owner/:uid                                controllers.QuestionController.addOwner(uid: Long, request: Request)
 POST          /app/questions/export                                    controllers.QuestionController.exportQuestions(request: Request)
+POST          /app/questions/import                                    controllers.QuestionController.importQuestions(request: Request)
 
 ############### Reservation interface ###############
 

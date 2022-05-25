@@ -161,7 +161,7 @@ export class SpeedReviewComponent implements OnInit {
     };
 
     importGrades = () => {
-        this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv')
+        this.Attachment.selectFile(false, {}, 'sitnet_import_grades_from_csv')
             .then((result) => {
                 this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload);
                 this.toast.success(`${this.translate.instant('sitnet_csv_uploaded_successfully')}`);
