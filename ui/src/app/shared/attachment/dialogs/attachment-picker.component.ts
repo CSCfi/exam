@@ -24,8 +24,8 @@ export interface FileResult {
 @Component({
     selector: 'xm-attachment-selector',
     template: `<div id="sitnet-dialog">
-        <div class="student-details-title-wrap modal-header">
-            <div class="student-enroll-title">{{ title | translate }}</div>
+        <div class="modal-header">
+            <h2>{{ title | translate }}</h2>
         </div>
 
         <div class="modal-body">

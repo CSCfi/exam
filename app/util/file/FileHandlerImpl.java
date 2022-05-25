@@ -143,9 +143,29 @@ public class FileHandlerImpl implements FileHandler {
     }
 
     @Override
+    public Attachment createNew(String fileName, String contentType, String path) {
+        Attachment attachment = new Attachment();
+        attachment.setFileName(fileName);
+        attachment.setFilePath(path);
+        attachment.setMimeType(contentType);
+        attachment.save();
+        return attachment;
+    }
+
+    @Override
     public void copyFile(Files.TemporaryFile sourceFile, File destFile) throws IOException {
         java.nio.file.Files.copy(
             sourceFile.path(),
+            destFile.toPath(),
+            StandardCopyOption.REPLACE_EXISTING,
+            StandardCopyOption.COPY_ATTRIBUTES
+        );
+    }
+
+    @Override
+    public void copyFile(Path sourceFile, File destFile) throws IOException {
+        java.nio.file.Files.copy(
+            sourceFile,
             destFile.toPath(),
             StandardCopyOption.REPLACE_EXISTING,
             StandardCopyOption.COPY_ATTRIBUTES

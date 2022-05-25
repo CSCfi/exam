@@ -200,7 +200,7 @@ public class ExaminationEventController extends BaseController {
         } else if (!hasEnrolments) {
             encryptSettingsPassword(eec, password);
             eec.save();
-            // Pass back the plaintext password so it can be shown to user
+            // Pass back the plaintext password, so it can be shown to user
             eec.setSettingsPassword(request.attrs().get(Attrs.SETTINGS_PASSWORD));
         } else {
             // Disallow changing password if enrolments exist for this event
@@ -258,7 +258,7 @@ public class ExaminationEventController extends BaseController {
                 String newSalt = UUID.randomUUID().toString();
                 eec.setEncryptedSettingsPassword(byodConfigHandler.getEncryptedPassword(password, newSalt));
                 eec.setSettingsPasswordSalt(newSalt);
-                // Pre-calculate config key so we don't need to do it each time a check is needed
+                // Pre-calculate config key, so we don't need to do it each time a check is needed
                 eec.setConfigKey(byodConfigHandler.calculateConfigKey(eec.getHash()));
             }
         } catch (Exception e) {

@@ -33,6 +33,7 @@ import type { Course, Exam } from '../../exam.model';
                         <img
                             src="/assets/images/icon_tooltip.svg"
                             alt="exam"
+                            placement="top"
                             onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
                         />
                     </sup>
