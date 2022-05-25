@@ -1,13 +1,16 @@
 package system.modules;
 
 import com.google.inject.AbstractModule;
-import util.xml.MoodleXmlConverter;
-import util.xml.MoodleXmlConverterImpl;
+import util.xml.MoodleXmlExporter;
+import util.xml.MoodleXmlExporterImpl;
+import util.xml.MoodleXmlImporter;
+import util.xml.MoodleXmlImporterImpl;
 
 public class MoodleXmlConverterModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        bind(MoodleXmlConverter.class).to(MoodleXmlConverterImpl.class);
+        bind(MoodleXmlExporter.class).to(MoodleXmlExporterImpl.class);
+        bind(MoodleXmlImporter.class).to(MoodleXmlImporterImpl.class);
     }
 }

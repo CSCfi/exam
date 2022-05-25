@@ -12,7 +12,7 @@ import scala.jdk.CollectionConverters._
 import scala.xml._
 import scala.xml.parsing.ConstructingParser
 
-class MoodleXmlConverterImpl extends MoodleXmlConverter {
+class MoodleXmlExporterImpl extends MoodleXmlExporter {
 
   private def moodleType(question: Question): String = question.getType.toString match {
     case "EssayQuestion"     => "essay"

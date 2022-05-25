@@ -26,6 +26,7 @@ import io.ebean.ExpressionList;
 import io.ebean.Model;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +44,7 @@ import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import play.Logger;
 import play.data.DynamicForm;
+import play.libs.Files;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -52,12 +54,16 @@ import sanitizers.QuestionTextSanitizer;
 import sanitizers.SanitizingHelper;
 import scala.jdk.javaapi.CollectionConverters;
 import security.Authenticated;
-import util.xml.MoodleXmlConverter;
+import util.xml.MoodleXmlExporter;
+import util.xml.MoodleXmlImporter;
 
 public class QuestionController extends BaseController implements SectionQuestionHandler {
 
     @Inject
-    private MoodleXmlConverter xmlConverter;
+    private MoodleXmlExporter xmlExporter;
+
+    @Inject
+    private MoodleXmlImporter xmlImporter;
 
     private static final Logger.ALogger logger = Logger.of(QuestionController.class);
 
@@ -440,9 +446,22 @@ public class QuestionController extends BaseController implements SectionQuestio
                 q.getType() != Question.Type.ClaimChoiceQuestion && q.getType() != Question.Type.ClozeTestQuestion
             )
             .collect(Collectors.toList());
-        String document = xmlConverter.convert(CollectionConverters.asScala(questions).toSeq());
+        String document = xmlExporter.convert(CollectionConverters.asScala(questions).toSeq());
         return ok(document)
             .withHeader("Content-Disposition", "attachment; filename=\"moodle-quiz.xml\"")
             .as("application/xml");
+    }
+
+    @Authenticated
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    public Result importQuestions(Http.Request request) throws IOException {
+        Http.MultipartFormData<Files.TemporaryFile> body = request.body().asMultipartFormData();
+        Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = body.getFile("file");
+        if (filePart == null) {
+            throw new IllegalArgumentException("file not found");
+        }
+        String content = java.nio.file.Files.readString(filePart.getRef().path());
+        xmlImporter.convert(content, request.attrs().get(Attrs.AUTHENTICATED_USER));
+        return ok();
     }
 }
