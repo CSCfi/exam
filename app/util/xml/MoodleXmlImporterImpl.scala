@@ -153,8 +153,11 @@ class MoodleXmlImporterImpl @Inject()(fileHandler: FileHandler) extends MoodleXm
     // question should have a single <answer> with fraction 100, others should have fraction zero
     val score = (src \ "defaultgrade").text.toDouble
     question.setDefaultMaxScore(score)
-    val options = (src \ "answer").map(convertOption)
-    question.setOptions(options.asJava)
+    val (wrong, rest) = (src \ "answer").map(convertOption).span(!_.isCorrectOption)
+    // assert that there is only one correct option
+    val checkedOptions = (wrong :+ rest.head) ++ rest.tail.map(
+      o => { o.setCorrectOption(false); o })
+    question.setOptions(checkedOptions.asJava)
     question.save()
     question.getOptions.forEach(_.save())
     question
