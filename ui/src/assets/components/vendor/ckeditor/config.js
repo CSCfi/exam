@@ -39,7 +39,7 @@ CKEDITOR.editorConfig = function( config ) {
 	// Simplify the dialog windows.
 	config.removeDialogTabs = 'image:advanced;link:advanced';
 
-	config.mathJaxLib = "/assets/components/vendor/MathJax-2.6-latest/MathJax.js?config=TeX-AMS_HTML";
+	config.mathJaxLib = "/assets/components/vendor/MathJax-2.7.7/MathJax.js?config=TeX-AMS_HTML";
 
 	// Uncomment this in order to enable resizing in both directions, default is vertical only
 	//config.resize_dir = 'both';
