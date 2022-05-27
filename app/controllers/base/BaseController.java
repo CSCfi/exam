@@ -153,6 +153,7 @@ public class BaseController extends Controller {
         }
         List<ExamEnrolment> trials = Ebean
             .find(ExamEnrolment.class)
+            .fetch("exam")
             .where()
             .eq("user", user)
             .eq("exam.parent.id", exam.getId())
