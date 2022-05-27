@@ -14,20 +14,20 @@
                 /></sup>
             </div>
             <div class="col-md-9">
-                <input
-                    type="text"
-                    class="form-control wdth-30 make-inline"
-                    [(ngModel)]="newOwner.name"
-                    [ngbTypeahead]="listOwners$"
-                    [inputFormatter]="nameFormatter"
-                    [resultFormatter]="nameFormatter"
-                    (selectItem)="setExamOwner($event)"
-                />
-                <span
-                    ><button (click)="addExamOwner()" class="btn btn-primary green border-green">
+                <div class="input-group">
+                    <input
+                        type="text"
+                        class="form-control wdth-30 make-inline"
+                        [(ngModel)]="newOwner.name"
+                        [ngbTypeahead]="listOwners$"
+                        [inputFormatter]="nameFormatter"
+                        [resultFormatter]="nameFormatter"
+                        (selectItem)="setExamOwner($event)"
+                    />
+                    <button (click)="addExamOwner()" class="btn btn-primary green border-green">
                         {{ 'sitnet_add' | translate }}
-                    </button></span
-                >
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -40,7 +40,7 @@
                     <li *ngFor="let user of examOwners" class="list-inline-item">
                         {{ user.firstName }} {{ user.lastName }} ({{ user.email }})
                         <button
-                            class="reviewer-remove"
+                            class="reviewer-remove input-group-text"
                             [disabled]="examOwners.length === 1"
                             (click)="removeOwner(user.id)"
                             title="{{ 'sitnet_remove' | translate }}"
