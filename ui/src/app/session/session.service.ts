@@ -83,7 +83,7 @@ export class SessionService implements OnDestroy {
     }
 
     ngOnDestroy() {
-        if (this.sessionCheckSubscription) this.sessionCheckSubscription.unsubscribe();
+        this.disableSessionCheck();
     }
 
     getUser = (): User => {
@@ -177,9 +177,8 @@ export class SessionService implements OnDestroy {
                                 }),
                         });
                 } else if (resp === 'no_session') {
-                    if (this.sessionCheckSubscription) {
-                        this.sessionCheckSubscription.unsubscribe();
-                    }
+                    this.disableSessionCheck();
+                    this.toast.clear();
                     this.logout();
                 }
             },

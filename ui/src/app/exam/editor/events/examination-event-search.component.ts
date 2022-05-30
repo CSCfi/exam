@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { addDays } from 'date-fns';
+import { addDays, addMonths } from 'date-fns';
 import { Observable } from 'rxjs';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
 import { ExaminationEventConfiguration } from '../../exam.model';
@@ -39,8 +39,10 @@ import { ExaminationEventConfiguration } from '../../exam.model';
     ],
 })
 export class ExaminationEventSearchComponent implements OnInit {
-    startDate: Date | null = null;
-    endDate: Date | null = null;
+    date = new Date();
+    datePlus = addMonths(new Date(), 1); // Might need configurable value for the month
+    startDate: Date | null = this.date;
+    endDate: Date | null = this.date;
     processedEvents: ExaminationEventConfiguration[] = [];
     sorting = {
         predicate: 'exam.created',

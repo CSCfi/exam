@@ -10,14 +10,14 @@ import org.joda.time.DateTime;
 import org.junit.Ignore;
 import org.junit.Test;
 import play.libs.Json;
+import play.mvc.Result;
 
 public class ExamRecordInterfaceTest extends IntegrationTestCase {
 
-    @Ignore("Randomly fails on travis, not sure why")
     @Test
     public void testGetRecords() {
         String filter = DateTime.now().toString("yyyy-MM-dd");
-        play.mvc.Result result = get("/integration/record/" + filter);
+        Result result = get("/integration/record/" + filter);
         assertThat(result.status()).isEqualTo(200);
         JsonNode node = Json.parse(contentAsString(result));
         assertThat(node.isArray()).isTrue();

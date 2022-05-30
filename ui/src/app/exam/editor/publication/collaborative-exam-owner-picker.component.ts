@@ -24,11 +24,12 @@ import type { Exam } from '../../exam.model';
     template: `<div class="row mt-2">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_owners' | translate }}
-                <sup>
+                <sup
+                    ngbPopover="{{ 'sitnet_exam_owner_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_exam_owner_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"

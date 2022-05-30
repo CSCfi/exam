@@ -59,7 +59,7 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
             </div>
             <div class="modal-footer">
                 <div class="col-md-12">
-                    <button class="btn btn-sm btn-danger pull-right" (click)="cancel()">
+                    <button class="btn btn-sm btn-danger float-end" (click)="cancel()">
                         {{ 'sitnet_button_decline' | translate }}
                     </button>
                 </div>

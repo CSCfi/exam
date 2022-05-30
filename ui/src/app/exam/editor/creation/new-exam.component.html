@@ -19,21 +19,23 @@
             <div class="row margin-20 padl40 padr40">
                 <div class="col-md-3">
                     <form>
-                        <div class="form-group">
-                            <label for="execType"
-                                >{{ 'sitnet_new_exam_type' | translate }}
+                        <div class="mb-3">
+                            <label class="form-label" for="execType">
+                                {{ 'sitnet_new_exam_type' | translate }}
                                 <sup
-                                    ><img
-                                        triggers="mouseenter:mouseleave"
-                                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                        ngbPopover="{{ 'sitnet_new_exam_type_description' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    ngbPopover="{{ 'sitnet_new_exam_type_description' | translate }}"
+                                >
+                                    <img
                                         src="/assets/images/icon_tooltip.svg"
                                         alt="exam"
                                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                /></sup>
+                                    />
+                                </sup>
                             </label>
                             <select
-                                class="form-control"
+                                class="form-select"
                                 name="execType"
                                 id="execType"
                                 [(ngModel)]="type"
@@ -46,18 +48,20 @@
                                 </option>
                             </select>
                         </div>
-                        <div class="form-group" *ngIf="byodExaminationSupported && type && type?.type !== 'PRINTOUT'">
-                            <label for="examinationType"
+                        <div class="mb-3" *ngIf="byodExaminationSupported && type && type?.type !== 'PRINTOUT'">
+                            <label class="form-label" for="examinationType"
                                 >{{ 'sitnet_examination_type' | translate }}
                                 <sup
-                                    ><img
-                                        triggers="mouseenter:mouseleave"
-                                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                        ngbPopover="{{ 'sitnet_examination_type_description' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    ngbPopover="{{ 'sitnet_examination_type_description' | translate }}"
+                                >
+                                    <img
                                         src="/assets/images/icon_tooltip.svg"
                                         alt="exam"
                                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                /></sup>
+                                    />
+                                </sup>
                             </label>
                             <select
                                 class="form-control"

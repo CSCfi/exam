@@ -24,7 +24,7 @@ import { ExaminationService } from '../examination.service';
                 <h2>
                     <span class="exam-title">{{ index }}. {{ section.name }}</span>
                     <span *ngIf="isPreview && section.lotteryOn" class="sitnet-text-medium">
-                        <small class="ml-3">({{ 'sitnet_lottery_questions' | translate }})</small>
+                        <small class="ms-3">({{ 'sitnet_lottery_questions' | translate }})</small>
                     </span>
                 </h2>
                 <div class="section-score-details">
@@ -43,7 +43,7 @@ import { ExaminationService } from '../examination.service';
                         alt="info-icon"
                         onerror="this.onerror=null;this.src='/assets/images/icon_info.png';"
                     />
-                    <span class="pl-2">{{ section.description }}</span>
+                    <span class="ps-2">{{ section.description }}</span>
                 </div>
             </div>
         </div>

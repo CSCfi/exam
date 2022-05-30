@@ -65,21 +65,21 @@ export class MachineComponent implements OnInit {
         });
     }
 
-    removeMachine = (machine: ExamMachine) => {
-        const dialog = this.Confirmation.open(
+    removeMachine = (machine: ExamMachine) =>
+        this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_machine'),
-        );
-        dialog.result.then(() => {
-            this.machines.removeMachine(machine.id).subscribe({
-                next: () => {
-                    this.toast.info(this.translate.instant('sitnet_machine_removed'));
-                    this.state.go('staff.rooms');
-                },
-                error: this.toast.error,
-            });
+        ).subscribe({
+            next: () =>
+                this.machines.removeMachine(machine.id).subscribe({
+                    next: () => {
+                        this.toast.info(this.translate.instant('sitnet_machine_removed'));
+                        this.state.go('staff.rooms');
+                    },
+                    error: this.toast.error,
+                }),
+            error: this.toast.error,
         });
-    };
 
     toggleSoftware = (software: SoftwareWithClass) => {
         this.machines.toggleMachineSoftware(this.machine.id, software.id).subscribe({

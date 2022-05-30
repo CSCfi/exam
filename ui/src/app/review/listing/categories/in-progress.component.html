@@ -14,11 +14,13 @@
             onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
         />
     </a>
-    <sup class="padl05">
+    <sup
+        class="padl05"
+        ngbPopover="{{ 'sitnet_review_started_description' | translate }}"
+        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+        triggers="mouseenter:mouseleave"
+    >
         <img
-            ngbPopover="{{ 'sitnet_review_started_description' | translate }}"
-            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-            triggers="mouseenter:mouseleave"
             src="/assets/images/icon_tooltip.svg"
             alt="exam"
             onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -49,7 +51,7 @@
         <div class="my-2 d-flex justify-content-end">
             <div
                 [hidden]="exam.executionType.type === 'MATURITY' || collaborative"
-                class="review-attachment-button mr-2"
+                class="review-attachment-button me-2"
             >
                 <a class="pointer" uiSref="staff.speedReview" [uiParams]="{ id: exam.id }">
                     {{ 'sitnet_speed_review' | translate }} ({{ view.filtered.length }})

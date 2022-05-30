@@ -2,10 +2,10 @@
     <div class="col-md-3 exam-basic-title">
         {{ 'sitnet_exam_editor_materials' | translate }}
         <sup
+            ngbPopover="{{ 'sitnet_exam_material_description' | translate }}"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
             ><img
-                ngbPopover="{{ 'sitnet_exam_material_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
                 src="/assets/images/icon_tooltip.svg"
                 alt="exam"
                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -37,7 +37,7 @@
     <div class="col-md-3 exam-basic-title"></div>
     <div class="col-md-9">
         <ul class="list-inline mart10">
-            <li *ngFor="let material of section.examMaterials">
+            <li *ngFor="let material of section.examMaterials" class="list-inline-item">
                 {{ material.name }}
                 <button
                     class="reviewer-remove"

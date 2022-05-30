@@ -87,31 +87,34 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         this.selected.emit(selections);
     };
 
-    deleteQuestion = (question: SelectableQuestion) => {
-        const dialog = this.Confirmation.open(
+    deleteQuestion = (question: SelectableQuestion) =>
+        this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_question_from_library_only'),
-        );
-        dialog.result.then(() =>
-            this.http.delete(`/app/questions/${question.id}`).subscribe(() => {
-                this.questions.splice(this.questions.indexOf(question), 1);
-                this.toast.info(this.translate.instant('sitnet_question_removed'));
-            }),
-        );
-    };
+        ).subscribe({
+            next: () =>
+                this.http.delete(`/app/questions/${question.id}`).subscribe({
+                    next: () => this.questions.splice(this.questions.indexOf(question), 1),
+                    error: () => this.toast.info(this.translate.instant('sitnet_question_removed')),
+                }),
+            error: this.toast.error,
+        });
 
-    copyQuestion = (question: SelectableQuestion) => {
-        const dialog = this.Confirmation.open(
+    copyQuestion = (question: SelectableQuestion) =>
+        this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_copy_question'),
-        );
-        dialog.result.then(() =>
-            this.http.post<SelectableQuestion>(`/app/question/${question.id}`, {}).subscribe((copy) => {
-                this.questions.splice(this.questions.indexOf(question), 0, copy);
-                this.copied.emit(copy);
-            }),
-        );
-    };
+        ).subscribe({
+            next: () =>
+                this.http.post<SelectableQuestion>(`/app/question/${question.id}`, {}).subscribe({
+                    next: (copy) => {
+                        this.questions.splice(this.questions.indexOf(question), 0, copy);
+                        this.copied.emit(copy);
+                    },
+                    error: this.toast.error,
+                }),
+            error: this.toast.error,
+        });
 
     downloadQuestionAttachment = (question: LibraryQuestion) => this.Attachment.downloadQuestionAttachment(question);
 

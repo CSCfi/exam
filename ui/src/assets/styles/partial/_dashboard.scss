@@ -1097,6 +1097,7 @@
       display: block;
       padding-top: 10px;
       padding-bottom: 10px;
+      text-decoration: none;
 
       &.notinuse {
         background-color: #7F7F7F;
@@ -2066,6 +2067,16 @@
     .dropdown-toggle::after {
       display:none;
     }
+  }
+
+  .flex-wrap-gap{
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .min-width-300{
+    min-width: 300px;
   }
   
 }

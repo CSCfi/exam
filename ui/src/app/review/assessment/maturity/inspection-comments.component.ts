@@ -41,16 +41,17 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
 
         <div class="main-row">
             <span class="col-md-12">
-                <div class="review-attachment-button exam-questions-buttons mr-2">
+                <div class="review-attachment-button exam-questions-buttons me-2">
                     <button class="btn btn-link" *ngIf="addingVisible" (click)="addInspectionComment()">
                         {{ 'sitnet_inspection_comment_title' | translate }}
                     </button>
                 </div>
-                <sup>
+                <sup
+                    ngbPopover="{{ 'sitnet_inspection_comment_info' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_inspection_comment_info' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="{{ 'sitnet_inspection_comment_info' | translate }}"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"

@@ -123,11 +123,14 @@ export class CollaborativeAssesmentService {
             if (newState !== 'GRADED' || oldState === 'GRADED') {
                 this.sendAssessment(newState, payload, messages, participation, id, ref);
             } else {
-                const dialog = this.dialogs.open(
+                const dialog = this.dialogs.open$(
                     this.translate.instant('sitnet_confirm'),
                     this.translate.instant('sitnet_confirm_grade_review'),
                 );
-                dialog.result.then(() => this.sendAssessment(newState, payload, messages, participation, id, ref));
+                dialog.subscribe({
+                    next: () => this.sendAssessment(newState, payload, messages, participation, id, ref),
+                    error: this.toast.error,
+                });
             }
         }
     };
@@ -147,8 +150,8 @@ export class CollaborativeAssesmentService {
                   );
             const payload = this.getPayload(participation.exam, 'GRADED', participation._rev as string);
             this.dialogs
-                .open(this.translate.instant('sitnet_confirm'), dialogNote)
-                .result.then(() => this.register(participation, examId, ref, payload));
+                .open$(this.translate.instant('sitnet_confirm'), dialogNote)
+                .subscribe({ next: () => this.register(participation, examId, ref, payload), error: this.toast.error });
         }
     };
 

@@ -52,16 +52,16 @@ export class LanguageInspectionService {
         modalRef.componentInstance.statement = statement.comment;
     };
 
-    assignInspection = (inspection: LanguageInspection) => {
-        const dialog = this.dialogs.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_assign_inspection'),
-        );
-        dialog.result.then(() => {
-            this.http.put(`/app/inspection/${inspection.id}`, {}).subscribe({
-                next: () => this.state.go('staff.assessment', { id: inspection.exam.id }),
+    assignInspection = (inspection: LanguageInspection) =>
+        this.dialogs
+            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_confirm_assign_inspection'))
+            .subscribe({
+                next: () => {
+                    this.http.put(`/app/inspection/${inspection.id}`, {}).subscribe({
+                        next: () => this.state.go('staff.assessment', { id: inspection.exam.id }),
+                        error: this.toast.error,
+                    });
+                },
                 error: this.toast.error,
             });
-        });
-    };
 }

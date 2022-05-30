@@ -32,10 +32,10 @@ import { AssessmentService } from '../../assessment/assessment.service';
             </div>
         </div>
         <div class="modal-footer d-flex justify-content-between">
-            <button class="btn btn btn-success pull-left" (click)="ok()">
+            <button class="btn btn btn-success float-start" (click)="ok()">
                 {{ 'sitnet_save' | translate }}
             </button>
-            <button class="btn btn-primary pull-right" (click)="cancel()">
+            <button class="btn btn-primary float-end" (click)="cancel()">
                 {{ 'sitnet_button_cancel' | translate }}
             </button>
         </div>

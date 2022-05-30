@@ -113,21 +113,22 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                 error: this.toast.error,
             });
 
-    deleteExam = (exam: ExamListExam) => {
-        const dialog = this.Confirmation.open(
+    deleteExam = (exam: ExamListExam) =>
+        this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_exam'),
-        );
-        dialog.result.then(() => {
-            this.http.delete(`/app/exams/${exam.id}`).subscribe({
-                next: () => {
-                    this.toast.success(this.translate.instant('sitnet_exam_removed'));
-                    this.exams.splice(this.exams.indexOf(exam), 1);
-                },
-                error: this.toast.error,
-            });
+        ).subscribe({
+            next: () => {
+                this.http.delete(`/app/exams/${exam.id}`).subscribe({
+                    next: () => {
+                        this.toast.success(this.translate.instant('sitnet_exam_removed'));
+                        this.exams.splice(this.exams.indexOf(exam), 1);
+                    },
+                    error: this.toast.error,
+                });
+            },
+            error: this.toast.error,
         });
-    };
 
     filterByStateAndExpiration = (state: string, expired: boolean) =>
         this.exams.filter((e) => e.state === state && e.expired == expired);

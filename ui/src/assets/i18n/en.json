@@ -1032,7 +1032,10 @@
   "sitnet_error_examination_event_in_the_past": "Examination event takes place in the past",
   "sitnet_error_conflicts_with_maintenance_period": "Examination event conflicts with a maintenance period",
   "sitnet_save_custom_time": "Save custom time EN",
-  "sitnet_edit_enrolment": "Edit enrolment EN",
   "sitnet_remove_byod_exam": "Poista omakonetentttitilaisuus. Poistoa ei voi peruuttaa. Ilmoittautuneille sekä kurssin opettajille lähetetään sähköposti tileisuuden peruuntumisesta. EN",
-  "sitnet_control": "Hallinta EN"
+  "sitnet_control": "Hallinta EN",
+  "sitnet_edit_enrolment": "Edit enrolment EN",
+  "sitnet_toolbar_import_questions": "Tuo kysymyksiä Moodlesta EN",
+  "sitnet_import_questions_detail": "Valitse Moodlen kysymysformaatissa oleva XML-tiedosto EN",
+  "sitnet_questions_imported_successfully": "Kysymykset tuotu onnistuneesti EN"
 }

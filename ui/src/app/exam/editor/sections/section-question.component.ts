@@ -18,8 +18,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { merge } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
-import type { Observable } from 'rxjs';
-import { noop, of } from 'rxjs';
+import { from, noop, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BaseQuestionEditorComponent } from '../../../question/examquestion/base-question-editor.component';
 import { ExamQuestionEditorComponent } from '../../../question/examquestion/exam-question-editor.component';
@@ -68,10 +67,10 @@ export class SectionQuestionComponent {
     };
 
     removeQuestion = () =>
-        this.Confirmation.open(
+        this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_question'),
-        ).result.then(() => this.removed.emit(this.sectionQuestion));
+        ).subscribe({ next: () => this.removed.emit(this.sectionQuestion), error: this.toast.error });
 
     determineClaimOptionType(examOption: ExamSectionQuestionOption) {
         return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
@@ -111,41 +110,44 @@ export class SectionQuestionComponent {
         modal.componentInstance.examId = this.examId;
         modal.componentInstance.sectionQuestion = this.sectionQuestion;
         modal.componentInstance.questionId = this.sectionQuestion.question.id || 0;
-        modal.result.then((question: Question) => {
-            const resource = `/app/exams/${this.examId}/sections/${this.section.id}/questions/${this.sectionQuestion.id}`;
-            this.http
-                .put<ExamSectionQuestion>(this.getResource(resource), {
-                    question: question,
-                })
-                .subscribe({
-                    next: (resp) => {
-                        this.sectionQuestion = merge(this.sectionQuestion, resp);
-                        // Collaborative exam question handling.
-                        if (!this.collaborative) {
-                            return;
-                        }
-                        const attachment = question.attachment;
-                        if (!attachment) {
-                            return;
-                        }
-                        if (attachment.modified && attachment.file) {
-                            this.Files.upload(
-                                '/app/iop/collab/attachment/question',
-                                attachment.file,
-                                { examId: this.examId.toString(), questionId: this.sectionQuestion.id.toString() },
-                                this.sectionQuestion.question,
-                            );
-                        } else if (attachment.removed) {
-                            this.Attachment.eraseCollaborativeQuestionAttachment(
-                                this.examId,
-                                this.sectionQuestion.id,
-                            ).then(() => {
-                                delete this.sectionQuestion.question.attachment;
-                            });
-                        }
-                    },
-                    error: this.toast.error,
-                });
+        from(modal.result).subscribe({
+            next: (question: Question) => {
+                const resource = `/app/exams/${this.examId}/sections/${this.section.id}/questions/${this.sectionQuestion.id}`;
+                this.http
+                    .put<ExamSectionQuestion>(this.getResource(resource), {
+                        question: question,
+                    })
+                    .subscribe({
+                        next: (resp) => {
+                            this.sectionQuestion = merge(this.sectionQuestion, resp);
+                            // Collaborative exam question handling.
+                            if (!this.collaborative) {
+                                return;
+                            }
+                            const attachment = question.attachment;
+                            if (!attachment) {
+                                return;
+                            }
+                            if (attachment.modified && attachment.file) {
+                                this.Files.upload(
+                                    '/app/iop/collab/attachment/question',
+                                    attachment.file,
+                                    { examId: this.examId.toString(), questionId: this.sectionQuestion.id.toString() },
+                                    this.sectionQuestion.question,
+                                );
+                            } else if (attachment.removed) {
+                                this.Attachment.eraseCollaborativeQuestionAttachment(
+                                    this.examId,
+                                    this.sectionQuestion.id,
+                                ).then(() => {
+                                    delete this.sectionQuestion.question.attachment;
+                                });
+                            }
+                        },
+                        error: this.toast.error,
+                    });
+            },
+            error: this.toast.error,
         });
     };
 

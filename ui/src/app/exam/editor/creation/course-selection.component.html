@@ -12,18 +12,19 @@
     <div class="row marr50">
         <div class="col-md-12 marl50 marr50 exam-new-border">
             <div class="row">
-                <div class="col mt-3 ml-3 mr-3 mb-3">
+                <div class="col mt-3 ms-3 me-3 mb-3">
                     <div class="review-list-title">{{ 'sitnet_exam_title' | translate }}</div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-3 exam-basic-title ml-3 mt-1">
+                <div class="col-md-3 exam-basic-title ms-3 mt-1">
                     {{ 'sitnet_new_exam_type' | translate }}
-                    <sup>
+                    <sup
+                        triggers="mouseenter:mouseleave"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'sitnet_new_exam_type_description' | translate }}"
+                    >
                         <img
-                            triggers="mouseenter:mouseleave"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            ngbPopover="{{ 'sitnet_new_exam_type_description' | translate }}"
                             src="/assets/images/icon_tooltip.svg"
                             alt="exam"
                             onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -35,25 +36,26 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col ml-3 mt-3">
+                <div class="col ms-3 mt-3">
                     <xm-exam-course [exam]="exam" (updated)="onCourseSelected($event)"></xm-exam-course>
                 </div>
             </div>
             <div class="row">
-                <div class="col ml-3 mt-3 mr-3">
+                <div class="col ms-3 mt-3 me-3">
                     <div class="review-list-title">{{ 'sitnet_exam_title' | translate }}</div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12 ml-3 mt-3">
+                <div class="col-md-12 ms-3 mt-3">
                     <form novalidate>
-                        <label for="examName"
+                        <label class="form-label" for="examName"
                             >{{ 'sitnet_exam_name' | translate }}
-                            <sup>
+                            <sup
+                                ngbPopover="{{ 'sitnet_exam_title_description' | translate }}"
+                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                triggers="mouseenter:mouseleave"
+                            >
                                 <img
-                                    ngbPopover="{{ 'sitnet_exam_title_description' | translate }}"
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
                                     src="/assets/images/icon_tooltip.svg"
                                     alt="exam"
                                     onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -69,13 +71,14 @@
                             (blur)="updateExamName()"
                             required
                         />
-                        <label for="examLanguage" class="mt-2">
+                        <label class="form-label" for="examLanguage" class="mt-2">
                             {{ 'sitnet_exam_language' | translate }}
-                            <sup>
+                            <sup
+                                ngbPopover="{{ 'sitnet_exam_language_description' | translate }}"
+                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                triggers="mouseenter:mouseleave"
+                            >
                                 <img
-                                    ngbPopover="{{ 'sitnet_exam_language_description' | translate }}"
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
                                     src="/assets/images/icon_tooltip.svg"
                                     alt="exam"
                                     onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
@@ -88,15 +91,15 @@
             </div>
             <div class="row justify-content-end">
                 <!-- buttons -->
-                <div class="col-auto ml-3 mt-3 mr-3">
+                <div class="col-auto ms-3 mt-3 me-3">
                     <div [hidden]="exam.state !== 'DRAFT'" class="review-attachment-button">
                         <a class="pointer cancel" (click)="cancelNewExam()">
                             {{ 'sitnet_button_cancel' | translate }}
                         </a>
                     </div>
                 </div>
-                <div class="col-auto ml-3 mt-3 mr-3">
-                    <div class="review-attachment-button exam-questions-buttons">
+                <div class="col-auto ms-3 mt-3 me-3">
+                    <div class="review-attachment-button flex">
                         <button
                             class="btn exam-button"
                             [disabled]="!exam.course || !exam.name || exam.examLanguages.length < 1"

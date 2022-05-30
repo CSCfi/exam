@@ -67,32 +67,29 @@ export class SectionComponent implements OnInit {
         return sectionQuestions.every((sq) => score === this.getQuestionScore(sq));
     };
 
-    clearAllQuestions = () => {
-        const dialog = this.dialogs.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_all_questions'),
-        );
-        dialog.result.then(() => {
-            this.http
-                .delete(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/questions`))
-                .subscribe({
-                    next: () => {
-                        this.section.sectionQuestions.splice(0, this.section.sectionQuestions.length);
-                        this.section.lotteryOn = false;
-                        this.toast.info(this.translate.instant('sitnet_all_questions_removed'));
-                    },
-                    error: this.toast.error,
-                });
-        });
-    };
+    clearAllQuestions = () =>
+        this.dialogs
+            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_remove_all_questions'))
+            .subscribe({
+                next: () => {
+                    this.http
+                        .delete(this.getResource(`/app/exams/${this.examId}/sections/${this.section.id}/questions`))
+                        .subscribe({
+                            next: () => {
+                                this.section.sectionQuestions.splice(0, this.section.sectionQuestions.length);
+                                this.section.lotteryOn = false;
+                                this.toast.info(this.translate.instant('sitnet_all_questions_removed'));
+                            },
+                            error: this.toast.error,
+                        });
+                },
+                error: this.toast.error,
+            });
 
-    removeSection = () => {
-        const dialog = this.dialogs.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_section'),
-        );
-        dialog.result.then(() => this.remvoed.emit(this.section));
-    };
+    removeSection = () =>
+        this.dialogs
+            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_remove_section'))
+            .subscribe({ next: () => this.remvoed.emit(this.section), error: this.toast.error });
 
     renameSection = () => this.updateSection(false);
     expandSection = () => this.updateSection(true);
@@ -259,7 +256,7 @@ export class SectionComponent implements OnInit {
                 }
                 // Collaborative exam question handling.
                 const newSectionQuestion = resp as ExamSectionQuestion;
-                this.addACollabAttachment(newSectionQuestion, question, () => {
+                this.addCollabAttachment(newSectionQuestion, question, () => {
                     const uploadedAttachment = question.attachment;
                     if (uploadedAttachment) {
                         newSectionQuestion.question.attachment = uploadedAttachment;
@@ -271,7 +268,7 @@ export class SectionComponent implements OnInit {
         });
     };
 
-    private addACollabAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
+    private addCollabAttachment = (data: ExamSectionQuestion, question: Question, callback: () => void) => {
         const attachment = question.attachment;
         if (!attachment) {
             return;

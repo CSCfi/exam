@@ -48,7 +48,7 @@
 
     <!-- Reservation confirmation -->
 
-    <div class="row mart10 marb20 mar-lr-0">
+    <div class="row mart10 marb20">
         <div class="col-md-8 col-12 pad0">
             <div class="row student-enrolment-wrapper details-view" [ngClass]="reservation ? '' : 'notactive'">
                 <div class="col-md-12">
@@ -57,7 +57,7 @@
                             <span class="calendar-phase-title"
                                 >{{ getSequenceNumber('confirmation') }}. {{ 'sitnet_calendar_phase_3' | translate }}
                             </span>
-                            <span class="calendar-phase-icon pull-right" [hidden]="!reservation">
+                            <span class="calendar-phase-icon float-end" [hidden]="!reservation">
                                 <img
                                     class="arrow_icon"
                                     src="/assets/images/icon-phase.png"
@@ -133,7 +133,7 @@
                 <div class="col-md-12">
                     <button
                         [disabled]="!reservation || confirming"
-                        class="btn btn-lg btn-success float-right"
+                        class="btn btn-lg btn-success float-end"
                         style="width: 100%; line-height: 1.5; border-radius: 3px"
                         (click)="confirmReservation()"
                         tabindex="0"
@@ -145,7 +145,7 @@
             <div class="row mart20 marb10 marr10 marl10 align-items-center">
                 <div class="col-md-12">
                     <button
-                        class="btn btn-lg btn-outline-secondary float-right"
+                        class="btn btn-lg btn-outline-secondary float-end"
                         style="width: 100%; line-height: 1.5; border-radius: 3px"
                         (click)="cancel()"
                     >

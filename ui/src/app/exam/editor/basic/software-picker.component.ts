@@ -26,11 +26,12 @@ import type { Exam, Software } from '../../exam.model';
             <div class="row">
                 <div class="col-md-3 exam-basic-title">
                     {{ 'sitnet_machine_softwares' | translate }}
-                    <sup>
+                    <sup
+                        ngbPopover="{{ 'sitnet_exam_software_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    >
                         <img
-                            ngbPopover="{{ 'sitnet_exam_software_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
                             src="/assets/images/icon_tooltip.svg"
                             alt="exam"
                             onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"

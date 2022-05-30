@@ -24,7 +24,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
     >
         <div *ngIf="option.answered">
             <div *ngIf="option.option.correctOption" class="exam-answered-correct">
-                <div class="make-inline pull-left">
+                <div class="make-inline float-start">
                     <img
                         *ngIf="option.answered"
                         src="/assets/images/icon_correct_answer_radio.png"
@@ -37,7 +37,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                 </div>
             </div>
             <div *ngIf="!option.option.correctOption" class="exam-answered-wrong">
-                <div class="make-inline pull-left">
+                <div class="make-inline float-start">
                     <img
                         *ngIf="option.answered"
                         src="/assets/images/icon_wrong_answer_radio.png"
@@ -52,7 +52,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
         </div>
         <div *ngIf="!option.answered">
             <div class="exam-not-answered">
-                <div class="make-inline pull-left">
+                <div class="make-inline float-start">
                     <img
                         *ngIf="option.option.correctOption"
                         src="/assets/images/icon_correct_answer_radio.png"

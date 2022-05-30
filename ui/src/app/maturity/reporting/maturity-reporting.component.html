@@ -7,7 +7,7 @@
                 }}</span>
                 <span class="print-only compact-header-text">{{ month | date: 'MM/yyyy' }}</span>
             </div>
-            <div class="review-attachment-button print-button pull-right marr20 no-print">
+            <div class="review-attachment-button print-button float-end marr20 no-print">
                 <a (click)="printReport()" class="pointer"> {{ 'sitnet_print' | translate }}&nbsp;&nbsp; </a>
             </div>
         </div>
@@ -17,14 +17,14 @@
         <div class="detail-row">
             <div class="col-md-12 mb-3 no-print">
                 <form class="form-inline">
-                    <label for="month" class="mr-2">{{ 'sitnet_month' | translate }}:</label>
+                    <label for="month" class="me-2">{{ 'sitnet_month' | translate }}:</label>
                     <xm-dropdown-select
                         id="month"
-                        class="input-group mr-2"
+                        class="input-group me-2"
                         [options]="months"
                         (optionSelected)="monthChanged($event)"
                     ></xm-dropdown-select>
-                    <label for="year" class="mr-2">{{ 'sitnet_year' | translate }}:</label>
+                    <label for="year" class="me-2">{{ 'sitnet_year' | translate }}:</label>
                     <xm-dropdown-select
                         id="year"
                         class="input-group"

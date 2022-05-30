@@ -1034,5 +1034,8 @@
   "sitnet_save_custom_time": "Tallenna mukautettu aika SV",
   "sitnet_edit_enrolment": "Edit enrolment SV",
   "sitnet_remove_byod_exam": "Poista omakonetentttitilaisuus. Poistoa ei voi peruuttaa. Ilmoittautuneille sekä kurssin opettajille lähetetään sähköposti tileisuuden peruuntumisesta. SV",
-  "sitnet_control": "Hallinta SV"
+  "sitnet_control": "Hallinta SV",
+  "sitnet_toolbar_import_questions": "Tuo kysymyksiä Moodlesta SV",
+  "sitnet_import_questions_detail": "Valitse Moodlen kysymysformaatissa oleva XML-tiedosto SV",
+  "sitnet_questions_imported_successfully": "Kysymykset tuotu onnistuneesti SV"
 }

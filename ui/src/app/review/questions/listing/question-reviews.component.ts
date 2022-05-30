@@ -23,7 +23,7 @@ import { QuestionReviewService } from '../question-review.service';
     selector: 'xm-question-reviews',
     template: `<div>
         <div class="p-2 mt-2">
-            <img class="mr-3" src="/assets/images/icon_info.png" alt="info" />
+            <img class="me-3" src="/assets/images/icon_info.png" alt="info" />
             <strong>{{ 'sitnet_question_review_info' | translate }}</strong>
             {{ 'sitnet_question_review_info_detailed' | translate }}
         </div>
@@ -43,7 +43,7 @@ import { QuestionReviewService } from '../question-review.service';
                 <div>
                     <button
                         [disabled]="selectedReviews.length === 0"
-                        class="btn btn-success pull-right"
+                        class="btn btn-success float-end"
                         (click)="startReview()"
                     >
                         {{ 'sitnet_review_selected' | translate }} ({{ selectedReviews.length }})
@@ -54,7 +54,7 @@ import { QuestionReviewService } from '../question-review.service';
             <span class="mart20 marb10 d-flex justify-content-between">
                 <span class="question-review-title">{{ 'sitnet_select_question_reviews' | translate }}</span>
                 <span class="form-group">
-                    <label class="mr-2" for="select-all">{{ 'sitnet_check_uncheck_all' | translate }}</label>
+                    <label class="me-2" for="select-all">{{ 'sitnet_check_uncheck_all' | translate }}</label>
                     <input id="select-all" type="checkbox" (change)="selectAll()" [(ngModel)]="selectionToggle" />
                 </span>
             </span>

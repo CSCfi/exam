@@ -28,7 +28,7 @@
             <div class="col warning-text">
                 {{ 'sitnet_exam_question_edit_instructions' | translate }}
                 <ul class="list-inline margin-10">
-                    <li>
+                    <li class="list-inline-item">
                         <span *ngFor="let name of examNames" class="exists-text">
                             <span class="padr10">{{ name }}</span>
                         </span>
@@ -39,32 +39,40 @@
     </div>
 
     <!-- Question editor -->
-    <div class="row">
-        <div class="col-md-12 mart40 wide-column">
+    <div class="row mt-3" *ngIf="!showWarning()">
+        <div class="col-md-12">
             <div class="review-list-title">
                 {{ 'sitnet_exam_basic_information_tab' | translate }}
-                <i *ngIf="showWarning()" class="bi-exclamation-circle padl20 reddish"></i>
-                <span class="warning-text-small pl-2" *ngIf="showWarning()">
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3" *ngIf="showWarning()">
+        <div class="col-md-12">
+            <div class="review-list-title">
+                {{ 'sitnet_exam_basic_information_tab' | translate }}
+                <i class="bi-exclamation-circle padl20 reddish"></i>
+                <span class="warning-text-small ps-2">
                     {{ 'sitnet_shared_question_property_info' | translate }}
                 </span>
             </div>
         </div>
     </div>
 
-    <div class="row mt-2">
+    <div class="row mt-3">
         <div class="col-md-3 exam-basic-title" *ngIf="question.id">
             {{ 'sitnet_question_id' | translate }}
         </div>
         <div class="col-md-9 padr0" *ngIf="question.id">#{{ question.id }}</div>
     </div>
-    <div class="row mt-2">
+    <div class="row mt-3">
         <div class="col-md-3 exam-basic-title">
             {{ 'sitnet_new_question_type' | translate }}
-            <sup>
+            <sup
+                ngbPopover="{{ 'sitnet_question_type_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
                 <img
-                    ngbPopover="{{ 'sitnet_question_type_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
                     src="/assets/images/icon_tooltip.svg"
                     alt="exam"
                     onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -76,7 +84,7 @@
                 [hidden]="question.type"
                 id="newQuestion"
                 name="newQuestion"
-                class="form-control wdtin"
+                class="form-select wdtin"
                 [(ngModel)]="newType"
                 (change)="setQuestionType()"
             >
@@ -100,14 +108,15 @@
         </div>
     </div>
     <div *ngIf="question.type">
-        <div class="row">
+        <div class="row mt-3">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_question_text' | translate }}
-                <sup>
+                <sup
+                    ngbPopover="{{ 'sitnet_question_text_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_question_text_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -129,14 +138,14 @@
             </div>
         </div>
 
-        <div class="row">
+        <div class="row mt-2">
             <!-- Evaluation -->
-            <div class="col-md-12 mart40 wide-column" *ngIf="question.type === 'EssayQuestion'">
+            <div class="col-md-12" *ngIf="question.type === 'EssayQuestion'">
                 <div class="review-list-title">{{ 'sitnet_comments' | translate }}</div>
             </div>
             <!-- Multiple choices -->
             <div
-                class="col-md-12 mart40 wide-column marb20"
+                class="col-md-12"
                 *ngIf="
                     question.type === 'MultipleChoiceQuestion' ||
                     question.type === 'WeightedMultipleChoiceQuestion' ||
@@ -175,7 +184,7 @@
         </div>
 
         <!-- Evaluation type - not allowed if question is in use in other published exam. -->
-        <div class="row" *ngIf="question.type === 'EssayQuestion'">
+        <div class="row mt-3" *ngIf="question.type === 'EssayQuestion'">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_evaluation_type' | translate }}
             </div>
@@ -183,7 +192,7 @@
                 <select
                     id="evaluationType"
                     name="evaluationType"
-                    class="form-control wdt240"
+                    class="form-select wdt240"
                     [(ngModel)]="question.defaultEvaluationType"
                     (change)="updateEvaluationType()"
                     required="question.type == 'EssayQuestion'"
@@ -196,7 +205,7 @@
 
         <!-- Max score -->
         <div
-            class="row mt-2"
+            class="row mt-3"
             *ngIf="
                 question.type === 'MultipleChoiceQuestion' ||
                 question.type === 'ClozeTestQuestion' ||
@@ -223,51 +232,53 @@
         </div>
 
         <!-- Additional info -->
-        <div class="row">
-            <div class="col-md-12 mart40 wide-column">
+        <div class="row mt-3">
+            <div class="col-md-12">
                 <div class="review-list-title">{{ 'sitnet_additional_info' | translate }}</div>
             </div>
         </div>
 
         <!-- Exam owners -->
-        <div class="row mt-2">
+        <div class="row mt-3 align-items-center">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_question_owners' | translate }}
-                <sup>
+                <sup
+                    ngbPopover="{{ 'sitnet_question_owners_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_question_owners_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
                     />
                 </sup>
             </div>
-            <div class="col-md-9" *ngIf="isUserAllowedToModifyOwners()">
-                <input
-                    type="text"
-                    name="questionOnwers"
-                    class="form-control wdth-30 make-inline"
-                    [(ngModel)]="newOwner.name"
-                    [ngbTypeahead]="listQuestionOwners$"
-                    [editable]="false"
-                    [inputFormatter]="nameFormat"
-                    [resultFormatter]="nameFormat"
-                    (selectItem)="setQuestionOwner($event)"
-                />
-                <span>
-                    <button (click)="addQuestionOwner()" class="btn btn-primary green border-green">
+            <div class="col-md-3" *ngIf="isUserAllowedToModifyOwners()">
+                <div class="input-group">
+                    <input
+                        type="text"
+                        name="questionOnwers"
+                        class="form-control"
+                        [(ngModel)]="newOwner.name"
+                        [ngbTypeahead]="listQuestionOwners$"
+                        [editable]="false"
+                        [inputFormatter]="nameFormat"
+                        [resultFormatter]="nameFormat"
+                        (selectItem)="setQuestionOwner($event)"
+                    />
+                    <button
+                        (click)="addQuestionOwner()"
+                        [disabled]="!newOwner?.name"
+                        class="btn btn-primary green border-green input-group-text"
+                    >
                         {{ 'sitnet_add' | translate }}
                     </button>
-                </span>
+                </div>
             </div>
-        </div>
-        <div class="row mt-2">
-            <div class="col-md-3 exam-basic-title"></div>
-            <div class="col-md-9" *ngIf="isUserAllowedToModifyOwners()">
-                <ul class="list-inline mart10 padl10">
-                    <li *ngFor="let user of currentOwners">
+            <div class="col-md-3">
+                <ul class="list-inline mart10 padl10" *ngIf="isUserAllowedToModifyOwners()">
+                    <li *ngFor="let user of currentOwners" class="list-inline-item">
                         {{ user.firstName }} {{ user.lastName }}
                         <button
                             class="reviewer-remove"
@@ -283,23 +294,24 @@
                         </button>
                     </li>
                 </ul>
-            </div>
-            <div class="col-md-9" *ngIf="!isUserAllowedToModifyOwners()">
-                <span *ngFor="let user of currentOwners" class="label label-default pr-2">
-                    {{ user.firstName }} {{ user.lastName }}
-                </span>
+                <div *ngIf="!isUserAllowedToModifyOwners()">
+                    <span *ngFor="let user of currentOwners" class="label label-default pe-2">
+                        {{ user.firstName }} {{ user.lastName }}
+                    </span>
+                </div>
             </div>
         </div>
 
         <!-- Attachment -->
-        <div class="row mt-2">
+        <div class="row mt-3 align-items-center">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_question_attachment' | translate }}
-                <sup>
+                <sup
+                    ngbPopover="{{ 'sitnet_attachment_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_attachment_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -340,14 +352,15 @@
         </div>
 
         <!-- Instructions -->
-        <div class="row mt-2">
+        <div class="row mt-3">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_question_instruction' | translate }}
-                <sup>
+                <sup
+                    ngbPopover="{{ 'sitnet_question_instruction_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_question_instruction_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -368,14 +381,15 @@
         </div>
 
         <!-- Evaluation criteria -->
-        <div class="row mt-2" *ngIf="question.type === 'EssayQuestion'">
+        <div class="row mt-3" *ngIf="question.type === 'EssayQuestion'">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_evaluation_criteria' | translate }}
-                <sup>
+                <sup
+                    ngbPopover="{{ 'sitnet_question_evaluation_criteria_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
                     <img
-                        ngbPopover="{{ 'sitnet_question_evaluation_criteria_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -399,13 +413,13 @@
         <xm-tag-picker *ngIf="!collaborative" [question]="question"></xm-tag-picker>
 
         <!-- Categories -->
-        <div class="row mt-2">
+        <div class="row mt-3" *ngIf="sectionNames.length > 0">
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_added_to_sections' | translate }}
             </div>
             <div class="col-md-9 padr0">
                 <ul class="list-inline mart10">
-                    <li *ngFor="let name of sectionNames">{{ name }}</li>
+                    <li *ngFor="let name of sectionNames" class="list-inline-item">{{ name }}</li>
                 </ul>
             </div>
         </div>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+    <!-- question: 1345 -->
+    <question type="multichoice">
+        <name>
+            <text>Monivalinta - monta valitaan - 4 vaihtoehtoa joista kolmesta +1 piste ja yhdestä -3 pistettä.</text>
+        </name>
+        <questiontext format="html">
+            <text><![CDATA[<p>Valitse yksi tai useampi oikea<br></p>]]></text>
+        </questiontext>
+        <generalfeedback format="html">
+            <text></text>
+        </generalfeedback>
+        <defaultgrade>3</defaultgrade>
+        <penalty>0.3333333</penalty>
+        <hidden>0</hidden>
+        <idnumber></idnumber>
+        <single>false</single>
+        <shuffleanswers>true</shuffleanswers>
+        <answernumbering>abc</answernumbering>
+        <correctfeedback format="html">
+            <text>Vastauksesi on oikein.</text>
+        </correctfeedback>
+        <partiallycorrectfeedback format="html">
+            <text>Vastauksesi on osittain oikein.</text>
+        </partiallycorrectfeedback>
+        <incorrectfeedback format="html">
+            <text>Vastauksesi on väärin.</text>
+        </incorrectfeedback>
+        <shownumcorrect/>
+        <answer fraction="33.33333" format="html">
+            <text><![CDATA[<p>Eka<br></p>]]></text>
+            <feedback format="html">
+                <text></text>
+            </feedback>
+        </answer>
+        <answer fraction="33.33333" format="html">
+            <text><![CDATA[<p>Toka<br></p>]]></text>
+            <feedback format="html">
+                <text></text>
+            </feedback>
+        </answer>
+        <answer fraction="33.33333" format="html">
+            <text><![CDATA[<p>Koka<br></p>]]></text>
+            <feedback format="html">
+                <text></text>
+            </feedback>
+        </answer>
+        <answer fraction="-100" format="html">
+            <text><![CDATA[<p>Väärä<br></p>]]></text>
+            <feedback format="html">
+                <text></text>
+            </feedback>
+        </answer>
+        <hint format="html">
+            <text></text>
+            <shownumcorrect/>
+            <clearwrong/>
+        </hint>
+        <hint format="html">
+            <text></text>
+            <clearwrong/>
+        </hint>
+    </question>
+</quiz>

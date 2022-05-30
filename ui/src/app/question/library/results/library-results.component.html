@@ -114,7 +114,7 @@
                                 <span *ngIf="disableLinks">#{{ question.id }}</span>
                                 <i
                                     *ngIf="question.questionOwners.length > 1"
-                                    class="bi-people pl-2 text-primary"
+                                    class="bi-people ps-2 text-primary"
                                     ngbPopover="{{ 'sitnet_question_owners' | translate }}: {{ printOwners(question) }}"
                                     popoverTitle="{{ 'sitnet_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"

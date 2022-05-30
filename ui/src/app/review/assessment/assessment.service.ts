@@ -20,7 +20,7 @@ import type { StateDeclaration } from '@uirouter/core';
 import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import { from, noop, of, throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import type { ReviewedExam } from '../../enrolment/enrolment.model';
 import type { Exam, ExamLanguage, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
@@ -168,8 +168,9 @@ export class AssessmentService {
             }
             const payload = this.getPayload(exam, 'GRADED');
             if (needsConfirmation) {
-                const dialog = this.Confirmation.open(this.translate.instant('sitnet_confirm'), dialogNote);
-                return from(dialog.result).pipe(switchMap(() => this.register$(exam, res, payload)));
+                return this.Confirmation.open$(this.translate.instant('sitnet_confirm'), dialogNote).pipe(
+                    switchMap(() => this.register$(exam, res, payload)),
+                );
             } else {
                 return this.sendToRegistry$(payload, res);
             }
@@ -232,11 +233,10 @@ export class AssessmentService {
                 if (newState !== 'GRADED' || oldState === 'GRADED') {
                     this.sendAssessment(newState, payload, messages, exam);
                 } else {
-                    const dialog = this.Confirmation.open(
+                    this.Confirmation.open$(
                         this.translate.instant('sitnet_confirm'),
                         this.translate.instant('sitnet_confirm_grade_review'),
-                    );
-                    dialog.result.then(() => this.sendAssessment(newState, payload, messages, exam)).catch(noop);
+                    ).subscribe(() => this.sendAssessment(newState, payload, messages, exam));
                 }
             }
         }
@@ -257,11 +257,9 @@ export class AssessmentService {
         );
 
         if (askConfirmation) {
-            return of(
-                this.Confirmation.open(
-                    this.translate.instant('sitnet_confirm'),
-                    this.translate.instant('sitnet_confirm_maturity_disapproval'),
-                ).result,
+            return this.Confirmation.open$(
+                this.translate.instant('sitnet_confirm'),
+                this.translate.instant('sitnet_confirm_maturity_disapproval'),
             ).pipe(switchMap(() => reject));
         } else {
             return reject;

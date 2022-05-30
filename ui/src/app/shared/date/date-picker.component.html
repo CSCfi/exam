@@ -16,7 +16,12 @@
             (blur)="dateChange()"
         />
         <div class="input-group-append">
-            <button class="btn btn-primary green border-green" [disabled]="disabled" (click)="d.toggle()" type="button">
+            <button
+                class="btn btn-primary green border-green rounded-0 rounded-end"
+                [disabled]="disabled"
+                (click)="d.toggle()"
+                type="button"
+            >
                 <img
                     src="/assets/images/reservation_calendar.svg"
                     alt="exam"
@@ -29,10 +34,10 @@
 </form>
 <ng-template #footerTemplate>
     <hr class="my-0" />
-    <button class="btn btn-primary btn-sm m-2 float-left" (click)="date = today; dateChange(); d.close()">
+    <button class="btn btn-primary btn-sm m-2 float-start" (click)="date = today; dateChange(); d.close()">
         {{ 'sitnet_today' | translate }}
     </button>
-    <button class="btn btn-secondary btn-sm m-2 float-right" (click)="date = null; d.close()">
+    <button class="btn btn-secondary btn-sm m-2 float-end" (click)="date = null; d.close()">
         {{ 'sitnet_clear' | translate }}
     </button>
 </ng-template>

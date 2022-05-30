@@ -4,10 +4,10 @@
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_instructor' | translate }}
                 <sup
+                    ngbPopover="{{ 'sitnet_exam_instructor_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
                     ><img
-                        ngbPopover="{{ 'sitnet_exam_instructor_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
@@ -24,9 +24,9 @@
                     [resultFormatter]="nameFormatter"
                     placeholder="{{ 'sitnet_name' | translate }}"
                 />
-                <label class="ml-2">
+                <label class="ms-2">
                     <input type="checkbox" [(ngModel)]="newInspector.sendMessage" [disabled]="!newInspector.id" />
-                    <span class="pl-1">{{ 'sitnet_write_message' | translate }}</span>
+                    <span class="ps-1">{{ 'sitnet_write_message' | translate }}</span>
                 </label>
             </div>
         </div>
@@ -43,7 +43,7 @@
                     [disabled]="!newInspector.sendMessage"
                 >
                 </textarea>
-                <span class="ml-2"
+                <span class="ms-2"
                     ><button (click)="addInspector()" class="btn btn-primary green border-green vbottom marb5">
                         {{ 'sitnet_add' | translate }}
                     </button>
@@ -57,7 +57,7 @@
         <div class="row">
             <div class="col-md-9 offset-md-3">
                 <ul class="list-inline mart10">
-                    <li *ngFor="let inspection of examInspections">
+                    <li *ngFor="let inspection of examInspections" class="list-inline-item">
                         {{ inspection.user.firstName }} {{ inspection.user.lastName }} ({{ inspection.user.email }})
                         <button
                             class="reviewer-remove"

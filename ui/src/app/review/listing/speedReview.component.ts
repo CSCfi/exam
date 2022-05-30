@@ -144,21 +144,24 @@ export class SpeedReviewComponent implements OnInit {
 
     gradeExams = () => {
         const reviews = this.examReviews.filter((r) => r.selectedGrade && r.selectedGrade.type && this.isGradeable(r));
-        this.Confirmation.open(
+        this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_confirm_grade_review'),
-        ).result.then(() => {
-            forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
-                this.toast.info(this.translate.instant('sitnet_saved'));
-                if (this.examReviews.length === 0) {
-                    this.state.go('staff.examEditor.assessments', { id: this.routing.params.id });
-                }
-            });
+        ).subscribe({
+            next: () => {
+                forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
+                    this.toast.info(this.translate.instant('sitnet_saved'));
+                    if (this.examReviews.length === 0) {
+                        this.state.go('staff.examEditor.assessments', { id: this.routing.params.id });
+                    }
+                });
+            },
+            error: this.toast.error,
         });
     };
 
     importGrades = () => {
-        this.Attachment.selectFile(false, 'sitnet_import_grades_from_csv')
+        this.Attachment.selectFile(false, {}, 'sitnet_import_grades_from_csv')
             .then((result) => {
                 this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload);
                 this.toast.success(`${this.translate.instant('sitnet_csv_uploaded_successfully')}`);

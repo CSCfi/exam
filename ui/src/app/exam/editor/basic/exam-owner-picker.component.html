@@ -4,30 +4,30 @@
             <div class="col-md-3 exam-basic-title">
                 {{ 'sitnet_exam_owners' | translate }}
                 <sup
+                    ngbPopover="{{ 'sitnet_exam_owner_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
                     ><img
-                        ngbPopover="{{ 'sitnet_exam_owner_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
                         src="/assets/images/icon_tooltip.svg"
                         alt="exam"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
                 /></sup>
             </div>
             <div class="col-md-9">
-                <input
-                    type="text"
-                    class="form-control wdth-30 make-inline"
-                    [(ngModel)]="newOwner.name"
-                    [ngbTypeahead]="listOwners$"
-                    [inputFormatter]="nameFormatter"
-                    [resultFormatter]="nameFormatter"
-                    (selectItem)="setExamOwner($event)"
-                />
-                <span
-                    ><button (click)="addExamOwner()" class="btn btn-primary green border-green">
+                <div class="input-group">
+                    <input
+                        type="text"
+                        class="form-control wdth-30 make-inline"
+                        [(ngModel)]="newOwner.name"
+                        [ngbTypeahead]="listOwners$"
+                        [inputFormatter]="nameFormatter"
+                        [resultFormatter]="nameFormatter"
+                        (selectItem)="setExamOwner($event)"
+                    />
+                    <button (click)="addExamOwner()" class="btn btn-primary green border-green">
                         {{ 'sitnet_add' | translate }}
-                    </button></span
-                >
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -37,10 +37,10 @@
         <div class="row">
             <div class="col-md-9 offset-md-3">
                 <ul class="list-inline mart10">
-                    <li *ngFor="let user of examOwners">
+                    <li *ngFor="let user of examOwners" class="list-inline-item">
                         {{ user.firstName }} {{ user.lastName }} ({{ user.email }})
                         <button
-                            class="reviewer-remove"
+                            class="reviewer-remove input-group-text"
                             [disabled]="examOwners.length === 1"
                             (click)="removeOwner(user.id)"
                             title="{{ 'sitnet_remove' | translate }}"
