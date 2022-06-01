@@ -561,6 +561,12 @@ public class CalendarHandlerImpl implements CalendarHandler {
         }
     }
 
+    @Override
+    public DateTime normalizeMaintenanceTime(DateTime dateTime) {
+        DateTimeZone dtz = configReader.getDefaultTimeZone();
+        return dtz.isStandardOffset(dateTime.getMillis()) ? dateTime : dateTime.plusHours(1);
+    }
+
     private void postProcessRemoval(Reservation reservation, Exam exam, User user, JsonNode node) {
         // Attach the external machine data just so that email can be generated
         reservation.setMachine(parseExternalMachineData(node));
@@ -685,10 +691,5 @@ public class CalendarHandlerImpl implements CalendarHandler {
             .map(oh -> oh.getHours().getEnd().minusMillis(oh.getTimezoneOffset()))
             .findFirst()
             .orElseThrow(() -> new RuntimeException("slot not contained within opening hours, recheck logic!"));
-    }
-
-    private DateTime normalizeMaintenanceTime(DateTime dateTime) {
-        DateTimeZone dtz = configReader.getDefaultTimeZone();
-        return dtz.isStandardOffset(dateTime.getMillis()) ? dateTime : dateTime.plusHours(1);
     }
 }
