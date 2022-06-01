@@ -63,6 +63,8 @@ public interface CalendarHandler {
     );
     Set<CalendarHandler.TimeSlot> postProcessSlots(JsonNode node, String date, Exam exam, User user);
 
+    DateTime normalizeMaintenanceTime(DateTime dateTime);
+
     class TimeSlot {
 
         Interval interval;

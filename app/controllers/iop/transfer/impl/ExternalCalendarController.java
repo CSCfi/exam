@@ -40,6 +40,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
@@ -47,6 +48,7 @@ import models.ExamMachine;
 import models.ExamRoom;
 import models.Reservation;
 import models.User;
+import models.calendar.MaintenancePeriod;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
@@ -226,9 +228,29 @@ public class ExternalCalendarController extends CalendarController {
                     .ne("outOfService", true)
                     .ne("archived", true)
                     .findList();
+                // Maintenance periods
+                List<Interval> periods = Ebean
+                    .find(MaintenancePeriod.class)
+                    .where()
+                    .gt("endsAt", searchDate.toDate())
+                    .findList()
+                    .stream()
+                    .map(p ->
+                        new Interval(
+                            calendarHandler.normalizeMaintenanceTime(p.getStartsAt()),
+                            calendarHandler.normalizeMaintenanceTime(p.getEndsAt())
+                        )
+                    )
+                    .collect(Collectors.toList());
                 LocalDate endOfSearch = getEndSearchDate(end.get(), searchDate);
                 while (!searchDate.isAfter(endOfSearch)) {
-                    Set<CalendarHandler.TimeSlot> timeSlots = getExamSlots(room, duration.get(), searchDate, machines);
+                    Set<CalendarHandler.TimeSlot> timeSlots = getExamSlots(
+                        room,
+                        duration.get(),
+                        searchDate,
+                        machines,
+                        periods
+                    );
                     if (!timeSlots.isEmpty()) {
                         slots.addAll(timeSlots);
                     }
@@ -420,10 +442,15 @@ public class ExternalCalendarController extends CalendarController {
         ExamRoom room,
         Integer examDuration,
         LocalDate date,
-        Collection<ExamMachine> machines
+        Collection<ExamMachine> machines,
+        Collection<Interval> maintenances
     ) {
         Set<CalendarHandler.TimeSlot> slots = new LinkedHashSet<>();
-        Collection<Interval> examSlots = calendarHandler.gatherSuitableSlots(room, date, examDuration);
+        Collection<Interval> examSlots = calendarHandler
+            .gatherSuitableSlots(room, date, examDuration)
+            .stream()
+            .filter(slot -> maintenances.stream().noneMatch(p -> p.overlaps(slot)))
+            .collect(Collectors.toList());
         // Check machine availability for each slot
         for (Interval slot : examSlots) {
             // Check machine availability

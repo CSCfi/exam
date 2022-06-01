@@ -48,6 +48,7 @@ import sanitizers.Attrs;
 import sanitizers.CalendarReservationSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
+import util.config.ConfigReader;
 import util.datetime.DateTimeUtils;
 
 public class CalendarController extends BaseController {
@@ -60,6 +61,9 @@ public class CalendarController extends BaseController {
 
     @Inject
     protected ActorSystem system;
+
+    @Inject
+    protected ConfigReader configReader;
 
     @Inject
     protected ExternalReservationHandler externalReservationHandler;
