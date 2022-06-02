@@ -17,10 +17,12 @@ import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { addDays, addMonths } from 'date-fns';
+import { addDays } from 'date-fns';
+import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import { ExaminationEventConfiguration } from '../../exam.model';
+import { Exam, ExaminationEventConfiguration } from '../../exam.model';
+import { ExamService } from '../../exam.service';
 
 @Component({
     selector: 'xm-examination-event-search',
@@ -40,7 +42,6 @@ import { ExaminationEventConfiguration } from '../../exam.model';
 })
 export class ExaminationEventSearchComponent implements OnInit {
     date = new Date();
-    datePlus = addMonths(new Date(), 1); // Might need configurable value for the month
     startDate: Date | null = this.date;
     endDate: Date | null = this.date;
     processedEvents: ExaminationEventConfiguration[] = [];
@@ -54,6 +55,8 @@ export class ExaminationEventSearchComponent implements OnInit {
         private translate: TranslateService,
         private http: HttpClient,
         private ConfirmationDialog: ConfirmationDialogService,
+        private Exam: ExamService,
+        private toast: ToastrService,
     ) {}
 
     ngOnInit() {
@@ -120,13 +123,34 @@ export class ExaminationEventSearchComponent implements OnInit {
         this.sorting.predicate = predicate;
     };
 
-    removeExamination = () => {
-        const dialog = this.ConfirmationDialog.open(
+    forceRemoveExam = (exam: Exam, configuration: ExaminationEventConfiguration) => {
+        const removeEvent = this.Exam.removeExaminationEvent$(exam.id, configuration).subscribe({
+            next: () => {
+                exam.examinationEventConfigurations?.splice(
+                    exam.examinationEventConfigurations.indexOf(configuration),
+                    1,
+                );
+                this.query();
+            },
+            error: this.toast.error,
+        });
+
+        this.ConfirmationDialog.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_byod_exam'),
-        );
-        /*TODO        dialog.result.then(() =>
-        );*/
+        ).subscribe({
+            next: () => {
+                if (configuration.examEnrolments?.length > 0) {
+                    this.Exam.removeAllEventEnrolmentConfigs$(configuration).subscribe({
+                        next: () => removeEvent.unsubscribe(),
+                        error: this.toast.error,
+                    });
+                } else {
+                    removeEvent.unsubscribe();
+                }
+            },
+            error: this.toast.error,
+        });
     };
 
     private examToString = (eec: ExaminationEventConfiguration) => {

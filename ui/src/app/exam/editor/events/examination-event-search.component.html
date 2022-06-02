@@ -30,7 +30,7 @@
                 <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
                 <xm-date-picker
                     [optional]="true"
-                    [initialDate]="datePlus"
+                    [initialDate]="date"
                     (updated)="endDateChanged($event)"
                 ></xm-date-picker>
             </div>
@@ -110,16 +110,6 @@
                         </xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <xm-table-sort
-                            by="examEnrolments.length"
-                            text="sitnet_control"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
-                            (click)="setPredicate('examEnrolments.length')"
-                        >
-                        </xm-table-sort>
-                    </th>
-                    <th class="with-top">
                         {{ 'sitnet_control' | translate }}
                     </th>
                 </tr>
@@ -160,7 +150,7 @@
                     </td>
                     <!-- 6 -->
                     <td>
-                        <button class="rounded warning" (click)="removeExamination()">
+                        <button class="rounded warning" (click)="forceRemoveExam(event.exam, event)">
                             {{ 'sitnet_remove' | translate }}
                         </button>
                     </td>

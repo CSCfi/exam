@@ -25,10 +25,7 @@ import impl.ExternalCourseHandler;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -607,6 +604,37 @@ public class EnrolmentController extends BaseController {
                 },
                 actor.dispatcher()
             );
+        return ok();
+    }
+
+    @Restrict({ @Group("Teacher"), @Group("ADMIN") })
+    public Result removeAllEventEnrolmentConfigs(Long enrolmentId) {
+        Set<ExamEnrolment> enrolments = Ebean
+            .find(ExamEnrolment.class)
+            .where()
+            .eq("examinationEventConfiguration.id", enrolmentId)
+            .eq("exam.state", Exam.State.PUBLISHED)
+            .findSet();
+        enrolments.forEach(enrolment -> {
+            enrolment.setExaminationEventConfiguration(null);
+            enrolment.update();
+        });
+        enrolments.forEach(enrolment ->
+            actor
+                .scheduler()
+                .scheduleOnce(
+                    Duration.create(1, TimeUnit.SECONDS),
+                    () -> {
+                        emailComposer.composeExaminationEventCancellationNotification(
+                            enrolment.getUser(),
+                            enrolment,
+                            enrolment.getExaminationEventConfiguration().getExaminationEvent()
+                        );
+                    },
+                    actor.dispatcher()
+                )
+        );
+        logger.info("Examination event cancellation notification email sent to {} participants", enrolments.size());
         return ok();
     }
 
