@@ -123,8 +123,8 @@ export class ExaminationEventSearchComponent implements OnInit {
         this.sorting.predicate = predicate;
     };
 
-    forceRemoveExam = (exam: Exam, configuration: ExaminationEventConfiguration) => {
-        const removeEvent = this.Exam.removeExaminationEvent$(exam.id, configuration).subscribe({
+    removeEvent = (exam: Exam, configuration: ExaminationEventConfiguration) =>
+        this.Exam.removeExaminationEvent$(exam.id, configuration).subscribe({
             next: () => {
                 exam.examinationEventConfigurations?.splice(
                     exam.examinationEventConfigurations.indexOf(configuration),
@@ -135,6 +135,7 @@ export class ExaminationEventSearchComponent implements OnInit {
             error: this.toast.error,
         });
 
+    forceRemoveExam = (exam: Exam, configuration: ExaminationEventConfiguration) => {
         this.ConfirmationDialog.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_byod_exam'),
@@ -142,11 +143,13 @@ export class ExaminationEventSearchComponent implements OnInit {
             next: () => {
                 if (configuration.examEnrolments?.length > 0) {
                     this.Exam.removeAllEventEnrolmentConfigs$(configuration).subscribe({
-                        next: () => removeEvent.unsubscribe(),
+                        next: () => {
+                            this.removeEvent(exam, configuration).unsubscribe();
+                        },
                         error: this.toast.error,
                     });
                 } else {
-                    removeEvent.unsubscribe();
+                    this.removeEvent(exam, configuration).unsubscribe();
                 }
             },
             error: this.toast.error,

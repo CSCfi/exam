@@ -607,7 +607,7 @@ public class EnrolmentController extends BaseController {
         return ok();
     }
 
-    @Restrict({ @Group("Teacher"), @Group("ADMIN") })
+    @Restrict({ @Group("ADMIN") })
     public Result removeAllEventEnrolmentConfigs(Long enrolmentId) {
         Set<ExamEnrolment> enrolments = Ebean
             .find(ExamEnrolment.class)

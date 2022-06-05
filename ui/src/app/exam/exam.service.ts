@@ -283,7 +283,7 @@ export class ExamService {
         this.http.put<ExaminationEventConfiguration>(`/app/exam/${examId}/examinationevents/${config.id}`, config);
 
     removeAllEventEnrolmentConfigs$ = (config: ExaminationEventConfiguration) =>
-        this.http.delete<void>(`/app/enrolments/${config.id}/configs`);
+        this.http.delete<void>(`/app/enrolments/configs/${config.id}`);
 
     removeExaminationEvent$ = (examId: number, config: ExaminationEventConfiguration) =>
         this.http.delete<void>(`/app/exam/${examId}/examinationevents/${config.id}`);

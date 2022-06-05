@@ -173,7 +173,8 @@ PUT           /app/enrolments/:eid                                     controlle
 GET           /app/enrolments/room/:hash                               controllers.EnrolmentController.getRoomInfoFromEnrolment(hash: String, request: Request)
 POST          /app/enrolments/:eid/examination/:cid                    controllers.EnrolmentController.addExaminationEventConfig(eid: Long, cid: Long, request: Request)
 DELETE        /app/enrolments/:eid/examination                         controllers.EnrolmentController.removeExaminationEventConfig(eid: Long, request: Request)
-DELETE        /app/enrolments/:eid/configs                             controllers.EnrolmentController.removeAllEventEnrolmentConfigs(eid: Long)
+DELETE        /app/enrolments/configs/:eecid                           controllers.EnrolmentController.removeAllEventEnrolmentConfigs(eecid: Long)
+
 
 ############### Courses interface ###############
 GET           /app/courses                                             controllers.CourseController.getCourses(filter: Option[String], q: Option[String])
