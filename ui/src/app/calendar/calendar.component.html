@@ -40,7 +40,7 @@
             [minDate]="minDate"
             [maxDate]="maxDate"
             [disabled]="!sectionSelectionOk()"
-            (onCancel)="makeExternalReservation()"
+            (cancelled)="makeExternalReservation()"
             (selected)="createReservation($event)"
         >
         </xm-calendar-slot-picker>
