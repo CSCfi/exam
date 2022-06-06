@@ -20,6 +20,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { addDays } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
+import { EnrolmentService } from '../../../enrolment/enrolment.service';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
 import { Exam, ExaminationEventConfiguration } from '../../exam.model';
 import { ExamService } from '../../exam.service';
@@ -56,6 +57,7 @@ export class ExaminationEventSearchComponent implements OnInit {
         private http: HttpClient,
         private ConfirmationDialog: ConfirmationDialogService,
         private Exam: ExamService,
+        private Enrolment: EnrolmentService,
         private toast: ToastrService,
     ) {}
 
@@ -142,7 +144,7 @@ export class ExaminationEventSearchComponent implements OnInit {
         ).subscribe({
             next: () => {
                 if (configuration.examEnrolments?.length > 0) {
-                    this.Exam.removeAllEventEnrolmentConfigs$(configuration).subscribe({
+                    this.Enrolment.removeAllEventEnrolmentConfigs$(configuration).subscribe({
                         next: () => {
                             this.removeEvent(exam, configuration).unsubscribe();
                         },

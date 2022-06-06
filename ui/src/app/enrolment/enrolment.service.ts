@@ -238,6 +238,9 @@ export class EnrolmentService {
         });
     };
 
+    removeAllEventEnrolmentConfigs$ = (config: ExaminationEventConfiguration) =>
+        this.http.delete<void>(`/app/enrolments/configs/${config.id}`);
+
     setCommentRead = (exam: Exam | ReviewedExam) => {
         if (!this.isCommentRead(exam)) {
             const examFeedback = {
