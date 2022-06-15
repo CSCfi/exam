@@ -63,11 +63,7 @@
                         required
                     />
                     <div class="input-group-append">
-                        <button
-                            class="btn btn-primary green border-green"
-                            type="button"
-                            (click)="togglePasswordInputType()"
-                        >
+                        <button class="btn btn-primary green" type="button" (click)="togglePasswordInputType()">
                             <i [ngClass]="pwdInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
                         </button>
                     </div>

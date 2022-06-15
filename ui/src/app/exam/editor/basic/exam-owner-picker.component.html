@@ -24,7 +24,7 @@
                         [resultFormatter]="nameFormatter"
                         (selectItem)="setExamOwner($event)"
                     />
-                    <button (click)="addExamOwner()" class="btn btn-primary green border-green">
+                    <button (click)="addExamOwner()" class="btn btn-primary green">
                         {{ 'sitnet_add' | translate }}
                     </button>
                 </div>
@@ -40,7 +40,7 @@
                     <li *ngFor="let user of examOwners" class="list-inline-item">
                         {{ user.firstName }} {{ user.lastName }} ({{ user.email }})
                         <button
-                            class="reviewer-remove input-group-text"
+                            class="reviewer-remove"
                             [disabled]="examOwners.length === 1"
                             (click)="removeOwner(user.id)"
                             title="{{ 'sitnet_remove' | translate }}"

@@ -51,7 +51,7 @@ import { QuestionDraft } from '../question.service';
                             [inputFormatter]="nameFormat"
                         />
                         <button
-                            class="input-group-text btn btn-primary green border-green"
+                            class="input-group-text btn btn-primary green"
                             (click)="addTag()"
                             [disabled]="!newTag || newTag.name.length < 2"
                         >

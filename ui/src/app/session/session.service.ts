@@ -121,20 +121,20 @@ export class SessionService implements OnDestroy {
         return user ? user.lang : 'en';
     };
 
-    translate(lang: string) {
-        this.i18n.use(lang);
+    translate$(lang: string) {
+        return this.i18n.use(lang);
     }
 
     switchLanguage(lang: string) {
         const user = this.getUser();
         if (!user) {
-            this.translate(lang);
+            this.translate$(lang).subscribe();
         } else {
             this.http.put('/app/user/lang', { lang: lang }).subscribe({
                 next: () => {
                     user.lang = lang;
                     this.webStorageService.set('EXAM_USER', user);
-                    this.translate(lang);
+                    this.translate$(lang).subscribe();
                 },
                 error: () => this.toast.error('failed to switch language'),
             });
@@ -193,7 +193,7 @@ export class SessionService implements OnDestroy {
                 password: password,
             })
             .pipe(
-                map((u) => this.prepareUser(u)),
+                switchMap((u) => this.prepareUser$(u)),
                 switchMap((u) => this.processLogin$(u)),
                 tap((u) => {
                     this.webStorageService.set('EXAM_USER', u);
@@ -250,7 +250,7 @@ export class SessionService implements OnDestroy {
         );
     }
 
-    private prepareUser(user: User): User {
+    private prepareUser$(user: User): Observable<User> {
         user.roles.forEach((role) => {
             switch (role.name) {
                 case 'ADMIN':
@@ -270,16 +270,16 @@ export class SessionService implements OnDestroy {
 
         const loginRole = user.roles.length === 1 ? user.roles[0].name : null;
         const isTeacher = loginRole != null && loginRole === 'TEACHER';
-        this.translate(user.lang);
-
-        return {
-            ...user,
-            loginRole: loginRole,
-            isTeacher: isTeacher,
-            isAdmin: loginRole != null && loginRole === 'ADMIN',
-            isStudent: loginRole != null && loginRole === 'STUDENT',
-            isLanguageInspector: isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
-        };
+        return this.translate$(user.lang).pipe(
+            map(() => ({
+                ...user,
+                loginRole: loginRole,
+                isTeacher: isTeacher,
+                isAdmin: loginRole != null && loginRole === 'ADMIN',
+                isStudent: loginRole != null && loginRole === 'STUDENT',
+                isLanguageInspector: isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
+            })),
+        );
     }
 
     private onLogoutSuccess(data: { logoutUrl: string }): void {
