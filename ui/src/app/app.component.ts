@@ -73,7 +73,7 @@ export class AppComponent implements OnInit, OnDestroy {
                 this.Session.logout();
                 return;
             }
-            this.Session.translate(user.lang);
+            this.Session.translate$(user.lang).subscribe();
             this.Session.restartSessionCheck();
             this.user = user;
         } else {

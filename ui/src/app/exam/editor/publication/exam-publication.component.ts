@@ -282,7 +282,9 @@ export class ExamPublicationComponent implements OnInit {
         modalRef.componentInstance.examId = this.exam.id;
         modalRef.result
             .then((data: ExaminationEventConfiguration) => this.exam.examinationEventConfigurations.push(data))
-            .catch((err) => this.toast.error(err));
+            .catch((err) => {
+                if (err) this.toast.error(err);
+            });
     };
 
     modifyExaminationEvent = (configuration: ExaminationEventConfiguration) => {
@@ -301,7 +303,9 @@ export class ExamPublicationComponent implements OnInit {
                 const index = this.exam.examinationEventConfigurations.indexOf(configuration);
                 this.exam.examinationEventConfigurations.splice(index, 1, config);
             })
-            .catch((err) => this.toast.error(err));
+            .catch((err) => {
+                if (err) this.toast.error(err);
+            });
     };
 
     removeExaminationEvent = (configuration: ExaminationEventConfiguration) => {

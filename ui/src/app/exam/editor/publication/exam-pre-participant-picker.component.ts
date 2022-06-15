@@ -37,7 +37,7 @@ import type { Exam, ExamParticipation } from '../../exam.model';
                     <button
                         [disabled]="!myForm.valid || !newPreParticipant.email"
                         (click)="addPreParticipant()"
-                        class="btn btn-primary green border-green"
+                        class="btn btn-primary green"
                     >
                         {{ 'sitnet_add' | translate }}
                     </button>
