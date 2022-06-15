@@ -39,7 +39,7 @@ import type { Exam, Software } from '../../exam.model';
                     </sup>
                 </div>
                 <div class="col-md-9">
-                    <div class="dropdown" ngbDropdown>
+                    <div ngbDropdown>
                         <button
                             ngbDropdownToggle
                             class="btn btn-outline-dark"
