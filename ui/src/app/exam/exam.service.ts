@@ -14,6 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { StateService } from '@uirouter/angular';
 import { parseISO } from 'date-fns';
@@ -52,6 +53,7 @@ export class ExamService {
     constructor(
         private translate: TranslateService,
         private State: StateService,
+        private router: Router,
         private http: HttpClient,
         private toast: ToastrService,
         private CommonExam: CommonExamService,
@@ -74,7 +76,7 @@ export class ExamService {
             .subscribe({
                 next: (response) => {
                     this.toast.info(this.translate.instant('sitnet_exam_added'));
-                    this.State.go('staff.courseSelector', { id: response.id });
+                    this.router.navigate(['/staff/exams', response.id, 'select', 'course']);
                 },
                 error: this.toast.error,
             });
@@ -218,7 +220,7 @@ export class ExamService {
         return exam && user && (user.isAdmin || this.isOwner(exam, collaborative));
     };
 
-    removeExam = (exam: Exam, collaborative = false) => {
+    removeExam = (exam: Exam, collaborative = false, isAdmin = false) => {
         if (this.isAllowedToUnpublishOrRemove(exam, collaborative)) {
             this.ConfirmationDialog.open$(
                 this.translate.instant('sitnet_confirm'),
@@ -228,7 +230,7 @@ export class ExamService {
                     this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe({
                         next: () => {
                             this.toast.success(this.translate.instant('sitnet_exam_removed'));
-                            this.State.go('dashboard');
+                            this.router.navigate(['/staff/dashboard', isAdmin ? 'admin' : 'teacher']);
                         },
                         error: this.toast.error,
                     }),

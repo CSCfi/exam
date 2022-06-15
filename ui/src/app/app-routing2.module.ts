@@ -114,7 +114,7 @@ const routes: Route[] = [
         component: ExamEnrolmentsComponent,
     },
     {
-        path: 'staff/**',
+        path: 'staff',
         loadChildren: () => import('./dashboard/staff/staff-dashboard.module').then((mod) => mod.StaffDashboardModule),
     },
 ];

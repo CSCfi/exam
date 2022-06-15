@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
@@ -41,13 +41,9 @@ import type { User } from '../../session/session.service';
                 <div class="teacher-toolbar">
                     <div class="make-inline">
                         <div class="review-attachment-button print-button">
-                            <button
-                                uiSref="staff.newQuestion"
-                                [uiParams]="{ nextState: 'staff.library' }"
-                                class="pointer"
-                            >
+                            <a [routerLink]="['new']" [queryParams]="{ nextState: 'questions' }" class="pointer">
                                 {{ 'sitnet_toolbar_new_question' | translate }}
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -56,13 +52,15 @@ import type { User } from '../../session/session.service';
 
         <div class="reservation-border">
             <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
-            <div *ngIf="selections.length > 0" class="padl30 padr30 questions-selections-box">
-                <div class="make-inline">
-                    <span class="padr10">{{ selections.length }} {{ 'sitnet_questions_selected' | translate }}</span>
-                </div>
-
-                <div class="row margin-20">
-                    <div class="col-md-12 d-flex justify-content-between">
+            <div class="padl30 padr30">
+                <div class="row">
+                    <div
+                        [style.visibility]="selections.length > 0 ? 'visible' : 'hidden'"
+                        class="col-md-12 d-flex align-items-center justify-content-between"
+                    >
+                        <div class="make-inline">
+                            {{ selections.length }} {{ 'sitnet_questions_selected' | translate }}
+                        </div>
                         <xm-library-owner-selection
                             [selections]="selections"
                             (selected)="ownerSelected($event)"
@@ -89,7 +87,7 @@ export class LibraryComponent {
     selections: number[] = [];
 
     constructor(
-        private state: StateService,
+        private router: Router,
         private translate: TranslateService,
         private toast: ToastrService,
         private Attachment: AttachmentService,
@@ -106,7 +104,7 @@ export class LibraryComponent {
 
     questionCopied(copy: Question) {
         this.toast.info(this.translate.instant('sitnet_question_copied'));
-        this.state.go('staff.question', { id: copy.id });
+        this.router.navigate(['/staff/questions', copy.id, 'edit']);
     }
 
     ownerSelected(event: { user: User; selections: number[] }) {
@@ -118,10 +116,15 @@ export class LibraryComponent {
         this.Attachment.selectFile(false, {}, 'sitnet_import_questions_detail')
             .then((result) => {
                 this.Files.upload('/app/questions/import', result.$value.attachmentFile, {}, undefined, () =>
-                    this.state.reload(),
+                    this.reload(),
                 );
                 this.toast.success(`${this.translate.instant('sitnet_questions_imported_successfully')}`);
             })
             .catch((err) => this.toast.error(err));
     }
+
+    private reload = () =>
+        this.router
+            .navigateByUrl('/', { skipLocationChange: true })
+            .then(() => this.router.navigate(['/staff/questions']));
 }

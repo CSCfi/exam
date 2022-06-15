@@ -15,13 +15,12 @@
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import { StateService } from '@uirouter/core';
-import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
+import type { ExamExecutionType } from '../../../exam/exam.model';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
-import { ExtraColumnName } from './categories/exam-list-category.component';
+import { ExtraData } from './categories/exam-list-category.component';
 import { ExamSearchPipe } from './exam-search.pipe';
-import type { ActiveExam, ArchivedExam, DraftExam, FinalizedExam } from './teacher-dashboard.service';
+import type { DashboardExam } from './teacher-dashboard.service';
 import { TeacherDashboardService } from './teacher-dashboard.service';
 
 @Component({
@@ -32,81 +31,67 @@ export class TeacherDashboardComponent implements OnInit {
     activeTab = 1;
     userId = 0;
     executionTypes: (ExamExecutionType & { examinationTypes: { type: string; name: string }[] })[] = [];
-    activeExtraColumns: ExtraColumnName[];
-    finishedExtraColumns: ExtraColumnName[];
-    archivedExtraColumns: ExtraColumnName[];
-    draftExtraColumns: ExtraColumnName[];
+    activeExtraData: ExtraData[];
+    finishedExtraData: ExtraData[];
+    archivedExtraData: ExtraData[];
 
-    finishedExams: FinalizedExam[] = [];
-    filteredFinished: FinalizedExam[] = [];
-    activeExams: ActiveExam[] = [];
-    filteredActive: ActiveExam[] = [];
-    archivedExams: ArchivedExam[] = [];
-    filteredArchived: ArchivedExam[] = [];
-    draftExams: DraftExam[] = [];
-    filteredDrafts: DraftExam[] = [];
+    finishedExams: DashboardExam[] = [];
+    filteredFinished: DashboardExam[] = [];
+    activeExams: DashboardExam[] = [];
+    filteredActive: DashboardExam[] = [];
+    archivedExams: DashboardExam[] = [];
+    filteredArchived: DashboardExam[] = [];
+    draftExams: DashboardExam[] = [];
+    filteredDrafts: DashboardExam[] = [];
 
     constructor(
         private TeacherDashboard: TeacherDashboardService,
         private Session: SessionService,
-        private state: StateService,
         private searchFilter: ExamSearchPipe,
     ) {
-        this.activeExtraColumns = [
+        this.activeExtraData = [
             {
                 text: 'sitnet_participation_unreviewed',
                 property: 'unassessedCount',
+                link: '/staff/exams/__/4',
+                checkOwnership: false,
             },
             {
                 text: 'sitnet_participation_unfinished',
                 property: 'unfinishedCount',
+                link: '/staff/exams/__/4',
+                checkOwnership: false,
             },
             {
                 text: 'sitnet_dashboard_title_waiting_reservation',
                 property: 'reservationCount',
+                link: '/staff/reservations/__',
+                checkOwnership: false,
             },
         ];
-        this.finishedExtraColumns = [
+        this.finishedExtraData = [
             {
                 text: 'sitnet_participation_unreviewed',
                 property: 'unassessedCount',
+                link: '/staff/exams/__/4',
+                checkOwnership: false,
             },
             {
                 text: 'sitnet_participation_unfinished',
                 property: 'unfinishedCount',
+                link: '/staff/exams/__/4',
+                checkOwnership: false,
             },
         ];
-        this.archivedExtraColumns = [
+        this.archivedExtraData = [
             {
                 text: 'sitnet_participations_assessed',
                 property: 'assessedCount',
+                link: '/staff/exams/__/4',
+                checkOwnership: true,
             },
         ];
-        this.draftExtraColumns = [];
     }
-
-    getActiveExtraColumns = () => this.activeExtraColumns;
-    getActiveExtraColumnValues = (exam: Exam) => {
-        const activeExam = exam as ActiveExam;
-        return [
-            { link: '/staff/exams/__/regular/4', checkOwnership: false, value: activeExam.unassessedCount },
-            { link: '/staff/exams/__/regular/4', checkOwnership: true, value: activeExam.unfinishedCount },
-            { link: '/staff/reservations/__', checkOwnership: false, value: activeExam.reservationCount },
-        ];
-    };
-    getFinishedExtraColumns = () => this.finishedExtraColumns;
-    getFinishedExtraColumnValues = (exam: Exam) => {
-        const finishedExam = exam as FinalizedExam;
-        return [
-            { link: '/staff/exams/__/regular/4', checkOwnership: false, value: finishedExam.unassessedCount },
-            { link: '/staff/exams/__/regular/4', checkOwnership: true, value: finishedExam.unfinishedCount },
-        ];
-    };
-    getArchivedExtraColumns = () => this.archivedExtraColumns;
-    getArchivedExtraColumnValues = (exam: Exam) => {
-        const archivedExam = exam as ArchivedExam;
-        return [{ link: '/staff/exams/__/regular/4', checkOwnership: true, value: archivedExam.assessedCount }];
-    };
 
     ngOnInit() {
         this.userId = this.Session.getUser().id;
@@ -132,10 +117,7 @@ export class TeacherDashboardComponent implements OnInit {
         });
     }
 
-    changeTab = (event: NgbNavChangeEvent) => {
-        this.activeTab = event.nextId;
-        this.state.go('staff.teacher', { tab: event.nextId });
-    };
+    changeTab = (event: NgbNavChangeEvent) => (this.activeTab = event.nextId);
 
     search = (text: string) => {
         // Use same search parameter for all the 4 result tables

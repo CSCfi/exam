@@ -75,6 +75,7 @@ export class SoftwareSelectorComponent implements OnInit {
     constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
 
     ngOnInit() {
+        this.exam.softwares ||= [];
         this.http.get<Software[]>('/app/softwares').subscribe((data) => (this.software = data));
     }
 

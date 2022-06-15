@@ -38,42 +38,37 @@
         <div class="nav-body">
             <ul class="links">
                 <li *ngFor="let link of links" [hidden]="!link.visible">
-                    <a [ngClass]="{ selected: isActive(link) }" [routerLink]="link.state">
+                    <a [routerLink]="link.route" routerLinkActive="selected">
                         <img
                             width="18"
                             src="/assets/images/nav/{{ link.iconPng }}"
-                            alt="{{ link.state | translate }}"
+                            alt="{{ link.route | translate }}"
                         />
                         <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{
                             link.name | translate
                         }}</span>
                     </a>
-                    <a class="skip" id="skip-button" [hidden]="!isActive(link)" [href]="getSkipLinkPath('#mainView')">{{
+                    <!-- [hidden]="!isActive(link)" TODO-->
+
+                    <a class="skip" id="skip-button" [href]="getSkipLinkPath('#mainView')">{{
                         'sitnet_skip_to_content' | translate
                     }}</a>
                     <ul class="submenu" [hidden]="!link.submenu.hidden">
-                        <li
-                            *ngFor="let subitem of link.submenu.items"
-                            [hidden]="!subitem.visible"
-                            [ngClass]="{ selectedsub: isActive(subitem) }"
-                        >
-                            <a [routerLink]="subitem.state">
+                        <li *ngFor="let subitem of link.submenu.items" [hidden]="!subitem.visible">
+                            <a [routerLink]="subitem.route" routerLinkActive="selected">
                                 <div>
                                     <img
                                         width="18"
                                         src="/assets/images/nav/{{ subitem.iconPng }}"
-                                        alt="{{ link.state | translate }}"
+                                        alt="{{ link.route | translate }}"
                                     />
                                     {{ subitem.name | translate }}
                                 </div>
                             </a>
-                            <a
-                                class="skip"
-                                id="skip-button"
-                                [hidden]="!isActive(subitem)"
-                                [href]="getSkipLinkPath('#mainView')"
-                                >{{ 'sitnet_skip_to_content' | translate }}</a
-                            >
+                            <!-- [hidden]="!isActive(subitem)" TODO -->
+                            <a class="skip" id="skip-button" [href]="getSkipLinkPath('#mainView')">{{
+                                'sitnet_skip_to_content' | translate
+                            }}</a>
                         </li>
                     </ul>
                 </li>
@@ -84,30 +79,25 @@
             <ul class="links">
                 <li *ngFor="let link of links" [hidden]="!link.visible">
                     <a
-                        [ngClass]="{ selected: isActive(link) }"
-                        [routerLink]="link.state"
-                        routerLinkActive="active"
+                        [routerLink]="link.route"
+                        routerLinkActive="selected"
                         (click)="link.submenu.hidden = !link.submenu.hidden"
                     >
                         <img
                             width="18"
                             src="/assets/images/nav/{{ link.iconPng }}"
-                            alt="{{ link.state | translate }}"
+                            alt="{{ link.route | translate }}"
                         />
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>
                     <ul class="submenu" *ngIf="!link.submenu.hidden && link.submenu.items">
-                        <li
-                            *ngFor="let subitem of link.submenu.items"
-                            [ngClass]="{ selectedsub: isActive(subitem) }"
-                            [hidden]="!subitem.visible"
-                        >
-                            <a [routerLink]="subitem.state">
+                        <li *ngFor="let subitem of link.submenu.items" [hidden]="!subitem.visible">
+                            <a [routerLink]="subitem.route" routerLinkActive="selected">
                                 <div>
                                     <img
                                         width="18"
                                         src="/assets/images/nav/{{ subitem.iconPng }}"
-                                        alt="{{ link.state | translate }}"
+                                        alt="{{ link.route | translate }}"
                                     />
                                     {{ subitem.name | translate }}
                                 </div>

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { StateService } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { ExamTabService } from '../../../exam/editor/exam-tabs.service';
@@ -84,7 +84,7 @@ import { QuestionReviewService } from '../question-review.service';
     </div> `,
 })
 export class QuestionReviewsComponent implements OnInit {
-    @Input() examId = 0;
+    examId = 0;
     reviews: QuestionReview[] = [];
     selectedReviews: number[] = [];
     selectionToggle = false;
@@ -97,6 +97,7 @@ export class QuestionReviewsComponent implements OnInit {
     ) {}
 
     ngOnInit() {
+        this.examId = this.Tabs.getExam().id;
         this.QuestionReview.getReviews$(this.examId).subscribe({
             next: (resp) => (this.reviews = resp),
             error: (err) => this.toast.error(err),

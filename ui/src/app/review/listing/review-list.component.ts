@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import type { ExamEnrolment } from '../../enrolment/enrolment.model';
 import { ExamTabService } from '../../exam/editor/exam-tabs.service';
@@ -28,9 +29,9 @@ import { ReviewListService } from './review-list.service';
     templateUrl: './review-list.component.html',
 })
 export class ReviewListComponent implements OnInit, OnChanges {
-    @Input() exam!: Exam;
-    @Input() collaborative = false;
-    @Input() reviews: ExamParticipation[] = [];
+    exam!: Exam;
+    collaborative = false;
+    reviews: ExamParticipation[] = [];
 
     noShows: ExamEnrolment[] = [];
     abortedExams: Review[] = [];
@@ -44,20 +45,29 @@ export class ReviewListComponent implements OnInit, OnChanges {
     constructor(
         private modal: NgbModal,
         private http: HttpClient,
+        private route: ActivatedRoute,
         private ReviewList: ReviewListService,
         private Tabs: ExamTabService,
     ) {}
 
     ngOnInit() {
-        this.refreshLists();
-        // No-shows
-        if (this.collaborative) {
-            //TODO: Fetch collaborative no-shows from xm.
-            this.noShows = [];
-        } else {
-            this.http.get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`).subscribe((resp) => (this.noShows = resp));
-        }
-        this.Tabs.notifyTabChange(4);
+        this.route.data.subscribe((data) => {
+            this.reviews = data.reviews;
+            this.exam = this.Tabs.getExam();
+            this.collaborative = this.Tabs.isCollaborative();
+
+            this.refreshLists();
+            // No-shows
+            if (this.collaborative) {
+                //TODO: Fetch collaborative no-shows from xm.
+                this.noShows = [];
+            } else {
+                this.http
+                    .get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`)
+                    .subscribe((resp) => (this.noShows = resp));
+            }
+            this.Tabs.notifyTabChange(4);
+        });
     }
 
     ngOnChanges() {

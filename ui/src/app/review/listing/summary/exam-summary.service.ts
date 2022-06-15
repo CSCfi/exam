@@ -82,6 +82,7 @@ export class ExamSummaryService {
             },
             plugins: [ChartDataLabels],
             options: {
+                maintainAspectRatio: false,
                 plugins: {
                     title: { display: false },
                     tooltip: { enabled: false },

@@ -187,8 +187,7 @@
                     <a
                         *ngIf="!collaborative"
                         class="pointer"
-                        uiSref="staff.assessment"
-                        [uiParams]="{ id: review.examParticipation.exam.id }"
+                        [routerLink]="['/staff/assessments', review.examParticipation.exam.id]"
                     >
                         {{ review.displayName }}
                         <span *ngIf="review.examParticipation.user?.userIdentifier">

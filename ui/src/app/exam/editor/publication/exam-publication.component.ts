@@ -15,9 +15,9 @@
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
 import { format, parseISO } from 'date-fns';
 import { isBoolean, isEmpty, toNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
@@ -65,8 +65,9 @@ export class ExamPublicationComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
+        private route: ActivatedRoute,
+        private router: Router,
         private translate: TranslateService,
-        private state: StateService,
         private modal: NgbModal,
         private toast: ToastrService,
         private windowRef: WindowRef,
@@ -80,6 +81,8 @@ export class ExamPublicationComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.exam = this.Tabs.getExam();
+        this.collaborative = this.Tabs.isCollaborative();
         this.autoEvaluation = { enabled: !!this.exam.autoEvaluationConfig };
         this.http
             .get<{ examDurations: number[] }>('/app/settings/durations')
@@ -194,11 +197,11 @@ export class ExamPublicationComponent implements OnInit {
 
     nextTab = () => {
         this.Tabs.notifyTabChange(4);
-        this.state.go('staff.examEditor.assessments');
+        this.router.navigate(['..', '4'], { relativeTo: this.route });
     };
     previousTab = () => {
         this.Tabs.notifyTabChange(2);
-        this.state.go('staff.examEditor.sections');
+        this.router.navigate(['..', '2'], { relativeTo: this.route });
     };
 
     saveAndPublishExam = () => {
@@ -231,7 +234,7 @@ export class ExamPublicationComponent implements OnInit {
                                 ? 'sitnet_exam_saved_and_pre_published'
                                 : 'sitnet_exam_saved_and_published';
                             this.toast.success(this.translate.instant(text));
-                            this.state.go(this.user.isAdmin ? 'staff.admin' : 'staff.teacher');
+                            this.router.navigate(['/staff/dashboard', this.user.isAdmin ? 'admin' : 'teacher']);
                         },
                         error: this.toast.error,
                     });
