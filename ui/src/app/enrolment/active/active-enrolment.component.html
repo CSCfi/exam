@@ -182,14 +182,16 @@
             </div>
         </div>
     </div>
-    <div class="row" *ngIf="!enrolment.reservation">
-        <div class="">
-            <div class="text-danger" *ngIf="enrolment.reservationCanceled">
-                {{ 'sitnet_canceled' | translate }}
-            </div>
+    <div class="row" *ngIf="!enrolment.reservation && enrolment.reservationCanceled">
+        <div class="text-danger" *ngIf="enrolment.reservationCanceled">
+            {{ 'sitnet_canceled' | translate }}
         </div>
     </div>
-    <div class="" *ngIf="enrolment.exam && enrolment.exam.implementation !== 'AQUARIUM'">
+    <div
+        *ngIf="
+            enrolment.exam && enrolment.examinationEventConfiguration && enrolment.exam.implementation !== 'AQUARIUM'
+        "
+    >
         <div class="row">
             <div class="">{{ 'sitnet_examination_event' | translate }}:</div>
             <div class="">

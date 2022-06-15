@@ -599,7 +599,7 @@ public class EnrolmentController extends BaseController {
             .scheduleOnce(
                 Duration.create(1, TimeUnit.SECONDS),
                 () -> {
-                    emailComposer.composeExaminationEventCancellationNotification(user, enrolment, event);
+                    emailComposer.composeExaminationEventCancellationNotification(user, enrolment.getExam(), event);
                     logger.info("Examination event cancellation notification email sent to {}", user.getEmail());
                 },
                 actor.dispatcher()
@@ -608,33 +608,46 @@ public class EnrolmentController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN") })
-    public Result removeAllEventEnrolmentConfigs(Long enrolmentId) {
+    public Result removeExaminationEvent(Long configId) {
+        ExaminationEventConfiguration config = Ebean.find(ExaminationEventConfiguration.class, configId);
+        if (config == null) {
+            return badRequest();
+        }
+        if (config.getExaminationEvent().getStart().isBeforeNow()) {
+            return forbidden();
+        }
+        ExaminationEvent event = config.getExaminationEvent();
+        Exam exam = config.getExam();
         Set<ExamEnrolment> enrolments = Ebean
             .find(ExamEnrolment.class)
+            .fetch("user")
             .where()
-            .eq("examinationEventConfiguration.id", enrolmentId)
+            .eq("examinationEventConfiguration.id", configId)
             .eq("exam.state", Exam.State.PUBLISHED)
             .findSet();
-        enrolments.forEach(enrolment -> {
-            enrolment.setExaminationEventConfiguration(null);
-            enrolment.update();
+        enrolments.forEach(e -> {
+            e.setExaminationEventConfiguration(null);
+            e.update();
         });
-        enrolments.forEach(enrolment ->
-            actor
-                .scheduler()
-                .scheduleOnce(
-                    Duration.create(1, TimeUnit.SECONDS),
-                    () -> {
-                        emailComposer.composeExaminationEventCancellationNotification(
-                            enrolment.getUser(),
-                            enrolment,
-                            enrolment.getExaminationEventConfiguration().getExaminationEvent()
-                        );
-                    },
-                    actor.dispatcher()
-                )
-        );
-        logger.info("Examination event cancellation notification email sent to {} participants", enrolments.size());
+        config.delete();
+        event.delete();
+        actor
+            .scheduler()
+            .scheduleOnce(
+                Duration.create(1, TimeUnit.SECONDS),
+                () -> {
+                    emailComposer.composeExaminationEventCancellationNotification(
+                        enrolments.stream().map(ExamEnrolment::getUser).collect(Collectors.toSet()),
+                        exam,
+                        event
+                    );
+                    logger.info(
+                        "Examination event cancellation notification email sent to {} participants",
+                        enrolments.size()
+                    );
+                },
+                actor.dispatcher()
+            );
         return ok();
     }
 

@@ -378,16 +378,14 @@ class EmailComposerImpl implements EmailComposer {
         }
     }
 
-    public void composeExaminationEventCancellationNotification(
-        User user,
-        ExamEnrolment enrolment,
-        ExaminationEvent event
+    private String generateExaminationEventCancellationMail(
+        Exam exam,
+        ExaminationEvent event,
+        Lang lang,
+        boolean isForced
     ) {
-        Exam exam = enrolment.getExam();
-        Lang lang = getLang(user);
         String templatePath = getTemplatesRoot() + "examinationEventCancelled.html";
         String template = fileHandler.read(templatePath);
-        String subject = messaging.get(lang, "email.examinationEvent.cancel.subject");
 
         Map<String, String> stringValues = new HashMap<>();
         String time = DTF.print(adjustDST(event.getStart()));
@@ -402,11 +400,34 @@ class EmailComposerImpl implements EmailComposer {
         stringValues.put("teacher", messaging.get(lang, "email.template.reservation.teacher", teacherName));
         stringValues.put("time", messaging.get(lang, "email.examinationEvent.date", time));
         stringValues.put("link", hostName);
-        stringValues.put("message", messaging.get(lang, "email.examinationEvent.cancel.message.student"));
+        stringValues.put(
+            "message",
+            messaging.get(
+                lang,
+                isForced
+                    ? "email.examinationEvent.cancel.message.admin"
+                    : "email.examinationEvent.cancel.message.student"
+            )
+        );
         stringValues.put("new_time", messaging.get(lang, "email.examinationEvent.cancel.message.student.new.time"));
         stringValues.put("description", event.getDescription());
-        String content = replaceAll(template, stringValues);
+        return replaceAll(template, stringValues);
+    }
 
+    @Override
+    public void composeExaminationEventCancellationNotification(Set<User> users, Exam exam, ExaminationEvent event) {
+        Lang lang = Lang.forCode("en");
+        String content = generateExaminationEventCancellationMail(exam, event, lang, true);
+        String subject = messaging.get(lang, "email.examinationEvent.cancel.subject");
+        Set<String> bcc = users.stream().map(User::getEmail).collect(Collectors.toSet());
+        // email.examinationEvent.cancel.message.admin
+        emailSender.send(SYSTEM_ACCOUNT, bcc, subject, content);
+    }
+
+    public void composeExaminationEventCancellationNotification(User user, Exam exam, ExaminationEvent event) {
+        Lang lang = getLang(user);
+        String content = generateExaminationEventCancellationMail(exam, event, lang, false);
+        String subject = messaging.get(lang, "email.examinationEvent.cancel.subject");
         emailSender.send(user.getEmail(), SYSTEM_ACCOUNT, subject, content);
     }
 
