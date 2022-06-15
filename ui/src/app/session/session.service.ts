@@ -15,9 +15,9 @@
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy } from '@angular/core';
 import { Inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable, Unsubscribable } from 'rxjs';
@@ -67,12 +67,13 @@ export class SessionService implements OnDestroy {
     private sessionCheckSubscription?: Unsubscribable;
     private userChangeSubscription = new Subject<User | undefined>();
     private devLogoutSubscription = new Subject<void>();
+    private path = '';
 
     constructor(
         private http: HttpClient,
         private i18n: TranslateService,
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private router: Router,
+        //private routing: UIRouterGlobals,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
         private modal: NgbModal,
         private toast: ToastrService,
@@ -302,15 +303,15 @@ export class SessionService implements OnDestroy {
     }
 
     private redirect(user: User): void {
-        if (this.routing.current.name === 'app' && user.isLanguageInspector) {
-            this.state.go('staff.languageInspections');
-        } else if (this.routing.current.name === 'app') {
+        if (this.router.url === '/' && user.isLanguageInspector) {
+            this.router.navigate(['staff/inspections']);
+        } else if (this.router.url === '/') {
             let state;
             if (user.loginRole === 'STUDENT') state = 'dashboard';
-            else if (user.loginRole === 'TEACHER') state = 'staff.teacher';
-            else state = 'staff.admin';
-            this.state.go(state);
-        } else if (this.routing.current.name === '') {
+            else if (user.loginRole === 'TEACHER') state = 'staff/teacher';
+            else state = 'staff/admin';
+            this.router.navigate([state]);
+        } else if (this.router.url === '/') {
             // Hackish but will have to try
             this.windowRef.nativeWindow.location.reload();
         }

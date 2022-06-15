@@ -91,7 +91,7 @@ export const STAFF_STATES: Ng2StateDeclaration[] = [
                     transition: Transition,
                 ) => {
                     const id = transition.params().id;
-                    const isCollab = transition.params().collaborative == 'collaborative';
+                    const isCollab = transition.params().collaborative === 'collaborative';
                     return isCollab
                         ? firstValueFrom(collabService.download$(id))
                         : firstValueFrom(examService.downloadExam$(id));

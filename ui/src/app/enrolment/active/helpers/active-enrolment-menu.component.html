@@ -9,29 +9,26 @@
             <a
                 *ngIf="enrolment.reservation.machine && enrolment.collaborativeExam"
                 class="infolink-light border rounded"
-                uiSref="collaborativeCalendar"
-                [uiParams]="{ id: enrolment.collaborativeExam.id }"
+                [routerLink]="['/collaborative/calendar', enrolment.collaborativeExam.id]"
                 >{{ 'sitnet_student_change_reservation' | translate }}
             </a>
             <a
                 *ngIf="enrolment.reservation.machine && !enrolment.collaborativeExam"
                 class="infolink-light border rounded"
-                uiSref="calendar"
-                [uiParams]="{ id: enrolment.exam.id }"
+                [routerLink]="['/calendar', enrolment.exam.id]"
                 >{{ 'sitnet_student_change_reservation' | translate }}
             </a>
             <a
                 *ngIf="enrolment.reservation.externalReservation && enrolment.exam"
                 class="infolink-light border rounded"
-                uiSref="externalCalendar"
-                [uiParams]="{ id: enrolment.exam.id }"
+                [routerLink]="['/iop/calendar', enrolment.exam.id]"
                 >{{ 'sitnet_student_change_reservation' | translate }}
             </a>
             <a
                 *ngIf="enrolment.reservation.externalReservation && enrolment.collaborativeExam"
                 class="infolink-light border rounded"
-                uiSref="externalCalendar"
-                [uiParams]="{ id: enrolment.collaborativeExam.id, isCollaborative: true }"
+                [routerLink]="['/iop/calendar', enrolment.exam.id]"
+                [queryParams]="{ isCollaborative: true }"
                 >{{ 'sitnet_student_change_reservation' | translate }}
             </a>
         </div>

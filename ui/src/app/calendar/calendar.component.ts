@@ -14,10 +14,9 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { addDays, format } from 'date-fns';
-import { isArray } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { switchMap, tap } from 'rxjs/operators';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
@@ -57,10 +56,12 @@ export class CalendarComponent implements OnInit {
     reservationWindowEndDate?: Date;
     reservationWindowSize = 0;
     selectedOrganisation?: Organisation;
+    examId = 0;
+    selectedSections: string[] = [];
 
     constructor(
-        private state: StateService,
-        private uiRouter: UIRouterGlobals,
+        private router: Router,
+        private route: ActivatedRoute,
         private translate: TranslateService,
         private toast: ToastrService,
         private DateTime: DateTimeService,
@@ -69,11 +70,16 @@ export class CalendarComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        if (this.uiRouter.params.isCollaborative === 'true') {
+        if (
+            this.route.snapshot.data['isCollaborative'] === 'true' ||
+            this.route.snapshot.queryParamMap.get('isCollaborative') === 'true'
+        ) {
             this.isCollaborative = true;
         }
+        this.examId = Number(this.route.snapshot.paramMap.get('id'));
+        this.selectedSections = this.route.snapshot.queryParamMap.getAll('selected');
 
-        this.Calendar.getExamInfo$(this.isCollaborative, this.uiRouter.params.id)
+        this.Calendar.getExamInfo$(this.isCollaborative, this.examId)
             .pipe(
                 tap((resp) => {
                     resp.examSections.sort((es1, es2) => es1.sequenceNumber - es2.sequenceNumber);
@@ -95,7 +101,7 @@ export class CalendarComponent implements OnInit {
                 tap((resp) => (this.isInteroperable = resp.isExamVisitSupported)),
                 switchMap(() =>
                     // TODO: move to section selector
-                    this.Calendar.getCurrentEnrolment$(this.uiRouter.params.id),
+                    this.Calendar.getCurrentEnrolment$(this.examId),
                 ),
                 tap((resp: ExamEnrolment | null) => this.prepareOptionalSections(resp)),
             )
@@ -139,24 +145,24 @@ export class CalendarComponent implements OnInit {
             this.translate.instant('sitnet_confirm_external_reservation'),
         ).subscribe({
             next: () =>
-                this.state.go('externalCalendar', {
-                    id: this.uiRouter.params.id,
-                    selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id),
-                    isCollaborative: this.isCollaborative,
+                this.router.navigate(['iop/calendar', this.examId], {
+                    queryParams: {
+                        selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id),
+                        isCollaborative: this.isCollaborative,
+                    },
                 }),
             error: this.toast.error,
         });
     }
 
     makeInternalReservation() {
-        const nextState = this.isCollaborative ? 'collaborativeCalendar' : 'calendar';
-        this.state.go(nextState, {
-            id: this.uiRouter.params.id,
-            selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id),
+        const nextState = this.isCollaborative ? 'calendar/collaborative' : 'calendar';
+        this.router.navigate([nextState, this.examId], {
+            queryParams: { selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id) },
         });
     }
 
-    cancel = () => this.state.go('dashboard');
+    cancel = () => this.router.navigate(['dashboard']);
 
     createReservation($event: { start: Date; end: Date; room: ExamRoom; accessibilities: Accessibility[] }) {
         this.reservation = {
@@ -200,7 +206,7 @@ export class CalendarComponent implements OnInit {
             selectedSectionIds,
         )
             .subscribe({
-                next: () => this.state.go('dashboard'),
+                next: () => this.router.navigate(['dashboard']),
                 error: (resp) => {
                     this.toast.error(resp);
                 },
@@ -216,21 +222,13 @@ export class CalendarComponent implements OnInit {
         return this.DateTime.printExamDuration(exam);
     }
 
-    private resolveOptionalSections = (): string[] => {
-        if (!this.uiRouter.params.selected) return [];
-        if (isArray(this.uiRouter.params.selected)) return this.uiRouter.params.selected;
-        else return [this.uiRouter.params.selected];
-    };
-
     private prepareOptionalSections = (data: ExamEnrolment | null) => {
         this.examInfo.examSections
             .filter((es) => es.optional)
             .forEach((es) => {
                 es.selected =
                     (data && data.optionalSections.map((os) => os.id).indexOf(es.id) > -1) ||
-                    this.resolveOptionalSections()
-                        .map((p: string) => parseInt(p))
-                        .indexOf(es.id) > -1;
+                    this.selectedSections.map((s) => parseInt(s)).indexOf(es.id) > -1;
             });
     };
 }

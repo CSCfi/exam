@@ -14,8 +14,9 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
+import { UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
@@ -43,7 +44,7 @@ export class ExaminationToolbarComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
+        private router: Router,
         private routing: UIRouterGlobals,
         private translate: TranslateService,
         private toast: ToastrService,
@@ -106,9 +107,11 @@ export class ExaminationToolbarComponent implements OnInit {
                     next: () => {
                         this.toast.info(this.translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
                         this.Window.nativeWindow.onbeforeunload = null;
-                        this.state.go('examinationLogout', {
-                            reason: 'aborted',
-                            quitLinkEnabled: this.exam.implementation === 'CLIENT_AUTH',
+                        this.router.navigate(['student/logout'], {
+                            queryParams: {
+                                reason: 'aborted',
+                                quitLinkEnabled: this.exam.implementation === 'CLIENT_AUTH',
+                            },
                         });
                     },
                     error: this.toast.error,
@@ -158,13 +161,13 @@ export class ExaminationToolbarComponent implements OnInit {
         const tab = parseInt(this.routing.params.tab || 1);
         const collab = this.isCollaborative ? 'collaborative' : 'false';
         if (tab == 1) {
-            this.state.go('staff.examEditor.basic', { id: this.exam.id, collaborative: collab });
+            this.router.navigate(['staff.examEditor.basic', this.exam.id, collab]);
         } else if (tab == 2) {
-            this.state.go('staff.examEditor.sections', { id: this.exam.id, collaborative: collab });
+            this.router.navigate(['staff.examEditor.sections', this.exam.id, collab]);
         } else if (tab == 3) {
-            this.state.go('staff.examEditor.publication', { id: this.exam.id, collaborative: collab });
+            this.router.navigate(['staff.examEditor.publication', this.exam.id, collab]);
         } else if (tab == 4) {
-            this.state.go('staff.examEditor.assessments', { id: this.exam.id, collaborative: collab });
+            this.router.navigate(['staff.examEditor.assessments', this.exam.id, collab]);
         }
     };
 }

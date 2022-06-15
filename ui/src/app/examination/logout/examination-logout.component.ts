@@ -14,7 +14,8 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
+import { Router } from '@angular/router';
+import { UIRouterGlobals } from '@uirouter/core';
 import { WindowRef } from '../../shared/window/window.service';
 import { ExaminationStatusService } from '../examination-status.service';
 
@@ -41,7 +42,7 @@ export class ExaminationLogoutComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
+        private router: Router,
         private routing: UIRouterGlobals,
         private Window: WindowRef,
         private ExaminationStatus: ExaminationStatusService,
@@ -63,6 +64,6 @@ export class ExaminationLogoutComponent implements OnInit {
     private logout = () =>
         this.Window.nativeWindow.setTimeout(() => {
             this.ExaminationStatus.notifyEndOfExamination();
-            this.state.go('logout');
+            this.router.navigate(['logout']);
         }, 8000);
 }

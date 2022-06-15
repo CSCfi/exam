@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { Router } from '@angular/router';
 import { DateTimeService } from '../../shared/date/date.service';
 import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
 import type { EnrolmentInfo } from '../enrolment.model';
@@ -27,7 +27,7 @@ export class EnrolmentDetailsComponent {
     @Input() exam!: EnrolmentInfo;
 
     constructor(
-        private state: StateService,
+        private router: Router,
         private Exam: CommonExamService,
         private Enrolment: EnrolmentService,
         private DateTime: DateTimeService,
@@ -49,9 +49,9 @@ export class EnrolmentDetailsComponent {
 
     makeReservation = () => {
         if (this.exam.implementation !== 'AQUARIUM') {
-            this.state.go('dashboard');
+            this.router.navigate(['dashboard']);
         } else {
-            this.state.go('calendar', { id: this.exam.id });
+            this.router.navigate(['calendar', this.exam.id]);
         }
     };
 }

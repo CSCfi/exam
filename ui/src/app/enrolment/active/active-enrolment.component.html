@@ -22,7 +22,10 @@
         <div class="d-flex flex-row">
             <div class="student-enrolment-exam">
                 <div *ngIf="enrolment.exam">
-                    <a uiSref="enrolments" [uiParams]="{ id: enrolment.exam.id, code: enrolment.exam.course?.code }">
+                    <a
+                        [routerLink]="['/enroll', 'exam', enrolment.exam.id]"
+                        [queryParams]="{ code: enrolment.exam.course?.code }"
+                    >
                         {{ enrolment.exam.name }}
                     </a>
                 </div>
@@ -233,18 +236,6 @@
         </div>
     </div>
 
-    <div class="" *ngIf="enrolment.reservation">
-        <div class="infolink">
-            <button class="infolink pointer" (click)="showGuide = !showGuide" tabindex="0">
-                {{ 'sitnet_room_guidance' | translate }}
-                <img class="arrow_icon" [hidden]="showGuide" alt="show guidance" src="/assets/images/arrow_right.png" />
-                <img class="arrow_icon" [hidden]="!showGuide" alt="hide guidance" src="/assets/images/arrow_down.png" />
-            </button>
-        </div>
-        <div class="ms-1 mt-1" [hidden]="!showGuide">
-            {{ getRoomInstruction() }}
-        </div>
-    </div>
     <div class="row mt-2" *ngIf="enrolment.reservation && enrolment.optionalSections.length > 0">
         <div class="">
             <button class="infolink pointer" (click)="showMaterials = !showMaterials" tabindex="0">

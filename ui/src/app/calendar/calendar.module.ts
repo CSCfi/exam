@@ -14,8 +14,8 @@
  */
 import { NgModule } from '@angular/core';
 import { NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
 import { CalendarModule as ExtCalendarModule, DateAdapter } from 'angular-calendar';
+import { RouterModule } from '@angular/router';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { SharedModule } from '../shared/shared.module';
 import { BookingCalendarComponent } from './booking-calendar.component';
@@ -33,7 +33,7 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
             provide: DateAdapter,
             useFactory: adapterFactory,
         }),
-        UIRouterModule,
+        RouterModule,
         NgbPopoverModule,
         NgbDropdownModule,
         SharedModule,

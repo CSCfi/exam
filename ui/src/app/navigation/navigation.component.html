@@ -38,7 +38,7 @@
         <div class="nav-body">
             <ul class="links">
                 <li *ngFor="let link of links" [hidden]="!link.visible">
-                    <a [ngClass]="{ selected: isActive(link) }" uiSref="{{ link.state }}">
+                    <a [ngClass]="{ selected: isActive(link) }" [routerLink]="link.state">
                         <img
                             width="18"
                             src="/assets/images/nav/{{ link.iconPng }}"
@@ -57,7 +57,7 @@
                             [hidden]="!subitem.visible"
                             [ngClass]="{ selectedsub: isActive(subitem) }"
                         >
-                            <a uiSref="{{ subitem.state }}">
+                            <a [routerLink]="subitem.state">
                                 <div>
                                     <img
                                         width="18"
@@ -85,7 +85,8 @@
                 <li *ngFor="let link of links" [hidden]="!link.visible">
                     <a
                         [ngClass]="{ selected: isActive(link) }"
-                        uiSref="{{ link.state }}"
+                        [routerLink]="link.state"
+                        routerLinkActive="active"
                         (click)="link.submenu.hidden = !link.submenu.hidden"
                     >
                         <img
@@ -101,7 +102,7 @@
                             [ngClass]="{ selectedsub: isActive(subitem) }"
                             [hidden]="!subitem.visible"
                         >
-                            <a uiSref="{{ subitem.state }}">
+                            <a [routerLink]="subitem.state">
                                 <div>
                                     <img
                                         width="18"

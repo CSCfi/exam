@@ -14,8 +14,8 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
 import { isEmpty, isInteger } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
@@ -30,7 +30,7 @@ export class ExaminationService {
     isExternal = false;
 
     constructor(
-        private state: StateService,
+        private router: Router,
         private http: HttpClient,
         private translate: TranslateService,
         private toast: ToastrService,
@@ -47,7 +47,7 @@ export class ExaminationService {
                 if (e.cloned) {
                     // we came here with a reference to the parent exam so do not render page just yet,
                     // reload with reference to student exam that we just created
-                    this.state.go('examination', { hash: e.hash });
+                    this.router.navigate(['student/exam', e.hash]);
                 }
                 this.isExternal = e.external;
             }),
@@ -198,7 +198,9 @@ export class ExaminationService {
         const ok = () => {
             this.toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
             this.Window.nativeWindow.onbeforeunload = null;
-            this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
+            this.router.navigate(['student/logout'], {
+                queryParams: { reason: 'finished', quitLinkEnabled: quitLinkEnabled },
+            });
         };
         const url = this.getResource('/app/student/exam/' + hash);
         this.http.put<void>(url, {}).subscribe({

@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { EnrolmentService } from '../enrolment/enrolment.service';
@@ -34,8 +34,8 @@ export class ExaminationComponent implements OnInit, OnDestroy {
     isPreview = false;
 
     constructor(
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private router: Router,
+        private route: ActivatedRoute,
         private translate: TranslateService,
         private Examination: ExaminationService,
         private Session: SessionService,
@@ -49,10 +49,10 @@ export class ExaminationComponent implements OnInit, OnDestroy {
             this.Window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         }
         this.Examination.startExam$(
-            this.routing.params.hash,
+            this.route.snapshot.params.hash,
             this.isPreview,
             this.isCollaborative,
-            this.routing.params.id,
+            this.route.snapshot.params.id,
         ).subscribe({
             next: (exam) => {
                 exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
@@ -67,7 +67,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
             },
             error: (err) => {
                 console.log(JSON.stringify(err));
-                this.state.go('dashboard');
+                this.router.navigate(['dashboard']);
             },
         });
     }

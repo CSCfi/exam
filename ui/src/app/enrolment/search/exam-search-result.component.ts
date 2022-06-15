@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { Router } from '@angular/router';
 import type { Exam } from '../../exam/exam.model';
 import type { CollaborativeExamInfo, EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
@@ -29,8 +29,8 @@ import { EnrolmentService } from '../enrolment.service';
                 <a
                     *ngIf="!collaborative"
                     class="infolink"
-                    uiSref="enrolments"
-                    [uiParams]="{ id: exam.id, code: exam.course?.code }"
+                    [routerLink]="['/enroll', 'exam', exam.id]"
+                    [queryParams]="{ code: exam.course?.code }"
                 >
                     {{ exam.name }}
                 </a>
@@ -91,7 +91,7 @@ export class ExamSearchResultComponent {
 
     enrolling = false; // DO WE NEED THIS?
 
-    constructor(private State: StateService, private Enrolment: EnrolmentService) {}
+    constructor(private router: Router, private Enrolment: EnrolmentService) {}
 
     enrollForExam = () => {
         if (this.enrolling) {
@@ -103,9 +103,9 @@ export class ExamSearchResultComponent {
 
     makeReservation = () => {
         if (this.exam.implementation !== 'AQUARIUM') {
-            this.State.go('dashboard');
+            this.router.navigate(['dashboard']);
         } else {
-            this.State.go(this.collaborative ? 'collaborativeCalendar' : 'calendar', { id: this.exam.id });
+            this.router.navigate([this.collaborative ? 'calendar/collaborative' : 'calendar', this.exam.id]);
         }
     };
 }
