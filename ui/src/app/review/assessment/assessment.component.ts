@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import type { ClozeTestAnswer, ExamParticipation } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
@@ -40,10 +40,12 @@ export class AssessmentComponent implements OnInit {
     user: User;
     hideGeneralInfo = false;
     hideGradeInfo = false;
+    private ref = '';
+    private examId = 0;
 
     constructor(
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private router: Router,
+        private route: ActivatedRoute,
         private http: HttpClient,
         private toast: ToastrService,
         private Assessment: AssessmentService,
@@ -57,9 +59,9 @@ export class AssessmentComponent implements OnInit {
     }
 
     ngOnInit() {
-        const path = this.collaborative
-            ? `${this.routing.params.id}/${this.routing.params.ref}`
-            : this.routing.params.id;
+        this.examId = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
+        const path = this.collaborative ? `${this.examId}/${this.ref}` : this.examId.toString();
         const url = this.getResource(path);
         this.http.get<Omit<ExamParticipation, 'exam'> & { exam: Examination }>(url).subscribe({
             next: (participation) => {
@@ -97,7 +99,7 @@ export class AssessmentComponent implements OnInit {
 
     print = () => {
         const url = this.collaborative
-            ? `/staff/print/exam/${this.routing.params.id}/${this.routing.params.ref}`
+            ? `/staff/print/exam/${this.examId}/${this.ref}`
             : `/staff/print/exam/${this.exam.id}`;
         this.Window.nativeWindow.open(url, '_blank');
     };
@@ -115,9 +117,8 @@ export class AssessmentComponent implements OnInit {
     isGraded = () => this.Assessment.isGraded(this.exam);
 
     goToAssessment = () =>
-        this.state.go('staff.examEditor.assessments', {
-            id: this.collaborative ? this.routing.params.id : this.exam.parent?.id,
-            collaborative: this.collaborative ? 'collaborative' : 'regular',
+        this.router.navigate(['/staff/exams/', this.collaborative ? this.examId : this.exam.parent?.id, '4'], {
+            queryParams: this.collaborative ? { collaborative: true } : {},
         });
 
     // Set review status as started if not already done so
@@ -133,7 +134,7 @@ export class AssessmentComponent implements OnInit {
                     state,
                     this.participation._rev as string,
                 );
-                const url = `/app/iop/reviews/${this.routing.params.id}/${this.routing.params.ref}`;
+                const url = `/app/iop/reviews/${this.examId}/${this.ref}`;
                 this.http.put<{ rev: string }>(url, review).subscribe((resp) => {
                     this.participation._rev = resp.rev;
                     this.exam.state = state;

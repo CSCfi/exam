@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
 import { SharedModule } from '../shared/shared.module';
 import { ClaimChoiceEditorComponent } from './basequestion/claim-choice.component';
 import { EssayEditorComponent } from './basequestion/essay.component';
@@ -38,7 +38,7 @@ import { QuestionService } from './question.service';
 import { TagPickerComponent } from './tags/tag-picker.component';
 
 @NgModule({
-    imports: [SharedModule, NgbModule, UIRouterModule],
+    imports: [SharedModule, NgbModule, RouterModule],
     declarations: [
         LibraryComponent,
         LibrarySearchComponent,

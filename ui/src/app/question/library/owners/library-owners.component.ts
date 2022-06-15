@@ -26,8 +26,8 @@ import { QuestionService } from '../../question.service';
 
 @Component({
     selector: 'xm-library-owner-selection',
-    template: ` <div class="make-inline">
-        <div class="question-add-owners-box">
+    template: `
+        <div class="make-inline">
             <span class="padl10">
                 <i class="bi-person-circle" style="color: #266b99"></i>&nbsp;
                 <a class="infolink pointer" (click)="showOwnerSelection = !showOwnerSelection">
@@ -55,7 +55,7 @@ import { QuestionService } from '../../question.service';
                 </div>
             </div>
         </div>
-    </div>`,
+    `,
 })
 export class LibraryOwnersComponent implements OnInit {
     @Input() selections: number[] = [];

@@ -14,8 +14,9 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, TransitionService, UIRouterGlobals } from '@uirouter/core';
+import { TransitionService } from '@uirouter/core';
 import { clone } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
@@ -37,7 +38,7 @@ export class QuestionComponent implements OnInit, OnDestroy {
     @Input() collaborative = false;
     @Input() examId = 0;
     @Input() sectionQuestion!: ExamSectionQuestion;
-    @Input() nextState?: string;
+    @Input() nextState = '';
 
     @Output() saved = new EventEmitter<Question | QuestionDraft>();
     @Output() cancelled = new EventEmitter<void>();
@@ -47,8 +48,8 @@ export class QuestionComponent implements OnInit, OnDestroy {
     transitionWatcher?: unknown;
 
     constructor(
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private router: Router,
+        private route: ActivatedRoute,
         private transition: TransitionService,
         private translate: TranslateService,
         private toast: ToastrService,
@@ -76,7 +77,12 @@ export class QuestionComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.nextState = this.nextState || this.routing.params.nextState;
+        this.nextState =
+            this.nextState ||
+            this.route.snapshot.queryParamMap.get('nextState') ||
+            this.route.snapshot.data.get('nextState');
+        this.newQuestion = this.newQuestion || this.route.snapshot.data.newQuestion;
+        const id = this.route.snapshot.paramMap.get('id');
         this.currentOwners = [];
         if (this.newQuestion) {
             this.question = this.Question.getQuestionDraft();
@@ -86,7 +92,7 @@ export class QuestionComponent implements OnInit, OnDestroy {
             this.currentOwners = clone(this.question.questionOwners);
             this.window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         } else {
-            this.Question.getQuestion(this.questionId || this.routing.params.id).subscribe({
+            this.Question.getQuestion(this.questionId || Number(id)).subscribe({
                 next: (question: ReverseQuestion) => {
                     this.question = question;
                     this.currentOwners = clone(this.question.questionOwners);
@@ -119,7 +125,7 @@ export class QuestionComponent implements OnInit, OnDestroy {
         const fn = (q: Question | QuestionDraft) => {
             this.clearListeners();
             if (this.nextState) {
-                this.state.go(this.nextState);
+                this.router.navigate(['staff', this.nextState]);
             } else if (this.saved) {
                 this.saved.emit(q);
             }
@@ -142,7 +148,7 @@ export class QuestionComponent implements OnInit, OnDestroy {
         // Call off the event listener so it won't ask confirmation now that we are going away
         this.clearListeners();
         if (this.nextState) {
-            this.state.go(this.nextState);
+            this.router.navigate(['staff', ...this.nextState.split('/')]);
         } else if (this.cancelled) {
             this.cancelled.emit();
         }

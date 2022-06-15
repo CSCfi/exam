@@ -15,8 +15,8 @@
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { SessionService } from '../../../session/session.service';
 import type { Course, Exam } from '../../exam.model';
@@ -31,8 +31,8 @@ export class CourseSelectionComponent implements OnInit {
 
     constructor(
         private translate: TranslateService,
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
+        private router: Router,
         private http: HttpClient,
         private toast: ToastrService,
         private Exam: ExamService,
@@ -40,7 +40,7 @@ export class CourseSelectionComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.http.get<Exam>(`/app/exams/${this.routing.params.id}`).subscribe((exam) => (this.exam = exam));
+        this.http.get<Exam>(`/app/exams/${this.route.snapshot.params.id}`).subscribe((exam) => (this.exam = exam));
     }
 
     getExecutionTypeTranslation = () => !this.exam || this.Exam.getExecutionTypeTranslation(this.exam.executionType);
@@ -65,9 +65,8 @@ export class CourseSelectionComponent implements OnInit {
     cancelNewExam = () =>
         this.http.delete(`/app/exams/${this.exam.id}`).subscribe(() => {
             this.toast.success(this.translate.instant('sitnet_exam_removed'));
-            const state = this.Session.getUser()?.isAdmin ? 'staff.admin' : 'staff.teacher';
-            this.state.go(state);
+            this.router.navigate(['/staff/dashboard', this.Session.getUser()?.isAdmin ? 'admin' : 'teacher']);
         });
 
-    continueToExam = () => this.state.go('staff.examEditor.basic', { id: this.exam.id });
+    continueToExam = () => this.router.navigate(['/staff/exams', this.exam.id, 1]);
 }

@@ -14,9 +14,9 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
 import * as FileSaver from 'file-saver';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
@@ -58,8 +58,8 @@ export class SpeedReviewComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
+        private router: Router,
         private translate: TranslateService,
         private modal: NgbModal,
         private toast: ToastrService,
@@ -72,7 +72,7 @@ export class SpeedReviewComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.examId = this.routing.params.id;
+        this.examId = this.route.snapshot.params.id;
         this.http
             .get<Exam>(`/app/exams/${this.examId}`)
             .pipe(
@@ -152,7 +152,7 @@ export class SpeedReviewComponent implements OnInit {
                 forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
                     this.toast.info(this.translate.instant('sitnet_saved'));
                     if (this.examReviews.length === 0) {
-                        this.state.go('staff.examEditor.assessments', { id: this.routing.params.id });
+                        this.router.navigate(['/staff/exams', this.examId, '4']);
                     }
                 });
             },
@@ -163,7 +163,7 @@ export class SpeedReviewComponent implements OnInit {
     importGrades = () => {
         this.Attachment.selectFile(false, {}, 'sitnet_import_grades_from_csv')
             .then((result) => {
-                this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, this.state.reload);
+                this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, () => this.reload());
                 this.toast.success(`${this.translate.instant('sitnet_csv_uploaded_successfully')}`);
             })
             .catch(() => {
@@ -191,6 +191,11 @@ export class SpeedReviewComponent implements OnInit {
         const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
         FileSaver.saveAs(blob, 'grading.csv');
     };
+
+    private reload = () =>
+        this.router
+            .navigateByUrl('/', { skipLocationChange: true })
+            .then(() => this.router.navigate(['/staff/speedReview']));
 
     private resolveGradeScale = (exam: Exam): GradeScale => {
         if (exam.gradeScale) {

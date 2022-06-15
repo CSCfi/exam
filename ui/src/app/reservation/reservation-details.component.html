@@ -104,8 +104,7 @@
                         r.enrolment.exam.id &&
                         (isAdminView || r.enrolment.exam.state !== 'ABORTED')
                     "
-                    uiSref="staff.assessment"
-                    [uiParams]="{ id: r.enrolment.exam.id }"
+                    [routerLink]="['/assessments', r.enrolment.exam.id]"
                     >{{ r.enrolment.exam.name }}</a
                 >
                 <span *ngIf="r.enrolment.collaborativeExam || (!isAdminView && r.enrolment.exam.state === 'ABORTED')">{{

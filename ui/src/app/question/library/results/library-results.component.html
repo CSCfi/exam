@@ -107,8 +107,8 @@
                                 <a
                                     *ngIf="!disableLinks"
                                     class="pointer"
-                                    uiSref="staff.question"
-                                    [uiParams]="{ id: question.id }"
+                                    [routerLink]="[question.id, 'edit']"
+                                    [queryParams]="{ nextState: 'questions' }"
                                     >{{ question.id }}</a
                                 >
                                 <span *ngIf="disableLinks">#{{ question.id }}</span>

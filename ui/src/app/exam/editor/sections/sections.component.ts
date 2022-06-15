@@ -17,8 +17,8 @@ import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, tap } from 'rxjs/operators';
 import { SessionService } from '../../../session/session.service';
@@ -38,8 +38,9 @@ export class SectionsComponent implements OnInit, OnChanges {
 
     constructor(
         private http: HttpClient,
+        private route: ActivatedRoute,
+        private router: Router,
         private translate: TranslateService,
-        private State: StateService,
         private toast: ToastrService,
         private Exam: ExamService,
         private Session: SessionService,
@@ -47,6 +48,8 @@ export class SectionsComponent implements OnInit, OnChanges {
     ) {}
 
     ngOnInit() {
+        this.exam = this.Tabs.getExam();
+        this.collaborative = this.Tabs.isCollaborative();
         this.Tabs.notifyTabChange(2);
     }
 
@@ -95,7 +98,7 @@ export class SectionsComponent implements OnInit, OnChanges {
 
     previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
 
-    removeExam = () => this.Exam.removeExam(this.exam, this.collaborative);
+    removeExam = () => this.Exam.removeExam(this.exam, this.collaborative, this.Session.getUser().isAdmin);
 
     removeSection = (section: ExamSection) => {
         this.http
@@ -113,12 +116,12 @@ export class SectionsComponent implements OnInit, OnChanges {
 
     nextTab = () => {
         this.Tabs.notifyTabChange(3);
-        this.State.go('staff.examEditor.publication');
+        this.router.navigate(['..', '3'], { relativeTo: this.route });
     };
 
     previousTab = () => {
         this.Tabs.notifyTabChange(1);
-        this.State.go('staff.examEditor.basic');
+        this.router.navigate(['..', '1'], { relativeTo: this.route });
     };
 
     showDelete = () => {

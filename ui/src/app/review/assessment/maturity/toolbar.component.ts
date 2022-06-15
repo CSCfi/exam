@@ -31,11 +31,7 @@ import { MaturityService } from './maturity.service';
                     </button>
                 </div>
                 <div *ngIf="isReadOnly()" class="review-attachment-button exam-questions-buttons marl15">
-                    <a
-                        class="pointer preview"
-                        uiSref="staff.examEditor.assessments"
-                        [uiParams]="{ id: exam.parent?.id, collaborative: 'false' }"
-                    >
+                    <a class="pointer preview" [routerLink]="['/staff/exams', exam.parent?.id, '4']">
                         {{ 'sitnet_close' | translate }}</a
                     >
                 </div>

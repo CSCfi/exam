@@ -15,9 +15,8 @@
 import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import type { StateDeclaration } from '@uirouter/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
@@ -41,13 +40,17 @@ type Payload = {
     additionalInfo: string;
 };
 
+export type Link = {
+    fragments: string[];
+    params?: { [key: string]: unknown };
+};
+
 @Injectable()
 export class AssessmentService {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private router: Router,
         @Inject(DOCUMENT) private document: Document,
         private toast: ToastrService,
         private windowRef: WindowRef,
@@ -133,19 +136,19 @@ export class AssessmentService {
         return words.length;
     };
 
-    getExitStateById = (id: number, collaborative: boolean): StateDeclaration => {
+    getExitStateById = (id: number, collaborative: boolean): Link => {
         return {
-            name: 'staff.examEditor.assessments',
-            params: { collaborative: collaborative ? 'collaborative' : 'regular', id: id },
+            fragments: ['/staff/exams', id.toString(), '4'],
+            params: { collaborative: collaborative },
         };
     };
 
-    getExitState = (exam: Exam, collaborative = false): StateDeclaration => {
+    getExitState = (exam: Exam, collaborative = false): Link => {
         const user = this.Session.getUser();
         if (user && user.isAdmin) {
-            return { name: 'staff.admin' };
+            return { fragments: ['/staff/dashboard/admin'] };
         }
-        const id = exam.parent ? exam.parent.id : this.routing.params.id;
+        const id = exam.parent ? exam.parent.id : exam.id; // TODO: check this
         return this.getExitStateById(id, collaborative);
     };
 
@@ -216,7 +219,7 @@ export class AssessmentService {
                 this.saveFeedback$(exam).subscribe(() => {
                     this.toast.info(this.translate.instant('sitnet_saved'));
                     const state = this.getExitState(exam);
-                    this.state.go(state.name as string, state.params);
+                    this.router.navigate(state.fragments, { queryParams: state.params });
                 });
             }
         } else {
@@ -292,7 +295,7 @@ export class AssessmentService {
                     } else {
                         this.toast.info(this.translate.instant('sitnet_review_graded'));
                         const state = this.getExitState(exam);
-                        this.state.go(state.name as string, state.params);
+                        this.router.navigate(state.fragments, { queryParams: state.params });
                     }
                 }),
                 catchError(async (resp) => this.toast.error(resp)),

@@ -124,11 +124,7 @@
                                 </td>
                                 <!-- 2 -->
                                 <td>
-                                    <a
-                                        class="infolink"
-                                        uiSref="staff.examEditor.basic"
-                                        [uiParams]="{ id: event.exam.id, code: event.exam.course?.code }"
-                                    >
+                                    <a class="infolink" [routerLink]="['/staff/exams', event.exam.id, '1']">
                                         {{ event.exam.name }}
                                     </a>
                                 </td>

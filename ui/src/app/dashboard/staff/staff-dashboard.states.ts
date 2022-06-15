@@ -83,6 +83,7 @@ export const STAFF_STATES: Ng2StateDeclaration[] = [
         },
         resolve: [
             {
+                // download either exam or collab exam by id based on collaborative-flag
                 token: 'exam',
                 deps: [ExamService, CollaborativeExamService, Transition],
                 resolveFn: (

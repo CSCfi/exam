@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
 import { SharedModule } from '../shared/shared.module';
@@ -24,7 +25,7 @@ import { ReservationService } from './reservation.service';
 import { TeacherReservationComponent } from './teacher/teacher-reservations.component';
 
 @NgModule({
-    imports: [NgbModule, SharedModule, UIRouterModule],
+    imports: [NgbModule, SharedModule, RouterModule, UIRouterModule],
     exports: [AdminReservationComponent],
     declarations: [
         ChangeMachineDialogComponent,

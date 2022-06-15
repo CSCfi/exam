@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-import { UIRouterModule } from '@uirouter/angular';
+import { RouterModule } from '@angular/router';
 import { AdministrativeModule } from '../../administrative/administrative.module';
 import { ExamModule } from '../../exam/exam.module';
 import { ExaminationModule } from '../../examination/examination.module';
@@ -25,7 +25,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { SoftwareModule } from '../../software/software.module';
 import { AdminDashboardModule } from './admin/admin-dashboard.module';
 import { StaffDashboardComponent } from './staff-dashboard.component';
-import { STAFF_STATES } from './staff-dashboard.states';
+import { StaffRoutingModule } from './staff-dashboard2.states';
 import { TeacherDashboardModule } from './teacher/teacher-dashboard.module';
 
 // TODO: Student & teacher dashboard + reservation modules should be lazy loaded to decrease bundle size
@@ -43,7 +43,8 @@ import { TeacherDashboardModule } from './teacher/teacher-dashboard.module';
         AdministrativeModule,
         SoftwareModule,
         FacilityModule,
-        UIRouterModule.forChild({ states: STAFF_STATES }),
+        RouterModule,
+        StaffRoutingModule,
     ],
     declarations: [StaffDashboardComponent],
 })

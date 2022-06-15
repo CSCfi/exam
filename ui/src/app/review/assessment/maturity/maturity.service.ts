@@ -14,8 +14,8 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
@@ -53,7 +53,7 @@ type States = {
 export class MaturityService {
     constructor(
         private http: HttpClient,
-        private state: StateService,
+        private router: Router,
         private translate: TranslateService,
         private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
@@ -168,7 +168,7 @@ export class MaturityService {
                 this.Assessment.rejectMaturity$(exam).subscribe(() => {
                     this.toast.info(this.translate.instant('sitnet_maturity_rejected'));
                     const state = this.Assessment.getExitState(exam);
-                    this.state.go(state.name as string, state.params);
+                    this.router.navigate(state.fragments, state.params);
                 });
                 break;
             case StateName.LANGUAGE_INSPECT:
@@ -226,7 +226,7 @@ export class MaturityService {
             .subscribe(() => {
                 this.toast.info(this.translate.instant('sitnet_sent_for_language_inspection'));
                 const state = this.Assessment.getExitState(exam);
-                this.state.go(state.name as string, state.params);
+                this.router.navigate(state.fragments, state.params);
             });
 
     private finalizeLanguageInspection = (exam: Exam, reject: boolean) => {
@@ -248,10 +248,10 @@ export class MaturityService {
             .subscribe(() => {
                 if (reject) {
                     this.toast.info(this.translate.instant('sitnet_maturity_rejected'));
-                    this.state.go('staff.languageInspections');
+                    this.router.navigate(['/staff/inspections']);
                 } else {
                     this.toast.info(this.translate.instant('sitnet_review_recorded'));
-                    this.state.go('staff.languageInspections');
+                    this.router.navigate(['/staff/inspections']);
                 }
             });
     };

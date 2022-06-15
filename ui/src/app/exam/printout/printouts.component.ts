@@ -76,8 +76,7 @@ import type { Exam } from '../exam.model';
                                 <td>
                                     <a
                                         class="exams-info-title bold-button"
-                                        uiSref="staff.printoutListing"
-                                        [uiParams]="{ id: exam.id }"
+                                        [routerLink]="['/staff/exams', exam.id, 'view/printout']"
                                         >{{ exam.name }}</a
                                     >
                                 </td>

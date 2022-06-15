@@ -14,9 +14,9 @@
  */
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy, OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -33,9 +33,8 @@ import { ExamTabService } from '../exam-tabs.service';
     templateUrl: './basic-exam-info.component.html',
 })
 export class BasicExamInfoComponent implements OnInit, OnDestroy {
-    @Input() exam!: Exam;
-    @Input() collaborative = false;
-
+    exam!: Exam;
+    collaborative = false;
     byodExaminationSupported = false;
     anonymousReviewEnabled = false;
     gradeScaleSetting = { overridable: false };
@@ -48,7 +47,8 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
+        private route: ActivatedRoute,
+        private router: Router,
         private translate: TranslateService,
         private toast: ToastrService,
         private Exam: ExamService,
@@ -66,6 +66,8 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
+        this.exam = this.Tabs.getExam();
+        this.collaborative = this.Tabs.isCollaborative();
         this.refreshExamTypes();
         this.refreshGradeScales();
         this.http
@@ -189,11 +191,11 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
 
     removeExamAttachment = () => this.Attachment.removeExamAttachment(this.exam, this.collaborative);
 
-    removeExam = () => this.Exam.removeExam(this.exam, this.collaborative);
+    removeExam = () => this.Exam.removeExam(this.exam, this.collaborative, this.Session.getUser().isAdmin);
 
     nextTab = () => {
-        this.Tabs.notifyTabChange(3);
-        this.state.go('staff.examEditor.sections');
+        this.Tabs.notifyTabChange(2);
+        this.router.navigate(['..', '2'], { relativeTo: this.route });
     };
 
     showDelete = () => {

@@ -159,15 +159,13 @@
                                 <a
                                     *ngIf="exam.name"
                                     class="exams-info-title bold-button"
-                                    uiSref="staff.examEditor.basic"
-                                    [uiParams]="{ id: exam.id }"
+                                    [routerLink]="['/staff/exams', exam.id, '1']"
                                     >{{ exam.name }}</a
                                 >
                                 <a
                                     *ngIf="!exam.name"
                                     class="exams-info-title bold-button text-danger"
-                                    uiSref="staff.examEditor.basic"
-                                    [uiParams]="{ id: exam.id }"
+                                    [routerLink]="['/staff/exams', exam.id, '1']"
                                     >{{ 'sitnet_no_name' | translate }}
                                 </a>
                             </td>

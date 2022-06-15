@@ -13,10 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import type { OnDestroy, OnInit } from '@angular/core';
-import { ChangeDetectorRef, Component, Input } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/angular';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import type { User } from '../../session/session.service';
@@ -30,9 +30,8 @@ import { ExamTabService } from './exam-tabs.service';
     templateUrl: './exam-tabs.component.html',
 })
 export class ExamTabsComponent implements OnInit, OnDestroy {
-    @Input() exam!: Exam;
-    @Input() collaborative = false;
-
+    exam!: Exam;
+    collaborative = false;
     user: User;
     examInfo: { title: string | null };
     activeTab = 1;
@@ -40,7 +39,8 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
 
     constructor(
         private cdr: ChangeDetectorRef,
-        private state: StateService,
+        private route: ActivatedRoute,
+        private router: Router,
         private translate: TranslateService,
         private Session: SessionService,
         private Tabs: ExamTabService,
@@ -57,8 +57,14 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.updateTitle(!this.exam.course ? null : this.exam.course.code, this.exam.name);
-        this.initGradeScale();
+        this.collaborative = !!this.route.snapshot.queryParamMap.get('collaborative');
+        this.route.data.subscribe((data) => {
+            this.exam = data.exam;
+            this.updateTitle(!this.exam.course ? null : this.exam.course.code, this.exam.name);
+            this.initGradeScale();
+            this.Tabs.setExam(this.exam);
+            this.Tabs.setCollaborative(this.collaborative);
+        });
     }
 
     ngOnDestroy() {
@@ -84,22 +90,8 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
             (x) => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
         );
 
-    navChanged = (event: NgbNavChangeEvent, forceRegularExam = false) => {
-        const params = forceRegularExam ? { collaborative: 'false', id: this.exam.id } : undefined;
-        if (event.nextId === 1) {
-            this.state.go('staff.examEditor.basic', params);
-        } else if (event.nextId === 2) {
-            this.state.go('staff.examEditor.sections', params);
-        } else if (event.nextId === 3) {
-            this.state.go('staff.examEditor.publication', params);
-        } else if (event.nextId === 4) {
-            this.state.go('staff.examEditor.assessments', params);
-        } else if (event.nextId === 5) {
-            this.state.go('staff.examEditor.questionReview', params);
-        } else if (event.nextId === 6) {
-            this.state.go('staff.examEditor.summary', params);
-        }
-    };
+    navChanged = (event: NgbNavChangeEvent, forceRegularExam = false) =>
+        this.router.navigate([event.nextId], { relativeTo: this.route });
 
     examUpdated = (props: UpdateProps) => {
         this.updateTitle(props.code, props.name);

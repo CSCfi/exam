@@ -26,8 +26,7 @@
                     <div>
                         {{ 'sitnet_exam_basic_information_tab' | translate }}
                         <a
-                            uiSref="staff.room"
-                            [uiParams]="{ id: room.id }"
+                            [routerLink]="['/staff/rooms', room.id]"
                             popoverTitle="{{ 'sitnet_instructions' | translate }}"
                             triggers="mouseenter:mouseleave"
                             ngbPopover="{{ 'sitnet_edit' | translate }}"

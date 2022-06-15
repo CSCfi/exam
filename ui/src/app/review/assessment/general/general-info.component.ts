@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
-import { UIRouterGlobals } from '@uirouter/core';
+import { ActivatedRoute } from '@angular/router';
 import { parseISO, roundToNearestMinutes } from 'date-fns';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import type { Exam, ExamParticipation } from '../../../exam/exam.model';
@@ -43,7 +43,7 @@ export class GeneralInfoComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
-        private state: UIRouterGlobals,
+        private route: ActivatedRoute,
         private Attachment: AttachmentService,
         private DateTime: DateTimeService,
     ) {}
@@ -62,12 +62,12 @@ export class GeneralInfoComponent implements OnInit {
         if (this.collaborative) {
             this.http
                 .get<ExamParticipation[]>(
-                    `/app/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
+                    `/app/iop/reviews/${this.route.snapshot.params.id}/participations/${this.route.snapshot.params.ref}`,
                 )
                 .subscribe(this.handleParticipations);
         } else {
             this.http
-                .get<ExamParticipation[]>(`app/examparticipations/${this.state.params.id}`)
+                .get<ExamParticipation[]>(`app/examparticipations/${this.route.snapshot.params.id}`)
                 .subscribe(this.handleParticipations);
         }
     }

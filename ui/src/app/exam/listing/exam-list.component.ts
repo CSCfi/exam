@@ -14,9 +14,9 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { from, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
@@ -49,7 +49,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
 
     constructor(
         private translate: TranslateService,
-        private state: StateService,
+        private router: Router,
         private http: HttpClient,
         private modal: NgbModal,
         private toast: ToastrService,
@@ -89,7 +89,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
             .subscribe();
     }
 
-    newExam = () => this.state.go('staff.newExam');
+    newExam = () => this.router.navigate(['/staff/exams']);
 
     search = (event: KeyboardEvent) => {
         const e = event.target as HTMLInputElement;
@@ -108,7 +108,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (resp) => {
                     this.toast.success(this.translate.instant('sitnet_exam_copied'));
-                    this.state.go('staff.examEditor.basic', { id: resp.id });
+                    this.router.navigate(['/staff/exams', resp.id, '1']);
                 },
                 error: this.toast.error,
             });

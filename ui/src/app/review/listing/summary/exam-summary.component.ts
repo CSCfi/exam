@@ -12,11 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
 import { format } from 'date-fns';
+import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import type { Exam, ExamParticipation } from '../../../exam/exam.model';
 import { FileService } from '../../../shared/file/file.service';
@@ -31,9 +33,9 @@ import { ExamSummaryService } from './exam-summary.service';
     templateUrl: './exam-summary.component.html',
 })
 export class ExamSummaryComponent implements OnInit, OnChanges {
-    @Input() exam!: Exam;
-    @Input() reviews: ExamParticipation[] = [];
-    @Input() collaborative = false;
+    exam!: Exam;
+    reviews: ExamParticipation[] = [];
+    collaborative = false;
 
     gradedCount = 0;
     abortedExams: Review[] = [];
@@ -46,18 +48,26 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
     sectionScores: Record<string, { max: number; totals: number[] }> = {};
 
     constructor(
+        private route: ActivatedRoute,
         private translate: TranslateService,
         private modal: NgbModal,
         private ExamSummary: ExamSummaryService,
         private ReviewList: ReviewListService,
         private Files: FileService,
+        private Tabs: ExamTabService,
     ) {}
 
     ngOnInit() {
-        this.refresh();
-        // Had to manually update chart locales
-        this.translate.onLangChange.subscribe(() => this.updateChartLocale());
-        this.sectionScores = this.ExamSummary.calcSectionMaxAndAverages(this.reviews, this.exam);
+        this.route.data.subscribe((data) => {
+            this.reviews = data.reviews;
+            this.exam = this.Tabs.getExam();
+            this.collaborative = this.Tabs.isCollaborative();
+            this.refresh();
+            // Had to manually update chart locales
+            this.translate.onLangChange.subscribe(() => this.updateChartLocale());
+            this.sectionScores = this.ExamSummary.calcSectionMaxAndAverages(this.reviews, this.exam);
+            this.Tabs.notifyTabChange(6);
+        });
     }
 
     ngOnChanges() {
@@ -87,7 +97,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
         return `${effectiveCount} (${totalCount})`;
     };
 
-    calcAverage = (ns: number[]) => (ns || []).reduce((a, b) => a + b, 0) / ns.length || 1;
+    calcAverage = (ns?: number[]) => (ns || []).reduce((a, b) => a + b, 0) / (ns?.length || 1);
 
     getAverageTime = () => {
         const durations = this.reviews.map((r) => this.ReviewList.diffInMinutes(r.started, r.ended));

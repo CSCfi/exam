@@ -21,26 +21,20 @@ import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { ReservationService } from '../../../reservation/reservation.service';
 
-export interface DraftExam extends Exam {
+export interface DashboardExam extends Exam {
     ownerAggregate: string;
-}
-export interface FinalizedExam extends DraftExam {
     unassessedCount: number;
     unfinishedCount: number;
-}
-export interface ActiveExam extends FinalizedExam {
     reservationCount: number;
-}
-export interface ArchivedExam extends DraftExam {
     assessedCount: number;
 }
 
 export class Dashboard {
     executionTypes: ExamExecutionType[] = [];
-    draftExams: DraftExam[] = [];
-    activeExams: ActiveExam[] = [];
-    finishedExams: FinalizedExam[] = [];
-    archivedExams: ArchivedExam[] = [];
+    draftExams: DashboardExam[] = [];
+    activeExams: DashboardExam[] = [];
+    finishedExams: DashboardExam[] = [];
+    archivedExams: DashboardExam[] = [];
 }
 
 @Injectable()
@@ -64,6 +58,10 @@ export class TeacherDashboardService {
                     return {
                         ...de,
                         ownerAggregate: de.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join(),
+                        unassessedCount: 0,
+                        unfinishedCount: 0,
+                        reservationCount: 0,
+                        assessedCount: 0,
                     };
                 });
                 const activeExams = reviews.filter((r) => {
@@ -87,6 +85,7 @@ export class TeacherDashboardService {
                         unassessedCount: this.Exam.getReviewablesCount(ae),
                         unfinishedCount: this.Exam.getGradedCount(ae),
                         reservationCount: this.Reservation.getReservationCount(ae),
+                        assessedCount: 0,
                         ownerAggregate: ae.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join(),
                     };
                 });
@@ -111,6 +110,8 @@ export class TeacherDashboardService {
                             ...ee,
                             ownerAggregate: ownerAggregate,
                             unassessedCount: unassessedCount,
+                            assessedCount: 0,
+                            reservationCount: 0,
                             unfinishedCount: unfinishedCount,
                         });
                     } else {
@@ -121,6 +122,9 @@ export class TeacherDashboardService {
                             ...ee,
                             ownerAggregate: ownerAggregate,
                             assessedCount: this.Exam.getProcessedCount(ee),
+                            unassessedCount: 0,
+                            reservationCount: 0,
+                            unfinishedCount: 0,
                         });
                     }
                 });

@@ -39,7 +39,7 @@ export interface Option<V, I> {
             {{ selected?.label || placeholder | translate }}
         </button>
         <ul ngbDropdownMenu class="scrollable-menu" role="menu" aria-labelledby="dd1">
-            <li class="input-group p-2">
+            <li class="input-group p-2" *ngIf="!noSearch">
                 <input
                     [(ngModel)]="searchFilter"
                     class="form-control"
@@ -54,7 +54,7 @@ export interface Option<V, I> {
                 </div>
             </li>
             <li ngbDropdownItem (click)="clearSelection()">
-                <a class="dropdown-item pointer">{{ placeholder | translate }}</a>
+                <a><i class="bi-x text text-danger"></i></a>
             </li>
             <li
                 ngbDropdownItem
@@ -74,7 +74,8 @@ export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
     @Input() options: Option<V, I>[] = []; // everything
     @Input() placeholder = '-';
     @Input() limitTo?: number;
-    @Input() fullWidth?: boolean = false;
+    @Input() fullWidth = false;
+    @Input() noSearch = false;
     @Output() optionSelected = new EventEmitter<Option<V, I> | undefined>();
     filteredOptions: Option<V, I>[] = []; // filtered
     searchFilter = '';

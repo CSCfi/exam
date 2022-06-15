@@ -56,7 +56,7 @@
                         ></xm-table-sort>
                     </th>
 
-                    <th *ngFor="let column of extraColumnNames()" class="with-top with-space">
+                    <th *ngFor="let column of extraData" class="with-top with-space">
                         <xm-table-sort
                             by="{{ column.property }}"
                             text="{{ column.text }}"
@@ -82,17 +82,20 @@
             <tbody>
                 <tr *ngFor="let exam of items | orderBy: sorting.predicate:sorting.reverse">
                     <td *ngIf="exam.name" class="table-column-examname">
-                        <a *ngIf="isOwner(exam)" uiSref="staff.examEditor.basic" [uiParams]="{ id: exam.id }">{{
-                            exam.name
-                        }}</a>
+                        <a
+                            *ngIf="isOwner(exam)"
+                            [routerLink]="['/staff/exams', exam.id, '1']"
+                            [state]="{ collaborative: false }"
+                            >{{ exam.name }}</a
+                        >
                         <span *ngIf="!isOwner(exam)">{{ exam.name }}</span>
                     </td>
                     <td *ngIf="!exam.name" class="table-column-examname">
                         <a
                             class="text-danger"
                             *ngIf="isOwner(exam)"
-                            uiSref="staff.examEditor.basic"
-                            [uiParams]="{ id: exam.id }"
+                            [routerLink]="['/staff/exams', exam.id, '1']"
+                            [state]="{ collaborative: false }"
                             >{{ 'sitnet_no_name' | translate }}</a
                         >
                         <span class="text-danger" *ngIf="!isOwner(exam)">{{ 'sitnet_no_name' | translate }}</span>
@@ -110,21 +113,21 @@
                         </span>
                     </td>
 
-                    <td *ngFor="let column of extraColumnValues(exam)" class="table-column-enroll-participation">
+                    <td *ngFor="let column of extraData" class="table-column-enroll-participation">
                         <span class="exam-count">
                             <a
                                 *ngIf="
                                     (!column.checkOwnership || isOwner(exam)) && exam.executionType.type !== 'PRINTOUT'
                                 "
-                                href="{{ column.link.replace('__', exam.id.toString()) }}"
-                                >{{ column.value }}</a
+                                [routerLink]="getLink(column, exam)"
+                                >{{ exam[column.property] }}</a
                             >
                             <span
                                 *ngIf="
                                     !isOwner(exam) && column.checkOwnership && exam.executionType.type !== 'PRINTOUT'
                                 "
                                 class="exam-count-not-active"
-                                >{{ column.value }}</span
+                                >{{ exam[column.property] }}</span
                             >
                         </span>
                         <div *ngIf="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
@@ -155,7 +158,7 @@
                     </td>
                 </tr>
                 <tr *ngIf="items?.length === 0">
-                    <td [attr.colspan]="5 + extraColumnNames().length">
+                    <td [attr.colspan]="7 + extraData.length">
                         {{ 'sitnet_exam_no_result' | translate }}
                     </td>
                 </tr>

@@ -308,8 +308,8 @@ export class SessionService implements OnDestroy {
         } else if (this.router.url === '/') {
             let state;
             if (user.loginRole === 'STUDENT') state = 'dashboard';
-            else if (user.loginRole === 'TEACHER') state = 'staff/teacher';
-            else state = 'staff/admin';
+            else if (user.loginRole === 'TEACHER') state = 'staff/dashboard/teacher';
+            else state = 'staff/dashboard/admin';
             this.router.navigate([state]);
         } else if (this.router.url === '/') {
             // Hackish but will have to try
