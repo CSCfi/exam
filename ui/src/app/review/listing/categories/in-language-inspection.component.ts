@@ -17,8 +17,8 @@ import type { Exam } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
 import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
 import type { Review } from '../../review.model';
-import type { ReviewListView } from '../reviewList.service';
-import { ReviewListService } from '../reviewList.service';
+import type { ReviewListView } from '../review-list.service';
+import { ReviewListService } from '../review-list.service';
 
 @Component({
     selector: 'xm-rl-in-language-inspection',

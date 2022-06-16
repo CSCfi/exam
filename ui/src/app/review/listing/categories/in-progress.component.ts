@@ -21,8 +21,8 @@ import { SessionService } from '../../../session/session.service';
 import { FileService } from '../../../shared/file/file.service';
 import type { Review } from '../../review.model';
 import { ArchiveDownloadComponent } from '../dialogs/archive-download.component';
-import type { ReviewListView } from '../reviewList.service';
-import { ReviewListService } from '../reviewList.service';
+import type { ReviewListView } from '../review-list.service';
+import { ReviewListService } from '../review-list.service';
 
 @Component({
     selector: 'xm-rl-in-progress',

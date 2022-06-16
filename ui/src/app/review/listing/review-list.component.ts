@@ -21,11 +21,11 @@ import type { Exam, ExamParticipation } from '../../exam/exam.model';
 import type { Review } from '../review.model';
 import { AbortedExamsComponent } from './dialogs/aborted.component';
 import { NoShowsComponent } from './dialogs/no-shows.component';
-import { ReviewListService } from './reviewList.service';
+import { ReviewListService } from './review-list.service';
 
 @Component({
     selector: 'xm-review-list',
-    templateUrl: './reviewList.component.html',
+    templateUrl: './review-list.component.html',
 })
 export class ReviewListComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;

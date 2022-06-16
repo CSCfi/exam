@@ -44,7 +44,7 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 
 @Component({
     selector: 'xm-speed-review',
-    templateUrl: './speedReview.component.html',
+    templateUrl: './speed-review.component.html',
 })
 export class SpeedReviewComponent implements OnInit {
     pageSize = 10;

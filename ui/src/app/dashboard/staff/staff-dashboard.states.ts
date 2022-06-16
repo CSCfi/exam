@@ -32,10 +32,10 @@ import { LibraryComponent } from '../../question/library/library.component';
 import { TeacherReservationComponent } from '../../reservation/teacher/teacher-reservations.component';
 import { AssessmentComponent } from '../../review/assessment/assessment.component';
 import { PrintedAssessmentComponent } from '../../review/assessment/print/printed-assessment.component';
-import { ReviewListComponent } from '../../review/listing/reviewList.component';
-import { ReviewListService } from '../../review/listing/reviewList.service';
-import { SpeedReviewComponent } from '../../review/listing/speedReview.component';
-import { ExamSummaryComponent } from '../../review/listing/summary/examSummary.component';
+import { ReviewListComponent } from '../../review/listing/review-list.component';
+import { ReviewListService } from '../../review/listing/review-list.service';
+import { SpeedReviewComponent } from '../../review/listing/speed-review.component';
+import { ExamSummaryComponent } from '../../review/listing/summary/exam-summary.component';
 import { QuestionAssessmentComponent } from '../../review/questions/assessment/question-assessment.component';
 import { QuestionReviewsComponent } from '../../review/questions/listing/question-reviews.component';
 import { SoftwareComponent } from '../../software/software.component';
@@ -208,8 +208,8 @@ export const STAFF_STATES: Ng2StateDeclaration[] = [
             {
                 token: 'reviews',
                 deps: [ReviewListService, Transition, 'collaborative'],
-                resolveFn: (reviewList: ReviewListService, transition: Transition, collaborative: boolean) =>
-                    reviewList.getReviews$(transition.params().id, collaborative),
+                resolveFn: async (reviewList: ReviewListService, transition: Transition, collaborative: boolean) =>
+                    await firstValueFrom(reviewList.getReviews$(transition.params().id, collaborative)),
             },
         ],
     },

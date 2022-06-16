@@ -16,7 +16,20 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { Chart } from 'chart.js';
+import {
+    ArcElement,
+    CategoryScale,
+    Chart,
+    Legend,
+    LinearScale,
+    LineController,
+    LineElement,
+    PieController,
+    PointElement,
+    ScatterController,
+    TooltipItem,
+} from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { eachDayOfInterval, format, min, startOfDay } from 'date-fns';
 import { countBy } from 'lodash';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
@@ -28,7 +41,7 @@ import { CommonExamService } from '../../../shared/miscellaneous/common-exam.ser
 import type { Review } from '../../review.model';
 import { AbortedExamsComponent } from '../dialogs/aborted.component';
 import { NoShowsComponent } from '../dialogs/no-shows.component';
-import { ReviewListService } from '../reviewList.service';
+import { ReviewListService } from '../review-list.service';
 
 type QuestionData = {
     question: string;
@@ -40,7 +53,7 @@ type QuestionData = {
 
 @Component({
     selector: 'xm-exam-summary',
-    templateUrl: './examSummary.component.html',
+    templateUrl: './exam-summary.component.html',
 })
 export class ExamSummaryComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;
@@ -49,7 +62,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
 
     gradeDistribution: Record<string, number> = {};
     gradedCount = 0;
-    gradeTimeData: Array<{ x: string; y: number }> = [];
+    gradeTimeData: { x: number; y: number }[] = [];
     examinationDateData: { date: number; amount: number }[] = [];
     questionScoreData: QuestionData[] = [];
     gradeDistributionData: number[] = [];
@@ -57,10 +70,10 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
     abortedExams: Review[] = [];
     noShows: ExamEnrolment[] = [];
     gradeDistributionChart!: Chart;
-    gradeTimeChart!: Chart;
-    examinationDateDistribution!: Chart;
-    questionScoreChart!: Chart;
-    approvalRatingChart!: Chart;
+    gradeTimeChart!: Chart<'scatter'>;
+    examinationDateDistribution!: Chart<'line'>;
+    questionScoreChart!: Chart<'line'>;
+    approvalRatingChart!: Chart<'line'>;
     sectionScores: Record<string, { max: number; totals: number[] }> = {};
 
     constructor(
@@ -72,7 +85,19 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
         private Question: QuestionService,
         private ReviewList: ReviewListService,
         private Files: FileService,
-    ) {}
+    ) {
+        Chart.register([
+            ArcElement,
+            PointElement,
+            LineElement,
+            CategoryScale,
+            LinearScale,
+            LineController,
+            PieController,
+            ScatterController,
+            Legend,
+        ]);
+    }
 
     ngOnInit() {
         this.refresh();
@@ -84,8 +109,6 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
     ngOnChanges() {
         this.refresh();
     }
-
-    getGradeDistribution = () => this.gradeDistribution;
 
     getRegisteredCount = () => this.reviews.length;
 
@@ -110,304 +133,12 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
         return `${effectiveCount} (${totalCount})`;
     };
 
-    calculateGradeDistribution = () => {
-        const grades: string[] = this.reviews
-            .filter((r) => r.exam.gradedTime)
-            .map((r) => (r.exam.grade ? r.exam.grade.name : this.translate.instant('sitnet_no_grading')));
-        this.gradeDistribution = countBy(grades);
-        this.gradeDistributionData = Object.values(this.gradeDistribution);
-        this.gradeDistributionLabels = Object.keys(this.gradeDistribution).map(this.CommonExam.getExamGradeDisplayName);
-    };
-
-    renderGradeDistributionChart = () => {
-        const chartColors = ['#97BBCD', '#DCDCDC', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360'];
-        const amount = this.translate.instant('sitnet_pieces');
-
-        this.gradeDistributionChart = new Chart('gradeDistributionChart', {
-            type: 'pie',
-            data: {
-                datasets: [
-                    {
-                        data: this.gradeDistributionData,
-                        backgroundColor: chartColors,
-                    },
-                ],
-                labels: this.gradeDistributionLabels,
-            },
-            options: {
-                animation: {
-                    // FIXME: how on earth does this fully work on typescript?
-                    // See if doable with ng2-chart / chart.js 3
-                    onComplete: function (event: { chart: { ctx: CanvasRenderingContext2D } }) {
-                        const ctx = event.chart.ctx;
-                        ctx.font = Chart.helpers.fontString(
-                            Chart.defaults.global.defaultFontFamily,
-                            'bold',
-                            Chart.defaults.global.defaultFontFamily,
-                        );
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'bottom';
-                        // eslint-disable-next-line
-                        // @ts-ignore
-                        const dataset = this.data.datasets[0];
-                        for (let i = 0; i < dataset.data?.length; i++) {
-                            const model = dataset._meta[Object.keys(dataset._meta)[0]].data[i]._model,
-                                total = dataset._meta[Object.keys(dataset._meta)[0]].total,
-                                mid_radius = model.innerRadius + (model.outerRadius - model.innerRadius) / 2,
-                                start_angle = model.startAngle,
-                                end_angle = model.endAngle,
-                                mid_angle = start_angle + (end_angle - start_angle) / 2;
-
-                            const x = mid_radius * Math.cos(mid_angle);
-                            const y = mid_radius * Math.sin(mid_angle);
-
-                            // Darker text color for lighter background
-                            ctx.fillStyle = '#444';
-                            const percent = String(Math.round((dataset.data[i] / total) * 100)) + '%';
-                            ctx.fillText(`${dataset.data[i]} ${amount}`, model.x + x, model.y + y);
-                            // Display percent in another line, line break doesn't work for fillText
-                            ctx.fillText(`(${percent})`, model.x + x, model.y + y + 15);
-                        }
-                    },
-                },
-                legend: { display: true },
-                tooltips: { enabled: false },
-                events: [],
-            },
-        });
-    };
-
-    calcAverage = (numArray?: number[]) => (numArray ? numArray.reduce((a, b) => a + b, 0) / numArray.length : 0);
-
-    getDurationAsMillis = (dateStr: string) => new Date(dateStr).getTime();
-
-    getDurationAsMinutes = (dateStr: string) => Math.round(this.getDurationAsMillis(dateStr) / 1000 / 60);
+    calcAverage = (ns: number[]) => (ns || []).reduce((a, b) => a + b, 0) / ns.length || 1;
 
     getAverageTime = () => {
-        const durations = this.reviews.map((r) => this.getDurationAsMinutes(r.duration));
-        return this.calcAverage(durations);
+        const durations = this.reviews.map((r) => this.diffInMinutes(r.started, r.ended));
+        return (durations.reduce((a, b) => a + b, 0) / durations.length || 1).toFixed(2);
     };
-
-    getNoShows = () => {
-        // No-shows
-        if (this.collaborative) {
-            //TODO: Fetch collaborative no-shows from xm.
-            this.noShows = [];
-        } else {
-            this.http
-                .get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`)
-                .subscribe((enrolments) => (this.noShows = enrolments));
-        }
-    };
-
-    calculateGradeTimeValues = () => {
-        this.gradeTimeData = this.reviews
-            .sort((a, b) => (this.getDurationAsMillis(a.duration) > this.getDurationAsMillis(b.duration) ? 1 : -1))
-            .map((r) => ({ x: String(this.getDurationAsMinutes(r.duration)), y: r.exam.totalScore }));
-    };
-
-    calculateExaminationTimeValues = () => {
-        const dates = eachDayOfInterval({
-            start: min([new Date(this.exam.examActiveStartDate as string), new Date()]),
-            end: min([new Date(this.exam.examActiveEndDate as string), new Date()]),
-        });
-        this.examinationDateData = dates.map((d, i) => ({
-            date: i,
-            amount: this.reviews.filter((r) => startOfDay(new Date(r.ended)) <= d).length,
-        }));
-    };
-
-    renderQuestionScoreChart = () => {
-        this.questionScoreChart = new Chart('questionScoreChart', {
-            options: {
-                maintainAspectRatio: false,
-            },
-            type: 'line',
-            data: {
-                labels: this.questionScoreData.map((d) => d.question),
-                datasets: [
-                    {
-                        label: 'max',
-                        data: this.questionScoreData.map((d) => d.max),
-                        fill: false,
-                        lineTension: 0.1,
-                        borderColor: 'orange',
-                    },
-                    {
-                        label: 'avg',
-                        data: this.questionScoreData.map((d) => d.avg),
-                        fill: false,
-                        lineTension: 0.1,
-                        borderColor: 'blue',
-                    },
-                    {
-                        label: 'median',
-                        data: this.questionScoreData.map((d) => d.median),
-                        fill: false,
-                        lineTension: 0.1,
-                        borderColor: 'red',
-                    },
-                ],
-            },
-        });
-    };
-
-    renderApprovalRateChart = () => {
-        this.approvalRatingChart = new Chart('approvalRatingChart', {
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    yAxes: [
-                        {
-                            ticks: {
-                                beginAtZero: true,
-                            },
-                        },
-                    ],
-                },
-            },
-            type: 'line',
-            data: {
-                labels: this.questionScoreData.map((d) => d.question),
-                datasets: [
-                    {
-                        label: 'max',
-                        data: this.questionScoreData.map((d) => d.approvalRate),
-                        fill: false,
-                        lineTension: 0.1,
-                        borderColor: 'green',
-                    },
-                ],
-            },
-        });
-    };
-
-    renderExaminationTimeDistributionChart = () => {
-        this.examinationDateDistribution = new Chart('examinationDateDistributionChart', {
-            options: {
-                maintainAspectRatio: false,
-                scales: {
-                    yAxes: [
-                        {
-                            ticks: {
-                                beginAtZero: true,
-                                callback: (label: number) => {
-                                    if (Math.floor(label) === label) {
-                                        return label;
-                                    }
-                                    return 0;
-                                },
-                            },
-                        },
-                    ],
-                    xAxes: [
-                        {
-                            scaleLabel: {
-                                display: true,
-                                labelString: this.translate.instant('sitnet_days_since_period_beginning').toLowerCase(),
-                            },
-                        },
-                    ],
-                },
-            },
-            type: 'line',
-            data: {
-                labels: this.examinationDateData.map((d) => d.date),
-                datasets: [
-                    {
-                        label: this.translate.instant('sitnet_amount_exams'),
-                        data: this.examinationDateData.map((d) => d.amount),
-                        fill: false,
-                        borderColor: '#028a0f',
-                        lineTension: 0.1,
-                        pointRadius: 0,
-                    },
-                ],
-            },
-        });
-    };
-
-    renderGradeTimeChart = () => {
-        const { duration } = this.exam;
-        const examMaxScore = this.Exam.getMaxScore(this.exam);
-
-        // This could be done as a separate chart component after Angular migration
-        this.gradeTimeChart = new Chart('gradeTimeChart', {
-            type: 'scatter',
-            data: {
-                datasets: [
-                    {
-                        showLine: false,
-                        pointBackgroundColor: '#F7464A',
-                        data: this.gradeTimeData,
-                    },
-                ],
-            },
-            options: {
-                legend: { display: false },
-                responsive: true,
-                maintainAspectRatio: false,
-                tooltips: {
-                    displayColors: false,
-                    callbacks: {
-                        label: (tooltipItem) => {
-                            const { xLabel, yLabel } = tooltipItem;
-                            const pointsLabel = this.translate.instant('sitnet_word_points');
-                            const minutesLabel = this.translate.instant('sitnet_word_minutes');
-                            return `${pointsLabel}: ${yLabel} ${minutesLabel}: ${xLabel}`;
-                        },
-                    },
-                },
-                scales: {
-                    yAxes: [
-                        {
-                            ticks: { max: examMaxScore, min: 0 },
-                            display: true,
-                            scaleLabel: {
-                                display: true,
-                                labelString: this.translate.instant('sitnet_word_points').toLowerCase(),
-                            },
-                        },
-                    ],
-                    xAxes: [
-                        {
-                            ticks: { max: duration, min: 0 },
-                            display: true,
-                            scaleLabel: {
-                                display: true,
-                                labelString: this.translate.instant('sitnet_word_minutes').toLowerCase(),
-                            },
-                        },
-                    ],
-                },
-            },
-        });
-    };
-
-    updateChartLocale() {
-        if (this.gradeTimeChart.options?.scales) {
-            const scales = this.gradeTimeChart.options.scales;
-            if (scales.xAxes && scales.xAxes[0].scaleLabel) {
-                scales.xAxes[0].scaleLabel.labelString = this.translate.instant('sitnet_word_points').toLowerCase();
-            }
-            if (scales.yAxes && scales.yAxes[0].scaleLabel) {
-                scales.yAxes[0].scaleLabel.labelString = this.translate.instant('sitnet_word_minutes').toLowerCase();
-            }
-        }
-        this.gradeTimeChart.update();
-        if (this.examinationDateDistribution.options?.scales) {
-            const scales = this.examinationDateDistribution.options.scales;
-            if (scales.xAxes && scales.xAxes[0].scaleLabel) {
-                scales.xAxes[0].scaleLabel.labelString = this.translate
-                    .instant('sitnet_days_since_period_beginning')
-                    .toLowerCase();
-            }
-        }
-        if (this.examinationDateDistribution.data?.datasets) {
-            this.examinationDateDistribution.data.datasets[0].label = this.translate.instant('sitnet_amount_exams');
-        }
-        this.examinationDateDistribution.update();
-    }
 
     printQuestionScoresReport = () => {
         const ids = this.reviews.map((r) => r.exam.id);
@@ -443,7 +174,264 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
         modalRef.componentInstance.noShows = this.noShows;
     };
 
-    calcSectionMaxAndAverages = () => {
+    private getNoShows = () => {
+        // No-shows
+        if (this.collaborative) {
+            //TODO: Fetch collaborative no-shows from xm.
+            this.noShows = [];
+        } else {
+            this.http
+                .get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`)
+                .subscribe((enrolments) => (this.noShows = enrolments));
+        }
+    };
+
+    private calculateGradeDistribution = () => {
+        const grades: string[] = this.reviews
+            .filter((r) => r.exam.gradedTime)
+            .map((r) => (r.exam.grade ? r.exam.grade.name : this.translate.instant('sitnet_no_grading')));
+        this.gradeDistribution = countBy(grades);
+        this.gradeDistributionData = Object.values(this.gradeDistribution);
+        this.gradeDistributionLabels = Object.keys(this.gradeDistribution).map(this.CommonExam.getExamGradeDisplayName);
+    };
+
+    private renderGradeDistributionChart = () => {
+        const chartColors = ['#97BBCD', '#DCDCDC', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360'];
+        const amount = this.translate.instant('sitnet_pieces');
+
+        this.gradeDistributionChart = new Chart('gradeDistributionChart', {
+            type: 'pie',
+            data: {
+                labels: this.gradeDistributionLabels,
+                datasets: [
+                    {
+                        data: this.gradeDistributionData,
+                        backgroundColor: chartColors,
+                    },
+                ],
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                plugins: {
+                    title: { display: false },
+                    tooltip: { enabled: true },
+                    legend: { display: true, position: 'top' },
+                    datalabels: {
+                        color: 'white',
+                        font: { weight: 'bold' },
+                        formatter: (value, context) => {
+                            const points = context.chart.data.datasets[0].data as number[];
+                            const sum = points.reduce((a, b) => a + b, 0);
+                            return `${value} ${amount} ${((value / sum) * 100).toFixed(2)}%`;
+                        },
+                    },
+                },
+            },
+        });
+    };
+
+    private calculateGradeTimeValues = () => {
+        this.gradeTimeData = this.reviews
+            .sort((a, b) => (this.diffInMinutes(a.started, a.ended) > this.diffInMinutes(b.started, b.ended) ? 1 : -1))
+            .map((r) => ({ x: this.diffInMinutes(r.started, r.ended), y: r.exam.totalScore }));
+    };
+
+    private calculateExaminationTimeValues = () => {
+        const dates = eachDayOfInterval({
+            start: min([new Date(this.exam.examActiveStartDate as string), new Date()]),
+            end: min([new Date(this.exam.examActiveEndDate as string), new Date()]),
+        });
+        this.examinationDateData = dates.map((d, i) => ({
+            date: i,
+            amount: this.reviews.filter((r) => startOfDay(new Date(r.ended)) <= d).length,
+        }));
+    };
+
+    private renderQuestionScoreChart = () => {
+        this.questionScoreChart = new Chart('questionScoreChart', {
+            options: {
+                maintainAspectRatio: false,
+            },
+            type: 'line',
+            data: {
+                labels: this.questionScoreData.map((d) => d.question),
+                datasets: [
+                    {
+                        label: 'max',
+                        data: this.questionScoreData.map((d) => d.max),
+                        fill: false,
+                        tension: 0.1,
+                        borderColor: 'orange',
+                    },
+                    {
+                        label: 'avg',
+                        data: this.questionScoreData.map((d) => d.avg),
+                        fill: false,
+                        tension: 0.1,
+                        borderColor: 'blue',
+                    },
+                    {
+                        label: 'median',
+                        data: this.questionScoreData.map((d) => d.median),
+                        fill: false,
+                        tension: 0.1,
+                        borderColor: 'red',
+                    },
+                ],
+            },
+        });
+    };
+
+    private renderApprovalRateChart = () => {
+        this.approvalRatingChart = new Chart('approvalRatingChart', {
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                    },
+                },
+            },
+            type: 'line',
+            data: {
+                labels: this.questionScoreData.map((d) => d.question),
+                datasets: [
+                    {
+                        label: 'max',
+                        data: this.questionScoreData.map((d) => d.approvalRate),
+                        fill: false,
+                        tension: 0.1,
+                        borderColor: 'green',
+                    },
+                ],
+            },
+        });
+    };
+
+    private renderExaminationTimeDistributionChart = () => {
+        this.examinationDateDistribution = new Chart('examinationDateDistributionChart', {
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => {
+                                if (Math.floor(Number(value)) === Number(value)) {
+                                    return value;
+                                }
+                                return 0;
+                            },
+                        },
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: this.translate.instant('sitnet_days_since_period_beginning').toLowerCase(),
+                        },
+                    },
+                },
+            },
+            type: 'line',
+            data: {
+                labels: this.examinationDateData.map((d) => d.date),
+                datasets: [
+                    {
+                        label: this.translate.instant('sitnet_amount_exams'),
+                        data: this.examinationDateData.map((d) => d.amount),
+                        fill: false,
+                        borderColor: '#028a0f',
+                        tension: 0.1,
+                        pointRadius: 0,
+                    },
+                ],
+            },
+        });
+    };
+
+    private renderGradeTimeChart = () => {
+        const { duration } = this.exam;
+        const examMaxScore = this.Exam.getMaxScore(this.exam);
+
+        // This could be done as a separate chart component after Angular migration
+        this.gradeTimeChart = new Chart('gradeTimeChart', {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        showLine: false,
+                        pointBackgroundColor: '#F7464A',
+                        data: this.gradeTimeData,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        max: examMaxScore,
+                        min: 0,
+
+                        display: true,
+                        title: {
+                            display: true,
+                            text: this.translate.instant('sitnet_word_points').toLowerCase(),
+                        },
+                    },
+
+                    x: {
+                        max: duration,
+                        min: 0,
+                        display: true,
+                        title: {
+                            display: true,
+                            text: this.translate.instant('sitnet_word_minutes').toLowerCase(),
+                        },
+                    },
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        displayColors: false,
+                        callbacks: {
+                            label: (item: TooltipItem<any>) => {
+                                const [xLabel, yLabel] = [item.dataset.label, item.dataset.label];
+                                const pointsLabel = this.translate.instant('sitnet_word_points');
+                                const minutesLabel = this.translate.instant('sitnet_word_minutes');
+                                return `${pointsLabel}: ${yLabel} ${minutesLabel}: ${xLabel}`;
+                            },
+                        },
+                    },
+                },
+            },
+        });
+    };
+
+    private updateChartLocale() {
+        if (this.gradeTimeChart.options?.scales) {
+            const scales = this.gradeTimeChart.options.scales;
+            if (scales.x?.title) {
+                scales.x.title.text = this.translate.instant('sitnet_word_points').toLowerCase();
+            }
+            if (scales.y?.title) {
+                scales.y.title.text = this.translate.instant('sitnet_word_minutes').toLowerCase();
+            }
+        }
+        this.gradeTimeChart.update();
+        if (this.examinationDateDistribution.options?.scales) {
+            const scales = this.examinationDateDistribution.options.scales;
+            if (scales.x?.title) {
+                scales.x.title.text = this.translate.instant('sitnet_days_since_period_beginning').toLowerCase();
+            }
+        }
+        if (this.examinationDateDistribution.data?.datasets) {
+            this.examinationDateDistribution.data.datasets[0].label = this.translate.instant('sitnet_amount_exams');
+        }
+        this.examinationDateDistribution.update();
+    }
+
+    private calcSectionMaxAndAverages = () => {
         const parentSectionMaxScores: Record<string, number> = this.exam.examSections.reduce(
             (obj, current) => ({
                 ...obj,
@@ -483,6 +471,11 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
             }),
             {},
         );
+    };
+
+    private diffInMinutes = (from: string, to: string) => {
+        const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
+        return Math.round(diff);
     };
 
     private refresh = () => {
