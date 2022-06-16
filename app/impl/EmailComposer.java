@@ -57,7 +57,8 @@ public interface EmailComposer {
     /**
      * Message sent to student when examination event has been cancelled.
      */
-    void composeExaminationEventCancellationNotification(User user, ExamEnrolment enrolment, ExaminationEvent event);
+    void composeExaminationEventCancellationNotification(User user, Exam exam, ExaminationEvent event);
+    void composeExaminationEventCancellationNotification(Set<User> users, Exam exam, ExaminationEvent event);
 
     /**
      * Message sent to newly added inspectors.

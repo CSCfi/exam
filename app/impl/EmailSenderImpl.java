@@ -15,7 +15,6 @@
 
 package impl;
 
-import com.google.common.collect.Sets;
 import com.typesafe.config.ConfigFactory;
 import java.util.Collections;
 import java.util.Set;
@@ -54,6 +53,7 @@ class EmailSenderImpl implements EmailSender {
         Set<String> recipients,
         String sender,
         Set<String> cc,
+        Set<String> bcc,
         String subject,
         String content,
         EmailAttachment... attachments
@@ -76,6 +76,9 @@ class EmailSenderImpl implements EmailSender {
         for (String addr : cc) {
             email.addCc(addr);
         }
+        for (String addr : bcc) {
+            email.addBcc(addr);
+        }
         email.setHtmlMsg(content);
         if (USE_MOCK) {
             mockSending(email, content, attachments);
@@ -87,7 +90,15 @@ class EmailSenderImpl implements EmailSender {
     @Override
     public void send(String recipient, String sender, String subject, String content, EmailAttachment... attachments) {
         try {
-            doSend(Sets.newHashSet(recipient), sender, Collections.emptySet(), subject, content, attachments);
+            doSend(
+                Set.of(recipient),
+                sender,
+                Collections.emptySet(),
+                Collections.emptySet(),
+                subject,
+                content,
+                attachments
+            );
         } catch (EmailException e) {
             logger.error("Creating mail failed. Stacktrace follows", e);
         }
@@ -96,7 +107,7 @@ class EmailSenderImpl implements EmailSender {
     @Override
     public void send(String recipient, String sender, Set<String> cc, String subject, String content) {
         try {
-            doSend(Sets.newHashSet(recipient), sender, cc, subject, content);
+            doSend(Set.of(recipient), sender, cc, Collections.emptySet(), subject, content);
         } catch (EmailException e) {
             logger.error("Creating mail failed. Stacktrace follows", e);
         }
@@ -105,7 +116,16 @@ class EmailSenderImpl implements EmailSender {
     @Override
     public void send(Set<String> recipients, String sender, Set<String> cc, String subject, String content) {
         try {
-            doSend(recipients, sender, cc, subject, content);
+            doSend(recipients, sender, cc, Collections.emptySet(), subject, content);
+        } catch (EmailException e) {
+            logger.error("Creating mail failed. Stacktrace follows", e);
+        }
+    }
+
+    @Override
+    public void send(String sender, Set<String> bcc, String subject, String content) {
+        try {
+            doSend(Collections.emptySet(), sender, Collections.emptySet(), bcc, subject, content);
         } catch (EmailException e) {
             logger.error("Creating mail failed. Stacktrace follows", e);
         }
