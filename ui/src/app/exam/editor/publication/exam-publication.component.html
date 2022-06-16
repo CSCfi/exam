@@ -98,7 +98,7 @@
         </sup>
     </div>
     <div class="col-md-3">
-        <button type="button" (click)="addExaminationEvent()" class="btn btn-primary green border-green">
+        <button type="button" (click)="addExaminationEvent()" class="btn btn-primary green">
             {{ 'sitnet_add_examination_event' | translate }}
         </button>
     </div>
@@ -159,7 +159,7 @@
             </button>
         </span>
         <span *ngIf="exam.implementation === 'WHATEVER' || exam.implementation === 'CLIENT_AUTH'">
-            <button class="btn btn-primary green border-green marl30" (click)="toggleCustomTimeField()">
+            <button class="btn btn-primary green marl30" (click)="toggleCustomTimeField()">
                 {{ 'sitnet_custom' | translate }} {{ ('sitnet_exam_time' | translate).toLowerCase() }}
                 <img
                     *ngIf="this.showCustomTimeField"
@@ -197,10 +197,7 @@
                         />
                         <label for="minuteValue">{{ 'sitnet_minutes' | translate }}</label>
                     </div>
-                    <button
-                        class="btn btn-primary green border-green mart10"
-                        (click)="setExamDuration(hourValue, minuteValue)"
-                    >
+                    <button class="btn btn-primary green mart10" (click)="setExamDuration(hourValue, minuteValue)">
                         {{ 'sitnet_save_custom_time' | translate }}
                     </button>
                 </div>

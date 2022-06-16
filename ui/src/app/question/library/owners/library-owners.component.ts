@@ -48,7 +48,7 @@ import { QuestionService } from '../../question.service';
                 <div class="col-md-2 bottom-padding-2 padl10">
                     <input
                         type="button"
-                        class="btn green border-green whitetext"
+                        class="btn green whitetext"
                         (click)="addOwnerForSelected()"
                         value="{{ 'sitnet_add' | translate }}"
                     />

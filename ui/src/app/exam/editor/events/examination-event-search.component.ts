@@ -12,83 +12,42 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { addDays, addMonths } from 'date-fns';
-import { Observable } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+import { addDays, parseISO } from 'date-fns';
+import { ToastrService } from 'ngx-toastr';
+import { EnrolmentService } from '../../../enrolment/enrolment.service';
+import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
 import { ExaminationEventConfiguration } from '../../exam.model';
 
 @Component({
     selector: 'xm-examination-event-search',
     templateUrl: './examination-event-search.component.html',
-    animations: [
-        trigger('listAnimation', [
-            transition('* <=> *', [
-                query(
-                    ':enter',
-                    [style({ opacity: 0 }), stagger('60ms', animate('600ms ease-out', style({ opacity: 1 })))],
-                    { optional: true },
-                ),
-                query(':leave', animate('100ms', style({ opacity: 0 })), { optional: true }),
-            ]),
-        ]),
-    ],
 })
 export class ExaminationEventSearchComponent implements OnInit {
     date = new Date();
-    datePlus = addMonths(new Date(), 1); // Might need configurable value for the month
     startDate: Date | null = this.date;
     endDate: Date | null = this.date;
-    processedEvents: ExaminationEventConfiguration[] = [];
+    events: ExaminationEventConfiguration[] = [];
     sorting = {
-        predicate: 'exam.created',
+        predicate: 'examinationEvent.start',
         reverse: true,
     };
     filterText = '';
 
-    constructor(private http: HttpClient) {}
+    constructor(
+        private translate: TranslateService,
+        private http: HttpClient,
+        private ConfirmationDialog: ConfirmationDialogService,
+        private Enrolment: EnrolmentService,
+        private toast: ToastrService,
+    ) {}
 
     ngOnInit() {
         this.query();
     }
-
-    query = () => {
-        if (!this.startDate || !this.endDate) return;
-        const params: { start?: string; end?: string } = {};
-        const tzOffset = new Date().getTimezoneOffset() * 60000;
-        if (this.startDate) {
-            params.start = new Date(this.startDate.getTime() + tzOffset).toISOString();
-        }
-        if (this.endDate) {
-            params.end = addDays(this.endDate, 1).toISOString();
-        }
-        this.httpQuery$(params).subscribe((resp: ExaminationEventConfiguration[]) => {
-            this.processedEvents = resp
-                .map((i: ExaminationEventConfiguration) =>
-                    Object.assign(i, {
-                        id: i.examinationEvent.id,
-                        exam: i.exam,
-                        settingsPassword: i.settingsPassword,
-                        examinationEvent: i.examinationEvent
-                            ? {
-                                  id: i.examinationEvent.id,
-                                  start: i.examinationEvent.start,
-                                  description: i.examinationEvent.description,
-                                  capacity: i.examinationEvent.capacity,
-                                  examinationEventConfiguration: i.examinationEvent.examinationEventConfiguration,
-                              }
-                            : undefined,
-                        examEnrolments: i.examEnrolments,
-                    }),
-                )
-                .filter((e) => this.examToString(e).toLowerCase().match(this.filterText.toLowerCase()));
-        });
-    };
-
-    httpQuery$ = (params: { start?: string; end?: string }): Observable<ExaminationEventConfiguration[]> =>
-        this.http.get<ExaminationEventConfiguration[]>('/app/examinationevents', { params: params });
 
     startDateChanged = (event: { date: Date | null }) => {
         this.startDate = event.date;
@@ -112,6 +71,46 @@ export class ExaminationEventSearchComponent implements OnInit {
             this.sorting.reverse = !this.sorting.reverse;
         }
         this.sorting.predicate = predicate;
+    };
+
+    isActive = (configuration: ExaminationEventConfiguration) =>
+        parseISO(configuration.examinationEvent.start) > new Date();
+
+    removeEvent = (configuration: ExaminationEventConfiguration) => {
+        this.ConfirmationDialog.open$(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_remove_byod_exam'),
+        ).subscribe({
+            next: () => {
+                this.Enrolment.removeAllEventEnrolmentConfigs$(configuration).subscribe({
+                    next: () => {
+                        this.toast.info(this.translate.instant('sitnet_removed'));
+                        this.events.splice(this.events.indexOf(configuration));
+                    },
+                    error: this.toast.error,
+                });
+            },
+            error: this.toast.error,
+        });
+    };
+
+    query = () => {
+        if (!this.startDate || !this.endDate) return;
+        const params: { start?: string; end?: string } = {};
+        const tzOffset = new Date().getTimezoneOffset() * 60000;
+        if (this.startDate) {
+            params.start = new Date(this.startDate.getTime() + tzOffset).toISOString();
+        }
+        if (this.endDate) {
+            params.end = addDays(this.endDate, 1).toISOString();
+        }
+        this.http
+            .get<ExaminationEventConfiguration[]>('/app/examinationevents', { params: params })
+            .subscribe((resp: ExaminationEventConfiguration[]) => {
+                this.events = resp.filter((e) =>
+                    this.examToString(e).toLowerCase().match(this.filterText.toLowerCase()),
+                );
+            });
     };
 
     private examToString = (eec: ExaminationEventConfiguration) => {

@@ -145,14 +145,14 @@
     </div>
     <div class="" *ngIf="enrolment.reservation">
         <div class="row">
-            <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_room' | translate }}:</div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-3" *ngIf="enrolment.reservation.machine">
+            <div class="">{{ 'sitnet_exam_room' | translate }}:</div>
+            <div class="" *ngIf="enrolment.reservation.machine">
                 {{ enrolment.reservation.machine.name }}&nbsp;&nbsp;|&nbsp;&nbsp;{{
                     enrolment.reservation.machine.room.name
                 }}
                 ({{ enrolment.reservation.machine.room.roomCode }})
             </div>
-            <div class="col-6 col-sm-6 col-md-3 col-lg-3" *ngIf="enrolment.reservation.externalReservation">
+            <div class="" *ngIf="enrolment.reservation.externalReservation">
                 <span *ngIf="enrolment.reservation.externalReservation.orgName">
                     <strong>{{ 'sitnet_faculty_name' | translate | uppercase }}:</strong>
                     {{ enrolment.reservation.externalReservation.orgName }} ({{
@@ -175,24 +175,26 @@
 
             <div class="clearfix visible-xs"></div>
             <div class="clearfix visible-sm"></div>
-            <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_reservation' | translate }}:</div>
-            <div class="col-6 col-sm-6 col-md-5 col-lg-5">
+            <div class="">{{ 'sitnet_reservation' | translate }}:</div>
+            <div class="">
                 {{ enrolment.reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
                 {{ enrolment.occasion?.startAt }} &ndash; {{ enrolment.occasion?.endAt }}
             </div>
         </div>
     </div>
-    <div class="row" *ngIf="!enrolment.reservation">
-        <div class="col-12">
-            <div class="text-danger" *ngIf="enrolment.reservationCanceled">
-                {{ 'sitnet_canceled' | translate }}
-            </div>
+    <div class="row" *ngIf="!enrolment.reservation && enrolment.reservationCanceled">
+        <div class="text-danger" *ngIf="enrolment.reservationCanceled">
+            {{ 'sitnet_canceled' | translate }}
         </div>
     </div>
-    <div class="col-md-12" *ngIf="enrolment.exam && enrolment.exam.implementation !== 'AQUARIUM'">
+    <div
+        *ngIf="
+            enrolment.exam && enrolment.examinationEventConfiguration && enrolment.exam.implementation !== 'AQUARIUM'
+        "
+    >
         <div class="row">
-            <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_examination_event' | translate }}:</div>
-            <div class="col-6 col-sm-6 col-md-10 col-lg-10">
+            <div class="">{{ 'sitnet_examination_event' | translate }}:</div>
+            <div class="">
                 {{ enrolment.examinationEventConfiguration?.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm' }}
             </div>
         </div>
@@ -206,8 +208,8 @@
     >
         <div class="">
             <div class="row">
-                <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_instructions' | translate }}:</div>
-                <div class="col-6 col-sm-6 col-md-10 col-lg-10">
+                <div class="">{{ 'sitnet_instructions' | translate }}:</div>
+                <div class="">
                     <span class="marr20">
                         {{ enrolment.examinationEventConfiguration.examinationEvent.description }}
                     </span>
@@ -217,10 +219,10 @@
     </div>
 
     <div class="row" *ngIf="enrolment.exam && enrolment.exam.implementation === 'CLIENT_AUTH'">
-        <div class="col-md-12">
+        <div class="">
             <div class="row">
-                <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_seb_file' | translate }}:</div>
-                <div class="col-6 col-sm-6 col-md-10 col-lg-10">
+                <div class="">{{ 'sitnet_seb_file' | translate }}:</div>
+                <div class="">
                     <span class="marr20">
                         <button tabindex="0" (click)="downloadSebFile()" class="text text-success">
                             <strong>{{ 'sitnet_download' | translate }}</strong>
@@ -244,7 +246,7 @@
         </div>
     </div>
     <div class="row mt-2" *ngIf="enrolment.reservation && enrolment.optionalSections.length > 0">
-        <div class="col-12">
+        <div class="">
             <button class="infolink pointer" (click)="showMaterials = !showMaterials" tabindex="0">
                 {{ 'sitnet_selected_sections' | translate }}
                 <img
@@ -268,7 +270,7 @@
                 <div *ngFor="let section of enrolment.exam.examSections" class="marb20">
                     <div *ngIf="section.optional === false">
                         <div class="row">
-                            <div class="col-12">
+                            <div class="">
                                 <strong
                                     >{{ 'sitnet_exam_section' | translate }}
                                     <small class="text text-danger"
@@ -279,7 +281,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-12">
+                            <div class="">
                                 {{ section.description }}
                             </div>
                         </div>
@@ -287,7 +289,7 @@
                 </div>
                 <div *ngFor="let section of enrolment.optionalSections" class="marb20">
                     <div class="row">
-                        <div class="col-12">
+                        <div class="">
                             <strong
                                 >{{ 'sitnet_exam_section' | translate }}
                                 <small class="text text-success"
@@ -304,13 +306,13 @@
                     </div>
                     <div *ngIf="section.examMaterials.length > 0">
                         <div class="row">
-                            <div class="col-12">
+                            <div class="">
                                 <strong>{{ 'sitnet_exam_materials' | translate }}</strong>
                             </div>
                         </div>
                         <div *ngFor="let material of section.examMaterials">
                             <div class="row">
-                                <span class="col-12">
+                                <span class="">
                                     {{ 'sitnet_name' | translate | uppercase }}: {{ material.name }}
                                     <span *ngIf="material.author">
                                         {{ 'sitnet_author' | translate | uppercase }}: {{ material.author }}

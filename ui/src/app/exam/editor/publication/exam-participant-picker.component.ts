@@ -40,11 +40,7 @@ import type { Exam, ExamParticipation } from '../../exam.model';
                     [resultFormatter]="nameFormat"
                     (selectItem)="setExamParticipant($event)"
                 />
-                <button
-                    [disabled]="!newParticipant.id"
-                    (click)="addParticipant()"
-                    class="btn btn-primary green border-green"
-                >
+                <button [disabled]="!newParticipant.id" (click)="addParticipant()" class="btn btn-primary green">
                     {{ 'sitnet_add' | translate }}
                 </button>
             </div>

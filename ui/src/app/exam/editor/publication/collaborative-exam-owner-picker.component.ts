@@ -49,7 +49,7 @@ import type { Exam } from '../../exam.model';
                     <button
                         [disabled]="!myForm.valid || !newOwner.email || !user.isAdmin"
                         (click)="addOwner()"
-                        class="btn btn-primary green border-green"
+                        class="btn btn-primary green"
                     >
                         {{ 'sitnet_add' | translate }}
                     </button>
