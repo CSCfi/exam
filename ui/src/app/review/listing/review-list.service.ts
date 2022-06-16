@@ -134,7 +134,7 @@ export class ReviewListService {
     getReviews$ = (examId: number, collaborative = false) =>
         this.http.get<ExamParticipation[]>(this.getResource(examId, collaborative));
 
-    private diffInMinutes = (from: string, to: string) => {
+    diffInMinutes = (from: string, to: string) => {
         const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;
         return Math.round(diff);
     };

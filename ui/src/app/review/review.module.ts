@@ -59,6 +59,7 @@ import { ReviewListComponent } from './listing/review-list.component';
 import { ReviewListService } from './listing/review-list.service';
 import { SpeedReviewComponent } from './listing/speed-review.component';
 import { ExamSummaryComponent } from './listing/summary/exam-summary.component';
+import { ExamSummaryService } from './listing/summary/exam-summary.service';
 import { EssayAnswerComponent } from './questions/assessment/essay-answer.component';
 import { EssayAnswerListComponent } from './questions/assessment/essay-answers.component';
 import { QuestionAssessmentComponent } from './questions/assessment/question-assessment.component';
@@ -131,6 +132,7 @@ import { QuestionReviewService } from './questions/question-review.service';
         ReviewListService,
         MaturityService,
         QuestionReviewService,
+        ExamSummaryService,
     ],
 })
 export class ReviewModule {}
