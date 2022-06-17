@@ -14,7 +14,7 @@
  */
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
 import { SharedModule } from '../shared/shared.module';
 import { ActiveEnrolmentComponent } from './active/active-enrolment.component';
@@ -38,7 +38,7 @@ import { WrongLocationComponent } from './wrong-location/wrong-location.componen
 import { WrongLocationService } from './wrong-location/wrong-location.service';
 
 @NgModule({
-    imports: [BrowserAnimationsModule, NgbModule, UIRouterModule, SharedModule],
+    imports: [BrowserAnimationsModule, UIRouterModule, NgbDropdownModule, SharedModule],
     exports: [ActiveEnrolmentComponent, ExamSearchResultComponent],
     declarations: [
         ActiveEnrolmentComponent,

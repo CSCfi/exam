@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { UIRouterModule } from '@uirouter/angular';
 import { CalendarModule as ExtCalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
@@ -29,12 +29,13 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
 
 @NgModule({
     imports: [
-        NgbModule,
         ExtCalendarModule.forRoot({
             provide: DateAdapter,
             useFactory: adapterFactory,
         }),
         UIRouterModule,
+        NgbPopoverModule,
+        NgbDropdownModule,
         SharedModule,
     ],
     declarations: [

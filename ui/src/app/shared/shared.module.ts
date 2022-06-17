@@ -14,8 +14,8 @@
  */
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { NgbDatepickerModule, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrModule } from 'ngx-toastr';
 import { AttachmentService } from './attachment/attachment.service';
@@ -52,7 +52,7 @@ import { UniqueValuesValidatorDirective } from './validation/unique-values.direc
 import { WindowRef } from './window/window.service';
 
 @NgModule({
-    imports: [CommonModule, TranslateModule, FormsModule, ReactiveFormsModule, NgbModule, ToastrModule],
+    imports: [CommonModule, TranslateModule, FormsModule, ToastrModule, NgbDatepickerModule, NgbTimepickerModule],
     exports: [
         CommonModule,
         TranslateModule,
