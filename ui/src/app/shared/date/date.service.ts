@@ -18,7 +18,7 @@ import { format, parseISO, roundToNearestMinutes } from 'date-fns';
 import { format as formatTz, utcToZonedTime } from 'date-fns-tz';
 import { range } from 'lodash';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class DateTimeService {
     constructor(private translate: TranslateService) {}
 

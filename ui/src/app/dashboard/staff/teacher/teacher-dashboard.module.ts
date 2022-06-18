@@ -15,7 +15,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
 import { ReservationModule } from '../../../reservation/reservation.module';
 import { SharedModule } from '../../../shared/shared.module';
 import { ExamListCategoryComponent } from './categories/exam-list-category.component';
@@ -24,7 +23,7 @@ import { TeacherDashboardComponent } from './teacher-dashboard.component';
 import { TeacherDashboardService } from './teacher-dashboard.service';
 
 @NgModule({
-    imports: [NgbModule, ReservationModule, SharedModule, RouterModule, UIRouterModule],
+    imports: [NgbModule, ReservationModule, SharedModule, RouterModule],
     exports: [TeacherDashboardComponent],
     declarations: [ExamListCategoryComponent, TeacherDashboardComponent],
     providers: [TeacherDashboardService, ExamSearchPipe],

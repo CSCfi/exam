@@ -14,9 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { UIRouterGlobals } from '@uirouter/core';
-import { WindowRef } from '../../shared/window/window.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ExaminationStatusService } from '../examination-status.service';
 
 @Component({
@@ -43,14 +41,16 @@ export class ExaminationLogoutComponent implements OnInit {
     constructor(
         private http: HttpClient,
         private router: Router,
-        private routing: UIRouterGlobals,
-        private Window: WindowRef,
+        private route: ActivatedRoute,
         private ExaminationStatus: ExaminationStatusService,
     ) {}
 
     ngOnInit() {
-        this.reasonPhrase = this.routing.params.reason === 'aborted' ? 'sitnet_exam_aborted' : 'sitnet_exam_returned';
-        this.quitLinkEnabled = this.routing.params.quitLinkEnabled === 'true';
+        this.reasonPhrase =
+            this.route.snapshot.queryParamMap.get('reason') === 'aborted'
+                ? 'sitnet_exam_aborted'
+                : 'sitnet_exam_returned';
+        this.quitLinkEnabled = this.route.snapshot.queryParamMap.get('quitLinkEnabled') === 'true';
 
         if (this.quitLinkEnabled) {
             this.http
@@ -62,7 +62,7 @@ export class ExaminationLogoutComponent implements OnInit {
     }
 
     private logout = () =>
-        this.Window.nativeWindow.setTimeout(() => {
+        window.setTimeout(() => {
             this.ExaminationStatus.notifyEndOfExamination();
             this.router.navigate(['logout']);
         }, 8000);

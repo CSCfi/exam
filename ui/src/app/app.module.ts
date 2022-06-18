@@ -19,7 +19,6 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ToastrModule } from 'ngx-toastr';
 import { AppRoutingModule } from './app-routing.module';
-import { AppRoutingModule2 } from './app-routing2.module';
 import { AppComponent } from './app.component';
 import { CalendarModule } from './calendar/calendar.module';
 import { StudentDashboardModule } from './dashboard/student/student-dashboard.module';
@@ -51,7 +50,6 @@ export function HttpLoaderFactory(http: HttpClient) {
         }),
         ToastrModule.forRoot({ preventDuplicates: true }),
         AppRoutingModule,
-        AppRoutingModule2,
         SharedModule,
         SessionModule,
         NavigationModule,

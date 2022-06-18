@@ -5,7 +5,7 @@ import { CollaborativeExamService } from '../../collaborative/collaborative-exam
 import { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ExamResolverService implements Resolve<Exam> {
     constructor(private Exam: ExamService, private CollaborativeExam: CollaborativeExamService) {}
 

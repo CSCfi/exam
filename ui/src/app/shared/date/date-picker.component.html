@@ -37,7 +37,7 @@
     <button class="btn btn-primary btn-sm m-2 float-start" (click)="date = today; dateChange(); d.close()">
         {{ 'sitnet_today' | translate }}
     </button>
-    <button class="btn btn-secondary btn-sm m-2 float-end" (click)="date = null; d.close()">
+    <button class="btn btn-secondary btn-sm m-2 float-end" (click)="date = null; dateCleared(); d.close()">
         {{ 'sitnet_clear' | translate }}
     </button>
 </ng-template>

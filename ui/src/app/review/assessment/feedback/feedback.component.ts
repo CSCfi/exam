@@ -12,8 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
-import { UIRouterGlobals } from '@uirouter/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import type { ExamParticipation } from '../../../exam/exam.model';
 import type { Examination } from '../../../examination/examination.model';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
@@ -84,21 +84,28 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
         </div>
     </div> `,
 })
-export class FeedbackComponent {
+export class FeedbackComponent implements OnInit {
     @Input() exam!: Examination;
     @Input() collaborative = false;
     @Input() participation!: ExamParticipation;
     feedbackComment = '';
 
     hideEditor = false;
+    id = 0;
+    ref = '';
 
     constructor(
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Attachment: AttachmentService,
         private Files: FileService,
     ) {}
+
+    ngOnInit() {
+        this.id = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
+    }
 
     toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);
 
@@ -114,7 +121,7 @@ export class FeedbackComponent {
         this.Attachment.selectFile(false, {}).then((res: FileResult) => {
             if (this.collaborative) {
                 this._saveCollaborativeFeedback$().subscribe(() => {
-                    const url = `/app/iop/attachment/exam/${this.routing.params.id}/${this.routing.params.ref}/feedback`;
+                    const url = `/app/iop/attachment/exam/${this.id}/${this.ref}/feedback`;
                     this._upload(res, url);
                 });
             } else {
@@ -138,11 +145,7 @@ export class FeedbackComponent {
 
     removeFeedbackAttachment = () => {
         if (this.collaborative) {
-            this.Attachment.removeCollaborativeExamFeedbackAttachment(
-                this.routing.params.id,
-                this.routing.params.ref,
-                this.participation,
-            );
+            this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, this.participation);
         } else {
             this.Attachment.removeFeedbackAttachment(this.exam);
         }
@@ -151,7 +154,7 @@ export class FeedbackComponent {
     private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
 
     private _saveCollaborativeFeedback$ = () =>
-        this.CollaborativeAssessment.saveFeedback$(this.routing.params.id, this.routing.params.ref, this.participation);
+        this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation);
 
     private _upload = (res: FileResult, url: string) =>
         this.Files.upload(

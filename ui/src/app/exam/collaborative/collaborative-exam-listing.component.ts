@@ -14,8 +14,8 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, finalize, takeUntil, tap } from 'rxjs/operators';
@@ -55,7 +55,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     ngUnsubscribe = new Subject();
 
     constructor(
-        private state: StateService,
+        private router: Router,
         private translate: TranslateService,
         private toast: ToastrService,
         private Session: SessionService,
@@ -73,7 +73,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
         this.examCreated.pipe(exhaustMap(() => this.CollaborativeExam.createExam$())).subscribe({
             next: (exam: CollaborativeExam) => {
                 toast.info(this.translate.instant('sitnet_exam_created'));
-                this.state.go('staff.examEditor.basic', { id: exam.id, collaborative: 'collaborative' });
+                this.router.navigate(['/staff/exams', exam.id], { queryParams: { collaborative: true } });
             },
             error: this.toast.error,
         });

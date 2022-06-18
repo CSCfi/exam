@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import type { DateFormatterParams } from 'angular-calendar';
 import { CalendarDateFormatter } from 'angular-calendar';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class DateFormatter extends CalendarDateFormatter {
     // you can override any of the methods defined in the parent class
 

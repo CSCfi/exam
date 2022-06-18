@@ -28,7 +28,7 @@ export interface Link {
     submenu: { hidden: boolean; items: Link[] };
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class NavigationService {
     constructor(private http: HttpClient, private router: Router, private Session: SessionService) {}
 
@@ -105,7 +105,7 @@ export class NavigationService {
                 submenu: { hidden: true, items: [] },
             },
             {
-                route: 'staff/exams',
+                route: 'staff/adminexams',
                 visible: admin,
                 name: 'sitnet_exams',
                 iconPng: 'icon_admin_exams.png',

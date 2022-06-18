@@ -14,7 +14,6 @@
  *
  */
 import { Component } from '@angular/core';
-import { WindowRef } from '../window/window.service';
 
 @Component({
     selector: 'xm-history-back',
@@ -25,11 +24,9 @@ import { WindowRef } from '../window/window.service';
     `,
 })
 export class HistoryBackComponent {
-    constructor(private Window: WindowRef) {}
-
     goBack = (event: Event) => {
         event.preventDefault();
-        this.Window.nativeWindow.history.back();
+        window.history.back();
     };
 
     onKeyDown = (event: KeyboardEvent) => {

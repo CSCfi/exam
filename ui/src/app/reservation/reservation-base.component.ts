@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Directive, OnInit } from '@angular/core';
-import { UIRouterGlobals } from '@uirouter/core';
+import { ActivatedRoute } from '@angular/router';
 import { addMinutes, endOfDay, parseISO, startOfDay } from 'date-fns';
 import { isNumber, isObject } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
@@ -67,7 +67,7 @@ export type AnyReservation =
 
 @Directive()
 export class ReservationComponentBase implements OnInit {
-    examId: string;
+    examId = '';
     user: User;
     startDate: Date | null = new Date();
     endDate: Date | null = new Date();
@@ -99,13 +99,12 @@ export class ReservationComponentBase implements OnInit {
 
     constructor(
         private http: HttpClient,
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
         private toast: ToastrService,
         private orderPipe: OrderByPipe,
         private Session: SessionService,
         private Reservation: ReservationService,
     ) {
-        this.examId = this.routing.params.eid;
         this.user = this.Session.getUser();
 
         if (this.user.isAdmin) {
@@ -115,6 +114,7 @@ export class ReservationComponentBase implements OnInit {
     }
 
     ngOnInit() {
+        this.examId = this.route.snapshot.params.eid;
         this.selection = this.examId ? { examId: this.examId } : {};
         this.initOptions();
         this.query();

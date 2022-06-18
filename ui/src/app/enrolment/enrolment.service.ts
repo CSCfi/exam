@@ -36,7 +36,8 @@ export type ParticipationLike =
     | (ExamParticipation & { noShow: boolean })
     | (CollaborativeParticipation & { noShow: boolean })
     | (ExamEnrolment & { started?: string; ended?: string });
-@Injectable()
+
+@Injectable({ providedIn: 'root' })
 export class EnrolmentService {
     constructor(
         private translate: TranslateService,

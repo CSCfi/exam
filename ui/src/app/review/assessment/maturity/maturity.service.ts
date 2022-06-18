@@ -49,7 +49,7 @@ type States = {
     [key in StateName]: State;
 };
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class MaturityService {
     constructor(
         private http: HttpClient,

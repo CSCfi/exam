@@ -49,7 +49,6 @@ import { LowerCaseValidatorDirective } from './validation/lowercase.directive';
 import { MaxDirective } from './validation/max-value.directive';
 import { MinDirective } from './validation/min-value.directive';
 import { UniqueValuesValidatorDirective } from './validation/unique-values.directive';
-import { WindowRef } from './window/window.service';
 
 @NgModule({
     imports: [
@@ -124,7 +123,6 @@ import { WindowRef } from './window/window.service';
         LanguageService,
         CommonExamService,
         UserService,
-        WindowRef,
     ],
 })
 export class SharedModule {}

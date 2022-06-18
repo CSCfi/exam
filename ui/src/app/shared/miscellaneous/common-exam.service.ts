@@ -18,7 +18,7 @@ import { isNumber } from 'lodash';
 import { ReviewedExam } from '../../enrolment/enrolment.model';
 import type { Exam, GradeScale, Implementation } from '../../exam/exam.model';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class CommonExamService {
     constructor(private translate: TranslateService) {}
 

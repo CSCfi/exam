@@ -19,7 +19,7 @@ import type { Observable } from 'rxjs';
 import type { User } from '../../session/session.service';
 import type { QuestionReview, ReviewQuestion } from '../review.model';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class QuestionReviewService {
     constructor(private http: HttpClient) {}
 
@@ -47,7 +47,7 @@ export class QuestionReviewService {
     getAssessedAnswerCount = (review: QuestionReview) =>
         !review ? 0 : review.answers.filter((a) => a.essayAnswer && isNumber(a.essayAnswer.evaluatedScore)).length;
 
-    getReviews$ = (examId: number, ids = []): Observable<QuestionReview[]> =>
+    getReviews$ = (examId: number, ids: string[] = []): Observable<QuestionReview[]> =>
         this.http.get<QuestionReview[]>(`/app/exam/${examId}/questions`, { params: { ids: ids } });
 
     getProcessedAnswerCount = (review?: QuestionReview, user?: User) => {

@@ -21,7 +21,7 @@ import { tap } from 'rxjs/operators';
 import { WrongLocationService } from '../enrolment/wrong-location/wrong-location.service';
 import { ExaminationStatusService } from '../examination/examination-status.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ExaminationInterceptor implements HttpInterceptor {
     constructor(
         private router: Router,

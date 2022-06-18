@@ -37,7 +37,7 @@ export class Dashboard {
     archivedExams: DashboardExam[] = [];
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class TeacherDashboardService {
     constructor(private http: HttpClient, private Exam: ExamService, private Reservation: ReservationService) {}
 

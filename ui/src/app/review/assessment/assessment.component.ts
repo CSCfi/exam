@@ -23,7 +23,6 @@ import type { QuestionAmounts } from '../../question/question.service';
 import { QuestionService } from '../../question/question.service';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
-import { WindowRef } from '../../shared/window/window.service';
 import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborative-assessment.service';
 
@@ -53,7 +52,6 @@ export class AssessmentComponent implements OnInit {
         private Question: QuestionService,
         private Exam: ExamService,
         private Session: SessionService,
-        private Window: WindowRef,
     ) {
         this.user = this.Session.getUser();
     }
@@ -101,7 +99,7 @@ export class AssessmentComponent implements OnInit {
         const url = this.collaborative
             ? `/staff/print/exam/${this.examId}/${this.ref}`
             : `/staff/print/exam/${this.exam.id}`;
-        this.Window.nativeWindow.open(url, '_blank');
+        window.open(url, '_blank');
     };
 
     scoreSet = (revision: string) => {

@@ -13,9 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { UIRouterGlobals } from '@uirouter/core';
-import { cloneDeep, isNumber } from 'lodash';
+import { isNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
 import type { User } from '../../../session/session.service';
@@ -31,7 +31,7 @@ import { QuestionReviewService } from '../question-review.service';
 })
 export class QuestionAssessmentComponent implements OnInit {
     user: User;
-    examId: number;
+    examId = 0;
     reviews: QuestionReview[] = [];
     selectedReview!: QuestionReview & { expanded: boolean };
     assessedAnswers: ReviewQuestion[] = [];
@@ -39,7 +39,7 @@ export class QuestionAssessmentComponent implements OnInit {
     lockedAnswers: ReviewQuestion[] = [];
 
     constructor(
-        private state: UIRouterGlobals,
+        private route: ActivatedRoute,
         private translate: TranslateService,
         private toast: ToastrService,
         private QuestionReview: QuestionReviewService,
@@ -48,11 +48,11 @@ export class QuestionAssessmentComponent implements OnInit {
         private Attachment: AttachmentService,
     ) {
         this.user = this.Session.getUser();
-        this.examId = this.state.params.id;
     }
 
     ngOnInit() {
-        const ids = this.state.params.q || [];
+        this.examId = this.route.snapshot.params.id;
+        const ids = this.route.snapshot.queryParamMap.getAll('q');
         this.QuestionReview.getReviews$(this.examId, ids).subscribe({
             next: (reviews) => {
                 reviews.forEach((r, i) => (r.selected = i === 0)); // select the first in the list
@@ -81,7 +81,7 @@ export class QuestionAssessmentComponent implements OnInit {
     isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 
     saveAssessments = (answers: ReviewQuestion[]) =>
-        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = cloneDeep(this.reviews)));
+        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = [...this.reviews]));
 
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
 
@@ -114,7 +114,7 @@ export class QuestionAssessmentComponent implements OnInit {
                             (a) => a.id === answer.id,
                         );
                         if (this.reviews[currentReviewIndex].answers[currentAnswerIndex]) {
-                            this.reviews[currentReviewIndex].answers[currentAnswerIndex] = cloneDeep(answer);
+                            this.reviews[currentReviewIndex].answers[currentAnswerIndex] = { ...answer };
                         }
                     }
                 }

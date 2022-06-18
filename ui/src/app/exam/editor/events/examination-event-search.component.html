@@ -18,19 +18,11 @@
                 <!-- Start & End time datepickers -->
                 <div class="col-md-4">
                     <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
-                    <xm-date-picker
-                        [optional]="true"
-                        [initialDate]="date"
-                        (updated)="startDateChanged($event)"
-                    ></xm-date-picker>
+                    <xm-date-picker [initiallyEmpty]="true" (updated)="startDateChanged($event)"></xm-date-picker>
                 </div>
                 <div class="col-md-4">
                     <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
-                    <xm-date-picker
-                        [optional]="true"
-                        [initialDate]="date"
-                        (updated)="endDateChanged($event)"
-                    ></xm-date-picker>
+                    <xm-date-picker [initiallyEmpty]="true" (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
                 <div class="col-md-4">
                     <span class="exam-basic-selecttitle">&nbsp;</span>

@@ -13,15 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/angular';
 import { ToastrService } from 'ngx-toastr';
 import { from } from 'rxjs';
 import type { MaintenancePeriod } from '../exam/exam.model';
 import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
-import { WindowRef } from '../shared/window/window.service';
 import { RoomService } from './rooms/room.service';
 import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-dialog.component';
 
@@ -34,11 +33,10 @@ export class FacilityComponent implements OnInit {
     maintenancePeriods: MaintenancePeriod[] = [];
 
     constructor(
+        private router: Router,
         private modal: NgbModal,
         private translate: TranslateService,
         private session: SessionService,
-        private window: WindowRef,
-        private state: StateService,
         private toast: ToastrService,
         private room: RoomService,
     ) {
@@ -53,7 +51,7 @@ export class FacilityComponent implements OnInit {
         this.room.getDraft$().subscribe({
             next: (room) => {
                 this.toast.info(this.translate.instant('sitnet_room_draft_created'));
-                this.state.go('staff.room', { id: room.id });
+                this.router.navigate(['/staff/rooms', room.id]);
             },
             error: this.toast.error,
         });
@@ -111,11 +109,11 @@ export class FacilityComponent implements OnInit {
         });
     };
 
-    editMultipleRooms = () => this.state.go('staff.multiRoom');
+    editMultipleRooms = () => this.router.navigate(['/staff/multiroom']);
 
     goBack = (event: Event) => {
         event.preventDefault();
-        this.window.nativeWindow.history.back();
+        window.history.back();
     };
 
     getHeadingTranslation = (translation: string) => this.translate.instant(translation);

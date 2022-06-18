@@ -28,7 +28,7 @@ export interface LibraryQuestion extends ReverseQuestion {
     allowedToRemove: boolean;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LibraryService {
     constructor(
         private http: HttpClient,

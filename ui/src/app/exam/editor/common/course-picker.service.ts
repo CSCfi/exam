@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import type { Course } from '../../exam.model';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class CoursePickerService {
     constructor(private http: HttpClient) {}
 

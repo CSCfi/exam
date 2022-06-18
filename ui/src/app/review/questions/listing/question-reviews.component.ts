@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, OnInit } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { ExamTabService } from '../../../exam/editor/exam-tabs.service';
 import type { QuestionReview } from '../../review.model';
@@ -90,7 +90,7 @@ export class QuestionReviewsComponent implements OnInit {
     selectionToggle = false;
 
     constructor(
-        private state: StateService,
+        private router: Router,
         private toast: ToastrService,
         private QuestionReview: QuestionReviewService,
         private Tabs: ExamTabService,
@@ -127,8 +127,7 @@ export class QuestionReviewsComponent implements OnInit {
     selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
 
     startReview = () =>
-        this.state.go('staff.questionAssessment', {
-            id: this.examId,
-            q: this.selectedReviews.map((r) => r.toString()),
+        this.router.navigate(['/staff/assessment', this.examId, 'questions'], {
+            queryParams: { q: this.selectedReviews },
         });
 }

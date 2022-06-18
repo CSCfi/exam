@@ -32,7 +32,7 @@ export interface DashboardEnrolment extends ExamEnrolment {
     startAtAggregate: string;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class StudentDashboardService {
     constructor(private http: HttpClient, private DateTime: DateTimeService) {}
 

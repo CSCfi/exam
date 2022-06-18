@@ -19,14 +19,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
-import { isBoolean, isEmpty, toNumber } from 'lodash';
+import { isBoolean, toNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { from, Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import { WindowRef } from '../../../shared/window/window.service';
 import type {
     AutoEvaluationConfig,
     Exam,
@@ -70,13 +69,12 @@ export class ExamPublicationComponent implements OnInit {
         private translate: TranslateService,
         private modal: NgbModal,
         private toast: ToastrService,
-        private windowRef: WindowRef,
         private Session: SessionService,
         private Exam: ExamService,
         private Confirmation: ConfirmationDialogService,
         private Tabs: ExamTabService,
     ) {
-        this.hostName = this.windowRef.nativeWindow.location.origin;
+        this.hostName = window.location.origin;
         this.user = this.Session.getUser();
     }
 
@@ -433,7 +431,7 @@ export class ExamPublicationComponent implements OnInit {
             errors.push('sitnet_exam_has_no_questions');
         }
 
-        const allSectionsNamed = this.exam.examSections.every((section) => !isEmpty(section.name));
+        const allSectionsNamed = this.exam.examSections.every((section) => section.name.length > 0);
         if (!allSectionsNamed) {
             errors.push('sitnet_exam_contains_unnamed_sections');
         }

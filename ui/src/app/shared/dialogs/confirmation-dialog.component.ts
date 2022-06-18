@@ -13,12 +13,12 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
             <div class="modal-body" [innerHTML]="description"></div>
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
-                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()">
+                    <button class="btn btn-sm btn-primary" (click)="activeModal.close(true)">
                         {{ 'sitnet_button_accept' | translate }}
                     </button>
                 </div>
                 <div class="student-message-dialog-button-cancel">
-                    <button class="btn btn-sm btn-danger float-start" (click)="activeModal.dismiss()">
+                    <button class="btn btn-sm btn-danger float-start" (click)="activeModal.dismiss(false)">
                         {{ 'sitnet_button_decline' | translate }}
                     </button>
                 </div>

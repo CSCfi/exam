@@ -31,7 +31,7 @@ export interface AnsweredQuestion {
     id: number;
     essayAnswer: { objectVersion: number; attachment?: { fileName: string } };
 }
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AttachmentService {
     constructor(
         private dialogs: ConfirmationDialogService,
@@ -101,7 +101,7 @@ export class AttachmentService {
                 error: this.toast.error,
             });
 
-    removeCollaborativeExamFeedbackAttachment = (id: string, ref: string, participation: ExamParticipation) =>
+    removeCollaborativeExamFeedbackAttachment = (id: number, ref: string, participation: ExamParticipation) =>
         this.dialogs
             .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_are_you_sure'))
             .subscribe({

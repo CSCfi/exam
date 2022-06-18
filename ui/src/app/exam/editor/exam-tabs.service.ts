@@ -10,7 +10,7 @@ export type UpdateProps = {
     initScale: boolean;
 };
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ExamTabService {
     public tabChange$: Observable<number>;
     public examUpdate$: Observable<UpdateProps>;

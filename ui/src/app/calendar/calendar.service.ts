@@ -14,7 +14,6 @@
  */
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { UIRouterGlobals } from '@uirouter/core';
 import { addHours, parseISO } from 'date-fns';
 import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
 import type { Observable } from 'rxjs';
@@ -65,16 +64,17 @@ export type Organisation = {
 };
 export type AvailableSlot = Slot & { availableMachines: number };
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class CalendarService {
     constructor(
         private http: HttpClient,
-        private routing: UIRouterGlobals,
+
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {}
 
     reserve$(
+        examId: number,
         start: Date,
         end: Date,
         room: ExamRoom,
@@ -87,7 +87,7 @@ export class CalendarService {
         const slot: Slot = {
             start: this.adjustBack(start, tz),
             end: this.adjustBack(end, tz),
-            examId: parseInt(this.routing.params.id),
+            examId: examId,
             roomId: room._id ? room._id : room.id,
             orgId: org._id,
             sectionIds: sectionIds,

@@ -27,7 +27,6 @@ import { isRealGrade } from '../../exam/exam.model';
 import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
-import { WindowRef } from '../../shared/window/window.service';
 
 type Payload = {
     id: number;
@@ -45,7 +44,7 @@ export type Link = {
     params?: { [key: string]: unknown };
 };
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AssessmentService {
     constructor(
         private http: HttpClient,
@@ -53,7 +52,6 @@ export class AssessmentService {
         private router: Router,
         @Inject(DOCUMENT) private document: Document,
         private toast: ToastrService,
-        private windowRef: WindowRef,
         private Confirmation: ConfirmationDialogService,
         private Session: SessionService,
         private Exam: CommonExamService,
@@ -288,10 +286,7 @@ export class AssessmentService {
                 tap(() => {
                     if (newState === 'REVIEW_STARTED') {
                         messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
-                        this.windowRef.nativeWindow.setTimeout(
-                            () => this.toast.info(this.translate.instant('sitnet_review_saved')),
-                            1000,
-                        );
+                        window.setTimeout(() => this.toast.info(this.translate.instant('sitnet_review_saved')), 1000);
                     } else {
                         this.toast.info(this.translate.instant('sitnet_review_graded'));
                         const state = this.getExitState(exam);

@@ -15,7 +15,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { TransitionService } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import type {
     ExamSectionQuestion,
@@ -25,8 +24,6 @@ import type {
     ReverseQuestion,
 } from '../../exam/exam.model';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { WindowRef } from '../../shared/window/window.service';
 import { QuestionService } from '../question.service';
 
 // This component depicts a distributed exam question
@@ -41,7 +38,6 @@ export class ExamQuestionComponent implements OnInit {
     @Output() cancelled = new EventEmitter<void>();
 
     question?: ReverseQuestion;
-    transitionWatcher?: unknown;
     examNames: string[] = [];
     sectionNames: string[] = [];
     missingOptions: string[] = [];
@@ -49,47 +45,23 @@ export class ExamQuestionComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
-        private transition: TransitionService,
         private translate: TranslateService,
         private toast: ToastrService,
         private Question: QuestionService,
-        private Window: WindowRef,
         private Attachment: AttachmentService,
-        private Confirmation: ConfirmationDialogService,
-    ) {
-        this.transitionWatcher = this.transition.onBefore({}, () => {
-            if (this.Window.nativeWindow.onbeforeunload) {
-                // we got changes in the model, ask confirmation
-                this.Confirmation.open$(
-                    this.translate.instant('sitnet_confirm_exit'),
-                    this.translate.instant('sitnet_unsaved_question_data'),
-                ).subscribe(() => {
-                    // ok to reroute
-                    this.Window.nativeWindow.onbeforeunload = null;
-                    delete this.transitionWatcher;
-                });
-            } else {
-                this.Window.nativeWindow.onbeforeunload = null;
-            }
-        });
-    }
+    ) {}
 
     ngOnInit() {
         this.init();
     }
 
-    save = () => {
-        this.Window.nativeWindow.onbeforeunload = null;
+    save = () =>
         this.saved.emit({
             question: this.question as ReverseQuestion,
             examQuestion: this.examQuestion as ExamSectionQuestion,
         });
-    };
 
-    cancel = () => {
-        this.Window.nativeWindow.onbeforeunload = null;
-        this.cancelled.emit();
-    };
+    cancel = () => this.cancelled.emit();
 
     showWarning = () => this.examNames && this.examNames.length > 1;
     estimateCharacters = () => (this.examQuestion.expectedWordCount || 0) * 8;
@@ -197,10 +169,6 @@ export class ExamQuestionComponent implements OnInit {
         )
             .filter((type) => type !== 'SkipOption')
             .map((optionType) => this.Question.getOptionTypeTranslation(optionType));
-    };
-
-    errors = (status: unknown) => {
-        return JSON.stringify(status);
     };
 
     hasInvalidClaimChoiceOptions = () =>

@@ -5,7 +5,7 @@ import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import { ExamParticipation } from 'src/app/exam/exam.model';
 import { ReviewListService } from './review-list.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ReviewListResolverService implements Resolve<ExamParticipation[]> {
     constructor(private ReviewList: ReviewListService, private ExamTab: ExamTabService) {}
 

@@ -15,8 +15,8 @@
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam, ExamLanguage, ExamParticipation, ExamType, SelectableGrade } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
@@ -43,6 +43,8 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     @Output() updated = new EventEmitter<void>();
 
     message: { text?: string } = { text: '' };
+    id = 0;
+    ref = '';
     override selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null } = {
         grade: null,
         type: null,
@@ -53,9 +55,9 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     override languages: (ExamLanguage & { name: string })[] = [];
 
     constructor(
-        private translate: TranslateService,
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
         http: HttpClient,
+        private translate: TranslateService,
         toast: ToastrService,
         Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
@@ -70,6 +72,8 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
     getExam = () => this.exam;
 
     ngOnInit() {
+        this.id = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
         this.initGrade();
         this.initCreditTypes();
         this.initLanguages();
@@ -102,11 +106,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
             return;
         }
         if (this.collaborative) {
-            this.CollaborativeAssessment.sendEmailMessage$(
-                this.routing.params.id,
-                this.routing.params.ref,
-                this.message.text,
-            ).subscribe({
+            this.CollaborativeAssessment.sendEmailMessage$(this.id, this.ref, this.message.text).subscribe({
                 next: () => {
                     delete this.message.text;
                     this.toast.info(this.translate.instant('sitnet_email_sent'));
@@ -126,11 +126,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
 
     saveAssessmentInfo = () => {
         if (this.collaborative) {
-            this.CollaborativeAssessment.saveAssessmentInfo$(
-                this.routing.params.id,
-                this.routing.params.ref,
-                this.participation,
-            ).subscribe();
+            this.CollaborativeAssessment.saveAssessmentInfo$(this.id, this.ref, this.participation).subscribe();
         } else {
             this.Assessment.saveAssessmentInfo$(this.exam).subscribe();
         }

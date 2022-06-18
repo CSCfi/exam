@@ -16,7 +16,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/angular';
 import { parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
@@ -48,13 +47,13 @@ export type ExaminationEventConfigurationInput = {
 };
 
 type SectionContainer = { examSections: ExamSection[] };
-@Injectable()
+
+@Injectable({ providedIn: 'root' })
 export class ExamService {
     constructor(
-        private translate: TranslateService,
-        private State: StateService,
         private router: Router,
         private http: HttpClient,
+        private translate: TranslateService,
         private toast: ToastrService,
         private CommonExam: CommonExamService,
         private Question: QuestionService,
@@ -255,11 +254,13 @@ export class ExamService {
     previewExam = (exam: Exam, fromTab: number, collaborative: boolean) => {
         const params = { id: exam.id, tab: fromTab };
         if (collaborative) {
-            this.State.go('staff.collaborativePreview', params);
+            this.router.navigate(['/staff/exams/collaborative', exam.id, 'view/preview'], {
+                queryParams: { tab: fromTab },
+            });
         } else if (exam.executionType.type === 'PRINTOUT') {
-            this.State.go('staff.printout', params);
+            this.router.navigate(['/staff/exams', exam.id, 'view/printout'], { queryParams: { tab: fromTab } });
         } else {
-            this.State.go('staff.examPreview', params);
+            this.router.navigate(['/staff/exams', exam.id, 'view/preview'], { queryParams: { tab: fromTab } });
         }
     };
 

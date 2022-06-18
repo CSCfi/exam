@@ -19,7 +19,6 @@ import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { EnrolmentService } from '../enrolment/enrolment.service';
 import { SessionService } from '../session/session.service';
-import { WindowRef } from '../shared/window/window.service';
 import type { Examination, ExaminationSection, NavigationPage } from './examination.model';
 import { ExaminationService } from './examination.service';
 
@@ -40,13 +39,12 @@ export class ExaminationComponent implements OnInit, OnDestroy {
         private Examination: ExaminationService,
         private Session: SessionService,
         private Enrolment: EnrolmentService,
-        private Window: WindowRef,
     ) {}
 
     ngOnInit() {
-        this.isPreview = this.Window.nativeWindow.location.pathname.includes('preview'); // FIXME! once UI-router issues are settled
+        this.isPreview = window.location.pathname.includes('preview'); // FIXME! once UI-router issues are settled
         if (!this.isPreview) {
-            this.Window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
+            window.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         }
         this.Examination.startExam$(
             this.route.snapshot.params.hash,
@@ -73,7 +71,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.Window.nativeWindow.onbeforeunload = null;
+        window.onbeforeunload = null;
     }
 
     selectNewPage = (event: { page: Partial<NavigationPage> }) => this.setActiveSection(event.page);
@@ -107,7 +105,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
         if (page.type === 'section') {
             this.activeSection = this.findSection(page.id as number);
         }
-        this.Window.nativeWindow.scrollTo(0, 0);
+        window.scrollTo(0, 0);
     };
 
     private findSection = (sectionId: number) => {

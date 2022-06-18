@@ -42,7 +42,7 @@ export type QuestionAmounts = {
     hasEssays: boolean;
 };
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class QuestionService {
     constructor(
         private http: HttpClient,

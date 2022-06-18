@@ -13,7 +13,6 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { WindowRef } from '../../shared/window/window.service';
 import type { Examination, ExaminationSection } from '../examination.model';
 import { ExaminationService } from '../examination.service';
 
@@ -79,7 +78,7 @@ export class ExaminationSectionComponent implements OnInit, OnDestroy {
 
     autosaver?: number;
 
-    constructor(private Examination: ExaminationService, private Window: WindowRef) {}
+    constructor(private Examination: ExaminationService) {}
 
     ngOnInit() {
         this.resetAutosaver();
@@ -97,7 +96,7 @@ export class ExaminationSectionComponent implements OnInit, OnDestroy {
     private resetAutosaver = () => {
         this.cancelAutosaver();
         if (this.section && !this.isPreview) {
-            this.autosaver = this.Window.nativeWindow.setInterval(
+            this.autosaver = window.setInterval(
                 () =>
                     this.Examination.saveAllTextualAnswersOfSection$(
                         this.section,
@@ -113,7 +112,7 @@ export class ExaminationSectionComponent implements OnInit, OnDestroy {
 
     private cancelAutosaver = () => {
         if (this.autosaver) {
-            this.Window.nativeWindow.clearInterval(this.autosaver);
+            window.clearInterval(this.autosaver);
             delete this.autosaver;
         }
     };

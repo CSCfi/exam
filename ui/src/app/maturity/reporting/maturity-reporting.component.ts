@@ -18,7 +18,6 @@ import { formatISO, startOfMonth } from 'date-fns';
 import { range } from 'lodash';
 import type { Attachment } from '../../exam/exam.model';
 import type { Option } from '../../shared/select/dropdown-select.component';
-import { WindowRef } from '../../shared/window/window.service';
 import { LanguageInspectionService } from '../language-inspections.service';
 import type { LanguageInspection } from '../maturity.model';
 
@@ -33,7 +32,7 @@ export class MaturityReportingComponent implements OnInit {
     months: Option<number, unknown>[] = [];
     years: Option<number, unknown>[] = [];
 
-    constructor(private LanguageInspection: LanguageInspectionService, private Window: WindowRef) {}
+    constructor(private LanguageInspection: LanguageInspectionService) {}
 
     ngOnInit() {
         this.months = range(1, 13).map((m) => ({ id: m, label: m.toString() }));
@@ -42,7 +41,7 @@ export class MaturityReportingComponent implements OnInit {
         this.query();
     }
 
-    printReport = () => this.Window.nativeWindow.setTimeout(() => this.Window.nativeWindow.print(), 500);
+    printReport = () => window.setTimeout(() => window.print(), 500);
 
     monthChanged = (event?: Option<number, unknown>) => {
         this.month = event?.value;

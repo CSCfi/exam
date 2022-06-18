@@ -22,7 +22,6 @@ import { of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import type { Exam, ExamParticipation, Feedback, SelectableGrade } from '../../exam/exam.model';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { WindowRef } from '../../shared/window/window.service';
 import { AssessmentService } from './assessment.service';
 
 interface Payload {
@@ -37,15 +36,13 @@ interface Payload {
     rev: string;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class CollaborativeAssesmentService {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
         private router: Router,
-        //private routing: UIRouterGlobals,
         private toast: ToastrService,
-        private windowRef: WindowRef,
         private dialogs: ConfirmationDialogService,
         private Assessment: AssessmentService,
     ) {}
@@ -171,7 +168,7 @@ export class CollaborativeAssesmentService {
                     next: () => {
                         if (newState === 'REVIEW_STARTED') {
                             messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
-                            this.windowRef.nativeWindow.setTimeout(
+                            window.setTimeout(
                                 () => this.toast.info(this.translate.instant('sitnet_review_saved')),
                                 1000,
                             );

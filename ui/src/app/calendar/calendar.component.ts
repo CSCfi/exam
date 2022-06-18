@@ -197,6 +197,7 @@ export class CalendarComponent implements OnInit {
         }
         this.confirming = true;
         this.Calendar.reserve$(
+            this.examId,
             this.reservation.start,
             this.reservation.end,
             room,

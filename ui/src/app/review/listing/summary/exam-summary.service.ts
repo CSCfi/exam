@@ -26,7 +26,7 @@ import { QuestionService } from 'src/app/question/question.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { ReviewListService } from '../review-list.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ExamSummaryService {
     constructor(
         private http: HttpClient,

@@ -23,7 +23,6 @@ import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable, Unsubscribable } from 'rxjs';
 import { defer, from, interval, of, Subject, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { WindowRef } from '../shared/window/window.service';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
 
@@ -58,7 +57,7 @@ interface Env {
     isProd: boolean;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class SessionService implements OnDestroy {
     public userChange$: Observable<User | undefined>;
     public devLogoutChange$: Observable<void>;
@@ -73,11 +72,9 @@ export class SessionService implements OnDestroy {
         private http: HttpClient,
         private i18n: TranslateService,
         private router: Router,
-        //private routing: UIRouterGlobals,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
         private modal: NgbModal,
         private toast: ToastrService,
-        private windowRef: WindowRef,
     ) {
         this.userChange$ = this.userChangeSubscription.asObservable();
         this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
@@ -287,8 +284,8 @@ export class SessionService implements OnDestroy {
         this.userChangeSubscription.next(undefined);
 
         this.toast.success(this.i18n.instant('sitnet_logout_success'));
-        this.windowRef.nativeWindow.onbeforeunload = () => null;
-        const location = this.windowRef.nativeWindow.location;
+        window.onbeforeunload = null;
+        const location = window.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
         const env = this.getEnv();
         if (data && data.logoutUrl) {
@@ -313,7 +310,7 @@ export class SessionService implements OnDestroy {
             this.router.navigate([state]);
         } else if (this.router.url === '/') {
             // Hackish but will have to try
-            this.windowRef.nativeWindow.location.reload();
+            window.location.reload();
         }
     }
 
