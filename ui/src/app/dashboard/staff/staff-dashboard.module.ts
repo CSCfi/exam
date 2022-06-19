@@ -25,7 +25,7 @@ import { SharedModule } from '../../shared/shared.module';
 import { SoftwareModule } from '../../software/software.module';
 import { AdminDashboardModule } from './admin/admin-dashboard.module';
 import { StaffDashboardComponent } from './staff-dashboard.component';
-import { StaffRoutingModule } from './staff-routing';
+import { StaffRoutingModule } from './staff-routing.module';
 import { TeacherDashboardModule } from './teacher/teacher-dashboard.module';
 
 // TODO: Student & teacher dashboard + reservation modules should be lazy loaded to decrease bundle size
