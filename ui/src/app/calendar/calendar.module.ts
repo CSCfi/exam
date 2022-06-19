@@ -15,10 +15,11 @@
 import { NgModule } from '@angular/core';
 import { NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { CalendarModule as ExtCalendarModule, DateAdapter } from 'angular-calendar';
-import { RouterModule } from '@angular/router';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { SharedModule } from '../shared/shared.module';
 import { BookingCalendarComponent } from './booking-calendar.component';
+import { CalendarHomeComponent } from './calendar-home.component';
+import { CalendarRouterModule } from './calendar-routing.module';
 import { CalendarComponent } from './calendar.component';
 import { CalendarService } from './calendar.service';
 import { CalendarExamInfoComponent } from './helpers/exam-info.component';
@@ -33,13 +34,14 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
             provide: DateAdapter,
             useFactory: adapterFactory,
         }),
-        RouterModule,
+        CalendarRouterModule,
         NgbPopoverModule,
         NgbDropdownModule,
         SharedModule,
     ],
     declarations: [
         BookingCalendarComponent,
+        CalendarHomeComponent,
         CalendarComponent,
         CalendarExamInfoComponent,
         OptionalSectionsComponent,

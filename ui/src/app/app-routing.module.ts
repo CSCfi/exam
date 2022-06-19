@@ -15,7 +15,6 @@
 import { NgModule } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
-import { CalendarComponent } from './calendar/calendar.component';
 import { StudentDashboardComponent } from './dashboard/student/student-dashboard.component';
 import { ExamEnrolmentsComponent } from './enrolment/exams/exam-enrolments.component';
 import { CollaborativeParticipationsComponent } from './enrolment/finished/collaborative-exam-participations.component';
@@ -39,22 +38,8 @@ const routes: Route[] = [
         component: StudentDashboardComponent,
     },
     {
-        path: 'calendar/:id',
-        component: CalendarComponent,
-        data: {
-            isExternal: false,
-            isCollaborative: false,
-        },
-    },
-    {
-        path: 'iop/calendar/:id',
-        component: CalendarComponent,
-        data: { isExternal: true },
-    },
-    {
-        path: 'collaborative/calendar/:id',
-        component: CalendarComponent,
-        data: { isExternal: false, isCollaborative: true },
+        path: 'calendar',
+        loadChildren: () => import('./calendar/calendar.module').then((mod) => mod.CalendarModule),
     },
     {
         path: 'logout',
@@ -120,7 +105,7 @@ const routes: Route[] = [
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes)],
+    imports: [RouterModule.forRoot(routes, { enableTracing: true })],
     exports: [RouterModule],
 })
 export class AppRoutingModule {}

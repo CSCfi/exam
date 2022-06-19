@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { addDays, format } from 'date-fns';
@@ -30,9 +30,6 @@ import { CalendarService, ExamInfo, Organisation } from './calendar.service';
     templateUrl: './calendar.component.html',
 })
 export class CalendarComponent implements OnInit {
-    @Input() isExternal = false;
-    @Input() isCollaborative = false;
-
     isInteroperable = false;
     confirming = false;
     examInfo: ExamInfo = {
@@ -58,6 +55,8 @@ export class CalendarComponent implements OnInit {
     selectedOrganisation?: Organisation;
     examId = 0;
     selectedSections: string[] = [];
+    isCollaborative = false;
+    isExternal = false;
 
     constructor(
         private router: Router,
@@ -71,12 +70,13 @@ export class CalendarComponent implements OnInit {
 
     ngOnInit() {
         if (
-            this.route.snapshot.data['isCollaborative'] === 'true' ||
+            this.route.snapshot.data.isCollaborative ||
             this.route.snapshot.queryParamMap.get('isCollaborative') === 'true'
         ) {
             this.isCollaborative = true;
         }
         this.examId = Number(this.route.snapshot.paramMap.get('id'));
+        this.isExternal = this.route.snapshot.data.isExternal;
         this.selectedSections = this.route.snapshot.queryParamMap.getAll('selected');
 
         this.Calendar.getExamInfo$(this.isCollaborative, this.examId)
@@ -145,7 +145,7 @@ export class CalendarComponent implements OnInit {
             this.translate.instant('sitnet_confirm_external_reservation'),
         ).subscribe({
             next: () =>
-                this.router.navigate(['iop/calendar', this.examId], {
+                this.router.navigate(['/calendar', this.examId, 'external'], {
                     queryParams: {
                         selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id),
                         isCollaborative: this.isCollaborative,
@@ -156,8 +156,8 @@ export class CalendarComponent implements OnInit {
     }
 
     makeInternalReservation() {
-        const nextState = this.isCollaborative ? 'calendar/collaborative' : 'calendar';
-        this.router.navigate([nextState, this.examId], {
+        const nextState = ['/calendar', this.examId, this.isCollaborative ? 'collaborative' : ''];
+        this.router.navigate(nextState, {
             queryParams: { selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id) },
         });
     }
