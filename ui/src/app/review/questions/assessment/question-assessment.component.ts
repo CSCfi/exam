@@ -15,9 +15,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { isNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
+import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';

@@ -14,7 +14,7 @@
  */
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { range as _range } from 'lodash';
+import { range as _range } from 'ramda';
 
 @Component({
     selector: 'xm-paginator',

@@ -166,7 +166,7 @@ export class ExamService {
             // handle only numeric scores (leave out approved/rejected type of scores)
             return n + (points.rejected === false && points.approved === false ? points.score : 0);
         }, 0);
-        return this.isInteger(score) ? score : parseFloat(score.toFixed(2));
+        return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
     };
 
     getSectionTotalScore = (section: ExamSection): number => {
@@ -174,7 +174,7 @@ export class ExamService {
             const points = this.Question.calculateAnswerScore(sq);
             return n + points.score;
         }, 0);
-        return this.isInteger(score) ? score : parseFloat(score.toFixed(2));
+        return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
     };
 
     getSectionMaxScore = (section: ExamSection): number => {
@@ -187,7 +187,7 @@ export class ExamService {
         if (section.lotteryOn) {
             maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
         }
-        return this.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
+        return Number.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
     };
 
     hasQuestions = (exam: SectionContainer) => exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0) > 0;
@@ -295,6 +295,4 @@ export class ExamService {
 
     private hasEffectiveEnrolments = (exam: Exam) =>
         exam.examEnrolments.some((ee) => ee.reservation && parseISO(ee.reservation.endAt) > new Date());
-
-    private isInteger = (n: number) => isFinite(n) && Math.floor(n) === n;
 }

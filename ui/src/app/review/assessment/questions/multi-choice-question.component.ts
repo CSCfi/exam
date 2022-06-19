@@ -16,8 +16,8 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angu
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { isInteger, isNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
+import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
@@ -92,7 +92,7 @@ export class MultiChoiceQuestionComponent implements OnInit {
     };
 
     displayMaxScore = () =>
-        isInteger(this.sectionQuestion.maxScore)
+        Number.isInteger(this.sectionQuestion.maxScore)
             ? this.sectionQuestion.maxScore
             : this.sectionQuestion.maxScore.toFixed(2);
 

@@ -19,10 +19,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
-import { isBoolean, toNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { from, Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { isBoolean } from 'src/app/shared/miscellaneous/helpers';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
@@ -160,10 +160,10 @@ export class ExamPublicationComponent implements OnInit {
     };
 
     setHourValue = (event: Event) => {
-        this.hourValue = toNumber((event.target as HTMLInputElement).value);
+        this.hourValue = parseInt((event.target as HTMLInputElement).value);
     };
     setMinuteValue = (event: Event) => {
-        this.minuteValue = toNumber((event.target as HTMLInputElement).value);
+        this.minuteValue = parseInt((event.target as HTMLInputElement).value);
     };
 
     toHoursAndMinutes = (minutes: number): string => {

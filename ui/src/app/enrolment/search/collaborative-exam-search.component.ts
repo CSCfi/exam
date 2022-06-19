@@ -14,9 +14,9 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
-import { isObject } from 'lodash';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
+import { isObject } from 'src/app/shared/miscellaneous/helpers';
 import type { CollaborativeExam } from '../../exam/exam.model';
 import type { CollaborativeExamInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';

@@ -15,7 +15,7 @@
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { formatISO, startOfMonth } from 'date-fns';
-import { range } from 'lodash';
+import { range } from 'ramda';
 import type { Attachment } from '../../exam/exam.model';
 import type { Option } from '../../shared/select/dropdown-select.component';
 import { LanguageInspectionService } from '../language-inspections.service';

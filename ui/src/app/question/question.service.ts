@@ -16,7 +16,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { isNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
@@ -33,6 +32,7 @@ import type {
 import { SessionService } from '../session/session.service';
 import { AttachmentService } from '../shared/attachment/attachment.service';
 import { FileService } from '../shared/file/file.service';
+import { isNumber } from '../shared/miscellaneous/helpers';
 import { BaseQuestionEditorComponent } from './examquestion/base-question-editor.component';
 
 export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };

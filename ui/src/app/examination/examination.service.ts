@@ -16,7 +16,6 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { isInteger } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { concat, throwError } from 'rxjs';
@@ -184,7 +183,7 @@ export class ExaminationService {
             .map((esq) => esq.derivedMaxScore)
             .reduce((acc, current) => acc + current, 0);
 
-        return isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
+        return Number.isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
     };
 
     abort$ = (hash: string): Observable<void> => {

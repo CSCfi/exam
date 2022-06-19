@@ -308,10 +308,10 @@ export class SessionService implements OnDestroy {
             else if (user.loginRole === 'TEACHER') state = 'staff/dashboard/teacher';
             else state = 'staff/dashboard/admin';
             this.router.navigate([state]);
-        } else if (this.router.url === '/') {
+        } /*else if (this.router.url === '/') {
             // Hackish but will have to try
             window.location.reload();
-        }
+        }*/
     }
 
     private hasPermission(user: User, permission: string) {

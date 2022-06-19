@@ -16,8 +16,8 @@ import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angu
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { isInteger, isNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
+import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
 import { AssessmentService } from '../assessment.service';
@@ -83,7 +83,7 @@ export class ClozeTestComponent implements OnInit {
         const score = this.sectionQuestion.clozeTestAnswer?.score;
         if (score) {
             const value = (score.correctAnswers * max) / (score.correctAnswers + score.incorrectAnswers);
-            return isInteger(value) ? value : value.toFixed(2);
+            return Number.isInteger(value) ? value : value.toFixed(2);
         }
         return 0;
     };

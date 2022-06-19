@@ -14,7 +14,7 @@
  */
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
-import { range } from 'lodash';
+import { range } from 'ramda';
 
 @Pipe({ name: 'pageFill' })
 export class PageFillPipe implements PipeTransform {

@@ -17,7 +17,7 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { eachDayOfInterval, min, startOfDay } from 'date-fns';
-import { countBy } from 'lodash';
+import { countBy } from 'ramda';
 import { of } from 'rxjs';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { Exam, ExamParticipation, Question } from 'src/app/exam/exam.model';
@@ -59,7 +59,7 @@ export class ExamSummaryService {
         }
     };
 
-    getGrades = (reviews: ExamParticipation[]) =>
+    getGrades = (reviews: ExamParticipation[]): string[] =>
         reviews
             .filter((r) => r.exam.gradedTime)
             .map((r) => (r.exam.grade ? r.exam.grade.name : this.translate.instant('sitnet_no_grading')));
@@ -305,7 +305,7 @@ export class ExamSummaryService {
 
     private calculateGradeDistribution = (reviews: ExamParticipation[]) => {
         const grades = this.getGrades(reviews);
-        const gradeDistribution = countBy(grades);
+        const gradeDistribution = countBy((g) => g, grades);
         const data = Object.values(gradeDistribution);
         const labels = Object.keys(gradeDistribution).map(this.CommonExam.getExamGradeDisplayName);
         return { data: data, labels: labels };

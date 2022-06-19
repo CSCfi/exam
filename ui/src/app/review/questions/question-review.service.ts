@@ -14,8 +14,8 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { isNumber } from 'lodash';
 import type { Observable } from 'rxjs';
+import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { User } from '../../session/session.service';
 import type { QuestionReview, ReviewQuestion } from '../review.model';
 
