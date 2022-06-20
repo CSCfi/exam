@@ -62,7 +62,7 @@ export class RoomListComponent implements OnInit {
                 });
             }
         } else {
-            this.router.navigate(['/staff/dashboard/admin']);
+            this.router.navigate(['/staff/admin']);
         }
     }
 

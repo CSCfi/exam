@@ -36,7 +36,6 @@ import { AssessmentComponent } from '../../review/assessment/assessment.componen
 import { PrintedAssessmentComponent } from '../../review/assessment/print/printed-assessment.component';
 import { SpeedReviewComponent } from '../../review/listing/speed-review.component';
 import { QuestionAssessmentComponent } from '../../review/questions/assessment/question-assessment.component';
-import { SoftwareComponent } from '../../software/software.component';
 import { AdminDashboardComponent } from './admin/admin-dashboard.component';
 import { StaffDashboardComponent } from './staff-dashboard.component';
 import { TeacherDashboardComponent } from './teacher/teacher-dashboard.component';
@@ -46,8 +45,8 @@ const routes: Route[] = [
         path: '',
         component: StaffDashboardComponent,
         children: [
-            { path: 'dashboard/teacher', component: TeacherDashboardComponent },
-            { path: 'dashboard/admin', component: AdminDashboardComponent },
+            { path: 'teacher', component: TeacherDashboardComponent },
+            { path: 'admin', component: AdminDashboardComponent },
 
             { path: 'questions', component: LibraryComponent },
             {
@@ -88,20 +87,20 @@ const routes: Route[] = [
                     },
                 ],
             },
-            { path: 'exams/:id/select/course', component: CourseSelectionComponent },
+            { path: 'exams/:id/course', component: CourseSelectionComponent },
             {
-                path: 'exams/:id/view/preview', // Hox tab qp
+                path: 'exams/:id/preview', // Hox tab qp
                 component: ExaminationComponent,
                 data: { isPreview: true },
             },
             {
-                path: 'exams/collaborative/:id/view/preview', // HOX! tab qp
+                path: 'exams/:id/preview/collaborative', // HOX! tab qp
                 component: ExaminationComponent,
                 data: { isPreview: true, isCollaborative: true },
             },
             {
                 // HOX! tab qp
-                path: 'exams/:id/view/printout',
+                path: 'exams/:id/printout',
                 component: PrintoutComponent,
             },
             { path: 'printouts', component: PrintoutListingComponent },
@@ -113,38 +112,37 @@ const routes: Route[] = [
                 data: { collaborative: false },
             },
             {
-                path: 'assessments/collaborative/:id/:ref',
+                path: 'assessments/:id/collaborative/:ref',
                 component: AssessmentComponent,
                 data: { collaborative: true },
             },
-            { path: 'speedreview/:id', component: SpeedReviewComponent },
             {
-                path: 'print/exam/:id',
+                path: 'assessments/:id/questions',
+                component: QuestionAssessmentComponent,
+            },
+            { path: 'assessments/:id/speedreview', component: SpeedReviewComponent },
+            {
+                path: 'assessments/:id/print',
                 component: PrintedAssessmentComponent,
                 data: { collaborative: false },
             },
             {
-                path: 'print/exam/:id/:ref',
+                path: 'assessments/:id/print/:ref',
                 component: PrintedAssessmentComponent,
                 data: { collaborative: true },
             },
-            {
-                path: 'assessments/:id/questions', // HOX! q qp
-                component: QuestionAssessmentComponent,
-            },
-            { path: 'reservations', component: TeacherReservationComponent },
-            { path: 'reservations/:eid', component: TeacherReservationComponent },
-            { path: 'adminexams', component: ExamListingComponent },
-            { path: 'softwares', component: SoftwareComponent },
-            { path: 'settings', component: SettingsComponent },
-            { path: 'users', component: UsersComponent },
             { path: 'inspections', component: LanguageInspectionsComponent },
             { path: 'inspections/reports', component: MaturityReportingComponent },
+            { path: 'adminexams', component: ExamListingComponent },
+            { path: 'reservations', component: TeacherReservationComponent },
+            { path: 'reservations/:eid', component: TeacherReservationComponent },
             { path: 'rooms', component: FacilityComponent },
-            { path: 'machines/:id', component: MachineComponent },
             { path: 'rooms/:id', component: RoomComponent },
             { path: 'rooms/:id/availability', component: AvailabilityComponent },
+            { path: 'settings', component: SettingsComponent },
+            { path: 'users', component: UsersComponent },
             { path: 'multiroom', component: MultiRoomComponent },
+            { path: 'machines/:id', component: MachineComponent },
             { path: 'reports', component: ReportsComponent },
             { path: 'statistics', component: StatisticsComponent },
         ],

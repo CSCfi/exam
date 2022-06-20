@@ -49,9 +49,9 @@ export class EnrolmentDetailsComponent {
 
     makeReservation = () => {
         if (this.exam.implementation !== 'AQUARIUM') {
-            this.router.navigate(['dashboard']);
+            this.router.navigate(['/dashboard']);
         } else {
-            this.router.navigate(['calendar', this.exam.id]);
+            this.router.navigate(['/calendar', this.exam.id]);
         }
     };
 }

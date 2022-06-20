@@ -65,7 +65,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
             },
             error: (err) => {
                 console.log(JSON.stringify(err));
-                this.router.navigate(['dashboard']);
+                this.router.navigate(['/dashboard']);
             },
         });
     }

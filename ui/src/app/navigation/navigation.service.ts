@@ -63,7 +63,7 @@ export class NavigationService {
             hidden: true,
             items: [
                 {
-                    route: student ? 'student/exams/collaborative' : 'staff/collaborative',
+                    route: student ? 'exams/collaborative' : 'staff/collaborative',
                     visible: true,
                     name: 'sitnet_collaborative_exams',
                     iconPng: 'icon_admin_exams.png',
@@ -91,7 +91,7 @@ export class NavigationService {
 
         return [
             {
-                route: student ? 'dashboard' : admin ? 'staff/dashboard/admin' : 'staff/dashboard/teacher',
+                route: student ? 'dashboard' : admin ? 'staff/admin' : 'staff/teacher',
                 visible: !hideDashboard,
                 name: nameForDashboard,
                 iconPng: 'icon_enrols.svg',
@@ -214,14 +214,14 @@ export class NavigationService {
                 },
             },
             {
-                route: 'student/exams',
+                route: 'exams',
                 visible: student && !hideDashboard,
                 name: 'sitnet_exams',
                 iconPng: 'icon_exams.png',
                 submenu: studentCollaborativeExamsSubmenu,
             },
             {
-                route: 'student/participations',
+                route: 'participations',
                 visible: student && !hideDashboard,
                 name: 'sitnet_exam_responses',
                 iconPng: 'icon_finished.png',
@@ -229,7 +229,7 @@ export class NavigationService {
                     hidden: true,
                     items: [
                         {
-                            route: 'student/participations/collaborative',
+                            route: 'participations/collaborative',
                             visible: true,
                             name: 'sitnet_collaborative_exam_responses',
                             iconPng: 'icon_finished.png',

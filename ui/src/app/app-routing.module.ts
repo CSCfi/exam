@@ -46,56 +46,52 @@ const routes: Route[] = [
         component: LogoutComponent,
     },
     {
-        path: 'student/exam/:hash',
+        path: 'exam/:hash',
         component: ExaminationComponent,
         data: {
             isPreview: false,
         },
     },
     {
-        path: 'student/waiting-room/:id/:hash',
+        path: 'waitingroom/:id/:hash',
         component: WaitingRoomComponent,
     },
     {
-        path: 'student/waiting-room',
-        component: WaitingRoomComponent,
-    },
-    {
-        path: 'student/wrong-room/:eid/:mid',
+        path: 'wrongroom/:eid/:mid',
         component: WrongLocationComponent,
         data: {
             cause: 'room',
         },
     },
     {
-        path: 'student/wrong-machine/:eid/:mid',
+        path: 'wrongmachine/:eid/:mid',
         component: WrongLocationComponent,
         data: {
             cause: 'machine',
         },
     },
     {
-        path: 'student/exams',
+        path: 'exams',
         component: ExamSearchComponent,
     },
     {
-        path: 'student/exams/collaborative',
+        path: 'exams/collaborative',
         component: CollaborativeExamSearchComponent,
     },
     {
-        path: 'student/participations',
+        path: 'participations',
         component: ExamParticipationsComponent,
     },
     {
-        path: 'student/participations/collaborative',
+        path: 'participations/collaborative',
         component: CollaborativeParticipationsComponent,
     },
     {
-        path: 'student/logout',
+        path: 'examination/logout',
         component: ExaminationLogoutComponent,
     },
     {
-        path: 'enroll/exam/:id',
+        path: 'enrolments/:id',
         component: ExamEnrolmentsComponent,
     },
     {

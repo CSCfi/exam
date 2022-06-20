@@ -14,11 +14,7 @@
                 </div>
                 <div class="make-inline">
                     <div class="review-attachment-button print-button">
-                        <a
-                            [routerLink]="['/staff/questions/new']"
-                            [queryParams]="{ nextState: 'dashboard/teacher' }"
-                            class="pointer"
-                        >
+                        <a [routerLink]="['questions/new']" [queryParams]="{ nextState: 'teacher' }" class="pointer">
                             {{ 'sitnet_toolbar_new_question' | translate }}
                         </a>
                     </div>

@@ -139,7 +139,7 @@ export class RoomComponent implements OnInit {
         this.roomService.updateRoom(this.room).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('sitnet_room_saved'));
-                this.router.navigate(['staff/rooms']);
+                this.router.navigate(['/staff/rooms']);
             },
             error: this.toast.error,
         });

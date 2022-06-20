@@ -162,7 +162,7 @@ export class CalendarComponent implements OnInit {
         });
     }
 
-    cancel = () => this.router.navigate(['dashboard']);
+    cancel = () => this.router.navigate(['/dashboard']);
 
     createReservation($event: { start: Date; end: Date; room: ExamRoom; accessibilities: Accessibility[] }) {
         this.reservation = {
@@ -207,7 +207,7 @@ export class CalendarComponent implements OnInit {
             selectedSectionIds,
         )
             .subscribe({
-                next: () => this.router.navigate(['dashboard']),
+                next: () => this.router.navigate(['/dashboard']),
                 error: (resp) => {
                     this.toast.error(resp);
                 },

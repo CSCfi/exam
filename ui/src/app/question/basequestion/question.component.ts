@@ -37,7 +37,6 @@ export class QuestionComponent implements OnInit, QuestionEditQuard {
     @Input() collaborative = false;
     @Input() examId = 0;
     @Input() sectionQuestion!: ExamSectionQuestion;
-    @Input() nextState = '';
 
     @Output() saved = new EventEmitter<Question | QuestionDraft>();
     @Output() cancelled = new EventEmitter<void>();
@@ -48,6 +47,7 @@ export class QuestionComponent implements OnInit, QuestionEditQuard {
     question!: ReverseQuestion | QuestionDraft;
     transitionWatcher?: unknown;
     cancelClicked = false;
+    nextState = '';
 
     constructor(
         private router: Router,
@@ -102,7 +102,7 @@ export class QuestionComponent implements OnInit, QuestionEditQuard {
         this.question.questionOwners = this.currentOwners;
         const fn = (q: Question | QuestionDraft) => {
             if (this.nextState) {
-                this.router.navigate(['staff', this.nextState]);
+                this.router.navigate(['/staff', this.nextState]);
             } else if (this.saved) {
                 this.saved.emit(q);
             }
@@ -123,7 +123,7 @@ export class QuestionComponent implements OnInit, QuestionEditQuard {
     cancel = () => {
         this.cancelClicked = true;
         if (this.nextState) {
-            this.router.navigate(['staff', ...this.nextState.split('/')]);
+            this.router.navigate(['/staff', ...this.nextState.split('/')]);
         } else if (this.cancelled) {
             this.cancelled.emit();
         }

@@ -23,7 +23,7 @@
             <div class="student-enrolment-exam">
                 <div *ngIf="enrolment.exam">
                     <a
-                        [routerLink]="['/enroll', 'exam', enrolment.exam.id]"
+                        [routerLink]="['/enrolments', enrolment.exam.id]"
                         [queryParams]="{ code: enrolment.exam.course?.code }"
                     >
                         {{ enrolment.exam.name }}

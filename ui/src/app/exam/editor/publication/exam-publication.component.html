@@ -336,8 +336,8 @@
 </div>
 <div class="row" *ngIf="exam.executionType.type === 'PUBLIC' && !collaborative">
     <div class="col-md-12 mart20">
-        <a href="{{ hostName }}/enroll/exam/{{ exam.id }}?code={{ exam.course?.code }}">
-            {{ hostName }}/enroll/exam/{{ exam.id }}?code={{ exam.course?.code }}
+        <a href="{{ hostName }}/enrolments/{{ exam.id }}?code={{ exam.course?.code }}">
+            {{ hostName }}/enrolments/{{ exam.id }}?code={{ exam.course?.code }}
         </a>
     </div>
 </div>

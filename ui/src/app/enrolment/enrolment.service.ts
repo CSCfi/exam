@@ -101,9 +101,9 @@ export class EnrolmentService {
                             this.translate.instant('sitnet_remember_exam_machine_reservation'),
                     );
                     if (exam.implementation !== 'AQUARIUM' && exam.examinationEventConfigurations.length > 0) {
-                        this.selectExaminationEvent(exam, enrolment, 'dashboard');
+                        this.selectExaminationEvent(exam, enrolment, '/dashboard');
                     } else {
-                        this.router.navigate([collaborative ? '/calendar/collaborative' : 'calendar', exam.id]);
+                        this.router.navigate(['/calendar', exam.id, collaborative ? 'collaborative' : '']);
                     }
                 }),
             );
@@ -134,7 +134,7 @@ export class EnrolmentService {
     getEnrolmentInfo$ = (code: string, id: number): Observable<EnrolmentInfo> =>
         this.http.get<Exam>(`/app/enrolments/${id}?code=${code}`).pipe(
             switchMap((exam) =>
-                this.getMaturityInstructions(exam).pipe(
+                this.getMaturityInstructions$(exam).pipe(
                     map((instructions) => {
                         return {
                             ...exam,
@@ -251,7 +251,7 @@ export class EnrolmentService {
     };
 
     showMaturityInstructions = (enrolment: { exam: Exam }) => {
-        this.getMaturityInstructions(enrolment.exam).subscribe((instructions) => {
+        this.getMaturityInstructions$(enrolment.exam).subscribe((instructions) => {
             const modalRef = this.ngbModal.open(ShowInstructionsDialogComponent, {
                 backdrop: 'static',
                 keyboard: false,
@@ -310,7 +310,7 @@ export class EnrolmentService {
         });
     };
 
-    private getMaturityInstructions = (exam: Exam): Observable<string> => {
+    private getMaturityInstructions$ = (exam: Exam): Observable<string> => {
         if (exam.executionType.type !== 'MATURITY') {
             return of('');
         }

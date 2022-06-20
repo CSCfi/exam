@@ -97,8 +97,8 @@ export class AssessmentComponent implements OnInit {
 
     print = () => {
         const url = this.collaborative
-            ? `/staff/print/exam/${this.examId}/${this.ref}`
-            : `/staff/print/exam/${this.exam.id}`;
+            ? `/staff/assessments/${this.examId}/print/${this.ref}`
+            : `/staff/assessments/${this.exam.id}`;
         window.open(url, '_blank');
     };
 

@@ -75,7 +75,7 @@ export class ExamService {
             .subscribe({
                 next: (response) => {
                     this.toast.info(this.translate.instant('sitnet_exam_added'));
-                    this.router.navigate(['/staff/exams', response.id, 'select', 'course']);
+                    this.router.navigate(['/staff/exams', response.id, 'course']);
                 },
                 error: this.toast.error,
             });
@@ -229,7 +229,7 @@ export class ExamService {
                     this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe({
                         next: () => {
                             this.toast.success(this.translate.instant('sitnet_exam_removed'));
-                            this.router.navigate(['/staff/dashboard', isAdmin ? 'admin' : 'teacher']);
+                            this.router.navigate(['/staff', isAdmin ? 'admin' : 'teacher']);
                         },
                         error: this.toast.error,
                     }),
@@ -254,13 +254,13 @@ export class ExamService {
     previewExam = (exam: Exam, fromTab: number, collaborative: boolean) => {
         const params = { id: exam.id, tab: fromTab };
         if (collaborative) {
-            this.router.navigate(['/staff/exams/collaborative', exam.id, 'view/preview'], {
+            this.router.navigate(['/staff/exams/collaborative', exam.id, 'preview'], {
                 queryParams: { tab: fromTab },
             });
         } else if (exam.executionType.type === 'PRINTOUT') {
-            this.router.navigate(['/staff/exams', exam.id, 'view/printout'], { queryParams: { tab: fromTab } });
+            this.router.navigate(['/staff/exams', exam.id, 'printout'], { queryParams: { tab: fromTab } });
         } else {
-            this.router.navigate(['/staff/exams', exam.id, 'view/preview'], { queryParams: { tab: fromTab } });
+            this.router.navigate(['/staff/exams', exam.id, 'preview'], { queryParams: { tab: fromTab } });
         }
     };
 

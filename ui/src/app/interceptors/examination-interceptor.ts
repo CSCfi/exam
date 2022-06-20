@@ -51,11 +51,11 @@ export class ExaminationInterceptor implements HttpInterceptor {
                     } else if (wrongRoom) {
                         this.ExaminationStatus.notifyWrongLocation();
                         parts = b64ToUtf8(wrongRoom).split(':::');
-                        this.router.navigate(['student/wrong-room', parts[0], parts[1]]);
+                        this.router.navigate(['/wrongroom', parts[0], parts[1]]);
                     } else if (wrongMachine) {
                         this.ExaminationStatus.notifyWrongLocation();
                         parts = b64ToUtf8(wrongMachine).split(':::');
-                        this.router.navigate(['student/wrong-machine', parts[0], parts[1]]);
+                        this.router.navigate(['/wrongmachine', parts[0], parts[1]]);
                     } else if (wrongUserAgent) {
                         this.WrongLocation.displayWrongUserAgent(wrongUserAgent); // Show warning notice on screen
                     } else if (enrolmentId) {
@@ -65,14 +65,14 @@ export class ExaminationInterceptor implements HttpInterceptor {
                         const id = enrolmentId === 'none' ? '' : parts[1];
                         if (enrolmentId === 'none') {
                             // No upcoming exams
-                            this.router.navigate(['student/waiting-room']);
+                            this.router.navigate(['/waitingroom']);
                         } else {
-                            this.router.navigate(['student/waiting-room', id, parts[0]]);
+                            this.router.navigate(['/waitingroom', id, parts[0]]);
                         }
                     } else if (hash) {
                         // Start/continue exam
                         this.ExaminationStatus.notfityStartOfExamination();
-                        this.router.navigate(['student/exam', hash]);
+                        this.router.navigate(['/exam', hash]);
                     }
                 }
             }),

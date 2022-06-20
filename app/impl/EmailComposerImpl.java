@@ -124,7 +124,7 @@ class EmailComposerImpl implements EmailComposer {
         Lang lang = getLang(student);
         String subject = messaging.get(lang, "email.inspection.ready.subject");
         String examInfo = String.format("%s, %s", exam.getName(), exam.getCourse().getCode().split("_")[0]);
-        String reviewLink = String.format("%s/student/participations", hostName);
+        String reviewLink = String.format("%s/participations", hostName);
 
         Map<String, String> stringValues = new HashMap<>();
         stringValues.put("review_done", messaging.get(lang, "email.template.review.ready", examInfo));
@@ -188,7 +188,7 @@ class EmailComposerImpl implements EmailComposer {
         );
         String examInfo = exam.getName();
         String linkToInspection = String.format(
-            "%s/staff/assessments/collaborative/%d/%s",
+            "%s/staff/assessments/%d/collaborative/%s",
             hostName,
             ce.getId(),
             ce.getRevision()
@@ -262,10 +262,7 @@ class EmailComposerImpl implements EmailComposer {
             .filter(e -> e.getValue().amount > 0)
             .forEach(e -> {
                 Map<String, String> stringValues = new HashMap<>();
-                stringValues.put(
-                    "exam_link",
-                    String.format("%s/staff/exams/%d/regular/4", hostName, e.getKey().getId())
-                );
+                stringValues.put("exam_link", String.format("%s/staff/exams/%d/4", hostName, e.getKey().getId()));
                 stringValues.put("exam_name", e.getKey().getName());
                 Course course = e.getKey().getCourse();
                 stringValues.put("course_code", course == null ? "" : course.getCode().split("_")[0]);
@@ -571,7 +568,7 @@ class EmailComposerImpl implements EmailComposer {
             fromUser.getEmail()
         );
         String examInfo = String.format("%s (%s)", exam.getName(), exam.getCourse().getCode().split("_")[0]);
-        String linkToInspection = String.format("%s/staff/exams/%d/regular/4", hostName, exam.getId());
+        String linkToInspection = String.format("%s/staff/exams/%d/4", hostName, exam.getId());
 
         Map<String, String> values = new HashMap<>();
 

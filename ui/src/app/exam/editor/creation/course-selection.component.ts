@@ -65,7 +65,7 @@ export class CourseSelectionComponent implements OnInit {
     cancelNewExam = () =>
         this.http.delete(`/app/exams/${this.exam.id}`).subscribe(() => {
             this.toast.success(this.translate.instant('sitnet_exam_removed'));
-            this.router.navigate(['/staff/dashboard', this.Session.getUser()?.isAdmin ? 'admin' : 'teacher']);
+            this.router.navigate(['/staff', this.Session.getUser()?.isAdmin ? 'admin' : 'teacher']);
         });
 
     continueToExam = () => this.router.navigate(['/staff/exams', this.exam.id, 1]);

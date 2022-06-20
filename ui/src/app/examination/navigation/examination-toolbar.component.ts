@@ -106,7 +106,7 @@ export class ExaminationToolbarComponent implements OnInit {
                     next: () => {
                         this.toast.info(this.translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
                         window.onbeforeunload = null;
-                        this.router.navigate(['student/logout'], {
+                        this.router.navigate(['/examination/logout'], {
                             queryParams: {
                                 reason: 'aborted',
                                 quitLinkEnabled: this.exam.implementation === 'CLIENT_AUTH',

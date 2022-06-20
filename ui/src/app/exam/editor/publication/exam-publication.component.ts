@@ -232,7 +232,7 @@ export class ExamPublicationComponent implements OnInit {
                                 ? 'sitnet_exam_saved_and_pre_published'
                                 : 'sitnet_exam_saved_and_published';
                             this.toast.success(this.translate.instant(text));
-                            this.router.navigate(['/staff/dashboard', this.user.isAdmin ? 'admin' : 'teacher']);
+                            this.router.navigate(['/staff', this.user.isAdmin ? 'admin' : 'teacher']);
                         },
                         error: this.toast.error,
                     });

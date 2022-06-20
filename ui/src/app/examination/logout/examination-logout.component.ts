@@ -64,6 +64,6 @@ export class ExaminationLogoutComponent implements OnInit {
     private logout = () =>
         window.setTimeout(() => {
             this.ExaminationStatus.notifyEndOfExamination();
-            this.router.navigate(['logout']);
+            this.router.navigate(['/logout']);
         }, 8000);
 }

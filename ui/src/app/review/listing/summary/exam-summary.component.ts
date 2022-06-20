@@ -64,7 +64,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
             this.collaborative = this.Tabs.isCollaborative();
             this.refresh();
             // Had to manually update chart locales
-            this.translate.onLangChange.subscribe(() => this.updateChartLocale());
+            this.translate.onLangChange.subscribe(this.updateChartLocale);
             this.sectionScores = this.ExamSummary.calcSectionMaxAndAverages(this.reviews, this.exam);
             this.Tabs.notifyTabChange(6);
         });

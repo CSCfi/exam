@@ -195,7 +195,7 @@ export class SpeedReviewComponent implements OnInit {
     private reload = () =>
         this.router
             .navigateByUrl('/', { skipLocationChange: true })
-            .then(() => this.router.navigate(['/staff/speedReview']));
+            .then(() => this.router.navigate(['/staff/assessments', this.examId, 'speedReview']));
 
     private resolveGradeScale = (exam: Exam): GradeScale => {
         if (exam.gradeScale) {

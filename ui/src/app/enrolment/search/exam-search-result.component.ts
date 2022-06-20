@@ -29,7 +29,7 @@ import { EnrolmentService } from '../enrolment.service';
                 <a
                     *ngIf="!collaborative"
                     class="infolink"
-                    [routerLink]="['/enroll', 'exam', exam.id]"
+                    [routerLink]="['/enrolments', exam.id]"
                     [queryParams]="{ code: exam.course?.code }"
                 >
                     {{ exam.name }}
@@ -103,9 +103,9 @@ export class ExamSearchResultComponent {
 
     makeReservation = () => {
         if (this.exam.implementation !== 'AQUARIUM') {
-            this.router.navigate(['dashboard']);
+            this.router.navigate(['/dashboard']);
         } else {
-            this.router.navigate([this.collaborative ? 'calendar/collaborative' : 'calendar', this.exam.id]);
+            this.router.navigate(['calendar', this.exam.id, this.collaborative ? 'collaborative' : '']);
         }
     };
 }

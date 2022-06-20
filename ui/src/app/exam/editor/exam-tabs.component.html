@@ -7,7 +7,7 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-details-title-wrap">
-                <a [routerLink]="[user.isAdmin ? '/staff/dashboard/admin' : '/staff/dashboard/teacher']">
+                <a [routerLink]="[user.isAdmin ? '/staff/admin' : '/staff/teacher']">
                     <img class="pointer arrow_icon" src="/assets/images/icon_history.png" alt="go back" />
                 </a>
                 <div class="student-exam-details-title">{{ examInfo.title || 'loading' }}</div>

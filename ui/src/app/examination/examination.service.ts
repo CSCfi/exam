@@ -44,7 +44,7 @@ export class ExaminationService {
                 if (e.cloned) {
                     // we came here with a reference to the parent exam so do not render page just yet,
                     // reload with reference to student exam that we just created
-                    this.router.navigate(['student/exam', e.hash]);
+                    this.router.navigate(['/exam', e.hash]);
                 }
                 this.isExternal = e.external;
             }),
@@ -195,7 +195,7 @@ export class ExaminationService {
         const ok = () => {
             this.toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
             window.onbeforeunload = null;
-            this.router.navigate(['student/logout'], {
+            this.router.navigate(['/examination/logout'], {
                 queryParams: { reason: 'finished', quitLinkEnabled: quitLinkEnabled },
             });
         };
