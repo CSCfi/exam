@@ -27,7 +27,7 @@ export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exa
     _rev: string;
 };
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class CollaborativeExamService {
     exams: CollaborativeExam[] = [];
 

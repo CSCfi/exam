@@ -19,7 +19,7 @@ import { NgbDate, NgbDateParserFormatter, NgbDatepickerI18n } from '@ng-bootstra
 import { TranslateService } from '@ngx-translate/core';
 import { DateTimeService } from './date.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class DatePickerFormatter extends NgbDateParserFormatter {
     readonly DELIMITER = '.';
 
@@ -37,7 +37,7 @@ export class DatePickerFormatter extends NgbDateParserFormatter {
     }
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class DatePickerI18n extends NgbDatepickerI18n {
     constructor(private translate: TranslateService, private DateTime: DateTimeService) {
         super();
@@ -123,6 +123,10 @@ export class DatePickerComponent implements OnInit {
         const now = new Date();
         this.startDate = this.date || new NgbDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
         this.updated.emit({ date: this.transform(this.date) });
+    }
+
+    dateCleared() {
+        this.updated.emit({ date: null });
     }
 
     extraClicked() {

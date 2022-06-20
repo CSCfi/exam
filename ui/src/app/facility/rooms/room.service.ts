@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { format, formatISO, parseISO, setHours, setMinutes } from 'date-fns';
-import { cloneDeep } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -74,7 +73,7 @@ const blocksForDay = (week: Week, day: Weekday) => {
     return blocks;
 };
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class RoomService {
     times = [''];
 
@@ -179,9 +178,9 @@ export class RoomService {
         return true;
     };
 
-    getTimes = () => cloneDeep(this.times);
+    getTimes = () => [...this.times];
 
-    getWeek = () => cloneDeep(this.week);
+    getWeek = () => ({ ...this.week });
 
     disableRoom = (room: ExamRoom) =>
         this.dialogs

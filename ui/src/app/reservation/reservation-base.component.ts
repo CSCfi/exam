@@ -14,9 +14,8 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Directive, OnInit } from '@angular/core';
-import { UIRouterGlobals } from '@uirouter/core';
+import { ActivatedRoute } from '@angular/router';
 import { addMinutes, endOfDay, parseISO, startOfDay } from 'date-fns';
-import { isNumber, isObject } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { forkJoin } from 'rxjs';
@@ -25,6 +24,7 @@ import type { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { CollaborativeExam, Exam, ExamImpl, Implementation } from '../exam/exam.model';
 import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
+import { isNumber, isObject } from '../shared/miscellaneous/helpers';
 import type { Option } from '../shared/select/dropdown-select.component';
 import { OrderByPipe } from '../shared/sorting/order-by.pipe';
 import type { ExamMachine, ExamRoom, Reservation } from './reservation.model';
@@ -67,7 +67,7 @@ export type AnyReservation =
 
 @Directive()
 export class ReservationComponentBase implements OnInit {
-    examId: string;
+    examId = '';
     user: User;
     startDate: Date | null = new Date();
     endDate: Date | null = new Date();
@@ -99,13 +99,12 @@ export class ReservationComponentBase implements OnInit {
 
     constructor(
         private http: HttpClient,
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
         private toast: ToastrService,
         private orderPipe: OrderByPipe,
         private Session: SessionService,
         private Reservation: ReservationService,
     ) {
-        this.examId = this.routing.params.eid;
         this.user = this.Session.getUser();
 
         if (this.user.isAdmin) {
@@ -115,6 +114,7 @@ export class ReservationComponentBase implements OnInit {
     }
 
     ngOnInit() {
+        this.examId = this.route.snapshot.params.eid;
         this.selection = this.examId ? { examId: this.examId } : {};
         this.initOptions();
         this.query();

@@ -28,8 +28,8 @@ import { ExaminationEventConfiguration } from '../../exam.model';
 })
 export class ExaminationEventSearchComponent implements OnInit {
     date = new Date();
-    startDate: Date | null = this.date;
-    endDate: Date | null = this.date;
+    startDate: Date | null = null;
+    endDate: Date | null = null;
     events: ExaminationEventConfiguration[] = [];
     sorting = {
         predicate: 'examinationEvent.start',
@@ -95,7 +95,6 @@ export class ExaminationEventSearchComponent implements OnInit {
     };
 
     query = () => {
-        if (!this.startDate || !this.endDate) return;
         const params: { start?: string; end?: string } = {};
         const tzOffset = new Date().getTimezoneOffset() * 60000;
         if (this.startDate) {

@@ -35,7 +35,7 @@ export type ReviewListView = {
     filter: string;
 };
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ReviewListService {
     constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
 

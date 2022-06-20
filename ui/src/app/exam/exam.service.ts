@@ -14,8 +14,8 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/angular';
 import { parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
@@ -47,12 +47,13 @@ export type ExaminationEventConfigurationInput = {
 };
 
 type SectionContainer = { examSections: ExamSection[] };
-@Injectable()
+
+@Injectable({ providedIn: 'root' })
 export class ExamService {
     constructor(
-        private translate: TranslateService,
-        private State: StateService,
+        private router: Router,
         private http: HttpClient,
+        private translate: TranslateService,
         private toast: ToastrService,
         private CommonExam: CommonExamService,
         private Question: QuestionService,
@@ -74,7 +75,7 @@ export class ExamService {
             .subscribe({
                 next: (response) => {
                     this.toast.info(this.translate.instant('sitnet_exam_added'));
-                    this.State.go('staff.courseSelector', { id: response.id });
+                    this.router.navigate(['/staff/exams', response.id, 'course']);
                 },
                 error: this.toast.error,
             });
@@ -165,7 +166,7 @@ export class ExamService {
             // handle only numeric scores (leave out approved/rejected type of scores)
             return n + (points.rejected === false && points.approved === false ? points.score : 0);
         }, 0);
-        return this.isInteger(score) ? score : parseFloat(score.toFixed(2));
+        return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
     };
 
     getSectionTotalScore = (section: ExamSection): number => {
@@ -173,7 +174,7 @@ export class ExamService {
             const points = this.Question.calculateAnswerScore(sq);
             return n + points.score;
         }, 0);
-        return this.isInteger(score) ? score : parseFloat(score.toFixed(2));
+        return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
     };
 
     getSectionMaxScore = (section: ExamSection): number => {
@@ -186,7 +187,7 @@ export class ExamService {
         if (section.lotteryOn) {
             maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
         }
-        return this.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
+        return Number.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
     };
 
     hasQuestions = (exam: SectionContainer) => exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0) > 0;
@@ -218,7 +219,7 @@ export class ExamService {
         return exam && user && (user.isAdmin || this.isOwner(exam, collaborative));
     };
 
-    removeExam = (exam: Exam, collaborative = false) => {
+    removeExam = (exam: Exam, collaborative = false, isAdmin = false) => {
         if (this.isAllowedToUnpublishOrRemove(exam, collaborative)) {
             this.ConfirmationDialog.open$(
                 this.translate.instant('sitnet_confirm'),
@@ -228,7 +229,7 @@ export class ExamService {
                     this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe({
                         next: () => {
                             this.toast.success(this.translate.instant('sitnet_exam_removed'));
-                            this.State.go('dashboard');
+                            this.router.navigate(['/staff', isAdmin ? 'admin' : 'teacher']);
                         },
                         error: this.toast.error,
                     }),
@@ -253,11 +254,13 @@ export class ExamService {
     previewExam = (exam: Exam, fromTab: number, collaborative: boolean) => {
         const params = { id: exam.id, tab: fromTab };
         if (collaborative) {
-            this.State.go('staff.collaborativePreview', params);
+            this.router.navigate(['/staff/exams/collaborative', exam.id, 'preview'], {
+                queryParams: { tab: fromTab },
+            });
         } else if (exam.executionType.type === 'PRINTOUT') {
-            this.State.go('staff.printout', params);
+            this.router.navigate(['/staff/exams', exam.id, 'printout'], { queryParams: { tab: fromTab } });
         } else {
-            this.State.go('staff.examPreview', params);
+            this.router.navigate(['/staff/exams', exam.id, 'preview'], { queryParams: { tab: fromTab } });
         }
     };
 
@@ -292,6 +295,4 @@ export class ExamService {
 
     private hasEffectiveEnrolments = (exam: Exam) =>
         exam.examEnrolments.some((ee) => ee.reservation && parseISO(ee.reservation.endAt) > new Date());
-
-    private isInteger = (n: number) => isFinite(n) && Math.floor(n) === n;
 }

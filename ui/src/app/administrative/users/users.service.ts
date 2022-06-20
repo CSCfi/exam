@@ -11,7 +11,7 @@ export interface Permission {
     type: PermissionType;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class UserManagementService {
     constructor(private http: HttpClient) {}
 

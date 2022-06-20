@@ -14,8 +14,8 @@
  */
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
 import { SharedModule } from '../shared/shared.module';
 import { AssessmentComponent } from './assessment/assessment.component';
 import { AssessmentService } from './assessment/assessment.service';
@@ -55,6 +55,7 @@ import { AbortedExamsComponent } from './listing/dialogs/aborted.component';
 import { ArchiveDownloadComponent } from './listing/dialogs/archive-download.component';
 import { SpeedReviewFeedbackComponent } from './listing/dialogs/feedback.component';
 import { NoShowsComponent } from './listing/dialogs/no-shows.component';
+import { ReviewListResolverService } from './listing/review-list-resolver.service';
 import { ReviewListComponent } from './listing/review-list.component';
 import { ReviewListService } from './listing/review-list.service';
 import { SpeedReviewComponent } from './listing/speed-review.component';
@@ -70,7 +71,7 @@ import { QuestionReviewsComponent } from './questions/listing/question-reviews.c
 import { QuestionReviewService } from './questions/question-review.service';
 
 @NgModule({
-    imports: [NgbModule, UIRouterModule, SharedModule, DragDropModule],
+    imports: [NgbModule, RouterModule, SharedModule, DragDropModule],
     exports: [ReviewListComponent, QuestionReviewsComponent, ExamSummaryComponent],
     declarations: [
         AssessmentComponent,
@@ -133,6 +134,7 @@ import { QuestionReviewService } from './questions/question-review.service';
         MaturityService,
         QuestionReviewService,
         ExamSummaryService,
+        ReviewListResolverService,
     ],
 })
 export class ReviewModule {}

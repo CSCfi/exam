@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
 import { SharedModule } from '../shared/shared.module';
 import { InspectionStatementDialogComponent } from './dialogs/inspection-statement-dialog.component';
 import { LanguageInspectionsComponent } from './language-inspections.component';
@@ -24,7 +24,7 @@ import { UnfinishedInspectionsComponent } from './listing/unfinished-inspections
 import { MaturityReportingComponent } from './reporting/maturity-reporting.component';
 
 @NgModule({
-    imports: [NgbModule, UIRouterModule, SharedModule],
+    imports: [NgbModule, RouterModule, SharedModule],
     exports: [ReviewedInspectionsComponent],
     declarations: [
         LanguageInspectionsComponent,

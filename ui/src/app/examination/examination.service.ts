@@ -14,27 +14,24 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
-import { isEmpty, isInteger } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { concat, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import type { ClozeTestAnswer, EssayAnswer } from '../exam/exam.model';
-import { WindowRef } from '../shared/window/window.service';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ExaminationService {
     isExternal = false;
 
     constructor(
-        private state: StateService,
+        private router: Router,
         private http: HttpClient,
         private translate: TranslateService,
         private toast: ToastrService,
-        private Window: WindowRef,
     ) {}
 
     getResource = (url: string) => (this.isExternal ? url.replace('/app/', '/app/iop/') : url);
@@ -47,7 +44,7 @@ export class ExaminationService {
                 if (e.cloned) {
                     // we came here with a reference to the parent exam so do not render page just yet,
                     // reload with reference to student exam that we just created
-                    this.state.go('examination', { hash: e.hash });
+                    this.router.navigate(['/exam', e.hash]);
                 }
                 this.isExternal = e.external;
             }),
@@ -130,7 +127,7 @@ export class ExaminationService {
                 break;
             case 'ClozeTestQuestion': {
                 const clozeTestAnswer = sq.clozeTestAnswer;
-                isAnswered = clozeTestAnswer && !isEmpty(clozeTestAnswer.answer);
+                isAnswered = clozeTestAnswer && Object.keys(clozeTestAnswer.answer).length > 0;
                 break;
             }
             case 'ClaimChoiceQuestion':
@@ -186,7 +183,7 @@ export class ExaminationService {
             .map((esq) => esq.derivedMaxScore)
             .reduce((acc, current) => acc + current, 0);
 
-        return isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
+        return Number.isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
     };
 
     abort$ = (hash: string): Observable<void> => {
@@ -197,8 +194,10 @@ export class ExaminationService {
     logout = (msg: string, hash: string, quitLinkEnabled: boolean, canFail: boolean) => {
         const ok = () => {
             this.toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
-            this.Window.nativeWindow.onbeforeunload = null;
-            this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
+            window.onbeforeunload = null;
+            this.router.navigate(['/examination/logout'], {
+                queryParams: { reason: 'finished', quitLinkEnabled: quitLinkEnabled },
+            });
         };
         const url = this.getResource('/app/student/exam/' + hash);
         this.http.put<void>(url, {}).subscribe({
@@ -215,7 +214,7 @@ export class ExaminationService {
             case 'EssayQuestion':
                 return esq.essayAnswer && (allowEmpty || (esq.essayAnswer.answer && esq.essayAnswer.answer.length > 0));
             case 'ClozeTestQuestion':
-                return esq.clozeTestAnswer && (allowEmpty || !isEmpty(esq.clozeTestAnswer.answer));
+                return esq.clozeTestAnswer && (allowEmpty || Object.keys(esq.clozeTestAnswer.answer).length > 0);
             default:
                 return false;
         }

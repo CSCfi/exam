@@ -15,7 +15,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
+import { RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
 import { ActiveEnrolmentComponent } from './active/active-enrolment.component';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/add-enrolment-information-dialog.component';
@@ -38,7 +38,7 @@ import { WrongLocationComponent } from './wrong-location/wrong-location.componen
 import { WrongLocationService } from './wrong-location/wrong-location.service';
 
 @NgModule({
-    imports: [BrowserAnimationsModule, UIRouterModule, NgbDropdownModule, SharedModule],
+    imports: [BrowserAnimationsModule, RouterModule, NgbDropdownModule, SharedModule],
     exports: [ActiveEnrolmentComponent, ExamSearchResultComponent],
     declarations: [
         ActiveEnrolmentComponent,

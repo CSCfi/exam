@@ -14,8 +14,8 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
@@ -24,7 +24,6 @@ import type { ExamRoom } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { WindowRef } from '../../shared/window/window.service';
 import type { Examination, ExaminationSection } from '../examination.model';
 import { ExaminationService } from '../examination.service';
 
@@ -40,14 +39,14 @@ export class ExaminationToolbarComponent implements OnInit {
     @Output() pageSelected = new EventEmitter<{ page: { id?: number; type: string } }>();
 
     room?: ExamRoom;
+    tab?: number;
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private router: Router,
+        private route: ActivatedRoute,
         private translate: TranslateService,
         private toast: ToastrService,
-        private Window: WindowRef,
         private Confirmation: ConfirmationDialogService,
         private Session: SessionService,
         private Examination: ExaminationService,
@@ -56,6 +55,7 @@ export class ExaminationToolbarComponent implements OnInit {
     ) {}
 
     ngOnInit() {
+        this.tab = this.route.snapshot.queryParams.get('tab');
         if (!this.isPreview && this.exam.implementation === 'AQUARIUM') {
             this.http.get<ExamRoom>('/app/enrolments/room/' + this.exam.hash).subscribe((resp) => (this.room = resp));
         }
@@ -105,10 +105,12 @@ export class ExaminationToolbarComponent implements OnInit {
                 this.Examination.abort$(this.exam.hash).subscribe({
                     next: () => {
                         this.toast.info(this.translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
-                        this.Window.nativeWindow.onbeforeunload = null;
-                        this.state.go('examinationLogout', {
-                            reason: 'aborted',
-                            quitLinkEnabled: this.exam.implementation === 'CLIENT_AUTH',
+                        window.onbeforeunload = null;
+                        this.router.navigate(['/examination/logout'], {
+                            queryParams: {
+                                reason: 'aborted',
+                                quitLinkEnabled: this.exam.implementation === 'CLIENT_AUTH',
+                            },
                         });
                     },
                     error: this.toast.error,
@@ -155,16 +157,9 @@ export class ExaminationToolbarComponent implements OnInit {
     showMaturityInstructions = () => this.Enrolment.showMaturityInstructions({ exam: this.exam });
 
     exitPreview = () => {
-        const tab = parseInt(this.routing.params.tab || 1);
-        const collab = this.isCollaborative ? 'collaborative' : 'false';
-        if (tab == 1) {
-            this.state.go('staff.examEditor.basic', { id: this.exam.id, collaborative: collab });
-        } else if (tab == 2) {
-            this.state.go('staff.examEditor.sections', { id: this.exam.id, collaborative: collab });
-        } else if (tab == 3) {
-            this.state.go('staff.examEditor.publication', { id: this.exam.id, collaborative: collab });
-        } else if (tab == 4) {
-            this.state.go('staff.examEditor.assessments', { id: this.exam.id, collaborative: collab });
-        }
+        const tab = this.tab || 1;
+        this.router.navigate(['/staff/exams', this.exam.id, tab], {
+            queryParams: { collaborative: this.isCollaborative },
+        });
     };
 }

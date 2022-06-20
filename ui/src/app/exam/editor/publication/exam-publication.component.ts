@@ -15,18 +15,17 @@
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
 import { format, parseISO } from 'date-fns';
-import { isBoolean, isEmpty, toNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { from, Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { isBoolean } from 'src/app/shared/miscellaneous/helpers';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import { WindowRef } from '../../../shared/window/window.service';
 import type {
     AutoEvaluationConfig,
     Exam,
@@ -65,21 +64,23 @@ export class ExamPublicationComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
+        private route: ActivatedRoute,
+        private router: Router,
         private translate: TranslateService,
-        private state: StateService,
         private modal: NgbModal,
         private toast: ToastrService,
-        private windowRef: WindowRef,
         private Session: SessionService,
         private Exam: ExamService,
         private Confirmation: ConfirmationDialogService,
         private Tabs: ExamTabService,
     ) {
-        this.hostName = this.windowRef.nativeWindow.location.origin;
+        this.hostName = window.location.origin;
         this.user = this.Session.getUser();
     }
 
     ngOnInit() {
+        this.exam = this.Tabs.getExam();
+        this.collaborative = this.Tabs.isCollaborative();
         this.autoEvaluation = { enabled: !!this.exam.autoEvaluationConfig };
         this.http
             .get<{ examDurations: number[] }>('/app/settings/durations')
@@ -159,10 +160,10 @@ export class ExamPublicationComponent implements OnInit {
     };
 
     setHourValue = (event: Event) => {
-        this.hourValue = toNumber((event.target as HTMLInputElement).value);
+        this.hourValue = parseInt((event.target as HTMLInputElement).value);
     };
     setMinuteValue = (event: Event) => {
-        this.minuteValue = toNumber((event.target as HTMLInputElement).value);
+        this.minuteValue = parseInt((event.target as HTMLInputElement).value);
     };
 
     toHoursAndMinutes = (minutes: number): string => {
@@ -194,11 +195,11 @@ export class ExamPublicationComponent implements OnInit {
 
     nextTab = () => {
         this.Tabs.notifyTabChange(4);
-        this.state.go('staff.examEditor.assessments');
+        this.router.navigate(['..', '4'], { relativeTo: this.route });
     };
     previousTab = () => {
         this.Tabs.notifyTabChange(2);
-        this.state.go('staff.examEditor.sections');
+        this.router.navigate(['..', '2'], { relativeTo: this.route });
     };
 
     saveAndPublishExam = () => {
@@ -231,7 +232,7 @@ export class ExamPublicationComponent implements OnInit {
                                 ? 'sitnet_exam_saved_and_pre_published'
                                 : 'sitnet_exam_saved_and_published';
                             this.toast.success(this.translate.instant(text));
-                            this.state.go(this.user.isAdmin ? 'staff.admin' : 'staff.teacher');
+                            this.router.navigate(['/staff', this.user.isAdmin ? 'admin' : 'teacher']);
                         },
                         error: this.toast.error,
                     });
@@ -430,7 +431,7 @@ export class ExamPublicationComponent implements OnInit {
             errors.push('sitnet_exam_has_no_questions');
         }
 
-        const allSectionsNamed = this.exam.examSections.every((section) => !isEmpty(section.name));
+        const allSectionsNamed = this.exam.examSections.every((section) => section.name.length > 0);
         if (!allSectionsNamed) {
             errors.push('sitnet_exam_contains_unnamed_sections');
         }

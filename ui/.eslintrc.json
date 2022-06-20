@@ -1,8 +1,5 @@
 {
   "root": true,
-  "ignorePatterns": [
-    "projects/**/*"
-  ],
   "overrides": [
     {
       "files": [
@@ -20,6 +17,7 @@
       ],
       "plugins": ["deprecation"],
       "rules": {
+        "@typescript-eslint/no-explicit-any": "error",
         "deprecation/deprecation": "error",
         "@angular-eslint/directive-selector": [
           "error",

@@ -14,13 +14,13 @@
  */
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { UIRouterModule } from '@uirouter/angular';
 import { NavigationComponent } from './navigation.component';
 import { NavigationService } from './navigation.service';
 
 @NgModule({
-    imports: [CommonModule, TranslateModule, UIRouterModule],
+    imports: [CommonModule, TranslateModule, RouterModule],
     exports: [NavigationComponent],
     declarations: [NavigationComponent],
     providers: [NavigationService],

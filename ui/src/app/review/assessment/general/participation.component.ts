@@ -13,11 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import { UIRouterGlobals } from '@uirouter/core';
+import { ActivatedRoute } from '@angular/router';
 import type { ExamParticipation } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
 import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
-import { WindowRef } from '../../../shared/window/window.service';
 
 @Component({
     selector: 'xm-r-participation',
@@ -42,18 +41,13 @@ export class ParticipationComponent {
     @Input() participation!: ExamParticipation;
     @Input() collaborative = false;
 
-    constructor(
-        private state: UIRouterGlobals,
-        private Exam: CommonExamService,
-        private Session: SessionService,
-        private Window: WindowRef,
-    ) {}
+    constructor(private route: ActivatedRoute, private Exam: CommonExamService, private Session: SessionService) {}
 
     viewAnswers = () => {
         const url = this.collaborative
-            ? `/assessments/collaborative/${this.state.params.id}/${this.participation._id}`
+            ? `/assessments/collaborative/${this.route.snapshot.params.id}/${this.participation._id}`
             : `/assessments/${this.participation.exam?.id}`;
-        this.Window.nativeWindow.open(url, '_blank');
+        window.open(url, '_blank');
     };
 
     hideGrade = () => !this.participation.exam?.grade;

@@ -3,7 +3,7 @@
         <div class="review-list-title">
             {{ 'sitnet_processed_language_inspections' | translate }}
             <small class="smaller padl20">
-                <a uiSref="staff.languageInspectionReports">{{
+                <a [routerLink]="['/staff/inspections/reports']">{{
                     'sitnet_language_inspection_report_link' | translate
                 }}</a>
             </small>
@@ -194,7 +194,7 @@
                 </td>
                 <!-- 3 -->
                 <td>
-                    <a class="table-column-examname" uiSref="staff.assessment" [uiParams]="{ id: inspection.exam.id }">
+                    <a class="table-column-examname" [routerLink]="['/staff/assessments', inspection.exam.id]">
                         {{ inspection.exam.name }}
                     </a>
                 </td>

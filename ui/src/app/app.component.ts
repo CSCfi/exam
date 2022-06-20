@@ -17,7 +17,7 @@ import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { StateService } from '@uirouter/angular';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ExaminationStatusService } from './examination/examination-status.service';
@@ -33,7 +33,7 @@ import { SessionService } from './session/session.service';
         <div *ngIf="user">
             <xm-navigation [hidden]="hideNavBar"></xm-navigation>
             <main id="mainView" class="container-fluid pad0 w-auto" [ngClass]="{ 'vmenu-on': !hideNavBar }">
-                <ui-view></ui-view>
+                <router-outlet></router-outlet>
             </main>
         </div>
     `,
@@ -45,7 +45,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private ngUnsubscribe = new Subject();
 
     constructor(
-        private state: StateService,
+        private router: Router,
         private Session: SessionService,
         private ExaminationStatus: ExaminationStatusService,
     ) {
@@ -57,7 +57,7 @@ export class AppComponent implements OnInit, OnDestroy {
         });
         this.Session.devLogoutChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             delete this.user;
-            this.state.go('app');
+            this.router.navigate(['']);
         });
         registerLocaleData(localeSv);
         registerLocaleData(localeFi);

@@ -15,8 +15,8 @@
 import type { OnInit } from '@angular/core';
 import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import { format, parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
@@ -39,9 +39,9 @@ export class RoomComponent implements OnInit {
     workingHours: WeekdayBlock[] = [];
 
     constructor(
+        private router: Router,
+        private route: ActivatedRoute,
         private translate: TranslateService,
-        private state: StateService,
-        private routing: UIRouterGlobals,
         private toast: ToastrService,
         private roomService: RoomService,
         private interoperability: InteroperabilityService,
@@ -54,7 +54,7 @@ export class RoomComponent implements OnInit {
             this.isInteroperable = data.isExamVisitSupported;
         });
 
-        this.roomService.getRoom$(this.routing.params.id).subscribe({
+        this.roomService.getRoom$(this.route.snapshot.params.id).subscribe({
             next: (room: ExamRoom) => {
                 room.availableForExternals = room.externalRef !== null;
                 this.room = room;
@@ -139,7 +139,7 @@ export class RoomComponent implements OnInit {
         this.roomService.updateRoom(this.room).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('sitnet_room_saved'));
-                this.state.go('staff.rooms');
+                this.router.navigate(['/staff/rooms']);
             },
             error: this.toast.error,
         });

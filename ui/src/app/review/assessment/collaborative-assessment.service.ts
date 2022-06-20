@@ -14,15 +14,14 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import type { Exam, ExamParticipation, Feedback, SelectableGrade } from '../../exam/exam.model';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { WindowRef } from '../../shared/window/window.service';
 import { AssessmentService } from './assessment.service';
 
 interface Payload {
@@ -37,15 +36,13 @@ interface Payload {
     rev: string;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class CollaborativeAssesmentService {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private router: Router,
         private toast: ToastrService,
-        private windowRef: WindowRef,
         private dialogs: ConfirmationDialogService,
         private Assessment: AssessmentService,
     ) {}
@@ -108,8 +105,8 @@ export class CollaborativeAssesmentService {
                 // Just save feedback and leave
                 this.saveFeedback$(id, ref, participation).subscribe(() => {
                     this.toast.info(this.translate.instant('sitnet_saved'));
-                    const state = this.Assessment.getExitStateById(this.routing.params.id, true);
-                    this.state.go(state.name as string, state.params);
+                    const state = this.Assessment.getExitStateById(id, true);
+                    this.router.navigate(state.fragments, state.params);
                 });
             }
         } else {
@@ -171,14 +168,14 @@ export class CollaborativeAssesmentService {
                     next: () => {
                         if (newState === 'REVIEW_STARTED') {
                             messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
-                            this.windowRef.nativeWindow.setTimeout(
+                            window.setTimeout(
                                 () => this.toast.info(this.translate.instant('sitnet_review_saved')),
                                 1000,
                             );
                         } else {
                             this.toast.info(this.translate.instant('sitnet_review_graded'));
-                            const state = this.Assessment.getExitStateById(this.routing.params.id, true);
-                            this.state.go(state.name as string, state.params);
+                            const state = this.Assessment.getExitStateById(examId, true);
+                            this.router.navigate(state.fragments, state.params);
                         }
                     },
                     error: this.toast.error,
@@ -195,8 +192,8 @@ export class CollaborativeAssesmentService {
             next: (data) => {
                 participation._rev = data.rev;
                 this.toast.info(this.translate.instant('sitnet_review_recorded'));
-                const state = this.Assessment.getExitStateById(this.routing.params.id, true);
-                this.state.go(state.name as string, state.params);
+                const state = this.Assessment.getExitStateById(examId, true);
+                this.router.navigate(state.fragments, state.params);
             },
             error: this.toast.error,
         });

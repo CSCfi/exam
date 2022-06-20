@@ -15,7 +15,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgbDatepickerModule, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDatepickerModule, NgbDropdownModule, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrModule } from 'ngx-toastr';
 import { AttachmentService } from './attachment/attachment.service';
@@ -49,10 +49,17 @@ import { LowerCaseValidatorDirective } from './validation/lowercase.directive';
 import { MaxDirective } from './validation/max-value.directive';
 import { MinDirective } from './validation/min-value.directive';
 import { UniqueValuesValidatorDirective } from './validation/unique-values.directive';
-import { WindowRef } from './window/window.service';
 
 @NgModule({
-    imports: [CommonModule, TranslateModule, FormsModule, ToastrModule, NgbDatepickerModule, NgbTimepickerModule],
+    imports: [
+        CommonModule,
+        TranslateModule,
+        FormsModule,
+        ToastrModule,
+        NgbDatepickerModule,
+        NgbTimepickerModule,
+        NgbDropdownModule,
+    ],
     exports: [
         CommonModule,
         TranslateModule,
@@ -116,7 +123,6 @@ import { WindowRef } from './window/window.service';
         LanguageService,
         CommonExamService,
         UserService,
-        WindowRef,
     ],
 })
 export class SharedModule {}

@@ -14,7 +14,6 @@
  */
 import type { OnDestroy, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -37,7 +36,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
     private ngUnsubscribe = new Subject();
 
     constructor(
-        private routing: UIRouterGlobals,
         private toast: ToastrService,
         private Navigation: NavigationService,
         private Session: SessionService,
@@ -81,7 +79,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
         return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
     };
 
-    isActive = (link: Link): boolean => link.state === this.routing.current.name;
+    // isActive = (link: Link): boolean => link.route === this.routing.current.name; // TODO!
 
     openMenu = () => (this.mobileMenuOpen = !this.mobileMenuOpen);
 

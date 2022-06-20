@@ -2,8 +2,8 @@ import { WeekDay } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { UIRouterGlobals } from '@uirouter/core';
 import type { CalendarEvent } from 'angular-calendar';
 import { addHours, format, startOfWeek } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
@@ -56,16 +56,18 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     showAccessibilityMenu = false;
     currentWeek = new Date();
     events: CalendarEvent<SlotMeta>[] = [];
+    examId = 0;
 
     constructor(
         private translate: TranslateService,
-        private uiRouter: UIRouterGlobals,
+        private route: ActivatedRoute,
         private toast: ToastrService,
         private Calendar: CalendarService,
         private DateTime: DateTimeService,
     ) {}
 
     ngOnInit() {
+        this.examId = Number(this.route.snapshot.paramMap.get('id'));
         this.Calendar.listAccessibilityCriteria$().subscribe(
             (resp) => (this.accessibilities = resp.map((a) => ({ ...a, filtered: false }))),
         );
@@ -170,7 +172,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
                     ? { org: this.organisation._id, date: date }
                     : { day: date, aids: accessibilityIds.map((i) => i.toString()) },
         });
-        return this.Calendar.listSlots$(this.isExternal, this.isCollaborative, room, this.uiRouter.params.id, params);
+        return this.Calendar.listSlots$(this.isExternal, this.isCollaborative, room, this.examId, params);
     }
 
     private adjust = (date: string, tz: string): Date => {

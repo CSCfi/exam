@@ -14,10 +14,10 @@
  */
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { UIRouterGlobals } from '@uirouter/core';
-import { isInteger, isNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
+import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
 import { AssessmentService } from '../assessment.service';
@@ -34,11 +34,13 @@ export class ClozeTestComponent implements OnInit {
     @Output() scored = new EventEmitter<string>();
     @ViewChild('forcedPoints', { static: false }) form?: NgForm;
 
+    id = 0;
+    ref = '';
     reviewExpanded = true;
     _score: number | null = null;
 
     constructor(
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
         private translate: TranslateService,
         private toast: ToastrService,
         private Assessment: AssessmentService,
@@ -57,6 +59,8 @@ export class ClozeTestComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.id = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
         if (this.sectionQuestion.forcedScore) {
             this.scoreValue = this.sectionQuestion.forcedScore;
         }
@@ -79,7 +83,7 @@ export class ClozeTestComponent implements OnInit {
         const score = this.sectionQuestion.clozeTestAnswer?.score;
         if (score) {
             const value = (score.correctAnswers * max) / (score.correctAnswers + score.incorrectAnswers);
-            return isInteger(value) ? value : value.toFixed(2);
+            return Number.isInteger(value) ? value : value.toFixed(2);
         }
         return 0;
     };
@@ -88,8 +92,8 @@ export class ClozeTestComponent implements OnInit {
         this.collaborative
             ? this.Assessment.saveCollaborativeForcedScore$(
                   this.sectionQuestion,
-                  this.routing.params.id,
-                  this.routing.params.ref,
+                  this.id,
+                  this.ref,
                   this.participation._rev as string,
               ).subscribe((resp) => {
                   this.toast.info(this.translate.instant('sitnet_graded'));

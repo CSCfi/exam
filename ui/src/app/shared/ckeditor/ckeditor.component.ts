@@ -19,7 +19,7 @@ import { Component, ElementRef, forwardRef, Inject, Input, NgZone, ViewChild } f
 import type { ControlValueAccessor } from '@angular/forms';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { debounce } from 'lodash';
+import { debounce } from '../miscellaneous/helpers';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let CKEDITOR: any;
@@ -29,7 +29,6 @@ declare let CKEDITOR: any;
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
-            // eslint-disable-next-line @typescript-eslint/no-use-before-define
             useExisting: forwardRef(() => CKEditorComponent),
             multi: true,
         },

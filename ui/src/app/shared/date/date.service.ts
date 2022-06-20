@@ -16,9 +16,9 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { format, parseISO, roundToNearestMinutes } from 'date-fns';
 import { format as formatTz, utcToZonedTime } from 'date-fns-tz';
-import { range } from 'lodash';
+import { range } from 'ramda';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class DateTimeService {
     constructor(private translate: TranslateService) {}
 

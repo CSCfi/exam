@@ -16,8 +16,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { merge } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
+import { mergeDeepRight } from 'ramda';
 import { from, noop, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BaseQuestionEditorComponent } from '../../../question/examquestion/base-question-editor.component';
@@ -119,7 +119,7 @@ export class SectionQuestionComponent {
                     })
                     .subscribe({
                         next: (resp) => {
-                            this.sectionQuestion = merge(this.sectionQuestion, resp);
+                            this.sectionQuestion = mergeDeepRight(this.sectionQuestion, resp) as ExamSectionQuestion;
                             // Collaborative exam question handling.
                             if (!this.collaborative) {
                                 return;
@@ -171,7 +171,7 @@ export class SectionQuestionComponent {
                     next: (esq: ExamSectionQuestion) => {
                         this.toast.info(this.translate.instant('sitnet_question_saved'));
                         // apply changes back to scope
-                        this.sectionQuestion = merge(this.sectionQuestion, esq);
+                        this.sectionQuestion = mergeDeepRight(this.sectionQuestion, esq) as ExamSectionQuestion;
                     },
                     error: this.toast.error,
                 });

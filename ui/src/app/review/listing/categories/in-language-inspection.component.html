@@ -126,7 +126,7 @@
             >
                 <td *ngIf="showId()">{{ review.examParticipation.exam.id }}</td>
                 <td class="table-column-13 table-column-bold">
-                    <a class="pointer" uiSref="staff.assessment" [uiParams]="{ id: review.examParticipation.exam.id }">
+                    <a class="pointer" [routerLink]="['/staff/assessments', review.examParticipation.exam.id]">
                         {{ review.displayName }}
                         <span *ngIf="review.examParticipation.user.userIdentifier">
                             <br />({{ review.examParticipation.user.userIdentifier }})</span

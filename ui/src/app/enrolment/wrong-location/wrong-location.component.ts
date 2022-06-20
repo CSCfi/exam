@@ -15,8 +15,8 @@
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { UIRouterGlobals } from '@uirouter/core';
 import { addHours, format, parseISO } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
 import { ToastrService } from 'ngx-toastr';
@@ -41,7 +41,7 @@ export class WrongLocationComponent implements OnInit {
 
     constructor(
         private http: HttpClient,
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
         private translate: TranslateService,
         private toast: ToastrService,
         private Enrolment: EnrolmentService,
@@ -49,9 +49,9 @@ export class WrongLocationComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        if (this.routing.params.eid) {
+        if (this.route.snapshot.params.eid) {
             this.isUpcoming = true;
-            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.routing.params.eid}`).subscribe({
+            this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.route.snapshot.params.eid}`).subscribe({
                 next: (enrolment) => {
                     if (!enrolment.reservation) {
                         throw Error('no reservation found');
@@ -63,7 +63,7 @@ export class WrongLocationComponent implements OnInit {
                     const code = this.translate.currentLang.toUpperCase();
                     this.roomInstructions = this.getRoomInstructions(code, room);
                     this.http
-                        .get<ExamMachine>(`/app/machines/${this.routing.params.mid}`)
+                        .get<ExamMachine>(`/app/machines/${this.route.snapshot.params.mid}`)
                         .subscribe((machine) => (this.currentMachine = machine));
                 },
                 error: this.toast.error,

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { cloneDeep } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -82,7 +81,7 @@ export class ExceptionDialogComponent {
         now.setMilliseconds(0);
         this.exception = {
             startDate: now,
-            endDate: cloneDeep(now),
+            endDate: new Date(now.getTime()),
             outOfService: true,
         };
     }

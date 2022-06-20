@@ -14,7 +14,6 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { WindowRef } from '../../shared/window/window.service';
 
 @Component({
     selector: 'xm-examination-clock',
@@ -51,7 +50,7 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
     showRemainingTime = true;
     pollerId = 0;
 
-    constructor(private http: HttpClient, private Window: WindowRef) {}
+    constructor(private http: HttpClient) {}
 
     ngOnInit() {
         this.checkRemainingTime();
@@ -59,7 +58,7 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         if (this.pollerId) {
-            this.Window.nativeWindow.clearTimeout(this.pollerId);
+            window.clearTimeout(this.pollerId);
         }
     }
 
@@ -87,14 +86,14 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
             this.notifyTimeout();
         }
 
-        this.pollerId = this.Window.nativeWindow.setTimeout(this.checkRemainingTime, 1000);
+        window.setTimeout(this.checkRemainingTime, 1000);
     };
 
     private setRemainingTime = () =>
         this.http.get<number>('/app/time/' + this.examHash).subscribe((resp) => (this.remainingTime = resp));
 
     private notifyTimeout = () => {
-        this.Window.nativeWindow.clearTimeout(this.pollerId);
+        window.clearTimeout(this.pollerId);
         this.timedOut.emit();
     };
 

@@ -16,6 +16,6 @@ import { Component } from '@angular/core';
 
 @Component({
     selector: 'xm-staff-dashboard',
-    template: `<ui-view></ui-view>`,
+    template: `<router-outlet></router-outlet>`,
 })
 export class StaffDashboardComponent {}

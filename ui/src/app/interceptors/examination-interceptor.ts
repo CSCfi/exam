@@ -15,16 +15,16 @@
 import type { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { StateService } from '@uirouter/core';
+import { Router } from '@angular/router';
 import * as base64 from 'base64-js';
 import { tap } from 'rxjs/operators';
 import { WrongLocationService } from '../enrolment/wrong-location/wrong-location.service';
 import { ExaminationStatusService } from '../examination/examination-status.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ExaminationInterceptor implements HttpInterceptor {
     constructor(
-        private state: StateService,
+        private router: Router,
         private WrongLocation: WrongLocationService,
         private ExaminationStatus: ExaminationStatusService,
     ) {}
@@ -51,11 +51,11 @@ export class ExaminationInterceptor implements HttpInterceptor {
                     } else if (wrongRoom) {
                         this.ExaminationStatus.notifyWrongLocation();
                         parts = b64ToUtf8(wrongRoom).split(':::');
-                        this.state.go('wrongRoom', { eid: parts[0], mid: parts[1] });
+                        this.router.navigate(['/wrongroom', parts[0], parts[1]]);
                     } else if (wrongMachine) {
                         this.ExaminationStatus.notifyWrongLocation();
                         parts = b64ToUtf8(wrongMachine).split(':::');
-                        this.state.go('wrongMachine', { eid: parts[0], mid: parts[1] });
+                        this.router.navigate(['/wrongmachine', parts[0], parts[1]]);
                     } else if (wrongUserAgent) {
                         this.WrongLocation.displayWrongUserAgent(wrongUserAgent); // Show warning notice on screen
                     } else if (enrolmentId) {
@@ -65,14 +65,14 @@ export class ExaminationInterceptor implements HttpInterceptor {
                         const id = enrolmentId === 'none' ? '' : parts[1];
                         if (enrolmentId === 'none') {
                             // No upcoming exams
-                            this.state.go('waitingRoomNoExam');
+                            this.router.navigate(['/waitingroom']);
                         } else {
-                            this.state.go('waitingRoom', { id: id, hash: parts[0] });
+                            this.router.navigate(['/waitingroom', id, parts[0]]);
                         }
                     } else if (hash) {
                         // Start/continue exam
                         this.ExaminationStatus.notfityStartOfExamination();
-                        this.state.go('examination', { hash: hash });
+                        this.router.navigate(['/exam', hash]);
                     }
                 }
             }),

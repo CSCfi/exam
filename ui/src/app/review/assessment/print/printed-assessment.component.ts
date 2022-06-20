@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, Input } from '@angular/core';
-import { UIRouterGlobals } from '@uirouter/core';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { parseISO, roundToNearestMinutes } from 'date-fns';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../../exam/exam.model';
@@ -26,7 +26,6 @@ import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { DateTimeService } from '../../../shared/date/date.service';
 import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
-import { WindowRef } from '../../../shared/window/window.service';
 import { AssessmentService } from '../assessment.service';
 
 type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: Partial<Exam> };
@@ -35,7 +34,7 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
     selector: 'xm-printed-assessment',
     templateUrl: './printed-assessment.component.html',
 })
-export class PrintedAssessmentComponent implements AfterViewInit {
+export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
     @Input() collaborative = false;
     questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
     exam!: Exam;
@@ -45,11 +44,12 @@ export class PrintedAssessmentComponent implements AfterViewInit {
     student?: User;
     enrolment?: ExamEnrolment;
     reservation!: Reservation;
+    id = 0;
+    ref = '';
 
     constructor(
-        private state: UIRouterGlobals,
+        private route: ActivatedRoute,
         private http: HttpClient,
-        private Window: WindowRef,
         private Question: QuestionService,
         private Exam: ExamService,
         private CommonExam: CommonExamService,
@@ -60,9 +60,14 @@ export class PrintedAssessmentComponent implements AfterViewInit {
         this.user = this.Session.getUser();
     }
 
+    ngOnInit() {
+        this.id = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
+    }
+
     ngAfterViewInit() {
-        const path = this.collaborative ? `${this.state.params.id}/${this.state.params.ref}` : this.state.params.id;
-        const url = this.getResource(path);
+        const path = this.collaborative ? `${this.id}/${this.ref}` : this.id;
+        const url = this.getResource(path.toString());
 
         this.http.get<ExamParticipation>(url).subscribe((participation) => {
             //TODO: Some duplicates here, refactor some more
@@ -94,9 +99,7 @@ export class PrintedAssessmentComponent implements AfterViewInit {
                     .subscribe(this.handleParticipations);
             } else {
                 this.http
-                    .get<ExamParticipation[]>(
-                        `/app/iop/reviews/${this.state.params.id}/participations/${this.state.params.ref}`,
-                    )
+                    .get<ExamParticipation[]>(`/app/iop/reviews/${this.id}/participations/${this.ref}`)
                     .subscribe(this.handleParticipations);
             }
         });
@@ -157,7 +160,7 @@ export class PrintedAssessmentComponent implements AfterViewInit {
         // mainView.css('margin', '0 15px');
         // mainView.css('max-width', '1000px');
         MathJax.Hub.Queue(['Typeset', MathJax.Hub]);
-        this.Window.nativeWindow.setTimeout(() => this.Window.nativeWindow.print(), 2000);
+        window.setTimeout(() => window.print(), 2000);
     };
 
     private getResource = (path: string) => (this.collaborative ? `/app/iop/reviews/${path}` : `/app/review/${path}`);

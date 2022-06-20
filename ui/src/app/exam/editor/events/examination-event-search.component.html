@@ -18,19 +18,11 @@
                 <!-- Start & End time datepickers -->
                 <div class="col-md-4">
                     <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
-                    <xm-date-picker
-                        [optional]="true"
-                        [initialDate]="date"
-                        (updated)="startDateChanged($event)"
-                    ></xm-date-picker>
+                    <xm-date-picker [initiallyEmpty]="true" (updated)="startDateChanged($event)"></xm-date-picker>
                 </div>
                 <div class="col-md-4">
                     <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
-                    <xm-date-picker
-                        [optional]="true"
-                        [initialDate]="date"
-                        (updated)="endDateChanged($event)"
-                    ></xm-date-picker>
+                    <xm-date-picker [initiallyEmpty]="true" (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
                 <div class="col-md-4">
                     <span class="exam-basic-selecttitle">&nbsp;</span>
@@ -124,11 +116,7 @@
                                 </td>
                                 <!-- 2 -->
                                 <td>
-                                    <a
-                                        class="infolink"
-                                        uiSref="staff.examEditor.basic"
-                                        [uiParams]="{ id: event.exam.id, code: event.exam.course?.code }"
-                                    >
+                                    <a class="infolink" [routerLink]="['/staff/exams', event.exam.id, '1']">
                                         {{ event.exam.name }}
                                     </a>
                                 </td>

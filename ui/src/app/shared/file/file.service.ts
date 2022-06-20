@@ -22,7 +22,7 @@ import type { Attachment, EssayAnswer } from '../../exam/exam.model';
 
 type Container = { attachment?: Attachment; objectVersion?: number };
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class FileService {
     maxFileSize = 0;
     constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}

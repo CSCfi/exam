@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
@@ -29,8 +29,8 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
             <div class="review-attachment-button exam-questions-buttons marl15">
                 <a
                     class="pointer preview"
-                    [uiSref]="getExitState().name || ''"
-                    [uiParams]="getExitState().params"
+                    [routerLink]="getExitState().fragments"
+                    [queryParams]="getExitState().params"
                     [hidden]="(!isReadOnly() && isOwnerOrAdmin()) || (!isReadOnly() && !isGraded())"
                 >
                     {{ 'sitnet_close' | translate }}
@@ -79,21 +79,29 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
             </div>
         </div> `,
 })
-export class ToolbarComponent {
+export class ToolbarComponent implements OnInit {
     @Input() valid = false;
     @Input() participation!: ExamParticipation;
     @Input() collaborative = false;
     @Input() exam!: Examination;
 
+    id = 0;
+    ref = '';
+
     constructor(
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private router: Router,
+        private route: ActivatedRoute,
         private translate: TranslateService,
         private toast: ToastrService,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Exam: ExamService,
     ) {}
+
+    ngOnInit() {
+        this.id = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
+    }
 
     isOwnerOrAdmin = () => this.Exam.isOwnerOrAdmin(this.exam, this.collaborative);
     isReadOnly = () => this.Assessment.isReadOnly(this.exam);
@@ -106,12 +114,7 @@ export class ToolbarComponent {
 
     saveAssessment = () => {
         if (this.collaborative) {
-            this.CollaborativeAssessment.saveAssessment(
-                this.participation,
-                this.isOwnerOrAdmin(),
-                this.routing.params.id,
-                this.routing.params.ref,
-            );
+            this.CollaborativeAssessment.saveAssessment(this.participation, this.isOwnerOrAdmin(), this.id, this.ref);
         } else {
             this.Assessment.saveAssessment(this.exam, this.isOwnerOrAdmin());
         }
@@ -119,16 +122,12 @@ export class ToolbarComponent {
 
     createExamRecord = () => {
         if (this.collaborative) {
-            this.CollaborativeAssessment.createExamRecord(
-                this.participation,
-                this.routing.params.id,
-                this.routing.params.ref,
-            );
+            this.CollaborativeAssessment.createExamRecord(this.participation, this.id, this.ref);
         } else {
             this.Assessment.createExamRecord$(this.exam, true).subscribe(() => {
                 this.toast.info(this.translate.instant('sitnet_review_recorded'));
                 const state = this.getExitState();
-                this.state.go(state.name as string, state.params);
+                this.router.navigate(state.fragments, { queryParams: state.params });
             });
         }
     };
@@ -137,7 +136,7 @@ export class ToolbarComponent {
         this.Assessment.rejectMaturity$(this.exam).subscribe(() => {
             this.toast.info(this.translate.instant('sitnet_maturity_rejected'));
             const state = this.getExitState();
-            this.state.go(state.name as string, state.params);
+            this.router.navigate(state.fragments, { queryParams: state.params });
         });
 
     getExitState = () => this.Assessment.getExitState(this.exam, this.collaborative);

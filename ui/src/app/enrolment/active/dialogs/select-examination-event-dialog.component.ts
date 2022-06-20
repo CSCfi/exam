@@ -16,7 +16,7 @@
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { merge } from 'lodash';
+import { parseISO } from 'date-fns';
 import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.model';
 
 @Component({
@@ -76,10 +76,10 @@ export class SelectExaminationEventDialogComponent implements OnInit {
     constructor(public activeModal: NgbActiveModal) {}
 
     ngOnInit() {
+        // for all confs over
         this.configs = this.exam.examinationEventConfigurations
-            .map((ec) => merge(ec, { examinationEvent: { start: new Date(ec.examinationEvent.start) } }))
-            .filter((ec) => ec.examinationEvent.start > new Date() && ec.id !== this.existingEventId)
-            .sort((a, b) => a.examinationEvent.start.getTime() - b.examinationEvent.start.getTime());
+            .filter((ec) => parseISO(ec.examinationEvent.start) > new Date() && ec.id !== this.existingEventId)
+            .sort((a, b) => (a.examinationEvent.start < b.examinationEvent.start ? -1 : 1));
     }
 
     selectEvent(event: ExaminationEventConfiguration) {

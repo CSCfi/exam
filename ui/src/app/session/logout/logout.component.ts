@@ -17,7 +17,7 @@ import { Component } from '@angular/core';
 import { SessionService } from '../session.service';
 
 @Component({
-    selector: 'xm-xm-logout',
+    selector: 'xm-logout',
     template: '<div></div>',
 })
 export class LogoutComponent implements OnInit {

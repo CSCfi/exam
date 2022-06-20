@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
+import { RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared.module';
 import { ExaminationClockComponent } from './clock/examination-clock.component';
 import { ExaminationStatusService } from './examination-status.service';
@@ -20,7 +20,7 @@ import { ExaminationWeightedMultiChoiceComponent } from './question/examination-
 import { ExaminationSectionComponent } from './section/examination-section.component';
 
 @NgModule({
-    imports: [UIRouterModule, NgbPopoverModule, SharedModule],
+    imports: [RouterModule, NgbPopoverModule, SharedModule],
     declarations: [
         AnswerInstructionsComponent,
         ExaminationClockComponent,

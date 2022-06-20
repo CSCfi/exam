@@ -14,10 +14,10 @@
  */
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { UIRouterGlobals } from '@uirouter/core';
-import { isInteger, isNumber } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
+import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
@@ -37,9 +37,11 @@ export class MultiChoiceQuestionComponent implements OnInit {
 
     reviewExpanded = true;
     _score: number | null = null;
+    id = 0;
+    ref = '';
 
     constructor(
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
         private translate: TranslateService,
         private toast: ToastrService,
         private Assessment: AssessmentService,
@@ -59,6 +61,8 @@ export class MultiChoiceQuestionComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.id = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
         if (this.sectionQuestion.forcedScore) {
             this.scoreValue = this.sectionQuestion.forcedScore;
         }
@@ -88,7 +92,7 @@ export class MultiChoiceQuestionComponent implements OnInit {
     };
 
     displayMaxScore = () =>
-        isInteger(this.sectionQuestion.maxScore)
+        Number.isInteger(this.sectionQuestion.maxScore)
             ? this.sectionQuestion.maxScore
             : this.sectionQuestion.maxScore.toFixed(2);
 
@@ -102,8 +106,8 @@ export class MultiChoiceQuestionComponent implements OnInit {
         if (this.collaborative && this.participation._rev) {
             this.Assessment.saveCollaborativeForcedScore$(
                 this.sectionQuestion,
-                this.routing.params.id,
-                this.routing.params.ref,
+                this.id,
+                this.ref,
                 this.participation._rev,
             ).subscribe({
                 next: (resp) => {

@@ -7,14 +7,14 @@
             <div class="teacher-toolbar">
                 <div class="make-inline">
                     <div class="review-attachment-button print-button">
-                        <a uiSref="staff.newExam" class="pointer">
+                        <a [routerLink]="['/staff/exams']" class="pointer">
                             {{ 'sitnet_toolbar_new_exam' | translate }}
                         </a>
                     </div>
                 </div>
                 <div class="make-inline">
                     <div class="review-attachment-button print-button">
-                        <a uiSref="staff.newQuestion" [uiParams]="{ nextState: 'staff.teacher' }" class="pointer">
+                        <a [routerLink]="['questions/new']" [queryParams]="{ nextState: 'teacher' }" class="pointer">
                             {{ 'sitnet_toolbar_new_question' | translate }}
                         </a>
                     </div>
@@ -24,14 +24,7 @@
     </div>
 
     <div class="tab-wrapper">
-        <ul
-            ngbNav
-            #nav="ngbNav"
-            [(activeId)]="activeTab"
-            [destroyOnHide]="false"
-            (navChange)="changeTab($event)"
-            class="nav-tabs"
-        >
+        <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
             <li [ngbNavItem]="1">
                 <a ngbNavLink>
                     <div class="make-inline marr10">{{ 'sitnet_active_exams_title' | translate }}</div>
@@ -44,8 +37,7 @@
                         [items]="filteredActive"
                         defaultPredicate="examActiveEndDate"
                         [examTypes]="executionTypes"
-                        [extraColumnNames]="getActiveExtraColumns"
-                        [extraColumnValues]="getActiveExtraColumnValues"
+                        [extraData]="activeExtraData"
                         (filtered)="search($event)"
                     >
                     </xm-exam-list-category>
@@ -63,8 +55,7 @@
                         [items]="filteredFinished"
                         defaultPredicate="unassessedCount"
                         [defaultReverse]="true"
-                        [extraColumnNames]="getFinishedExtraColumns"
-                        [extraColumnValues]="getFinishedExtraColumnValues"
+                        [extraData]="finishedExtraData"
                         [examTypes]="executionTypes"
                         (filtered)="search($event)"
                     >
@@ -83,8 +74,7 @@
                         [items]="filteredArchived"
                         defaultPredicate="examActiveEndDate"
                         [defaultReverse]="true"
-                        [extraColumnNames]="getArchivedExtraColumns"
-                        [extraColumnValues]="getArchivedExtraColumnValues"
+                        [extraData]="archivedExtraData"
                         [examTypes]="executionTypes"
                         (filtered)="search($event)"
                     >

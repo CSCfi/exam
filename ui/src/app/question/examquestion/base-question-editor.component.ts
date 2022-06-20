@@ -14,9 +14,9 @@
  */
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TransitionService } from '@uirouter/core';
+import { TranslateService } from '@ngx-translate/core';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
-import { WindowRef } from '../../shared/window/window.service';
 import type { QuestionDraft } from '../question.service';
 
 @Component({
@@ -51,14 +51,17 @@ export class BaseQuestionEditorComponent {
 
     transitionWatcher: unknown;
 
-    constructor(public modal: NgbActiveModal, private transition: TransitionService, private Window: WindowRef) {
-        this.transitionWatcher = this.transition.onBefore({}, () => {
-            if (!this.Window.nativeWindow.onbeforeunload) {
-                this.cancel();
-            }
-        });
-    }
+    constructor(
+        public modal: NgbActiveModal,
+        private translate: TranslateService,
+        private Dialogs: ConfirmationDialogService,
+    ) {}
 
     onSave = (event: Question | QuestionDraft) => this.modal.close(event);
-    cancel = () => this.modal.dismiss();
+    cancel = () => {
+        return this.Dialogs.open$(
+            this.translate.instant('sitnet_confirm_exit'),
+            this.translate.instant('sitnet_unsaved_question_data'),
+        ).subscribe(() => this.modal.dismiss());
+    };
 }

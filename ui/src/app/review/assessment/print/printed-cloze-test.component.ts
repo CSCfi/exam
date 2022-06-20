@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import { isNumber } from 'lodash';
+import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
 
 @Component({

@@ -17,19 +17,13 @@ import { TranslateService } from '@ngx-translate/core';
 import { addHours, format, parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { DateTimeService } from '../../shared/date/date.service';
-import { WindowRef } from '../../shared/window/window.service';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class WrongLocationService {
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private DateTime: DateTimeService,
-        private Window: WindowRef,
-    ) {}
+    constructor(private translate: TranslateService, private toast: ToastrService, private DateTime: DateTimeService) {}
 
     display = (data: string[]) => {
-        this.Window.nativeWindow.setTimeout(() => {
+        window.setTimeout(() => {
             let startsAt = parseISO(data[4]);
             const now = new Date();
             if (this.DateTime.isDST(now)) {

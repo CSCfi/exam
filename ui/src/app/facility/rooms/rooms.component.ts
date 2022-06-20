@@ -14,8 +14,8 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
 import type { User } from '../../session/session.service';
@@ -37,8 +37,8 @@ export class RoomListComponent implements OnInit {
     rooms: RoomWithAddressVisibility[] = [];
 
     constructor(
-        private state: StateService,
-        private router: UIRouterGlobals,
+        private route: ActivatedRoute,
+        private router: Router,
         private toast: ToastrService,
         private session: SessionService,
         private room: RoomService,
@@ -49,7 +49,7 @@ export class RoomListComponent implements OnInit {
 
     ngOnInit() {
         if (this.user.isAdmin) {
-            if (!this.router.params.id) {
+            if (!this.route.snapshot.params.id) {
                 this.room.getRooms$().subscribe((rooms) => {
                     this.times = this.room.getTimes();
                     const roomsWithVisibility = rooms as RoomWithAddressVisibility[];
@@ -62,7 +62,7 @@ export class RoomListComponent implements OnInit {
                 });
             }
         } else {
-            this.state.go('staff.admin');
+            this.router.navigate(['/staff/admin']);
         }
     }
 
@@ -79,7 +79,7 @@ export class RoomListComponent implements OnInit {
         this.room.getDraft$().subscribe({
             next: (room) => {
                 this.toast.info(this.translate.instant('sitnet_room_draft_created'));
-                this.state.go('staff.room', { id: room.id });
+                this.router.navigate(['/staff/room', room.id]);
             },
             error: this.toast.error,
         });

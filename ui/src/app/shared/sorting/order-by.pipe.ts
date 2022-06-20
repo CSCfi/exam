@@ -1,6 +1,6 @@
 import type { PipeTransform } from '@angular/core';
 import { Injectable, Pipe } from '@angular/core';
-import { get } from 'lodash';
+import { path } from 'ramda';
 
 @Pipe({ name: 'orderBy' })
 @Injectable({ providedIn: 'root' })
@@ -9,9 +9,11 @@ export class OrderByPipe implements PipeTransform {
         return input.length < 2 ? input : input.sort((a, b) => this.compare(reverse, lowercase, a, b, path));
     }
 
-    compare<T>(reverse: boolean, lowercase: boolean, a: T, b: T, path: string): number {
-        const f1 = get(a, path);
-        const f2 = get(b, path);
+    compare<T>(reverse: boolean, lowercase: boolean, a: T, b: T, property: string): number {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const f1 = path<any>(property.split('.'), a);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const f2 = path<any>(property.split('.'), b);
         if (typeof f1 === 'number' && typeof f2 === 'string') {
             return reverse ? -1 : 1;
         }

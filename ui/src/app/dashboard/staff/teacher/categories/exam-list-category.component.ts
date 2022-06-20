@@ -14,9 +14,9 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import { from, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
@@ -27,16 +27,12 @@ import { SessionService } from '../../../../session/session.service';
 import { DateTimeService } from '../../../../shared/date/date.service';
 import { ConfirmationDialogService } from '../../../../shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from '../../../../shared/miscellaneous/common-exam.service';
-import { TeacherDashboardService } from '../teacher-dashboard.service';
-
-export interface ExtraColumnName {
+import { DashboardExam, TeacherDashboardService } from '../teacher-dashboard.service';
+export interface ExtraData {
     text: string;
-    property: string;
-}
-export interface ExtraColumnValue {
-    link: string;
+    property: keyof DashboardExam;
+    link: string[];
     checkOwnership: boolean;
-    value: unknown;
 }
 type ExecutionType = ExamExecutionType & { examinationTypes: { type: string; name: string }[] };
 @Component({
@@ -44,10 +40,9 @@ type ExecutionType = ExamExecutionType & { examinationTypes: { type: string; nam
     templateUrl: './exam-list-category.component.html',
 })
 export class ExamListCategoryComponent implements OnInit, OnDestroy {
-    @Input() items: Exam[] = [];
+    @Input() items: DashboardExam[] = [];
     @Input() examTypes: ExecutionType[] = [];
-    @Input() extraColumnNames: () => ExtraColumnName[];
-    @Input() extraColumnValues: (exam: Exam) => ExtraColumnValue[];
+    @Input() extraData: ExtraData[] = [];
     @Input() defaultPredicate = '';
     @Input() defaultReverse = false;
     @Output() filtered = new EventEmitter<string>();
@@ -55,14 +50,13 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
     userId: number;
     pageSize = 10;
     sorting = { predicate: '', reverse: false };
-    filterText: string;
+    filterText = '';
     filterChanged = new Subject<string>();
     ngUnsubscribe = new Subject();
 
     constructor(
+        private router: Router,
         private translate: TranslateService,
-        private state: StateService,
-        private routing: UIRouterGlobals,
         private modal: NgbModal,
         private toast: ToastrService,
         private Dashboard: TeacherDashboardService,
@@ -72,17 +66,13 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
         private DateTime: DateTimeService,
         private Session: SessionService,
     ) {
-        this.extraColumnNames = () => [];
-        this.extraColumnValues = () => [];
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((text) => {
                 this.filterText = text;
-                this.state.go('staff.teacher', { tab: this.routing.params.tab, filter: this.filterText });
                 this.filtered.emit(this.filterText);
             });
         this.userId = this.Session.getUser().id;
-        this.filterText = this.routing.params.filter;
     }
 
     ngOnDestroy() {
@@ -119,7 +109,7 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
         return `${this.translate.instant(type)} - ${this.translate.instant(impl)}`;
     };
 
-    copyExam = (exam: Exam) =>
+    copyExam = (exam: DashboardExam) =>
         from(this.modal.open(ExaminationTypeSelectorComponent, { backdrop: 'static' }).result)
             .pipe(
                 switchMap((data: { type: string; examinationType: string }) =>
@@ -129,12 +119,12 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
             .subscribe({
                 next: (resp) => {
                     this.toast.success(this.translate.instant('sitnet_exam_copied'));
-                    this.state.go('staff.examEditor.basic', { id: resp.id, collaborative: 'false' });
+                    this.router.navigate(['/staff/exams', resp.id, '1']);
                 },
                 error: this.toast.error,
             });
 
-    deleteExam = (exam: Exam) => {
+    deleteExam = (exam: DashboardExam) => {
         this.Dialog.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_exam'),
@@ -149,6 +139,12 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
                 }),
             error: this.toast.error,
         });
+    };
+
+    getLink = (data: ExtraData, exam: DashboardExam) => {
+        const copy = [...data.link];
+        copy.splice(data.link.indexOf('__'), 1, exam.id.toString());
+        return copy;
     };
 
     isOwner = (exam: Exam) => exam.examOwners.some((eo) => eo.id === this.userId);

@@ -1,7 +1,6 @@
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { cloneDeep } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
@@ -195,18 +194,18 @@ export class UsersComponent implements OnInit, OnDestroy {
         user.removableRoles = [];
         this.roles.forEach((role) => {
             if (user.roles.map((r) => r.name).indexOf(role.type) === -1) {
-                user.availableRoles.push(cloneDeep(role));
+                user.availableRoles.push({ ...role });
             } else {
-                user.removableRoles.push(cloneDeep(role));
+                user.removableRoles.push({ ...role });
             }
         });
         user.availablePermissions = [];
         user.removablePermissions = [];
         this.permissions.forEach((permission) => {
             if (user.permissions.map((p) => p.type).indexOf(permission.type) === -1) {
-                user.availablePermissions.push(cloneDeep(permission));
+                user.availablePermissions.push({ ...permission });
             } else {
-                user.removablePermissions.push(cloneDeep(permission));
+                user.removablePermissions.push({ ...permission });
             }
         });
     };

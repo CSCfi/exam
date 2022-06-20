@@ -14,8 +14,8 @@
  */
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { UIRouterGlobals } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import type { ExaminationQuestion } from '../../../examination/examination.model';
@@ -36,11 +36,13 @@ export class EssayQuestionComponent implements OnInit {
     @Output() scored = new EventEmitter<string>();
     @ViewChild('essayPoints', { static: false }) form?: NgForm;
 
+    id = 0;
+    ref = '';
     reviewExpanded = true;
     _score: number | undefined = undefined;
 
     constructor(
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
         private translate: TranslateService,
         private toast: ToastrService,
         private Assessment: AssessmentService,
@@ -61,6 +63,8 @@ export class EssayQuestionComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.id = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
         if (!this.sectionQuestion.essayAnswer) {
             this.sectionQuestion.essayAnswer = { id: 0 };
         }
@@ -91,8 +95,8 @@ export class EssayQuestionComponent implements OnInit {
         if (this.collaborative) {
             return this.Assessment.saveCollaborativeEssayScore$(
                 this.sectionQuestion as ExaminationQuestion,
-                this.routing.params.id,
-                this.routing.params.ref,
+                this.id,
+                this.ref,
                 this.participation._rev as string,
             ).subscribe((resp) => {
                 this.toast.info(this.translate.instant('sitnet_graded'));

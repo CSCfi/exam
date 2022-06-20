@@ -14,8 +14,8 @@
  */
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
 import { QuestionModule } from '../question/question.module';
 import { ReviewModule } from '../review/review.module';
 import { SharedModule } from '../shared/shared.module';
@@ -25,6 +25,7 @@ import { BasicExamInfoComponent } from './editor/basic/basic-exam-info.component
 import { ExamCourseComponent } from './editor/basic/exam-course.component';
 import { ExamInspectorSelectorComponent } from './editor/basic/exam-inspector-picker.component';
 import { ExamOwnerSelectorComponent } from './editor/basic/exam-owner-picker.component';
+import { ExamResolverService } from './editor/basic/exam-resolver.service';
 import { SoftwareSelectorComponent } from './editor/basic/software-picker.component';
 import { CoursePickerComponent } from './editor/common/course-picker.component';
 import { CoursePickerService } from './editor/common/course-picker.service';
@@ -56,7 +57,7 @@ import { PrintoutComponent } from './printout/printout.component';
 import { PrintoutListingComponent } from './printout/printouts.component';
 
 @NgModule({
-    imports: [NgbModule, SharedModule, ReviewModule, DragDropModule, UIRouterModule, QuestionModule],
+    imports: [NgbModule, SharedModule, ReviewModule, DragDropModule, RouterModule, QuestionModule],
     declarations: [
         BasicExamInfoComponent,
         ExamPublicationComponent,
@@ -99,6 +100,6 @@ import { PrintoutListingComponent } from './printout/printouts.component';
         ExamMaterialComponent,
         ExaminationTypeSelectorComponent,
     ],
-    providers: [ExamService, CoursePickerService, CollaborativeExamService, ExamTabService],
+    providers: [ExamService, CoursePickerService, CollaborativeExamService, ExamTabService, ExamResolverService],
 })
 export class ExamModule {}

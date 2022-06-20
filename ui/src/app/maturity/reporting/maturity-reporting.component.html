@@ -16,21 +16,29 @@
     <div class="tab-wrapper-exams">
         <div class="detail-row">
             <div class="col-md-12 mb-3 no-print">
-                <form class="form-inline">
-                    <label for="month" class="me-2">{{ 'sitnet_month' | translate }}:</label>
-                    <xm-dropdown-select
-                        id="month"
-                        class="input-group me-2"
-                        [options]="months"
-                        (optionSelected)="monthChanged($event)"
-                    ></xm-dropdown-select>
-                    <label for="year" class="me-2">{{ 'sitnet_year' | translate }}:</label>
-                    <xm-dropdown-select
-                        id="year"
-                        class="input-group"
-                        [options]="years"
-                        (optionSelected)="yearChanged($event)"
-                    ></xm-dropdown-select>
+                <form>
+                    <div class="row form-group">
+                        <div class="col-auto">
+                            <xm-dropdown-select
+                                id="month"
+                                class="input-group me-2"
+                                placeholder="{{ 'sitnet_month' | translate }}"
+                                [options]="months"
+                                [noSearch]="true"
+                                (optionSelected)="monthChanged($event)"
+                            ></xm-dropdown-select>
+                        </div>
+                        <div class="col">
+                            <xm-dropdown-select
+                                id="year"
+                                class="input-group"
+                                placeholder="{{ 'sitnet_year' | translate }}"
+                                [noSearch]="true"
+                                [options]="years"
+                                (optionSelected)="yearChanged($event)"
+                            ></xm-dropdown-select>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>

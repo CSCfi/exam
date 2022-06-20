@@ -14,7 +14,6 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { orderBy } from 'lodash';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import type { Week } from './room.service';
@@ -84,7 +83,7 @@ export class ExceptionListAllComponent implements OnInit {
     private loadRooms = () => {
         this.room.getRooms$().subscribe({
             next: (rooms) => {
-                this.rooms = orderBy(rooms, 'name', 'asc').filter(this.massEditedRoomFilter);
+                this.rooms = rooms.sort((a, b) => (a.name < b.name ? -1 : 1)).filter(this.massEditedRoomFilter);
                 this.roomIds = this.getRoomIds();
             },
             error: this.toast.error,

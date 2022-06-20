@@ -15,7 +15,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import type { Exam } from '../../../exam/exam.model';
-import { WindowRef } from '../../../shared/window/window.service';
 import { AssessmentService } from '../../assessment/assessment.service';
 
 @Component({
@@ -44,7 +43,7 @@ import { AssessmentService } from '../../assessment/assessment.service';
 export class SpeedReviewFeedbackComponent implements OnInit {
     @Input() exam!: Exam;
 
-    constructor(private modal: NgbActiveModal, private Window: WindowRef, private Assessment: AssessmentService) {}
+    constructor(private modal: NgbActiveModal, private Assessment: AssessmentService) {}
 
     ngOnInit() {
         if (!this.exam.examFeedback) {

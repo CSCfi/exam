@@ -14,8 +14,8 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/angular';
 import { ToastrService } from 'ngx-toastr';
 import type { Software } from '../../exam/exam.model';
 import type { ExamMachine } from '../../reservation/reservation.model';
@@ -35,16 +35,16 @@ export class MachineComponent implements OnInit {
     software: SoftwareWithClass[] = [];
 
     constructor(
+        private router: Router,
+        private route: ActivatedRoute,
         private Confirmation: ConfirmationDialogService,
         private machines: MachineService,
         private translate: TranslateService,
-        private state: StateService,
-        private routing: UIRouterGlobals,
         private toast: ToastrService,
     ) {}
 
     ngOnInit() {
-        this.machines.getMachine(this.routing.params.id).subscribe({
+        this.machines.getMachine(this.route.snapshot.params.id).subscribe({
             next: (machine) => {
                 this.machine = machine;
                 this.machines.getSoftware().subscribe((data) => {
@@ -74,7 +74,7 @@ export class MachineComponent implements OnInit {
                 this.machines.removeMachine(machine.id).subscribe({
                     next: () => {
                         this.toast.info(this.translate.instant('sitnet_machine_removed'));
-                        this.state.go('staff.rooms');
+                        this.router.navigate(['staff/rooms']);
                     },
                     error: this.toast.error,
                 }),
@@ -97,7 +97,7 @@ export class MachineComponent implements OnInit {
             },
         });
 
-    updateMachineAndExit = () => this.updateMachine(() => this.state.go('staff.rooms'));
+    updateMachineAndExit = () => this.updateMachine(() => this.router.navigate(['staff/rooms']));
 
     setReason = () => {
         if (!this.machine.outOfService) {

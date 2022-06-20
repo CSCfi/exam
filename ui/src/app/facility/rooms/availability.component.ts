@@ -14,7 +14,7 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { UIRouterGlobals } from '@uirouter/core';
+import { ActivatedRoute } from '@angular/router';
 import type { CalendarEvent } from 'calendar-utils';
 import { addHours, format } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
@@ -45,7 +45,7 @@ export class AvailabilityComponent implements OnInit {
     events: CalendarEvent<SlotMeta>[] = [];
 
     constructor(
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
         private toast: ToastrService,
         private roomService: RoomService,
         private calendar: CalendarService,
@@ -53,14 +53,14 @@ export class AvailabilityComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.roomService.getRoom$(this.routing.params.id).subscribe((room) => {
+        this.roomService.getRoom$(this.route.snapshot.params.id).subscribe((room) => {
             this.openingHours = this.calendar.processOpeningHours(room);
             this.exceptionHours = this.calendar.getExceptionalAvailability(room);
             this.room = room;
         });
     }
 
-    query$ = (date: string) => this.roomService.getAvailability$(this.routing.params.id, date);
+    query$ = (date: string) => this.roomService.getAvailability$(this.room.id, date);
 
     getColor = (slot: Availability) => {
         const ratio = slot.reserved / slot.total;

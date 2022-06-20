@@ -14,10 +14,9 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { FileService } from '../../shared/file/file.service';
-import { WindowRef } from '../../shared/window/window.service';
 import type { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuestion } from '../exam.model';
 
 type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & { ord: number })[] };
@@ -28,18 +27,19 @@ type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & {
 })
 export class PrintoutComponent implements OnInit {
     exam!: Printout;
+    tab?: number;
 
     constructor(
         private http: HttpClient,
-        private state: StateService,
-        private routing: UIRouterGlobals,
-        private Window: WindowRef,
+        private router: Router,
+        private route: ActivatedRoute,
         private Files: FileService,
     ) {}
 
     ngOnInit() {
+        this.tab = this.route.snapshot.queryParams.get('tab');
         this.http
-            .get<Exam>(`/app/exams/${this.routing.params.id}/preview`)
+            .get<Exam>(`/app/exams/${this.route.snapshot.params.id}/preview`)
             .pipe(
                 map((exam) => {
                     exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
@@ -109,25 +109,15 @@ export class PrintoutComponent implements OnInit {
     };
 
     exitPreview = () => {
-        const tab = parseInt(this.routing.params.tab);
-        if (tab == 1) {
-            this.state.go('staff.examEditor.basic', { id: this.exam.id, collaborative: false });
-        } else if (tab == 2) {
-            this.state.go('staff.examEditor.sections', { id: this.exam.id, collaborative: false });
-        } else if (tab == 3) {
-            this.state.go('staff.examEditor.publication', { id: this.exam.id, collaborative: false });
-        } else if (tab == 4) {
-            this.state.go('staff.examEditor.assessments', { id: this.exam.id, collaborative: false });
+        if (this.tab) {
+            this.router.navigate(['/staff/exams', this.exam.id, this.tab]);
         } else {
-            this.state.go('staff.printouts');
+            this.router.navigate(['/staff/printouts']);
         }
     };
 
-    print = () => this.Window.nativeWindow.print();
+    print = () => window.print();
 
     printAttachment = () =>
-        this.Files.download(
-            '/app/attachment/exam/' + this.routing.params.id,
-            (this.exam.attachment as Attachment).fileName,
-        );
+        this.Files.download('/app/attachment/exam/' + this.exam.id, (this.exam.attachment as Attachment).fileName);
 }

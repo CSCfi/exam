@@ -15,15 +15,14 @@
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { UIRouterGlobals } from '@uirouter/core';
 import { addHours, format, parseISO } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom, Reservation } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../shared/date/date.service';
-import { WindowRef } from '../../shared/window/window.service';
 import type { ExamEnrolment } from '../enrolment.model';
 
 type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
@@ -43,31 +42,30 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     constructor(
         private http: HttpClient,
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
         private translate: TranslateService,
         private toast: ToastrService,
         private Session: SessionService,
-        private Window: WindowRef,
         private DateTime: DateTimeService,
     ) {}
 
     ngOnInit() {
-        if (this.routing.params.id && this.routing.params.hash) {
+        if (this.route.snapshot.params.id && this.route.snapshot.params.hash) {
             this.isUpcoming = true;
-            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.routing.params.id}`).subscribe({
+            this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.route.snapshot.params.id}`).subscribe({
                 next: (enrolment) => {
                     this.setOccasion(enrolment.reservation);
                     this.enrolment = enrolment;
                     const offset = this.calculateOffset();
-                    this.timeoutId = this.Window.nativeWindow.setTimeout(this.Session.checkSession, offset);
+                    this.timeoutId = window.setTimeout(this.Session.checkSession, offset);
                     if (this.enrolment.reservation) {
                         const room = this.enrolment.reservation.machine.room;
                         const code = this.translate.currentLang.toUpperCase();
                         this.roomInstructions = this.getRoomInstructions(code, room);
                     }
                     this.http
-                        .post<void>(`/app/student/exam/${this.routing.params.hash}`, {})
-                        .subscribe(() => console.log(`exam ${this.routing.params.hash} prepared ok`));
+                        .post<void>(`/app/student/exam/${this.route.snapshot.params.hash}`, {})
+                        .subscribe(() => console.log(`exam ${this.route.snapshot.params.hash} prepared ok`));
                 },
                 error: this.toast.error,
             });
@@ -75,7 +73,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        this.Window.nativeWindow.clearTimeout(this.timeoutId);
+        window.clearTimeout(this.timeoutId);
     }
 
     private getRoomInstructions = (lang: string, room: ExamRoom) => {

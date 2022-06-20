@@ -15,9 +15,9 @@
 import type { HttpParams } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
@@ -30,11 +30,11 @@ export interface QueryParams {
     end?: number;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LanguageInspectionService {
     constructor(
         private http: HttpClient,
-        private state: StateService,
+        private router: Router,
         private modal: NgbModal,
         private translate: TranslateService,
         private toast: ToastrService,
@@ -58,7 +58,7 @@ export class LanguageInspectionService {
             .subscribe({
                 next: () => {
                     this.http.put(`/app/inspection/${inspection.id}`, {}).subscribe({
-                        next: () => this.state.go('staff.assessment', { id: inspection.exam.id }),
+                        next: () => this.router.navigate(['/staff/assessments', inspection.exam.id]),
                         error: this.toast.error,
                     });
                 },

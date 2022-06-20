@@ -16,7 +16,7 @@ import { Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ExaminationStatusService {
     public examinationEnding$: Observable<void>;
     public wrongLocation$: Observable<void>;

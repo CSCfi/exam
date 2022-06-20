@@ -123,8 +123,8 @@
                         <td>
                             <a
                                 class="exams-info-title bold-button"
-                                uiSref="staff.examEditor.basic"
-                                [uiParams]="{ id: exam.id, collaborative: 'collaborative' }"
+                                [routerLink]="['/staff/exams', exam.id, '1']"
+                                [queryParams]="{ collaborative: true }"
                             >
                                 <span *ngIf="exam.name">{{ exam.name }}</span>
                                 <span *ngIf="!exam.name" class="text-danger">
