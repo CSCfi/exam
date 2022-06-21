@@ -13,13 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { CalendarModule as ExtCalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { SharedModule } from '../shared/shared.module';
 import { BookingCalendarComponent } from './booking-calendar.component';
 import { CalendarHomeComponent } from './calendar-home.component';
-import { CalendarRouterModule } from './calendar-routing.module';
 import { CalendarComponent } from './calendar.component';
 import { CalendarService } from './calendar.service';
 import { CalendarExamInfoComponent } from './helpers/exam-info.component';
@@ -34,7 +34,7 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
             provide: DateAdapter,
             useFactory: adapterFactory,
         }),
-        CalendarRouterModule,
+        RouterModule, // CalendarRouterModule
         NgbPopoverModule,
         NgbDropdownModule,
         SharedModule,

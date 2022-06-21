@@ -15,6 +15,7 @@
 import { NgModule } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
+import { CalendarComponent } from './calendar/calendar.component';
 import { StudentDashboardComponent } from './dashboard/student/student-dashboard.component';
 import { ExamEnrolmentsComponent } from './enrolment/exams/exam-enrolments.component';
 import { CollaborativeParticipationsComponent } from './enrolment/finished/collaborative-exam-participations.component';
@@ -36,10 +37,6 @@ const routes: Route[] = [
     {
         path: 'dashboard',
         component: StudentDashboardComponent,
-    },
-    {
-        path: 'calendar',
-        loadChildren: () => import('./calendar/calendar.module').then((mod) => mod.CalendarModule),
     },
     {
         path: 'logout',
@@ -94,6 +91,30 @@ const routes: Route[] = [
         path: 'enrolments/:id',
         component: ExamEnrolmentsComponent,
     },
+    {
+        path: 'calendar/:id',
+        component: CalendarComponent,
+        data: {
+            isExternal: false,
+            isCollaborative: false,
+        },
+    },
+    {
+        path: 'calendar/:id/external',
+        component: CalendarComponent,
+        data: { isExternal: true },
+    },
+    {
+        path: 'calendar/:id/collaborative',
+        component: CalendarComponent,
+        data: { isExternal: false, isCollaborative: true },
+    },
+    /*
+     { // this does not work apparently because admin code uses some of calendar dependencies?
+-        path: 'calendar',
+-        loadChildren: () => import('./calendar/calendar.module').then((mod) => mod.CalendarModule),
+-    },
+    */
     {
         path: 'staff',
         loadChildren: () => import('./dashboard/staff/staff-dashboard.module').then((mod) => mod.StaffDashboardModule),

@@ -16,7 +16,7 @@ import type { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from '@angu
 import { HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import * as base64 from 'base64-js';
+import { toByteArray } from 'base64-js';
 import { tap } from 'rxjs/operators';
 import { WrongLocationService } from '../enrolment/wrong-location/wrong-location.service';
 import { ExaminationStatusService } from '../examination/examination-status.service';
@@ -28,14 +28,12 @@ export class ExaminationInterceptor implements HttpInterceptor {
         private WrongLocation: WrongLocationService,
         private ExaminationStatus: ExaminationStatusService,
     ) {}
+
     intercept(req: HttpRequest<unknown>, next: HttpHandler) {
         return next.handle(req).pipe(
             tap((event: HttpEvent<unknown>) => {
                 if (event instanceof HttpResponse) {
-                    const b64ToUtf8 = (str: string, encoding = 'utf-8'): string => {
-                        const bytes = base64.toByteArray(str);
-                        return new TextDecoder(encoding).decode(bytes);
-                    };
+                    const b64ToUtf8 = (str: string): string => new TextDecoder('utf-8').decode(toByteArray(str));
                     const response = event as HttpResponse<unknown>;
                     const unknownMachine = response.headers.get('x-exam-unknown-machine');
                     const wrongRoom = response.headers.get('x-exam-wrong-room');
