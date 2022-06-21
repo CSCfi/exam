@@ -389,6 +389,7 @@ POST          /integration/iop/reservations/:ref/noshow                controlle
 POST          /integration/iop/import                                  controllers.iop.transfer.impl.DataTransferController.importData(request: Request)
 + nocsrf
 POST          /integration/iop/import/attachment/question/:id          controllers.iop.transfer.impl.DataTransferController.importQuestionAttachment(id: Long, request: Request)
+GET           /integration/iop/reservations/:ref/instructions          controllers.SettingsController.provideMaturityInstructions(ref: String, lang: String)
 
 ################# Time interface ######################
 GET           /app/time/:hash                                          controllers.TimeController.getRemainingExamTime(hash: String, request: Request)
@@ -429,7 +430,7 @@ GET           /app/settings/iop/examCollaboration                      controlle
 GET           /app/settings/anonymousReviewEnabled                     controllers.SettingsController.isAnonymousReviewEnabled
 GET           /app/settings/maxfilesize                                controllers.SettingsController.getMaxFilesize
 GET           /app/settings/appVersion                                 controllers.SettingsController.getAppVersion
-GET           /app/settings/maturityInstructions                       controllers.SettingsController.getMaturityInstructions(lang: String)
+GET           /app/settings/maturityInstructions                       controllers.SettingsController.getMaturityInstructions(lang: String, ref: java.util.Optional[String])
 GET           /app/settings/examinationQuitLink                        controllers.SettingsController.getExaminationQuitLink
 
 

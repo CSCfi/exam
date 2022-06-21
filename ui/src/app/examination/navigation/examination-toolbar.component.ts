@@ -55,7 +55,7 @@ export class ExaminationToolbarComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.tab = this.route.snapshot.queryParams.get('tab');
+        this.tab = this.route.snapshot.queryParams.tab;
         if (!this.isPreview && this.exam.implementation === 'AQUARIUM') {
             this.http.get<ExamRoom>('/app/enrolments/room/' + this.exam.hash).subscribe((resp) => (this.room = resp));
         }
@@ -154,7 +154,7 @@ export class ExaminationToolbarComponent implements OnInit {
         return '';
     };
 
-    showMaturityInstructions = () => this.Enrolment.showMaturityInstructions({ exam: this.exam });
+    showMaturityInstructions = () => this.Enrolment.showMaturityInstructions({ exam: this.exam }, this.exam.external);
 
     exitPreview = () => {
         const tab = this.tab || 1;
