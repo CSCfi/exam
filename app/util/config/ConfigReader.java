@@ -35,4 +35,5 @@ public interface ConfigReader {
     String getQuitPassword();
     String getHomeOrganisationRef();
     Integer getMaxByodExaminationParticipantCount();
+    String getCourseCodePrefix();
 }
