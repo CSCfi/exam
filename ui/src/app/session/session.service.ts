@@ -195,6 +195,9 @@ export class SessionService implements OnDestroy {
                 switchMap((u) => this.processLogin$(u)),
                 tap((u) => {
                     this.webStorageService.set('EXAM_USER', u);
+                    this.http
+                        .get<{ prefix: string }>('/app/settings/coursecodeprefix')
+                        .subscribe((data) => this.webStorageService.set('COURSE_CODE_PREFIX', data.prefix));
                     this.restartSessionCheck();
                     this.userChangeSubscription.next(u);
                     if (u) {
@@ -305,8 +308,8 @@ export class SessionService implements OnDestroy {
         } else if (this.router.url === '/') {
             let state;
             if (user.loginRole === 'STUDENT') state = 'dashboard';
-            else if (user.loginRole === 'TEACHER') state = 'staff/dashboard/teacher';
-            else state = 'staff/dashboard/admin';
+            else if (user.loginRole === 'TEACHER') state = 'staff/teacher';
+            else state = 'staff/admin';
             this.router.navigate([state]);
         } /*else if (this.router.url === '/') {
             // Hackish but will have to try

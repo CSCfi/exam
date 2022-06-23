@@ -431,6 +431,7 @@ GET           /app/settings/maxfilesize                                controlle
 GET           /app/settings/appVersion                                 controllers.SettingsController.getAppVersion
 GET           /app/settings/maturityInstructions                       controllers.SettingsController.getMaturityInstructions(lang: String)
 GET           /app/settings/examinationQuitLink                        controllers.SettingsController.getExaminationQuitLink
+GET           /app/settings/coursecodeprefix                           controllers.SettingsController.getCourseCodePrefix
 
 
 ################# Statistics interface ##################
