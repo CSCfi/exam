@@ -19,19 +19,19 @@ import { RoomService } from '../rooms/room.service';
 
 @Component({
     selector: 'xm-exceptions',
-    template: `<div class="top-row" *ngIf="!hideTitle">
+    template: `<div class="top-row flex marl5" *ngIf="!hideTitle">
             <h3 class="col-md-12 header-text">{{ 'sitnet_exception_datetimes' | translate }}</h3>
         </div>
 
         <div class="col-md-12">
-            <div class="detail-row" *ngFor="let exception of exceptions | filterBy: filter">
-                <div class="me-4">
+            <div class="flex" *ngFor="let exception of exceptions | filterBy: filter">
+                <div class="col-md-4 min-width-300">
                     {{ formatDate(exception) }}
                 </div>
-                <div class="text-danger me-4" *ngIf="exception.outOfService">
+                <div class="text-danger marr10" *ngIf="exception.outOfService">
                     {{ 'sitnet_room_out_of_service' | translate }}
                 </div>
-                <div class="text-info me-4" *ngIf="!exception.outOfService">
+                <div class="text-info " *ngIf="!exception.outOfService">
                     {{ 'sitnet_room_in_service' | translate }}
                 </div>
                 <div>
