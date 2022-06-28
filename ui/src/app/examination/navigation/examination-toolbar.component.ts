@@ -158,8 +158,9 @@ export class ExaminationToolbarComponent implements OnInit {
 
     exitPreview = () => {
         const tab = this.tab || 1;
+        const qp = this.isCollaborative ? { collaborative: this.isCollaborative } : {};
         this.router.navigate(['/staff/exams', this.exam.id, tab], {
-            queryParams: { collaborative: this.isCollaborative },
+            queryParams: qp,
         });
     };
 }

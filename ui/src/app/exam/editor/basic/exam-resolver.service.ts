@@ -11,7 +11,7 @@ export class ExamResolverService implements Resolve<Exam> {
 
     resolve(route: ActivatedRouteSnapshot): Observable<Exam> {
         const id = Number(route.paramMap.get('id'));
-        const isCollab = !!route.queryParamMap.get('collaborative');
+        const isCollab = route.queryParamMap.get('collaborative') === 'true';
         return isCollab ? this.CollaborativeExam.download$(id) : this.Exam.downloadExam$(id);
     }
 }

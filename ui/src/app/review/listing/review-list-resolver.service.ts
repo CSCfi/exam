@@ -11,7 +11,7 @@ export class ReviewListResolverService implements Resolve<ExamParticipation[]> {
 
     resolve(route: ActivatedRouteSnapshot): Observable<ExamParticipation[]> {
         const id = this.ExamTab.getExam()?.id || route.pathFromRoot[3].params.id; // hacky yes
-        const isCollab = this.ExamTab.isCollaborative() || !!route.queryParamMap.get('collaborative');
+        const isCollab = this.ExamTab.isCollaborative() || route.queryParamMap.get('collaborative') === 'true';
         return this.ReviewList.getReviews$(id, isCollab);
     }
 }

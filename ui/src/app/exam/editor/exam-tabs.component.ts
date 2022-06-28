@@ -57,7 +57,7 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-        this.collaborative = !!this.route.snapshot.queryParamMap.get('collaborative');
+        this.collaborative = this.route.snapshot.queryParamMap.get('collaborative') === 'true';
         this.route.data.subscribe((data) => {
             this.exam = data.exam;
             this.updateTitle(!this.exam.course ? null : this.exam.course.code, this.exam.name);
