@@ -36,7 +36,7 @@ import type { User } from '../../../session/session.service';
             <div class="make-inline padl10">
                 <select
                     [(ngModel)]="inspection.ready"
-                    class="form-control"
+                    class="form-select"
                     [disabled]="disabled"
                     (change)="setInspectionStatus()"
                 >

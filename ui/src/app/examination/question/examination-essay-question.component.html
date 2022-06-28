@@ -10,13 +10,13 @@
 </div>
 <div class="row" *ngIf="sq.essayAnswer">
     <div class="col-md-12">
-        <ckeditor
+        <xm-ckeditor
             aria-label="answer editor"
             rows="10"
             cols="80"
             #ck="ngModel"
             [(ngModel)]="sq.essayAnswer.answer"
-        ></ckeditor>
+        ></xm-ckeditor>
     </div>
 </div>
 <div class="row" *ngIf="sq.autosaved">

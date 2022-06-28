@@ -17,20 +17,30 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import be.objectify.deadbolt.java.actions.SubjectNotPresent;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.typesafe.config.ConfigFactory;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.Update;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Optional;
+import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import models.ExamEnrolment;
 import models.GeneralSettings;
 import models.Language;
 import models.User;
-import org.joda.time.DateTime;
 import play.Environment;
 import play.data.DynamicForm;
 import play.libs.Json;
+import play.libs.ws.WSClient;
+import play.libs.ws.WSRequest;
 import play.mvc.Http;
 import play.mvc.Result;
 import util.config.ConfigReader;
@@ -39,11 +49,13 @@ public class SettingsController extends BaseController {
 
     private final Environment environment;
     private final ConfigReader configReader;
+    private final WSClient wsClient;
 
     @Inject
-    public SettingsController(Environment environment, ConfigReader configReader) {
+    public SettingsController(Environment environment, ConfigReader configReader, WSClient wsClient) {
         this.environment = environment;
         this.configReader = configReader;
+        this.wsClient = wsClient;
     }
 
     public static GeneralSettings get(String name) {
@@ -91,10 +103,42 @@ public class SettingsController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
-    public Result getMaturityInstructions(String lang) {
+    public CompletionStage<Result> getMaturityInstructions(String lang, Optional<String> hash) throws IOException {
         Language language = Ebean.find(Language.class, lang);
         if (language == null) {
-            return badRequest("Language not supported");
+            return wrapAsPromise(badRequest("Language not supported"));
+        }
+        if (hash.isPresent()) {
+            ExamEnrolment enrolment = Ebean
+                .find(ExamEnrolment.class)
+                .where()
+                .eq("externalExam.hash", hash.get())
+                .findOne();
+            if (enrolment == null) {
+                return wrapAsPromise(badRequest("Enrolment not found"));
+            }
+            URL url = parseExternalUrl(enrolment.getReservation().getExternalRef());
+            WSRequest request = wsClient.url(url.toString()).addQueryParameter("lang", language.getCode());
+            return request
+                .get()
+                .thenApplyAsync(response -> {
+                    JsonNode root = response.asJson();
+                    if (response.getStatus() != 200) {
+                        return internalServerError(root.get("message").asText("Connection refused"));
+                    }
+                    return ok(root);
+                });
+        } else {
+            String key = String.format("maturity_instructions_%s", lang);
+            return wrapAsPromise(ok(Json.toJson(get(key))));
+        }
+    }
+
+    @SubjectNotPresent
+    public Result provideMaturityInstructions(String ref, String lang) {
+        Language language = Ebean.find(Language.class, lang);
+        if (language == null) {
+            badRequest("Language not supported");
         }
         String key = String.format("maturity_instructions_%s", lang);
         return ok(Json.toJson(get(key)));
@@ -281,5 +325,19 @@ public class SettingsController extends BaseController {
         node.put("isByodExaminationSupported", configReader.isByodExaminationSupported());
 
         return ok(Json.toJson(node));
+    }
+        
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
+    public Result getCourseCodePrefix() {
+        ObjectNode node = Json.newObject();
+        node.put("prefix", configReader.getCourseCodePrefix());
+        return ok(Json.toJson(node));
+    }    
+
+    private static URL parseExternalUrl(String reservationRef) throws MalformedURLException {
+        return new URL(
+            ConfigFactory.load().getString("sitnet.integration.iop.host") +
+            String.format("/api/enrolments/%s/instructions", reservationRef)
+        );
     }
 }

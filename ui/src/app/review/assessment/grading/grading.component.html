@@ -148,7 +148,7 @@
                     <select
                         id="examGrade"
                         name="examGrade"
-                        class="form-control form-select"
+                        class="form-select"
                         [(ngModel)]="selections.grade"
                         [disabled]="isReadOnly() || !isOwnerOrAdmin()"
                         (ngModelChange)="setGrade()"
@@ -165,7 +165,7 @@
                     <select
                         id="creditType"
                         name="creditType"
-                        class="form-control form-select"
+                        class="form-select"
                         [(ngModel)]="selections.type"
                         (ngModelChange)="setCreditType()"
                         [disabled]="isReadOnly() || !isOwnerOrAdmin()"
@@ -181,7 +181,7 @@
                     <select
                         id="answerLanguage"
                         name="answerLanguage"
-                        class="form-control form-select"
+                        class="form-select"
                         [disabled]="isReadOnly() || !isOwnerOrAdmin()"
                         [(ngModel)]="selections.language"
                         (ngModelChange)="setLanguage()"
