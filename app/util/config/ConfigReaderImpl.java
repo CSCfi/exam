@@ -203,4 +203,9 @@ public class ConfigReaderImpl implements ConfigReader {
     public Integer getMaxByodExaminationParticipantCount() {
         return ConfigFactory.load().getInt("sitnet.byod.maxConcurrentParticipants");
     }
+
+    @Override
+    public String getCourseCodePrefix() {
+        return ConfigFactory.load().getString("sitnet.course.code.prefix");
+    }
 }
