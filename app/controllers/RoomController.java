@@ -335,9 +335,6 @@ public class RoomController extends BaseController {
             hours.setEndDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(endDate));
             hours.setRoom(examRoom);
             hours.setOutOfService(exception.get("outOfService").asBoolean(true));
-            if (roomIds.size() > 1) {
-                hours.setMassEdited(true);
-            }
             hours.save();
             examRoom.getCalendarExceptionEvents().add(hours);
             asyncUpdateRemote(examRoom);

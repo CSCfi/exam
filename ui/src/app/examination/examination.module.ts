@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
-import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { RouterModule } from '@angular/router';
+import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from '../shared/shared.module';
 import { ExaminationClockComponent } from './clock/examination-clock.component';
 import { ExaminationStatusService } from './examination-status.service';
