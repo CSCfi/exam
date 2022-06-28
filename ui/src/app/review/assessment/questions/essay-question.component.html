@@ -108,7 +108,7 @@
                     </span>
                     <span *ngIf="sectionQuestion.evaluationType === 'Selection'">
                         <select
-                            class="form-control"
+                            class="form-select"
                             [(ngModel)]="scoreValue"
                             (change)="insertEssayScore()"
                             [disabled]="!isScorable"

@@ -330,7 +330,7 @@ public class SettingsController extends BaseController {
     private static URL parseExternalUrl(String reservationRef) throws MalformedURLException {
         return new URL(
             ConfigFactory.load().getString("sitnet.integration.iop.host") +
-            String.format("/api/enrolments/%s/facilities", reservationRef)
+            String.format("/api/enrolments/%s/instructions", reservationRef)
         );
     }
 }
