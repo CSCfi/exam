@@ -144,7 +144,7 @@ export class AssessmentService {
     getExitState = (exam: Exam, collaborative = false): Link => {
         const user = this.Session.getUser();
         if (user && user.isAdmin) {
-            return { fragments: ['/staff/dashboard/admin'] };
+            return { fragments: ['/staff/admin'] };
         }
         const id = exam.parent ? exam.parent.id : exam.id; // TODO: check this
         return this.getExitStateById(id, collaborative);

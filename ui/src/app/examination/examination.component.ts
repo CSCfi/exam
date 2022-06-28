@@ -57,7 +57,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
                 this.exam = exam;
                 this.setActiveSection({ type: 'guide' });
                 if (!this.isPreview && !this.exam.cloned && this.exam.executionType.type === 'MATURITY') {
-                    this.Enrolment.showMaturityInstructions({ exam: this.exam });
+                    this.Enrolment.showMaturityInstructions({ exam: this.exam }, this.exam.external);
                 }
                 if (!this.isPreview) {
                     this.Session.disableSessionCheck(); // we don't need this here and it might cause unwanted forwarding to another states

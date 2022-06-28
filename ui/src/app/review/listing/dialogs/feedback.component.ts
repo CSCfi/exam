@@ -26,7 +26,7 @@ import { AssessmentService } from '../../assessment/assessment.service';
         <div class="modal-body marl20">
             <div class="row">
                 <div class="col-md-12 padl0" *ngIf="exam.examFeedback !== null">
-                    <ckeditor rows="10" #ck="ngModel" [(ngModel)]="exam.examFeedback.comment"></ckeditor>
+                    <xm-ckeditor rows="10" #ck="ngModel" [(ngModel)]="exam.examFeedback.comment"></xm-ckeditor>
                 </div>
             </div>
         </div>

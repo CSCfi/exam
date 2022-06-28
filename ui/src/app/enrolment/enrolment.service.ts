@@ -250,8 +250,8 @@ export class EnrolmentService {
         modalRef.result.catch((err) => this.toast.error(err));
     };
 
-    showMaturityInstructions = (enrolment: { exam: Exam }) => {
-        this.getMaturityInstructions$(enrolment.exam).subscribe((instructions) => {
+    showMaturityInstructions = (enrolment: { exam: Exam }, external = false) => {
+        this.getMaturityInstructions$(enrolment.exam, external).subscribe((instructions) => {
             const modalRef = this.ngbModal.open(ShowInstructionsDialogComponent, {
                 backdrop: 'static',
                 keyboard: false,
@@ -310,7 +310,7 @@ export class EnrolmentService {
         });
     };
 
-    private getMaturityInstructions$ = (exam: Exam): Observable<string> => {
+    private getMaturityInstructions$ = (exam: Exam, external = false): Observable<string> => {
         if (exam.executionType.type !== 'MATURITY') {
             return of('');
         }
@@ -318,8 +318,9 @@ export class EnrolmentService {
             console.warn('Exam has no exam languages or it has several!');
         }
         const lang = exam.examLanguages.length > 0 ? exam.examLanguages[0].code : 'fi';
+        const ref = external ? `&ref=${exam.hash}` : '';
         return this.http
-            .get<{ value: string }>(`/app/settings/maturityInstructions?lang=${lang}`)
+            .get<{ value: string }>(`/app/settings/maturityInstructions?lang=${lang}${ref}`)
             .pipe(map((data) => data.value));
     };
 
