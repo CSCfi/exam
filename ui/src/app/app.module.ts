@@ -20,6 +20,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ToastrModule } from 'ngx-toastr';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { CalendarModule } from './calendar/calendar.module';
 import { StudentDashboardModule } from './dashboard/student/student-dashboard.module';
 import { EnrolmentModule } from './enrolment/enrolment.module';
 import { ExaminationModule } from './examination/examination.module';
@@ -55,6 +56,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         StudentDashboardModule,
         ExaminationModule,
         EnrolmentModule,
+        CalendarModule,
     ],
     declarations: [AppComponent],
     providers: [
