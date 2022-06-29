@@ -10,7 +10,6 @@ import { AddressComponent } from './address/address.component';
 import { FacilityComponent } from './facility.component';
 import { MachineModule } from './machines/machines.module';
 import { AvailabilityComponent } from './rooms/availability.component';
-import { ExceptionListAllComponent } from './rooms/exception-mass-edit.component';
 import { InteroperabilityService } from './rooms/interoperability.service';
 import { MultiRoomComponent } from './rooms/room-mass-edit.component';
 import { RoomComponent } from './rooms/room.component';
@@ -40,7 +39,6 @@ import { StartingTimeComponent } from './schedule/starting-time.component';
         MaintenancePeriodDialogComponent,
         OpenHoursComponent,
         StartingTimeComponent,
-        ExceptionListAllComponent,
         RoomComponent,
         MultiRoomComponent,
         AvailabilityComponent,

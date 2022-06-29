@@ -27,7 +27,6 @@ export type ExceptionWorkingHours = {
     startDate: string;
     endDate: string;
     outOfService: boolean;
-    massEdited: boolean;
 };
 
 export type Accessibility = {

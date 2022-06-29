@@ -23,7 +23,7 @@ import { RoomService } from './room.service';
 type SelectableRoom = ExamRoom & { selected: boolean };
 
 @Component({
-    selector: 'xm-multi-room',
+    selector: 'xm-room-mass-edit',
     template: `
         <div id="sitnet-header" class="header">
             <div class="header-wrapper">
@@ -31,55 +31,67 @@ type SelectableRoom = ExamRoom & { selected: boolean };
             </div>
         </div>
         <div id="dashboard">
-            <div class="main-row d-block">
-                <!--                <div class="top-row">
-                                    <h3 class="header-text">{{ 'sitnet_room_default_working_hours' | translate }}</h3>
+            <div class="row ms-4 mt-4">
+                <div class="col-md-12">
+                    <div class="row">
+                        <h3 class="col-auto header-text">{{ 'sitnet_exception_datetimes' | translate }}</h3>
+                        <div class="col">
+                            <button (click)="addMultiRoomException()" class="btn btn-primary">
+                                {{ 'sitnet_add' | translate }}
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <div class="form-check">
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    id="flexCheckIndeterminate"
+                                    name="select_all"
+                                    [(ngModel)]="allSelected"
+                                    (change)="selectAll()"
+                                    triggers="mouseenter:mouseleave"
+                                    ngbPopover="{{ 'sitnet_check_uncheck_all' | translate }}"
+                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                />
+                                <label class="form-check-label marl5" for="flexCheckIndeterminate">
+                                    <strong>{{ 'sitnet_select_all_rooms' | translate }}</strong>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngFor="let room of selectableRooms">
+                        <div class="row mt-2">
+                            <div class="col-md-12">
+                                <div class="form-check">
+                                    <input
+                                        type="checkbox"
+                                        class="form-check-input"
+                                        name="select_room"
+                                        id="room"
+                                        [(ngModel)]="room.selected"
+                                    />
+                                    <label class="form-check-label" for="room"
+                                        ><strong>{{ room.name || 'sitnet_no_name' | translate }}</strong></label
+                                    >
                                 </div>
-                                <div class="bottom-row">
-                                    <xm-opening-hours
-                                        *ngIf="allRooms"
-                                        class="col-md-12"
-                                        [week]="week"
-                                        (onSelect)="updateWorkingHours()"
-                                    ></xm-opening-hours>
-                                </div>-->
-                <!--<xm-starting-time *ngIf="allRooms" [roomIds]="roomIds"></xm-starting-time>-->
-                <div class="top-row">
-                    <h3 class="col-md-12 header-text">{{ 'sitnet_exception_datetimes' | translate }}</h3>
-                    <div class="col-md-12">
-                        <button (click)="addMultiRoomException()" class="btn btn-primary">
-                            {{ 'sitnet_add' | translate }}
-                        </button>
+                            </div>
+                        </div>
+                        <div class="row ms-3">
+                            <div class="col-md-12">
+                                <xm-exceptions
+                                    [exceptions]="room.calendarExceptionEvents"
+                                    (removed)="deleteException($event)"
+                                    [hideButton]="true"
+                                    [hideTitle]="true"
+                                ></xm-exceptions>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="form-check">
-                    <input
-                        type="checkbox"
-                        name="select_all"
-                        [(ngModel)]="allSelected"
-                        (change)="selectAll()"
-                        triggers="mouseenter:mouseleave"
-                        ngbPopover="{{ 'sitnet_check_uncheck_all' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                    />
-                    <label class="form-check-label marl5" for="flexCheckIndeterminate">
-                        {{ 'sitnet_select_all_rooms' | translate }}
-                    </label>
-                </div>
-                <div class="detail-row-tall" *ngFor="let room of selectableRooms">
-                    <div class="col-md-12">
-                        <input type="checkbox" name="select_room" [(ngModel)]="room.selected" />
-                        <b>{{ room.name || 'sitnet_no_name' | translate }}</b>
-                    </div>
-                    <xm-exceptions
-                        [exceptions]="room.calendarExceptionEvents"
-                        (removed)="deleteException($event)"
-                        [hideButton]="true"
-                        [hideTitle]="true"
-                    ></xm-exceptions>
                 </div>
             </div>
-            <div class="main-row">
+            <div class="row ms-4 mt-4">
                 <div class="col-md-12">
                     <button (click)="addMultiRoomException()" class="btn btn-primary">
                         {{ 'sitnet_add' | translate }}
