@@ -326,13 +326,13 @@ public class SettingsController extends BaseController {
 
         return ok(Json.toJson(node));
     }
-        
+
     @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
     public Result getCourseCodePrefix() {
         ObjectNode node = Json.newObject();
         node.put("prefix", configReader.getCourseCodePrefix());
         return ok(Json.toJson(node));
-    }    
+    }
 
     private static URL parseExternalUrl(String reservationRef) throws MalformedURLException {
         return new URL(

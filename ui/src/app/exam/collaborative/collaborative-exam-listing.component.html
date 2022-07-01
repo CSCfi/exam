@@ -18,19 +18,19 @@
             <ul ngbNav #nav="ngbNav" [(activeId)]="view" class="nav-tabs">
                 <li [ngbNavItem]="'PUBLISHED'">
                     <a ngbNavLink>
-                        Julkaistut ja esijulkaistut yhteistentit
+                        {{ 'sitnet_published_joint_exams' | translate }}
                         <span class="ms-2 badge bg-secondary">{{ filterByView('PUBLISHED').length }}</span>
                     </a>
                 </li>
                 <li [ngbNavItem]="'EXPIRED'">
                     <a ngbNavLink>
-                        Yhteistentit, joiden voimassaoloaika on päättynyt
+                        {{ 'sitnet_expired_joint_exams' | translate }}
                         <span class="ms-2 badge bg-secondary">{{ filterByView('EXPIRED').length }}</span>
                     </a>
                 </li>
                 <li [ngbNavItem]="'DRAFTS'">
                     <a ngbNavLink>
-                        Yhteistenttiluonnokset
+                        {{ 'sitnet_joint_exam_drafts' | translate }}
                         <span class="ms-2 badge bg-secondary">{{ filterByView('DRAFTS').length }}</span>
                     </a>
                 </li>

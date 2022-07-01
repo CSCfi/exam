@@ -1039,5 +1039,8 @@
   "sitnet_import_questions_detail": "Valitse Moodlen kysymysformaatissa oleva XML-tiedosto EN",
   "sitnet_questions_imported_successfully": "Kysymykset tuotu onnistuneesti EN",
   "sitnet_force_remove_exam_warning_dialogue": "Haluatko poistaa tentin (poistoa ei voi peruuttaa)? Ilmoittautuneille opiskelijoille, sekä opettajille lähetetään sähköposti tenttitilaisuuden poistamisesta. EN",
-  "sitnet_select_all_rooms": "Select all rooms"
+  "sitnet_select_all_rooms": "Select all rooms",
+  "sitnet_published_joint_exams": "Published and pre-published joint exams",
+  "sitnet_expired_joint_exams": "Expired joint exams",
+  "sitnet_joint_exam_drafts": "Joint exam drafts"
 }
