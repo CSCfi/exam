@@ -37,24 +37,26 @@ import { MaturityService } from './maturity.service';
                 </div>
             </span>
 
-            <div *ngIf="!isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
+            <div *ngIf="!isReadOnly() && !isDisabled()" class="review-attachment-button exam-questions-buttons marl10">
                 <button
                     class="btn inspection-button"
                     [ngClass]="getNextState().warn ? 'warning-filled' : ''"
-                    [disabled]="isDisabled()"
                     (click)="proceed(false)"
                 >
                     {{ getNextState().text | translate }}
                 </button>
             </div>
             <div
-                *ngIf="!isReadOnly() && getNextState().alternateState"
+                *ngIf="
+                    !isReadOnly() &&
+                    getNextState().alternateState &&
+                    !isDisabled(getAlternateState(getNextState().alternateState).name)
+                "
                 class="review-attachment-button exam-questions-buttons marl10"
             >
                 <button
                     class="btn inspection-button"
                     [ngClass]="getAlternateState(getNextState().alternateState).warn ? 'warning-filled' : 'btn-primary'"
-                    [disabled]="isDisabled(getAlternateState(getNextState().alternateState).name)"
                     (click)="proceed(true)"
                 >
                     {{ getAlternateState(getNextState().alternateState).text | translate }}
@@ -65,6 +67,16 @@ import { MaturityService } from './maturity.service';
                 class="review-attachment-button exam-questions-buttons"
             >
                 <span *ngIf="isMissingStatement()" class="text-danger"
+                    >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
+                        getNextState()?.hint || '' | translate
+                    }}</span
+                >
+            </div>
+            <div
+                *ngIf="!isReadOnly() && !getNextState().alternateState"
+                class="review-attachment-button exam-questions-buttons"
+            >
+                <span *ngIf="getNextState()?.hint" class="text-danger"
                     >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
                         getNextState()?.hint || '' | translate
                     }}</span
