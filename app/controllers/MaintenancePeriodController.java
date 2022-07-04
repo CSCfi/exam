@@ -34,7 +34,7 @@ public class MaintenancePeriodController extends BaseController {
         List<MaintenancePeriod> periods = Ebean
             .find(MaintenancePeriod.class)
             .where()
-            .gt("startsAt", DateTime.now())
+            .gt("endsAt", DateTime.now())
             .findList();
         return ok(periods);
     }
