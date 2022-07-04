@@ -14,7 +14,6 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { formatISO, startOfMonth } from 'date-fns';
 import { range } from 'ramda';
 import type { Attachment } from '../../exam/exam.model';
 import type { Option } from '../../shared/select/dropdown-select.component';
@@ -29,8 +28,11 @@ export class MaturityReportingComponent implements OnInit {
     month?: number;
     year?: number;
     processedInspections: LanguageInspection[] = [];
+    inspectionList: LanguageInspection[] = [];
     months: Option<number, unknown>[] = [];
     years: Option<number, unknown>[] = [];
+    hideList: boolean = true;
+    loading: boolean = false;
 
     constructor(private LanguageInspection: LanguageInspectionService) {}
 
@@ -43,26 +45,26 @@ export class MaturityReportingComponent implements OnInit {
 
     printReport = () => window.setTimeout(() => window.print(), 500);
 
-    monthChanged = (event?: Option<number, unknown>) => {
-        this.month = event?.value;
-        this.query();
-    };
-
-    yearChanged = (event?: Option<number, unknown>) => {
-        this.year = event?.value;
-        this.query();
-    };
-
     query = () => {
-        const params: { month?: string } = {};
-        if (this.month && this.year) {
-            const date = new Date(this.year, this.month - 1, 1);
-            const beginning = startOfMonth(date);
-            params.month = formatISO(beginning);
-        }
-        this.LanguageInspection.query(params).subscribe(
-            (inspections) => (this.processedInspections = inspections.filter((i) => i.finishedAt)),
+        this.loading = true;
+        const params = {};
+        this.LanguageInspection.query(params).subscribe((inspections) => {
+            this.processedInspections = inspections.filter((i) => i.finishedAt);
+            this.loading = false;
+        });
+    };
+    updateList = () => {
+        this.inspectionList = this.processedInspections.filter(
+            (i) => i.finishedAt && this.isInSelectedMonth(i.finishedAt),
         );
+        this.hideList = false;
+    };
+
+    isInSelectedMonth = (date: Date): boolean => {
+        if (!this.month || this.month == 0) {
+            return new Date(date).getFullYear() == this.year;
+        }
+        return new Date(date).getMonth() + 1 == this.month && new Date(date).getFullYear() == this.year;
     };
 
     showStatement = (statement: { attachment?: Attachment; comment?: string }) => {
