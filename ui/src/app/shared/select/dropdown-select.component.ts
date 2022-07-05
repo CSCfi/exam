@@ -38,8 +38,8 @@ export interface Option<V, I> {
         >
             {{ selected?.label || placeholder | translate }}
         </button>
-        <ul ngbDropdownMenu class="scrollable-menu" role="menu" aria-labelledby="dd1">
-            <li class="input-group p-2" *ngIf="!noSearch">
+        <div ngbDropdownMenu class="scrollable-menu" role="menu" aria-labelledby="dd1">
+            <button class="input-group p-2" *ngIf="!noSearch">
                 <input
                     [(ngModel)]="searchFilter"
                     class="form-control"
@@ -52,22 +52,22 @@ export interface Option<V, I> {
                         <i class="bi-search"></i>
                     </span>
                 </div>
-            </li>
-            <li ngbDropdownItem (click)="clearSelection()">
-                <a><i class="bi-x text text-danger"></i></a>
-            </li>
-            <li
+            </button>
+            <button ngbDropdownItem (click)="clearSelection()">
+                <i class="bi-x text text-danger"></i>
+            </button>
+            <button
                 ngbDropdownItem
                 *ngFor="let opt of filteredOptions"
                 [ngClass]="getClasses(opt)"
                 (click)="selectOption(opt)"
             >
-                <a *ngIf="!opt.isHeader">
+                <span *ngIf="!opt.isHeader">
                     {{ opt.label || '' | translate | slice: 0:40 }}
-                </a>
+                </span>
                 <span *ngIf="opt.isHeader">{{ opt.label }}</span>
-            </li>
-        </ul>
+            </button>
+        </div>
     </div> `,
 })
 export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
