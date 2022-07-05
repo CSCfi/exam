@@ -19,26 +19,24 @@
                 <form>
                     <div class="row form-group">
                         <div class="col-auto">
-                            {{ 'sitnet_month' | translate }}:
-                            <input
-                                type="number"
-                                min="0"
-                                max="12"
-                                (change)="updateList()"
-                                [(ngModel)]="month"
-                                [ngModelOptions]="{ standalone: true }"
-                            />
+                            <xm-dropdown-select
+                                id="month"
+                                class="input-group me-2"
+                                placeholder="{{ 'sitnet_month' | translate }}"
+                                [options]="months"
+                                [noSearch]="true"
+                                (optionSelected)="monthChanged($event)"
+                            ></xm-dropdown-select>
                         </div>
                         <div class="col">
-                            {{ 'sitnet_year' | translate }}:
-                            <input
-                                type="number"
-                                min="2010"
-                                max="2100"
-                                (change)="updateList()"
-                                [(ngModel)]="year"
-                                [ngModelOptions]="{ standalone: true }"
-                            />
+                            <xm-dropdown-select
+                                id="year"
+                                class="input-group"
+                                placeholder="{{ 'sitnet_year' | translate }}"
+                                [noSearch]="true"
+                                [options]="years"
+                                (optionSelected)="yearChanged($event)"
+                            ></xm-dropdown-select>
                         </div>
                     </div>
                 </form>
@@ -70,7 +68,7 @@
                     </thead>
 
                     <tbody>
-                        <tr *ngFor="let inspection of inspectionList | orderBy: 'finishedAt'" [hidden]="this.hideList">
+                        <tr *ngFor="let inspection of processedInspections | orderBy: 'finishedAt'">
                             <td>
                                 <xm-course-code
                                     *ngIf="inspection.exam.course"
