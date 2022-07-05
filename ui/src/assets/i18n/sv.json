@@ -1035,5 +1035,8 @@
   "sitnet_edit_enrolment": "Edit enrolment SV",
   "sitnet_toolbar_import_questions": "Tuo kysymyksiä Moodlesta SV",
   "sitnet_import_questions_detail": "Valitse Moodlen kysymysformaatissa oleva XML-tiedosto SV",
-  "sitnet_questions_imported_successfully": "Kysymykset tuotu onnistuneesti SV"
+  "sitnet_questions_imported_successfully": "Kysymykset tuotu onnistuneesti SV",
+  "sitnet_published_joint_exams": "Publicedare och förhandspublicerade gemensamma tentamina",
+  "sitnet_expired_joint_exams": "Stängda gemensamma tentamina",
+  "sitnet_joint_exam_drafts": "Gemensamma tentamina utkasts"
 }
