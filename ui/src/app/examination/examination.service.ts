@@ -127,7 +127,7 @@ export class ExaminationService {
                 break;
             case 'ClozeTestQuestion': {
                 const clozeTestAnswer = sq.clozeTestAnswer;
-                isAnswered = clozeTestAnswer && Object.keys(clozeTestAnswer.answer).length > 0;
+                isAnswered = clozeTestAnswer?.answer && Object.keys(clozeTestAnswer.answer).length > 0;
                 break;
             }
             case 'ClaimChoiceQuestion':

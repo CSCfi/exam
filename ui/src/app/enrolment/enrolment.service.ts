@@ -97,13 +97,15 @@ export class EnrolmentService {
                 tap((enrolment) => {
                     this.toast.success(
                         this.translate.instant('sitnet_you_have_enrolled_to_exam') +
-                            '<br/>' +
+                            '\n' +
                             this.translate.instant('sitnet_remember_exam_machine_reservation'),
                     );
                     if (exam.implementation !== 'AQUARIUM' && exam.examinationEventConfigurations.length > 0) {
                         this.selectExaminationEvent(exam, enrolment, '/dashboard');
                     } else {
-                        this.router.navigate(['/calendar', exam.id, collaborative ? 'collaborative' : '']);
+                        const params = enrolment.collaborativeExam ? enrolment.collaborativeExam.id : enrolment.exam.id;
+                        const fragments = enrolment.collaborativeExam ? '/collaborative/calendar' : '/calendar';
+                        this.router.navigate([fragments, params]);
                     }
                 }),
             );
@@ -116,7 +118,7 @@ export class EnrolmentService {
             switchMap((resp) =>
                 resp.length == 0
                     ? this.enroll(exam, collaborative)
-                    : throwError(() => new Error('sitnet_already_enrolled')),
+                    : throwError(() => new Error(this.translate.instant('sitnet_already_enrolled'))),
             ),
             catchError((err) => {
                 this.toast.error(err);

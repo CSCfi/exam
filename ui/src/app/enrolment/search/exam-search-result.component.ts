@@ -102,10 +102,8 @@ export class ExamSearchResultComponent {
     };
 
     makeReservation = () => {
-        if (this.exam.implementation !== 'AQUARIUM') {
-            this.router.navigate(['/dashboard']);
-        } else {
-            this.router.navigate(['calendar', this.exam.id, this.collaborative ? 'collaborative' : '']);
-        }
+        const params = this.exam.id;
+        const fragments = '/calendar';
+        this.router.navigate([fragments, params]);
     };
 }
