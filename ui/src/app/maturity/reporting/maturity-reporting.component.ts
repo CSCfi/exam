@@ -38,7 +38,6 @@ export class MaturityReportingComponent implements OnInit {
         this.months = range(1, 13).map((m) => ({ id: m, label: m.toString() }));
         const year = new Date().getFullYear();
         this.years = range(0, 20).map((n) => ({ id: year - n, label: (year - n).toString() }));
-        this.query();
     }
 
     printReport = () => window.setTimeout(() => window.print(), 500);
@@ -59,10 +58,10 @@ export class MaturityReportingComponent implements OnInit {
             const date = new Date(this.year, this.month - 1, 1);
             const beginning = startOfMonth(date);
             params.month = encodeURIComponent(formatISO(beginning));
+            this.LanguageInspection.query(params).subscribe(
+                (inspections) => (this.processedInspections = inspections.filter((i) => i.finishedAt)),
+            );
         }
-        this.LanguageInspection.query(params).subscribe(
-            (inspections) => (this.processedInspections = inspections.filter((i) => i.finishedAt)),
-        );
     };
 
     showStatement = (statement: { attachment?: Attachment; comment?: string }) => {
