@@ -461,10 +461,6 @@ POST          /app/maintenance                                         controlle
 PUT           /app/maintenance/:id                                     controllers.MaintenancePeriodController.updateMaintenancePeriod(id: Long, request: Request)
 DELETE        /app/maintenance/:id                                     controllers.MaintenancePeriodController.removeMaintenancePeriod(id: Long)
 
-########################################################
-# TODO: check if needed anymore
-GET           /assets/assets/images/nav/*file                          controllers.assets.NavbarAssets.at(path="/public", file)
-
 #######################################################
 GET           /attributes                                              controllers.SessionController.getAttributes(request: Request)
 

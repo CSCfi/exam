@@ -63,7 +63,7 @@ export class MaturityService {
 
     isMissingStatement = (exam: Exam) => {
         if (!this.isUnderLanguageInspection(exam)) {
-            return false;
+            return !exam.examFeedback?.comment;
         }
         return !exam.languageInspection?.statement?.comment;
     };
@@ -78,6 +78,8 @@ export class MaturityService {
             name: StateName.NOT_REVIEWED,
             canProceed: false,
             warn: false,
+            showHint: (exam) => !this.isGraded(exam),
+            hint: 'sitnet_not_reviewed',
         },
         [StateName.REJECT_STRAIGHTAWAY]: {
             id: 2,
@@ -127,6 +129,8 @@ export class MaturityService {
             name: StateName.MISSING_STATEMENT,
             canProceed: false,
             warn: false,
+            showHint: this.isMissingStatement,
+            hint: 'sitnet_missing_statement',
         },
     };
 
