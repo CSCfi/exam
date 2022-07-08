@@ -29,8 +29,8 @@ export class MaturityReportingComponent implements OnInit {
     month?: number;
     year?: number;
     processedInspections: LanguageInspection[] = [];
-    months: Option<number, unknown>[] = [];
-    years: Option<number, unknown>[] = [];
+    months: Option<number, number>[] = [];
+    years: Option<number, number>[] = [];
 
     constructor(private LanguageInspection: LanguageInspectionService) {}
 
@@ -38,18 +38,17 @@ export class MaturityReportingComponent implements OnInit {
         this.months = range(1, 13).map((m) => ({ id: m, label: m.toString() }));
         const year = new Date().getFullYear();
         this.years = range(0, 20).map((n) => ({ id: year - n, label: (year - n).toString() }));
-        this.query();
     }
 
     printReport = () => window.setTimeout(() => window.print(), 500);
 
-    monthChanged = (event?: Option<number, unknown>) => {
-        this.month = event?.value;
+    monthChanged = (event?: Option<number, number>) => {
+        this.month = event?.id;
         this.query();
     };
 
-    yearChanged = (event?: Option<number, unknown>) => {
-        this.year = event?.value;
+    yearChanged = (event?: Option<number, number>) => {
+        this.year = event?.id;
         this.query();
     };
 
@@ -58,11 +57,11 @@ export class MaturityReportingComponent implements OnInit {
         if (this.month && this.year) {
             const date = new Date(this.year, this.month - 1, 1);
             const beginning = startOfMonth(date);
-            params.month = formatISO(beginning);
+            params.month = encodeURIComponent(formatISO(beginning));
+            this.LanguageInspection.query(params).subscribe(
+                (inspections) => (this.processedInspections = inspections.filter((i) => i.finishedAt)),
+            );
         }
-        this.LanguageInspection.query(params).subscribe(
-            (inspections) => (this.processedInspections = inspections.filter((i) => i.finishedAt)),
-        );
     };
 
     showStatement = (statement: { attachment?: Attachment; comment?: string }) => {
