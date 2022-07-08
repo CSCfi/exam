@@ -212,9 +212,14 @@ export class ExaminationService {
     private isTextualAnswer = (esq: ExaminationQuestion, allowEmpty: boolean) => {
         switch (esq.question.type) {
             case 'EssayQuestion':
-                return esq.essayAnswer && (allowEmpty || (esq.essayAnswer.answer && esq.essayAnswer.answer.length > 0));
+                return (
+                    esq.essayAnswer && (allowEmpty || (esq.essayAnswer?.answer && esq.essayAnswer.answer.length > 0))
+                );
             case 'ClozeTestQuestion':
-                return esq.clozeTestAnswer && (allowEmpty || Object.keys(esq.clozeTestAnswer.answer).length > 0);
+                return (
+                    esq.clozeTestAnswer &&
+                    (allowEmpty || (esq.clozeTestAnswer?.answer && Object.keys(esq.clozeTestAnswer.answer).length > 0))
+                );
             default:
                 return false;
         }
