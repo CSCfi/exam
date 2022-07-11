@@ -1,5 +1,5 @@
 <div class="student-enrolment-result-wrapper max-w-1100">
-    <div>
+    <div class="d-flex flex-row">
         <!-- calendar box -->
         <div class="col-auto p-1" *ngIf="enrolment.reservation || enrolment.examinationEventConfiguration">
             <div class="student-enrolment-date-box" *ngIf="enrolment.reservation">
@@ -101,50 +101,14 @@
             class="mart10 flex-middle pointer border rounded hover-grey max-w-350"
             (click)="addEnrolmentInformation()"
         >
-            <img class="padr10 padt4" alt="edit message to teacher" src="/assets/images/icon_message.png" />
+            <img
+                class="padr10 padt4"
+                height="20px"
+                alt="edit message to teacher"
+                src="/assets/images/icon_message.png"
+            />
             <div class="infolink">{{ 'sitnet_student_edit' | translate }}</div>
         </button>
-    </div>
-    <div class="" *ngIf="enrolment.reservation">
-        <div class="">
-            <button class="infolink pointer" (click)="showGuide = !showGuide" tabindex="0">
-                {{ 'sitnet_room_guidance' | translate }}
-                <img class="arrow_icon" [hidden]="showGuide" alt="show guidance" src="/assets/images/arrow_right.png" />
-                <img class="arrow_icon" [hidden]="!showGuide" alt="hide guidance" src="/assets/images/arrow_down.png" />
-            </button>
-        </div>
-        <div class="" [hidden]="!showGuide">
-            {{ getRoomInstruction() }}
-        </div>
-    </div>
-    <div class="">
-        <div class="">
-            <button
-                class="infolink pointer mart10 pointer border rounded hover-grey"
-                [hidden]="!enrolment.exam?.enrollInstruction && !enrolment.collaborativeExam?.enrollInstruction"
-                (click)="showInstructions = !showInstructions"
-                tabindex="0"
-            >
-                {{ 'sitnet_view_instructions' | translate }}
-                <img
-                    class="arrow_icon"
-                    [hidden]="showInstructions"
-                    alt="show instructions"
-                    src="/assets/images/arrow_right.png"
-                />
-                <img
-                    class="arrow_icon"
-                    [hidden]="!showInstructions"
-                    alt="hide instructions"
-                    src="/assets/images/arrow_down.png"
-                />
-            </button>
-        </div>
-        <div
-            class=""
-            [hidden]="!showInstructions"
-            [xmMathJax]="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction || ''"
-        ></div>
     </div>
     <div class="" *ngIf="enrolment.reservation">
         <div class="row">
@@ -182,6 +146,32 @@
             <div class="">
                 {{ enrolment.reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
                 {{ enrolment.occasion?.startAt }} &ndash; {{ enrolment.occasion?.endAt }}
+            </div>
+        </div>
+        <div class="">
+            <div class="">
+                <button
+                    class="infolink pointer mart10 pointer border rounded hover-grey"
+                    (click)="showGuide = !showGuide"
+                    tabindex="0"
+                >
+                    {{ 'sitnet_room_guidance' | translate }}
+                    <img
+                        class="arrow_icon"
+                        [hidden]="showGuide"
+                        alt="show guidance"
+                        src="/assets/images/arrow_right.png"
+                    />
+                    <img
+                        class="arrow_icon"
+                        [hidden]="!showGuide"
+                        alt="hide guidance"
+                        src="/assets/images/arrow_down.png"
+                    />
+                </button>
+            </div>
+            <div class="" [hidden]="!showGuide">
+                {{ getRoomInstruction() }}
             </div>
         </div>
     </div>
@@ -235,10 +225,16 @@
             </div>
         </div>
     </div>
-
-    <div class="row mt-2" *ngIf="enrolment.reservation && enrolment.optionalSections.length > 0">
+    <div
+        class="row mt-2 enrollment-card-dropdown"
+        *ngIf="enrolment.reservation && enrolment.optionalSections.length > 0"
+    >
         <div class="">
-            <button class="infolink pointer" (click)="showMaterials = !showMaterials" tabindex="0">
+            <button
+                class="infolink pointer mart10 pointer border rounded hover-grey"
+                (click)="showMaterials = !showMaterials"
+                tabindex="0"
+            >
                 {{ 'sitnet_selected_sections' | translate }}
                 <img
                     class="arrow_icon"
@@ -316,6 +312,35 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="enrollment-card-dropdown">
+        <div class="">
+            <button
+                class="infolink pointer mart10 pointer border rounded hover-grey"
+                [hidden]="!enrolment.exam?.enrollInstruction && !enrolment.collaborativeExam?.enrollInstruction"
+                (click)="showInstructions = !showInstructions"
+                tabindex="0"
+            >
+                {{ 'sitnet_view_instructions' | translate }}
+                <img
+                    class="arrow_icon"
+                    [hidden]="showInstructions"
+                    alt="show instructions"
+                    src="/assets/images/arrow_right.png"
+                />
+                <img
+                    class="arrow_icon"
+                    [hidden]="!showInstructions"
+                    alt="hide instructions"
+                    src="/assets/images/arrow_down.png"
+                />
+            </button>
+        </div>
+        <div
+            class=""
+            [hidden]="!showInstructions"
+            [xmMathJax]="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction || ''"
+        ></div>
     </div>
     <div class="enroll-result-buttons">
         <xm-active-enrolment-menu

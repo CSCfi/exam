@@ -259,8 +259,11 @@
     padding-bottom: 14px;
   }
 
+  .enrollment-card-dropdown{
+    grid-column-start: span 3;
+  }
+
   .student-enrolment-date-box {
-    display: inline-block;
     border: 2px solid #EDEDED;
     border-radius: 3px;
     text-align: center;
