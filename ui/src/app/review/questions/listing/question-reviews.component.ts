@@ -127,7 +127,7 @@ export class QuestionReviewsComponent implements OnInit {
     selectAll = () => (this.selectionToggle ? this.addSelections() : this.removeSelections());
 
     startReview = () =>
-        this.router.navigate(['/staff/assessment', this.examId, 'questions'], {
+        this.router.navigate(['/staff/assessments', this.examId, 'questions'], {
             queryParams: { q: this.selectedReviews },
         });
 }
