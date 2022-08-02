@@ -91,7 +91,7 @@ export class MachineComponent implements OnInit {
     updateMachine = (cb?: () => void) =>
         this.machines.updateMachine(this.machine).subscribe({
             next: () => this.toast.info(this.translate.instant('sitnet_machine_updated')),
-            error: this.toast.error,
+            error: (err) => this.toast.error(this.translate.instant(err)),
             complete: () => {
                 if (cb) cb();
             },
