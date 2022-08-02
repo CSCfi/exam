@@ -10,6 +10,25 @@
     padding: 0px;
     margin: 1px;
   }
+  .fullsize{
+    height: 2em;
+    width: 80px;
+  }
+  .fullsize-time{
+    height: 2.064em;
+    width: 80px;
+    text-align: center;
+  }
+  .selected{
+    background-color: #d3e7a8;
+    border-top: none;
+    border-bottom: none;
+  }
+  .accepted {
+    background-color: #d8e6e7;
+    border-top: none;
+    border-bottom: none;
+  }
   
   .room-name {
     font-size: 1.6em;
