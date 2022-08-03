@@ -25,6 +25,8 @@ import impl.EmailComposer;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
@@ -81,7 +83,8 @@ public class LanguageInspectionController extends BaseController {
                 query = query.lt("finishedAt", endDate.toDate());
             }
         } else if (month.isPresent()) {
-            DateTime startWithMonth = DateTime.parse(month.get()).withMillisOfDay(0);
+            String decoded = URLDecoder.decode(month.get(), StandardCharsets.UTF_8);
+            DateTime startWithMonth = DateTime.parse(decoded).withMillisOfDay(0);
             DateTime endWithMonth = startWithMonth.plusMonths(1);
             query = query.between("finishedAt", startWithMonth.toDate(), endWithMonth.toDate());
         }

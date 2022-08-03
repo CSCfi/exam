@@ -110,7 +110,7 @@ const routes: Route[] = [
         data: { isExternal: false, isCollaborative: true },
     },
     /*
-     { // this does not work apparently because admin code uses some of calendar dependencies?
+     { // this does not work apparently because admin code uses some of calendar dependencies
 -        path: 'calendar',
 -        loadChildren: () => import('./calendar/calendar.module').then((mod) => mod.CalendarModule),
 -    },

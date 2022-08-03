@@ -14,7 +14,7 @@ export class CourseCodeComponent {
         const prefix = this.webStorageService.get('COURSE_CODE_PREFIX');
         if (prefix) {
             const parts = this.course.code.split(prefix);
-            return parts.slice(0, parts.length - 1).join();
+            parts.length > 1 ? parts.slice(0, parts.length - 1).join() : parts[0];
         }
         return this.course.code;
     }

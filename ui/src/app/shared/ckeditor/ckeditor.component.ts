@@ -21,9 +21,6 @@ import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { debounce } from '../miscellaneous/helpers';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-declare let CKEDITOR: any;
-
 @Component({
     selector: 'xm-ckeditor',
     providers: [
@@ -39,10 +36,9 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
     @ViewChild('host', { static: false }) host!: ElementRef;
     @Input() required = false;
     @Input() enableClozeTest = false;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    instance: any;
-    _value: unknown;
-    onChange!: (_: unknown) => unknown;
+    instance!: CKEDITOR.editor | null;
+    _value = '';
+    onChange!: (_: string) => unknown;
     onTouched!: () => unknown;
 
     constructor(
@@ -52,7 +48,7 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
     ) {}
 
     @Input()
-    get value(): unknown {
+    get value(): string {
         return this._value;
     }
     set value(v) {
@@ -62,7 +58,7 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
         }
     }
 
-    updateValue(value: unknown) {
+    updateValue(value: string) {
         this.zone.run(() => {
             this.onChange(value);
             this.onTouched();
@@ -88,13 +84,13 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
             this.instance.on('instanceReady', () => {
                 // if value has changed while instance loading
                 // update instance with current component value
-                if (this.instance.getData() !== this.value) {
+                if (this.instance && this.instance.getData() !== this.value) {
                     this.instance.setData(this.value);
                 }
             });
             const update = () => {
                 this.onTouched();
-                this.updateValue(this.instance.getData());
+                if (this.instance) this.updateValue(this.instance.getData());
             };
             this.instance.on('change', debounce(update, 500));
             this.instance.on('dataReady', debounce(update, 500));
@@ -120,7 +116,7 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
         }
     }
 
-    writeValue(value: unknown) {
+    writeValue(value: string) {
         this._value = value;
         if (this.instance) {
             this.instance.setData(value);

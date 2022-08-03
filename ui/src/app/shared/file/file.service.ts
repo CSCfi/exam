@@ -16,7 +16,7 @@ import type { HttpResponse } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as FileSaver from 'file-saver';
+import { saveAs } from 'file-saver';
 import { ToastrService } from 'ngx-toastr';
 import type { Attachment, EssayAnswer } from '../../exam/exam.model';
 
@@ -104,15 +104,10 @@ export class FileService {
             blob = new Blob([ia], { type: contentType });
         } catch (e) {
             // Maybe this isn't base64, try plaintext approaches
-            let text;
-            if (contentType === 'application/json') {
-                text = JSON.stringify(data, null, 2);
-            } else {
-                text = data;
-            }
+            const text = contentType === 'application/json' ? JSON.stringify(data, null, 2) : data;
             blob = new Blob([text], { type: contentType });
         }
-        FileSaver.saveAs(blob, fileName);
+        saveAs(blob, fileName, { autoBom: false });
     }
 
     private isFileTooBig(file: File): boolean {
