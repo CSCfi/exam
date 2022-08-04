@@ -21,67 +21,81 @@ import { EnrolmentService } from '../enrolment.service';
 @Component({
     selector: 'xm-exam-search-result',
     template: `<div
-        class="student-enrolment-result-wrapper max-w-1100"
+        class="student-enrolment-result-wrapper max-w-1100 container"
         [ngClass]="exam.alreadyEnrolled && exam.reservationMade ? '' : 'notactive'"
     >
-        <div class="d-flex flex-column">
-            <span class="student-exam-row-title-blue">
-                <a
-                    *ngIf="!collaborative"
-                    class="infolink"
-                    [routerLink]="['/enrolments', exam.id]"
-                    [queryParams]="{ code: exam.course?.code }"
-                >
-                    {{ exam.name }}
-                </a>
-                <span *ngIf="collaborative">{{ exam.name }}</span>
-            </span>
-            <span *ngIf="exam.alreadyEnrolled && !exam.reservationMade" class="student-exam-needs-reservation">
+        <div class="row">
+            <div class="col">
+                <span class="student-exam-row-title-blue">
+                    <a
+                        *ngIf="!collaborative"
+                        class="infolink"
+                        [routerLink]="['/enrolments', exam.id]"
+                        [queryParams]="{ code: exam.course?.code }"
+                    >
+                        {{ exam.name }}
+                    </a>
+                    <span *ngIf="collaborative">{{ exam.name }}</span>
+                </span>
+            </div>
+        </div>
+        <div class="row mt-1">
+            <span *ngIf="exam.alreadyEnrolled && !exam.reservationMade" class="mt-1 student-exam-needs-reservation">
                 {{ 'sitnet_state_needs_reservation_title' | translate }}
             </span>
         </div>
-        <div class="d-flex flex-column">
-            <span [hidden]="collaborative">{{ 'sitnet_course_name' | translate }}:</span>
-            <div *ngIf="!collaborative && exam.course">
-                <xm-course-code [course]="exam.course"></xm-course-code> {{ exam.course.name }}
+        <div class="row mt-3">
+            <div class="col-md">
+                <span [hidden]="collaborative">{{ 'sitnet_course_name' | translate }}:</span>
+                <div *ngIf="!collaborative && exam.course">
+                    <xm-course-code [course]="exam.course"></xm-course-code> {{ exam.course.name }}
+                </div>
+            </div>
+            <div class="col">
+                <span [hidden]="collaborative">{{ 'sitnet_teachers' | translate }}: </span>
+                <span [hidden]="collaborative">
+                    <xm-teacher-list [exam]="exam"></xm-teacher-list>
+                </span>
             </div>
         </div>
-        <div class="d-flex flex-column">
-            <span>{{ 'sitnet_exam_validity' | translate }}: </span>
-            <span
-                >{{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }} &ndash;
-                {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}</span
-            >
+        <div class="row mt-3">
+            <div class="col">
+                <span>{{ 'sitnet_exam_validity' | translate }}: </span>
+                <span
+                    >{{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }} &ndash;
+                    {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}</span
+                >
+            </div>
         </div>
-        <div class="d-flex flex-column">
-            <span [hidden]="collaborative">{{ 'sitnet_teachers' | translate }}: </span>
-            <span [hidden]="collaborative">
-                <xm-teacher-list [exam]="exam"></xm-teacher-list>
-            </span>
+        <div class="row mt-3">
+            <div class="col">
+                <span>{{ 'sitnet_exam_language' | translate }}: </span>
+                <span>{{ exam.languages.join(', ') }}</span>
+            </div>
         </div>
-        <div class="d-flex flex-column">
-            <span>{{ 'sitnet_exam_language' | translate }}: </span>
-            <span>{{ exam.languages.join(', ') }}</span>
-        </div>
-        <div class="d-flex justify-content-end align-content-end">
-            <button
-                class="btn btn-success text-nowrap"
-                (click)="enrollForExam()"
-                *ngIf="!exam.alreadyEnrolled"
-                [disabled]="enrolling"
-            >
-                {{ 'sitnet_enroll_to_exam' | translate }}
-            </button>
-            <button
-                class="btn btn-success text-nowrap"
-                (click)="makeReservation()"
-                *ngIf="exam.alreadyEnrolled && !exam.reservationMade"
-            >
-                {{ 'sitnet_student_new_reservation' | translate }}
-            </button>
-            <span class="student-exam-all-required text-nowrap" *ngIf="exam.alreadyEnrolled && exam.reservationMade">{{
-                'sitnet_enrolled_to_exam' | translate
-            }}</span>
+        <div class="row mt-3">
+            <div class="col flex justify-content-end">
+                <button
+                    class="btn btn-success text-nowrap"
+                    (click)="enrollForExam()"
+                    *ngIf="!exam.alreadyEnrolled"
+                    [disabled]="enrolling"
+                >
+                    {{ 'sitnet_enroll_to_exam' | translate }}
+                </button>
+                <button
+                    class="btn btn-success text-nowrap"
+                    (click)="makeReservation()"
+                    *ngIf="exam.alreadyEnrolled && !exam.reservationMade"
+                >
+                    {{ 'sitnet_student_new_reservation' | translate }}
+                </button>
+                <span
+                    class="student-exam-all-required text-nowrap"
+                    *ngIf="exam.alreadyEnrolled && exam.reservationMade"
+                    >{{ 'sitnet_enrolled_to_exam' | translate }}</span
+                >
+            </div>
         </div>
     </div> `,
 })

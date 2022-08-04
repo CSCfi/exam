@@ -36,9 +36,6 @@
     padding: 30px;
     margin-bottom: 6px;
     @media (max-width: $sitnet-mobile) {
-      grid-template-columns: auto 1fr !important;
-      grid-template-rows: repeat(3, auto);
-      gap: 5px;
       padding: 5px;
     }
   }
