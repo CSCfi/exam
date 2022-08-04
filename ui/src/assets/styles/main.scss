@@ -105,16 +105,7 @@ p, li {
   }
 }
 
-.enroll-result-buttons{
-  justify-self: end;
-  grid-column-start: span 3;
-  display: flex;
-  justify-items: flex-end;
-
-}
-
 .student-message-dialog-button-save {
-  float:right;
 
   button {
     font-size: 16px;
