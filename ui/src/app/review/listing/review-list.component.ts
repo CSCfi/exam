@@ -146,10 +146,8 @@ export class ReviewListComponent implements OnInit, OnChanges {
         modalRef.componentInstance.noShows = this.noShows;
     };
 
-    abortedExamsToBeFreed = (): number => {
-        if (this.exam.trialCount) {
-            return this.abortedExams.filter((x) => !x.examParticipation.exam.examEnrolments[0].retrialPermitted).length;
-        }
-        return 0;
-    };
+    abortedExamsToBeFreed = (): number =>
+        this.exam.trialCount
+            ? this.abortedExams.filter((x) => !x.examParticipation.exam.examEnrolments[0].retrialPermitted).length
+            : 0;
 }
