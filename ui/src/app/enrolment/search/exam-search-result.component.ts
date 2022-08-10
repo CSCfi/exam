@@ -105,7 +105,10 @@ export class ExamSearchResultComponent {
         if (this.exam.implementation !== 'AQUARIUM') {
             this.router.navigate(['/dashboard']);
         } else {
-            this.router.navigate(['calendar', this.exam.id, this.collaborative ? 'collaborative' : '']);
+            const path = this.collaborative
+                ? ['/calendar', this.exam.id, 'collaborative']
+                : ['/calendar', this.exam.id];
+            this.router.navigate(path);
         }
     };
 }

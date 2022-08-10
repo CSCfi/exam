@@ -17,9 +17,8 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Observable } from 'rxjs';
-import { concat, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { concat, Observable, of, throwError } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import type { ClozeTestAnswer, EssayAnswer } from '../exam/exam.model';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
 
@@ -37,16 +36,22 @@ export class ExaminationService {
     getResource = (url: string) => (this.isExternal ? url.replace('/app/', '/app/iop/') : url);
 
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
-        const url = isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + hash;
+        const getUrl = (h: string) => (isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + h);
         return this.http.get<void>('/app/session').pipe(
-            switchMap(() => this.http.get<Examination>(isCollaboration ? url.replace('/app/', '/app/iop/') : url)),
-            tap((e) => {
-                if (e.cloned) {
-                    // we came here with a reference to the parent exam so do not render page just yet,
-                    // reload with reference to student exam that we just created
-                    this.router.navigate(['/exam', e.hash]);
-                }
+            switchMap(() =>
+                this.http.get<Examination>(isCollaboration ? getUrl(hash).replace('/app/', '/app/iop/') : getUrl(hash)),
+            ),
+            switchMap((e) => {
                 this.isExternal = e.external;
+                if (e.cloned) {
+                    this.router.navigate(['/exam', e.hash]);
+                    // we came here with a reference to the parent exam so we can't directly use it, reload the student exam (copy)
+                    return this.http.get<Examination>(
+                        isCollaboration ? getUrl(e.hash).replace('/app/', '/app/iop/') : getUrl(e.hash),
+                    );
+                } else {
+                    return of(e);
+                }
             }),
         );
     }

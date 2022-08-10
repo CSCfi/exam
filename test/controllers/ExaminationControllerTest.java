@@ -106,8 +106,9 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
     private Exam prepareExamination() {
         Result result1 = get("/app/student/exam/" + exam.getHash());
-        assertThat(result1.status()).isEqualTo(200);
+        assertThat(result1.status()).isEqualTo(Helpers.OK);
         JsonNode node1 = Json.parse(contentAsString(result1));
+        assertThat(node1.get("cloned").asBoolean());
         String hash = deserialize(Exam.class, node1).getHash();
         // ROUND 2 with updated hash
         Result result2 = get("/app/student/exam/" + hash);
@@ -161,7 +162,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
             String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
             createMultipleChoiceAnswerData(option)
         );
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Helpers.OK);
 
         // Change answer
         option = it.next();
@@ -171,7 +172,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                 String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
                 createMultipleChoiceAnswerData(option)
             );
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Helpers.OK);
     }
 
     private JsonNode createMultipleChoiceAnswerData(ExamSectionQuestionOption... options) {
@@ -206,7 +207,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
             String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
             createMultipleChoiceAnswerData(option)
         );
-        assertThat(result.status()).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(Helpers.FORBIDDEN);
     }
 
     @Test
@@ -226,7 +227,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
             String.format("/app/student/exam/%s/clozetest/%d", studentExam.getHash(), question.getId()),
             Json.newObject().put("answer", answer).put("objectVersion", 1L)
         );
-        assertThat(result.status()).isEqualTo(400);
+        assertThat(result.status()).isEqualTo(Helpers.BAD_REQUEST);
     }
 
     @Test
@@ -254,7 +255,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                                 String.format("/app/student/exam/%s/question/%d", studentExam.getHash(), esq.getId()),
                                 body
                             );
-                        assertThat(r.status()).isEqualTo(200);
+                        assertThat(r.status()).isEqualTo(Helpers.OK);
                         break;
                     case ClozeTestQuestion:
                         ObjectNode content = (ObjectNode) Json
@@ -276,7 +277,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                                 String.format("/app/student/exam/%s/clozetest/%d", studentExam.getHash(), esq.getId()),
                                 content
                             );
-                        assertThat(r.status()).isEqualTo(200);
+                        assertThat(r.status()).isEqualTo(Helpers.OK);
                         break;
                     default:
                         ExamSectionQuestion sectionQuestion = Ebean
@@ -298,12 +299,12 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                                 ),
                                 createMultipleChoiceAnswerData(option)
                             );
-                        assertThat(r.status()).isEqualTo(200);
+                        assertThat(r.status()).isEqualTo(Helpers.OK);
                         break;
                 }
             });
         Result result = request(Helpers.PUT, String.format("/app/student/exam/%s", studentExam.getHash()), null);
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Helpers.OK);
         Exam turnedExam = Ebean.find(Exam.class, studentExam.getId());
         assertThat(turnedExam.getGrade()).isNotNull();
         assertThat(turnedExam.getState()).isEqualTo(Exam.State.GRADED);
@@ -325,7 +326,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     public void testDoPrivateExam() throws Exception {
         Exam studentExam = createPrivateStudentExam();
         Result result = request(Helpers.PUT, String.format("/app/student/exam/%s", studentExam.getHash()), null);
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Helpers.OK);
 
         // Check that correct mail was sent
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
@@ -349,7 +350,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     public void testAbortPrivateExam() throws Exception {
         Exam studentExam = createPrivateStudentExam();
         Result result = request(Helpers.PUT, String.format("/app/student/exam/abort/%s", studentExam.getHash()), null);
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Helpers.OK);
 
         // Check that correct mail was sent
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
@@ -372,7 +373,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
 
         // Execute
         Result result = get("/app/student/exam/" + exam.getHash());
-        assertThat(result.status()).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(Helpers.FORBIDDEN);
 
         // Verify that no student exam was created
         assertThat(Ebean.find(Exam.class).where().eq("parent.id", exam.getId()).findList()).hasSize(0);
@@ -383,11 +384,11 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     public void testCreateSeveralStudentExamsFails() throws Exception {
         // Execute
         Result result = get("/app/student/exam/" + exam.getHash());
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Helpers.OK);
 
         // Try again
         result = get("/app/student/exam/" + exam.getHash());
-        assertThat(result.status()).isEqualTo(403);
+        assertThat(result.status()).isEqualTo(Helpers.FORBIDDEN);
 
         // Verify that no student exam was created
         assertThat(Ebean.find(Exam.class).where().eq("parent.id", exam.getId()).findList()).hasSize(1);
@@ -398,13 +399,13 @@ public class ExaminationControllerTest extends IntegrationTestCase {
     public void testCreateStudentExamAlreadyStarted() throws Exception {
         // Execute
         Result result = get("/app/student/exam/" + exam.getHash());
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Helpers.OK);
         JsonNode node = Json.parse(contentAsString(result));
         Exam studentExam = deserialize(Exam.class, node);
 
         // Try again
         result = get("/app/student/exam/" + studentExam.getHash());
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Helpers.OK);
 
         node = Json.parse(contentAsString(result));
         Exam anotherStudentExam = deserialize(Exam.class, node);
@@ -447,6 +448,6 @@ public class ExaminationControllerTest extends IntegrationTestCase {
             String.format("/app/student/exam/%s/question/%d/option", studentExam.getHash(), question.getId()),
             createMultipleChoiceAnswerData(options.get(2))
         );
-        assertThat(result.status()).isEqualTo(200);
+        assertThat(result.status()).isEqualTo(Helpers.OK);
     }
 }

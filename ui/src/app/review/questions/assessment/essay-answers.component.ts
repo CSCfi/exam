@@ -29,7 +29,7 @@ import { QuestionReviewService } from '../question-review.service';
                 ></xm-essay-answer>
             </div>
             <div *ngIf="answers.length === 0" class="col-md-12">
-                <div class="jumbotron padl20">
+                <div class="mt-4 p-5 bg-primary text-white rounded">
                     <p class="lead">{{ 'sitnet_no_answers_to_assess' | translate }}</p>
                 </div>
             </div>

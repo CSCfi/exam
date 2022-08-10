@@ -86,7 +86,7 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
             this.notifyTimeout();
         }
 
-        window.setTimeout(this.checkRemainingTime, 1000);
+        this.pollerId = window.setTimeout(this.checkRemainingTime, 1000);
     };
 
     private setRemainingTime = () =>

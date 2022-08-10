@@ -39,7 +39,7 @@ import type { Examination } from '../examination.model';
                     <button tabindex="1" class="green_button marl10" (click)="switchLanguage('en')">EN</button>
                     <div class="divider-free"></div>
                 </div>
-                <xm-examination-clock *ngIf="!isPreview" [examHash]="exam.hash" (onTimeout)="notifyTimeout()">
+                <xm-examination-clock *ngIf="!isPreview" [examHash]="exam.hash" (timedOut)="notifyTimeout()">
                 </xm-examination-clock>
             </div>
         </div>

@@ -322,7 +322,10 @@ public class EnrolmentController extends BaseController {
             }
             List<ExamEnrolment> enrolmentsWithFutureReservations = enrolments
                 .stream()
-                .filter(ee -> ee.getReservation() != null && ee.getReservation().toInterval().isAfterNow())
+                .filter(ee ->
+                    ee.getReservation() != null &&
+                    ee.getReservation().toInterval().isAfter(DateTimeUtils.adjustDST(DateTime.now()))
+                )
                 .collect(Collectors.toList());
             if (enrolmentsWithFutureReservations.size() > 1) {
                 logger.error(
