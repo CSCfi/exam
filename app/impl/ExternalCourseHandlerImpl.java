@@ -332,7 +332,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                     Optional<GradeScale.Type> gst = GradeScale.Type.get(type);
                     return gst.isPresent() && gst.get() != GradeScale.Type.OTHER;
                 })
-                .map(n -> Ebean.find(GradeScale.class, n.get("type").asText()));
+                .map(n -> Ebean.find(GradeScale.class).where().eq("type", n.get("type").asText()).findOne());
             return Stream.concat(externals, locals).collect(Collectors.toList());
         }
         return Collections.emptyList();
