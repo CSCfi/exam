@@ -73,6 +73,10 @@ export class ReservationDetailsComponent implements OnChanges {
         });
     }
 
+    reservationIsInPast(reservation: Reservation): boolean {
+        return new Date(reservation.endAt) < new Date();
+    }
+
     changeReservationMachine = (reservation: Reservation) => this.Reservation.changeMachine(reservation);
 
     setPredicate = (predicate: string) => {
