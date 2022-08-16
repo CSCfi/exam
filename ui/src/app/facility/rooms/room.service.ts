@@ -290,7 +290,6 @@ export class RoomService {
         data.roomIds = ids;
         return this.updateWorkingHoursData$(data).pipe(
             map(() => {
-                console.log('fire from heat');
                 this.toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
                 return workingHours;
             }),

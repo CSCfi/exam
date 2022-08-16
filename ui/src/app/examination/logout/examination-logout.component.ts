@@ -20,7 +20,7 @@ import { ExaminationStatusService } from '../examination-status.service';
 @Component({
     selector: 'xm-examination-logout',
     template: `
-        <div class="jumbotron">
+        <div class="mt-4 p-5 bg-success text-white rounded">
             <h1>{{ 'sitnet_end_of_exam' | translate }}</h1>
             <h2>
                 {{ reasonPhrase | translate }}

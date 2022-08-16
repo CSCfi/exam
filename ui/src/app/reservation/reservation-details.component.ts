@@ -74,7 +74,13 @@ export class ReservationDetailsComponent implements OnChanges {
     }
 
     reservationIsInPast(reservation: Reservation): boolean {
-        return new Date(reservation.endAt) < new Date();
+        const date = new Date();
+        const startOfYear = new Date(0);
+        startOfYear.setFullYear(date.getFullYear());
+        const DSTCorrectedDate = new Date(
+            date.getTime() + (startOfYear.getTimezoneOffset() - date.getTimezoneOffset()) * 60000,
+        );
+        return new Date(reservation.endAt) < DSTCorrectedDate;
     }
 
     changeReservationMachine = (reservation: Reservation) => this.Reservation.changeMachine(reservation);

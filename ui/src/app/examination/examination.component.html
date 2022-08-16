@@ -1,6 +1,6 @@
 <div id="studentexam">
     <!-- HEADER ROW -->
-    <xm-examination-header *ngIf="exam" [exam]="exam" (onTimeout)="timedOut()" [isPreview]="isPreview">
+    <xm-examination-header *ngIf="exam" [exam]="exam" (timedOut)="timedOut()" [isPreview]="isPreview">
     </xm-examination-header>
     <div class="row ms-3">
         <!-- LEFT COLUMN -->

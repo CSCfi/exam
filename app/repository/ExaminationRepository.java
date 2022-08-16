@@ -182,7 +182,7 @@ public class ExaminationRepository {
 
     public CompletionStage<Optional<Exam>> getPrototype(String hash, CollaborativeExam ce, PathProperties pp) {
         if (ce != null) {
-            return cel.downloadExam(ce); // TODO: execution context for WS?
+            return cel.downloadExam(ce);
         }
         return CompletableFuture.supplyAsync(
             () -> {
