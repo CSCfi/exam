@@ -11,10 +11,8 @@
   .detail-row {
     @extend .row;
     margin: 0;
-    @media (min-width: $sitnet-mobile) {
-      padding-left: 1em;
-      padding-right: 1em;
-    }
+    padding-left: 1em;
+    padding-right: 1em;
   }
 
   .mar-lr-0{
@@ -939,9 +937,19 @@
 
     }
   }
+  mobile-paddings{
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  }
 
   .tab-wrapper {
     margin-top: 40px;
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 0;
+      margin-right: 0;
+    }
     margin-left: 3.4em;
     margin-right: 3.4em;
 
@@ -962,6 +970,10 @@
 
   .tab-wrapper-exams {
     margin-top: 40px;
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 0;
+      margin-right: 0;
+    }
     margin-left: 3.4em;
     margin-right: 3.4em;
 
@@ -1295,6 +1307,10 @@
   }
 
   .reservation-border {
+    @media (max-width: $sitnet-mobile) {
+      margin-left: 0;
+      margin-right: 0;
+    }
     border: 1px solid $sitnet-border-color;
     padding-bottom: 50px;
     margin-left: 50px;
@@ -2046,6 +2062,9 @@
     height: auto;
     max-height: 400px;
     overflow-y: scroll;
+  }
+  .scrollable-menu::-webkit-scrollbar-track {
+    background: #f1f1f1;
   }
 
   .participant-selector-toggle {

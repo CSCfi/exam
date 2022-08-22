@@ -60,7 +60,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                     {{ 'sitnet_save_changes' | translate }}
                 </button>
             </div>
-            <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
+            <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10 mart40">
                 <span
                     class="disabled-button-popover-wrapper"
                     ngbPopover="{{ 'sitnet_send_result_to_registry_popover_info' | translate }}"

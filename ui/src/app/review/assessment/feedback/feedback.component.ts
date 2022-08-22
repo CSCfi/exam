@@ -28,7 +28,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
         <div cdkDrag id="draggable" class="wrapper">
             <div class="row">
                 <div
-                    class="col-md-1"
+                    class="col-md-1 min-w-100"
                     ngbPopover="{{ (hideEditor ? 'sitnet_show' : 'sitnet_hide') | translate }}"
                     popoverTitle="{{ 'sitnet_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
