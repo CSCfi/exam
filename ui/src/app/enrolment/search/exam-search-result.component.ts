@@ -116,8 +116,16 @@ export class ExamSearchResultComponent {
     };
 
     makeReservation = () => {
-        const params = this.exam.id;
-        const fragments = '/calendar';
-        this.router.navigate([fragments, params]);
+        if (this.exam.implementation !== 'AQUARIUM') {
+            this.router.navigate(['/dashboard']);
+        } else {
+            const params = this.exam.id;
+            const fragments = '/calendar';
+            if (this.collaborative) {
+                this.router.navigate([fragments, params, 'collaborative']);
+            } else {
+                this.router.navigate([fragments, params]);
+            }
+        }
     };
 }
