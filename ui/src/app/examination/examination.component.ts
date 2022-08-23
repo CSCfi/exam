@@ -56,7 +56,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
                 exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
                 this.exam = exam;
                 this.setActiveSection({ type: 'guide' });
-                if (!this.isPreview && !this.exam.cloned && this.exam.executionType.type === 'MATURITY') {
+                if (!this.isPreview && this.exam.executionType.type === 'MATURITY') {
                     this.Enrolment.showMaturityInstructions({ exam: this.exam }, this.exam.external);
                 }
                 if (!this.isPreview) {

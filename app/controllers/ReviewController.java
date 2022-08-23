@@ -232,7 +232,8 @@ public class ReviewController extends BaseController {
             .fetch("course.gradeScale.grades")
             .fetchQuery("examInspections", "ready")
             .fetch("examInspections.user", "id, firstName, lastName, email")
-            .fetchQuery("examLanguages");
+            .fetchQuery("examLanguages")
+            .fetchQuery("examEnrolments");
         query
             .where()
             .eq("parent.id", eid)

@@ -41,15 +41,6 @@ public class GradeScale extends Model {
             return value;
         }
 
-        public static Optional<Type> get(int value) {
-            for (Type t : values()) {
-                if (t.getValue() == value) {
-                    return Optional.of(t);
-                }
-            }
-            return Optional.empty();
-        }
-
         public static Optional<Type> get(String value) {
             for (Type t : values()) {
                 if (t.toString().equals(value)) {
