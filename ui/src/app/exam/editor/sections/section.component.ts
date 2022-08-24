@@ -40,7 +40,7 @@ export class SectionComponent implements OnInit {
     @Input() collaborative = false;
     @Input() materials: ExamMaterial[] = [];
 
-    @Output() remvoed = new EventEmitter<ExamSection>();
+    @Output() removed = new EventEmitter<ExamSection>();
     @Output() materialsChanged = new EventEmitter<void>();
 
     constructor(
@@ -89,7 +89,7 @@ export class SectionComponent implements OnInit {
     removeSection = () =>
         this.dialogs
             .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_remove_section'))
-            .subscribe({ next: () => this.remvoed.emit(this.section), error: this.toast.error });
+            .subscribe({ next: () => this.removed.emit(this.section), error: this.toast.error });
 
     renameSection = () => this.updateSection(false);
     expandSection = () => this.updateSection(true);
