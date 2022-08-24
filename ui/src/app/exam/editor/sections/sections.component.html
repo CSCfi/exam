@@ -34,8 +34,8 @@
                     [examId]="exam.id"
                     [collaborative]="collaborative"
                     [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
-                    (onDelete)="removeSection(section)"
-                    (onMaterialsChanged)="loadMaterials()"
+                    (removed)="removeSection(section)"
+                    (materialsChanged)="loadMaterials()"
                 >
                     <i
                         cdkDragHandle

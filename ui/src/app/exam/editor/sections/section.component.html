@@ -128,21 +128,22 @@
                     />
                     <label for="sectionRandomized_{{ section.id }}" class="form-check-label">
                         {{ 'sitnet_randomize_questions' | translate }}
-                        <sup
-                            ngbPopover="{{ 'sitnet_exam_section_randomize_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                        >
-                            <img
-                                src="/assets/images/icon_tooltip.svg"
-                                alt="exam"
-                                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                            />
-                        </sup>
-                        <span class="text text-danger ms-2" *ngIf="!questionPointsMatch()">{{
-                            'sitnet_error_lottery_points_not_match' | translate
-                        }}</span>
                     </label>
+                    <sup
+                        ngbPopover="{{ 'sitnet_exam_section_randomize_description' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        class="marl5"
+                    >
+                        <img
+                            src="/assets/images/icon_tooltip.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                        />
+                    </sup>
+                    <span class="text text-danger ms-2" *ngIf="!questionPointsMatch()">{{
+                        'sitnet_error_lottery_points_not_match' | translate
+                    }}</span>
                 </div>
                 <div class="form-check" *ngIf="section.lotteryOn">
                     <label for="sectionLotteryCount_{{ section.id }}">
