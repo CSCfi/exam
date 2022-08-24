@@ -53,7 +53,7 @@ export class NavigationService {
         const languageInspector = user.isTeacher && user.isLanguageInspector;
 
         // Do not show if waiting for exam to begin
-        const regex = /\/student\/waiting-room|wrong-machine|wrong-room/;
+        const regex = /waitingroom|wrongmachine|wrongroom/;
         const hideDashboard = regex.test(this.router.url);
 
         // Change the menu item title if student

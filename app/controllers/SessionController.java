@@ -440,10 +440,10 @@ public class SessionController extends BaseController {
             if (user != null && user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());
-                return ok(Json.toJson(node)).withNewSession();
+                return ok(Json.toJson(node)).withNewSession().discardingCookie("PLAY_SESSION");
             }
         }
-        Result result = ok().withNewSession();
+        Result result = ok().withNewSession().discardingCookie("PLAY_SESSION");
         return environment.isDev() ? result : result.discardingCookie(CSRF_COOKIE);
     }
 

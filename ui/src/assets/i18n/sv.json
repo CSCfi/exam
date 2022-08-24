@@ -1038,5 +1038,6 @@
   "sitnet_questions_imported_successfully": "Kysymykset tuotu onnistuneesti SV",
   "sitnet_published_joint_exams": "Publicedare och förhandspublicerade gemensamma tentamina",
   "sitnet_expired_joint_exams": "Stängda gemensamma tentamina",
-  "sitnet_joint_exam_drafts": "Gemensamma tentamina utkasts"
+  "sitnet_joint_exam_drafts": "Gemensamma tentamina utkasts",
+  "sitnet_exam_status_initialized": "Tentti aloitettu SV"
 }
