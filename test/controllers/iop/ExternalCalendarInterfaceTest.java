@@ -14,7 +14,6 @@ import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit4.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
-import com.typesafe.config.ConfigFactory;
 import helpers.AttachmentServlet;
 import helpers.RemoteServerHelper;
 import io.ebean.Ebean;
@@ -50,6 +49,7 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import play.libs.Json;
@@ -617,11 +617,42 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
-        assertThat(mails[0].getFrom()[0].toString())
-            .contains(ConfigFactory.load().getString("sitnet.email.system.account"));
+        assertThat(mails[0].getFrom()[0].toString()).contains("no-reply@exam.org");
         String mailBody = GreenMailUtil.getBody(mails[0]);
         assertThat(mailBody).contains("You have booked an exam time");
         assertThat(mailBody).contains("Room 1");
+    }
+
+    @Test
+    @Ignore("unable to override the default configuration needed for this test to work")
+    @RunAsStudent
+    public void testRequestReservationAndReEnrollBeforeAssessmentReturned() throws Exception {
+        initialize(null);
+
+        ObjectNode json = Json.newObject();
+        json.put("start", ISODateTimeFormat.dateTime().print(DateTime.now().plusHours(1)));
+        json.put("end", ISODateTimeFormat.dateTime().print(DateTime.now().plusHours(2)));
+        json.put("examId", exam.getId());
+        json.put("orgId", ORG_REF);
+        json.put("roomId", ROOM_REF);
+        json.put("requestingOrg", "foobar");
+        json.set("sectionIds", Json.newArray().add(1));
+
+        Result result = request(Helpers.POST, "/app/iop/reservations/external", json);
+        JsonNode body = Json.parse(contentAsString(result));
+        assertThat(body.asText()).isEqualTo(RESERVATION_REF);
+
+        Reservation created = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF).findOne();
+        created.setStartAt(DateTime.now().minusHours(2));
+        created.setEndAt(DateTime.now().minusHours(1));
+        created.save();
+
+        Result result2 = request(
+            Helpers.POST,
+            "/app/enrolments/" + this.exam.getId(),
+            Json.newObject().put("code", this.exam.getCourse().getCode())
+        );
+        assertThat(result2.status()).isEqualTo(403);
     }
 
     @Test
@@ -733,8 +764,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
-        assertThat(mails[0].getFrom()[0].toString())
-            .contains(ConfigFactory.load().getString("sitnet.email.system.account"));
+        assertThat(mails[0].getFrom()[0].toString()).contains("no-reply@exam.org");
         String mailBody = GreenMailUtil.getBody(mails[0]);
         assertThat(mailBody).contains("External Room R1");
     }

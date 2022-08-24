@@ -61,11 +61,13 @@ public class ExamRecordController extends BaseController {
 
     private final EmailComposer emailComposer;
 
-    private CsvBuilder csvBuilder;
+    private final CsvBuilder csvBuilder;
 
-    private FileHandler fileHandler;
+    private final ExcelBuilder excelBuilder;
 
-    private ActorSystem actor;
+    private final FileHandler fileHandler;
+
+    private final ActorSystem actor;
 
     private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     private static final Logger.ALogger logger = Logger.of(ExamRecordController.class);
@@ -74,11 +76,13 @@ public class ExamRecordController extends BaseController {
     public ExamRecordController(
         EmailComposer emailComposer,
         CsvBuilder csvBuilder,
+        ExcelBuilder excelBuilder,
         FileHandler fileHandler,
         ActorSystem actor
     ) {
         this.emailComposer = emailComposer;
         this.csvBuilder = csvBuilder;
+        this.excelBuilder = excelBuilder;
         this.fileHandler = fileHandler;
         this.actor = actor;
     }
@@ -197,7 +201,7 @@ public class ExamRecordController extends BaseController {
         Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
         ByteArrayOutputStream bos;
         try {
-            bos = ExcelBuilder.build(examId, childIds);
+            bos = excelBuilder.build(examId, childIds);
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_csv_file");
         }

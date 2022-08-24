@@ -21,7 +21,6 @@ import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
 import controllers.CalendarController;
 import exceptions.NotFoundException;
 import impl.CalendarHandler;
@@ -65,7 +64,7 @@ import sanitizers.Attrs;
 import sanitizers.ExternalCalendarReservationSanitizer;
 import security.Authenticated;
 import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class ExternalCalendarController extends CalendarController {
 
@@ -78,25 +77,28 @@ public class ExternalCalendarController extends CalendarController {
     @Inject
     private ConfigReader configReader;
 
-    private static URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration)
+    @Inject
+    private DateTimeHandler dateTimeHandler;
+
+    private URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration)
         throws MalformedURLException {
         String url =
-            ConfigFactory.load().getString("sitnet.integration.iop.host") +
+            configReader.getIopHost() +
             String.format("/api/organisations/%s/facilities/%s/slots", orgRef, facilityRef) +
             String.format("?date=%s&startAt=%s&endAt=%s&duration=%d", date, start, end, duration);
         return new URL(url);
     }
 
-    private static URL parseUrl(String orgRef, String facilityRef) throws MalformedURLException {
+    private URL parseUrl(String orgRef, String facilityRef) throws MalformedURLException {
         return new URL(
-            ConfigFactory.load().getString("sitnet.integration.iop.host") +
+            configReader.getIopHost() +
             String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
         );
     }
 
-    private static URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
+    private URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
         return new URL(
-            ConfigFactory.load().getString("sitnet.integration.iop.host") +
+            configReader.getIopHost() +
             String.format(
                 "/api/organisations/%s/facilities/%s/reservations/%s/force",
                 orgRef,
@@ -161,7 +163,7 @@ public class ExternalCalendarController extends CalendarController {
             return notFound("reservation not found");
         }
         // TODO: might need additional checks
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
@@ -190,7 +192,7 @@ public class ExternalCalendarController extends CalendarController {
         }
 
         Reservation reservation = enrolment.getReservation();
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
@@ -263,7 +265,7 @@ public class ExternalCalendarController extends CalendarController {
         }
     }
 
-    // Actions invoked directly by logged in users
+    // Actions invoked directly by logged-in users
     @Authenticated
     @With(ExternalCalendarReservationSanitizer.class)
     @Restrict(@Group("STUDENT"))
@@ -281,7 +283,7 @@ public class ExternalCalendarController extends CalendarController {
         Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
 
         //TODO: See if this offset thing works as intended
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
         Optional<ExamEnrolment> oe = Ebean
             .find(ExamEnrolment.class)
             .fetch("reservation")
@@ -306,7 +308,7 @@ public class ExternalCalendarController extends CalendarController {
         }
         // Lets do this
         URL url = parseUrl(orgRef, roomRef);
-        String homeOrgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
+        String homeOrgRef = configReader.getHomeOrganisationRef();
         ObjectNode body = Json.newObject();
         body.put("requestingOrg", homeOrgRef);
         body.put("start", ISODateTimeFormat.dateTime().print(start));
@@ -369,7 +371,7 @@ public class ExternalCalendarController extends CalendarController {
         }
 
         Reservation reservation = or.get();
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return CompletableFuture.completedFuture(forbidden("sitnet_reservation_in_effect"));
         }

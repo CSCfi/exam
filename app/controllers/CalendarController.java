@@ -49,7 +49,7 @@ import sanitizers.CalendarReservationSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class CalendarController extends BaseController {
 
@@ -64,6 +64,9 @@ public class CalendarController extends BaseController {
 
     @Inject
     protected ConfigReader configReader;
+
+    @Inject
+    protected DateTimeHandler dateTimeHandler;
 
     @Inject
     protected ExternalReservationHandler externalReservationHandler;
@@ -88,7 +91,7 @@ public class CalendarController extends BaseController {
         }
         // Removal not permitted if reservation is in the past or ongoing
         final Reservation reservation = enrolment.getReservation();
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
@@ -144,6 +147,16 @@ public class CalendarController extends BaseController {
                 return Optional.of(forbidden("No optional sections selected. At least one needed"));
             }
         }
+        if (
+            oldReservation != null &&
+            oldReservation.getExternalRef() != null &&
+            !oldReservation.getStartAt().isAfter(dateTimeHandler.adjustDST(DateTime.now())) &&
+            !enrolment.isNoShow() &&
+            enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
+        ) {
+            // External reservation, assessment not returned yet. We must wait for it to arrive first
+            return Optional.of(forbidden("Not allowed to re-enroll, external assessment not returned yet"));
+        }
 
         return Optional.empty();
     }
@@ -152,7 +165,7 @@ public class CalendarController extends BaseController {
     @Restrict({ @Group("STUDENT") })
     public Result getCurrentEnrolment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
         Optional<ExamEnrolment> enrolment = Ebean
             .find(ExamEnrolment.class)
             .fetch("optionalSections")
@@ -177,7 +190,7 @@ public class CalendarController extends BaseController {
         Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), room);
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now(), room);
         final User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         // Start manual transaction.
         Ebean.beginTransaction();
@@ -312,7 +325,7 @@ public class CalendarController extends BaseController {
     }
 
     protected ExamEnrolment getEnrolment(Long examId, User user) {
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
         return Ebean
             .find(ExamEnrolment.class)
             .fetch("exam")

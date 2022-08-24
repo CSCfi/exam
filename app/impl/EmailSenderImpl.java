@@ -15,28 +15,26 @@
 
 package impl;
 
-import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.Config;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
+import javax.inject.Inject;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailAttachment;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import play.Logger;
 
-class EmailSenderImpl implements EmailSender {
-
-    private String SYSTEM_ACCOUNT = ConfigFactory.load().getString("sitnet.email.system.account");
-    private String HOST = ConfigFactory.load().getString("play.mailer.host");
-    private Integer PORT = ConfigFactory.load().getInt("play.mailer.port");
-    private Boolean USE_SSL = ConfigFactory.load().getString("play.mailer.ssl").equals("YES");
-    private String USER = ConfigFactory.load().getString("play.mailer.user");
-    private String PWD = ConfigFactory.load().getString("play.mailer.password");
-    private Boolean USE_MOCK =
-        ConfigFactory.load().hasPath("play.mailer.mock") && ConfigFactory.load().getBoolean("play.mailer.mock");
+public class EmailSenderImpl implements EmailSender {
 
     private static final Logger.ALogger logger = Logger.of(EmailSenderImpl.class);
+    private final Config config;
+
+    @Inject
+    public EmailSenderImpl(Config config) {
+        this.config = config;
+    }
 
     private void mockSending(HtmlEmail email, String content, EmailAttachment... attachments) {
         logger.info("mock implementation, send email");
@@ -63,15 +61,17 @@ class EmailSenderImpl implements EmailSender {
         for (EmailAttachment attachment : attachments) {
             email.attach(attachment);
         }
-        email.setHostName(HOST);
-        email.setSmtpPort(PORT);
-        email.setAuthenticator(new DefaultAuthenticator(USER, PWD));
-        email.setSSLOnConnect(USE_SSL);
+        email.setHostName(config.getString("play.mailer.host"));
+        email.setSmtpPort(config.getInt("play.mailer.port"));
+        email.setAuthenticator(
+            new DefaultAuthenticator(config.getString("play.mailer.user"), config.getString("play.mailer.password"))
+        );
+        email.setSSLOnConnect(config.getString("play.mailer.ssl").equals("YES"));
         email.setSubject(subject);
         for (String r : recipients) {
             email.addTo(r);
         }
-        email.setFrom(String.format("Exam <%s>", SYSTEM_ACCOUNT));
+        email.setFrom(String.format("Exam <%s>", config.getString("sitnet.email.system.account")));
         email.addReplyTo(sender);
         for (String addr : cc) {
             email.addCc(addr);
@@ -80,7 +80,8 @@ class EmailSenderImpl implements EmailSender {
             email.addBcc(addr);
         }
         email.setHtmlMsg(content);
-        if (USE_MOCK) {
+        boolean useMock = config.hasPath("play.mailer.mock") && config.getBoolean("play.mailer.mock");
+        if (useMock) {
             mockSending(email, content, attachments);
         } else {
             email.send();

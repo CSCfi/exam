@@ -15,7 +15,6 @@
 
 package impl;
 
-import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -32,6 +31,7 @@ import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import util.config.ConfigReader;
 
 public class NoShowHandlerImpl implements NoShowHandler {
 
@@ -39,14 +39,15 @@ public class NoShowHandlerImpl implements NoShowHandler {
 
     private final WSClient wsClient;
 
-    private static final String HOST = ConfigFactory.load().getString("sitnet.integration.iop.host");
+    private final ConfigReader configReader;
 
     private static final Logger.ALogger logger = Logger.of(NoShowHandlerImpl.class);
 
     @Inject
-    public NoShowHandlerImpl(EmailComposer composer, WSClient wsClient) {
+    public NoShowHandlerImpl(EmailComposer composer, WSClient wsClient, ConfigReader configReader) {
         this.composer = composer;
         this.wsClient = wsClient;
+        this.configReader = configReader;
     }
 
     private void send(ExamEnrolment enrolment) throws MalformedURLException {
@@ -65,8 +66,8 @@ public class NoShowHandlerImpl implements NoShowHandler {
         request.post(Json.newObject()).thenApplyAsync(onSuccess);
     }
 
-    private static URL parseUrl(String reservationRef) throws MalformedURLException {
-        return new URL(HOST + String.format("/api/enrolments/%s/noshow", reservationRef));
+    private URL parseUrl(String reservationRef) throws MalformedURLException {
+        return new URL(configReader.getIopHost() + String.format("/api/enrolments/%s/noshow", reservationRef));
     }
 
     private boolean isLocal(ExamEnrolment ee) {

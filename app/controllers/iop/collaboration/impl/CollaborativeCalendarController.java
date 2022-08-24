@@ -33,7 +33,7 @@ import sanitizers.Attrs;
 import sanitizers.CalendarReservationSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class CollaborativeCalendarController extends CollaborationController {
 
@@ -45,6 +45,9 @@ public class CollaborativeCalendarController extends CollaborationController {
 
     @Inject
     ActorSystem system;
+
+    @Inject
+    DateTimeHandler dateTimeHandler;
 
     private static final Logger.ALogger logger = Logger.of(CollaborativeCalendarController.class);
 
@@ -95,7 +98,7 @@ public class CollaborativeCalendarController extends CollaborationController {
         Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), room);
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now(), room);
         final User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
 
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
@@ -217,7 +220,7 @@ public class CollaborativeCalendarController extends CollaborationController {
     }
 
     private ExamEnrolment getEnrolledExam(Long examId, User user) {
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
         return Ebean
             .find(ExamEnrolment.class)
             .where()

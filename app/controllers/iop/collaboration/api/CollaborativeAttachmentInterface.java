@@ -27,7 +27,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Pattern;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.typesafe.config.ConfigFactory;
 import controllers.BaseAttachmentInterface;
 import io.ebean.Ebean;
 import io.vavr.control.Either;
@@ -419,7 +418,7 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     }
 
     default Optional<URL> parseUrl(String url, String id) {
-        String urlString = ConfigFactory.load().getString("sitnet.integration.iop.host") + url;
+        String urlString = getConfigReader().getIopHost() + url;
         String id2 = id == null ? "" : id;
         urlString = String.format(urlString, id2);
         try {

@@ -15,11 +15,7 @@ scalacOptions ++= Seq("-deprecation", "-feature")
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
-libraryDependencies += javaJdbc
-libraryDependencies += ws
-libraryDependencies += evolutions
-libraryDependencies += filters
-libraryDependencies += guice
+libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice)
 
 // JAXB (missing in JDK 11 and above)
 libraryDependencies += "com.sun.xml.bind" % "jaxb-core"  % "3.0.2"
@@ -51,14 +47,15 @@ libraryDependencies += "org.yaml"                 % "snakeyaml"             % "1
 
 dependencyOverrides += "org.slf4j" % "slf4j-api" % "1.7.36"
 
-javacOptions += "-Xlint:unchecked"
-javacOptions += "-Xlint:deprecation"
+javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
 
 routesImport += "util.scala.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 
 testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
+
+javaOptions in Test += "-Dconfig.resource=integrationtest.conf"
 
 sources in (Compile, doc) := Seq.empty
 publishArtifact in (Compile, packageDoc) := false
