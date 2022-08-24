@@ -36,4 +36,20 @@ public interface ConfigReader {
     String getHomeOrganisationRef();
     Integer getMaxByodExaminationParticipantCount();
     String getCourseCodePrefix();
+    String getIopHost();
+    boolean isApiKeyUsed();
+    String getApiKeyName();
+    String getApiKeyValue();
+    String getPermissionCheckUserIdentifier();
+    String getPermissionCheckUrl();
+    String getBaseSystemUrl();
+    String getSystemAccount();
+    String getAttachmentPath();
+    String getLoginType();
+    String getCsrfCookie();
+    boolean isMultiStudentIdEnabled();
+    String getMultiStudentOrganisations();
+
+    boolean hasPath(String path);
+    String getString(String path);
 }

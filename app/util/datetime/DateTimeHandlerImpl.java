@@ -17,13 +17,16 @@ package util.datetime;
 
 import static org.joda.time.DateTimeConstants.MILLIS_PER_DAY;
 
-import com.typesafe.config.ConfigFactory;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import javax.inject.Inject;
 import models.ExamRoom;
 import models.Reservation;
+import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import models.iop.ExternalReservation;
 import org.joda.time.DateTime;
@@ -31,15 +34,19 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.base.AbstractInterval;
+import util.config.ConfigReader;
 
-public class DateTimeUtils {
+public class DateTimeHandlerImpl implements DateTimeHandler {
 
-    public enum RestrictionType {
-        RESTRICTIVE,
-        NON_RESTRICTIVE,
+    private final ConfigReader configReader;
+
+    @Inject
+    public DateTimeHandlerImpl(ConfigReader configReader) {
+        this.configReader = configReader;
     }
 
-    public static List<Interval> findGaps(List<Interval> reserved, Interval searchInterval) {
+    @Override
+    public List<Interval> findGaps(List<Interval> reserved, Interval searchInterval) {
         List<Interval> gaps = new ArrayList<>();
         DateTime searchStart = searchInterval.getStart();
         DateTime searchEnd = searchInterval.getEnd();
@@ -69,7 +76,7 @@ public class DateTimeUtils {
         return gaps;
     }
 
-    private static List<Interval> getExistingIntervalGaps(List<Interval> reserved) {
+    private List<Interval> getExistingIntervalGaps(List<Interval> reserved) {
         List<Interval> gaps = new ArrayList<>();
         Interval current = reserved.get(0);
         for (int i = 1; i < reserved.size(); i++) {
@@ -83,17 +90,18 @@ public class DateTimeUtils {
         return gaps;
     }
 
-    private static List<Interval> removeNonOverlappingIntervals(List<Interval> reserved, Interval searchInterval) {
+    private List<Interval> removeNonOverlappingIntervals(List<Interval> reserved, Interval searchInterval) {
         return reserved.stream().filter(interval -> interval.overlaps(searchInterval)).collect(Collectors.toList());
     }
 
-    private static boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
+    private boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
         DateTime earliestStart = reserved.get(0).getStart();
         DateTime latestStop = reserved.get(reserved.size() - 1).getEnd();
         return (!searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop));
     }
 
-    public static List<Interval> getExceptionEvents(
+    @Override
+    public List<Interval> getExceptionEvents(
         List<ExceptionWorkingHours> hours,
         LocalDate date,
         RestrictionType restrictionType
@@ -121,7 +129,8 @@ public class DateTimeUtils {
         return exceptions;
     }
 
-    public static List<Interval> mergeSlots(List<Interval> slots) {
+    @Override
+    public List<Interval> mergeSlots(List<Interval> slots) {
         if (slots.size() <= 1) {
             return slots;
         }
@@ -148,26 +157,31 @@ public class DateTimeUtils {
         return merged;
     }
 
-    public static int resolveStartWorkingHourMillis(DateTime startTime, int timeZoneOffset) {
+    @Override
+    public int resolveStartWorkingHourMillis(DateTime startTime, int timeZoneOffset) {
         return resolveMillisOfDay(startTime, timeZoneOffset);
     }
 
-    public static int resolveEndWorkingHourMillis(DateTime endTime, int timeZoneOffset) {
+    @Override
+    public int resolveEndWorkingHourMillis(DateTime endTime, int timeZoneOffset) {
         int millis = resolveMillisOfDay(endTime, timeZoneOffset);
         return millis == 0 ? MILLIS_PER_DAY - 1 : millis;
     }
 
-    public static DateTime adjustDST(DateTime dateTime) {
+    @Override
+    public DateTime adjustDST(DateTime dateTime) {
         return doAdjustDST(dateTime, null);
     }
 
-    public static DateTime adjustDST(DateTime dateTime, Reservation reservation) {
+    @Override
+    public DateTime adjustDST(DateTime dateTime, Reservation reservation) {
         return reservation.getExternalReservation() != null
             ? adjustDST(dateTime, reservation.getExternalReservation())
             : doAdjustDST(dateTime, reservation.getMachine().getRoom());
     }
 
-    public static DateTime adjustDST(DateTime dateTime, ExternalReservation externalReservation) {
+    @Override
+    public DateTime adjustDST(DateTime dateTime, ExternalReservation externalReservation) {
         DateTime result = dateTime;
         DateTimeZone dtz = DateTimeZone.forID(externalReservation.getRoomTz());
         if (!dtz.isStandardOffset(System.currentTimeMillis())) {
@@ -176,20 +190,16 @@ public class DateTimeUtils {
         return result;
     }
 
-    public static DateTime adjustDST(DateTime dateTime, ExamRoom room) {
+    @Override
+    public DateTime adjustDST(DateTime dateTime, ExamRoom room) {
         return doAdjustDST(dateTime, room);
     }
 
-    private static DateTimeZone getDefaultTimeZone() {
-        String config = ConfigFactory.load().getString("sitnet.application.timezone");
-        return DateTimeZone.forID(config);
-    }
-
-    private static DateTime doAdjustDST(DateTime dateTime, ExamRoom room) {
+    private DateTime doAdjustDST(DateTime dateTime, ExamRoom room) {
         DateTimeZone dtz;
         DateTime result = dateTime;
         if (room == null) {
-            dtz = getDefaultTimeZone();
+            dtz = configReader.getDefaultTimeZone();
         } else {
             dtz = DateTimeZone.forID(room.getLocalTimezone());
         }
@@ -199,18 +209,96 @@ public class DateTimeUtils {
         return result;
     }
 
-    public static DateTime normalize(DateTime dateTime, Reservation reservation) {
+    @Override
+    public DateTime normalize(DateTime dateTime, Reservation reservation) {
         DateTimeZone dtz = reservation.getMachine() == null
-            ? getDefaultTimeZone()
+            ? configReader.getDefaultTimeZone()
             : DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
         return !dtz.isStandardOffset(dateTime.getMillis()) ? dateTime.minusHours(1) : dateTime;
     }
 
-    public static DateTime normalize(DateTime dateTime, DateTimeZone dtz) {
+    @Override
+    public DateTime normalize(DateTime dateTime, DateTimeZone dtz) {
         return !dtz.isStandardOffset(dateTime.getMillis()) ? dateTime.minusHours(1) : dateTime;
     }
 
-    private static int resolveMillisOfDay(DateTime date, long offset) {
+    @Override
+    public List<OpeningHours> getDefaultWorkingHours(LocalDate date, ExamRoom room) {
+        String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
+        List<OpeningHours> hours = new ArrayList<>();
+        room
+            .getDefaultWorkingHours()
+            .stream()
+            .filter(dwh -> dwh.getWeekday().equalsIgnoreCase(day))
+            .forEach(dwh -> {
+                DateTime midnight = date.toDateTimeAtStartOfDay();
+                DateTime start = midnight.withMillisOfDay(
+                    resolveStartWorkingHourMillis(new DateTime(dwh.getStartTime()), dwh.getTimezoneOffset())
+                );
+                DateTime end = midnight.withMillisOfDay(
+                    resolveEndWorkingHourMillis(new DateTime(dwh.getEndTime()), dwh.getTimezoneOffset())
+                );
+                Interval interval = new Interval(start, end);
+                hours.add(new OpeningHours(interval, dwh.getTimezoneOffset()));
+            });
+        return hours;
+    }
+
+    @Override
+    public int getTimezoneOffset(LocalDate date, ExamRoom room) {
+        String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
+        for (DefaultWorkingHours defaultHour : room.getDefaultWorkingHours()) {
+            if (defaultHour.getWeekday().equalsIgnoreCase(day)) {
+                return defaultHour.getTimezoneOffset();
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    public List<OpeningHours> getWorkingHoursForDate(LocalDate date, ExamRoom room) {
+        List<OpeningHours> workingHours = getDefaultWorkingHours(date, room);
+        List<Interval> extensionEvents = mergeSlots(
+            getExceptionEvents(room.getCalendarExceptionEvents(), date, RestrictionType.NON_RESTRICTIVE)
+        );
+        List<Interval> restrictionEvents = mergeSlots(
+            getExceptionEvents(room.getCalendarExceptionEvents(), date, RestrictionType.RESTRICTIVE)
+        );
+        List<OpeningHours> availableHours = new ArrayList<>();
+        if (!extensionEvents.isEmpty()) {
+            List<Interval> unifiedIntervals = mergeSlots(
+                Stream
+                    .concat(workingHours.stream().map(OpeningHours::getHours), extensionEvents.stream())
+                    .collect(Collectors.toList())
+            );
+            int tzOffset;
+            if (workingHours.isEmpty()) {
+                tzOffset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(new DateTime(date));
+            } else {
+                tzOffset = workingHours.get(0).getTimezoneOffset();
+            }
+            workingHours.clear();
+            workingHours.addAll(
+                unifiedIntervals
+                    .stream()
+                    .map(interval -> new OpeningHours(interval, tzOffset))
+                    .collect(Collectors.toList())
+            );
+        }
+        if (!restrictionEvents.isEmpty()) {
+            for (OpeningHours hours : workingHours) {
+                Interval slot = hours.getHours();
+                for (Interval gap : findGaps(restrictionEvents, slot)) {
+                    availableHours.add(new OpeningHours(gap, hours.getTimezoneOffset()));
+                }
+            }
+        } else {
+            availableHours = workingHours;
+        }
+        return availableHours;
+    }
+
+    private int resolveMillisOfDay(DateTime date, long offset) {
         long millis = date.getMillisOfDay() + offset;
         if (millis >= MILLIS_PER_DAY) {
             return (int) Math.abs(millis - MILLIS_PER_DAY);

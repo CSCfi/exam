@@ -25,17 +25,19 @@ import models.Exam;
 import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class AutoEvaluationNotifierActor extends AbstractActor {
 
     private static final Logger.ALogger logger = Logger.of(AutoEvaluationNotifierActor.class);
 
-    private EmailComposer composer;
+    private final EmailComposer composer;
+    private final DateTimeHandler dateTimeHandler;
 
     @Inject
-    public AutoEvaluationNotifierActor(EmailComposer composer) {
+    public AutoEvaluationNotifierActor(EmailComposer composer, DateTimeHandler dateTimeHandler) {
         this.composer = composer;
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     @Override
@@ -67,7 +69,7 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
     }
 
     private DateTime adjustReleaseDate(DateTime date) {
-        return DateTimeUtils.adjustDST(date.withHourOfDay(5).withMinuteOfHour(0).withSecondOfMinute(0));
+        return dateTimeHandler.adjustDST(date.withHourOfDay(5).withMinuteOfHour(0).withSecondOfMinute(0));
     }
 
     private boolean isPastReleaseDate(Exam exam) {

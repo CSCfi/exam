@@ -21,7 +21,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
 import impl.EmailComposer;
 import io.ebean.Ebean;
 import io.vavr.control.Either;
@@ -64,6 +63,7 @@ import sanitizers.ExternalRefCollectionSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import system.interceptors.Anonymous;
+import util.config.ConfigReader;
 import util.csv.CsvBuilder;
 import util.file.FileHandler;
 import util.json.JsonDeserializer;
@@ -88,14 +88,13 @@ public class CollaborativeReviewController extends CollaborationController {
     @Inject
     MessagesApi messages;
 
+    @Inject
+    ConfigReader configReader;
+
     private static final Logger.ALogger logger = Logger.of(CollaborativeReviewController.class);
 
     private Optional<URL> parseUrl(String examRef, String assessmentRef) {
-        String url = String.format(
-            "%s/api/exams/%s/assessments",
-            ConfigFactory.load().getString("sitnet.integration.iop.host"),
-            examRef
-        );
+        String url = String.format("%s/api/exams/%s/assessments", configReader.getIopHost(), examRef);
         if (assessmentRef != null) {
             url += String.format("/%s", assessmentRef);
         }

@@ -19,8 +19,6 @@ import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -65,12 +63,6 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     private static final String COURSE_CODE_PLACEHOLDER = "${course_code}";
     private static final String USER_ID_PLACEHOLDER = "${employee_number}";
     private static final String USER_LANG_PLACEHOLDER = "${employee_lang}";
-    private static final boolean API_KEY_USED = ConfigFactory.load().getBoolean("sitnet.integration.apiKey.enabled");
-    private static final String API_KEY_NAME = ConfigFactory.load().getString("sitnet.integration.apiKey.name");
-    private static final String API_KEY_VALUE = ConfigFactory.load().getString("sitnet.integration.apiKey.value");
-    private static final String USER_IDENTIFIER = ConfigFactory
-        .load()
-        .getString("sitnet.integration.enrolmentPermissionCheck.id");
     private static final DateFormat DF = new SimpleDateFormat("yyyyMMdd");
     private static final ByteString BOM = ByteString.fromArray(new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF });
 
@@ -150,8 +142,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         if (url.getQuery() != null) {
             request = request.setQueryString(url.getQuery());
         }
-        if (API_KEY_USED) {
-            request = request.addHeader(API_KEY_NAME, API_KEY_VALUE);
+        if (configReader.isApiKeyUsed()) {
+            request = request.addHeader(configReader.getApiKeyName(), configReader.getApiKeyValue());
         }
         RemoteFunction<WSResponse, Collection<String>> onSuccess = response -> {
             JsonNode root = response.asJson();
@@ -211,8 +203,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         if (url.getQuery() != null) {
             request = request.setQueryString(url.getQuery());
         }
-        if (API_KEY_USED) {
-            request = request.addHeader(API_KEY_NAME, API_KEY_VALUE);
+        if (configReader.isApiKeyUsed()) {
+            request = request.addHeader(configReader.getApiKeyName(), configReader.getApiKeyValue());
         }
         RemoteFunction<WSResponse, List<Course>> onSuccess = response -> {
             int status = response.getStatus();
@@ -231,25 +223,24 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             });
     }
 
-    private static URL parseUrl(Organisation organisation, String courseCode) throws MalformedURLException {
+    private URL parseUrl(Organisation organisation, String courseCode) throws MalformedURLException {
         String urlConfigPrefix = "sitnet.integration.courseUnitInfo.url";
-        Config config = ConfigFactory.load();
         String configPath = null;
         if (organisation != null && organisation.getCode() != null) {
             String path = String.format("%s.%s", urlConfigPrefix, organisation.getCode());
-            if (config.hasPath(path)) {
+            if (configReader.hasPath(path)) {
                 configPath = path;
             }
         }
         if (configPath == null) {
             String path = String.format("%s.%s", urlConfigPrefix, "default");
-            if (config.hasPath(path)) {
+            if (configReader.hasPath(path)) {
                 configPath = path;
             } else {
                 throw new RuntimeException("sitnet.integration.courseUnitInfo.url holds no suitable URL for user");
             }
         }
-        String url = ConfigFactory.load().getString(configPath);
+        String url = configReader.getString(configPath);
         if (url == null || !url.contains(COURSE_CODE_PLACEHOLDER)) {
             throw new RuntimeException("sitnet.integration.courseUnitInfo.url is malformed");
         }
@@ -257,15 +248,19 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         return new URL(url);
     }
 
-    private static URL parseUrl(User user) throws MalformedURLException {
-        if (USER_IDENTIFIER.equals("userIdentifier") && user.getUserIdentifier() == null) {
+    private URL parseUrl(User user) throws MalformedURLException {
+        if (
+            configReader.getPermissionCheckUserIdentifier().equals("userIdentifier") && user.getUserIdentifier() == null
+        ) {
             throw new MalformedURLException("User has no identier number!");
         }
-        String url = ConfigFactory.load().getString("sitnet.integration.enrolmentPermissionCheck.url");
+        String url = configReader.getPermissionCheckUrl();
         if (url == null || !url.contains(USER_ID_PLACEHOLDER)) {
             throw new MalformedURLException("sitnet.integration.enrolmentPermissionCheck.url is malformed");
         }
-        String identifier = USER_IDENTIFIER.equals("userIdentifier") ? user.getUserIdentifier() : user.getEppn();
+        String identifier = configReader.getPermissionCheckUserIdentifier().equals("userIdentifier")
+            ? user.getUserIdentifier()
+            : user.getEppn();
         url = url.replace(USER_ID_PLACEHOLDER, identifier).replace(USER_LANG_PLACEHOLDER, user.getLanguage().getCode());
         return new URL(url);
     }
