@@ -1042,5 +1042,6 @@
   "sitnet_select_all_rooms": "Valitse kaikki huoneet",
   "sitnet_published_joint_exams": "Julkaistut ja esijulkaistut yhteistentit",
   "sitnet_expired_joint_exams": "Yhteistentit, joiden voimassaoloaika on päättynyt",
-  "sitnet_joint_exam_drafts": "Yhteistenttiluonnokset"
+  "sitnet_joint_exam_drafts": "Yhteistenttiluonnokset",
+  "sitnet_show_all": "Näytä kaikki"
 }
