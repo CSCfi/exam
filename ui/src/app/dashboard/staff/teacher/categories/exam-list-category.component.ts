@@ -125,21 +125,29 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
             });
 
     deleteExam = (exam: DashboardExam) => {
-        this.Dialog.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_exam'),
-        ).subscribe({
-            next: () =>
-                this.Dashboard.deleteExam$(exam.id).subscribe({
-                    next: () => {
-                        this.toast.success(this.translate.instant('sitnet_exam_removed'));
-                        this.items.splice(this.items.indexOf(exam), 1);
-                    },
-                    error: this.toast.error,
-                }),
-            error: this.toast.error,
-        });
+        if (this.isAllowedToUnpublishOrRemove(exam)) {
+            this.Dialog.open$(
+                this.translate.instant('sitnet_confirm'),
+                this.translate.instant('sitnet_remove_exam'),
+            ).subscribe({
+                next: () =>
+                    this.Dashboard.deleteExam$(exam.id).subscribe({
+                        next: () => {
+                            this.toast.success(this.translate.instant('sitnet_exam_removed'));
+                            this.items.splice(this.items.indexOf(exam), 1);
+                        },
+                        error: this.toast.error,
+                    }),
+                error: this.toast.error,
+            });
+        } else {
+            this.toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));
+        }
     };
+
+    isAllowedToUnpublishOrRemove = (exam: Exam) =>
+        // allowed if no upcoming reservations and if no one has taken this yet
+        !exam.hasEnrolmentsInEffect && exam.children.length === 0;
 
     getLink = (data: ExtraData, exam: DashboardExam) => {
         const copy = [...data.link];

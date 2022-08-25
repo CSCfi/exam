@@ -28,19 +28,12 @@
   }
 
   .student-enrolment-result-wrapper {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    grid-template-rows: repeat(3, auto);
-    gap: 15px;
     border-radius: 4px;
     border: 2px solid #EDEDED;
     border-left: $sitnet-medium-green-new 4px solid;
     padding: 30px;
     margin-bottom: 6px;
     @media (max-width: $sitnet-mobile) {
-      grid-template-columns: auto 1fr !important;
-      grid-template-rows: repeat(3, auto);
-      gap: 5px;
       padding: 5px;
     }
   }
@@ -257,8 +250,11 @@
     padding-bottom: 14px;
   }
 
+  .enrollment-card-dropdown{
+    grid-column-start: span 3;
+  }
+
   .student-enrolment-date-box {
-    display: inline-block;
     border: 2px solid #EDEDED;
     border-radius: 3px;
     text-align: center;
