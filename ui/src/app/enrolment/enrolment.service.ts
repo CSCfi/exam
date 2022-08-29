@@ -116,7 +116,7 @@ export class EnrolmentService {
             switchMap((resp) =>
                 resp.length == 0
                     ? this.enroll(exam, collaborative)
-                    : throwError(() => new Error('sitnet_already_enrolled')),
+                    : throwError(() => new Error(this.translate.instant('sitnet_already_enrolled'))),
             ),
             catchError((err) => {
                 this.toast.error(err);

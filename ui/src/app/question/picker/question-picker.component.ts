@@ -52,6 +52,7 @@ import type { ExamSection, Question } from '../../exam/exam.model';
                     (copied)="questionCopied()"
                     tableClass="library-table"
                     [disableLinks]="true"
+                    class="overflow-x-auto"
                 ></xm-library-results>
             </div>
 

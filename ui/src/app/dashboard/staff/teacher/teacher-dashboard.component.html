@@ -7,14 +7,19 @@
             <div class="teacher-toolbar">
                 <div class="make-inline">
                     <div class="review-attachment-button print-button">
-                        <a [routerLink]="['/staff/exams']" class="pointer">
+                        <a [routerLink]="['/staff/exams']" class="pointer" tabindex="0">
                             {{ 'sitnet_toolbar_new_exam' | translate }}
                         </a>
                     </div>
                 </div>
                 <div class="make-inline">
                     <div class="review-attachment-button print-button">
-                        <a [routerLink]="['questions/new']" [queryParams]="{ nextState: 'teacher' }" class="pointer">
+                        <a
+                            [routerLink]="['/staff/questions/new']"
+                            [queryParams]="{ nextState: 'teacher' }"
+                            class="pointer"
+                            tabindex="0"
+                        >
                             {{ 'sitnet_toolbar_new_question' | translate }}
                         </a>
                     </div>
