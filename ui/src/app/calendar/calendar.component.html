@@ -26,7 +26,7 @@
             [sequenceNumber]="getSequenceNumber('organization')"
             [disabled]="!sectionSelectionOk()"
             (selected)="setOrganisation($event)"
-            (onCancel)="makeInternalReservation()"
+            (cancelled)="makeInternalReservation()"
         ></xm-calendar-organisation-picker>
     </div>
     <!-- Phase 4: Room picker -->
