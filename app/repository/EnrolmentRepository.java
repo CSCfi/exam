@@ -34,7 +34,7 @@ import play.db.ebean.EbeanConfig;
 import play.mvc.Http;
 import play.mvc.Result;
 import util.config.ByodConfigHandler;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class EnrolmentRepository {
 
@@ -42,6 +42,7 @@ public class EnrolmentRepository {
     private final Provider<EbeanConfig> config;
     private final DatabaseExecutionContext ec;
     private final ByodConfigHandler byodConfigHandler;
+    private final DateTimeHandler dateTimeHandler;
 
     private static final Logger.ALogger logger = Logger.of(EnrolmentRepository.class);
 
@@ -50,12 +51,14 @@ public class EnrolmentRepository {
         Environment environment,
         Provider<EbeanConfig> ebeanConfig,
         DatabaseExecutionContext databaseExecutionContext,
-        ByodConfigHandler byodConfigHandler
+        ByodConfigHandler byodConfigHandler,
+        DateTimeHandler dateTimeHandler
     ) {
         this.environment = environment;
         this.config = ebeanConfig;
         this.ec = databaseExecutionContext;
         this.byodConfigHandler = byodConfigHandler;
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     public CompletionStage<Map<String, String>> getReservationHeaders(Http.Request request, Long userId) {
@@ -67,7 +70,7 @@ public class EnrolmentRepository {
     }
 
     private List<ExamEnrolment> doGetStudentEnrolments(User user) {
-        DateTime now = DateTimeUtils.adjustDST(new DateTime());
+        DateTime now = dateTimeHandler.adjustDST(new DateTime());
         List<ExamEnrolment> enrolments = Ebean
             .find(ExamEnrolment.class)
             .fetch("examinationEventConfiguration")
@@ -262,7 +265,7 @@ public class EnrolmentRepository {
 
     private boolean isInsideBounds(ExamEnrolment ee, int minutesToFuture) {
         DateTime earliest = ee.getExaminationEventConfiguration() == null
-            ? DateTimeUtils.adjustDST(new DateTime())
+            ? dateTimeHandler.adjustDST(new DateTime())
             : DateTime.now();
         DateTime latest = earliest.plusMinutes(minutesToFuture);
         Reservation reservation = ee.getReservation();

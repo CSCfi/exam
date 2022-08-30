@@ -2,13 +2,13 @@ package base;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.fakeApplication;
 import static play.test.Helpers.fakeRequest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import java.io.File;
 import java.io.FileInputStream;
@@ -90,6 +90,8 @@ public class IntegrationTestCase {
                 StandardCharsets.UTF_8
             )
         );
+        // Appears that this is needed for IDE (IntelliJ) to pick up the right configuration?
+        // TODO: get rid
         System.setProperty("config.resource", "integrationtest.conf");
     }
 
@@ -98,12 +100,18 @@ public class IntegrationTestCase {
         // Default does nothing
     }
 
+    protected Application provideApp() {
+        // TODO: Figure out how this overriding of config values could work. There is an API but it doesn't do the trick
+        // Map<String, ?> override = Map.of("some.config", true);
+        return fakeApplication(/*override*/);
+    }
+
     @Before
     public void setUp() throws Exception {
         // Unfortunately we need to restart for each test because there is some weird issue with question id sequence.
         // Ebean allocates us duplicate PKs eventually unless server is recreated in between. This is either a bug with
         // Ebean (batching) or an issue with our question entity JPA mappings.
-        app = Helpers.fakeApplication();
+        app = provideApp();
         Helpers.start(app);
 
         addTestData();
@@ -124,7 +132,7 @@ public class IntegrationTestCase {
         logout();
         Helpers.stop(app);
         // Clear exam upload directory
-        String uploadPath = ConfigFactory.load().getString(("sitnet.attachments.path"));
+        String uploadPath = "target/attachments";
         try {
             FileUtils.deleteDirectory(new File(uploadPath));
         } catch (IOException e) {

@@ -21,7 +21,6 @@ import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import io.ebean.Ebean;
@@ -334,10 +333,7 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(node));
     }
 
-    private static URL parseExternalUrl(String reservationRef) throws MalformedURLException {
-        return new URL(
-            ConfigFactory.load().getString("sitnet.integration.iop.host") +
-            String.format("/api/enrolments/%s/instructions", reservationRef)
-        );
+    private URL parseExternalUrl(String reservationRef) throws MalformedURLException {
+        return new URL(configReader.getIopHost() + String.format("/api/enrolments/%s/instructions", reservationRef));
     }
 }

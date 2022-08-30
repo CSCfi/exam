@@ -37,17 +37,19 @@ import models.json.ExternalExam;
 import org.joda.time.DateTime;
 import play.Logger;
 import util.AppUtil;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class ExamAutoSaverActor extends AbstractActor {
 
     private static final Logger.ALogger logger = Logger.of(ExamAutoSaverActor.class);
 
-    private EmailComposer composer;
+    private final EmailComposer composer;
+    private final DateTimeHandler dateTimeHandler;
 
     @Inject
-    public ExamAutoSaverActor(EmailComposer composer) {
+    public ExamAutoSaverActor(EmailComposer composer, DateTimeHandler dateTimeHandler) {
         this.composer = composer;
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     @Override
@@ -92,7 +94,7 @@ public class ExamAutoSaverActor extends AbstractActor {
             return DateTime.now();
         }
         Reservation reservation = participation.getReservation();
-        return DateTimeUtils.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
+        return dateTimeHandler.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
     }
 
     private void markEnded(List<ExamParticipation> participations) {
@@ -157,7 +159,7 @@ public class ExamAutoSaverActor extends AbstractActor {
             Reservation reservation = enrolment.getReservation();
             DateTime reservationStart = new DateTime(reservation.getStartAt());
             DateTime participationTimeLimit = reservationStart.plusMinutes(content.getDuration());
-            DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
+            DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation.getMachine().getRoom());
             if (participationTimeLimit.isBefore(now)) {
                 exam.setFinished(now);
                 content.setState(Exam.State.REVIEW);

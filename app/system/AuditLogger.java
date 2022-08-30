@@ -34,7 +34,7 @@ class AuditLogger {
             String.format("%s %s %s %s", DateTime.now(), userString, method, uri)
         );
         // Do not log body of data import request to avoid logs getting unreadable.
-        if (!method.equals("GET") && !request.path().equals("/integration/iop/import")) {
+        if (!method.equals("GET") && !method.equals("DELETE") && !request.path().equals("/integration/iop/import")) {
             String body = request.body() == null || request.body().asJson() == null
                 ? null
                 : request.body().asJson().toString();

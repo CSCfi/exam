@@ -2,7 +2,6 @@ package controllers.iop.collaboration.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
 import controllers.base.BaseController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import impl.ExamUpdater;
@@ -53,7 +52,7 @@ public class CollaborationController extends BaseController {
     private static final Logger.ALogger logger = Logger.of(CollaborationController.class);
 
     Optional<URL> parseUrl() {
-        String url = String.format("%s/api/exams", ConfigFactory.load().getString("sitnet.integration.iop.host"));
+        String url = String.format("%s/api/exams", configReader.getIopHost());
         try {
             return Optional.of(new URL(url));
         } catch (MalformedURLException e) {
@@ -69,11 +68,7 @@ public class CollaborationController extends BaseController {
             }
 
             String paramStr = String.format("?filter=%s&anonymous=%s", filter, anonymous);
-            String url = String.format(
-                "%s/api/exams/search%s",
-                ConfigFactory.load().getString("sitnet.integration.iop.host"),
-                paramStr
-            );
+            String url = String.format("%s/api/exams/search%s", configReader.getIopHost(), paramStr);
             return Optional.of(new URL(url));
         } catch (MalformedURLException e) {
             logger.error("Malformed URL {}", e);
