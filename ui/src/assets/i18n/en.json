@@ -1043,5 +1043,6 @@
   "sitnet_published_joint_exams": "Published and pre-published joint exams",
   "sitnet_expired_joint_exams": "Expired joint exams",
   "sitnet_joint_exam_drafts": "Joint exam drafts",
-  "sitnet_exam_status_initialized": "Exam started EN"
+  "sitnet_exam_status_initialized": "Exam started EN",
+  "sitnet_removed": "Removed"
 }
