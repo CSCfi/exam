@@ -8,7 +8,7 @@
                 [inspection]="inspection"
                 [user]="user"
                 [disabled]="isGraded() || isReadOnly()"
-                (onInspection)="inspectionDone()"
+                (inspected)="inspectionDone()"
             >
             </xm-r-inspection>
         </div>

@@ -111,12 +111,12 @@
                     [collaborative]="collaborative"
                     [user]="user"
                     *ngIf="exam && !exam.subjectToLanguageInspection"
-                    (onUpdate)="gradingUpdated()"
+                    (updated)="gradingUpdated()"
                 >
                 </xm-r-grading>
                 <xm-r-maturity-grading
                     *ngIf="exam && exam.executionType.type === 'MATURITY' && exam.subjectToLanguageInspection"
-                    (onUpdate)="gradingUpdated()"
+                    (updated)="gradingUpdated()"
                     [user]="user"
                     [exam]="exam"
                     [questionSummary]="questionSummary"

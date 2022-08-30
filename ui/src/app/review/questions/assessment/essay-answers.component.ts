@@ -25,7 +25,7 @@ import { QuestionReviewService } from '../question-review.service';
                     [answer]="answer"
                     [editable]="editable"
                     [action]="actionText"
-                    (onSelection)="assessEssay(answer)"
+                    (selected)="assessEssay(answer)"
                 ></xm-essay-answer>
             </div>
             <div *ngIf="answers.length === 0" class="col-md-12">

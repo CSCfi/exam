@@ -43,7 +43,8 @@ import { RoomService } from '../rooms/room.service';
                 <tr *ngFor="let slot of timeRange()">
                     <td
                         *ngFor="let day of getWeekdays()"
-                        class="selectable {{ getType(day, slot) }}"
+                        [ngClass]="getType(day, slot)"
+                        class="selectable"
                         (click)="selectSlot(day, slot)"
                     >
                         <div
