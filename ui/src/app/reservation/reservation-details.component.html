@@ -167,7 +167,8 @@
                     *ngIf="
                         r.enrolment.exam.state === 'PUBLISHED' &&
                         !r.enrolment.noShow &&
-                        r.enrolment.exam.implementation === 'AQUARIUM'
+                        r.enrolment.exam.implementation === 'AQUARIUM' &&
+                        !reservationIsInPast(r)
                     "
                     (click)="removeReservation(r)"
                     class="btn btn-sm btn-primary float-start"

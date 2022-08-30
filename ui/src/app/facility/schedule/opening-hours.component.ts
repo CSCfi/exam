@@ -21,11 +21,13 @@ import { RoomService } from '../rooms/room.service';
 
 @Component({
     selector: 'xm-opening-hours',
-    template: `<div id="room">
+    template: `<div id="room" class="overflow-x-scroll flex">
         <table style="display: inline-block">
             <thead>
                 <tr *ngFor="let time of times; index as i">
-                    <th style="vertical-align: bottom" [ngClass]="{ light: i % 2 === 1 }">{{ time }}</th>
+                    <th style="vertical-align: bottom" class="fullsize-time {{ i % 2 === 1 ? 'fw-light' : '' }}">
+                        {{ time }}
+                    </th>
                 </tr>
             </thead>
         </table>
@@ -33,7 +35,7 @@ import { RoomService } from '../rooms/room.service';
         <table style="display: inline-block">
             <thead>
                 <tr>
-                    <th *ngFor="let weekday of weekdayNames">{{ weekday }}</th>
+                    <th *ngFor="let weekday of weekdayNames" class="text-center fullsize">{{ weekday }}</th>
                 </tr>
             </thead>
 
