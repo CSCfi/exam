@@ -12,14 +12,10 @@ import java.util.List;
 import models.User;
 import models.questions.Question;
 import org.junit.Test;
-import play.Application;
-import play.inject.guice.GuiceApplicationBuilder;
 import scala.jdk.javaapi.CollectionConverters;
 import util.xml.MoodleXmlImporter;
 
 public class MoodleImporterTest extends IntegrationTestCase {
-
-    private final Application app = new GuiceApplicationBuilder().build();
 
     @Test
     @RunAsAdmin
