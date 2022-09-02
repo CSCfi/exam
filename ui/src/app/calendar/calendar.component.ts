@@ -156,7 +156,9 @@ export class CalendarComponent implements OnInit {
     }
 
     makeInternalReservation() {
-        const nextState = ['/calendar', this.examId, this.isCollaborative ? 'collaborative' : ''];
+        const nextState = this.isCollaborative
+            ? ['/calendar', this.examId, 'collaborative']
+            : ['/calendar', this.examId];
         this.router.navigate(nextState, {
             queryParams: { selected: this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id) },
         });

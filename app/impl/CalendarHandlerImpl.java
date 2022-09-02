@@ -37,6 +37,7 @@ import models.iop.ExternalReservation;
 import models.json.CollaborativeExam;
 import models.sections.ExamSection;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
@@ -133,7 +134,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
             .fetch("enrolment.exam")
             .where()
             .eq("user", reservation.getUser())
-            .gt("startAt", searchDate.toDate())
+            .ge("startAt", searchDate.toDate())
             .findList();
         // Resolve eligible machines based on software and accessibility requirements
         List<ExamMachine> machines = getEligibleMachines(
@@ -453,7 +454,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
             List<Interval> periods = Ebean
                 .find(MaintenancePeriod.class)
                 .where()
-                .gt("endsAt", searchDate.toDate())
+                .ge("endsAt", searchDate.withDayOfWeek(DateTimeConstants.MONDAY).toDate())
                 .findList()
                 .stream()
                 .map(p ->
