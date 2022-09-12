@@ -1,6 +1,6 @@
 <div id="dashboard">
     <div class="row" id="room" *ngFor="let room of rooms" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
-        <div class="col-md-12">
+        <div class="col-md mart40">
             <h2 class="room-name-title">{{ room.name || 'sitnet_no_name' | translate }}</h2>
             <a
                 [hidden]="room.state === 'INACTIVE'"
@@ -21,7 +21,7 @@
                 <i class="bi-plus text-success pointer"></i>
             </a>
 
-            <div class="toggleMessage col-md-12">
+            <div class="toggleMessage col-md">
                 <div class="d-flex justify-content-between">
                     <div>
                         {{ 'sitnet_exam_basic_information_tab' | translate }}
@@ -35,7 +35,7 @@
                         </a>
                     </div>
                     <div>
-                        <span class="me-1">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
+                        <span class="marr10">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
                         <i
                             class="bi-chevron-down"
                             *ngIf="room.addressVisible"
@@ -120,7 +120,112 @@
                 </div>
             </div>
 
-            <xm-machines [room]="room"></xm-machines>
+            <div class="toggleMessage col-md border-top-none">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        {{ 'sitnet_openinghours_exception_datetimes' | translate }}
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <span class="marr10 d-" *ngIf="!room.availabilityVisible">
+                            <div
+                                class="flex justify-content-end"
+                                *ngFor="let timetable of getWeekDays(room.defaultWorkingHours)"
+                            >
+                                <div class="bg-success custom-green-dot marr10" *ngIf="timetable.length > 0"></div>
+                                <div>{{ timetable }}</div>
+                            </div>
+                        </span>
+                        <div class="">
+                            <i
+                                class="bi-chevron-down"
+                                *ngIf="room.availabilityVisible"
+                                (click)="room.availabilityVisible = false"
+                            ></i>
+                            <i
+                                class="bi-chevron-right"
+                                *ngIf="!room.availabilityVisible"
+                                (click)="room.availabilityVisible = true"
+                            ></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="row ms-3" *ngIf="!room.availabilityVisible">
+                    <div class="col-md mart10">
+                        <div
+                            class="flex justify-content-end flex-nowrap"
+                            *ngFor="let exception of getNextExceptionEvent(room.calendarExceptionEvents)"
+                        >
+                            <div
+                                class="text-danger marr10 bi-exclamation-triangle-fill"
+                                *ngIf="exception?.outOfService"
+                            >
+                                {{ 'sitnet_room_out_of_service' | translate }}
+                            </div>
+                            <div class="text-info marr10" *ngIf="exception?.outOfService && !exception.outOfService">
+                                {{ 'sitnet_room_in_service' | translate }}
+                            </div>
+                            <div class="min-width-300">
+                                {{ formatDate(exception) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" *ngIf="room.availabilityVisible">
+                    <div class="col col-md col-xl-5 mart20">
+                        <div
+                            class="row mart10 flex align-content-center"
+                            *ngFor="let dwh of room.extendedDWH; let i = index"
+                        >
+                            <div class="col-2 min-w-100 align-self-center">{{ getWeekdayName(dwh.weekday, true) }}</div>
+                            <div class="col row">
+                                <div class="col flex justify-content-around align-self-center" *ngIf="!dwh.editing">
+                                    <div>{{ workingHourFormat(dwh.startTime) }}</div>
+                                    <div class="align-self-center">-</div>
+                                    <div>{{ workingHourFormat(dwh.endTime) }}</div>
+                                </div>
+                                <div class="col flex justify-content-around align-self-center" *ngIf="dwh.editing">
+                                    <ngb-timepicker
+                                        name="timepicker"
+                                        [(ngModel)]="dwh.pickStartingTime"
+                                        (ngModelChange)="updateStartingEdits(dwh, $event)"
+                                    ></ngb-timepicker>
+                                    <div class="align-self-center">-</div>
+                                    <ngb-timepicker
+                                        name="timepicker"
+                                        [(ngModel)]="dwh.pickEndingTime"
+                                        (ngModelChange)="updateEndingEdits(dwh, $event)"
+                                    ></ngb-timepicker>
+                                </div>
+                                <div
+                                    class="col-2 bi-pencil-fill pointer align-self-center"
+                                    *ngIf="!dwh.editing"
+                                    (click)="startEditing(dwh)"
+                                ></div>
+                                <div
+                                    class="col-1 bi-check-circle-fill text-success pointer align-self-center"
+                                    *ngIf="dwh.editing"
+                                    (click)="saveEdits(dwh, room)"
+                                ></div>
+                                <div
+                                    class="col-1 bi-trash text-danger pointer align-self-center"
+                                    *ngIf="dwh.editing"
+                                    (click)="deleteDWH(dwh)"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+                    <xm-exceptions
+                        class="col-md"
+                        [exceptions]="room.calendarExceptionEvents"
+                        (created)="addException($event, room)"
+                        (removed)="deleteException($event, room)"
+                    ></xm-exceptions>
+                </div>
+            </div>
+
+            <div class="toggleMessage col-md border-top-none">
+                <xm-machines [room]="room"></xm-machines>
+            </div>
         </div>
     </div>
 </div>

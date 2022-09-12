@@ -1,11 +1,17 @@
-<div class="detail-row p-3" [hidden]="room.state === 'INACTIVE'">
-    <div class="col-md-12">
-        <h5 class="ms-3">
-            <span class="pointer user-select-none" (click)="toggleShow()">
-                <i [hidden]="!showMachines" class="bi-chevron-down fa-stack-1x"></i>
-                <i [hidden]="showMachines" class="bi-chevron-right fa-stack-1x"></i>
-                {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp;
-            </span>
+<div class="" [hidden]="room.state === 'INACTIVE'">
+    <div class="row">
+        <div class="col">
+            <span class="pointer user-select-none"> {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp; </span>
+        </div>
+        <div class="flex justify-content-end col">
+            <a
+                class="ps-2 marr20 text text-success pointer"
+                (click)="addNewMachine()"
+                triggers="mouseenter:mouseleave"
+                ngbPopover="{{ 'sitnet_add' | translate }}"
+            >
+                <i class="pt-2 bi bi-plus-circle"></i>
+            </a>
             <span
                 triggers="mouseenter:mouseleave"
                 popoverTitle="{{ 'sitnet_instructions' | translate }}"
@@ -20,19 +26,15 @@
                 popoverTitle="{{ 'sitnet_instructions' | translate }}"
                 ngbPopover="{{ 'sitnet_status_inservice' | translate }}"
             >
-                <span class="badge bg-danger marl10">
+                <span class="badge bg-danger marl10 marr30">
                     {{ countMachineAlerts() }}
                 </span>
             </span>
-            <a
-                class="ps-2 text text-success pointer"
-                (click)="addNewMachine()"
-                triggers="mouseenter:mouseleave"
-                ngbPopover="{{ 'sitnet_add' | translate }}"
-            >
-                <i class="pt-2 bi bi-plus-circle"></i>
-            </a>
-        </h5>
+            <div (click)="toggleShow()">
+                <i [hidden]="!showMachines" class="bi-chevron-down fa-stack-1x"></i>
+                <i [hidden]="showMachines" class="bi-chevron-right fa-stack-1x"></i>
+            </div>
+        </div>
     </div>
     <div class="detail-row">
         <div class="col-md-12 ms-3" [hidden]="!showMachines">

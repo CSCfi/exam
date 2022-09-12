@@ -846,6 +846,15 @@ $sitnet-icon-size: 32px;
 .border-none {
   border: none
 }
+.border-top-none {
+  border-top: none !important;
+}
+.custom-green-dot{
+  height: 5px;
+  width: 5px;
+  border-radius: 100%;
+  align-self: center;
+}
 .radius-3{
   border-radius: 3px;
 }
