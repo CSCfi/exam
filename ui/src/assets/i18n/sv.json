@@ -1040,5 +1040,6 @@
   "sitnet_expired_joint_exams": "Stängda gemensamma tentamina",
   "sitnet_joint_exam_drafts": "Gemensamma tentamina utkasts",
   "sitnet_exam_status_initialized": "Tentti aloitettu SV",
-  "sitnet_removed": "Removed SV"
+  "sitnet_removed": "Removed SV",
+  "sitnet_maintenance_period_created": "Maintenance period created SV"
 }

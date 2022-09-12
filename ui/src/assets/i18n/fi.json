@@ -1044,5 +1044,6 @@
   "sitnet_expired_joint_exams": "Yhteistentit, joiden voimassaoloaika on päättynyt",
   "sitnet_joint_exam_drafts": "Yhteistenttiluonnokset",
   "sitnet_exam_status_initialized": "Tentti aloitettu",
-  "sitnet_removed": "Poistettu"
+  "sitnet_removed": "Poistettu",
+  "sitnet_maintenance_period_created": "Poikkeusaukioloaika luotu"
 }

@@ -1044,5 +1044,6 @@
   "sitnet_expired_joint_exams": "Expired joint exams",
   "sitnet_joint_exam_drafts": "Joint exam drafts",
   "sitnet_exam_status_initialized": "Exam started EN",
-  "sitnet_removed": "Removed"
+  "sitnet_removed": "Removed",
+  "sitnet_maintenance_period_created": "Maintenance period created"
 }
