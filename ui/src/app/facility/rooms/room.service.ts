@@ -269,7 +269,6 @@ export class RoomService {
         });
 
     updateWorkingHours$ = (week: Week, ids: number[]): Observable<WeekdayBlock[]> => {
-        console.log('Fire from heat');
         const data: WorkingHoursObject = {};
         const workingHours: WeekdayBlock[] = [];
         const times = this.getTimes();
