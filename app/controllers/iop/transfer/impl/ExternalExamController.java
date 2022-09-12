@@ -20,7 +20,6 @@ import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.typesafe.config.ConfigFactory;
 import controllers.ExaminationController;
 import controllers.SettingsController;
 import controllers.base.BaseController;
@@ -82,6 +81,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 import util.AppUtil;
+import util.config.ConfigReader;
 import util.json.JsonDeserializer;
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {
@@ -106,6 +106,9 @@ public class ExternalExamController extends BaseController implements ExternalEx
 
     @Inject
     private CollaborativeExamLoader collaborativeExamLoader;
+
+    @Inject
+    private ConfigReader configReader;
 
     private static final Logger.ALogger logger = Logger.of(ExternalExamController.class);
 
@@ -422,8 +425,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
             .findOneOrEmpty();
     }
 
-    private static URL parseUrl(Object... args) throws MalformedURLException {
+    private URL parseUrl(Object... args) throws MalformedURLException {
         final String path = args.length < 1 ? "/api/enrolments/%s" : String.format("/api/enrolments/%s", args);
-        return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host") + path);
+        return new URL(configReader.getIopHost() + path);
     }
 }

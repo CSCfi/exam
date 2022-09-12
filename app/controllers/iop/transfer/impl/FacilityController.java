@@ -19,7 +19,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.typesafe.config.ConfigFactory;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalFacilityAPI;
 import io.ebean.Ebean;
@@ -38,15 +37,19 @@ import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import play.mvc.Results;
+import util.config.ConfigReader;
 
 public class FacilityController extends BaseController implements ExternalFacilityAPI {
 
     @Inject
     private WSClient wsClient;
 
-    private static URL parseUrl(String facilityRef) throws MalformedURLException {
-        StringBuilder url = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
-        String orgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
+    @Inject
+    private ConfigReader configReader;
+
+    private URL parseUrl(String facilityRef) throws MalformedURLException {
+        StringBuilder url = new StringBuilder(configReader.getIopHost());
+        String orgRef = configReader.getHomeOrganisationRef();
         url.append(String.format("/api/organisations/%s/facilities", orgRef));
         if (facilityRef != null) {
             url.append(String.format("/%s", facilityRef));
@@ -54,11 +57,8 @@ public class FacilityController extends BaseController implements ExternalFacili
         return new URL(url.toString());
     }
 
-    private static URL parseExternalUrl(String orgRef) throws MalformedURLException {
-        return new URL(
-            ConfigFactory.load().getString("sitnet.integration.iop.host") +
-            String.format("/api/organisations/%s/facilities", orgRef)
-        );
+    private URL parseExternalUrl(String orgRef) throws MalformedURLException {
+        return new URL(configReader.getIopHost() + String.format("/api/organisations/%s/facilities", orgRef));
     }
 
     private String toJson(ExamRoom room) {

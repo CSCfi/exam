@@ -17,7 +17,6 @@ package controllers.iop.transfer.impl;
 
 import akka.actor.ActorSystem;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.typesafe.config.ConfigFactory;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import impl.EmailComposer;
 import io.ebean.Ebean;
@@ -43,7 +42,8 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
-import util.datetime.DateTimeUtils;
+import util.config.ConfigReader;
+import util.datetime.DateTimeHandler;
 
 public class ExternalReservationHandlerImpl implements ExternalReservationHandler {
 
@@ -56,10 +56,16 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     @Inject
     EmailComposer emailComposer;
 
+    @Inject
+    DateTimeHandler dateTimeHandler;
+
+    @Inject
+    ConfigReader configReader;
+
     private static final Logger.ALogger logger = Logger.of(ExternalReservationHandlerImpl.class);
 
-    private static URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
-        StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"));
+    private URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
+        StringBuilder sb = new StringBuilder(configReader.getIopHost());
         sb.append(String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef));
         if (reservationRef != null) {
             sb.append("/").append(reservationRef);
@@ -103,7 +109,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         }
         // Removal not permitted if reservation is in the past or ongoing
         final Reservation reservation = enrolment.getReservation();
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation.getExternalReservation());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation.getExternalReservation());
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return CompletableFuture.completedFuture(Results.forbidden("sitnet_reservation_in_effect"));
         }

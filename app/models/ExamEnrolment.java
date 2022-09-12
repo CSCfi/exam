@@ -37,7 +37,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
 import util.datetime.DateTimeAdapter;
-import util.datetime.DateTimeUtils;
 
 @Entity
 public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment> {
@@ -188,18 +187,6 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
 
     public void setRetrialPermitted(boolean retrialPermitted) {
         this.retrialPermitted = retrialPermitted;
-    }
-
-    @Transient
-    public boolean isActive() {
-        DateTime now = DateTimeUtils.adjustDST(new DateTime());
-        if (exam == null || exam.getImplementation() == Exam.Implementation.AQUARIUM) {
-            return reservation == null || reservation.getEndAt().isAfter(now);
-        }
-        return (
-            examinationEventConfiguration == null ||
-            examinationEventConfiguration.getExaminationEvent().getStart().plusMinutes(exam.getDuration()).isAfter(now)
-        );
     }
 
     @Transient

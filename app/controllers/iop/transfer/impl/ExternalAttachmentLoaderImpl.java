@@ -23,7 +23,6 @@ import akka.stream.javadsl.FileIO;
 import akka.stream.javadsl.Source;
 import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.typesafe.config.ConfigFactory;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import java.io.File;
 import java.net.MalformedURLException;
@@ -42,6 +41,7 @@ import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
+import util.config.ConfigReader;
 import util.file.FileHandler;
 
 public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
@@ -54,6 +54,9 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
 
     @Inject
     private FileHandler fileHandler;
+
+    @Inject
+    private ConfigReader configReader;
 
     private static final Logger.ALogger logger = Logger.of(ExternalAttachmentLoaderImpl.class);
 
@@ -210,8 +213,8 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
         });
     }
 
-    private static URL parseUrl(String format, Object... args) throws MalformedURLException {
+    private URL parseUrl(String format, Object... args) throws MalformedURLException {
         final String path = args.length < 1 ? format : String.format(format, args);
-        return new URL(ConfigFactory.load().getString("sitnet.integration.iop.host") + path);
+        return new URL(configReader.getIopHost() + path);
     }
 }

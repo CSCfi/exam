@@ -38,16 +38,14 @@
 </div>
 
 <div *ngIf="view.toggle && view.items.length > 0" class="overflow-x-scroll">
-    <div class="py-3 search input-group my-2 max-w-350">
+    <div class="py-3 input-group my-2 max-w-350">
         <input
             (input)="applyFreeSearchFilter()"
             [(ngModel)]="view.filter"
-            class="form-control search"
+            class="form-control"
             placeholder="{{ 'sitnet_search' | translate }}"
         />
-        <div class="input-group-append search">
-            <i class="input-group-text bi-search"></i>
-        </div>
+        <i class="input-group-text bi-search"></i>
     </div>
 
     <table class="table table-striped exams-table">

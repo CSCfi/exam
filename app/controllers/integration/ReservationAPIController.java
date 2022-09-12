@@ -25,6 +25,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import models.Exam;
 import models.ExamRoom;
 import models.Reservation;
@@ -32,9 +33,16 @@ import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import play.mvc.Result;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class ReservationAPIController extends BaseController {
+
+    private final DateTimeHandler dateTimeHandler;
+
+    @Inject
+    public ReservationAPIController(DateTimeHandler dateTimeHandler) {
+        this.dateTimeHandler = dateTimeHandler;
+    }
 
     @SubjectNotPresent
     public Result getReservations(Optional<String> start, Optional<String> end, Optional<Long> roomId) {
@@ -79,8 +87,8 @@ public class ReservationAPIController extends BaseController {
             .findSet()
             .stream()
             .peek(r -> {
-                r.setStartAt(DateTimeUtils.normalize(r.getStartAt(), r));
-                r.setEndAt(DateTimeUtils.normalize(r.getEndAt(), r));
+                r.setStartAt(dateTimeHandler.normalize(r.getStartAt(), r));
+                r.setEndAt(dateTimeHandler.normalize(r.getEndAt(), r));
             })
             .sorted(Comparator.comparing(Reservation::getStartAt))
             .collect(Collectors.toList());

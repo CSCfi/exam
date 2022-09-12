@@ -12,7 +12,6 @@ import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit4.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
-import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -332,15 +331,10 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
-        assertThat(mails[0].getFrom()[0].toString())
-            .contains(ConfigFactory.load().getString("sitnet.email.system.account"));
+        assertThat(mails[0].getFrom()[0].toString()).contains("no-reply@exam.org");
         assertThat(mails[0].getSubject()).isEqualTo("Personal exam has been returned");
         String body = GreenMailUtil.getBody(mails[0]);
-        String reviewLink = String.format(
-            "%s/staff/assessments/%d",
-            ConfigFactory.load().getString("sitnet.application.hostname"),
-            studentExam.getId()
-        );
+        String reviewLink = String.format("%s/staff/assessments/%d", "http://uni.org", studentExam.getId());
         String reviewLinkElement = String.format("<a href=\"%s\">%s</a>", reviewLink, "Link to evaluation");
         assertThat(body).contains(reviewLinkElement);
     }
@@ -356,8 +350,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 1)).isTrue();
         MimeMessage[] mails = greenMail.getReceivedMessages();
         assertThat(mails).hasSize(1);
-        assertThat(mails[0].getFrom()[0].toString())
-            .contains(ConfigFactory.load().getString("sitnet.email.system.account"));
+        assertThat(mails[0].getFrom()[0].toString()).contains("no-reply@exam.org");
         assertThat(mails[0].getSubject()).isEqualTo("Personal exam has been abandoned");
         String body = GreenMailUtil.getBody(mails[0]);
         // Make sure there is no link to review

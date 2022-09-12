@@ -57,22 +57,29 @@ import sanitizers.Attrs;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class RoomController extends BaseController {
 
     private final boolean examVisitActivated;
     private final String defaultTimeZoneId;
-    private ExternalFacilityAPI externalApi;
+    private final ExternalFacilityAPI externalApi;
     protected ActorSystem system;
+    private final DateTimeHandler dateTimeHandler;
     private static final Logger.ALogger logger = Logger.of(RoomController.class);
 
     @Inject
-    public RoomController(ExternalFacilityAPI externalFacilityAPI, ActorSystem actorSystem, ConfigReader configReader) {
+    public RoomController(
+        ExternalFacilityAPI externalFacilityAPI,
+        ActorSystem actorSystem,
+        ConfigReader configReader,
+        DateTimeHandler dateTimeHandler
+    ) {
         this.externalApi = externalFacilityAPI;
         this.system = actorSystem;
         this.examVisitActivated = configReader.isVisitingExaminationSupported();
         this.defaultTimeZoneId = configReader.getDefaultTimeZone().getID();
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     private CompletionStage<Result> updateRemote(ExamRoom room) throws MalformedURLException {
@@ -255,7 +262,7 @@ public class RoomController extends BaseController {
                 copy.setRoom(examRoom);
                 DateTime end = new DateTime(blueprint.getEndTime());
                 int offset = DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(end);
-                int endMillisOfDay = DateTimeUtils.resolveEndWorkingHourMillis(end, offset) - offset;
+                int endMillisOfDay = dateTimeHandler.resolveEndWorkingHourMillis(end, offset) - offset;
                 copy.setEndTime(end.withMillisOfDay(endMillisOfDay));
                 copy.setTimezoneOffset(offset);
                 copy.save();

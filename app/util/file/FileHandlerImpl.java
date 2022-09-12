@@ -1,6 +1,5 @@
 package util.file;
 
-import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,17 +21,20 @@ import play.Environment;
 import play.Logger;
 import play.libs.Files;
 import play.mvc.Http;
+import util.config.ConfigReader;
 
 public class FileHandlerImpl implements FileHandler {
 
     private static final int KB = 1024;
     private static final Logger.ALogger logger = Logger.of(FileHandlerImpl.class);
 
-    private Environment environment;
+    private final Environment environment;
+    private final ConfigReader configReader;
 
     @Inject
-    public FileHandlerImpl(Environment environment) {
+    public FileHandlerImpl(Environment environment, ConfigReader configReader) {
         this.environment = environment;
+        this.configReader = configReader;
     }
 
     @Override
@@ -92,7 +94,7 @@ public class FileHandlerImpl implements FileHandler {
 
     @NotNull
     public String getAttachmentPath() {
-        String uploadPath = ConfigFactory.load().getString(("sitnet.attachments.path"));
+        String uploadPath = configReader.getAttachmentPath();
         StringBuilder path = new StringBuilder();
         // Following does not work on windows, but we hopefully aren't using it anyway :)
         if (!uploadPath.startsWith(File.separator)) {

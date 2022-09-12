@@ -39,16 +39,14 @@
 
 <div *ngIf="view.toggle && view.items.length > 0">
     <div class="py-3 d-flex flex-wrap justify-content-between">
-        <div class="search input-group my-2 max-w-350">
+        <div class="input-group my-2 max-w-350">
             <input
                 (input)="applyFreeSearchFilter()"
                 [(ngModel)]="view.filter"
-                class="form-control search"
+                class="form-control"
                 placeholder="{{ 'sitnet_search' | translate }}"
             />
-            <div class="input-group-append search">
-                <i class="input-group-text bi-search"></i>
-            </div>
+            <i class="input-group-text bi-search"></i>
         </div>
 
         <div class="review-attachment-button my-2" *ngIf="view.toggle && view.filtered.length > 0">

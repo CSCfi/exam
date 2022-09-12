@@ -51,7 +51,7 @@ import sanitizers.StudentEnrolmentSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 import validators.JsonValidator;
 
 public class EnrolmentController extends BaseController {
@@ -67,7 +67,7 @@ public class EnrolmentController extends BaseController {
 
     private final ActorSystem actor;
 
-    private final ConfigReader configReader;
+    private final DateTimeHandler dateTimeHandler;
 
     @Inject
     public EnrolmentController(
@@ -75,14 +75,15 @@ public class EnrolmentController extends BaseController {
         ExternalCourseHandler externalCourseHandler,
         ExternalReservationHandler externalReservationHandler,
         ActorSystem actor,
-        ConfigReader configReader
+        ConfigReader configReader,
+        DateTimeHandler dateTimeHandler
     ) {
         this.emailComposer = emailComposer;
         this.externalCourseHandler = externalCourseHandler;
         this.externalReservationHandler = externalReservationHandler;
         this.actor = actor;
         this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
-        this.configReader = configReader;
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
@@ -170,7 +171,7 @@ public class EnrolmentController extends BaseController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (isAllowedToParticipate(exam, user)) {
-            DateTime now = DateTimeUtils.adjustDST(new DateTime());
+            DateTime now = dateTimeHandler.adjustDST(new DateTime());
             List<ExamEnrolment> enrolments = Ebean
                 .find(ExamEnrolment.class)
                 .where()
@@ -183,11 +184,25 @@ public class EnrolmentController extends BaseController {
                 .endJunction()
                 .findList()
                 .stream()
-                .filter(ExamEnrolment::isActive)
+                .filter(this::isActive)
                 .collect(Collectors.toList());
             return ok(enrolments);
         }
         return unauthorized("sitnet_no_trials_left");
+    }
+
+    private boolean isActive(ExamEnrolment enrolment) {
+        DateTime now = dateTimeHandler.adjustDST(new DateTime());
+        Exam exam = enrolment.getExam();
+        if (exam == null || exam.getImplementation() == Exam.Implementation.AQUARIUM) {
+            Reservation reservation = enrolment.getReservation();
+            return reservation == null || reservation.getEndAt().isAfter(now);
+        }
+        ExaminationEventConfiguration examinationEventConfiguration = enrolment.getExaminationEventConfiguration();
+        return (
+            examinationEventConfiguration == null ||
+            examinationEventConfiguration.getExaminationEvent().getStart().plusMinutes(exam.getDuration()).isAfter(now)
+        );
     }
 
     @Authenticated
@@ -301,7 +316,7 @@ public class EnrolmentController extends BaseController {
                 enrolments
                     .stream()
                     .map(ExamEnrolment::getReservation)
-                    .anyMatch(r -> r != null && r.toInterval().contains(DateTimeUtils.adjustDST(DateTime.now(), r)))
+                    .anyMatch(r -> r != null && r.toInterval().contains(dateTimeHandler.adjustDST(DateTime.now(), r)))
             ) {
                 return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
             }
@@ -315,7 +330,7 @@ public class EnrolmentController extends BaseController {
                             .getExaminationEventConfiguration()
                             .getExaminationEvent()
                             .toInterval(e.getExam())
-                            .contains(DateTimeUtils.adjustDST(DateTime.now()))
+                            .contains(dateTimeHandler.adjustDST(DateTime.now()))
                     )
             ) {
                 return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
@@ -324,7 +339,7 @@ public class EnrolmentController extends BaseController {
                 .stream()
                 .filter(ee ->
                     ee.getReservation() != null &&
-                    ee.getReservation().toInterval().isAfter(DateTimeUtils.adjustDST(DateTime.now()))
+                    ee.getReservation().toInterval().isAfter(dateTimeHandler.adjustDST(DateTime.now()))
                 )
                 .collect(Collectors.toList());
             if (enrolmentsWithFutureReservations.size() > 1) {
@@ -369,7 +384,20 @@ public class EnrolmentController extends BaseController {
                 ExamEnrolment newEnrolment = makeEnrolment(exam, user);
                 return wrapAsPromise(ok(newEnrolment));
             }
-
+            if (enrolments.size() == 1) {
+                ExamEnrolment enrolment = enrolments.get(0);
+                Reservation reservation = enrolment.getReservation();
+                if (
+                    reservation != null &&
+                    reservation.getExternalRef() != null &&
+                    !reservation.getStartAt().isAfter(dateTimeHandler.adjustDST(DateTime.now())) &&
+                    !enrolment.isNoShow() &&
+                    enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
+                ) {
+                    // External reservation, assessment not returned yet. We must wait for it to arrive first
+                    return wrapAsPromise(forbidden("Not allowed to re-enroll, external assessment not returned yet"));
+                }
+            }
             ExamEnrolment newEnrolment = makeEnrolment(exam, user);
             Ebean.commitTransaction();
             return wrapAsPromise(ok(newEnrolment));

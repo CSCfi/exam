@@ -60,7 +60,7 @@ import sanitizers.EssayAnswerSanitizer;
 import security.Authenticated;
 import system.interceptors.SensitiveDataPolicy;
 import util.config.ByodConfigHandler;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "configKey" })
 @Restrict({ @Group("STUDENT") })
@@ -75,7 +75,8 @@ public class ExternalExaminationController extends ExaminationController {
         Environment environment,
         HttpExecutionContext httpExecutionContext,
         ExternalAttachmentLoader externalAttachmentLoader,
-        ByodConfigHandler byodConfigHandler
+        ByodConfigHandler byodConfigHandler,
+        DateTimeHandler dateTimeHandler
     ) {
         super(
             emailComposer,
@@ -85,7 +86,8 @@ public class ExternalExaminationController extends ExaminationController {
             environment,
             httpExecutionContext,
             externalAttachmentLoader,
-            byodConfigHandler
+            byodConfigHandler,
+            dateTimeHandler
         );
     }
 
@@ -116,7 +118,7 @@ public class ExternalExaminationController extends ExaminationController {
                     } catch (IOException e) {
                         return internalServerError();
                     }
-                    DateTime now = DateTimeUtils.adjustDST(
+                    DateTime now = dateTimeHandler.adjustDST(
                         DateTime.now(),
                         enrolment.getReservation().getMachine().getRoom()
                     );
@@ -320,7 +322,7 @@ public class ExternalExaminationController extends ExaminationController {
     }
 
     private Optional<ExamEnrolment> getEnrolment(User user, ExternalExam prototype) {
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
         ExamEnrolment enrolment = Ebean
             .find(ExamEnrolment.class)
             .fetch("reservation")
@@ -357,7 +359,7 @@ public class ExternalExaminationController extends ExaminationController {
             return forbidden();
         }
         ExamEnrolment enrolment = optionalEnrolment.get();
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now(), enrolment.getReservation().getMachine().getRoom());
         ee.setFinished(now);
         try {
             Exam content = ee.deserialize();
