@@ -1044,5 +1044,6 @@
   "sitnet_expired_joint_exams": "Yhteistentit, joiden voimassaoloaika on päättynyt",
   "sitnet_joint_exam_drafts": "Yhteistenttiluonnokset",
   "sitnet_exam_status_initialized": "Tentti aloitettu",
-  "sitnet_removed": "Poistettu"
+  "sitnet_removed": "Poistettu",
+  "sitnet_exception_datetimes_info": "Tila pois käytöstä. Poikkeusaukioloajalla tarkoitetaan aina sitä, että tila on silloin pois käytöstä. FI"
 }
