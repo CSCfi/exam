@@ -49,4 +49,17 @@ export class MachineListComponent implements OnInit {
             },
             error: (err) => this.toast.error(err.data),
         });
+    getAlphabeticalMachineList(list: ExamMachine[]) {
+        const sortable = list;
+        const empties = sortable.filter((m) => !m.name);
+        return list
+            .filter((m) => m.name)
+            .sort((a, b) => {
+                if (a.name.replace(/[1-9]/g, '') === b.name.replace(/[1-9]/g, '')) {
+                    return parseInt(a.name.replace(/[^\d.-]/g, '')) > parseInt(b.name.replace(/[^\d.-]/g, '')) ? 1 : -1;
+                }
+                return a.name.toLowerCase().trim() > b.name.toLowerCase().trim() ? 1 : -1;
+            })
+            .concat(empties);
+    }
 }
