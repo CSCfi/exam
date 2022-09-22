@@ -1,0 +1,94 @@
+<div class="row marr30 mt-4">
+    <div class="col-md-12">
+        <div class="review-list-title">
+            <span class="pointer" (click)="examFeedbackConfigDisplay.visible = !examFeedbackConfigDisplay.visible">
+                {{ 'sitnet_exam_feedback_config' | translate }}
+                <span *ngIf="examFeedbackConfig.enabled">({{ 'sitnet_in_use' | translate }})</span>
+                <span *ngIf="!examFeedbackConfig.enabled">({{ 'sitnet_not_in_use' | translate }})</span>
+                <span
+                    ngbPopover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    class="ms-2"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img
+                        *ngIf="!examFeedbackConfigDisplay.visible"
+                        src="/assets/images/icon_list_show_right.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
+                    />
+                    <img
+                        *ngIf="examFeedbackConfigDisplay.visible"
+                        src="/assets/images/icon_list_show_down.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
+                    />
+                </span>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="row" [hidden]="!examFeedbackConfigDisplay.visible">
+    <div class="col-md-12 margin-20">
+        <span class="autoevaluation-info">
+            {{ 'sitnet_exam_feedback_config_instructions' | translate }}
+        </span>
+        <div class="review-attachment-button autoeval-button">
+            <a
+                class="pointer"
+                *ngIf="!examFeedbackConfig.enabled"
+                name="enableExamFeedbackConfig"
+                (click)="examFeedbackConfig.enabled = true; enable()"
+            >
+                {{ 'sitnet_use' | translate }}</a
+            >
+            <a
+                class="pointer"
+                *ngIf="examFeedbackConfig.enabled"
+                name="disableExamFeedbackConfig"
+                class="notinuse"
+                (click)="examFeedbackConfig.enabled = false; disable()"
+            >
+                {{ 'sitnet_do_not_use' | translate }}</a
+            >
+        </div>
+    </div>
+</div>
+
+<div class="row mt-2 align-items-end" [hidden]="!examFeedbackConfigDisplay.visible">
+    <div class="col-md-6">
+        {{ 'sitnet_exam_feedback_release_type' | translate }}:
+        <div class="dropdown" ngbDropdown>
+            <button
+                class="btn btn-outline-dark"
+                [disabled]="!examFeedbackConfig.enabled"
+                type="button"
+                ngbDropdownToggle
+                aria-expanded="true"
+            >
+                {{ selectedReleaseType()?.translation || '' | translate }}&nbsp;<span class="caret"></span>
+            </button>
+            <ul ngbDropdownMenu role="menu">
+                <li
+                    *ngFor="let type of examFeedbackConfig.releaseTypes"
+                    role="presentation"
+                    [ngClass]="type.filtered ? 'active' : ''"
+                    (click)="applyFilter(type)"
+                >
+                    <a ngbDropdownItem class="pointer">
+                        {{ type.translation | translate }}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-6" [hidden]="!examFeedbackConfigDisplay.visible">
+        <xm-date-picker
+            *ngIf="selectedReleaseType()?.name === 'GIVEN_DATE'"
+            (updated)="releaseDateChanged($event)"
+            [initialDate]="config ? config.releaseDate : null"
+        ></xm-date-picker>
+    </div>
+</div>

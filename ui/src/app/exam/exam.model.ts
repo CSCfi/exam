@@ -31,6 +31,12 @@ export interface AutoEvaluationConfig {
     gradeEvaluations: GradeEvaluation[];
 }
 
+export interface ExamFeedbackConfig {
+    id?: number;
+    releaseType?: string;
+    releaseDate: Date | null;
+}
+
 export interface Course {
     id: number;
     name: string;
@@ -281,6 +287,7 @@ export interface ExamImpl {
     examParticipation?: ExamParticipation;
     gradeScale?: GradeScale;
     autoEvaluationConfig?: AutoEvaluationConfig;
+    examFeedbackConfig?: ExamFeedbackConfig;
     children: Exam[];
     examinationDates: ExaminationDate[];
     trialCount: number | null;

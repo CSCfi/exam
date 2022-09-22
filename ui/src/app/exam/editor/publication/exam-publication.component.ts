@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
@@ -45,8 +45,8 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
     templateUrl: './exam-publication.component.html',
 })
 export class ExamPublicationComponent implements OnInit {
-    @Input() exam!: Exam;
-    @Input() collaborative = false;
+    exam!: Exam;
+    collaborative = false;
 
     user: User;
     hostName: string;
@@ -99,7 +99,7 @@ export class ExamPublicationComponent implements OnInit {
                 .get<MaintenancePeriod[]>('/app/maintenance')
                 .subscribe((periods) => (this.maintenancePeriods = periods));
         }
-        this.Tabs.notifyTabChange(3);
+        this.Tabs.notifyTabChange(4);
     }
 
     addExaminationDate = (event: { date: Date | null }) => {
@@ -193,13 +193,9 @@ export class ExamPublicationComponent implements OnInit {
 
     previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
 
-    nextTab = () => {
-        this.Tabs.notifyTabChange(4);
-        this.router.navigate(['..', '4'], { relativeTo: this.route });
-    };
     previousTab = () => {
-        this.Tabs.notifyTabChange(2);
-        this.router.navigate(['..', '2'], { relativeTo: this.route });
+        this.Tabs.notifyTabChange(3);
+        this.router.navigate(['..', '3'], { relativeTo: this.route });
     };
 
     saveAndPublishExam = () => {

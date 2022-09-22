@@ -16,7 +16,7 @@ import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, SimpleChanges } from '@angular/core';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -31,8 +31,8 @@ import { ExamTabService } from '../exam-tabs.service';
     templateUrl: './sections.component.html',
 })
 export class SectionsComponent implements OnInit, OnChanges {
-    @Input() exam!: Exam;
-    @Input() collaborative = false;
+    exam!: Exam;
+    collaborative = false;
 
     materials: ExamMaterial[] = [];
 

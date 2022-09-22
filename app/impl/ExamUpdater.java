@@ -19,6 +19,7 @@ import com.google.inject.ImplementedBy;
 import java.util.Optional;
 import models.AutoEvaluationConfig;
 import models.Exam;
+import models.ExamFeedbackConfig;
 import models.Role;
 import models.User;
 import play.mvc.Http;
@@ -35,4 +36,5 @@ public interface ExamUpdater {
     void updateAutoEvaluationConfig(Exam exam, AutoEvaluationConfig newConfig);
     Optional<Result> updateLanguage(Exam exam, String code, User user);
     void preparePreview(Exam exam);
+    void updateExamFeedbackConfig(Exam exam, ExamFeedbackConfig examFeedbackConfig);
 }

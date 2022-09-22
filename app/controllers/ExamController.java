@@ -334,6 +334,9 @@ public class ExamController extends BaseController {
         } else if (request.attrs().containsKey(Attrs.AUTO_EVALUATION_CONFIG)) {
             examUpdater.updateAutoEvaluationConfig(exam, request.attrs().get(Attrs.AUTO_EVALUATION_CONFIG));
         }
+        if (request.attrs().containsKey(Attrs.EXAM_FEEDBACK_CONFIG)) {
+            examUpdater.updateExamFeedbackConfig(exam, request.attrs().get(Attrs.EXAM_FEEDBACK_CONFIG));
+        }
         exam.save();
         return ok(exam);
     }
@@ -576,6 +579,7 @@ public class ExamController extends BaseController {
             .fetch("examType")
             .fetch("autoEvaluationConfig")
             .fetch("autoEvaluationConfig.gradeEvaluations", new FetchConfig().query())
+            .fetch("examFeedbackConfig")
             .fetch("executionType")
             .fetch("examinationDates")
             .fetch("examinationEventConfigurations")

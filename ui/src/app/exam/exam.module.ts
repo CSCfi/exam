@@ -21,6 +21,8 @@ import { ReviewModule } from '../review/review.module';
 import { SharedModule } from '../shared/shared.module';
 import { CollaborativeExamListingComponent } from './collaborative/collaborative-exam-listing.component';
 import { CollaborativeExamService } from './collaborative/collaborative-exam.service';
+import { ExamAssessmentComponent } from './editor/assessment/exam-assessment.component';
+import { ExamFeedbackConfigComponent } from './editor/assessment/exam-feedback-config.component';
 import { BasicExamInfoComponent } from './editor/basic/basic-exam-info.component';
 import { ExamCourseComponent } from './editor/basic/exam-course.component';
 import { ExamInspectorSelectorComponent } from './editor/basic/exam-inspector-picker.component';
@@ -60,9 +62,11 @@ import { PrintoutListingComponent } from './printout/printouts.component';
     imports: [NgbModule, SharedModule, ReviewModule, DragDropModule, RouterModule, QuestionModule],
     declarations: [
         BasicExamInfoComponent,
+        ExamAssessmentComponent,
         ExamPublicationComponent,
         ExamCourseComponent,
         AutoEvaluationComponent,
+        ExamFeedbackConfigComponent,
         SectionsComponent,
         NewExamComponent,
         SectionComponent,

@@ -66,7 +66,7 @@ export class ReviewListComponent implements OnInit, OnChanges {
                     .get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`)
                     .subscribe((resp) => (this.noShows = resp));
             }
-            this.Tabs.notifyTabChange(4);
+            this.Tabs.notifyTabChange(5);
         });
     }
 
