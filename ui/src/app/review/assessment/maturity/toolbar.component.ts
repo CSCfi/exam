@@ -31,7 +31,7 @@ import { MaturityService } from './maturity.service';
                     </button>
                 </div>
                 <div *ngIf="isReadOnly()" class="review-attachment-button exam-questions-buttons marl15">
-                    <a class="pointer preview" [routerLink]="['/staff/exams', exam.parent?.id, '4']">
+                    <a class="pointer preview" [routerLink]="['/staff/exams', exam.parent?.id, '5']">
                         {{ 'sitnet_close' | translate }}</a
                     >
                 </div>

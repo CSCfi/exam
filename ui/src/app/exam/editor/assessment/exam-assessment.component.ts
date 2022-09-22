@@ -79,10 +79,12 @@ export class ExamAssessmentComponent implements OnInit, OnDestroy {
         this.updateExam(false);
     };
 
+    // when grade changes, delete autoeval config (locally) and call prepare
+
     updateExam = (resetAutoEvaluationConfig: boolean) => {
         const config = {
             evaluationConfig:
-                this.autoEvaluation.enabled && this.canBeAutoEvaluated()
+                this.autoEvaluation.enabled && this.canBeAutoEvaluated() && !resetAutoEvaluationConfig
                     ? {
                           releaseType: this.exam.autoEvaluationConfig?.releaseType,
                           releaseDate: this.exam.autoEvaluationConfig?.releaseDate
@@ -99,9 +101,13 @@ export class ExamAssessmentComponent implements OnInit, OnDestroy {
                           releaseDate: this.exam.examFeedbackConfig?.releaseDate
                               ? new Date(this.exam.examFeedbackConfig.releaseDate).getTime()
                               : null,
+                          amountDays: this.exam.examFeedbackConfig?.amountDays,
                       }
                     : null,
         };
+        if (resetAutoEvaluationConfig) {
+            this.exam = { ...this.exam, autoEvaluationConfig: undefined };
+        }
         this.Exam.updateExam$(this.exam, config, this.collaborative).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('sitnet_exam_saved'));

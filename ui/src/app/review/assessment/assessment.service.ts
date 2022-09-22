@@ -136,7 +136,7 @@ export class AssessmentService {
 
     getExitStateById = (id: number, collaborative: boolean): Link => {
         return {
-            fragments: ['/staff/exams', id.toString(), '4'],
+            fragments: ['/staff/exams', id.toString(), '5'],
             params: { collaborative: collaborative },
         };
     };

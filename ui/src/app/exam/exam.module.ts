@@ -14,6 +14,7 @@
  */
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgModule } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { QuestionModule } from '../question/question.module';
@@ -21,6 +22,7 @@ import { ReviewModule } from '../review/review.module';
 import { SharedModule } from '../shared/shared.module';
 import { CollaborativeExamListingComponent } from './collaborative/collaborative-exam-listing.component';
 import { CollaborativeExamService } from './collaborative/collaborative-exam.service';
+import { AutoEvaluationComponent } from './editor/assessment/auto-evaluation.component';
 import { ExamAssessmentComponent } from './editor/assessment/exam-assessment.component';
 import { ExamFeedbackConfigComponent } from './editor/assessment/exam-feedback-config.component';
 import { BasicExamInfoComponent } from './editor/basic/basic-exam-info.component';
@@ -39,7 +41,6 @@ import { ExaminationEventDialogComponent } from './editor/events/examination-eve
 import { ExaminationEventSearchComponent } from './editor/events/examination-event-search.component';
 import { ExamTabsComponent } from './editor/exam-tabs.component';
 import { ExamTabService } from './editor/exam-tabs.service';
-import { AutoEvaluationComponent } from './editor/publication/auto-evaluation.component';
 import { CollaborativeExamOwnerSelectorComponent } from './editor/publication/collaborative-exam-owner-picker.component';
 import { ExamParticipantSelectorComponent } from './editor/publication/exam-participant-picker.component';
 import { ExamPreParticipantSelectorComponent } from './editor/publication/exam-pre-participant-picker.component';
@@ -59,7 +60,7 @@ import { PrintoutComponent } from './printout/printout.component';
 import { PrintoutListingComponent } from './printout/printouts.component';
 
 @NgModule({
-    imports: [NgbModule, SharedModule, ReviewModule, DragDropModule, RouterModule, QuestionModule],
+    imports: [ReactiveFormsModule, NgbModule, SharedModule, ReviewModule, DragDropModule, RouterModule, QuestionModule],
     declarations: [
         BasicExamInfoComponent,
         ExamAssessmentComponent,

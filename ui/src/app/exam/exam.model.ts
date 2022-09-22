@@ -35,6 +35,7 @@ export interface ExamFeedbackConfig {
     id?: number;
     releaseType?: string;
     releaseDate: Date | null;
+    amountDays?: number;
 }
 
 export interface Course {
