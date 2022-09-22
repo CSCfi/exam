@@ -53,13 +53,13 @@ export class TeacherDashboardComponent implements OnInit {
             {
                 text: 'sitnet_participation_unreviewed',
                 property: 'unassessedCount',
-                link: ['/staff/exams', '__', '4'],
+                link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
             },
             {
                 text: 'sitnet_participation_unfinished',
                 property: 'unfinishedCount',
-                link: ['/staff/exams', '__', '4'],
+                link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
             },
             {
@@ -73,13 +73,13 @@ export class TeacherDashboardComponent implements OnInit {
             {
                 text: 'sitnet_participation_unreviewed',
                 property: 'unassessedCount',
-                link: ['/staff/exams', '__', '4'],
+                link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
             },
             {
                 text: 'sitnet_participation_unfinished',
                 property: 'unfinishedCount',
-                link: ['/staff/exams', '__', '4'],
+                link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
             },
         ];
@@ -87,7 +87,7 @@ export class TeacherDashboardComponent implements OnInit {
             {
                 text: 'sitnet_participations_assessed',
                 property: 'assessedCount',
-                link: ['/staff/exams', '__', '4'],
+                link: ['/staff/exams', '__', '5'],
                 checkOwnership: true,
             },
         ];
