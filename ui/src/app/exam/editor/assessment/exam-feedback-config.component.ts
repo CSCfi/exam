@@ -12,11 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit, SimpleChanges } from '@angular/core';
+import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
 import type { Exam, ExamFeedbackConfig } from '../../exam.model';
-import { ExamService } from '../../exam.service';
 
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
 
@@ -39,7 +37,7 @@ export class ExamFeedbackConfigComponent implements OnInit {
     config?: ExamFeedbackConfig;
     examFeedbackConfigDisplay: { visible: boolean };
 
-    constructor(private Exam: ExamService, private CommonExam: CommonExamService) {
+    constructor() {
         this.examFeedbackConfig = {
             enabled: false,
             releaseTypes: [
@@ -50,6 +48,7 @@ export class ExamFeedbackConfigComponent implements OnInit {
                 },
                 { name: 'AFTER_EXAM_PERIOD', translation: 'sitnet_release_type_period' },
                 { name: 'GIVEN_DATE', translation: 'sitnet_release_type_given_date' },
+                { name: 'GIVEN_AMOUNT_DAYS', translation: 'sitnet_release_type_given_days' },
             ],
         };
         this.examFeedbackConfigDisplay = { visible: false };
@@ -58,12 +57,6 @@ export class ExamFeedbackConfigComponent implements OnInit {
     ngOnInit() {
         this.prepareExamFeedbackConfig();
     }
-
-    ngOnChanges = (props: SimpleChanges) => {
-        if (props.exam && this.examFeedbackConfig) {
-            this.prepareExamFeedbackConfig();
-        }
-    };
 
     disable = () => this.disabled.emit();
     enable = () => this.enabled.emit();
@@ -93,7 +86,7 @@ export class ExamFeedbackConfigComponent implements OnInit {
             const releaseType = this.selectedReleaseType();
             this.config = {
                 releaseType: releaseType ? releaseType.name : this.examFeedbackConfig.releaseTypes[0].name,
-                releaseDate: new Date(),
+                releaseDate: null,
             };
         }
         if (this.exam.examFeedbackConfig) {

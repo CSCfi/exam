@@ -36,6 +36,8 @@ public class ExamFeedbackConfig extends GeneratedIdentityModel {
         AFTER_EXAM_PERIOD,
         @EnumValue("3")
         GIVEN_DATE,
+        @EnumValue("4")
+        GIVEN_AMOUNT_DAYS,
     }
 
     private ReleaseType releaseType;
@@ -46,6 +48,8 @@ public class ExamFeedbackConfig extends GeneratedIdentityModel {
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date releaseDate;
+
+    private Integer amountDays;
 
     public ReleaseType getReleaseType() {
         return releaseType;
@@ -69,6 +73,14 @@ public class ExamFeedbackConfig extends GeneratedIdentityModel {
 
     public void setReleaseDate(Date releaseDate) {
         this.releaseDate = releaseDate;
+    }
+
+    public Integer getAmountDays() {
+        return amountDays;
+    }
+
+    public void setAmountDays(Integer amountDays) {
+        this.amountDays = amountDays;
     }
 
     @Override

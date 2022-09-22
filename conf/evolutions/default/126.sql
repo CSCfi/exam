@@ -4,6 +4,7 @@ CREATE TABLE exam_feedback_config(
                                    exam_id BIGINT NOT NULL,
                                    release_type INT NOT NULL,
                                    release_date TIMESTAMPTZ,
+                                   amount_days INT,
                                    object_version BIGINT NOT NULL,
                                    CONSTRAINT PK_EXAM_FEEDBACK_CONFIG PRIMARY KEY (id)
 );

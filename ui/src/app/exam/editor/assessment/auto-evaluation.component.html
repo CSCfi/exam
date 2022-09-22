@@ -135,8 +135,9 @@
     <div class="col-md-12">
         <form role="form">
             <div class="row" *ngIf="selectedReleaseType()?.name === 'GIVEN_DATE'">
-                <div class="col-md-6">
+                <div class="col-md-6 mt-2">
                     <xm-date-picker
+                        [optional]="false"
                         (updated)="releaseDateChanged($event)"
                         [initialDate]="config ? config.releaseDate : null"
                     ></xm-date-picker>

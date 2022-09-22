@@ -57,7 +57,7 @@
 </div>
 
 <div class="row mt-2 align-items-end" [hidden]="!examFeedbackConfigDisplay.visible">
-    <div class="col-md-6">
+    <div class="col-md-3">
         {{ 'sitnet_exam_feedback_release_type' | translate }}:
         <div class="dropdown" ngbDropdown>
             <button
@@ -84,11 +84,22 @@
         </div>
     </div>
 
-    <div class="col-md-6" [hidden]="!examFeedbackConfigDisplay.visible">
+    <div class="col-md-3" [hidden]="!examFeedbackConfigDisplay.visible">
         <xm-date-picker
             *ngIf="selectedReleaseType()?.name === 'GIVEN_DATE'"
             (updated)="releaseDateChanged($event)"
             [initialDate]="config ? config.releaseDate : null"
         ></xm-date-picker>
+        <input
+            *ngIf="config && selectedReleaseType()?.name === 'GIVEN_AMOUNT_DAYS'"
+            name="amountDays"
+            type="number"
+            lang="en"
+            class="form-control"
+            [(ngModel)]="config.amountDays"
+            [min]="1"
+            [max]="60"
+            required
+        />
     </div>
 </div>
