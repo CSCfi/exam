@@ -2,7 +2,6 @@ package base;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static play.test.Helpers.contentAsString;
-import static play.test.Helpers.fakeApplication;
 import static play.test.Helpers.fakeRequest;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -47,16 +46,17 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
 import play.Application;
+import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import play.test.WithApplication;
 import util.json.JsonDeserializer;
 
-public class IntegrationTestCase {
+public class IntegrationTestCase extends WithApplication {
 
     protected static final int MAIL_TIMEOUT = 20000;
-    protected Application app;
     protected Long userId;
     protected Http.Session session;
 
@@ -91,7 +91,6 @@ public class IntegrationTestCase {
             )
         );
         // Appears that this is needed for IDE (IntelliJ) to pick up the right configuration?
-        // TODO: get rid
         System.setProperty("config.resource", "integrationtest.conf");
     }
 
@@ -100,20 +99,13 @@ public class IntegrationTestCase {
         // Default does nothing
     }
 
-    protected Application provideApp() {
-        // TODO: Figure out how this overriding of config values could work. There is an API but it doesn't do the trick
-        // Map<String, ?> override = Map.of("some.config", true);
-        return fakeApplication(/*override*/);
+    @Override
+    protected Application provideApplication() {
+        return new GuiceApplicationBuilder().build();
     }
 
     @Before
     public void setUp() throws Exception {
-        // Unfortunately we need to restart for each test because there is some weird issue with question id sequence.
-        // Ebean allocates us duplicate PKs eventually unless server is recreated in between. This is either a bug with
-        // Ebean (batching) or an issue with our question entity JPA mappings.
-        app = provideApp();
-        Helpers.start(app);
-
         addTestData();
         onBeforeLogin();
 
@@ -129,8 +121,6 @@ public class IntegrationTestCase {
 
     @After
     public void tearDown() {
-        logout();
-        Helpers.stop(app);
         // Clear exam upload directory
         String uploadPath = "target/attachments";
         try {
@@ -210,7 +200,7 @@ public class IntegrationTestCase {
 
     protected void login(String eppn, Map<String, String> headers) {
         HAKA_HEADERS.put("eppn", eppn);
-        headers.forEach(HAKA_HEADERS::put);
+        HAKA_HEADERS.putAll(headers);
         Result result = request(Helpers.POST, "/app/session", null, HAKA_HEADERS, false);
         this.session = result.session();
         assertThat(result.status()).isEqualTo(Http.Status.OK);

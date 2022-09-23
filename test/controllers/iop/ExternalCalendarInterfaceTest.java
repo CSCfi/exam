@@ -49,9 +49,10 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import play.Application;
+import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -150,6 +151,12 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             }
         }
+    }
+
+    @Override
+    protected Application provideApplication() {
+        Map<String, Object> config = Map.of("sitnet.integration.enrolmentPermissionCheck.active", false);
+        return new GuiceApplicationBuilder().configure(config).build();
     }
 
     @BeforeClass
@@ -624,7 +631,6 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
     }
 
     @Test
-    @Ignore("unable to override the default configuration needed for this test to work")
     @RunAsStudent
     public void testRequestReservationAndReEnrollBeforeAssessmentReturned() throws Exception {
         initialize(null);
