@@ -35,6 +35,7 @@ export class ExamAssessmentComponent implements OnInit, OnDestroy {
     gradeScales: GradeScale[] = [];
     autoEvaluation: { enabled: boolean } = { enabled: false };
     examFeedbackConfig: { enabled: boolean } = { enabled: false };
+    isAllowedToUpdateFeedbackConfig = false;
 
     unsubscribe = new Subject<unknown>();
 
@@ -59,6 +60,9 @@ export class ExamAssessmentComponent implements OnInit, OnDestroy {
         this.http
             .get<{ overridable: boolean }>('/app/settings/gradescale')
             .subscribe((setting) => (this.gradeScaleSetting = setting));
+        this.http
+            .get<{ status: boolean }>(`/app/review/${this.exam.id}/locked`)
+            .subscribe((setting) => (this.isAllowedToUpdateFeedbackConfig = setting.status));
 
         this.refreshExamTypes();
         this.refreshGradeScales();

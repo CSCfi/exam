@@ -1049,5 +1049,7 @@
   "sitnet_exam_feedback_config": "Kysymysten ja vastausten julkaisu",
   "sitnet_exam_feedback_config_instructions": "Kun otat tämän toiminnon käyttöön opiskelijat näkevät tentin arvioinnin lukitsemisen jälkeen tekemänsä tentin arvosanan ja tehtäväpisteiden pisteiden lisäksi hänellä tentissä olleet kysymykset ja omat vastaukset. Monivalinnoissa ovat valinnat, eivät kaikkia vaihtoehtoja. Voit muuttaa valintaa ensimmäisen arvioinnin lukitsemiseen asti.",
   "sitnet_release_type_once_locked": "Suorituksen lukitsemisen jälkeen",
-  "sitnet_exam_feedback_release_type": "Ajankohta, jolloin tiedot julkaistaan opiskelijalle"
+  "sitnet_exam_feedback_release_type": "Ajankohta, jolloin tiedot julkaistaan opiskelijalle",
+  "sitnet_exam_feedback_config_confirmation": "Olet ottanut käyttöön kysymysten ja vastausten julkaisun opiskelijoille arvioinnin lukitsemisen jälkeen. Voit muuttaa valintaa ensimmäisen arvioinnin lukitsemiseen asti.",
+  "sitnet_exam_feedback_config_warning": "Olet ottanut tentissä käyttöön kysymysten ja vastausten julkaisun Arviointiasetukset -sivulla. Ensimmäisen arvioinnin lukitsemisen jälkeen et voi enää muuttaa kysymysten ja vastauksen näkymistä opiskelijoille."
 }

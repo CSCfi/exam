@@ -29,6 +29,7 @@ type ExamFeedbackConfigTemplate = {
 })
 export class ExamFeedbackConfigComponent implements OnInit {
     @Input() exam!: Exam;
+    @Input() modifiable = false;
     @Output() enabled = new EventEmitter<void>();
     @Output() disabled = new EventEmitter<void>();
     @Output() updated = new EventEmitter<{ config: ExamFeedbackConfig }>();

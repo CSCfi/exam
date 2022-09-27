@@ -99,11 +99,16 @@ export class AssessmentService {
 
     // Defining markup outside templates is not advisable, but creating a working custom dialog template for this
     // proved to be a bit too much of a hassle. Lets live with this.
-    getRecordReviewConfirmationDialogContent = (feedback: string) =>
-        `<h4>${this.translate.instant('sitnet_teachers_comment')}</h4>
-        ${feedback}<br/>
-        <strong>${this.translate.instant('sitnet_confirm_record_review')}</strong>
+    getRecordReviewConfirmationDialogContent = (feedback: string, showFeedbackConfigWarning: boolean) => {
+        const content = `<h4>${this.translate.instant('sitnet_teachers_comment')}</h4>
+        ${feedback}
+        <p>${this.translate.instant('sitnet_confirm_record_review')}</p>
         `;
+        if (showFeedbackConfigWarning) {
+            return `${content}<p>${this.translate.instant('sitnet_exam_feedback_config_warning')}</p>`;
+        }
+        return content;
+    };
 
     countCharacters = (text?: string) => {
         let normalizedText = text
@@ -150,7 +155,7 @@ export class AssessmentService {
         return this.getExitStateById(id, collaborative);
     };
 
-    createExamRecord$ = (exam: Exam, needsConfirmation: boolean): Observable<void> => {
+    createExamRecord$ = (exam: Exam, needsConfirmation: boolean, needsWarning: boolean): Observable<void> => {
         if (!this.checkCredit(exam)) {
             return of();
         }
@@ -164,7 +169,10 @@ export class AssessmentService {
                 dialogNote = this.translate.instant('sitnet_confirm_archiving_without_grade');
                 res = '/app/exam/register';
             } else {
-                dialogNote = this.getRecordReviewConfirmationDialogContent((exam.examFeedback as Feedback).comment);
+                dialogNote = this.getRecordReviewConfirmationDialogContent(
+                    (exam.examFeedback as Feedback).comment,
+                    needsWarning,
+                );
                 res = '/app/exam/record';
             }
             const payload = this.getPayload(exam, 'GRADED');
@@ -176,6 +184,13 @@ export class AssessmentService {
                 return this.sendToRegistry$(payload, res);
             }
         }
+    };
+
+    doesPreviouslyLockedAssessmentsExist$ = (exam: Exam) => {
+        if (!exam.parent?.id || !exam.parent.examFeedbackConfig) {
+            return of({ status: false });
+        }
+        return this.http.get<{ status: boolean }>(`/app/review/${exam.parent.id}/locked`);
     };
 
     isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
