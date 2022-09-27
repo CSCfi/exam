@@ -93,6 +93,7 @@
                 <div *ngIf="!collaborative" class="">
                     <xm-exam-feedback-config
                         [exam]="exam"
+                        [modifiable]="isAllowedToUpdateFeedbackConfig"
                         (updated)="feedbackConfigChanged($event)"
                         (disabled)="feedbackConfigDisabled()"
                         (enabled)="feedbackConfigEnabled()"

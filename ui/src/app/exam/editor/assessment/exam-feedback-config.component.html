@@ -62,7 +62,7 @@
         <div class="dropdown" ngbDropdown>
             <button
                 class="btn btn-outline-dark"
-                [disabled]="!examFeedbackConfig.enabled"
+                [disabled]="!examFeedbackConfig.enabled || !modifiable"
                 type="button"
                 ngbDropdownToggle
                 aria-expanded="true"
@@ -88,6 +88,7 @@
         <xm-date-picker
             *ngIf="selectedReleaseType()?.name === 'GIVEN_DATE'"
             (updated)="releaseDateChanged($event)"
+            [disabled]="!modifiable"
             [initialDate]="config ? config.releaseDate : null"
         ></xm-date-picker>
         <input
@@ -96,6 +97,7 @@
             type="number"
             lang="en"
             class="form-control"
+            [disabled]="!modifiable"
             [(ngModel)]="config.amountDays"
             [min]="1"
             [max]="60"

@@ -144,6 +144,7 @@ export class CollaborativeAssesmentService {
                 ? this.translate.instant('sitnet_confirm_archiving_without_grade')
                 : this.Assessment.getRecordReviewConfirmationDialogContent(
                       (participation.exam.examFeedback as Feedback).comment,
+                      false,
                   );
             const payload = this.getPayload(participation.exam, 'GRADED', participation._rev as string);
             this.dialogs
