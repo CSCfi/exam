@@ -12,22 +12,43 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, Input, OnInit } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { format } from 'date-fns';
+import { Exam } from 'src/app/exam/exam.model';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
 import { FileService } from '../../shared/file/file.service';
 import type { ReviewedExam, Scores } from '../enrolment.model';
+import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
 
 @Component({
     selector: 'xm-exam-feedback',
     templateUrl: './exam-feedback.component.html',
 })
-export class ExamFeedbackComponent {
+export class ExamFeedbackComponent implements OnInit {
     @Input() assessment!: ReviewedExam;
+    @Input() participationTime = '';
+    @Input() participationDuration: number | string = 0;
     @Input() scores!: Scores;
     @Input() collaborative = false;
 
-    constructor(private Attachment: AttachmentService, private Files: FileService) {}
+    assessmentWithAnswers?: Exam;
+
+    constructor(
+        private http: HttpClient,
+        private modal: NgbModal,
+        private Attachment: AttachmentService,
+        private Files: FileService,
+    ) {}
+
+    ngOnInit() {
+        if (!this.collaborative) {
+            this.http
+                .get<Exam | undefined>(`/app/feedback/exams/${this.assessment.id}/answers`)
+                .subscribe((exam) => (this.assessmentWithAnswers = exam));
+        }
+    }
 
     downloadFeedbackAttachment = () => {
         const attachment = this.assessment.examFeedback?.attachment;
@@ -38,6 +59,17 @@ export class ExamFeedbackComponent {
         }
     };
     downloadStatementAttachment = () => this.Attachment.downloadStatementAttachment(this.assessment);
+
+    showAnswers = () => {
+        const modal = this.modal.open(ExamAnswersDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'xl',
+        });
+        modal.componentInstance.exam = this.assessmentWithAnswers;
+        modal.componentInstance.participationTime = this.participationTime;
+        modal.componentInstance.participationDuration = this.participationDuration;
+    };
 
     downloadScoreReport = () => {
         const url = `/app/feedback/exams/${this.assessment.id}/report`;

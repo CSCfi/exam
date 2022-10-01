@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
-import { AssessmentService } from '../assessment.service';
 
 @Component({
     selector: 'xm-printed-essay',
@@ -23,7 +23,7 @@ import { AssessmentService } from '../assessment.service';
 export class PrintedEssayComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;
 
-    constructor(private Assessment: AssessmentService) {}
+    constructor(private CommonExam: CommonExamService) {}
 
     getScore = () => {
         if (!this.sectionQuestion.essayAnswer) {
@@ -36,13 +36,13 @@ export class PrintedEssayComponent {
         if (!this.sectionQuestion.essayAnswer?.answer) {
             return 0;
         }
-        return this.Assessment.countWords(this.sectionQuestion.essayAnswer.answer);
+        return this.CommonExam.countWords(this.sectionQuestion.essayAnswer.answer);
     };
 
     getCharacterCount = () => {
         if (!this.sectionQuestion.essayAnswer?.answer) {
             return 0;
         }
-        return this.Assessment.countCharacters(this.sectionQuestion.essayAnswer.answer);
+        return this.CommonExam.countCharacters(this.sectionQuestion.essayAnswer.answer);
     };
 }

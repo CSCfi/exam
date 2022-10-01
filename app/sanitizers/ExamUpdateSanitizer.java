@@ -107,7 +107,7 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
                 );
                 config.setAmountDays(SanitizingHelper.parse("amountDays", node, Integer.class).orElse(null));
                 Optional<Long> releaseDateMs = SanitizingHelper.parse("releaseDate", node, Long.class);
-                releaseDateMs.ifPresent(rd -> config.setReleaseDate(new Date(rd)));
+                releaseDateMs.ifPresent(rd -> config.setReleaseDate(new DateTime(rd)));
                 request = request.addAttr(Attrs.EXAM_FEEDBACK_CONFIG, config);
             } else if (node.isNull()) {
                 request = request.addAttr(Attrs.EXAM_FEEDBACK_CONFIG, null);

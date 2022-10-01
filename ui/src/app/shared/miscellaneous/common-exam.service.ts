@@ -12,15 +12,17 @@
  * on an 'AS IS' basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ReviewedExam } from '../../enrolment/enrolment.model';
-import type { Exam, GradeScale, Implementation } from '../../exam/exam.model';
+import type { Exam, ExamSection, GradeScale, Implementation } from '../../exam/exam.model';
 import { isNumber } from './helpers';
 
+type SectionContainer = { examSections: ExamSection[] };
 @Injectable({ providedIn: 'root' })
 export class CommonExamService {
-    constructor(private translate: TranslateService) {}
+    constructor(@Inject(DOCUMENT) private document: Document, private translate: TranslateService) {}
 
     getExamTypeDisplayName = (type: string): string => {
         let name = '';
@@ -126,5 +128,43 @@ export class CommonExamService {
             case 'WHATEVER':
                 return 'sitnet_examination_type_home_exam';
         }
+    };
+
+    countCharacters = (text?: string) => {
+        let normalizedText = text
+            ? text
+                  .replace(/\s/g, '')
+                  .replace(/&nbsp;/g, '')
+                  .replace(/(\r\n|\n|\r)/gm, '')
+                  .replace(/&nbsp;/gi, ' ')
+            : '';
+        normalizedText = this.strip(normalizedText).replace(/^([\t\r\n]*)$/, '');
+        return normalizedText.length;
+    };
+
+    countWords = (text?: string) => {
+        let normalizedText = text
+            ? text
+                  .replace(/(\r\n|\n|\r)/gm, ' ')
+                  .replace(/^\s+|\s+$/g, '')
+                  .replace('&nbsp;', ' ')
+            : '';
+        normalizedText = this.strip(normalizedText);
+        const words = normalizedText.split(/\s+/);
+        for (let wordIndex = words.length - 1; wordIndex >= 0; wordIndex--) {
+            if (words[wordIndex].match(/^([\s\t\r\n]*)$/)) {
+                words.splice(wordIndex, 1);
+            }
+        }
+        return words.length;
+    };
+
+    private strip = (html: string) => {
+        const tmp = this.document.createElement('div');
+        tmp.innerHTML = html;
+        if (!tmp.textContent && typeof tmp.innerText === 'undefined') {
+            return '';
+        }
+        return tmp.textContent || tmp.innerText;
     };
 }

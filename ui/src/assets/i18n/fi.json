@@ -1051,5 +1051,6 @@
   "sitnet_release_type_once_locked": "Suorituksen lukitsemisen jälkeen",
   "sitnet_exam_feedback_release_type": "Ajankohta, jolloin tiedot julkaistaan opiskelijalle",
   "sitnet_exam_feedback_config_confirmation": "Olet ottanut käyttöön kysymysten ja vastausten julkaisun opiskelijoille arvioinnin lukitsemisen jälkeen. Voit muuttaa valintaa ensimmäisen arvioinnin lukitsemiseen asti.",
-  "sitnet_exam_feedback_config_warning": "Olet ottanut tentissä käyttöön kysymysten ja vastausten julkaisun Arviointiasetukset -sivulla. Ensimmäisen arvioinnin lukitsemisen jälkeen et voi enää muuttaa kysymysten ja vastauksen näkymistä opiskelijoille."
+  "sitnet_exam_feedback_config_warning": "Olet ottanut tentissä käyttöön kysymysten ja vastausten julkaisun Arviointiasetukset -sivulla. Ensimmäisen arvioinnin lukitsemisen jälkeen et voi enää muuttaa kysymysten ja vastauksen näkymistä opiskelijoille.",
+  "sitnet_questions_with_your_answers": "Kysymykset ja vastauksesi"
 }

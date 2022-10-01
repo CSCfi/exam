@@ -160,48 +160,11 @@ export class ExamService {
             ),
         );
 
-    getSectionTotalNumericScore = (section: ExamSection): number => {
-        const score = section.sectionQuestions.reduce((n, sq) => {
-            const points = this.Question.calculateAnswerScore(sq);
-            // handle only numeric scores (leave out approved/rejected type of scores)
-            return n + (points.rejected === false && points.approved === false ? points.score : 0);
-        }, 0);
-        return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
-    };
-
-    getSectionTotalScore = (section: ExamSection): number => {
-        const score = section.sectionQuestions.reduce((n, sq) => {
-            const points = this.Question.calculateAnswerScore(sq);
-            return n + points.score;
-        }, 0);
-        return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
-    };
-
-    getSectionMaxScore = (section: ExamSection): number => {
-        let maxScore = section.sectionQuestions.reduce((n, sq) => {
-            if (!sq || !sq.question) {
-                return n;
-            }
-            return n + this.Question.calculateMaxScore(sq);
-        }, 0);
-        if (section.lotteryOn) {
-            maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
-        }
-        return Number.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
-    };
-
     hasQuestions = (exam: SectionContainer) => exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0) > 0;
 
     hasEssayQuestions = (exam: SectionContainer) =>
         exam.examSections.filter((es) => es.sectionQuestions.some((sq) => sq.question.type === 'EssayQuestion'))
             .length > 0;
-
-    getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
-
-    getTotalScore = (exam: SectionContainer): string => {
-        const score = exam.examSections.reduce((n, es) => n + this.getSectionTotalNumericScore(es), 0).toFixed(2);
-        return parseFloat(score) > 0 ? score : '0';
-    };
 
     isOwner = (exam: Exam, collaborative = false) => {
         const user = this.Session.getUser();
@@ -292,6 +255,43 @@ export class ExamService {
         this.http
             .get<Exam>(`/app/exams/${id}`)
             .pipe(map((exam) => ({ ...exam, hasEnrolmentsInEffect: this.hasEffectiveEnrolments(exam) })));
+
+    getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
+
+    getTotalScore = (exam: SectionContainer): string => {
+        const score = exam.examSections.reduce((n, es) => n + this.getSectionTotalNumericScore(es), 0).toFixed(2);
+        return parseFloat(score) > 0 ? score : '0';
+    };
+
+    getSectionTotalNumericScore = (section: ExamSection): number => {
+        const score = section.sectionQuestions.reduce((n, sq) => {
+            const points = this.Question.calculateAnswerScore(sq);
+            // handle only numeric scores (leave out approved/rejected type of scores)
+            return n + (points.rejected === false && points.approved === false ? points.score : 0);
+        }, 0);
+        return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
+    };
+
+    getSectionTotalScore = (section: ExamSection): number => {
+        const score = section.sectionQuestions.reduce((n, sq) => {
+            const points = this.Question.calculateAnswerScore(sq);
+            return n + points.score;
+        }, 0);
+        return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
+    };
+
+    getSectionMaxScore = (section: ExamSection): number => {
+        let maxScore = section.sectionQuestions.reduce((n, sq) => {
+            if (!sq || !sq.question) {
+                return n;
+            }
+            return n + this.Question.calculateMaxScore(sq);
+        }, 0);
+        if (section.lotteryOn) {
+            maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
+        }
+        return Number.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
+    };
 
     private hasEffectiveEnrolments = (exam: Exam) =>
         exam.examEnrolments.some((ee) => ee.reservation && parseISO(ee.reservation.endAt) > new Date());

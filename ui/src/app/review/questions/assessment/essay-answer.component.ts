@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import { AssessmentService } from '../../assessment/assessment.service';
 import type { ReviewQuestion } from '../../review.model';
 
 @Component({
@@ -29,7 +29,7 @@ export class EssayAnswerComponent implements OnInit {
 
     name = '';
 
-    constructor(private Assessment: AssessmentService, private Attachment: AttachmentService) {}
+    constructor(private CommonExam: CommonExamService, private Attachment: AttachmentService) {}
 
     ngOnInit() {
         this.name = this.answer.examSection.exam.creator
@@ -40,9 +40,9 @@ export class EssayAnswerComponent implements OnInit {
         this.answer.essayAnswer.temporaryScore = this.answer.essayAnswer.evaluatedScore;
     }
 
-    getWordCount = () => this.Assessment.countWords(this.answer.essayAnswer.answer);
+    getWordCount = () => this.CommonExam.countWords(this.answer.essayAnswer.answer);
 
-    getCharacterCount = () => this.Assessment.countCharacters(this.answer.essayAnswer.answer);
+    getCharacterCount = () => this.CommonExam.countCharacters(this.answer.essayAnswer.answer);
 
     saveScore = () => {
         this.selected.emit(this.answer);

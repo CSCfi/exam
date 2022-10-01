@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { ExamService } from 'src/app/exam/exam.service';
 import type { Exam, ExamParticipation, ExamSection } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
 import { QuestionService } from '../../../question/question.service';
 
 @Component({

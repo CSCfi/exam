@@ -69,7 +69,7 @@ import util.AppUtil;
 import util.config.ByodConfigHandler;
 import util.datetime.DateTimeHandler;
 
-@SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "configKey" })
+@SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "claimChoiceType", "configKey" })
 public class ExaminationController extends BaseController {
 
     protected final EmailComposer emailComposer;
