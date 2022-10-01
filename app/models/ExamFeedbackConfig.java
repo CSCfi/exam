@@ -16,8 +16,8 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.ebean.annotation.EnumValue;
-import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
@@ -25,6 +25,8 @@ import javax.persistence.TemporalType;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.joda.time.DateTime;
+import util.datetime.DateTimeAdapter;
 
 @Entity
 public class ExamFeedbackConfig extends GeneratedIdentityModel {
@@ -47,7 +49,8 @@ public class ExamFeedbackConfig extends GeneratedIdentityModel {
     private Exam exam;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date releaseDate;
+    @JsonSerialize(using = DateTimeAdapter.class)
+    private DateTime releaseDate;
 
     private Integer amountDays;
 
@@ -67,11 +70,11 @@ public class ExamFeedbackConfig extends GeneratedIdentityModel {
         this.exam = exam;
     }
 
-    public Date getReleaseDate() {
+    public DateTime getReleaseDate() {
         return releaseDate;
     }
 
-    public void setReleaseDate(Date releaseDate) {
+    public void setReleaseDate(DateTime releaseDate) {
         this.releaseDate = releaseDate;
     }
 

@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { HttpClient } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -21,6 +22,7 @@ import type { Exam } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
+import { AssessmentService } from '../../assessment/assessment.service';
 import type { Review } from '../../review.model';
 import type { ReviewListView } from '../review-list.service';
 import { ReviewListService } from '../review-list.service';
@@ -35,19 +37,25 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
     @Input() collaborative = false;
     @Output() registered = new EventEmitter<Review[]>();
     view!: ReviewListView;
+    needsFeedbackWarning = false;
     selections: { all: boolean; page: boolean } = { all: false, page: false };
 
     constructor(
+        private http: HttpClient,
         private translate: TranslateService,
         private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private ReviewList: ReviewListService,
+        private Assessment: AssessmentService,
         private CommonExam: CommonExamService,
         private Session: SessionService,
     ) {}
 
     ngOnInit() {
         this.init();
+        this.http
+            .get<{ status: boolean }>(`/app/review/${this.exam.id}/locked`)
+            .subscribe((setting) => (this.needsFeedbackWarning = setting.status));
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -66,11 +74,9 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
         if (selection.length == 0) {
             return;
         }
+        const content = this.Assessment.getRecordReviewConfirmationDialogContent('', this.needsFeedbackWarning);
         const examId = this.collaborative ? this.exam.id : undefined;
-        this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_record_review'),
-        ).subscribe({
+        this.Confirmation.open$(this.translate.instant('sitnet_confirm'), content).subscribe({
             next: () =>
                 forkJoin(selection.map((s) => this.ReviewList.sendToRegistry$(s.examParticipation, examId))).subscribe(
                     () => {

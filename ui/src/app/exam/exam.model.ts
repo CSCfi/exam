@@ -183,6 +183,7 @@ export interface ExamSectionQuestion {
     sequenceNumber: number;
     expanded: boolean;
     derivedMaxScore?: number;
+    derivedAssessedScore?: number;
 }
 
 export interface ExamMaterial {

@@ -16,6 +16,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -42,7 +43,7 @@ import util.datetime.DateTimeAdapter;
 public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment> {
 
     @ManyToOne
-    @JsonBackReference
+    @JsonManagedReference
     private User user;
 
     @ManyToOne
