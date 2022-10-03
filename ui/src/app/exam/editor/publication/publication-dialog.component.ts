@@ -29,6 +29,9 @@ import type { Exam } from '../../exam.model';
                 <p>
                     {{ getConfirmationText() }}
                 </p>
+                <p *ngIf="exam.examFeedbackConfig">
+                    {{ 'sitnet_exam_feedback_config_confirmation' | translate }}
+                </p>
             </div>
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">

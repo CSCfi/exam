@@ -21,7 +21,7 @@ import { ExaminationService } from '../examination.service';
     template: `<div class="row">
             <div class="col-md-12 studentexam-header">
                 <h2>
-                    <span class="exam-title">{{ index }}. {{ section.name }}</span>
+                    <span class="exam-title">{{ index ? index + '. ' : '' }}{{ section.name }}</span>
                     <span *ngIf="isPreview && section.lotteryOn" class="sitnet-text-medium">
                         <small class="ms-3">({{ 'sitnet_lottery_questions' | translate }})</small>
                     </span>

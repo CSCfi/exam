@@ -145,6 +145,7 @@ PUT           /app/review/:eid/comment/:cid/feedbackstatus             controlle
 GET           /app/noshows/:eid                                        controllers.ReviewController.listNoShows(eid: Long, request: Request)
 PUT           /app/reviews/archive                                     controllers.ReviewController.archiveExams(request: Request)
 GET           /app/review/:eid                                         controllers.ReviewController.getExamReview(eid: Long, request: Request)
+GET           /app/review/:id/locked                                   controllers.ReviewController.hasLockedAssessments(id: Long)
 GET           /app/examparticipations/:eid                             controllers.ReviewController.getParticipationsForExamAndUser(eid: Long, request: Request)
 GET           /app/usernoshows/:eid                                    controllers.ReviewController.listNoShowsForExamAndUser(eid: Long, request: Request)
 POST          /app/email/inspection/:eid                               controllers.ReviewController.sendInspectionMessage(eid: Long, request: Request)
