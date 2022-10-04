@@ -77,6 +77,7 @@ export class ExceptionDialogComponent {
         private toast: ToastrService,
     ) {
         const now = new Date();
+        now.setMinutes(60);
         now.setSeconds(0);
         now.setMilliseconds(0);
         this.exception = {
@@ -106,6 +107,9 @@ export class ExceptionDialogComponent {
 
     onStartDateChange = (e: { date: Date }) => {
         this.exception.startDate = e.date;
+        if (this.exception.endDate < this.exception.startDate) {
+            this.exception.endDate = e.date;
+        }
     };
 
     onEndDateChange = (e: { date: Date }) => {

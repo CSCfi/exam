@@ -1045,6 +1045,7 @@
   "sitnet_joint_exam_drafts": "Yhteistenttiluonnokset",
   "sitnet_exam_status_initialized": "Tentti aloitettu",
   "sitnet_removed": "Poistettu",
+  "sitnet_maintenance_period_created": "Poikkeusaukioloaika luotu",
   "sitnet_exam_assessment_settings": "Arviointiasetukset",
   "sitnet_exam_feedback_config": "Kysymysten ja vastausten julkaisu",
   "sitnet_exam_feedback_config_instructions": "Kun otat tämän toiminnon käyttöön opiskelijat näkevät tentin arvioinnin lukitsemisen jälkeen tekemänsä tentin arvosanan ja tehtäväpisteiden pisteiden lisäksi hänellä tentissä olleet kysymykset ja omat vastaukset. Monivalinnoissa ovat valinnat, eivät kaikkia vaihtoehtoja. Voit muuttaa valintaa ensimmäisen arvioinnin lukitsemiseen asti.",
