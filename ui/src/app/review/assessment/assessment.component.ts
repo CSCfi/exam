@@ -115,7 +115,7 @@ export class AssessmentComponent implements OnInit {
     isGraded = () => this.Assessment.isGraded(this.exam);
 
     goToAssessment = () =>
-        this.router.navigate(['/staff/exams/', this.collaborative ? this.examId : this.exam.parent?.id, '4'], {
+        this.router.navigate(['/staff/exams/', this.collaborative ? this.examId : this.exam.parent?.id, '5'], {
             queryParams: this.collaborative ? { collaborative: true } : {},
         });
 

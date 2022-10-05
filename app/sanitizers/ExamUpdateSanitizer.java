@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import models.AutoEvaluationConfig;
 import models.Exam;
+import models.ExamFeedbackConfig;
 import models.Grade;
 import models.GradeEvaluation;
 import org.joda.time.DateTime;
@@ -92,6 +93,25 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
         if (body.has("examType")) {
             final JsonNode examTypeNode = body.get("examType");
             request = SanitizingHelper.sanitizeOptional("type", examTypeNode, String.class, Attrs.TYPE, request);
+        }
+
+        // EXAM-FEEDBACK-CONFIG
+        if (body.has("feedbackConfig")) {
+            JsonNode node = body.get("feedbackConfig");
+            if (node.isObject()) {
+                final ExamFeedbackConfig config = new ExamFeedbackConfig();
+                config.setReleaseType(
+                    SanitizingHelper
+                        .parseEnum("releaseType", node, ExamFeedbackConfig.ReleaseType.class)
+                        .orElseThrow(() -> new SanitizingException("bad releaseType"))
+                );
+                config.setAmountDays(SanitizingHelper.parse("amountDays", node, Integer.class).orElse(null));
+                Optional<Long> releaseDateMs = SanitizingHelper.parse("releaseDate", node, Long.class);
+                releaseDateMs.ifPresent(rd -> config.setReleaseDate(new Date(rd)));
+                request = request.addAttr(Attrs.EXAM_FEEDBACK_CONFIG, config);
+            } else if (node.isNull()) {
+                request = request.addAttr(Attrs.EXAM_FEEDBACK_CONFIG, null);
+            }
         }
 
         // AUTO-EVALUATION

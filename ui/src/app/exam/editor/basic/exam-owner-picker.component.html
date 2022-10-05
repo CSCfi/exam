@@ -13,7 +13,7 @@
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
                 /></sup>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-6">
                 <div class="input-group">
                     <input
                         type="text"
@@ -24,7 +24,7 @@
                         [resultFormatter]="nameFormatter"
                         (selectItem)="setExamOwner($event)"
                     />
-                    <button (click)="addExamOwner()" class="btn btn-primary green">
+                    <button (click)="addExamOwner()" class="input-group-text btn btn-primary green">
                         {{ 'sitnet_add' | translate }}
                     </button>
                 </div>

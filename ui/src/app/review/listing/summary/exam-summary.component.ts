@@ -66,7 +66,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
             // Had to manually update chart locales
             this.translate.onLangChange.subscribe(this.updateChartLocale);
             this.sectionScores = this.ExamSummary.calcSectionMaxAndAverages(this.reviews, this.exam);
-            this.Tabs.notifyTabChange(6);
+            this.Tabs.notifyTabChange(7);
         });
     }
 

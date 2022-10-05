@@ -113,6 +113,15 @@ export class DatePickerComponent implements OnInit {
         }
         this.startDate = date;
     }
+    ngOnChanges() {
+        const now = new Date();
+        const d = this.initialDate !== null ? new Date(this.initialDate) : now;
+        const date = new NgbDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
+        if (!this.initiallyEmpty) {
+            this.date = date;
+        }
+        this.startDate = date;
+    }
 
     transform(value: NgbDate | null): Date | null {
         if (!value) return null;

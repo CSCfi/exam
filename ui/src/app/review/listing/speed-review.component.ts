@@ -17,7 +17,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import * as FileSaver from 'file-saver';
+import { saveAs } from 'file-saver';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { forkJoin, noop, throwError } from 'rxjs';
@@ -152,7 +152,7 @@ export class SpeedReviewComponent implements OnInit {
                 forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
                     this.toast.info(this.translate.instant('sitnet_saved'));
                     if (this.examReviews.length === 0) {
-                        this.router.navigate(['/staff/exams', this.examId, '4']);
+                        this.router.navigate(['/staff/exams', this.examId, '5']);
                     }
                 });
             },
@@ -189,7 +189,7 @@ export class SpeedReviewComponent implements OnInit {
 
         const content = 'exam id,grade,feedback,total score,student,student id\n' + rows;
         const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
-        FileSaver.saveAs(blob, 'grading.csv');
+        saveAs(blob, 'grading.csv', { autoBom: false });
     };
 
     private reload = () =>

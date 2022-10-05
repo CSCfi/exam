@@ -18,6 +18,7 @@ package sanitizers;
 import java.util.Collection;
 import models.AutoEvaluationConfig;
 import models.Exam;
+import models.ExamFeedbackConfig;
 import models.User;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -53,6 +54,7 @@ public enum Attrs {
     public static final TypedKey<Integer> TRIAL_COUNT = TypedKey.create("trialCount");
     public static final TypedKey<Boolean> LANG_INSPECTION_REQUIRED = TypedKey.create("langInspectionRequired");
     public static final TypedKey<AutoEvaluationConfig> AUTO_EVALUATION_CONFIG = TypedKey.create("autoEvaluationConfig");
+    public static final TypedKey<ExamFeedbackConfig> EXAM_FEEDBACK_CONFIG = TypedKey.create("examFeedbackConfig");
     public static final TypedKey<String> COMMENT = TypedKey.create("comment");
     public static final TypedKey<Long> COMMENT_ID = TypedKey.create("commentId");
     public static final TypedKey<Boolean> FEEDBACK_STATUS = TypedKey.create("feedbackStatus");

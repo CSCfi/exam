@@ -1,4 +1,4 @@
-<div class="row marr30 mt-2">
+<div class="row marr30 mt-4">
     <div class="col-md-12">
         <div class="review-list-title">
             <span class="pointer" (click)="autoevaluationDisplay.visible = !autoevaluationDisplay.visible">
@@ -41,7 +41,7 @@
                 name="enableAutoEvaluation"
                 (click)="autoevaluation.enabled = true; enable()"
             >
-                {{ 'sitnet_use_autoevaluation' | translate }}</a
+                {{ 'sitnet_use' | translate }}</a
             >
             <a
                 class="pointer"
@@ -50,7 +50,7 @@
                 class="notinuse"
                 (click)="autoevaluation.enabled = false; disable()"
             >
-                {{ 'sitnet_do_not_use_autoevaluation' | translate }}</a
+                {{ 'sitnet_do_not_use' | translate }}</a
             >
         </div>
     </div>
@@ -135,8 +135,9 @@
     <div class="col-md-12">
         <form role="form">
             <div class="row" *ngIf="selectedReleaseType()?.name === 'GIVEN_DATE'">
-                <div class="col-md-6">
+                <div class="col-md-6 mt-2">
                     <xm-date-picker
+                        [optional]="false"
                         (updated)="releaseDateChanged($event)"
                         [initialDate]="config ? config.releaseDate : null"
                     ></xm-date-picker>
