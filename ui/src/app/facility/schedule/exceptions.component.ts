@@ -22,17 +22,22 @@ import { RoomService } from '../rooms/room.service';
     template: `<div class="top-row flex marl5" *ngIf="!hideTitle">
             <h3 class="col-md-12 header-text">{{ 'sitnet_exception_datetimes' | translate }}</h3>
         </div>
+        <div class="marb10 flex marl5" *ngIf="!hideInfo">
+            <div class="col-md-12 header-text">{{ 'sitnet_exception_datetimes_info' | translate }}</div>
+        </div>
 
         <div class="col-md-12">
-            <div class="flex" *ngFor="let exception of exceptions | filterBy: filter">
-                <div class="col-md-4 min-width-300">
+            <div
+                class="flex"
+                *ngFor="let exception of exceptions | filterBy: filter; let i = index"
+                [class]="i % 2 === 0 ? 'background-gray' : ''"
+            >
+                <div
+                    class="col-2 min-width-300 bi-exclamation-triangle-fill marl20"
+                    [class]="!exception.outOfService ? 'text-success' : 'text-danger'"
+                >
                     {{ formatDate(exception) }}
-                </div>
-                <div class="text-danger marr10" *ngIf="exception.outOfService">
-                    {{ 'sitnet_room_out_of_service' | translate }}
-                </div>
-                <div class="text-info " *ngIf="!exception.outOfService">
-                    {{ 'sitnet_room_in_service' | translate }}
+                    {{ !exception.outOfService ? ('sitnet_room_in_service' | translate) : '' }}
                 </div>
                 <div>
                     <a class="pointer" (click)="deleteException(exception)">{{ 'sitnet_exam_remove' | translate }}</a>
@@ -51,6 +56,7 @@ export class ExceptionListComponent {
     @Input() exceptions: ExceptionWorkingHours[] = [];
     @Input() hideButton = false;
     @Input() hideTitle = false;
+    @Input() hideInfo = true;
     @Input() filter: (exception: ExceptionWorkingHours) => boolean;
     @Output() created = new EventEmitter<ExceptionWorkingHours>();
     @Output() removed = new EventEmitter<ExceptionWorkingHours>();
@@ -60,10 +66,17 @@ export class ExceptionListComponent {
     }
 
     formatDate = (exception: ExceptionWorkingHours) => {
+        if (!exception.startDate || !exception.endDate) {
+            return;
+        }
         const fmt = 'dd.MM.yyyy HH:mm';
         const start = parseISO(exception.startDate);
         const end = parseISO(exception.endDate);
-        return format(start, fmt) + ' - ' + format(end, fmt);
+        return (
+            format(start, fmt) +
+            ' - ' +
+            (format(start, 'dd.MM.yyyy') === format(end, 'dd.MM.yyyy') ? format(end, 'HH:mm') : format(end, fmt))
+        );
     };
 
     addException = () => {

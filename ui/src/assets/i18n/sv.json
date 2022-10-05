@@ -1041,6 +1041,7 @@
   "sitnet_joint_exam_drafts": "Gemensamma tentamina utkasts",
   "sitnet_exam_status_initialized": "Tentti aloitettu SV",
   "sitnet_removed": "Removed SV",
+  "sitnet_exception_datetimes_info": "Tila pois käytöstä. Poikkeusaukioloajalla tarkoitetaan aina sitä, että tila on silloin pois käytöstä. SV",
   "sitnet_maintenance_period_created": "Maintenance period created SV",
   "sitnet_exam_assessment_settings": "Arviointiasetukset SV",
   "sitnet_exam_feedback_config": "Kysymysten ja vastausten julkaisu SV",
