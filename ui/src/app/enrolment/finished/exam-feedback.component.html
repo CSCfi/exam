@@ -186,7 +186,21 @@
             </div>
         </div>
     </div>
-
+    <div
+        class="row evaluation-padtop margin-20"
+        *ngIf="!collaborative && assessmentWithAnswers && assessment.state === 'GRADED_LOGGED'"
+    >
+        <div class="row">
+            <div class="col-md-12">{{ 'sitnet_questions_with_your_answers' | translate }}:</div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <a class="pointer" tabindex="0" (ngEnter)="showAnswers()" (click)="showAnswers()">
+                    {{ 'sitnet_show' | translate }}
+                </a>
+            </div>
+        </div>
+    </div>
     <div
         class="row evaluation-padtop margin-20"
         *ngIf="!collaborative && assessment.executionType.type !== 'MATURITY' && assessment.state === 'GRADED_LOGGED'"
@@ -194,6 +208,8 @@
         <div class="col-md-12">
             <div class="row">
                 <div class="col-md-12">{{ 'sitnet_student_score_report' | translate }}:</div>
+            </div>
+            <div class="row">
                 <div class="col-md-12">
                     <a class="pointer" tabindex="0" (ngEnter)="downloadScoreReport()" (click)="downloadScoreReport()">
                         {{ 'sitnet_download_report' | translate }}

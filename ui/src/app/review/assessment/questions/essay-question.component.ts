@@ -17,6 +17,7 @@ import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import type { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import type { ExaminationQuestion } from '../../../examination/examination.model';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
@@ -46,6 +47,7 @@ export class EssayQuestionComponent implements OnInit {
         private translate: TranslateService,
         private toast: ToastrService,
         private Assessment: AssessmentService,
+        private CommonExam: CommonExamService,
         private Attachment: AttachmentService,
     ) {}
 
@@ -113,13 +115,13 @@ export class EssayQuestionComponent implements OnInit {
         if (!this.sectionQuestion.essayAnswer?.answer) {
             return 0;
         }
-        return this.Assessment.countWords(this.sectionQuestion.essayAnswer.answer);
+        return this.CommonExam.countWords(this.sectionQuestion.essayAnswer.answer);
     };
 
     getCharacterCount = () => {
         if (!this.sectionQuestion.essayAnswer?.answer) {
             return 0;
         }
-        return this.Assessment.countCharacters(this.sectionQuestion.essayAnswer.answer);
+        return this.CommonExam.countCharacters(this.sectionQuestion.essayAnswer.answer);
     };
 }

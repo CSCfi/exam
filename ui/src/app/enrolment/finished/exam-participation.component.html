@@ -73,6 +73,8 @@
                             class="student-exam-row-infobox"
                             [hidden]="!showEvaluation"
                             [assessment]="reviewedExam"
+                            [participationTime]="participation.ended || ''"
+                            [participationDuration]="participation.duration || 0"
                             [collaborative]="collaborative"
                             [scores]="scores"
                         >

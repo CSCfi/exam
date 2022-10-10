@@ -1021,7 +1021,7 @@
   "sitnet_error_max_enrolments_reached": "Till tentamenstillfället kan inte tas emot flera deltagare",
   "sitnet_byod_exam_search": "Tentamenstillfällen för tentamen på egen dator",
   "sitnet_byod_exams": "Tentamina på egen dator",
-  "sitnet_byod_exam_search_description": "Du kan söka tentamenstillfällen för tentamina på egen dator genom att begränsa tidsperioden. 1. Välj både start- och slutdatum. 2. Begränsa sökningen. ",
+  "sitnet_byod_exam_search_description": "Du kan söka tentamenstillfällen för tentamina på egen dator genom att begränsa tidsperioden. 1. Välj både start- och slutdatum. 2. Begränsa sökningen.",
   "sitnet_participants": "Antal deltagare",
   "sitnet_byod_only": "Visa bokningar för tentamina på egen dator",
   "sitnet_description": "Beskrivning",
@@ -1032,10 +1032,14 @@
   "sitnet_error_examination_event_in_the_past": "Tentamenstillfället kan inte vara i förfluten tid",
   "sitnet_error_conflicts_with_maintenance_period": "Tentamenstillfället kan inte ordnas under ett serviceunderhåll",
   "sitnet_save_custom_time": "Tallenna mukautettu aika SV",
+  "sitnet_remove_byod_exam": "Poista omakonetentttitilaisuus. Poistoa ei voi peruuttaa. Ilmoittautuneille sekä kurssin opettajille lähetetään sähköposti tileisuuden peruuntumisesta. SV",
+  "sitnet_control": "Hallinta SV",
   "sitnet_edit_enrolment": "Edit enrolment SV",
   "sitnet_toolbar_import_questions": "Tuo kysymyksiä Moodlesta SV",
   "sitnet_import_questions_detail": "Valitse Moodlen kysymysformaatissa oleva XML-tiedosto SV",
   "sitnet_questions_imported_successfully": "Kysymykset tuotu onnistuneesti SV",
+  "sitnet_force_remove_exam_warning_dialogue": "Haluatko poistaa tentin (poistoa ei voi peruuttaa)? Ilmoittautuneille opiskelijoille, sekä opettajille lähetetään sähköposti tenttitilaisuuden poistamisesta. SV",
+  "sitnet_select_all_rooms": "Select all rooms SV",
   "sitnet_published_joint_exams": "Publicedare och förhandspublicerade gemensamma tentamina",
   "sitnet_expired_joint_exams": "Stängda gemensamma tentamina",
   "sitnet_joint_exam_drafts": "Gemensamma tentamina utkasts",
@@ -1082,6 +1086,6 @@
   "sitnet_repeats_yearly_confirm": "Toistuu vuosi-toisteisuudella SV",
   "sitnet_whole_day": "Poikkeusaukoioloaika koko päivälle SV",
   "sitnet_and_repeats_every_x": "Toistuu joka SV",
-  "sitnet_exception_happens_at": "Poikkeusaukioloajan kellonaika SV"
-
+  "sitnet_exception_happens_at": "Poikkeusaukioloajan kellonaika SV",
+  "sitnet_questions_with_your_answers": "Kysymykset ja vastauksesi SV"
 }
