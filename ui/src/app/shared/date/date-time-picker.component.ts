@@ -18,7 +18,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
     selector: 'xm-date-time-picker',
     template: `
         <div class="row align-items-center">
-            <div class="col-auto">
+            <div class="col-auto" [ngClass]="disableDate ? 'disable-gray-out' : ''">
                 <xm-date-picker
                     [disabled]="disabled"
                     [initialDate]="initialTime"
@@ -26,7 +26,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
                     (updated)="onDateUpdate($event)"
                 ></xm-date-picker>
             </div>
-            <div class="col">
+            <div class="col" [ngClass]="disableTime ? 'disable-gray-out' : ''">
                 <ngb-timepicker
                     name="timepicker"
                     [disabled]="disabled"
@@ -45,6 +45,8 @@ export class DateTimePickerComponent implements OnInit {
     @Input() minuteStep = 0;
     @Input() disabled = false;
     @Input() examMaxDate?: string;
+    @Input() disableDate?: boolean = false;
+    @Input() disableTime?: boolean = false;
     @Output() updated = new EventEmitter<{ date: Date }>();
 
     date: Date = new Date();

@@ -29,7 +29,7 @@ import { RoomService } from '../rooms/room.service';
         <div class="col-md-12">
             <div
                 class="flex"
-                *ngFor="let exception of exceptions | filterBy: filter; let i = index"
+                *ngFor="let exception of orderedExceptions | filterBy: filter; let i = index"
                 [class]="i % 2 === 0 ? 'background-gray' : ''"
             >
                 <div
@@ -58,11 +58,27 @@ export class ExceptionListComponent {
     @Input() hideTitle = false;
     @Input() hideInfo = true;
     @Input() filter: (exception: ExceptionWorkingHours) => boolean;
-    @Output() created = new EventEmitter<ExceptionWorkingHours>();
+    @Output() created = new EventEmitter<ExceptionWorkingHours[]>();
     @Output() removed = new EventEmitter<ExceptionWorkingHours>();
+
+    orderedExceptions: ExceptionWorkingHours[] = [];
 
     constructor(private roomService: RoomService) {
         this.filter = () => true;
+    }
+
+    ngOnInit() {
+        this.orderedExceptions = this.exceptions.sort((a, b) => {
+            const aDate = new Date(a.startDate);
+            const bDate = new Date(b.startDate);
+            if (aDate > bDate) {
+                return 1;
+            }
+            if (aDate < bDate) {
+                return -1;
+            }
+            return 0;
+        });
     }
 
     formatDate = (exception: ExceptionWorkingHours) => {
@@ -83,7 +99,7 @@ export class ExceptionListComponent {
         this.roomService.openExceptionDialog(this.createExceptionCallback);
     };
 
-    createExceptionCallback = (exception: ExceptionWorkingHours) => {
+    createExceptionCallback = (exception: ExceptionWorkingHours[]) => {
         this.created.emit(exception);
     };
 
