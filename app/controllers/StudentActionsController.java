@@ -231,7 +231,7 @@ public class StudentActionsController extends CollaborationController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<ExamParticipation> query = Ebean
             .find(ExamParticipation.class)
-            .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous")
+            .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous, gradeless")
             .fetch("exam.creator", "id")
             .fetch("exam.course", "code, name")
             .fetch("exam.parent.examOwners", "firstName, lastName, id")
