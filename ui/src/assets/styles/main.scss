@@ -508,6 +508,13 @@ p, li {
 
 }
 
+.disable-gray-out{
+  user-select: none;
+  pointer-events: none;
+  opacity: 0.6;
+  filter: grayscale(100%);
+}
+
 .warning{
   background-color: white;
   border: #E3162E 1px solid;

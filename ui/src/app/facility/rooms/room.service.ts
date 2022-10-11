@@ -206,7 +206,7 @@ export class RoomService {
             error: this.toast.error,
         });
 
-    addException = (ids: number[], exception: ExceptionWorkingHours) =>
+    addExceptions = (ids: number[], exception: ExceptionWorkingHours) =>
         new Promise<ExceptionWorkingHours>((resolve, reject) => {
             this.updateExceptions$(ids, exception).subscribe({
                 next: (data: ExceptionWorkingHours) => {
@@ -220,13 +220,14 @@ export class RoomService {
             });
         });
 
-    openExceptionDialog = (callBack: (exception: ExceptionWorkingHours) => void) =>
+    openExceptionDialog = (callBack: (exception: ExceptionWorkingHours[]) => void) =>
         this.ngbModal
             .open(ExceptionDialogComponent, {
                 backdrop: 'static',
                 keyboard: true,
+                size: 'lg',
             })
-            .result.then((exception: ExceptionWorkingHours) => {
+            .result.then((exception: ExceptionWorkingHours[]) => {
                 callBack(exception);
             })
             // eslint-disable-next-line @typescript-eslint/no-empty-function

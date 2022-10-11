@@ -241,6 +241,9 @@ $sitnet-background: #ffffff;
 .greenHover:hover {
   color: $sitnet-ready;
 }
+.blue-shadow-hover:hover {
+  box-shadow: 0 0 1px 3px rgba(0,117,255,1);
+}
 
 .background-gray{
 background: gainsboro;
@@ -748,6 +751,10 @@ $sitnet-icon-size: 32px;
   margin-right: 0px !important;
 }
 
+.marr5 {
+  margin-right: 5px !important;
+}
+
 .marr10 {
   margin-right: 10px !important;
 }
@@ -838,6 +845,9 @@ $sitnet-icon-size: 32px;
 
 .border-none {
   border: none
+}
+.radius-3{
+  border-radius: 3px;
 }
 
 .background-none {
