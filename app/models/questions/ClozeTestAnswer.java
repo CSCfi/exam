@@ -25,9 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Transient;
@@ -142,13 +139,13 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         this.question = doc.body().children().toString();
     }
 
-    // This sets up the question so it can be displayed for review
+    // This sets up the question, so it can be displayed for review
     public void setQuestionWithResults(JsonNode esq, String blankAnswerText) {
         Document doc = Jsoup.parse(esq.get("question").get("question").asText());
         setQuestionWithResults(doc, blankAnswerText);
     }
 
-    // This sets up the question so it can be displayed for review
+    // This sets up the question, so it can be displayed for review
     public void setQuestionWithResults(ExamSectionQuestion esq, String blankAnswerText) {
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
         setQuestionWithResults(doc, blankAnswerText);

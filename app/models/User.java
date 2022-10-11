@@ -18,7 +18,6 @@ package models;
 import be.objectify.deadbolt.java.models.Subject;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,11 +70,11 @@ public class User extends GeneratedIdentityModel implements Subject {
     private Organisation organisation;
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
-    @JsonManagedReference
+    @JsonBackReference
     private List<ExamEnrolment> enrolments;
 
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
-    @JsonManagedReference
+    @JsonBackReference
     private List<ExamParticipation> participations;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")

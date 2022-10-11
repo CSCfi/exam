@@ -13,9 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
+import { QuestionService } from 'src/app/question/question.service';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
-import { QuestionService } from '../../../question/question.service';
 
 @Component({
     selector: 'xm-printed-multi-choice',

@@ -35,7 +35,7 @@ import type { EnrolmentInfo, ExamEnrolment, ReviewedExam } from './enrolment.mod
 export type ParticipationLike =
     | (ExamParticipation & { noShow: boolean })
     | (CollaborativeParticipation & { noShow: boolean })
-    | (ExamEnrolment & { started?: string; ended?: string });
+    | (ExamEnrolment & { started?: string; ended?: string; duration?: number });
 
 @Injectable({ providedIn: 'root' })
 export class EnrolmentService {
