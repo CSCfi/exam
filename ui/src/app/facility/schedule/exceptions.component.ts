@@ -68,17 +68,9 @@ export class ExceptionListComponent {
     }
 
     ngOnInit() {
-        this.orderedExceptions = this.exceptions.sort((a, b) => {
-            const aDate = new Date(a.startDate);
-            const bDate = new Date(b.startDate);
-            if (aDate > bDate) {
-                return 1;
-            }
-            if (aDate < bDate) {
-                return -1;
-            }
-            return 0;
-        });
+        this.orderedExceptions = this.exceptions.sort(
+            (a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
+        );
     }
 
     formatDate = (exception: ExceptionWorkingHours) => {

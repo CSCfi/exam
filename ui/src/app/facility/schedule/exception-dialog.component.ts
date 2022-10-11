@@ -3,6 +3,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { eachDayOfInterval } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
+import { range } from 'ramda';
 import { DateTimeService, REPEAT_OPTIONS } from '../../shared/date/date.service';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 
@@ -40,12 +41,7 @@ export class ExceptionDialogComponent {
     repeats: REPEAT_OPTIONS = REPEAT_OPTIONS.once;
     repeatEvery = 1;
     isNumericNotWeekday = true;
-    weeks = [
-        [1, 2, 3, 4, 5, 6, 7],
-        [8, 9, 10, 11, 12, 13, 14],
-        [15, 16, 17, 18, 19, 20, 21],
-        [22, 23, 24, 25, 26, 27, 28],
-    ];
+    weeks = [range(1, 7), range(8, 14), range(15, 21), range(22, 28)];
     ordinals: { ordinal: string; number: number }[] = Object.values(ORDINAL).map((o, i) => ({ ordinal: o, number: i }));
     selectedOrdinal: { ordinal: string; number: number };
 
