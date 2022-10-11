@@ -86,7 +86,7 @@ export class RoomListComponent implements OnInit {
     };
 
     isArchived = (machine: ExamMachine) => {
-        return machine.archived === false;
+        return machine.archived;
     };
 
     displayAddress = (address: Address) => {
