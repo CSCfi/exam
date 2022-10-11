@@ -124,9 +124,11 @@ export class MultiRoomComponent implements OnInit, OnChanges {
         }
     }
 
-    addException = (exception: ExceptionWorkingHours) =>
-        this.room.addException(this.getRoomIds(), exception).then(() => {
-            this.loadRooms();
+    addExceptions = (exceptions: ExceptionWorkingHours[]) =>
+        exceptions.forEach((exception) => {
+            this.room.addExceptions(this.getRoomIds(), exception).then(() => {
+                this.loadRooms();
+            });
         });
 
     deleteException = (exception: ExceptionWorkingHours) => {
@@ -136,7 +138,7 @@ export class MultiRoomComponent implements OnInit, OnChanges {
     };
 
     addMultiRoomException = () => {
-        this.room.openExceptionDialog(this.addException);
+        this.room.openExceptionDialog(this.addExceptions);
     };
 
     updateWorkingHours = () => {
@@ -164,7 +166,6 @@ export class MultiRoomComponent implements OnInit, OnChanges {
 
     private getRoomIds = (): number[] => {
         const numbers = this.selectableRooms.filter((r) => r.selected).map((room) => room.id);
-        console.log(numbers);
         return numbers;
     };
 }

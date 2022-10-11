@@ -81,9 +81,11 @@ export class RoomComponent implements OnInit {
     workingHoursExist = () =>
         this.room?.defaultWorkingHours.length > 0 || this.workingHours.flatMap((wh) => wh.blocks).length > 0;
 
-    addException = (exception: ExceptionWorkingHours) => {
-        this.roomService.addException([this.room.id], exception).then((data) => {
-            this.room.calendarExceptionEvents = [...this.room.calendarExceptionEvents, data];
+    addException = (exceptions: ExceptionWorkingHours[]) => {
+        exceptions.forEach((exception) => {
+            this.roomService.addExceptions([this.room.id], exception).then((data) => {
+                this.room.calendarExceptionEvents = [...this.room.calendarExceptionEvents, data];
+            });
         });
     };
 
