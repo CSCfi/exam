@@ -290,6 +290,9 @@ public class CalendarController extends BaseController {
             Set<ExamSection> sections = Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
             enrolment.setOptionalSections(sections);
         }
+        if (enrolment.getExam().isPrivate()) {
+            enrolment.setNoShow(false);
+        }
         Ebean.save(enrolment);
         Exam exam = enrolment.getExam();
         // Send some emails asynchronously
