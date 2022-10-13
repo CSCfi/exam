@@ -64,6 +64,10 @@
                         {{ noShow.reservation.startAt | applyDst | date: 'HH:mm' }} -
                         {{ noShow.reservation.endAt | applyDst | date: 'HH:mm' }}
                     </td>
+                    <td
+                        class="table-column-25"
+                        *ngIf="!noShow.reservation && !noShow.examinationEventConfiguration"
+                    ></td>
                     <td class="table-column-25" *ngIf="noShow.examinationEventConfiguration">
                         {{ noShow.examinationEventConfiguration.examinationEvent.start | date: 'dd.MM.yyyy' }}
                         {{ 'sitnet_clock_short' | translate }}
