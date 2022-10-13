@@ -47,7 +47,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let machine of room.examMachines | orderBy: 'name'">
+                    <tr *ngFor="let machine of sortAlphabeticalMachineList(room.examMachines)">
                         <td>
                             <a
                                 [ngClass]="{ 'text-danger': !machine.name }"
