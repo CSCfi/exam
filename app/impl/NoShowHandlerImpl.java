@@ -31,6 +31,7 @@ import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import util.config.ConfigReader;
 
 public class NoShowHandlerImpl implements NoShowHandler {
@@ -54,12 +55,30 @@ public class NoShowHandlerImpl implements NoShowHandler {
         URL url = parseUrl(enrolment.getReservation().getExternalRef());
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, Void> onSuccess = response -> {
-            if (response.getStatus() != 200) {
+            if (response.getStatus() != Http.Status.OK) {
                 logger.error("No success in sending assessment #{} to XM", enrolment.getReservation().getExternalRef());
             } else {
                 enrolment.setNoShow(true);
                 enrolment.update();
                 logger.info("Successfully sent assessment #{} to XM", enrolment.getReservation().getExternalRef());
+            }
+            return null;
+        };
+        request.post(Json.newObject()).thenApplyAsync(onSuccess);
+    }
+
+    private void send(Reservation reservation) throws MalformedURLException {
+        URL url = parseUrl(reservation.getExternalRef());
+        WSRequest request = wsClient.url(url.toString());
+        Function<WSResponse, Void> onSuccess = response -> {
+            if (response.getStatus() != Http.Status.OK) {
+                logger.error("No success in sending no-show #{} to XM", reservation.getExternalRef());
+            } else {
+                // Clear user reference so that we won't try to send this again.
+                // #TODO: find a more elegant way. Maybe delete the reservation altogether?
+                reservation.setExternalUserRef(null);
+                reservation.update();
+                logger.info("Successfully sent no-show #{} to XM", reservation.getExternalRef());
             }
             return null;
         };
@@ -86,7 +105,7 @@ public class NoShowHandlerImpl implements NoShowHandler {
     }
 
     @Override
-    public void handleNoShows(List<ExamEnrolment> noShows) {
+    public void handleNoShows(List<ExamEnrolment> noShows, List<Reservation> reservations) {
         Stream<ExamEnrolment> locals = noShows
             .stream()
             .filter(this::isNoShow)
@@ -100,14 +119,21 @@ public class NoShowHandlerImpl implements NoShowHandler {
                 ns.getReservation().getExternalRef() != null &&
                 (ns.getUser() == null || ns.getExternalExam() == null || ns.getExternalExam().getStarted() == null)
             );
+        // Send to XM for further processing
+        // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed
+        // no-shows and sending them one by one over network would be inefficient. However, this is not very likely.
         externals.forEach(r -> {
-            // Send to XM for further processing
-            // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed
-            // no-shows and sending them one by one over network would be inefficient. However, this is not very likely.
             try {
                 send(r);
             } catch (IOException e) {
-                logger.error("Failed in sending assessment back", e);
+                logger.error("Failed in sending no-show back", e);
+            }
+        });
+        reservations.forEach(r -> {
+            try {
+                send(r);
+            } catch (IOException e) {
+                logger.error("Failed in sending no-show back", e);
             }
         });
     }
@@ -120,12 +146,14 @@ public class NoShowHandlerImpl implements NoShowHandler {
             // This is needed because student is not able to re-enroll by himself.
             Reservation reservation = enrolment.getReservation();
             enrolment.setReservation(null);
+            enrolment.setNoShow(false);
             enrolment.update();
             if (reservation != null) {
                 reservation.delete();
             }
+        } else {
+            enrolment.setNoShow(true);
         }
-        enrolment.setNoShow(true);
         enrolment.update();
         logger.info("Marked enrolment {} as no-show", enrolment.getId());
 
