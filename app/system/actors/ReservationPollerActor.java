@@ -21,6 +21,7 @@ import io.ebean.Ebean;
 import java.util.List;
 import javax.inject.Inject;
 import models.ExamEnrolment;
+import models.Reservation;
 import org.joda.time.DateTime;
 import play.Logger;
 import util.datetime.DateTimeHandler;
@@ -60,11 +61,21 @@ public class ReservationPollerActor extends AbstractActor {
                         .endOr()
                         .isNull("reservation.externalReservation")
                         .findList();
-
-                    if (enrolments.isEmpty()) {
+                    // The following are cases where external user has made a reservation but did not log in before
+                    // reservation ended. Mark those as no-shows as well.
+                    List<Reservation> reservations = Ebean
+                        .find(Reservation.class)
+                        .where()
+                        .isNull("enrolment")
+                        .isNotNull("externalRef")
+                        .isNull("user")
+                        .isNotNull("externalUserRef")
+                        .lt("endAt", now)
+                        .findList();
+                    if (enrolments.isEmpty() && reservations.isEmpty()) {
                         logger.debug("None found");
                     } else {
-                        noShowHandler.handleNoShows(enrolments);
+                        noShowHandler.handleNoShows(enrolments, reservations);
                     }
                     logger.debug("<- done");
                 }
