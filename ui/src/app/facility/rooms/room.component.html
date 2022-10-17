@@ -159,7 +159,7 @@
         <xm-opening-hours
             *ngIf="room"
             class="col-md-12"
-            [week]="week"
+            [room]="room"
             (selected)="updateWorkingHours()"
         ></xm-opening-hours>
     </div>
@@ -170,7 +170,7 @@
         *ngIf="room"
         [hideInfo]="false"
         [exceptions]="room.calendarExceptionEvents"
-        (created)="addException($event)"
+        (created)="addExceptions($event)"
         (removed)="deleteException($event)"
     ></xm-exceptions>
 

@@ -151,8 +151,8 @@ export class RoomService {
     updateExamStartingHours$ = (data: { hours: string[]; offset: number; roomIds: number[] }) =>
         this.http.put(this.examStartingHoursApi(), data);
 
-    updateExceptions$ = (roomIds: number[], exception: ExceptionWorkingHours) =>
-        this.http.put<ExceptionWorkingHours>(this.exceptionsApi(), { roomIds, exception });
+    updateExceptions$ = (roomIds: number[], exceptions: ExceptionWorkingHours[]) =>
+        this.http.put<ExceptionWorkingHours[]>(this.exceptionsApi(), { roomIds, exceptions });
 
     getDraft$ = () => this.http.get<ExamRoom>(this.draftApi());
 
@@ -206,10 +206,10 @@ export class RoomService {
             error: this.toast.error,
         });
 
-    addExceptions = (ids: number[], exception: ExceptionWorkingHours) =>
-        new Promise<ExceptionWorkingHours>((resolve, reject) => {
-            this.updateExceptions$(ids, exception).subscribe({
-                next: (data: ExceptionWorkingHours) => {
+    addExceptions = (ids: number[], exceptions: ExceptionWorkingHours[]) =>
+        new Promise<ExceptionWorkingHours[]>((resolve, reject) => {
+            this.updateExceptions$(ids, exceptions).subscribe({
+                next: (data: ExceptionWorkingHours[]) => {
                     this.toast.info(this.translate.instant('sitnet_exception_time_added'));
                     resolve(data);
                 },

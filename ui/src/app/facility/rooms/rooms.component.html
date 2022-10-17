@@ -129,7 +129,7 @@
                         <span class="marr10 d-" *ngIf="!room.availabilityVisible">
                             <div
                                 class="flex justify-content-end"
-                                *ngFor="let timetable of getWeekDays(room.defaultWorkingHours)"
+                                *ngFor="let timetable of getWorkingHoursDisplayFormat(room.defaultWorkingHours)"
                             >
                                 <div class="bg-success custom-green-dot marr10" *ngIf="timetable.length > 0"></div>
                                 <div>{{ timetable }}</div>
@@ -171,53 +171,18 @@
                     </div>
                 </div>
                 <div class="row" *ngIf="room.availabilityVisible">
-                    <div class="col col-md col-xl-5 mart20">
-                        <div
-                            class="row mart10 flex align-content-center"
-                            *ngFor="let dwh of room.extendedDWH; let i = index"
-                        >
-                            <div class="col-2 min-w-100 align-self-center">{{ getWeekdayName(dwh.weekday, true) }}</div>
-                            <div class="col row">
-                                <div class="col flex justify-content-around align-self-center" *ngIf="!dwh.editing">
-                                    <div>{{ workingHourFormat(dwh.startTime) }}</div>
-                                    <div class="align-self-center">-</div>
-                                    <div>{{ workingHourFormat(dwh.endTime) }}</div>
-                                </div>
-                                <div class="col flex justify-content-around align-self-center" *ngIf="dwh.editing">
-                                    <ngb-timepicker
-                                        name="timepicker"
-                                        [(ngModel)]="dwh.pickStartingTime"
-                                        (ngModelChange)="updateStartingEdits(dwh, $event)"
-                                    ></ngb-timepicker>
-                                    <div class="align-self-center">-</div>
-                                    <ngb-timepicker
-                                        name="timepicker"
-                                        [(ngModel)]="dwh.pickEndingTime"
-                                        (ngModelChange)="updateEndingEdits(dwh, $event)"
-                                    ></ngb-timepicker>
-                                </div>
-                                <div
-                                    class="col-2 bi-pencil-fill pointer align-self-center"
-                                    *ngIf="!dwh.editing"
-                                    (click)="startEditing(dwh)"
-                                ></div>
-                                <div
-                                    class="col-1 bi-check-circle-fill text-success pointer align-self-center"
-                                    *ngIf="dwh.editing"
-                                    (click)="saveEdits(dwh, room)"
-                                ></div>
-                                <div
-                                    class="col-1 bi-trash text-danger pointer align-self-center"
-                                    *ngIf="dwh.editing"
-                                    (click)="deleteDWH(dwh)"
-                                ></div>
-                            </div>
-                        </div>
+                    <div class="col col-md col-xl-5 mart20 min-w-500">
+                        <xm-opening-hours
+                            *ngIf="room"
+                            class="col-md-12"
+                            [room]="room"
+                            (selected)="updateWorkingHours(room)"
+                        ></xm-opening-hours>
                     </div>
                     <xm-exceptions
                         class="col-md"
                         [exceptions]="room.calendarExceptionEvents"
-                        (created)="addException($event, room)"
+                        (created)="addExceptions($event, room)"
                         (removed)="deleteException($event, room)"
                     ></xm-exceptions>
                 </div>

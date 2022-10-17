@@ -110,11 +110,11 @@ export class MultiRoomComponent implements OnInit, OnChanges {
     roomIds: number[] = [];
     allSelected = false;
 
-    constructor(private toast: ToastrService, private room: RoomService) {}
+    constructor(private toast: ToastrService, private roomService: RoomService) {}
 
     ngOnInit() {
         this.loadRooms();
-        this.week = this.room.getWeek();
+        this.week = this.roomService.getWeek();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -125,24 +125,22 @@ export class MultiRoomComponent implements OnInit, OnChanges {
     }
 
     addExceptions = (exceptions: ExceptionWorkingHours[]) =>
-        exceptions.forEach((exception) => {
-            this.room.addExceptions(this.getRoomIds(), exception).then(() => {
-                this.loadRooms();
-            });
+        this.roomService.addExceptions(this.getRoomIds(), exceptions).then(() => {
+            this.loadRooms();
         });
 
     deleteException = (exception: ExceptionWorkingHours) => {
-        this.room.deleteException(this.allRooms[0].id, exception.id).then(() => {
+        this.roomService.deleteException(this.allRooms[0].id, exception.id).then(() => {
             this.loadRooms();
         });
     };
 
     addMultiRoomException = () => {
-        this.room.openExceptionDialog(this.addExceptions);
+        this.roomService.openExceptionDialog(this.addExceptions);
     };
 
     updateWorkingHours = () => {
-        this.room.updateWorkingHours$(this.week, this.getRoomIds()).subscribe();
+        this.roomService.updateWorkingHours$(this.week, this.getRoomIds()).subscribe();
     };
 
     selectAll = () => {
@@ -150,7 +148,7 @@ export class MultiRoomComponent implements OnInit, OnChanges {
     };
 
     private loadRooms = () => {
-        this.room.getRooms$().subscribe({
+        this.roomService.getRooms$().subscribe({
             next: (rooms) => {
                 this.allRooms = rooms;
                 this.selectableRooms = rooms.sort((a, b) => (a.name < b.name ? -1 : 1)) as SelectableRoom[];
@@ -165,7 +163,6 @@ export class MultiRoomComponent implements OnInit, OnChanges {
     };
 
     private getRoomIds = (): number[] => {
-        const numbers = this.selectableRooms.filter((r) => r.selected).map((room) => room.id);
-        return numbers;
+        return this.selectableRooms.filter((r) => r.selected).map((room) => room.id);
     };
 }

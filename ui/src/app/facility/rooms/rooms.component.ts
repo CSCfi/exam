@@ -22,15 +22,16 @@ import type { DefaultWorkingHours, ExamMachine, ExamRoom } from '../../reservati
 import { ExceptionWorkingHours } from '../../reservation/reservation.model';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
+import { DateTimeService } from '../../shared/date/date.service';
 import type { Address } from './room.service';
-import { RoomService } from './room.service';
+import { RoomService, Week, Weekday, WeekdayBlock } from './room.service';
 
-interface RoomWithAddressVisibility extends ExamRoom {
+interface ExtendedRoom extends ExamRoom {
     addressVisible: boolean;
     availabilityVisible: boolean;
-    extendedDWH: DefaultWorkingHoursWithEditing[];
+    extendedDwh: DefaultWorkingHoursWithEditing[];
 }
-interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
+export interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
     editing: boolean;
     pickStartingTime: { hour: number; minute: number; second: number; millisecond?: number };
     pickEndingTime: { hour: number; minute: number; second: number; millisecond?: number };
@@ -43,25 +44,29 @@ interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
 export class RoomListComponent implements OnInit {
     user: User;
     times: string[] = [];
-    rooms: RoomWithAddressVisibility[] = [];
+    rooms: ExtendedRoom[] = [];
+    workingHours: WeekdayBlock[] = [];
+    week: Week = {};
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private toast: ToastrService,
         private session: SessionService,
-        private room: RoomService,
+        private roomService: RoomService,
         private translate: TranslateService,
+        private timeDateService: DateTimeService,
     ) {
+        this.week = this.roomService.getWeek();
         this.user = this.session.getUser();
     }
 
     ngOnInit() {
         if (this.user.isAdmin) {
             if (!this.route.snapshot.params.id) {
-                this.room.getRooms$().subscribe((rooms) => {
-                    this.times = this.room.getTimes();
-                    const roomsWithVisibility = rooms as RoomWithAddressVisibility[];
+                this.roomService.getRooms$().subscribe((rooms) => {
+                    this.times = this.roomService.getTimes();
+                    const roomsWithVisibility = rooms as ExtendedRoom[];
                     this.rooms = roomsWithVisibility.map((r) => {
                         const extendedDWH = r.defaultWorkingHours as DefaultWorkingHoursWithEditing[];
                         return {
@@ -106,16 +111,19 @@ export class RoomListComponent implements OnInit {
     }
 
     disableRoom = (room: ExamRoom) => {
-        this.room.disableRoom(room);
+        this.roomService.disableRoom(room);
     };
 
     enableRoom = (room: ExamRoom) => {
-        this.room.enableRoom(room);
+        this.roomService.enableRoom(room);
+    };
+    updateWorkingHours = (room: ExamRoom) => {
+        this.roomService.updateWorkingHours$(this.week, [room.id]).subscribe((hours) => (this.workingHours = hours));
     };
 
     // Called when create exam button is clicked
     createExamRoom = () => {
-        this.room.getDraft$().subscribe({
+        this.roomService.getDraft$().subscribe({
             next: (room) => {
                 this.toast.info(this.translate.instant('sitnet_room_draft_created'));
                 this.router.navigate(['/staff/room', room.id]);
@@ -127,35 +135,15 @@ export class RoomListComponent implements OnInit {
     isArchived = (machine: ExamMachine) => {
         return machine.archived;
     };
-    startEditing(wh: DefaultWorkingHoursWithEditing) {
-        wh.editing = true;
-    }
-    updateStartingEdits(
-        wh: DefaultWorkingHoursWithEditing,
-        event: { hour: number; minute: number; second: number; millisecond?: number },
-    ) {
-        wh.startTime = new Date(0, 0, 0, event.hour, event.minute).toDateString();
-    }
-    updateEndingEdits(
-        wh: DefaultWorkingHoursWithEditing,
-        event: { hour: number; minute: number; second: number; millisecond?: number },
-    ) {
-        wh.startTime = new Date(0, 0, 0, event.hour, event.minute).toDateString();
-    }
-    saveEdits(wh: DefaultWorkingHoursWithEditing, examRoom: ExamRoom) {
-        this.room.updateWorkingHours$(this.room.getWeek(), [examRoom.id]);
-        wh.editing = false;
-    }
-    deleteDWH(wh: DefaultWorkingHoursWithEditing) {
-        wh;
-    }
-    addException = (exception: ExceptionWorkingHours, examRoom: ExamRoom) => {
-        this.room.addException([examRoom.id], exception).then((data) => {
-            examRoom.calendarExceptionEvents = [...examRoom.calendarExceptionEvents, data];
+
+    addExceptions = (exceptions: ExceptionWorkingHours[], examRoom: ExamRoom) => {
+        this.roomService.addExceptions([examRoom.id], exceptions).then((data) => {
+            examRoom.calendarExceptionEvents = [...examRoom.calendarExceptionEvents, ...data];
         });
     };
+
     deleteException = (exception: ExceptionWorkingHours, examRoom: ExamRoom) => {
-        this.room.deleteException(examRoom.id, exception.id).then(() => {
+        this.roomService.deleteException(examRoom.id, exception.id).then(() => {
             examRoom.calendarExceptionEvents = examRoom.calendarExceptionEvents.splice(
                 examRoom.calendarExceptionEvents.indexOf(exception),
                 1,
@@ -163,15 +151,19 @@ export class RoomListComponent implements OnInit {
         });
     };
     getNextExceptionEvent(ees: ExceptionWorkingHours[]): ExceptionWorkingHours[] {
-        return ees.filter((ee) => new Date(ee.endDate) > new Date()).slice(0, 2);
+        return ees
+            .filter((ee) => new Date(ee.endDate) > new Date())
+            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+            .slice(0, 2);
     }
-    getWeekDays(workingHours: DefaultWorkingHours[]): string[] {
+
+    getWorkingHoursDisplayFormat(workingHours: DefaultWorkingHours[]): string[] {
         return workingHours
             .map(
                 (wh, i) =>
                     ' ' +
-                    this.getWeekdayName(wh.weekday).charAt(0).toUpperCase() +
-                    this.getWeekdayName(wh.weekday).slice(1) +
+                    this.timeDateService.translateWeekdayName(wh.weekday).charAt(0).toUpperCase() +
+                    this.timeDateService.translateWeekdayName(wh.weekday).slice(1) +
                     (workingHours[i + 1]?.startTime == wh.startTime && workingHours[i + 1]?.endTime == wh.endTime
                         ? ','
                         : ' ' + format(new Date(wh.startTime), 'HH:mm') + '-' + format(new Date(wh.endTime), 'HH:mm;')),
@@ -181,29 +173,6 @@ export class RoomListComponent implements OnInit {
     }
     workingHourFormat(time: string): string {
         return format(new Date(time), 'HH:mm');
-    }
-    getWeekdayName(weekDay: string, long?: boolean): string {
-        const length = long ? 'long' : 'short';
-        const lang = this.translate.currentLang;
-        const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
-        const options: Intl.DateTimeFormatOptions = { weekday: length };
-        switch (weekDay) {
-            case 'MONDAY':
-                return this.getDateForWeekday(1).toLocaleDateString(locale, options);
-            case 'TUESDAY':
-                return this.getDateForWeekday(2).toLocaleDateString(locale, options);
-            case 'WEDNESDAY':
-                return this.getDateForWeekday(3).toLocaleDateString(locale, options);
-            case 'THURSDAY':
-                return this.getDateForWeekday(4).toLocaleDateString(locale, options);
-            case 'FRIDAY':
-                return this.getDateForWeekday(5).toLocaleDateString(locale, options);
-            case 'SATURDAY':
-                return this.getDateForWeekday(6).toLocaleDateString(locale, options);
-            case 'SUNDAY':
-                return this.getDateForWeekday(7).toLocaleDateString(locale, options);
-        }
-        return '';
     }
     getDateForWeekday(ordinal: number): Date {
         const now = new Date();

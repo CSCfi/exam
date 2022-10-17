@@ -311,43 +311,47 @@ public class RoomController extends BaseController {
         return ok();
     }
 
+    private ExceptionWorkingHours parse(JsonNode node) {
+        DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("startDate").asText());
+        DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(node.get("endDate").asText());
+        ExceptionWorkingHours hours = new ExceptionWorkingHours();
+        hours.setStartDate(startDate.toDate());
+        hours.setEndDate(endDate.toDate());
+        hours.setOutOfService(node.get("outOfService").asBoolean(true));
+        return hours;
+    }
+
     @Restrict(@Group({ "ADMIN" }))
-    public Result addRoomExceptionHour(Http.Request request) {
-        final JsonNode exception = request.body().asJson().get("exception");
+    public Result addRoomExceptionHours(Http.Request request) {
+        final JsonNode exceptionsNode = request.body().asJson().get("exceptions");
         final JsonNode ids = request.body().asJson().get("roomIds");
 
-        if (!exception.has("startDate") || !exception.has("endDate")) {
-            return badRequest("either start or end date missing");
-        }
-        DateTime startDate = ISODateTimeFormat.dateTime().parseDateTime(exception.get("startDate").asText());
-        DateTime endDate = ISODateTimeFormat.dateTime().parseDateTime(exception.get("endDate").asText());
+        List<ExceptionWorkingHours> exceptions = StreamSupport
+            .stream(exceptionsNode.spliterator(), false)
+            .map(this::parse)
+            .collect(Collectors.toList());
 
         List<Long> roomIds = StreamSupport
             .stream(ids.spliterator(), false)
             .map(JsonNode::asLong)
             .collect(Collectors.toList());
+        List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().idIn(roomIds).findList();
 
-        ExceptionWorkingHours hours = null;
-
-        for (Long id : roomIds) {
-            ExamRoom examRoom = Ebean.find(ExamRoom.class, id);
-            if (examRoom == null) {
-                return notFound();
+        exceptions.forEach(hours -> {
+            for (ExamRoom room : rooms) {
+                hours.setStartDateTimezoneOffset(
+                    DateTimeZone.forID(room.getLocalTimezone()).getOffset(hours.getStartDate().getTime())
+                );
+                hours.setEndDateTimezoneOffset(
+                    DateTimeZone.forID(room.getLocalTimezone()).getOffset(hours.getEndDate().getTime())
+                );
+                hours.setRoom(room);
+                hours.save();
+                room.getCalendarExceptionEvents().add(hours);
+                asyncUpdateRemote(room);
             }
-
-            hours = new ExceptionWorkingHours();
-            hours.setStartDate(startDate.toDate());
-            hours.setStartDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(startDate));
-            hours.setEndDate(endDate.toDate());
-            hours.setEndDateTimezoneOffset(DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(endDate));
-            hours.setRoom(examRoom);
-            hours.setOutOfService(exception.get("outOfService").asBoolean(true));
-            hours.save();
-            examRoom.getCalendarExceptionEvents().add(hours);
-            asyncUpdateRemote(examRoom);
-        }
-
-        return ok(Json.toJson(hours));
+        });
+        return ok(Json.toJson(exceptions));
     }
 
     @Restrict(@Group({ "ADMIN" }))
