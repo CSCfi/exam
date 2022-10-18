@@ -17,7 +17,6 @@ import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import type { Week } from './room.service';
 import { RoomService } from './room.service';
 
 type SelectableRoom = ExamRoom & { selected: boolean };
@@ -104,7 +103,6 @@ type SelectableRoom = ExamRoom & { selected: boolean };
 export class MultiRoomComponent implements OnInit, OnChanges {
     @Output() selected = new EventEmitter<number[]>();
 
-    week: Week = {};
     allRooms: ExamRoom[] = [];
     selectableRooms: SelectableRoom[] = [];
     roomIds: number[] = [];
@@ -114,7 +112,6 @@ export class MultiRoomComponent implements OnInit, OnChanges {
 
     ngOnInit() {
         this.loadRooms();
-        this.week = this.roomService.getWeek();
     }
 
     ngOnChanges(changes: SimpleChanges): void {
@@ -137,10 +134,6 @@ export class MultiRoomComponent implements OnInit, OnChanges {
 
     addMultiRoomException = () => {
         this.roomService.openExceptionDialog(this.addExceptions);
-    };
-
-    updateWorkingHours = () => {
-        this.roomService.updateWorkingHours$(this.week, this.getRoomIds()).subscribe();
     };
 
     selectAll = () => {

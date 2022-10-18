@@ -12,13 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import type { OnChanges, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { format } from 'date-fns';
-import { ExamRoom } from '../../reservation/reservation.model';
+import { formatISO, setDayOfYear } from 'date-fns';
+import { ToastrService } from 'ngx-toastr';
+import { DefaultWorkingHours, ExamRoom } from '../../reservation/reservation.model';
 import { DateTimeService } from '../../shared/date/date.service';
-import type { Week } from '../rooms/room.service';
 import { RoomService } from '../rooms/room.service';
 import { DefaultWorkingHoursWithEditing } from '../rooms/rooms.component';
 interface RoomWithAddressVisibility extends ExamRoom {
@@ -29,13 +29,13 @@ interface RoomWithAddressVisibility extends ExamRoom {
 @Component({
     selector: 'xm-opening-hours',
     template: `
-        <div class="row mart10 flex align-content-center" *ngFor="let dwh of extendedRoom?.extendedDwh">
+        <div class="row mart10 flex align-content-center" *ngFor="let dwh of orderByWeekday(extendedRoom.extendedDwh)">
             <div class="col-2 min-w-100 align-self-center">{{ dateTime.translateWeekdayName(dwh.weekday, true) }}</div>
             <div class="col row">
                 <div class="col flex justify-content-around align-self-center" *ngIf="!dwh.editing">
-                    <div>{{ workingHourFormat(dwh.startTime) }}</div>
+                    <div>{{ workingHourFormat(dwh.pickStartingTime) }}</div>
                     <div class="align-self-center">-</div>
-                    <div>{{ workingHourFormat(dwh.endTime) }}</div>
+                    <div>{{ workingHourFormat(dwh.pickEndingTime) }}</div>
                 </div>
                 <div class="col flex justify-content-around align-self-center" *ngIf="dwh.editing">
                     <ngb-timepicker
@@ -43,7 +43,6 @@ interface RoomWithAddressVisibility extends ExamRoom {
                         size="small"
                         [minuteStep]="15"
                         [(ngModel)]="dwh.pickStartingTime"
-                        (ngModelChange)="updateStartingEdits(dwh, $event)"
                     ></ngb-timepicker>
                     <div class="align-self-center">-</div>
                     <ngb-timepicker
@@ -51,23 +50,27 @@ interface RoomWithAddressVisibility extends ExamRoom {
                         size="small"
                         [minuteStep]="15"
                         [(ngModel)]="dwh.pickEndingTime"
-                        (ngModelChange)="updateEndingEdits(dwh, $event)"
                     ></ngb-timepicker>
                 </div>
                 <div
                     class="col-2 bi-pencil-fill pointer align-self-center"
                     *ngIf="!dwh.editing"
-                    (click)="startEditing(dwh)"
+                    (click)="dwh.editing = true"
+                ></div>
+                <div
+                    class="col-1 bi-x-square-fill text-muted pointer align-self-center"
+                    *ngIf="dwh.editing"
+                    (click)="dwh.editing = false"
                 ></div>
                 <div
                     class="col-1 bi-check-circle-fill text-success pointer align-self-center"
                     *ngIf="dwh.editing"
-                    (click)="saveEdits(dwh)"
+                    (click)="updateHours(dwh)"
                 ></div>
                 <div
                     class="col-1 bi-trash text-danger pointer align-self-center"
                     *ngIf="dwh.editing"
-                    (click)="deleteDwh(dwh)"
+                    (click)="deleteHours(dwh)"
                 ></div>
             </div>
         </div>
@@ -75,22 +78,17 @@ interface RoomWithAddressVisibility extends ExamRoom {
             <span class="col-2 align-self-center min-w-100" ngbDropdown>
                 <button
                     ngbDropdownToggle
-                    class="background-none radius-3 pad0"
+                    class="btn btn-outline-dark"
                     type="button"
                     id="dropDownMenu1"
                     aria-expanded="true"
                 >
                     {{ dateTime.translateWeekdayName(newTime.weekday, true) }}&nbsp;<span class="caret"></span>
                 </button>
-                <ul
-                    ngbDropdownMenu
-                    style="padding-left: 0; min-width: 17em"
-                    role="menu"
-                    aria-labelledby="dropDownMenu1"
-                >
+                <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
                     <li
                         ngbDropdownItem
-                        *ngFor="let weekday of getWeekdays()"
+                        *ngFor="let weekday of WEEKDAYS"
                         role="presentation"
                         class="pointer"
                         (click)="updateNewTime(weekday)"
@@ -110,7 +108,6 @@ interface RoomWithAddressVisibility extends ExamRoom {
                         size="small"
                         [minuteStep]="15"
                         [(ngModel)]="newTime.pickStartingTime"
-                        (ngModelChange)="updateStartingEdits(newTime, $event)"
                     ></ngb-timepicker>
                     <div class="align-self-center">-</div>
                     <ngb-timepicker
@@ -118,69 +115,112 @@ interface RoomWithAddressVisibility extends ExamRoom {
                         size="small"
                         [minuteStep]="15"
                         [(ngModel)]="newTime.pickEndingTime"
-                        (ngModelChange)="updateEndingEdits(newTime, $event)"
                     ></ngb-timepicker>
                 </div>
                 <div
                     class="col-2 bi-plus-circle-fill text-success pointer align-self-center"
-                    (click)="saveEdits(newTime)"
+                    (click)="updateHours(newTime)"
                 ></div>
             </div>
         </div>
     `,
 })
-export class OpenHoursComponent implements OnInit {
-    @Input() room?: ExamRoom;
-    @Output() selected = new EventEmitter();
+export class OpenHoursComponent implements OnInit, OnChanges {
+    @Input() room!: ExamRoom;
 
-    week: Week = {};
     weekdayNames: string[] = [];
-    times: string[] = [];
-    extendedRoom?: RoomWithAddressVisibility;
+    extendedRoom!: RoomWithAddressVisibility;
     newTime: DefaultWorkingHoursWithEditing;
+    NEW_TIME = {
+        startTime: '',
+        endTime: '',
+        weekday: 'MONDAY',
+        editing: false,
+        pickStartingTime: {
+            hour: 0,
+            minute: 0,
+            second: 0,
+            millisecond: 0,
+        },
+        pickEndingTime: {
+            hour: 0,
+            minute: 0,
+            second: 0,
+            millisecond: 0,
+        },
+    };
+    WEEKDAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
     constructor(
         private roomService: RoomService,
         public dateTime: DateTimeService,
         private translate: TranslateService,
+        private toast: ToastrService,
     ) {
-        this.newTime = {
-            startTime: '',
-            endTime: '',
-            weekday: 'MONDAY',
-            editing: false,
-            pickStartingTime: {
-                hour: 0,
-                minute: 0,
-                second: 0,
-                millisecond: 0,
-            },
-            pickEndingTime: {
-                hour: 0,
-                minute: 0,
-                second: 0,
-                millisecond: 0,
-            },
-        };
+        this.newTime = { ...this.NEW_TIME };
     }
 
     ngOnInit() {
-        if (!this.room) {
-            console.error('No [room] for opening-hours.component');
-            return;
-        }
-        this.translate.onLangChange.subscribe(() => {
-            this.weekdayNames = this.dateTime.getWeekdayNames();
-        });
-        this.week = this.roomService.getWeek();
+        this.translate.onLangChange.subscribe(() => (this.weekdayNames = this.dateTime.getWeekdayNames()));
         this.weekdayNames = this.dateTime.getWeekdayNames();
-        this.times = this.roomService.getTimes();
-        const defaultWorkingHours = this.room.defaultWorkingHours;
-        this.extendedRoom = {
+        this.init();
+    }
+
+    ngOnChanges() {
+        this.init();
+    }
+
+    orderByWeekday = (dwhs: DefaultWorkingHoursWithEditing[]) => {
+        const ordinal = (dwh: DefaultWorkingHours) => this.WEEKDAYS.indexOf(dwh.weekday);
+        return dwhs.sort((a, b) => ordinal(a) - ordinal(b));
+    };
+
+    updateHours(wh: DefaultWorkingHoursWithEditing) {
+        const start = formatISO(
+            setDayOfYear(new Date().setHours(wh.pickStartingTime.hour, wh.pickStartingTime.minute, 0, 0), 1),
+        );
+        const end = formatISO(
+            setDayOfYear(new Date().setHours(wh.pickEndingTime.hour, wh.pickEndingTime.minute, 0, 0), 1),
+        );
+        const id = wh.id;
+        this.roomService
+            .updateWorkingHours$({ startTime: start, endTime: end, weekday: wh.weekday }, [this.room.id])
+            .subscribe((data) => {
+                wh.id = data.id;
+                wh.editing = false;
+                if (!id) {
+                    this.extendedRoom = {
+                        ...this.extendedRoom,
+                        extendedDwh: this.extendedRoom.extendedDwh.concat(wh),
+                    };
+                    this.newTime = { ...this.NEW_TIME };
+                }
+                this.toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
+            });
+    }
+
+    deleteHours(wh: DefaultWorkingHoursWithEditing) {
+        if (!wh.id) return;
+        return this.roomService.removeWorkingHours$(wh.id).subscribe(() => {
+            const index = this.extendedRoom.extendedDwh.indexOf(wh);
+            this.extendedRoom.extendedDwh.splice(index, 1);
+            this.toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
+        });
+    }
+
+    workingHourFormat(time: { hour: number; minute: number }): string {
+        const zeropad = (n: number) => (String(n).length > 1 ? n.toString() : '0' + n.toString());
+        return `${zeropad(time.hour)}:${zeropad(time.minute)}`;
+    }
+
+    updateNewTime = (weekday: string) => (this.newTime.weekday = weekday);
+
+    init = () =>
+        (this.extendedRoom = {
             ...this.room,
             addressVisible: false,
             availabilityVisible: false,
-            extendedDwh: defaultWorkingHours.map((wh) => {
+            extendedDwh: this.room.defaultWorkingHours.map((wh) => {
                 return {
                     ...wh,
                     editing: false,
@@ -198,101 +238,5 @@ export class OpenHoursComponent implements OnInit {
                     },
                 };
             }),
-        } as RoomWithAddressVisibility;
-    }
-
-    timeRange = () => {
-        return [...new Array(this.times.length - 1)].map((x: undefined, i: number) => i);
-    };
-
-    getWeekdays = () => {
-        return Object.keys(this.week);
-    };
-
-    getType = (day: string, time: number) => {
-        this.week;
-        return this.week[day][time].type;
-    };
-
-    calculateTime = (index: number) => {
-        return (this.times[index] || '0:00') + ' - ' + this.times[index + 1];
-    };
-
-    selectSlot = (day: string, time: number) => {
-        const status = this.week[day][time].type;
-        if (status === 'accepted') {
-            // clear selection
-            this.week[day][time].type = '';
-            return;
-        }
-        if (status === 'selected') {
-            // mark everything hereafter as free until next block
-            for (let i = 0; i < this.week[day].length; ++i) {
-                if (i >= time) {
-                    if (this.week[day][i].type === 'selected') {
-                        this.week[day][i].type = '';
-                    } else {
-                        break;
-                    }
-                }
-            }
-        } else {
-            // check if something is accepted yet
-            let accepted;
-            for (let i = 0; i < this.week[day].length; ++i) {
-                if (this.week[day][i].type === 'accepted') {
-                    accepted = i;
-                    break;
-                }
-            }
-            if (accepted && accepted >= 0) {
-                // mark everything between accepted and this as selected
-                if (accepted < time) {
-                    for (let i = accepted; i <= time; ++i) {
-                        this.week[day][i].type = 'selected';
-                    }
-                } else {
-                    for (let i = time; i <= accepted; ++i) {
-                        this.week[day][i].type = 'selected';
-                    }
-                }
-            } else {
-                this.week[day][time].type = 'accepted'; // mark beginning
-            }
-        }
-
-        this.selected.emit();
-    };
-    startEditing = (wh: DefaultWorkingHoursWithEditing) => (wh.editing = true);
-    updateStartingEdits(
-        wh: DefaultWorkingHoursWithEditing,
-        event: { hour: number; minute: number; second: number; millisecond?: number },
-    ) {
-        wh.pickStartingTime = event;
-        //wh.startTime = new Date().toDateString()
-    }
-    updateEndingEdits(
-        wh: DefaultWorkingHoursWithEditing,
-        event: { hour: number; minute: number; second: number; millisecond?: number },
-    ) {
-        wh.pickEndingTime = event;
-    }
-    saveEdits(wh: DefaultWorkingHoursWithEditing) {
-        this.selected.emit();
-        wh.editing = false;
-    }
-    deleteDwh(wh: DefaultWorkingHoursWithEditing) {
-        //TODO
-    }
-    workingHourFormat(time: string): string {
-        return format(new Date(time), 'HH:mm');
-    }
-    getDateForWeekday(ordinal: number): Date {
-        const now = new Date();
-        const distance = ordinal - now.getDay();
-        return new Date(now.setDate(now.getDate() + distance));
-    }
-    updateNewTime(weekday: string) {
-        this.newTime.weekday = weekday;
-    }
+        });
 }

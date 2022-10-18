@@ -17,6 +17,7 @@ import type { Address, WorkingHour } from '../facility/rooms/room.service';
 import type { User } from '../session/session.service';
 
 export type DefaultWorkingHours = {
+    id?: number;
     startTime: string;
     endTime: string;
     weekday: string;

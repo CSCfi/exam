@@ -48,7 +48,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.springframework.beans.BeanUtils;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
@@ -121,6 +120,7 @@ public class RoomController extends BaseController {
             .fetch("examMachines")
             .fetch("defaultWorkingHours")
             .fetch("calendarExceptionEvents")
+            .fetch("examStartingHours")
             .where();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!user.hasRole(Role.Name.ADMIN)) {
@@ -131,7 +131,7 @@ public class RoomController extends BaseController {
             room.getExamMachines().removeIf(ExamMachine::isArchived);
         }
         PathProperties props = PathProperties.parse(
-            "(*, mailAddress(*), accessibilities(*), defaultWorkingHours(*), calendarExceptionEvents(*), examMachines(*, softwareInfo(*)))"
+            "(*, mailAddress(*), accessibilities(*), defaultWorkingHours(*), calendarExceptionEvents(*), examStartingHours(*), examMachines(*, softwareInfo(*)))"
         );
         return ok(rooms, props);
     }
@@ -224,23 +224,17 @@ public class RoomController extends BaseController {
         return updateRemote(room.get());
     }
 
-    private List<DefaultWorkingHours> parseWorkingHours(JsonNode root) {
+    private DefaultWorkingHours parseWorkingHours(JsonNode root) {
         JsonNode node = root.get("workingHours");
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("dd.MM.yyyy HH:mmZZ");
-        List<DefaultWorkingHours> result = new ArrayList<>();
-        for (JsonNode weekday : node) {
-            for (JsonNode block : weekday.get("blocks")) {
-                DefaultWorkingHours dwh = new DefaultWorkingHours();
-                dwh.setWeekday(weekday.get("weekday").asText());
-                // Deliberately use first of Jan to have no DST in effect
-                DateTime startTime = DateTime.parse(block.get("start").asText(), formatter).withDayOfYear(1);
-                DateTime endTime = DateTime.parse(block.get("end").asText(), formatter).withDayOfYear(1);
-                dwh.setStartTime(startTime);
-                dwh.setEndTime(endTime);
-                result.add(dwh);
-            }
-        }
-        return result;
+        DateTimeFormatter formatter = ISODateTimeFormat.dateTimeParser();
+        DefaultWorkingHours dwh = new DefaultWorkingHours();
+        dwh.setWeekday(node.get("weekday").asText());
+        // Deliberately use first of Jan to have no DST in effect
+        DateTime startTime = DateTime.parse(node.get("startTime").asText(), formatter).withDayOfYear(1);
+        DateTime endTime = DateTime.parse(node.get("endTime").asText(), formatter).withDayOfYear(1);
+        dwh.setStartTime(startTime);
+        dwh.setEndTime(endTime);
+        return dwh;
     }
 
     @Restrict(@Group({ "ADMIN" }))
@@ -251,25 +245,41 @@ public class RoomController extends BaseController {
             roomIds.add(roomId.asLong());
         }
         List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().idIn(roomIds).findList();
-        List<DefaultWorkingHours> blueprints = parseWorkingHours(root);
+        DefaultWorkingHours hours = parseWorkingHours(root);
         for (ExamRoom examRoom : rooms) {
-            List<DefaultWorkingHours> previous = examRoom.getDefaultWorkingHours();
-            Ebean.deleteAll(previous);
-            previous.clear();
-            for (DefaultWorkingHours blueprint : blueprints) {
-                DefaultWorkingHours copy = new DefaultWorkingHours();
-                BeanUtils.copyProperties(blueprint, copy, "id", "room");
-                copy.setRoom(examRoom);
-                DateTime end = new DateTime(blueprint.getEndTime());
-                int offset = DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(end);
-                int endMillisOfDay = dateTimeHandler.resolveEndWorkingHourMillis(end, offset) - offset;
-                copy.setEndTime(end.withMillisOfDay(endMillisOfDay));
-                copy.setTimezoneOffset(offset);
-                copy.save();
-                previous.add(copy);
-            }
+            // Find out if there's overlap. Remove those
+            List<DefaultWorkingHours> existing = Ebean
+                .find(DefaultWorkingHours.class)
+                .where()
+                .eq("room", examRoom)
+                .eq("weekday", hours.getWeekday())
+                .findList();
+            List<DefaultWorkingHours> overlapping = existing
+                .stream()
+                .filter(dwh -> dwh.overlaps(hours))
+                .collect(Collectors.toList());
+            Ebean.deleteAll(overlapping);
+            examRoom.getDefaultWorkingHours().removeAll(overlapping);
+
+            hours.setRoom(examRoom);
+            DateTime end = new DateTime(hours.getEndTime());
+            int offset = DateTimeZone.forID(examRoom.getLocalTimezone()).getOffset(end);
+            int endMillisOfDay = dateTimeHandler.resolveEndWorkingHourMillis(end, offset) - offset;
+            hours.setEndTime(end.withMillisOfDay(endMillisOfDay));
+            hours.setTimezoneOffset(offset);
+            hours.save();
             asyncUpdateRemote(examRoom);
         }
+        return ok(Json.newObject().put("id", hours.getId()));
+    }
+
+    @Restrict(@Group({ "ADMIN" }))
+    public Result removeExamRoomWorkingHours(Long id) {
+        DefaultWorkingHours dwh = Ebean.find(DefaultWorkingHours.class, id);
+        if (dwh == null) {
+            return forbidden();
+        }
+        dwh.delete();
         return ok();
     }
 

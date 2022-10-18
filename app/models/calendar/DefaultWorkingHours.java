@@ -21,9 +21,12 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import models.ExamRoom;
 import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.LocalDate;
 import util.datetime.DateTimeAdapter;
 
 @Entity
@@ -83,5 +86,15 @@ public class DefaultWorkingHours extends GeneratedIdentityModel {
 
     public void setTimezoneOffset(int timezoneOffset) {
         this.timezoneOffset = timezoneOffset;
+    }
+
+    @Transient
+    public boolean overlaps(DefaultWorkingHours other) {
+        if (!weekday.equals(other.weekday)) {
+            return false;
+        }
+        Interval i1 = new Interval(startTime.withDate(LocalDate.now()), endTime.withDate(LocalDate.now()));
+        Interval i2 = new Interval(other.startTime.withDate(LocalDate.now()), other.endTime.withDate(LocalDate.now()));
+        return i1.overlaps(i2);
     }
 }

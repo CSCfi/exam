@@ -1,6 +1,6 @@
 <div id="dashboard">
     <div class="row" id="room" *ngFor="let room of rooms" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
-        <div class="col-md mart40">
+        <div class="col-12">
             <h2 class="room-name-title">{{ room.name || 'sitnet_no_name' | translate }}</h2>
             <a
                 [hidden]="room.state === 'INACTIVE'"
@@ -171,20 +171,27 @@
                     </div>
                 </div>
                 <div class="row" *ngIf="room.availabilityVisible">
-                    <div class="col col-md col-xl-5 mart20 min-w-500">
-                        <xm-opening-hours
-                            *ngIf="room"
-                            class="col-md-12"
-                            [room]="room"
-                            (selected)="updateWorkingHours(room)"
-                        ></xm-opening-hours>
+                    <div class="col-6">
+                        <xm-opening-hours *ngIf="room" class="col-md-12" [room]="room"></xm-opening-hours>
                     </div>
-                    <xm-exceptions
-                        class="col-md"
-                        [exceptions]="room.calendarExceptionEvents"
-                        (created)="addExceptions($event, room)"
-                        (removed)="deleteException($event, room)"
-                    ></xm-exceptions>
+                    <div class="col-6">
+                        <div class="row">
+                            <xm-exceptions
+                                class="col-12"
+                                [exceptions]="room.calendarExceptionEvents"
+                                (created)="addExceptions($event, room)"
+                                (removed)="deleteException($event, room)"
+                            ></xm-exceptions>
+                        </div>
+                        <div class="row">
+                            <xm-starting-time
+                                class="col-12 mt-2"
+                                [startingHours]="room.examStartingHours"
+                                [roomIds]="[room.id]"
+                            >
+                            </xm-starting-time>
+                        </div>
+                    </div>
                 </div>
             </div>
 

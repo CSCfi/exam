@@ -206,7 +206,8 @@ POST          /app/rooms/:id                                           controlle
 
 PUT           /app/address/:id                                         controllers.RoomController.updateExamRoomAddress(id: Long, request: Request)
 
-PUT           /app/workinghours                                        controllers.RoomController.updateExamRoomWorkingHours(request: Request)
+POST          /app/workinghours                                        controllers.RoomController.updateExamRoomWorkingHours(request: Request)
+DELETE        /app/workinghours/:id                                    controllers.RoomController.removeExamRoomWorkingHours(id: Long)
 PUT           /app/startinghours                                       controllers.RoomController.updateExamStartingHours(request: Request)
 PUT           /app/exception                                           controllers.RoomController.addRoomExceptionHours(request: Request)
 DELETE        /app/rooms/:roomId/exception/:exceptionId                controllers.RoomController.removeRoomExceptionHour(roomId: Long, exceptionId: Long)
