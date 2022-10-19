@@ -71,6 +71,30 @@ export class DateTimeService {
             .concat(0)
             .map((d) => this.getDateForWeekday(d).toLocaleDateString(locale, options));
     }
+    translateWeekdayName(weekDay: string, long?: boolean): string {
+        // This function has been moved to date service @DELETEME
+        const length = long ? 'long' : 'short';
+        const lang = this.translate.currentLang;
+        const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
+        const options: Intl.DateTimeFormatOptions = { weekday: length };
+        switch (weekDay) {
+            case 'MONDAY':
+                return this.getDateForWeekday(1).toLocaleDateString(locale, options);
+            case 'TUESDAY':
+                return this.getDateForWeekday(2).toLocaleDateString(locale, options);
+            case 'WEDNESDAY':
+                return this.getDateForWeekday(3).toLocaleDateString(locale, options);
+            case 'THURSDAY':
+                return this.getDateForWeekday(4).toLocaleDateString(locale, options);
+            case 'FRIDAY':
+                return this.getDateForWeekday(5).toLocaleDateString(locale, options);
+            case 'SATURDAY':
+                return this.getDateForWeekday(6).toLocaleDateString(locale, options);
+            case 'SUNDAY':
+                return this.getDateForWeekday(7).toLocaleDateString(locale, options);
+        }
+        return '';
+    }
 
     getMonthNames(long?: boolean): string[] {
         const length = long ? 'long' : 'short';

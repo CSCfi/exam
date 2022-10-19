@@ -146,33 +146,11 @@
     </div>
 
     <!-- AVAILABILITY TODO: MOVE TO A TAB -->
-    <div class="top-row" *ngIf="room && workingHoursExist()">
+    <div class="top-row" *ngIf="room">
         <div class="col-md-12">
             <a [routerLink]="['/staff/rooms', room.id, 'availability']">{{ 'sitnet_reservations_new' | translate }}</a>
         </div>
     </div>
-
-    <div class="top-row">
-        <h3 class="col-md-12 header-text">{{ 'sitnet_room_default_working_hours' | translate }}</h3>
-    </div>
-    <div class="bottom-row">
-        <xm-opening-hours
-            *ngIf="room"
-            class="col-md-12"
-            [week]="week"
-            (selected)="updateWorkingHours()"
-        ></xm-opening-hours>
-    </div>
-
-    <xm-starting-time *ngIf="room" [startingHours]="room.examStartingHours" [roomIds]="[room.id]"></xm-starting-time>
-
-    <xm-exceptions
-        *ngIf="room"
-        [hideInfo]="false"
-        [exceptions]="room.calendarExceptionEvents"
-        (created)="addException($event)"
-        (removed)="deleteException($event)"
-    ></xm-exceptions>
 
     <div class="top-row">
         <div class="col-md-12">
