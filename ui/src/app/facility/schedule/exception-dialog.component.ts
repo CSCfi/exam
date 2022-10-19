@@ -139,7 +139,7 @@ export class ExceptionDialogComponent {
         );
         const result = this.parseExceptionDays(monthlyExceptions);
         const message =
-            this.translate.instant('sitnet_month-s') +
+            this.translate.instant('sitnet_of_month') +
             ' ' +
             (this.isNumericNotWeekday
                 ? this.dayOfMonth + '. ' + this.translate.instant('sitnet_day')

@@ -1087,5 +1087,7 @@
   "sitnet_whole_day": "Poikkeusaukoioloaika koko päivälle SV",
   "sitnet_and_repeats_every_x": "Toistuu joka SV",
   "sitnet_exception_happens_at": "Poikkeusaukioloajan kellonaika SV",
-  "sitnet_questions_with_your_answers": "Kysymykset ja vastauksesi SV"
+  "sitnet_questions_with_your_answers": "Kysymykset ja vastauksesi SV",
+  "sitnet_time_overlaps_error": "Time range overlaps with another one. Please check your inputs SV",
+  "sitnet_starting_cannot_be_after_ending": "Starting time cannot be after ending time. SV"
 }
