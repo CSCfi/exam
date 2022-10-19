@@ -11,6 +11,7 @@ import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import io.ebean.Ebean;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 import javax.mail.internet.MimeMessage;
@@ -36,7 +37,6 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
     private Exam exam;
     private User user;
-
     private ExamEnrolment enrolment;
     private ExamRoom room;
     private Reservation reservation;
@@ -47,14 +47,16 @@ public class CalendarControllerTest extends IntegrationTestCase {
 
     private void setWorkingHours() {
         String[] dates = { "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" };
-        int d = DateTime.now().getDayOfWeek() - 1;
-        String weekday = dates[d];
-        DefaultWorkingHours dwh = new DefaultWorkingHours();
-        dwh.setWeekday(weekday);
-        dwh.setRoom(room);
-        dwh.setStartTime(DateTime.now().withTimeAtStartOfDay());
-        dwh.setEndTime(DateTime.now().withTime(23, 59, 59, 999));
-        dwh.save();
+        Arrays
+            .stream(dates)
+            .forEach(d -> {
+                DefaultWorkingHours dwh = new DefaultWorkingHours();
+                dwh.setWeekday(d);
+                dwh.setRoom(room);
+                dwh.setStartTime(DateTime.now().withTimeAtStartOfDay());
+                dwh.setEndTime(DateTime.now().withTime(23, 59, 59, 999));
+                dwh.save();
+            });
     }
 
     @Override
@@ -127,8 +129,20 @@ public class CalendarControllerTest extends IntegrationTestCase {
         exam.setExecutionType(Ebean.find(ExamExecutionType.class, 2));
         exam.getExamOwners().add(Ebean.find(User.class, 4));
         exam.save();
-        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
-        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
+        DateTime start = DateTime
+            .now()
+            .withMinuteOfHour(0)
+            .withSecondOfMinute(0)
+            .withMillisOfSecond(0)
+            .plusDays(1)
+            .withHourOfDay(12);
+        DateTime end = DateTime
+            .now()
+            .withMinuteOfHour(0)
+            .withSecondOfMinute(0)
+            .withMillisOfSecond(0)
+            .plusDays(1)
+            .withHourOfDay(13);
 
         // Execute
         Result result = request(
@@ -168,8 +182,20 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservationPreviousInFuture() throws Exception {
         // Setup
-        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
-        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
+        DateTime start = DateTime
+            .now()
+            .withMinuteOfHour(0)
+            .withSecondOfMinute(0)
+            .withMillisOfSecond(0)
+            .plusDays(1)
+            .withHourOfDay(12);
+        DateTime end = DateTime
+            .now()
+            .withMinuteOfHour(0)
+            .withSecondOfMinute(0)
+            .withMillisOfSecond(0)
+            .plusDays(1)
+            .withHourOfDay(13);
 
         reservation.setStartAt(DateTime.now().plusHours(2));
         reservation.setEndAt(DateTime.now().plusHours(3));
@@ -215,11 +241,23 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservationPreviousInPast() throws Exception {
         // Setup
-        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(1);
-        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
+        DateTime start = DateTime
+            .now()
+            .withMinuteOfHour(0)
+            .withSecondOfMinute(0)
+            .withMillisOfSecond(0)
+            .plusDays(1)
+            .withHourOfDay(12);
+        DateTime end = DateTime
+            .now()
+            .withMinuteOfHour(0)
+            .withSecondOfMinute(0)
+            .withMillisOfSecond(0)
+            .plusDays(1)
+            .withHourOfDay(13);
 
-        reservation.setStartAt(DateTime.now().minusMinutes(30));
-        reservation.setEndAt(DateTime.now().minusMinutes(5));
+        reservation.setStartAt(DateTime.now().minusDays(1).minusMinutes(10));
+        reservation.setEndAt(DateTime.now().minusDays(1).minusMinutes(5));
         reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
         enrolment.setReservation(reservation);
