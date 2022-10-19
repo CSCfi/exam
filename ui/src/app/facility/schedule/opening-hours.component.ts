@@ -177,7 +177,7 @@ export class OpenHoursComponent implements OnInit, OnChanges {
 
     updateHours(wh: DefaultWorkingHoursWithEditing) {
         if (this.overlaps(wh)) {
-            this.toast.error(this.translate.instant('Time range overlaps with another one. Please check your inputs'));
+            this.toast.error(this.translate.instant(this.translate.instant('sitnet_time_overlaps_error')));
             return;
         }
         const start = formatISO(
@@ -186,6 +186,10 @@ export class OpenHoursComponent implements OnInit, OnChanges {
         const end = formatISO(
             setDayOfYear(new Date().setHours(wh.pickEndingTime.hour, wh.pickEndingTime.minute, 0, 0), 1),
         );
+        if (new Date(start) > new Date(end)) {
+            this.toast.error(this.translate.instant(this.translate.instant('sitnet_starting_cannot_be_after_ending')));
+            return;
+        }
         const id = wh.id;
         this.roomService
             .updateWorkingHours$({ startTime: start, endTime: end, weekday: wh.weekday }, [this.room.id])
