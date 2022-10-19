@@ -52,26 +52,24 @@ interface RoomWithAddressVisibility extends ExamRoom {
                         [(ngModel)]="dwh.pickEndingTime"
                     ></ngb-timepicker>
                 </div>
+            </div>
+            <div class="col-2 align-self-center">
                 <div
-                    class="col-2 bi-pencil-fill pointer align-self-center"
+                    class="bi-pencil-fill pointer align-self-center"
                     *ngIf="!dwh.editing"
                     (click)="dwh.editing = true"
                 ></div>
-                <div
-                    class="col-1 bi-x-square-fill text-muted pointer align-self-center"
-                    *ngIf="dwh.editing"
-                    (click)="dwh.editing = false"
-                ></div>
-                <div
-                    class="col-1 bi-check-circle-fill text-success pointer align-self-center"
-                    *ngIf="dwh.editing"
-                    (click)="updateHours(dwh)"
-                ></div>
-                <div
-                    class="col-1 bi-trash text-danger pointer align-self-center"
-                    *ngIf="dwh.editing"
-                    (click)="deleteHours(dwh)"
-                ></div>
+                <div class="flex" *ngIf="dwh.editing">
+                    <div
+                        class="marl5 bi-x-square-fill text-muted pointer align-self-center"
+                        (click)="dwh.editing = false"
+                    ></div>
+                    <div
+                        class="marl5 bi-check-circle-fill text-success pointer align-self-center"
+                        (click)="updateHours(dwh)"
+                    ></div>
+                    <div class="marl5 bi-trash text-danger pointer align-self-center" (click)="deleteHours(dwh)"></div>
+                </div>
             </div>
         </div>
         <div class="row mart10 flex align-content-center">
@@ -117,8 +115,10 @@ interface RoomWithAddressVisibility extends ExamRoom {
                         [(ngModel)]="newTime.pickEndingTime"
                     ></ngb-timepicker>
                 </div>
+            </div>
+            <div class="col-2 align-self-center">
                 <div
-                    class="col-2 bi-plus-circle-fill text-success pointer align-self-center"
+                    class="bi-plus-circle-fill text-success pointer align-self-center"
                     (click)="updateHours(newTime)"
                 ></div>
             </div>

@@ -149,8 +149,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="row ms-3" *ngIf="!room.availabilityVisible">
-                    <div class="col-md mart10">
+                <div class="row" *ngIf="!room.availabilityVisible">
+                    <div class="col-md mart10 marr26">
                         <div
                             class="flex justify-content-end flex-nowrap"
                             *ngFor="let exception of getNextExceptionEvent(room.calendarExceptionEvents)"
@@ -164,7 +164,7 @@
                             <div class="text-info marr10" *ngIf="exception?.outOfService && !exception.outOfService">
                                 {{ 'sitnet_room_in_service' | translate }}
                             </div>
-                            <div class="min-width-300">
+                            <div class="justify-self-right">
                                 {{ formatDate(exception) }}
                             </div>
                         </div>

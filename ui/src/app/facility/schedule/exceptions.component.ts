@@ -30,14 +30,14 @@ import { RoomService } from '../rooms/room.service';
         </div>
 
         <div class="row" *ngFor="let exception of orderedExceptions | filterBy: filter; let i = index">
-            <div class="col-3">
+            <div class="col">
                 {{ formatDate(exception) }}
             </div>
-            <div class="col-3">
+            <div class="col">
                 {{ !exception.outOfService ? ('sitnet_room_in_service' | translate) : '' }}
                 {{ exception.outOfService ? ('sitnet_room_out_of_service' | translate) : '' }}
             </div>
-            <div class="col">
+            <div class="col-3">
                 <a class="pointer" (click)="deleteException(exception)">{{ 'sitnet_exam_remove' | translate }}</a>
             </div>
         </div>
