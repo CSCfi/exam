@@ -250,7 +250,7 @@ export class OpenHoursComponent implements OnInit, OnChanges {
     private overlaps = (wh: DefaultWorkingHoursWithEditing) => {
         const newInterval = { start: this.toDate(wh.pickStartingTime), end: this.toDate(wh.pickEndingTime) };
         const intervals = this.extendedRoom.extendedDwh
-            .filter((dwh) => dwh.weekday === wh.weekday)
+            .filter((dwh) => dwh.weekday === wh.weekday && dwh !== wh)
             .map((dwh) => ({ start: this.toDate(dwh.pickStartingTime), end: this.toDate(dwh.pickEndingTime) }));
         return intervals.some((i) => areIntervalsOverlapping(i, newInterval, { inclusive: true }));
     };
