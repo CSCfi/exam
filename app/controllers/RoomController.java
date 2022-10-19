@@ -66,6 +66,7 @@ public class RoomController extends BaseController {
     protected ActorSystem system;
     private final DateTimeHandler dateTimeHandler;
     private static final Logger.ALogger logger = Logger.of(RoomController.class);
+    private static final int EPOCH = 1970;
 
     @Inject
     public RoomController(
@@ -229,9 +230,9 @@ public class RoomController extends BaseController {
         DateTimeFormatter formatter = ISODateTimeFormat.dateTimeParser();
         DefaultWorkingHours dwh = new DefaultWorkingHours();
         dwh.setWeekday(node.get("weekday").asText());
-        // Deliberately use first of Jan to have no DST in effect
-        DateTime startTime = DateTime.parse(node.get("startTime").asText(), formatter).withDayOfYear(1);
-        DateTime endTime = DateTime.parse(node.get("endTime").asText(), formatter).withDayOfYear(1);
+        // Deliberately use Jan to have no DST in effect
+        DateTime startTime = DateTime.parse(node.get("startTime").asText(), formatter).withDayOfYear(1).withYear(EPOCH);
+        DateTime endTime = DateTime.parse(node.get("endTime").asText(), formatter).withDayOfYear(1).withYear(EPOCH);
         dwh.setStartTime(startTime);
         dwh.setEndTime(endTime);
         return dwh;

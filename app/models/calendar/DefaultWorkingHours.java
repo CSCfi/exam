@@ -90,11 +90,14 @@ public class DefaultWorkingHours extends GeneratedIdentityModel {
 
     @Transient
     public boolean overlaps(DefaultWorkingHours other) {
-        if (!weekday.equals(other.weekday)) {
-            return false;
+        return weekday.equals(other.weekday) && toInterval().overlaps(other.toInterval());
+    }
+
+    private Interval toInterval() {
+        if (startTime.isAfter(endTime)) {
+            return new Interval(startTime.withDate(LocalDate.now()).minusDays(1), endTime.withDate(LocalDate.now()));
+        } else {
+            return new Interval(startTime.withDate(LocalDate.now()), endTime.withDate(LocalDate.now()));
         }
-        Interval i1 = new Interval(startTime.withDate(LocalDate.now()), endTime.withDate(LocalDate.now()));
-        Interval i2 = new Interval(other.startTime.withDate(LocalDate.now()), other.endTime.withDate(LocalDate.now()));
-        return i1.overlaps(i2);
     }
 }
