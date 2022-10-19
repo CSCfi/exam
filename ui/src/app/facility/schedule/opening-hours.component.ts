@@ -15,7 +15,7 @@
 import type { OnChanges, OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { formatISO, setDayOfYear } from 'date-fns';
+import { areIntervalsOverlapping, formatISO, setDayOfYear } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { DefaultWorkingHours, ExamRoom } from '../../reservation/reservation.model';
 import { DateTimeService } from '../../shared/date/date.service';
@@ -176,6 +176,10 @@ export class OpenHoursComponent implements OnInit, OnChanges {
     };
 
     updateHours(wh: DefaultWorkingHoursWithEditing) {
+        if (this.overlaps(wh)) {
+            this.toast.error(this.translate.instant('Time range overlaps with another one. Please check your inputs'));
+            return;
+        }
         const start = formatISO(
             setDayOfYear(new Date().setHours(wh.pickStartingTime.hour, wh.pickStartingTime.minute, 0, 0), 1),
         );
@@ -239,4 +243,15 @@ export class OpenHoursComponent implements OnInit, OnChanges {
                 };
             }),
         });
+
+    private toDate = (time: { hour: number; minute: number }) =>
+        setDayOfYear(new Date().setHours(time.hour, time.minute, 0, 0), 1);
+
+    private overlaps = (wh: DefaultWorkingHoursWithEditing) => {
+        const newInterval = { start: this.toDate(wh.pickStartingTime), end: this.toDate(wh.pickEndingTime) };
+        const intervals = this.extendedRoom.extendedDwh
+            .filter((dwh) => dwh.weekday === wh.weekday)
+            .map((dwh) => ({ start: this.toDate(dwh.pickStartingTime), end: this.toDate(dwh.pickEndingTime) }));
+        return intervals.some((i) => areIntervalsOverlapping(i, newInterval, { inclusive: true }));
+    };
 }
