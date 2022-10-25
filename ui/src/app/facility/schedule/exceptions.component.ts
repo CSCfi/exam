@@ -91,7 +91,11 @@ export class ExceptionListComponent implements OnInit, OnChanges {
 
     createExceptionCallback = (exception: ExceptionWorkingHours[]) => this.created.emit(exception);
 
-    deleteException = (exception: ExceptionWorkingHours) => this.removed.emit(exception);
+    deleteException = (exception: ExceptionWorkingHours) => {
+        this.exceptions = this.exceptions.splice(this.exceptions.indexOf(exception), 1);
+        this.init();
+        this.removed.emit(exception);
+    };
 
     private init = () =>
         (this.orderedExceptions = this.exceptions

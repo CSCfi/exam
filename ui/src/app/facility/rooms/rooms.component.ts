@@ -116,12 +116,7 @@ export class RoomListComponent implements OnInit {
     };
 
     deleteException = (exception: ExceptionWorkingHours, examRoom: ExamRoom) => {
-        this.roomService.deleteException(examRoom.id, exception.id).then(() => {
-            examRoom.calendarExceptionEvents = examRoom.calendarExceptionEvents.splice(
-                examRoom.calendarExceptionEvents.indexOf(exception),
-                1,
-            );
-        });
+        this.roomService.deleteException(examRoom.id, exception.id);
     };
     getNextExceptionEvent(ees: ExceptionWorkingHours[]): ExceptionWorkingHours[] {
         return ees
