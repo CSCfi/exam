@@ -1088,6 +1088,10 @@
   "sitnet_and_repeats_every_x": "Toistuu joka EN",
   "sitnet_exception_happens_at": "Poikkeusaukioloajan kellonaika EN",
   "sitnet_questions_with_your_answers": "Kysymykset ja vastauksesi EN",
+  "sitnet_making_room_available": "Jatkoaukioloaika huoneelle EN",
+  "sitnet_making_room_out_of_service": "Huone pois käytöstä valittuna aikana EN",
   "sitnet_time_overlaps_error": "Time range overlaps with another one. Please check your inputs",
-  "sitnet_starting_cannot_be_after_ending": "Starting time cannot be after ending time."
+  "sitnet_starting_cannot_be_after_ending": "Starting time cannot be after ending time.",
+  "sitnet_add_out_of_service_time": "Lisää poikkeuskiinnioloaika EN",
+  "sitnet_add_extra_working_hour": "Lisää poikkeusaukioloaika EN"
 }
