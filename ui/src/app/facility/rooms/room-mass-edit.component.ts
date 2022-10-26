@@ -133,7 +133,9 @@ export class MultiRoomComponent implements OnInit, OnChanges {
     };
 
     addMultiRoomException = () => {
-        this.roomService.openExceptionDialog(this.addExceptions);
+        const allExceptions: ExceptionWorkingHours[] = [];
+        this.allRooms.forEach((room) => allExceptions.push(...room.calendarExceptionEvents));
+        this.roomService.openExceptionDialog(this.addExceptions, true, allExceptions);
     };
 
     selectAll = () => {
