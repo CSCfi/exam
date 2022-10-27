@@ -43,8 +43,11 @@ import { RoomService } from '../rooms/room.service';
         </div>
         <div class="row mt-2" *ngIf="!hideButton">
             <div class="col-12">
-                <button (click)="addException()" class="btn btn-sm btn-outline-dark">
-                    {{ 'sitnet_add' | translate }}
+                <button (click)="addExceptionClosed()" class="btn btn-sm btn-outline-dark marr20 marb10">
+                    {{ 'sitnet_add_out_of_service_time' | translate }}
+                </button>
+                <button (click)="addExceptionOpen()" class="btn btn-sm btn-outline-dark text-success marb10">
+                    {{ 'sitnet_add_extra_working_hour' | translate }}
                 </button>
             </div>
         </div>
@@ -87,7 +90,9 @@ export class ExceptionListComponent implements OnInit, OnChanges {
         );
     };
 
-    addException = () => this.roomService.openExceptionDialog(this.createExceptionCallback);
+    addExceptionClosed = () =>
+        this.roomService.openExceptionDialog(this.createExceptionCallback, true, this.exceptions);
+    addExceptionOpen = () => this.roomService.openExceptionDialog(this.createExceptionCallback, false, this.exceptions);
 
     createExceptionCallback = (exception: ExceptionWorkingHours[]) => this.created.emit(exception);
 
