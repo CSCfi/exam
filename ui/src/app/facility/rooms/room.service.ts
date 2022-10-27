@@ -120,18 +120,24 @@ export class RoomService {
             });
         });
 
-    openExceptionDialog = (callBack: (exception: ExceptionWorkingHours[]) => void) =>
-        this.ngbModal
-            .open(ExceptionDialogComponent, {
-                backdrop: 'static',
-                keyboard: true,
-                size: 'lg',
-            })
-            .result.then((exception: ExceptionWorkingHours[]) => {
-                callBack(exception);
+    openExceptionDialog = (
+        callBack: (exception: ExceptionWorkingHours[]) => void,
+        outOfService?: boolean,
+        exceptions?: ExceptionWorkingHours[],
+    ) => {
+        const modalRef = this.ngbModal.open(ExceptionDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'lg',
+        });
+        modalRef.componentInstance.outOfService = outOfService;
+        modalRef.componentInstance.exceptions = exceptions;
+        modalRef.result
+            .then((exceptions: ExceptionWorkingHours[]) => {
+                callBack(exceptions);
             })
             .catch(noop);
-
+    };
     deleteException = (roomId: number, exceptionId: number) =>
         new Promise<void>((resolve, reject) => {
             this.removeException$(roomId, exceptionId).subscribe({

@@ -161,7 +161,7 @@
                             >
                                 {{ 'sitnet_room_out_of_service' | translate }}
                             </div>
-                            <div class="text-info marr10" *ngIf="exception?.outOfService && !exception.outOfService">
+                            <div class="text-success marr10" *ngIf="!exception?.outOfService">
                                 {{ 'sitnet_room_in_service' | translate }}
                             </div>
                             <div class="justify-self-right">
