@@ -130,10 +130,10 @@
                                 </td>
                                 <!-- 4 -->
                                 <td>
-                                    {{ event.examinationEvent?.start | date: 'dd.MM.yyyy hh:mm' }} -
+                                    {{ event.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm' }} -
                                     {{
                                         getEventEndTime(event.examinationEvent?.start, event.exam?.duration)
-                                            | date: 'hh:mm'
+                                            | date: 'HH:mm'
                                     }}
                                 </td>
                                 <!-- 5 -->
