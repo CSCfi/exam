@@ -142,7 +142,7 @@ public class BaseController extends Controller {
             .endOr()
             .isNull("reservation.externalReservation")
             .findList();
-        noShowHandler.handleNoShows(enrolments);
+        noShowHandler.handleNoShows(enrolments, Collections.emptyList());
     }
 
     protected boolean isAllowedToParticipate(Exam exam, User user) {
