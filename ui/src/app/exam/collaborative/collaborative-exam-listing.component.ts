@@ -18,7 +18,16 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, exhaustMap, finalize, takeUntil, tap } from 'rxjs/operators';
+import {
+    debounceTime,
+    distinctUntilChanged,
+    exhaustMap,
+    finalize,
+    map,
+    switchMap,
+    takeUntil,
+    tap,
+} from 'rxjs/operators';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import type { CollaborativeExam } from '../exam.model';
@@ -48,10 +57,9 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     view: ListingView;
     examsPredicate: string;
     reverse: boolean;
-    filter: { text: string };
     loader: { loading: boolean };
-    filterChanged: Subject<string> = new Subject<string>();
-    examCreated: Subject<void> = new Subject<void>();
+    filterChanged = new Subject<string>();
+    examCreated = new Subject<void>();
     ngUnsubscribe = new Subject();
 
     constructor(
@@ -65,11 +73,25 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
         this.user = this.Session.getUser();
         this.examsPredicate = 'examActiveEndDate';
         this.reverse = true;
-        this.filter = { text: '' };
         this.loader = { loading: false };
         this.filterChanged
-            .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
-            .subscribe(this.doSearch);
+            .pipe(
+                debounceTime(500),
+                distinctUntilChanged(),
+                switchMap((text) => this.CollaborativeExam.searchExams$(text)),
+                tap(() => (this.loader.loading = true)),
+                tap((exams) => {
+                    const exam = exams.find((e) => e.name.includes('27.4.2022'));
+                    if (exam) {
+                        console.log('here: ' + (Date.now() > new Date(exam.examActiveEndDate).getTime()));
+                    }
+                }),
+                map((exams) => this.returnListedCollaborativeExams(exams)),
+                tap((exams) => (this.exams = exams)),
+                tap(() => (this.loader.loading = false)),
+                takeUntil(this.ngUnsubscribe),
+            )
+            .subscribe();
         this.examCreated.pipe(exhaustMap(() => this.CollaborativeExam.createExam$())).subscribe({
             next: (exam: CollaborativeExam) => {
                 toast.info(this.translate.instant('sitnet_exam_created'));
@@ -153,22 +175,8 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
         return exam.anonymous ? 'sitnet_anonymous_enabled' : 'sitnet_anonymous_disabled';
     }
 
-    search = (text: string) => this.filterChanged.next(text);
-
-    private doSearch = (text: string) => {
-        this.filter.text = text;
-        this.loader = { loading: true };
-
-        if (text.length === 0) {
-            this.listAllExams();
-            return;
-        }
-
-        this.CollaborativeExam.searchExams$(text)
-            .pipe(
-                tap((exams) => (this.exams = this.returnListedCollaborativeExams(exams))),
-                finalize(() => (this.loader.loading = false)),
-            )
-            .subscribe();
+    search = (event: KeyboardEvent) => {
+        const e = event.target as HTMLInputElement;
+        return this.filterChanged.next(e.value);
     };
 }
