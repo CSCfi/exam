@@ -16,6 +16,7 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -34,7 +35,7 @@ import util.datetime.DateTimeAdapter;
 public class ExamParticipation extends GeneratedIdentityModel {
 
     @ManyToOne
-    @JsonBackReference
+    @JsonManagedReference
     private User user;
 
     @OneToOne

@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import models.Course;
 import models.Exam;
 import models.ExamEnrolment;
@@ -52,6 +53,12 @@ import util.excel.ExcelBuilder;
 public class ReportController extends BaseController {
 
     private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    private final ExcelBuilder excelBuilder;
+
+    @Inject
+    public ReportController(ExcelBuilder excelBuilder) {
+        this.excelBuilder = excelBuilder;
+    }
 
     @Restrict({ @Group("ADMIN") })
     public Result listDepartments() {
@@ -249,7 +256,7 @@ public class ReportController extends BaseController {
         Collection<Long> childIds = request.attrs().get(Attrs.ID_COLLECTION);
         ByteArrayOutputStream bos;
         try {
-            bos = ExcelBuilder.buildScoreExcel(examId, childIds);
+            bos = excelBuilder.buildScoreExcel(examId, childIds);
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_csv_file");
         }

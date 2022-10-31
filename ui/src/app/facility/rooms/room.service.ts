@@ -4,10 +4,9 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { format, formatISO, parseISO, setHours, setMinutes } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import type { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { noop } from 'rxjs';
 import { MaintenancePeriod } from '../../exam/exam.model';
-import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import { DateTimeService } from '../../shared/date/date.service';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 import { ExceptionDialogComponent } from '../schedule/exception-dialog.component';
@@ -21,24 +20,9 @@ export interface Day {
 
 export type Week = { [day: string]: Day[] };
 
-interface HourBlock {
-    start: string;
-    end: string;
-}
-
 export interface WorkingHour {
     startingHour: string;
     selected: boolean;
-}
-
-export interface WeekdayBlock {
-    weekday: Weekday;
-    blocks: HourBlock[];
-}
-
-interface WorkingHoursObject {
-    workingHours?: WeekdayBlock[];
-    roomIds?: number[];
 }
 
 export interface Availability {
@@ -55,52 +39,8 @@ export interface Address {
     street: string;
 }
 
-const blocksForDay = (week: Week, day: Weekday) => {
-    const blocks = [];
-    let tmp = [];
-    for (let i = 0; i < week[day].length; ++i) {
-        if (week[day][i].type) {
-            tmp.push(i);
-            if (i === week[day].length - 1) {
-                blocks.push(tmp);
-                tmp = [];
-            }
-        } else if (tmp.length > 0) {
-            blocks.push(tmp);
-            tmp = [];
-        }
-    }
-    return blocks;
-};
-
 @Injectable({ providedIn: 'root' })
 export class RoomService {
-    times = [''];
-
-    week = {
-        MONDAY: Array(...new Array(48)).map((x, i) => {
-            return { index: i, type: '' };
-        }),
-        TUESDAY: Array(...new Array(48)).map((x, i) => {
-            return { index: i, type: '' };
-        }),
-        WEDNESDAY: Array(...new Array(48)).map((x, i) => {
-            return { index: i, type: '' };
-        }),
-        THURSDAY: Array(...new Array(48)).map((x, i) => {
-            return { index: i, type: '' };
-        }),
-        FRIDAY: Array(...new Array(48)).map((x, i) => {
-            return { index: i, type: '' };
-        }),
-        SATURDAY: Array(...new Array(48)).map((x, i) => {
-            return { index: i, type: '' };
-        }),
-        SUNDAY: Array(...new Array(48)).map((x, i) => {
-            return { index: i, type: '' };
-        }),
-    };
-
     constructor(
         private http: HttpClient,
         private ngbModal: NgbModal,
@@ -108,25 +48,11 @@ export class RoomService {
         private toast: ToastrService,
         private dialogs: ConfirmationDialogService,
         private DateTime: DateTimeService,
-    ) {
-        for (let i = 0; i <= 24; ++i) {
-            if (i > 0) {
-                this.times.push(i + ':00');
-            }
-            if (i < 24) {
-                this.times.push(i + ':30');
-            }
-        }
-    }
+    ) {}
 
     roomsApi = (id?: number) => (id ? `/app/rooms/${id}` : '/app/rooms');
-    addressApi = (id: number) => `/app/address/${id}`;
     availabilityApi = (roomId: number, date: string) => `/app/availability/${roomId}/${date}`;
-    workingHoursApi = () => '/app/workinghours';
-    examStartingHoursApi = () => '/app/startinghours';
-    exceptionsApi = () => '/app/exception';
     exceptionApi = (roomId: number, exceptionId: number) => `/app/rooms/${roomId}/exception/${exceptionId}`;
-    draftApi = () => '/app/draft/rooms';
 
     getRooms$ = () => this.http.get<ExamRoom[]>(this.roomsApi());
 
@@ -141,46 +67,20 @@ export class RoomService {
     activateRoom$ = (id: number) => this.http.post<ExamRoom>(this.roomsApi(id), {});
 
     updateAddress$ = (address: Address) =>
-        this.http.put<Address>(this.addressApi(address.id), address, { responseType: 'text' as 'json' });
+        this.http.put<Address>(`/app/address/${address.id}`, address, { responseType: 'text' as 'json' });
 
     getAvailability$ = (roomId: number, date: string) =>
         this.http.get<Availability[]>(this.availabilityApi(roomId, date));
 
-    updateWorkingHoursData$ = (data: WorkingHoursObject) => this.http.put(this.workingHoursApi(), data);
-
     updateExamStartingHours$ = (data: { hours: string[]; offset: number; roomIds: number[] }) =>
-        this.http.put(this.examStartingHoursApi(), data);
+        this.http.put('/app/startinghours', data);
 
-    updateExceptions$ = (roomIds: number[], exception: ExceptionWorkingHours) =>
-        this.http.put<ExceptionWorkingHours>(this.exceptionsApi(), { roomIds, exception });
+    updateExceptions$ = (roomIds: number[], exceptions: ExceptionWorkingHours[]) =>
+        this.http.put<ExceptionWorkingHours[]>('/app/exception', { roomIds, exceptions });
 
-    getDraft$ = () => this.http.get<ExamRoom>(this.draftApi());
+    getDraft$ = () => this.http.get<ExamRoom>('/app/draft/rooms');
 
     isAnyExamMachines = (room: ExamRoom) => room.examMachines && room.examMachines.length > 0;
-
-    isSomethingSelected = (week: Week) => {
-        for (const day in week) {
-            if (Object.prototype.hasOwnProperty.call(week, day)) {
-                if (!this.isEmpty(week, day as Weekday)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-
-    isEmpty = (week: Week, day: Weekday) => {
-        for (let i = 0; i < week[day].length; ++i) {
-            if (week[day][i].type !== '') {
-                return false;
-            }
-        }
-        return true;
-    };
-
-    getTimes = () => [...this.times];
-
-    getWeek = () => ({ ...this.week });
 
     disableRoom = (room: ExamRoom) =>
         this.dialogs
@@ -206,10 +106,10 @@ export class RoomService {
             error: this.toast.error,
         });
 
-    addException = (ids: number[], exception: ExceptionWorkingHours) =>
-        new Promise<ExceptionWorkingHours>((resolve, reject) => {
-            this.updateExceptions$(ids, exception).subscribe({
-                next: (data: ExceptionWorkingHours) => {
+    addExceptions = (ids: number[], exceptions: ExceptionWorkingHours[]) =>
+        new Promise<ExceptionWorkingHours[]>((resolve, reject) => {
+            this.updateExceptions$(ids, exceptions).subscribe({
+                next: (data: ExceptionWorkingHours[]) => {
                     this.toast.info(this.translate.instant('sitnet_exception_time_added'));
                     resolve(data);
                 },
@@ -220,18 +120,24 @@ export class RoomService {
             });
         });
 
-    openExceptionDialog = (callBack: (exception: ExceptionWorkingHours) => void) =>
-        this.ngbModal
-            .open(ExceptionDialogComponent, {
-                backdrop: 'static',
-                keyboard: true,
+    openExceptionDialog = (
+        callBack: (exception: ExceptionWorkingHours[]) => void,
+        outOfService?: boolean,
+        exceptions?: ExceptionWorkingHours[],
+    ) => {
+        const modalRef = this.ngbModal.open(ExceptionDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'lg',
+        });
+        modalRef.componentInstance.outOfService = outOfService;
+        modalRef.componentInstance.exceptions = exceptions;
+        modalRef.result
+            .then((exceptions: ExceptionWorkingHours[]) => {
+                callBack(exceptions);
             })
-            .result.then((exception: ExceptionWorkingHours) => {
-                callBack(exception);
-            })
-            // eslint-disable-next-line @typescript-eslint/no-empty-function
-            .catch(() => {});
-
+            .catch(noop);
+    };
     deleteException = (roomId: number, exceptionId: number) =>
         new Promise<void>((resolve, reject) => {
             this.removeException$(roomId, exceptionId).subscribe({
@@ -268,33 +174,9 @@ export class RoomService {
             });
         });
 
-    updateWorkingHours$ = (week: Week, ids: number[]): Observable<WeekdayBlock[]> => {
-        const data: WorkingHoursObject = {};
-        const workingHours: WeekdayBlock[] = [];
-        const times = this.getTimes();
-        for (const day in week) {
-            if (Object.prototype.hasOwnProperty.call(week, day)) {
-                const blocks = blocksForDay(week, day as Weekday);
-                const weekdayBlocks: WeekdayBlock = { weekday: day as Weekday, blocks: [] };
-                for (let i = 0; i < blocks.length; ++i) {
-                    const block = blocks[i];
-                    const start = this.formatTime(times[block[0]] || '0:00');
-                    const end = this.formatTime(times[block[block.length - 1] + 1]);
-                    weekdayBlocks.blocks.push({ start: start, end: end });
-                }
-                workingHours.push(weekdayBlocks);
-            }
-        }
-        data.workingHours = workingHours;
-        data.roomIds = ids;
-        return this.updateWorkingHoursData$(data).pipe(
-            map(() => {
-                this.toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
-                return workingHours;
-            }),
-        );
-    };
-
+    updateWorkingHours$ = (hours: DefaultWorkingHours, ids: number[]) =>
+        this.http.post<{ id: number }>('/app/workinghours', { workingHours: hours, roomIds: ids });
+    removeWorkingHours$ = (id: number) => this.http.delete<void>(`/app/workinghours/${id}`);
     listMaintenancePeriods$ = () => this.http.get<MaintenancePeriod[]>('/app/maintenance');
     createMaintenancePeriod$ = (period: MaintenancePeriod) =>
         this.http.post<MaintenancePeriod>('/app/maintenance', period);

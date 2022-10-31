@@ -16,15 +16,25 @@ import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { format, parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
+import { groupBy } from 'ramda';
+import type { DefaultWorkingHours, ExamRoom } from '../../reservation/reservation.model';
+import { ExceptionWorkingHours } from '../../reservation/reservation.model';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
-import type { Address } from './room.service';
+import { DateTimeService } from '../../shared/date/date.service';
 import { RoomService } from './room.service';
 
-interface RoomWithAddressVisibility extends ExamRoom {
+interface ExtendedRoom extends ExamRoom {
     addressVisible: boolean;
+    availabilityVisible: boolean;
+    extendedDwh: DefaultWorkingHoursWithEditing[];
+}
+export interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
+    editing: boolean;
+    pickStartingTime: { hour: number; minute: number; second: number; millisecond?: number };
+    pickEndingTime: { hour: number; minute: number; second: number; millisecond?: number };
 }
 
 @Component({
@@ -33,16 +43,16 @@ interface RoomWithAddressVisibility extends ExamRoom {
 })
 export class RoomListComponent implements OnInit {
     user: User;
-    times: string[] = [];
-    rooms: RoomWithAddressVisibility[] = [];
+    rooms: ExtendedRoom[] = [];
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private toast: ToastrService,
         private session: SessionService,
-        private room: RoomService,
+        private roomService: RoomService,
         private translate: TranslateService,
+        private timeDateService: DateTimeService,
     ) {
         this.user = this.session.getUser();
     }
@@ -50,15 +60,44 @@ export class RoomListComponent implements OnInit {
     ngOnInit() {
         if (this.user.isAdmin) {
             if (!this.route.snapshot.params.id) {
-                this.room.getRooms$().subscribe((rooms) => {
-                    this.times = this.room.getTimes();
-                    const roomsWithVisibility = rooms as RoomWithAddressVisibility[];
-                    this.rooms = roomsWithVisibility.map((r) => ({ ...r, addressVisible: false }));
+                this.roomService.getRooms$().subscribe((rooms) => {
+                    const roomsWithVisibility = rooms as ExtendedRoom[];
+                    this.rooms = roomsWithVisibility.map((r) => {
+                        const extendedDWH = r.defaultWorkingHours as DefaultWorkingHoursWithEditing[];
+                        return {
+                            ...r,
+                            addressVisible: false,
+                            availabilityVisible: false,
+                            extendedDWH: extendedDWH.map((wh) => {
+                                return {
+                                    ...wh,
+                                    editing: false,
+                                    pickStartingTime: {
+                                        hour: new Date(wh.startTime).getHours(),
+                                        minute: new Date(wh.startTime).getMinutes(),
+                                        second: 0,
+                                        millisecond: 0,
+                                    },
+                                    pickEndingTime: {
+                                        hour: new Date(wh.endTime).getHours(),
+                                        minute: new Date(wh.endTime).getMinutes(),
+                                        second: 0,
+                                        millisecond: 0,
+                                    },
+                                };
+                            }),
+                        };
+                    });
                     this.rooms.forEach((room) => {
                         room.examMachines = room.examMachines.filter((machine) => {
                             return !machine.archived;
                         });
                     });
+                    const roomsWithNoName = this.rooms.filter((r) => !r.name);
+                    this.rooms = this.rooms
+                        .sort((a, b) => (a.name > b.name ? 1 : -1))
+                        .filter((r) => r.name)
+                        .concat(roomsWithNoName);
                 });
             }
         } else {
@@ -66,33 +105,52 @@ export class RoomListComponent implements OnInit {
         }
     }
 
-    disableRoom = (room: ExamRoom) => {
-        this.room.disableRoom(room);
-    };
+    disableRoom = (room: ExamRoom) => this.roomService.disableRoom(room);
 
-    enableRoom = (room: ExamRoom) => {
-        this.room.enableRoom(room);
-    };
+    enableRoom = (room: ExamRoom) => this.roomService.enableRoom(room);
 
-    // Called when create exam button is clicked
-    createExamRoom = () => {
-        this.room.getDraft$().subscribe({
-            next: (room) => {
-                this.toast.info(this.translate.instant('sitnet_room_draft_created'));
-                this.router.navigate(['/staff/room', room.id]);
-            },
-            error: this.toast.error,
+    addExceptions = (exceptions: ExceptionWorkingHours[], examRoom: ExamRoom) => {
+        this.roomService.addExceptions([examRoom.id], exceptions).then((data) => {
+            examRoom.calendarExceptionEvents = [...examRoom.calendarExceptionEvents, ...data];
         });
     };
 
-    isArchived = (machine: ExamMachine) => {
-        return machine.archived === false;
+    deleteException = (exception: ExceptionWorkingHours, examRoom: ExamRoom) => {
+        this.roomService.deleteException(examRoom.id, exception.id);
+    };
+    getNextExceptionEvent(ees: ExceptionWorkingHours[]): ExceptionWorkingHours[] {
+        return ees
+            .filter((ee) => new Date(ee.endDate) > new Date())
+            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+            .slice(0, 2);
+    }
+
+    getWorkingHoursDisplayFormat = (workingHours: DefaultWorkingHours[]): string[] => {
+        const capitalize = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
+        const timePart = (s: string) => format(new Date(s), 'HH:mm');
+        const mapping: Record<string, DefaultWorkingHours[]> = groupBy(
+            (wh) => `${timePart(wh.startTime)} - ${timePart(wh.endTime)}`,
+            workingHours,
+        );
+        return Object.keys(mapping).map((k) => {
+            const days = mapping[k]
+                .map((v) => capitalize(this.timeDateService.translateWeekdayName(v.weekday)))
+                .join(', ');
+            return `${days}: ${k}`;
+        });
     };
 
-    displayAddress = (address: Address) => {
-        if (!address || (!address.street && !address.city && !address.zip)) return 'N/A';
-        const street = address.street ? address.street + ', ' : '';
-        const city = (address.city || '').toUpperCase();
-        return street + address.zip + ' ' + city;
+    formatDate = (exception: ExceptionWorkingHours) => {
+        if (!exception?.startDate || !exception?.endDate) {
+            return;
+        }
+        const fmt = 'dd.MM.yyyy HH:mm';
+        const start = parseISO(exception.startDate);
+        const end = parseISO(exception.endDate);
+        return (
+            format(start, fmt) +
+            ' - ' +
+            (format(start, 'dd.MM.yyyy') == format(end, 'dd.MM.yyyy') ? format(end, 'HH:mm') : format(end, fmt))
+        );
     };
 }

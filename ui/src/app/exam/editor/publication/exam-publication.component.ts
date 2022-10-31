@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
@@ -45,12 +45,11 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
     templateUrl: './exam-publication.component.html',
 })
 export class ExamPublicationComponent implements OnInit {
-    @Input() exam!: Exam;
-    @Input() collaborative = false;
+    exam!: Exam;
+    collaborative = false;
 
     user: User;
     hostName: string;
-    autoEvaluation: { enabled: boolean } = { enabled: false };
     examDurations: number[] = [];
     maintenancePeriods: MaintenancePeriod[] = [];
     visibleParticipantSelector = 'participant';
@@ -81,7 +80,6 @@ export class ExamPublicationComponent implements OnInit {
     ngOnInit() {
         this.exam = this.Tabs.getExam();
         this.collaborative = this.Tabs.isCollaborative();
-        this.autoEvaluation = { enabled: !!this.exam.autoEvaluationConfig };
         this.http
             .get<{ examDurations: number[] }>('/app/settings/durations')
             .subscribe({ next: (data) => (this.examDurations = data.examDurations), error: this.toast.error });
@@ -99,7 +97,7 @@ export class ExamPublicationComponent implements OnInit {
                 .get<MaintenancePeriod[]>('/app/maintenance')
                 .subscribe((periods) => (this.maintenancePeriods = periods));
         }
-        this.Tabs.notifyTabChange(3);
+        this.Tabs.notifyTabChange(4);
     }
 
     addExaminationDate = (event: { date: Date | null }) => {
@@ -193,13 +191,9 @@ export class ExamPublicationComponent implements OnInit {
 
     previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
 
-    nextTab = () => {
-        this.Tabs.notifyTabChange(4);
-        this.router.navigate(['..', '4'], { relativeTo: this.route });
-    };
     previousTab = () => {
-        this.Tabs.notifyTabChange(2);
-        this.router.navigate(['..', '2'], { relativeTo: this.route });
+        this.Tabs.notifyTabChange(3);
+        this.router.navigate(['..', '3'], { relativeTo: this.route });
     };
 
     saveAndPublishExam = () => {
@@ -268,9 +262,6 @@ export class ExamPublicationComponent implements OnInit {
         }
     };
 
-    autoEvaluationDisabled = () => (this.autoEvaluation.enabled = false);
-    autoEvaluationEnabled = () => (this.autoEvaluation.enabled = true);
-
     addExaminationEvent = () => {
         const modalRef = this.modal.open(ExaminationEventDialogComponent, {
             backdrop: 'static',
@@ -335,22 +326,7 @@ export class ExamPublicationComponent implements OnInit {
         prop.sort((a, b) => Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start));
 
     private updateExam$ = (silent?: boolean, overrides?: Record<string, string>): Observable<Exam> => {
-        const config = {
-            evaluationConfig:
-                this.autoEvaluation.enabled && this.canBeAutoEvaluated()
-                    ? {
-                          releaseType: this.exam.autoEvaluationConfig?.releaseType,
-                          releaseDate: this.exam.autoEvaluationConfig?.releaseDate
-                              ? new Date(this.exam.autoEvaluationConfig.releaseDate).getTime()
-                              : null,
-                          amountDays: this.exam.autoEvaluationConfig?.amountDays,
-                          gradeEvaluations: this.exam.autoEvaluationConfig?.gradeEvaluations,
-                      }
-                    : null,
-        };
-
-        Object.assign(config, overrides);
-        return this.Exam.updateExam$(this.exam, config, this.collaborative).pipe(
+        return this.Exam.updateExam$(this.exam, overrides, this.collaborative).pipe(
             tap(() => {
                 if (!silent) {
                     this.toast.info(this.translate.instant('sitnet_exam_saved'));
@@ -431,7 +407,7 @@ export class ExamPublicationComponent implements OnInit {
             errors.push('sitnet_exam_has_no_questions');
         }
 
-        const allSectionsNamed = this.exam.examSections.every((section) => section.name.length > 0);
+        const allSectionsNamed = this.exam.examSections.every((section) => section.name?.length > 0);
         if (!allSectionsNamed) {
             errors.push('sitnet_exam_contains_unnamed_sections');
         }
@@ -444,10 +420,37 @@ export class ExamPublicationComponent implements OnInit {
             errors.push('sitnet_language_inspection_setting_not_chosen');
         }
 
-        if (this.autoEvaluation.enabled && this.hasDuplicatePercentages()) {
+        if (this.hasDuplicatePercentages()) {
             errors.push('sitnet_autoevaluation_percentages_not_unique');
         }
-
+        if (this.exam.autoEvaluationConfig) {
+            if (
+                this.exam.autoEvaluationConfig.releaseType === 'GIVEN_AMOUNT_DAYS' &&
+                !this.exam.autoEvaluationConfig.amountDays
+            ) {
+                errors.push('no auto-evaluation amount of days selected');
+            }
+            if (
+                this.exam.autoEvaluationConfig.releaseType === 'GIVEN_DATE' &&
+                !this.exam.autoEvaluationConfig.releaseDate
+            ) {
+                errors.push('no auto-evaluation date selected');
+            }
+        }
+        if (this.exam.examFeedbackConfig) {
+            if (
+                this.exam.examFeedbackConfig.releaseType === 'GIVEN_AMOUNT_DAYS' &&
+                !this.exam.examFeedbackConfig.amountDays
+            ) {
+                errors.push('no feedback amount of days selected');
+            }
+            if (
+                this.exam.examFeedbackConfig.releaseType === 'GIVEN_DATE' &&
+                !this.exam.examFeedbackConfig.releaseDate
+            ) {
+                errors.push('no feedback date selected');
+            }
+        }
         if (this.exam.implementation !== 'AQUARIUM' && this.exam.examinationEventConfigurations.length === 0) {
             errors.push('sitnet_missing_examination_event_configurations');
         }

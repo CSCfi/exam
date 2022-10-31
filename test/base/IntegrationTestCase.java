@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,16 +46,17 @@ import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
 import play.Application;
+import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
+import play.test.WithApplication;
 import util.json.JsonDeserializer;
 
-public class IntegrationTestCase {
+public class IntegrationTestCase extends WithApplication {
 
     protected static final int MAIL_TIMEOUT = 20000;
-    protected Application app;
     protected Long userId;
     protected Http.Session session;
 
@@ -90,6 +90,7 @@ public class IntegrationTestCase {
                 StandardCharsets.UTF_8
             )
         );
+        // Appears that this is needed for IDE (IntelliJ) to pick up the right configuration?
         System.setProperty("config.resource", "integrationtest.conf");
     }
 
@@ -98,14 +99,13 @@ public class IntegrationTestCase {
         // Default does nothing
     }
 
+    @Override
+    protected Application provideApplication() {
+        return new GuiceApplicationBuilder().build();
+    }
+
     @Before
     public void setUp() throws Exception {
-        // Unfortunately we need to restart for each test because there is some weird issue with question id sequence.
-        // Ebean allocates us duplicate PKs eventually unless server is recreated in between. This is either a bug with
-        // Ebean (batching) or an issue with our question entity JPA mappings.
-        app = Helpers.fakeApplication();
-        Helpers.start(app);
-
         addTestData();
         onBeforeLogin();
 
@@ -121,10 +121,8 @@ public class IntegrationTestCase {
 
     @After
     public void tearDown() {
-        logout();
-        Helpers.stop(app);
         // Clear exam upload directory
-        String uploadPath = ConfigFactory.load().getString(("sitnet.attachments.path"));
+        String uploadPath = "target/attachments";
         try {
             FileUtils.deleteDirectory(new File(uploadPath));
         } catch (IOException e) {
@@ -202,7 +200,7 @@ public class IntegrationTestCase {
 
     protected void login(String eppn, Map<String, String> headers) {
         HAKA_HEADERS.put("eppn", eppn);
-        headers.forEach(HAKA_HEADERS::put);
+        HAKA_HEADERS.putAll(headers);
         Result result = request(Helpers.POST, "/app/session", null, HAKA_HEADERS, false);
         this.session = result.session();
         assertThat(result.status()).isEqualTo(Http.Status.OK);

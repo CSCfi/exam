@@ -37,6 +37,7 @@ import models.iop.ExternalReservation;
 import models.json.CollaborativeExam;
 import models.sections.ExamSection;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
@@ -49,7 +50,7 @@ import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
 import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class CalendarHandlerImpl implements CalendarHandler {
 
@@ -67,6 +68,9 @@ public class CalendarHandlerImpl implements CalendarHandler {
 
     @Inject
     protected ActorSystem system;
+
+    @Inject
+    protected DateTimeHandler dateTimeHandler;
 
     @Override
     public Result getSlots(User user, Exam exam, Long roomId, String day, Collection<Integer> aids) {
@@ -123,14 +127,14 @@ public class CalendarHandlerImpl implements CalendarHandler {
     @Override
     public boolean isDoable(Reservation reservation, Collection<Integer> aids) {
         DateTimeZone dtz = DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
-        LocalDate searchDate = DateTimeUtils.normalize(reservation.getStartAt().withZone(dtz), dtz).toLocalDate();
+        LocalDate searchDate = dateTimeHandler.normalize(reservation.getStartAt().withZone(dtz), dtz).toLocalDate();
         // users reservations starting from now
         List<Reservation> reservations = Ebean
             .find(Reservation.class)
             .fetch("enrolment.exam")
             .where()
             .eq("user", reservation.getUser())
-            .gt("startAt", searchDate.toDate())
+            .ge("startAt", searchDate.toDate())
             .findList();
         // Resolve eligible machines based on software and accessibility requirements
         List<ExamMachine> machines = getEligibleMachines(
@@ -244,7 +248,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     @Override
     public Collection<Interval> gatherSuitableSlots(ExamRoom room, LocalDate date, Integer examDuration) {
         // Resolve the opening hours for room and day
-        List<ExamRoom.OpeningHours> openingHours = room.getWorkingHoursForDate(date);
+        List<DateTimeHandler.OpeningHours> openingHours = dateTimeHandler.getWorkingHoursForDate(date, room);
         if (!openingHours.isEmpty()) {
             // Get suitable slots based on exam duration
             return allSlots(openingHours, room, date)
@@ -360,7 +364,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
      * @return all intervals that fall within provided working hours
      */
     private static Collection<Interval> allSlots(
-        Iterable<ExamRoom.OpeningHours> openingHours,
+        Iterable<DateTimeHandler.OpeningHours> openingHours,
         ExamRoom room,
         LocalDate date
     ) {
@@ -372,7 +376,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         }
         Collections.sort(startingHours);
         DateTime now = DateTime.now().plusMillis(DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now()));
-        for (ExamRoom.OpeningHours oh : openingHours) {
+        for (DateTimeHandler.OpeningHours oh : openingHours) {
             int tzOffset = oh.getTimezoneOffset();
             DateTime instant = now.getDayOfYear() == date.getDayOfYear() ? now : oh.getHours().getStart();
             DateTime slotEnd = oh.getHours().getEnd();
@@ -450,7 +454,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
             List<Interval> periods = Ebean
                 .find(MaintenancePeriod.class)
                 .where()
-                .gt("endsAt", searchDate.toDate())
+                .ge("endsAt", searchDate.withDayOfWeek(DateTimeConstants.MONDAY).toDate())
                 .findList()
                 .stream()
                 .map(p ->
@@ -684,7 +688,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         return hours;
     }
 
-    private static DateTime getEndOfOpeningHours(DateTime instant, List<ExamRoom.OpeningHours> openingHours) {
+    private static DateTime getEndOfOpeningHours(DateTime instant, List<DateTimeHandler.OpeningHours> openingHours) {
         return openingHours
             .stream()
             .filter(oh -> oh.getHours().contains(instant.plusMillis(oh.getTimezoneOffset())))

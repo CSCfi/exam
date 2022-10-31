@@ -99,6 +99,7 @@ POST          /app/iop/student/exam/:hash/clozetest/:questionId        controlle
 ############### Student acions interface #########
 GET           /app/feedback/exams/:eid                                 controllers.StudentActionsController.getExamFeedback(eid: Long, request: Request)
 GET           /app/feedback/exams/:eid/score                           controllers.StudentActionsController.getExamScore(eid: Long, request: Request)
+GET           /app/feedback/exams/:eid/answers                         controllers.ExamAnswerController.getAnswers(eid: Long, request: Request)
 GET           /app/feedback/exams/:eid/report                          controllers.StudentActionsController.getExamScoreReport(eid: Long, request: Request)
 GET           /app/student/finishedexams                               controllers.StudentActionsController.getFinishedExams(filter: java.util.Optional[String], request: Request)
 GET           /app/student/enrolments                                  controllers.StudentActionsController.getEnrolmentsForUser(request: Request)
@@ -145,6 +146,7 @@ PUT           /app/review/:eid/comment/:cid/feedbackstatus             controlle
 GET           /app/noshows/:eid                                        controllers.ReviewController.listNoShows(eid: Long, request: Request)
 PUT           /app/reviews/archive                                     controllers.ReviewController.archiveExams(request: Request)
 GET           /app/review/:eid                                         controllers.ReviewController.getExamReview(eid: Long, request: Request)
+GET           /app/review/:id/locked                                   controllers.ReviewController.hasLockedAssessments(id: Long)
 GET           /app/examparticipations/:eid                             controllers.ReviewController.getParticipationsForExamAndUser(eid: Long, request: Request)
 GET           /app/usernoshows/:eid                                    controllers.ReviewController.listNoShowsForExamAndUser(eid: Long, request: Request)
 POST          /app/email/inspection/:eid                               controllers.ReviewController.sendInspectionMessage(eid: Long, request: Request)
@@ -204,9 +206,10 @@ POST          /app/rooms/:id                                           controlle
 
 PUT           /app/address/:id                                         controllers.RoomController.updateExamRoomAddress(id: Long, request: Request)
 
-PUT           /app/workinghours                                        controllers.RoomController.updateExamRoomWorkingHours(request: Request)
+POST          /app/workinghours                                        controllers.RoomController.updateExamRoomWorkingHours(request: Request)
+DELETE        /app/workinghours/:id                                    controllers.RoomController.removeExamRoomWorkingHours(id: Long)
 PUT           /app/startinghours                                       controllers.RoomController.updateExamStartingHours(request: Request)
-PUT           /app/exception                                           controllers.RoomController.addRoomExceptionHour(request: Request)
+PUT           /app/exception                                           controllers.RoomController.addRoomExceptionHours(request: Request)
 DELETE        /app/rooms/:roomId/exception/:exceptionId                controllers.RoomController.removeRoomExceptionHour(roomId: Long, exceptionId: Long)
 
 POST          /app/room/:id/accessibility                              controllers.RoomController.updateExamRoomAccessibility(id: Long, request: Request)

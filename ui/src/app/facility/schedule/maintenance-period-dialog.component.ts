@@ -67,8 +67,8 @@ export class MaintenancePeriodDialogComponent implements OnInit {
         'starting-day': 1,
     };
     dateFormat = 'dd.MM.yyyy';
-    startsAt = new Date();
-    endsAt = new Date();
+    startsAt = new Date(new Date().setMinutes(60));
+    endsAt = new Date(new Date().setMinutes(60));
     description = '';
 
     constructor(
@@ -102,6 +102,9 @@ export class MaintenancePeriodDialogComponent implements OnInit {
 
     onStartDateChange = (e: { date: Date }) => {
         this.startsAt = e.date;
+        if (this.endsAt < this.startsAt) {
+            this.endsAt = e.date;
+        }
     };
 
     onEndDateChange = (e: { date: Date }) => {

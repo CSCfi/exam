@@ -228,7 +228,6 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         reservation.setExternalRef(RESERVATION_REF);
         reservation.setStartAt(DateTime.now().plusHours(2));
         reservation.setEndAt(DateTime.now().plusHours(3));
-        //reservation.setMachine(room.getExamMachines().get(0));
         reservation.save();
 
         enrolment.setReservation(reservation);

@@ -19,7 +19,6 @@ package controllers.iop.collaboration.impl;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.typesafe.config.ConfigFactory;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
@@ -68,10 +67,7 @@ public class CollaborativeStudentActionController extends CollaborationControlle
     }
 
     Optional<URL> parseUrl() {
-        String url = String.format(
-            "%s/api/assessments/user?eppn=",
-            ConfigFactory.load().getString("sitnet.integration.iop.host")
-        );
+        String url = String.format("%s/api/assessments/user?eppn=", configReader.getIopHost());
         try {
             return Optional.of(new URL(url));
         } catch (MalformedURLException e) {

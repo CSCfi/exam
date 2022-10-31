@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { SimpleChanges } from '@angular/core';
+import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -27,7 +27,7 @@ import { ExamMaterialComponent } from './exam-material.component';
     selector: 'xm-exam-material-selector',
     templateUrl: './exam-material-picker.component.html',
 })
-export class ExamMaterialSelectorComponent implements OnInit {
+export class ExamMaterialSelectorComponent implements OnInit, OnChanges {
     @Input() section!: ExamSection;
     @Input() allMaterials: ExamMaterial[] = [];
     @Output() changed = new EventEmitter<void>();
@@ -42,11 +42,11 @@ export class ExamMaterialSelectorComponent implements OnInit {
         this.filterOutExisting();
     }
 
-    ngOnChanges = (changes: SimpleChanges) => {
+    ngOnChanges(changes: SimpleChanges) {
         if (changes.allMaterials) {
             this.filterOutExisting();
         }
-    };
+    }
 
     selectMaterial = (event: NgbTypeaheadSelectItemEvent) => (this.selectedMaterial = event.item);
 

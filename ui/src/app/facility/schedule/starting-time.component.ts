@@ -20,52 +20,61 @@ import { RoomService } from '../rooms/room.service';
 
 @Component({
     selector: 'xm-starting-time',
-    template: `<div class="detail-row">
-            <h3 class="col-md-12 header-text">{{ 'sitnet_exam_starting_hours' | translate }}</h3>
+    template: `<div class="row">
+            <div class="col-md-12 header-text">
+                <strong>{{ 'sitnet_exam_starting_hours' | translate }}:</strong>
+            </div>
         </div>
-        <div class="bottom-row">
-            <form>
-                <div class="col-md-12">
-                    <div class="sitnet-info-text">{{ 'sitnet_minutes_on_the_hour' | translate }}:</div>
-                    <input
-                        id="hourOffset"
-                        name="hourOffset"
-                        type="number"
-                        lang="en"
-                        [min]="0"
-                        [max]="59"
-                        [(ngModel)]="examStartingHourOffset"
-                        (change)="setStartingHourOffset()"
-                    />
-                </div>
-            </form>
+        <div class="row">
+            <div class="col-md-12">
+                <form>
+                    <div class="row">
+                        <label class="col-6 col-form-label" for="hourOffset"
+                            >{{ 'sitnet_minutes_on_the_hour' | translate }}:</label
+                        >
+                        <div class="col-2">
+                            <input
+                                class="form-control"
+                                id="hourOffset"
+                                name="hourOffset"
+                                type="number"
+                                lang="en"
+                                [min]="0"
+                                [max]="59"
+                                [(ngModel)]="examStartingHourOffset"
+                                (change)="setStartingHourOffset()"
+                            />
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="detail-row">
-            <div class="col-md-6">
+        <div class="row mt-2">
+            <div class="col-12">
                 <span
                     *ngFor="let hour of examStartingHours"
                     class="badge pointer"
-                    [ngClass]="hour.selected ? 'bg-success' : 'bg-default'"
+                    [ngClass]="hour.selected ? 'bg-success' : 'bg-secondary'"
                     (click)="hour.selected = !hour.selected"
                     style="margin: 0.2em"
                     >{{ hour.startingHour }}</span
                 >
             </div>
         </div>
-        <div class="bottom-row">
-            <div class="col-md-12">
-                <a class="pointer" (click)="toggleAllExamStartingHours()">{{ 'sitnet_add_remove_all' | translate }}</a>
-            </div>
-        </div>
-        <div class="bottom-row">
-            <div class="col-md-12">
+        <div class="row mt-2">
+            <div class="col-6">
                 <button
-                    class="btn btn-primary"
+                    class="btn btn-sm btn-outline-dark"
                     (click)="updateStartingHours()"
                     [disabled]="!anyStartingHoursSelected()"
                 >
                     {{ 'sitnet_save' | translate }}
                 </button>
+            </div>
+            <div class="col-6">
+                <a class="pointer float-end" (click)="toggleAllExamStartingHours()">{{
+                    'sitnet_add_remove_all' | translate
+                }}</a>
             </div>
         </div> `,
 })
@@ -76,7 +85,7 @@ export class StartingTimeComponent implements OnInit {
     examStartingHours: WorkingHour[] = [];
     examStartingHourOffset = 0;
 
-    constructor(private room: RoomService) {}
+    constructor(private Room: RoomService) {}
 
     ngOnInit() {
         this.examStartingHours = [...Array(24)].map(function (x, i) {
@@ -96,7 +105,7 @@ export class StartingTimeComponent implements OnInit {
     }
 
     updateStartingHours = () => {
-        this.room.updateStartingHours(this.examStartingHours, this.examStartingHourOffset, this.roomIds).then(() => {
+        this.Room.updateStartingHours(this.examStartingHours, this.examStartingHourOffset, this.roomIds).then(() => {
             if (this.startingHours) {
                 this.startingHours = this.examStartingHours;
             }

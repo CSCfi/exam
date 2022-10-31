@@ -18,11 +18,7 @@ package models;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import controllers.RoomLike;
 import io.ebean.Finder;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,17 +26,11 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import models.calendar.DefaultWorkingHours;
 import models.calendar.ExceptionWorkingHours;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.Interval;
-import org.joda.time.LocalDate;
-import util.datetime.DateTimeUtils;
 
 @Entity
 public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
@@ -302,107 +292,6 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().append(id).build();
-    }
-
-    @Transient
-    public int getTimezoneOffset(LocalDate date) {
-        String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
-        for (DefaultWorkingHours defaultHour : defaultWorkingHours) {
-            if (defaultHour.getWeekday().equalsIgnoreCase(day)) {
-                return defaultHour.getTimezoneOffset();
-            }
-        }
-        return 0;
-    }
-
-    @Transient
-    private List<OpeningHours> getDefaultWorkingHours(LocalDate date) {
-        String day = date.dayOfWeek().getAsText(Locale.ENGLISH);
-        List<OpeningHours> hours = new ArrayList<>();
-        defaultWorkingHours
-            .stream()
-            .filter(dwh -> dwh.getWeekday().equalsIgnoreCase(day))
-            .forEach(dwh -> {
-                DateTime midnight = date.toDateTimeAtStartOfDay();
-                DateTime start = midnight.withMillisOfDay(
-                    DateTimeUtils.resolveStartWorkingHourMillis(
-                        new DateTime(dwh.getStartTime()),
-                        dwh.getTimezoneOffset()
-                    )
-                );
-                DateTime end = midnight.withMillisOfDay(
-                    DateTimeUtils.resolveEndWorkingHourMillis(new DateTime(dwh.getEndTime()), dwh.getTimezoneOffset())
-                );
-                Interval interval = new Interval(start, end);
-                hours.add(new OpeningHours(interval, dwh.getTimezoneOffset()));
-            });
-        return hours;
-    }
-
-    @Transient
-    public List<OpeningHours> getWorkingHoursForDate(LocalDate date) {
-        List<OpeningHours> workingHours = getDefaultWorkingHours(date);
-        List<Interval> extensionEvents = DateTimeUtils.mergeSlots(
-            DateTimeUtils.getExceptionEvents(
-                calendarExceptionEvents,
-                date,
-                DateTimeUtils.RestrictionType.NON_RESTRICTIVE
-            )
-        );
-        List<Interval> restrictionEvents = DateTimeUtils.mergeSlots(
-            DateTimeUtils.getExceptionEvents(calendarExceptionEvents, date, DateTimeUtils.RestrictionType.RESTRICTIVE)
-        );
-        List<OpeningHours> availableHours = new ArrayList<>();
-        if (!extensionEvents.isEmpty()) {
-            List<Interval> unifiedIntervals = DateTimeUtils.mergeSlots(
-                Stream
-                    .concat(workingHours.stream().map(OpeningHours::getHours), extensionEvents.stream())
-                    .collect(Collectors.toList())
-            );
-            int tzOffset;
-            if (workingHours.isEmpty()) {
-                tzOffset = DateTimeZone.forID(localTimezone).getOffset(new DateTime(date));
-            } else {
-                tzOffset = workingHours.get(0).timezoneOffset;
-            }
-            workingHours.clear();
-            workingHours.addAll(
-                unifiedIntervals
-                    .stream()
-                    .map(interval -> new OpeningHours(interval, tzOffset))
-                    .collect(Collectors.toList())
-            );
-        }
-        if (!restrictionEvents.isEmpty()) {
-            for (OpeningHours hours : workingHours) {
-                Interval slot = hours.getHours();
-                for (Interval gap : DateTimeUtils.findGaps(restrictionEvents, slot)) {
-                    availableHours.add(new OpeningHours(gap, hours.getTimezoneOffset()));
-                }
-            }
-        } else {
-            availableHours = workingHours;
-        }
-        return availableHours;
-    }
-
-    public final class OpeningHours {
-
-        private final Interval hours;
-        private final int timezoneOffset;
-
-        OpeningHours(Interval interval, int timezoneOffset) {
-            this.hours = interval;
-            this.timezoneOffset = timezoneOffset;
-        }
-
-        public int getTimezoneOffset() {
-            return timezoneOffset;
-        }
-
-        public Interval getHours() {
-            return hours;
-        }
     }
 
     public static final Finder<Long, ExamRoom> find = new Finder<>(ExamRoom.class);

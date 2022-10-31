@@ -123,26 +123,6 @@ export class QuestionService {
     calculateDefaultMaxPoints = (question: Question) =>
         question.options.filter((o) => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
 
-    calculateWeightedMaxPoints = (sectionQuestion: ExamSectionQuestion): number => {
-        const points = sectionQuestion.options.filter((o) => o.score > 0).reduce((a, b) => a + b.score, 0);
-        return parseFloat(points.toFixed(2));
-    };
-
-    calculateMaxScore = (question: ExamSectionQuestion) => {
-        const evaluationType = question.evaluationType;
-        const type = question.question.type;
-        if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion' || type === 'ClozeTestQuestion') {
-            return question.maxScore;
-        }
-        if (type === 'WeightedMultipleChoiceQuestion') {
-            return this.calculateWeightedMaxPoints(question);
-        }
-        if (type === 'ClaimChoiceQuestion') {
-            return this.getCorrectClaimChoiceOptionScore(question);
-        }
-        return 0;
-    };
-
     getMinimumOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
         const optionScores = sectionQuestion.options.map((o) => o.score);
         const scores = [0, ...optionScores]; // Make sure 0 is included
@@ -157,14 +137,6 @@ export class QuestionService {
         }
         const correctOption = question.options.filter((o) => o.correctOption && o.claimChoiceType === 'CorrectOption');
         return correctOption.length === 1 ? correctOption[0].defaultScore : 0;
-    };
-
-    getCorrectClaimChoiceOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
-        if (!sectionQuestion.options) {
-            return 0;
-        }
-        const optionScores = sectionQuestion.options.map((o) => o.score);
-        return Math.max(0, ...optionScores);
     };
 
     scoreClozeTestAnswer = (sectionQuestion: ExamSectionQuestion): number => {
@@ -249,6 +221,34 @@ export class QuestionService {
             default:
                 throw Error('unknown question type');
         }
+    };
+
+    calculateWeightedMaxPoints = (sectionQuestion: ExamSectionQuestion): number => {
+        const points = sectionQuestion.options.filter((o) => o.score > 0).reduce((a, b) => a + b.score, 0);
+        return parseFloat(points.toFixed(2));
+    };
+
+    getCorrectClaimChoiceOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
+        if (!sectionQuestion.options) {
+            return 0;
+        }
+        const optionScores = sectionQuestion.options.map((o) => o.score);
+        return Math.max(0, ...optionScores);
+    };
+
+    calculateMaxScore = (question: ExamSectionQuestion) => {
+        const evaluationType = question.evaluationType;
+        const type = question.question.type;
+        if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion' || type === 'ClozeTestQuestion') {
+            return question.maxScore;
+        }
+        if (type === 'WeightedMultipleChoiceQuestion') {
+            return this.calculateWeightedMaxPoints(question);
+        }
+        if (type === 'ClaimChoiceQuestion') {
+            return this.getCorrectClaimChoiceOptionScore(question);
+        }
+        return 0;
     };
 
     createQuestion = (question: QuestionDraft): Promise<Question> => {

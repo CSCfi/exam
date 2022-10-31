@@ -241,6 +241,9 @@ $sitnet-background: #ffffff;
 .greenHover:hover {
   color: $sitnet-ready;
 }
+.blue-shadow-hover:hover {
+  box-shadow: 0 0 1px 3px rgba(0,117,255,1);
+}
 
 .background-gray{
 background: gainsboro;
@@ -748,6 +751,10 @@ $sitnet-icon-size: 32px;
   margin-right: 0px !important;
 }
 
+.marr5 {
+  margin-right: 5px !important;
+}
+
 .marr10 {
   margin-right: 10px !important;
 }
@@ -758,6 +765,10 @@ $sitnet-icon-size: 32px;
 
 .marr20 {
   margin-right: 20px !important;
+}
+
+.marr26{
+  margin-right: 26px !important;
 }
 
 .marr30 {
@@ -839,6 +850,18 @@ $sitnet-icon-size: 32px;
 .border-none {
   border: none !important;
 }
+.border-top-none {
+  border-top: none !important;
+}
+.custom-green-dot{
+  height: 5px;
+  width: 5px;
+  border-radius: 100%;
+  align-self: center;
+}
+.radius-3{
+  border-radius: 3px;
+}
 
 .background-none {
   background: none;
@@ -878,6 +901,12 @@ $sitnet-icon-size: 32px;
 
 .min-w-100{
   min-width: 100px !important;
+}
+.min-w-125{
+  min-width: 125px !important;
+}
+.min-w-500{
+  min-width: 500px !important;
 }
 
 .max-w-350 {

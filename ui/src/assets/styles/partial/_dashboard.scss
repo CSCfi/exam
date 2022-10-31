@@ -948,6 +948,13 @@
     }
     margin-left: 3.4em;
     margin-right: 3.4em;
+    @media (max-width: $sitnet-mobile) {
+
+      margin-left: 3px;
+      margin-right: 3px;
+      margin-top: 10px;
+
+    }
 
     .tab-content {
       border-left: 1px solid #dee2e6;

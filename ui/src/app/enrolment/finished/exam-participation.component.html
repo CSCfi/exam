@@ -71,8 +71,10 @@
                         </a>
                         <xm-exam-feedback
                             class="student-exam-row-infobox"
-                            [hidden]="!showEvaluation"
+                            [hidden]="!showEvaluation || participation.exam.gradeless"
                             [assessment]="reviewedExam"
+                            [participationTime]="participation.ended || ''"
+                            [participationDuration]="participation.duration || 0"
                             [collaborative]="collaborative"
                             [scores]="scores"
                         >

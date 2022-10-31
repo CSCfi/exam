@@ -81,6 +81,7 @@ import play.data.DynamicForm;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.libs.Files.TemporaryFile;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -576,6 +577,18 @@ public class ReviewController extends BaseController {
         return ok();
     }
 
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    public Result hasLockedAssessments(Long eid) {
+        Set<Exam> assessments = Ebean
+            .find(Exam.class)
+            .where()
+            .eq("parent.id", eid)
+            .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED, Exam.State.REJECTED)
+            .isNotNull("parent.examFeedbackConfig")
+            .findSet();
+        return ok(Json.newObject().put("status", assessments.isEmpty()));
+    }
+
     private static boolean isEligibleForArchiving(Exam exam, DateTime start, DateTime end) {
         return (
             exam.hasState(Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED) &&
@@ -820,6 +833,7 @@ public class ReviewController extends BaseController {
             .fetch("exam.parent.gradeScale")
             .fetch("exam.parent.gradeScale.grades", new FetchConfig().query())
             .fetch("exam.parent.examOwners", new FetchConfig().query())
+            .fetch("exam.parent.examFeedbackConfig")
             .fetch("exam.examEnrolments")
             .fetch("exam.examEnrolments.reservation")
             .fetch("exam.examEnrolments.reservation.machine")

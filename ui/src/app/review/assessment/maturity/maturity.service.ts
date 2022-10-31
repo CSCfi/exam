@@ -17,6 +17,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { of } from 'ramda';
 import { throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import type { Exam } from '../../../exam/exam.model';
@@ -244,9 +245,15 @@ export class MaturityService {
                     this.http.put(`/app/inspection/${exam.languageInspection?.id}/approval`, { approved: !reject }),
                 ),
                 switchMap(() =>
-                    reject
-                        ? this.Assessment.rejectMaturity$(exam, false)
-                        : this.Assessment.createExamRecord$(exam, false),
+                    exam.parent?.examFeedbackConfig
+                        ? this.Assessment.doesPreviouslyLockedAssessmentsExist$(exam)
+                        : of({ status: false }),
+                ),
+                switchMap(
+                    (setting) =>
+                        reject
+                            ? this.Assessment.rejectMaturity$(exam, false)
+                            : this.Assessment.createExamRecord$(exam, false, setting.status), // TODO: is this necessary with private examinations?
                 ),
             )
             .subscribe(() => {

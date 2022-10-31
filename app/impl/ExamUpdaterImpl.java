@@ -20,6 +20,7 @@ import models.AutoEvaluationConfig;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamExecutionType;
+import models.ExamFeedbackConfig;
 import models.ExamType;
 import models.Grade;
 import models.GradeEvaluation;
@@ -218,6 +219,36 @@ public class ExamUpdaterImpl implements ExamUpdater {
     @Override
     public boolean isAllowedToRemove(Exam exam) {
         return !hasFutureReservations(exam) && exam.getChildren().isEmpty();
+    }
+
+    @Override
+    public void updateExamFeedbackConfig(Exam exam, ExamFeedbackConfig newConfig) {
+        ExamFeedbackConfig config = exam.getExamFeedbackConfig();
+        if (newConfig == null) {
+            if (config != null) {
+                config.delete();
+                exam.setExamFeedbackConfig(null);
+            }
+        } else {
+            if (config == null) {
+                config = new ExamFeedbackConfig();
+                config.setExam(exam);
+                exam.setExamFeedbackConfig(config);
+            }
+            config.setReleaseType(newConfig.getReleaseType());
+            if (config.getReleaseType() == ExamFeedbackConfig.ReleaseType.GIVEN_DATE) {
+                config.setAmountDays(null);
+                config.setReleaseDate(newConfig.getReleaseDate());
+            } else if (config.getReleaseType() == ExamFeedbackConfig.ReleaseType.GIVEN_AMOUNT_DAYS) {
+                config.setAmountDays(newConfig.getAmountDays());
+                config.setReleaseDate(null);
+            } else {
+                config.setAmountDays(null);
+                config.setReleaseDate(null);
+            }
+            config.save();
+            exam.setExamFeedbackConfig(config);
+        }
     }
 
     @Override

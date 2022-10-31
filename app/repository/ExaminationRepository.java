@@ -29,13 +29,14 @@ import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.db.ebean.EbeanConfig;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class ExaminationRepository {
 
     private final EbeanServer db;
     private final CollaborativeExamLoader cel;
     private final DatabaseExecutionContext ec;
+    private final DateTimeHandler dateTimeHandler;
 
     private static final Logger.ALogger logger = Logger.of(ExaminationRepository.class);
 
@@ -43,11 +44,13 @@ public class ExaminationRepository {
     public ExaminationRepository(
         EbeanConfig ebeanConfig,
         CollaborativeExamLoader cel,
-        DatabaseExecutionContext databaseExecutionContext
+        DatabaseExecutionContext databaseExecutionContext,
+        DateTimeHandler dateTimeHandler
     ) {
         this.db = Ebean.getServer(ebeanConfig.defaultServer());
         this.cel = cel;
         this.ec = databaseExecutionContext;
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     private Optional<Exam> doCreateExam(Exam prototype, User user, ExamEnrolment enrolment) {
@@ -123,8 +126,8 @@ public class ExaminationRepository {
                     if (enrolment.getExaminationEventConfiguration() == null) {
                         now =
                             reservation == null
-                                ? DateTimeUtils.adjustDST(DateTime.now())
-                                : DateTimeUtils.adjustDST(
+                                ? dateTimeHandler.adjustDST(DateTime.now())
+                                : dateTimeHandler.adjustDST(
                                     DateTime.now(),
                                     enrolment.getReservation().getMachine().getRoom()
                                 );
@@ -204,7 +207,7 @@ public class ExaminationRepository {
 
     private boolean isInEffect(ExamEnrolment ee) {
         DateTime now = ee.getExaminationEventConfiguration() == null
-            ? DateTimeUtils.adjustDST(DateTime.now())
+            ? dateTimeHandler.adjustDST(DateTime.now())
             : DateTime.now();
         if (ee.getReservation() != null) {
             return (ee.getReservation().getStartAt().isBefore(now) && ee.getReservation().getEndAt().isAfter(now));

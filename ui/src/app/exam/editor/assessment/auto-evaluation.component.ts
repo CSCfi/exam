@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit, SimpleChanges } from '@angular/core';
+import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
@@ -30,7 +30,7 @@ type AutoEvaluationConfigurationTemplate = {
     selector: 'xm-auto-evaluation',
     templateUrl: './auto-evaluation.component.html',
 })
-export class AutoEvaluationComponent implements OnInit {
+export class AutoEvaluationComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;
     @Output() enabled = new EventEmitter<void>();
     @Output() disabled = new EventEmitter<void>();
@@ -47,13 +47,13 @@ export class AutoEvaluationComponent implements OnInit {
             releaseTypes: [
                 {
                     name: 'IMMEDIATE',
-                    translation: 'sitnet_autoevaluation_release_type_immediate',
+                    translation: 'sitnet_release_type_immediate',
                     filtered: true,
                 },
-                { name: 'GIVEN_DATE', translation: 'sitnet_autoevaluation_release_type_given_date' },
-                { name: 'GIVEN_AMOUNT_DAYS', translation: 'sitnet_autoevaluation_release_type_given_days' },
-                { name: 'AFTER_EXAM_PERIOD', translation: 'sitnet_autoevaluation_release_type_period' },
-                { name: 'NEVER', translation: 'sitnet_autoevaluation_release_type_never' },
+                { name: 'GIVEN_DATE', translation: 'sitnet_release_type_given_date' },
+                { name: 'GIVEN_AMOUNT_DAYS', translation: 'sitnet_release_type_given_days' },
+                { name: 'AFTER_EXAM_PERIOD', translation: 'sitnet_release_type_period' },
+                { name: 'NEVER', translation: 'sitnet_release_type_never' },
             ],
         };
         this.autoevaluationDisplay = { visible: false };
@@ -63,11 +63,11 @@ export class AutoEvaluationComponent implements OnInit {
         this.prepareAutoEvaluationConfig();
     }
 
-    ngOnChanges = (props: SimpleChanges) => {
+    ngOnChanges(props: SimpleChanges) {
         if (props.exam && this.autoevaluation) {
             this.prepareAutoEvaluationConfig();
         }
-    };
+    }
 
     disable = () => this.disabled.emit();
     enable = () => this.enabled.emit();

@@ -12,9 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -50,7 +49,6 @@ export class AssessmentService {
         private http: HttpClient,
         private translate: TranslateService,
         private router: Router,
-        @Inject(DOCUMENT) private document: Document,
         private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private Session: SessionService,
@@ -99,44 +97,20 @@ export class AssessmentService {
 
     // Defining markup outside templates is not advisable, but creating a working custom dialog template for this
     // proved to be a bit too much of a hassle. Lets live with this.
-    getRecordReviewConfirmationDialogContent = (feedback: string) =>
-        `<h4>${this.translate.instant('sitnet_teachers_comment')}</h4>
-        ${feedback}<br/>
-        <strong>${this.translate.instant('sitnet_confirm_record_review')}</strong>
-        `;
-
-    countCharacters = (text?: string) => {
-        let normalizedText = text
-            ? text
-                  .replace(/\s/g, '')
-                  .replace(/&nbsp;/g, '')
-                  .replace(/(\r\n|\n|\r)/gm, '')
-                  .replace(/&nbsp;/gi, ' ')
+    getRecordReviewConfirmationDialogContent = (feedback: string, showFeedbackConfigWarning: boolean) => {
+        const feedbackContent = feedback
+            ? `<h4>${this.translate.instant('sitnet_teachers_comment')}</h4> ${feedback}`
             : '';
-        normalizedText = this.strip(normalizedText).replace(/^([\t\r\n]*)$/, '');
-        return normalizedText.length;
-    };
-
-    countWords = (text?: string) => {
-        let normalizedText = text
-            ? text
-                  .replace(/(\r\n|\n|\r)/gm, ' ')
-                  .replace(/^\s+|\s+$/g, '')
-                  .replace('&nbsp;', ' ')
-            : '';
-        normalizedText = this.strip(normalizedText);
-        const words = normalizedText.split(/\s+/);
-        for (let wordIndex = words.length - 1; wordIndex >= 0; wordIndex--) {
-            if (words[wordIndex].match(/^([\s\t\r\n]*)$/)) {
-                words.splice(wordIndex, 1);
-            }
+        const content = `${feedbackContent}<p>${this.translate.instant('sitnet_confirm_record_review')}</p>`;
+        if (showFeedbackConfigWarning) {
+            return `${content}<p>${this.translate.instant('sitnet_exam_feedback_config_warning')}</p>`;
         }
-        return words.length;
+        return content;
     };
 
     getExitStateById = (id: number, collaborative: boolean): Link => {
         return {
-            fragments: ['/staff/exams', id.toString(), '4'],
+            fragments: ['/staff/exams', id.toString(), '5'],
             params: { collaborative: collaborative },
         };
     };
@@ -150,7 +124,7 @@ export class AssessmentService {
         return this.getExitStateById(id, collaborative);
     };
 
-    createExamRecord$ = (exam: Exam, needsConfirmation: boolean): Observable<void> => {
+    createExamRecord$ = (exam: Exam, needsConfirmation: boolean, needsWarning: boolean): Observable<void> => {
         if (!this.checkCredit(exam)) {
             return of();
         }
@@ -164,7 +138,10 @@ export class AssessmentService {
                 dialogNote = this.translate.instant('sitnet_confirm_archiving_without_grade');
                 res = '/app/exam/register';
             } else {
-                dialogNote = this.getRecordReviewConfirmationDialogContent((exam.examFeedback as Feedback).comment);
+                dialogNote = this.getRecordReviewConfirmationDialogContent(
+                    (exam.examFeedback as Feedback).comment,
+                    needsWarning,
+                );
                 res = '/app/exam/record';
             }
             const payload = this.getPayload(exam, 'GRADED');
@@ -176,6 +153,13 @@ export class AssessmentService {
                 return this.sendToRegistry$(payload, res);
             }
         }
+    };
+
+    doesPreviouslyLockedAssessmentsExist$ = (exam: Exam) => {
+        if (!exam.parent?.id || !exam.parent.examFeedbackConfig) {
+            return of({ status: false });
+        }
+        return this.http.get<{ status: boolean }>(`/app/review/${exam.parent.id}/locked`);
     };
 
     isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
@@ -325,14 +309,5 @@ export class AssessmentService {
             }),
             switchMap(() => this.sendToRegistry$(payload, res)),
         );
-    };
-
-    private strip = (html: string) => {
-        const tmp = this.document.createElement('div');
-        tmp.innerHTML = html;
-        if (!tmp.textContent && typeof tmp.innerText === 'undefined') {
-            return '';
-        }
-        return tmp.textContent || tmp.innerText;
     };
 }

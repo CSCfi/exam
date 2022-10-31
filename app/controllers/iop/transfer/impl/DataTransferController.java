@@ -10,7 +10,6 @@ import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
 import controllers.base.BaseController;
 import io.ebean.Ebean;
 import io.ebean.Query;
@@ -217,20 +216,12 @@ public class DataTransferController extends BaseController {
     }
 
     private URL parseURL(String orgRef) throws MalformedURLException {
-        String url = String.format(
-            "%s/api/organisations/%s/export",
-            ConfigFactory.load().getString("sitnet.integration.iop.host"),
-            orgRef
-        );
+        String url = String.format("%s/api/organisations/%s/export", configReader.getIopHost(), orgRef);
         return new URL(url);
     }
 
     private String parseUploadURL(String orgRef) throws MalformedURLException {
-        String url = String.format(
-            "%s/api/organisations/%s/export/id/attachment",
-            ConfigFactory.load().getString("sitnet.integration.iop.host"),
-            orgRef
-        );
+        String url = String.format("%s/api/organisations/%s/export/id/attachment", configReader.getIopHost(), orgRef);
         return new URL(url).toString();
     }
 
