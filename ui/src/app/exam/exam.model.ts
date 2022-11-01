@@ -31,6 +31,13 @@ export interface AutoEvaluationConfig {
     gradeEvaluations: GradeEvaluation[];
 }
 
+export interface ExamFeedbackConfig {
+    id?: number;
+    releaseType?: string;
+    releaseDate: Date | null;
+    amountDays?: number;
+}
+
 export interface Course {
     id: number;
     name: string;
@@ -176,6 +183,7 @@ export interface ExamSectionQuestion {
     sequenceNumber: number;
     expanded: boolean;
     derivedMaxScore?: number;
+    derivedAssessedScore?: number;
 }
 
 export interface ExamMaterial {
@@ -281,6 +289,7 @@ export interface ExamImpl {
     examParticipation?: ExamParticipation;
     gradeScale?: GradeScale;
     autoEvaluationConfig?: AutoEvaluationConfig;
+    examFeedbackConfig?: ExamFeedbackConfig;
     children: Exam[];
     examinationDates: ExaminationDate[];
     trialCount: number | null;

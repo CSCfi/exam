@@ -19,7 +19,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
@@ -58,18 +57,12 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
         private Session: SessionService,
         private Tabs: ExamTabService,
     ) {
-        this.translate.onTranslationChange.pipe(takeUntil(this.unsubscribe)).subscribe(() => {
-            this.refreshExamTypes();
-            this.refreshGradeScales();
-        });
         this.user = this.Session.getUser();
     }
 
     ngOnInit() {
         this.exam = this.Tabs.getExam();
         this.collaborative = this.Tabs.isCollaborative();
-        this.refreshExamTypes();
-        this.refreshGradeScales();
         this.http
             .get<{ isByodExaminationSupported: boolean }>('/app/settings/byod')
             .subscribe((setting) => (this.byodExaminationSupported = setting.isByodExaminationSupported));
@@ -99,7 +92,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
                     initScale: false,
                 });
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 
@@ -126,54 +119,12 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
         }
     };
 
-    checkExamType = (type: string) => (this.exam.examType.type === type ? 'btn-primary' : '');
-
-    setExamType = (type: string) => {
-        this.exam.examType.type = type;
-        this.updateExam(false);
-    };
-
-    getSelectableScales = () => {
-        if (!this.gradeScales || !this.exam || !this.gradeScaleSetting) {
-            return [];
-        }
-
-        return this.gradeScales.filter((scale: GradeScale) => {
-            if (this.gradeScaleSetting.overridable) {
-                return true;
-            } else if (this.exam.course && this.exam.course.gradeScale) {
-                return this.exam.course.gradeScale.id === scale.id;
-            } else {
-                return true;
-            }
-        });
-    };
-
-    checkScale = (scale: GradeScale) => {
-        if (!this.exam.gradeScale) {
-            return '';
-        }
-        return this.exam.gradeScale.id === scale.id ? 'btn-primary' : '';
-    };
-
     toggleAnonymous = () => this.updateExam(false);
 
     toggleAnonymousDisabled = () =>
         !this.Session.getUser().isAdmin ||
         !this.Exam.isAllowedToUnpublishOrRemove(this.exam, this.collaborative) ||
         this.collaborative;
-
-    checkScaleDisabled = (scale: GradeScale) => {
-        if (!scale || !this.exam.course || !this.exam.course.gradeScale) {
-            return false;
-        }
-        return !this.gradeScaleSetting.overridable && this.exam.course.gradeScale.id === scale.id;
-    };
-
-    setScale = (grading: GradeScale) => {
-        this.exam.gradeScale = grading;
-        this.updateExam(true);
-    };
 
     showAnonymousReview = () =>
         this.collaborative || (this.exam.executionType.type === 'PUBLIC' && this.anonymousReviewEnabled);
@@ -203,21 +154,5 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
             return this.Session.getUser().isAdmin;
         }
         return this.exam.executionType.type === 'PUBLIC';
-    };
-
-    private refreshExamTypes = () => {
-        this.Exam.refreshExamTypes$().subscribe((types) => {
-            // Maturity can only have a FINAL type
-            if (this.exam.executionType.type === 'MATURITY') {
-                types = types.filter((t) => t.type === 'FINAL');
-            }
-            this.examTypes = types;
-        });
-    };
-
-    private refreshGradeScales = () => {
-        this.Exam.refreshGradeScales$(this.collaborative).subscribe((scales: GradeScale[]) => {
-            this.gradeScales = scales;
-        });
     };
 }

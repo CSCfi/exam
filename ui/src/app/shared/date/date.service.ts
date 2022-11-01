@@ -18,6 +18,13 @@ import { format, parseISO, roundToNearestMinutes } from 'date-fns';
 import { format as formatTz, utcToZonedTime } from 'date-fns-tz';
 import { range } from 'ramda';
 
+export enum REPEAT_OPTIONS {
+    once = 'ONCE',
+    daily_weekly = 'DAILY_WEEKLY',
+    monthly = 'MONTHLY',
+    yearly = 'YEARLY',
+}
+
 @Injectable({ providedIn: 'root' })
 export class DateTimeService {
     constructor(private translate: TranslateService) {}
@@ -55,13 +62,48 @@ export class DateTimeService {
         return new Date(now.setMonth(now.getMonth() + distance));
     }
 
-    getWeekdayNames(): string[] {
+    getWeekdayNames(long?: boolean): string[] {
+        const length = long ? 'long' : 'short';
         const lang = this.translate.currentLang;
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
-        const options: Intl.DateTimeFormatOptions = { weekday: 'short' };
+        const options: Intl.DateTimeFormatOptions = { weekday: length };
         return range(1, 7)
             .concat(0)
             .map((d) => this.getDateForWeekday(d).toLocaleDateString(locale, options));
+    }
+    translateWeekdayName(weekDay: string, long?: boolean): string {
+        // This function has been moved to date service @DELETEME
+        const length = long ? 'long' : 'short';
+        const lang = this.translate.currentLang;
+        const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
+        const options: Intl.DateTimeFormatOptions = { weekday: length };
+        switch (weekDay) {
+            case 'MONDAY':
+                return this.getDateForWeekday(1).toLocaleDateString(locale, options);
+            case 'TUESDAY':
+                return this.getDateForWeekday(2).toLocaleDateString(locale, options);
+            case 'WEDNESDAY':
+                return this.getDateForWeekday(3).toLocaleDateString(locale, options);
+            case 'THURSDAY':
+                return this.getDateForWeekday(4).toLocaleDateString(locale, options);
+            case 'FRIDAY':
+                return this.getDateForWeekday(5).toLocaleDateString(locale, options);
+            case 'SATURDAY':
+                return this.getDateForWeekday(6).toLocaleDateString(locale, options);
+            case 'SUNDAY':
+                return this.getDateForWeekday(7).toLocaleDateString(locale, options);
+        }
+        return '';
+    }
+
+    getMonthNames(long?: boolean): string[] {
+        const length = long ? 'long' : 'short';
+        const lang = this.translate.currentLang;
+        const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
+        const options: Intl.DateTimeFormatOptions = { month: length };
+        return range(1, 12)
+            .concat(0)
+            .map((m) => this.getDateForMonth(m - 1).toLocaleDateString(locale, options));
     }
 
     isDST = (date: Date | string | number): boolean => {

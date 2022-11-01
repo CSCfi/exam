@@ -1,6 +1,6 @@
 <div id="dashboard">
     <div class="row" id="room" *ngFor="let room of rooms" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
-        <div class="col-md-12">
+        <div class="col-12">
             <h2 class="room-name-title">{{ room.name || 'sitnet_no_name' | translate }}</h2>
             <a
                 [hidden]="room.state === 'INACTIVE'"
@@ -21,7 +21,7 @@
                 <i class="bi-plus text-success pointer"></i>
             </a>
 
-            <div class="toggleMessage col-md-12">
+            <div class="toggleMessage col-md">
                 <div class="d-flex justify-content-between">
                     <div>
                         {{ 'sitnet_exam_basic_information_tab' | translate }}
@@ -35,7 +35,7 @@
                         </a>
                     </div>
                     <div>
-                        <span class="me-1">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
+                        <span class="marr10">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
                         <i
                             class="bi-chevron-down"
                             *ngIf="room.addressVisible"
@@ -120,7 +120,84 @@
                 </div>
             </div>
 
-            <xm-machines [room]="room"></xm-machines>
+            <div class="toggleMessage col-md border-top-none">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        {{ 'sitnet_openinghours_exception_datetimes' | translate }}
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <span class="marr10 d-" *ngIf="!room.availabilityVisible">
+                            <div
+                                class="flex justify-content-end"
+                                *ngFor="let timetable of getWorkingHoursDisplayFormat(room.defaultWorkingHours)"
+                            >
+                                <div class="bg-success custom-green-dot marr10" *ngIf="timetable.length > 0"></div>
+                                <div>{{ timetable }}</div>
+                            </div>
+                        </span>
+                        <div class="">
+                            <i
+                                class="bi-chevron-down"
+                                *ngIf="room.availabilityVisible"
+                                (click)="room.availabilityVisible = false"
+                            ></i>
+                            <i
+                                class="bi-chevron-right"
+                                *ngIf="!room.availabilityVisible"
+                                (click)="room.availabilityVisible = true"
+                            ></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" *ngIf="!room.availabilityVisible">
+                    <div class="col-md mart10 marr26">
+                        <div
+                            class="flex justify-content-end flex-nowrap"
+                            *ngFor="let exception of getNextExceptionEvent(room.calendarExceptionEvents)"
+                        >
+                            <div
+                                class="text-danger marr10 bi-exclamation-triangle-fill"
+                                *ngIf="exception?.outOfService"
+                            >
+                                {{ 'sitnet_room_out_of_service' | translate }}
+                            </div>
+                            <div class="text-success marr10" *ngIf="!exception?.outOfService">
+                                {{ 'sitnet_room_in_service' | translate }}
+                            </div>
+                            <div class="justify-self-right">
+                                {{ formatDate(exception) }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" *ngIf="room.availabilityVisible">
+                    <div class="col-6">
+                        <xm-opening-hours *ngIf="room" class="col-md-12" [room]="room"></xm-opening-hours>
+                    </div>
+                    <div class="col-6">
+                        <div class="row">
+                            <xm-exceptions
+                                class="col-12"
+                                [exceptions]="room.calendarExceptionEvents"
+                                (created)="addExceptions($event, room)"
+                                (removed)="deleteException($event, room)"
+                            ></xm-exceptions>
+                        </div>
+                        <div class="row">
+                            <xm-starting-time
+                                class="col-12 mt-2"
+                                [startingHours]="room.examStartingHours"
+                                [roomIds]="[room.id]"
+                            >
+                            </xm-starting-time>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toggleMessage col-md border-top-none">
+                <xm-machines [room]="room"></xm-machines>
+            </div>
         </div>
     </div>
 </div>

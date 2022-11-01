@@ -69,6 +69,7 @@ public class StudentActionsController extends CollaborationController {
     private final EnrolmentRepository enrolmentRepository;
     private final ByodConfigHandler byodConfigHandler;
     private final FileHandler fileHandler;
+    private final ExcelBuilder excelBuilder;
     private final MessagesApi messagesApi;
     private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
@@ -80,6 +81,7 @@ public class StudentActionsController extends CollaborationController {
         ConfigReader configReader,
         ByodConfigHandler byodConfigHandler,
         FileHandler fileHandler,
+        ExcelBuilder excelBuilder,
         MessagesApi messagesApi
     ) {
         this.ec = ec;
@@ -87,6 +89,7 @@ public class StudentActionsController extends CollaborationController {
         this.enrolmentRepository = enrolmentRepository;
         this.byodConfigHandler = byodConfigHandler;
         this.fileHandler = fileHandler;
+        this.excelBuilder = excelBuilder;
         this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
         this.messagesApi = messagesApi;
     }
@@ -186,7 +189,7 @@ public class StudentActionsController extends CollaborationController {
         User student = exam.getExamParticipation().getUser();
         ByteArrayOutputStream bos;
         try {
-            bos = ExcelBuilder.buildStudentReport(exam, student, messagesApi);
+            bos = excelBuilder.buildStudentReport(exam, student, messagesApi);
         } catch (IOException e) {
             return internalServerError("sitnet_error_creating_excel_file");
         }
@@ -228,7 +231,7 @@ public class StudentActionsController extends CollaborationController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<ExamParticipation> query = Ebean
             .find(ExamParticipation.class)
-            .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous")
+            .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous, gradeless")
             .fetch("exam.creator", "id")
             .fetch("exam.course", "code, name")
             .fetch("exam.parent.examOwners", "firstName, lastName, id")

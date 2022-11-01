@@ -59,7 +59,7 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
                 data.filter((p) => !p.ended).forEach(
                     (p) => (p.ended = p.reservation ? p.reservation.endAt : p.started),
                 );
-                this.participations = data;
+                this.participations = data.filter((d) => d.ended);
             },
             error: this.toast.error,
         });

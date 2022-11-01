@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
+import { ExamAssessmentComponent } from 'src/app/exam/editor/assessment/exam-assessment.component';
 import { BasicExamInfoComponent } from 'src/app/exam/editor/basic/basic-exam-info.component';
 import { ExamResolverService } from 'src/app/exam/editor/basic/exam-resolver.service';
 import { ExamTabsComponent } from 'src/app/exam/editor/exam-tabs.component';
@@ -73,15 +74,16 @@ const routes: Route[] = [
                 children: [
                     { path: '1', component: BasicExamInfoComponent },
                     { path: '2', component: SectionsComponent },
-                    { path: '3', component: ExamPublicationComponent },
+                    { path: '3', component: ExamAssessmentComponent },
+                    { path: '4', component: ExamPublicationComponent },
                     {
-                        path: '4',
+                        path: '5',
                         component: ReviewListComponent,
                         resolve: { reviews: ReviewListResolverService },
                     },
-                    { path: '5', component: QuestionReviewsComponent },
+                    { path: '6', component: QuestionReviewsComponent },
                     {
-                        path: '6',
+                        path: '7',
                         component: ExamSummaryComponent,
                         resolve: { reviews: ReviewListResolverService },
                     },

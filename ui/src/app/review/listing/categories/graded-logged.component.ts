@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import type { SimpleChanges } from '@angular/core';
+import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
@@ -30,7 +30,7 @@ import { ReviewListService } from '../review-list.service';
     selector: 'xm-rl-graded-logged',
     templateUrl: './graded-logged.component.html',
 })
-export class GradedLoggedReviewsComponent implements OnInit {
+export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
     @Input() reviews: Review[] = [];
     @Input() exam!: Exam;
     @Input() collaborative = false;
@@ -52,12 +52,12 @@ export class GradedLoggedReviewsComponent implements OnInit {
         this.init();
     }
 
-    ngOnChanges = (changes: SimpleChanges) => {
+    ngOnChanges(changes: SimpleChanges) {
         if (changes.reviews) {
             this.init();
             this.applyFreeSearchFilter();
         }
-    };
+    }
 
     applyFreeSearchFilter = () => (this.view.filtered = this.ReviewList.applyFilter(this.view.filter, this.view.items));
 

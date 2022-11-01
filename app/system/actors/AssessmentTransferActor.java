@@ -18,7 +18,6 @@ package system.actors;
 import akka.actor.AbstractActor;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.typesafe.config.ConfigFactory;
 import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
 import java.io.IOException;
@@ -34,16 +33,19 @@ import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import util.config.ConfigReader;
 
 public class AssessmentTransferActor extends AbstractActor {
 
     private static final Logger.ALogger logger = Logger.of(AssessmentTransferActor.class);
 
-    private WSClient wsClient;
+    private final WSClient wsClient;
+    private final ConfigReader configReader;
 
     @Inject
-    public AssessmentTransferActor(WSClient wsClient) {
+    public AssessmentTransferActor(WSClient wsClient, ConfigReader configReader) {
         this.wsClient = wsClient;
+        this.configReader = configReader;
     }
 
     @Override
@@ -97,10 +99,7 @@ public class AssessmentTransferActor extends AbstractActor {
         request.post(node).thenApplyAsync(onSuccess);
     }
 
-    private static URL parseUrl(String reservationRef) throws MalformedURLException {
-        return new URL(
-            ConfigFactory.load().getString("sitnet.integration.iop.host") +
-            String.format("/api/enrolments/%s/assessment", reservationRef)
-        );
+    private URL parseUrl(String reservationRef) throws MalformedURLException {
+        return new URL(configReader.getIopHost() + String.format("/api/enrolments/%s/assessment", reservationRef));
     }
 }

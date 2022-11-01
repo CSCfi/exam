@@ -84,6 +84,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     private Double derivedMaxScore;
 
     @Transient
+    private Double derivedAssessedScore;
+
+    @Transient
     private Double derivedMinScore;
 
     @Column
@@ -163,6 +166,10 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     public void setDerivedMaxScore() {
         this.derivedMaxScore = getMaxAssessedScore();
+    }
+
+    public void setDerivedAssessedScore() {
+        this.derivedAssessedScore = getAssessedScore();
     }
 
     public Double getDerivedMinScore() {

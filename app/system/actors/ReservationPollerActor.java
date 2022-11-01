@@ -21,19 +21,22 @@ import io.ebean.Ebean;
 import java.util.List;
 import javax.inject.Inject;
 import models.ExamEnrolment;
+import models.Reservation;
 import org.joda.time.DateTime;
 import play.Logger;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class ReservationPollerActor extends AbstractActor {
 
     private static final Logger.ALogger logger = Logger.of(ReservationPollerActor.class);
 
-    private NoShowHandler handler;
+    private final NoShowHandler noShowHandler;
+    private final DateTimeHandler dateTimeHandler;
 
     @Inject
-    public ReservationPollerActor(NoShowHandler handler) {
-        this.handler = handler;
+    public ReservationPollerActor(NoShowHandler noShowHandler, DateTimeHandler dateTimeHandler) {
+        this.noShowHandler = noShowHandler;
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     @Override
@@ -43,7 +46,7 @@ public class ReservationPollerActor extends AbstractActor {
                 String.class,
                 s -> {
                     logger.debug("Starting no-show check ->");
-                    DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+                    DateTime now = dateTimeHandler.adjustDST(DateTime.now());
                     List<ExamEnrolment> enrolments = Ebean
                         .find(ExamEnrolment.class)
                         .fetch("exam")
@@ -58,11 +61,21 @@ public class ReservationPollerActor extends AbstractActor {
                         .endOr()
                         .isNull("reservation.externalReservation")
                         .findList();
-
-                    if (enrolments.isEmpty()) {
+                    // The following are cases where external user has made a reservation but did not log in before
+                    // reservation ended. Mark those as no-shows as well.
+                    List<Reservation> reservations = Ebean
+                        .find(Reservation.class)
+                        .where()
+                        .isNull("enrolment")
+                        .isNotNull("externalRef")
+                        .isNull("user")
+                        .isNotNull("externalUserRef")
+                        .lt("endAt", now)
+                        .findList();
+                    if (enrolments.isEmpty() && reservations.isEmpty()) {
                         logger.debug("None found");
                     } else {
-                        handler.handleNoShows(enrolments);
+                        noShowHandler.handleNoShows(enrolments, reservations);
                     }
                     logger.debug("<- done");
                 }

@@ -12,69 +12,98 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { format, parseISO } from 'date-fns';
 import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
 import { RoomService } from '../rooms/room.service';
 
 @Component({
     selector: 'xm-exceptions',
-    template: `<div class="top-row flex marl5" *ngIf="!hideTitle">
-            <h3 class="col-md-12 header-text">{{ 'sitnet_exception_datetimes' | translate }}</h3>
+    template: `
+        <div class="row" *ngIf="!hideTitle">
+            <div class="col-md-12 header-text">
+                <strong>{{ 'sitnet_exception_datetimes' | translate }}:</strong>
+            </div>
+        </div>
+        <div class="row" *ngIf="!hideInfo">
+            <div class="col-md-12 header-text">{{ 'sitnet_exception_datetimes_info' | translate }}</div>
         </div>
 
-        <div class="col-md-12">
-            <div class="flex" *ngFor="let exception of exceptions | filterBy: filter">
-                <div class="col-md-4 min-width-300">
-                    {{ formatDate(exception) }}
-                </div>
-                <div class="text-danger marr10" *ngIf="exception.outOfService">
-                    {{ 'sitnet_room_out_of_service' | translate }}
-                </div>
-                <div class="text-info " *ngIf="!exception.outOfService">
-                    {{ 'sitnet_room_in_service' | translate }}
-                </div>
-                <div>
-                    <a class="pointer" (click)="deleteException(exception)">{{ 'sitnet_exam_remove' | translate }}</a>
-                </div>
+        <div class="row" *ngFor="let exception of orderedExceptions | filterBy: filter; let i = index">
+            <div class="col">
+                {{ formatDate(exception) }}
+            </div>
+            <div class="col">
+                {{ !exception.outOfService ? ('sitnet_room_in_service' | translate) : '' }}
+                {{ exception.outOfService ? ('sitnet_room_out_of_service' | translate) : '' }}
+            </div>
+            <div class="col-3">
+                <a class="pointer" (click)="deleteException(exception)">{{ 'sitnet_exam_remove' | translate }}</a>
             </div>
         </div>
-        <div class="main-row" *ngIf="!hideButton">
-            <div class="col-md-12">
-                <button (click)="addException()" class="btn btn-primary">
-                    {{ 'sitnet_add' | translate }}
+        <div class="row mt-2" *ngIf="!hideButton">
+            <div class="col-12">
+                <button (click)="addExceptionClosed()" class="btn btn-sm btn-outline-dark marr20 marb10">
+                    {{ 'sitnet_add_out_of_service_time' | translate }}
+                </button>
+                <button (click)="addExceptionOpen()" class="btn btn-sm btn-outline-dark text-success marb10">
+                    {{ 'sitnet_add_extra_working_hour' | translate }}
                 </button>
             </div>
-        </div> `,
+        </div>
+    `,
 })
-export class ExceptionListComponent {
+export class ExceptionListComponent implements OnInit, OnChanges {
     @Input() exceptions: ExceptionWorkingHours[] = [];
     @Input() hideButton = false;
     @Input() hideTitle = false;
+    @Input() hideInfo = true;
     @Input() filter: (exception: ExceptionWorkingHours) => boolean;
-    @Output() created = new EventEmitter<ExceptionWorkingHours>();
+    @Output() created = new EventEmitter<ExceptionWorkingHours[]>();
     @Output() removed = new EventEmitter<ExceptionWorkingHours>();
+
+    orderedExceptions: ExceptionWorkingHours[] = [];
 
     constructor(private roomService: RoomService) {
         this.filter = () => true;
     }
 
+    ngOnInit() {
+        this.init();
+    }
+
+    ngOnChanges() {
+        this.init();
+    }
+
     formatDate = (exception: ExceptionWorkingHours) => {
+        if (!exception.startDate || !exception.endDate) {
+            return;
+        }
         const fmt = 'dd.MM.yyyy HH:mm';
         const start = parseISO(exception.startDate);
         const end = parseISO(exception.endDate);
-        return format(start, fmt) + ' - ' + format(end, fmt);
+        return (
+            format(start, fmt) +
+            ' - ' +
+            (format(start, 'dd.MM.yyyy') === format(end, 'dd.MM.yyyy') ? format(end, 'HH:mm') : format(end, fmt))
+        );
     };
 
-    addException = () => {
-        this.roomService.openExceptionDialog(this.createExceptionCallback);
-    };
+    addExceptionClosed = () =>
+        this.roomService.openExceptionDialog(this.createExceptionCallback, true, this.exceptions);
+    addExceptionOpen = () => this.roomService.openExceptionDialog(this.createExceptionCallback, false, this.exceptions);
 
-    createExceptionCallback = (exception: ExceptionWorkingHours) => {
-        this.created.emit(exception);
-    };
+    createExceptionCallback = (exception: ExceptionWorkingHours[]) => this.created.emit(exception);
 
     deleteException = (exception: ExceptionWorkingHours) => {
+        this.exceptions = this.exceptions.splice(this.exceptions.indexOf(exception), 1);
+        this.init();
         this.removed.emit(exception);
     };
+
+    private init = () =>
+        (this.orderedExceptions = this.exceptions
+            .filter((e) => new Date(e.endDate) > new Date())
+            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()));
 }

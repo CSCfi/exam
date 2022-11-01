@@ -89,7 +89,7 @@
                 <!-- Section material resources-->
                 <!-- HIDE THIS FOR TIME BEING (See CSCEXAM-117 comments) -->
                 <!-- exam-material-selector [section]="section" [allMaterials]="materials"
-                    (onChanges)="materialsChanged($event)"></exam-material-selector -->
+                    (changed)="materialsChanged($event)"></exam-material-selector -->
                 <div class="form-check mb-3" *ngIf="!collaborative && canBeOptional">
                     <input
                         id="sectionOptionality_{{ section.id }}"

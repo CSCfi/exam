@@ -17,9 +17,9 @@ import { NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { QuestionService } from 'src/app/question/question.service';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
-import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
 import { AssessmentService } from '../assessment.service';
 

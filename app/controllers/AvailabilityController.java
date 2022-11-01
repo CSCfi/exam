@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import models.ExamRoom;
 import models.Reservation;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -36,8 +37,16 @@ import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
 import play.mvc.Result;
+import util.datetime.DateTimeHandler;
 
 public class AvailabilityController extends BaseController {
+
+    private final DateTimeHandler dateTimeHandler;
+
+    @Inject
+    public AvailabilityController(DateTimeHandler dateTimeHandler) {
+        this.dateTimeHandler = dateTimeHandler;
+    }
 
     private static DateTime parseSearchStartDate(String day) {
         return ISODateTimeFormat.dateTimeParser().parseDateTime(day).withDayOfWeek(1).withMillisOfDay(0);
@@ -87,8 +96,8 @@ public class AvailabilityController extends BaseController {
         Set<Interval> allSlots = new LinkedHashSet<>();
         LocalDate window = searchStart.toLocalDate();
         while (!window.isAfter(searchEnd.toLocalDate())) {
-            List<Interval> slotsForDate = room
-                .getWorkingHoursForDate(window)
+            List<Interval> slotsForDate = dateTimeHandler
+                .getWorkingHoursForDate(window, room)
                 .stream()
                 .map(oh ->
                     new Interval(

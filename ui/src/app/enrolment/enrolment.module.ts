@@ -26,6 +26,7 @@ import { EnrolmentService } from './enrolment.service';
 import { EnrolmentDetailsComponent } from './exams/exam-enrolment-details.component';
 import { ExamEnrolmentsComponent } from './exams/exam-enrolments.component';
 import { CollaborativeParticipationsComponent } from './finished/collaborative-exam-participations.component';
+import { ExamAnswersDialogComponent } from './finished/exam-answers-dialog.component';
 import { ExamFeedbackComponent } from './finished/exam-feedback.component';
 import { ExamParticipationComponent } from './finished/exam-participation.component';
 import { ExamParticipationsComponent } from './finished/exam-participations.component';
@@ -46,6 +47,7 @@ import { WrongLocationService } from './wrong-location/wrong-location.service';
         ExamEnrolmentsComponent,
         CollaborativeParticipationsComponent,
         ExamFeedbackComponent,
+        ExamAnswersDialogComponent,
         ExamParticipationComponent,
         ExamParticipationsComponent,
         CollaborativeExamSearchComponent,
@@ -62,6 +64,7 @@ import { WrongLocationService } from './wrong-location/wrong-location.service';
         AddEnrolmentInformationDialogComponent,
         SelectExaminationEventDialogComponent,
         ShowInstructionsDialogComponent,
+        ExamAnswersDialogComponent,
     ],
     providers: [EnrolmentService, ExamSearchService, WrongLocationService],
 })
