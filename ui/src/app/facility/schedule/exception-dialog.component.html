@@ -3,21 +3,16 @@
         <h4><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{ 'sitnet_exception_time' | translate }}</h4>
     </div>
 
-    <div class="modal-body" *ngIf="exception">
+    <div class="modal-body">
         <div class="row">
             <div class="col">
-                <div class="form-check">
-                    <label>
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            [checked]="exception.outOfService"
-                            (change)="exception.outOfService = !exception.outOfService"
-                        />
-                        {{ 'sitnet_room_out_of_service' | translate }}
-                    </label>
+                <div *ngIf="!outOfService" class="text-success">
+                    {{ 'sitnet_making_room_available' | translate }}
                 </div>
-                <div class="form-check">
+                <div *ngIf="outOfService" class="text-danger">
+                    {{ 'sitnet_making_room_out_of_service' | translate }}
+                </div>
+                <div class="form-check mart30">
                     <label>
                         <input
                             class="form-check-input"
@@ -72,7 +67,7 @@
                         <label for="startDate">{{ 'sitnet_begin' | translate }}:</label>
                         <xm-date-time-picker
                             id="startDate"
-                            [initialTime]="exception.startDate"
+                            [initialTime]="startDate"
                             [hourStep]="1"
                             [minuteStep]="15"
                             [disableTime]="wholeDay"
@@ -84,7 +79,7 @@
                         <label for="endDate">{{ 'sitnet_end' | translate }}:</label>
                         <xm-date-time-picker
                             id="endDate"
-                            [initialTime]="exception.endDate"
+                            [initialTime]="endDate"
                             [hourStep]="1"
                             [minuteStep]="15"
                             [disableTime]="wholeDay"
@@ -140,14 +135,11 @@
                         <div>{{ 'sitnet_period' | translate }}:</div>
                         <label for="startDate">{{ 'sitnet_beginning' | translate }}:</label>
                         <xm-date-picker
-                            [initialDate]="exception.startDate"
+                            [initialDate]="startDate"
                             (updated)="onStartDateChange($event)"
                         ></xm-date-picker>
                         <label for="endDate">{{ 'sitnet_until' | translate }}:</label>
-                        <xm-date-picker
-                            [initialDate]="exception.endDate"
-                            (updated)="onEndDateChange($event)"
-                        ></xm-date-picker>
+                        <xm-date-picker [initialDate]="endDate" (updated)="onEndDateChange($event)"></xm-date-picker>
                     </div>
                 </div>
             </div>
@@ -276,14 +268,11 @@
                         <div>{{ 'sitnet_period' | translate }}:</div>
                         <label for="startDate">{{ 'sitnet_beginning' | translate }}:</label>
                         <xm-date-picker
-                            [initialDate]="exception.startDate"
+                            [initialDate]="startDate"
                             (updated)="onStartDateChange($event)"
                         ></xm-date-picker>
                         <label for="endDate">{{ 'sitnet_until' | translate }}:</label>
-                        <xm-date-picker
-                            [initialDate]="exception.endDate"
-                            (updated)="onEndDateChange($event)"
-                        ></xm-date-picker>
+                        <xm-date-picker [initialDate]="endDate" (updated)="onEndDateChange($event)"></xm-date-picker>
                     </div>
                 </div>
             </div>
@@ -473,14 +462,11 @@
                         <div>{{ 'sitnet_period' | translate }}:</div>
                         <label for="startDate">{{ 'sitnet_beginning' | translate }}:</label>
                         <xm-date-picker
-                            [initialDate]="exception.startDate"
+                            [initialDate]="startDate"
                             (updated)="onStartDateChange($event)"
                         ></xm-date-picker>
                         <label for="endDate">{{ 'sitnet_until' | translate }}:</label>
-                        <xm-date-picker
-                            [initialDate]="exception.endDate"
-                            (updated)="onEndDateChange($event)"
-                        ></xm-date-picker>
+                        <xm-date-picker [initialDate]="endDate" (updated)="onEndDateChange($event)"></xm-date-picker>
                     </div>
                 </div>
             </div>

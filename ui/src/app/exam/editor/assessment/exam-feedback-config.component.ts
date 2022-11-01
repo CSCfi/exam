@@ -59,8 +59,19 @@ export class ExamFeedbackConfigComponent implements OnInit {
         this.prepareExamFeedbackConfig();
     }
 
-    disable = () => this.disabled.emit();
-    enable = () => this.enabled.emit();
+    disable = () => {
+        if (this.modifiable) {
+            this.examFeedbackConfig.enabled = false;
+            this.disabled.emit();
+        }
+    };
+
+    enable = () => {
+        if (this.modifiable) {
+            this.examFeedbackConfig.enabled = true;
+            this.enabled.emit();
+        }
+    };
 
     applyFilter = (type?: ReleaseType) => {
         if (!this.config) return;
