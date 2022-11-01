@@ -29,7 +29,11 @@ import { RoomService } from '../rooms/room.service';
             <div class="col-md-12 header-text">{{ 'sitnet_exception_datetimes_info' | translate }}</div>
         </div>
 
-        <div class="row" *ngFor="let exception of orderedExceptions | filterBy: filter; let i = index">
+        <div
+            class="row"
+            *ngFor="let exception of orderedExceptions | filterBy: filter; let i = index"
+            [class]="i % 2 === 0 ? 'background-light-blue' : ''"
+        >
             <div class="col">
                 {{ formatDate(exception) }}
             </div>
