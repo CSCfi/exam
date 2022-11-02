@@ -88,7 +88,7 @@ export class FacilityComponent implements OnInit {
             next: (res: MaintenancePeriod) => {
                 this.room.updateMaintenancePeriod$(res).subscribe({
                     next: () => {
-                        this.toast.info(this.translate.instant('sitnet_updated'));
+                        this.toast.info(this.translate.instant('sitnet_maintenance_period_updated'));
                         const index = this.maintenancePeriods.indexOf(period);
                         this.maintenancePeriods.splice(index, 1, res);
                     },
@@ -102,7 +102,7 @@ export class FacilityComponent implements OnInit {
     removePeriod = (period: MaintenancePeriod) => {
         this.room.removeMaintenancePeriod$(period).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_removed'));
+                this.toast.info(this.translate.instant('sitnet_maintenance_period_removed'));
                 this.maintenancePeriods.splice(this.maintenancePeriods.indexOf(period), 1);
             },
             error: this.toast.error,
