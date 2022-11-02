@@ -50,7 +50,7 @@ import { RoomService } from '../rooms/room.service';
                 <button (click)="addExceptionClosed()" class="btn btn-sm btn-outline-dark marr20 marb10">
                     {{ 'sitnet_add_out_of_service_time' | translate }}
                 </button>
-                <button (click)="addExceptionOpen()" class="btn btn-sm btn-outline-dark text-success marb10">
+                <button (click)="addExceptionOpen()" class="btn btn-sm btn-outline-success marb10">
                     {{ 'sitnet_add_extra_working_hour' | translate }}
                 </button>
             </div>
