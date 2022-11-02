@@ -1093,5 +1093,7 @@
   "sitnet_time_overlaps_error": "Time range overlaps with another one. Please check your inputs",
   "sitnet_starting_cannot_be_after_ending": "Starting time cannot be after ending time.",
   "sitnet_add_out_of_service_time": "Lisää poikkeuskiinnioloaika EN",
-  "sitnet_add_extra_working_hour": "Lisää poikkeusaukioloaika EN"
+  "sitnet_add_extra_working_hour": "Lisää poikkeusaukioloaika EN",
+  "sitnet_maintenance_period_removed": "Huoltokatko poistettu EN",
+  "sitnet_maintenance_period_updated": "Huoltokatko päivitetty EN"
 }
