@@ -5,14 +5,7 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.inject.Inject;
@@ -184,9 +177,9 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             appendCell(valueRow, value);
         }
         int questionNumber;
-        for (ExamSection es : exam.getExamSections()) {
+        for (ExamSection es : exam.getExamSections().stream().sorted().collect(Collectors.toList())) {
             questionNumber = 1;
-            for (ExamSectionQuestion esq : es.getSectionQuestions()) {
+            for (ExamSectionQuestion esq : es.getSectionQuestions().stream().sorted().collect(Collectors.toList())) {
                 String questionType = "";
                 switch (esq.getQuestion().getType()) {
                     case EssayQuestion:

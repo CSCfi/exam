@@ -100,8 +100,9 @@
                 </div>
             </div>
         </div>
-
-        <xm-reservation-details *ngIf="reservations" [reservations]="reservations" [isAdminView]="true">
-        </xm-reservation-details>
+        <div class="overflow-x-auto">
+            <xm-reservation-details *ngIf="reservations" [reservations]="reservations" [isAdminView]="true">
+            </xm-reservation-details>
+        </div>
     </div>
 </div>

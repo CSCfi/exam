@@ -35,12 +35,7 @@
             {{ 'sitnet_exam_feedback_config_instructions' | translate }}
         </span>
         <div class="review-attachment-button autoeval-button">
-            <a
-                class="pointer"
-                *ngIf="!examFeedbackConfig.enabled"
-                name="enableExamFeedbackConfig"
-                (click)="examFeedbackConfig.enabled = true; enable()"
-            >
+            <a class="pointer" *ngIf="!examFeedbackConfig.enabled" name="enableExamFeedbackConfig" (click)="enable()">
                 {{ 'sitnet_use' | translate }}</a
             >
             <a
@@ -48,7 +43,7 @@
                 *ngIf="examFeedbackConfig.enabled"
                 name="disableExamFeedbackConfig"
                 class="notinuse"
-                (click)="examFeedbackConfig.enabled = false; disable()"
+                (click)="disable()"
             >
                 {{ 'sitnet_do_not_use' | translate }}</a
             >

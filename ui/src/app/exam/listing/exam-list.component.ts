@@ -41,7 +41,6 @@ export class ExamListingComponent implements OnInit, OnDestroy {
     ];
     examsPredicate = 'examActiveEndDate';
     reverse = true;
-    filter = { text: '' };
     loader = { loading: false };
     exams: ExamListExam[] = [];
     subject = new Subject<string>();

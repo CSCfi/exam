@@ -248,6 +248,9 @@ $sitnet-background: #ffffff;
 .background-gray{
 background: gainsboro;
 }
+.background-light-blue{
+  background: lightcyan;
+}
 
 .sitnet-horizontal-line {
   background-color: $sitnet-common-light;
@@ -848,7 +851,7 @@ $sitnet-icon-size: 32px;
 }
 
 .border-none {
-  border: none
+  border: none !important;
 }
 .border-top-none {
   border-top: none !important;

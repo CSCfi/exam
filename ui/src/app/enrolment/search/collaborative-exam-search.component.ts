@@ -56,12 +56,15 @@ import { EnrolmentService } from '../enrolment.service';
             <b>"{{ filter.text }}"</b>
         </div>
         <div class="student-details-title-wrap padleft">
-            <button [hidden]="!loader.loading" class="btn btn-success">
-                {{ 'sitnet_searching' | translate }}...
-                <div class="spinner-border" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-            </button>
+            <div class="col" [hidden]="!loader.loading">
+                <button class="btn btn-sm btn-success">
+                    {{ 'sitnet_searching' | translate }}...
+                    <div role="status">
+                        <i class="spinner-border spinner-border-sm"></i>
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </button>
+            </div>
         </div>
 
         <div class="row">

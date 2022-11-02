@@ -1043,10 +1043,11 @@
   "sitnet_published_joint_exams": "Julkaistut ja esijulkaistut yhteistentit",
   "sitnet_expired_joint_exams": "Yhteistentit, joiden voimassaoloaika on päättynyt",
   "sitnet_joint_exam_drafts": "Yhteistenttiluonnokset",
+  "sitnet_show_all": "Näytä kaikki",
   "sitnet_exam_status_initialized": "Tentti aloitettu",
   "sitnet_removed": "Poistettu",
   "sitnet_exception_datetimes_info": "Tila pois käytöstä. Poikkeusaukioloajalla tarkoitetaan aina sitä, että tila on silloin pois käytöstä. FI",
-  "sitnet_maintenance_period_created": "Poikkeusaukioloaika luotu",
+  "sitnet_maintenance_period_created": "Huoltokatko lisätty",
   "sitnet_exam_assessment_settings": "Arviointiasetukset",
   "sitnet_exam_feedback_config": "Kysymysten ja vastausten julkaisu",
   "sitnet_exam_feedback_config_instructions": "Kun otat tämän toiminnon käyttöön opiskelijat näkevät tentin arvioinnin lukitsemisen jälkeen tekemänsä tentin arvosanan ja tehtäväpisteiden pisteiden lisäksi hänellä tentissä olleet kysymykset ja omat vastaukset. Monivalinnoissa ovat valinnat, eivät kaikkia vaihtoehtoja. Voit muuttaa valintaa ensimmäisen arvioinnin lukitsemiseen asti.",
@@ -1093,5 +1094,7 @@
   "sitnet_time_overlaps_error": "Time range overlaps with another one. Please check your inputs FI",
   "sitnet_starting_cannot_be_after_ending": "Starting time cannot be after ending time. FI",
   "sitnet_add_out_of_service_time": "Lisää poikkeuskiinnioloaika",
-  "sitnet_add_extra_working_hour": "Lisää poikkeusaukioloaika"
+  "sitnet_add_extra_working_hour": "Lisää poikkeusaukioloaika",
+  "sitnet_maintenance_period_removed": "Huoltokatko poistettu",
+  "sitnet_maintenance_period_updated": "Huoltokatko päivitetty"
 }

@@ -21,7 +21,7 @@
     </div>
 </div>
 
-<div class="main-row" [hidden]="inspections.length > 0">
+<div class="main-row mar0" [hidden]="inspections.length > 0">
     <div class="col-md-12">
         <div class="review-no-results">
             <i class="bi-exclamation-circle padl20 grayish"></i>
@@ -30,7 +30,7 @@
     </div>
 </div>
 
-<div class="main-row" [hidden]="hideItems || inspections.length === 0">
+<div class="main-row mar0" [hidden]="hideItems || inspections.length === 0">
     <div class="col-md-3">
         <div class="input-group">
             <input
@@ -47,7 +47,7 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="overflow-x-auto">
     <div class="col-md-12">
         <table class="table table-striped exams-table" [hidden]="hideItems">
             <thead>
