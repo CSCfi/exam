@@ -7,7 +7,7 @@
     <!-- toolbar -->
     <div class="top-row" *ngIf="user.isAdmin">
         <div class="col-md-12">
-            <a class="float-end btn btn-info" (click)="createExam()">
+            <a class="float-end btn btn-success" (click)="createExam()">
                 {{ 'sitnet_toolbar_new_exam' | translate }}
             </a>
         </div>
@@ -42,8 +42,7 @@
         <div class="col-md-4">
             <div class="form-group input-group">
                 <input
-                    [(ngModel)]="filter.text"
-                    (ngModelChange)="search($event)"
+                    (keyup)="search($event)"
                     type="text"
                     class="form-control search"
                     placeholder="{{ 'sitnet_search' | translate }}"
