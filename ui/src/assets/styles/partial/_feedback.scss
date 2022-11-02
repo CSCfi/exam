@@ -6,6 +6,9 @@
 
   .wrapper {
     z-index: 400;
+    @media (max-width: $sitnet-mobile) {
+      width: auto;
+    }
     padding: 1em;
     position: fixed;
     top: 80px;

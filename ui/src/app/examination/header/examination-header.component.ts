@@ -19,7 +19,7 @@ import type { Examination } from '../examination.model';
 @Component({
     selector: 'xm-examination-header',
     template: `<div class="row">
-        <div class="col-md-12 padr0 padl0">
+        <div class="padr0 padl0 hidden-mobile">
             <div class="exam-header">
                 <div class="exam-header-img-wrap">
                     <img
@@ -29,7 +29,7 @@ import type { Examination } from '../examination.model';
                     />
                 </div>
                 <div class="exam-header-title divider"></div>
-                <div class="exam-header-title width-100">
+                <div class="exam-header-title width-100 marl20 marr20">
                     {{ exam.course?.name }}
                     <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code>
                 </div>
@@ -41,6 +41,33 @@ import type { Examination } from '../examination.model';
                 </div>
                 <xm-examination-clock *ngIf="!isPreview" [examHash]="exam.hash" (timedOut)="notifyTimeout()">
                 </xm-examination-clock>
+            </div>
+        </div>
+        <div class="padr0 padl0 visible-mobile">
+            <xm-examination-clock *ngIf="!isPreview" [examHash]="exam.hash" (timedOut)="notifyTimeout()">
+            </xm-examination-clock>
+            <div class="exam-mobile-header padt40">
+                <div class="row">
+                    <div class="exam-header-title col marl20 marr20">
+                        {{ exam.course?.name }}
+                        <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code>
+                    </div>
+                </div>
+                <div class="exam-header-title mobile-divider row"></div>
+                <div class="row">
+                    <div class="exam-header-img-wrap col">
+                        <img
+                            src="/assets/images//exam-logo-mobile.svg"
+                            alt="exam"
+                            onerror="this.onerror=null;this.src='/assets/images/exam-logo-mobile.png'"
+                        />
+                    </div>
+                    <div class="language-selector col">
+                        <button tabindex="1" class="green_button marl10" (click)="switchLanguage('fi')">FI</button>
+                        <button tabindex="1" class="green_button marl10" (click)="switchLanguage('sv')">SV</button>
+                        <button tabindex="1" class="green_button marl10" (click)="switchLanguage('en')">EN</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div> `,
