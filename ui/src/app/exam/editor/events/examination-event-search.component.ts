@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { addDays, parseISO } from 'date-fns';
+import { addDays, addMonths, parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { EnrolmentService } from '../../../enrolment/enrolment.service';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
