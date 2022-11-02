@@ -19,7 +19,7 @@ import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import { RoomService } from './room.service';
 
-type SelectableRoom = ExamRoom & { selected: boolean };
+type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
 
 @Component({
     selector: 'xm-room-mass-edit',
@@ -40,7 +40,7 @@ type SelectableRoom = ExamRoom & { selected: boolean };
                             </button>
                         </div>
                     </div>
-                    <div class="row mt-2">
+                    <div class="row mt-2 marb20">
                         <div class="col-md-12">
                             <div class="form-check">
                                 <input
@@ -58,6 +58,16 @@ type SelectableRoom = ExamRoom & { selected: boolean };
                                     <strong>{{ 'sitnet_select_all_rooms' | translate }}</strong>
                                 </label>
                             </div>
+                            <div>
+                                <label class="form-check-label marl5 " for="flexCheckIndeterminate">
+                                    <strong>{{ 'sitnet_show_all' | translate }}</strong>
+                                </label>
+                                <i
+                                    class="user-select-none marl5"
+                                    [ngClass]="showBreaks ? 'bi-chevron-down' : 'bi-chevron-right'"
+                                    (click)="switchShowAll()"
+                                ></i>
+                            </div>
                         </div>
                     </div>
                     <div *ngFor="let room of selectableRooms">
@@ -74,11 +84,16 @@ type SelectableRoom = ExamRoom & { selected: boolean };
                                     <label class="form-check-label" for="room"
                                         ><strong>{{ room.name || 'sitnet_no_name' | translate }}</strong></label
                                     >
+                                    <i
+                                        class="user-select-none marl5"
+                                        [ngClass]="room.showBreaks ? 'bi-chevron-down' : 'bi-chevron-right'"
+                                        (click)="room.showBreaks = !room.showBreaks"
+                                    ></i>
                                 </div>
                             </div>
                         </div>
                         <div class="row ms-3">
-                            <div class="col-md-12">
+                            <div class="col-md-12" *ngIf="room.showBreaks">
                                 <xm-exceptions
                                     [exceptions]="room.calendarExceptionEvents"
                                     (removed)="deleteException($event)"
@@ -107,6 +122,7 @@ export class MultiRoomComponent implements OnInit, OnChanges {
     selectableRooms: SelectableRoom[] = [];
     roomIds: number[] = [];
     allSelected = false;
+    showBreaks = false;
 
     constructor(private toast: ToastrService, private roomService: RoomService) {}
 
@@ -140,6 +156,11 @@ export class MultiRoomComponent implements OnInit, OnChanges {
 
     selectAll = () => {
         this.selectableRooms.forEach((r) => (r.selected = this.allSelected));
+    };
+
+    switchShowAll = () => {
+        this.showBreaks = !this.showBreaks;
+        this.selectableRooms.forEach((r) => (r.showBreaks = this.showBreaks));
     };
 
     private loadRooms = () => {

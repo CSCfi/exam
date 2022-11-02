@@ -69,196 +69,197 @@
         </div>
     </div>
 
-    <table class="table table-striped exams-table">
-        <thead>
-            <tr>
-                <th class="with-top">
-                    <xm-table-sort
-                        by="exam.course.code"
-                        text="sitnet_code"
-                        [predicate]="sorting.predicate"
-                        [reverse]="sorting.reverse"
-                        (click)="setPredicate('exam.course.code')"
-                    >
-                    </xm-table-sort>
-                </th>
-                <th class="with-top">
-                    <xm-table-sort
-                        by="answerLanguage"
-                        text="sitnet_language"
-                        [predicate]="sorting.predicate"
-                        [reverse]="sorting.reverse"
-                        (click)="setPredicate('answerLanguage')"
-                    >
-                    </xm-table-sort>
-                </th>
-                <th class="with-top">
-                    <xm-table-sort
-                        by="exam.name"
-                        text="sitnet_exam_name"
-                        [predicate]="sorting.predicate"
-                        [reverse]="sorting.reverse"
-                        (click)="setPredicate('exam.name')"
-                    >
-                    </xm-table-sort>
-                </th>
-                <th class="with-top">
-                    <xm-table-sort
-                        by="ownerAggregate"
-                        text="sitnet_teachers"
-                        [predicate]="sorting.predicate"
-                        [reverse]="sorting.reverse"
-                        (click)="setPredicate('ownerAggregate')"
-                    >
-                    </xm-table-sort>
-                </th>
-                <th class="with-top">
-                    <xm-table-sort
-                        by="created"
-                        text="sitnet_arrived"
-                        [predicate]="sorting.predicate"
-                        [reverse]="sorting.reverse"
-                        (click)="setPredicate('created')"
-                    >
-                    </xm-table-sort>
-                </th>
-                <th class="with-top">
-                    <xm-table-sort
-                        by="studentNameAggregate"
-                        text="sitnet_student"
-                        [predicate]="sorting.predicate"
-                        [reverse]="sorting.reverse"
-                        (click)="setPredicate('studentNameAggregate')"
-                    >
-                    </xm-table-sort>
-                </th>
-                <th class="with-top">
-                    <xm-table-sort
-                        by="exam.created"
-                        text="sitnet_finished"
-                        [predicate]="sorting.predicate"
-                        [reverse]="sorting.reverse"
-                        (click)="setPredicate('exam.created')"
-                    >
-                    </xm-table-sort>
-                </th>
-                <th class="with-top">
-                    <xm-table-sort
-                        by="inspectorNameAggregate"
-                        text="sitnet_language_inspector"
-                        [predicate]="sorting.predicate"
-                        [reverse]="sorting.reverse"
-                        (click)="setPredicate('inspectorNameAggregate')"
-                    >
-                    </xm-table-sort>
-                </th>
-                <th class="with-top">
-                    <xm-table-sort
-                        by="finishedAt"
-                        text="sitnet_inspection_finished"
-                        [predicate]="sorting.predicate"
-                        [reverse]="sorting.reverse"
-                        (click)="setPredicate('finishedAt')"
-                    >
-                    </xm-table-sort>
-                </th>
-                <th class="with-top">
-                    <xm-table-sort
-                        by="approved"
-                        text="sitnet_language_inspections"
-                        [predicate]="sorting.predicate"
-                        [reverse]="sorting.reverse"
-                        (click)="setPredicate('approved')"
-                    >
-                    </xm-table-sort>
-                </th>
-                <th class="with-top">{{ 'sitnet_feedback' | translate }}</th>
-            </tr>
-        </thead>
+    <div class="overflow-x-auto">
+        <table class="table table-striped exams-table">
+            <thead>
+                <tr>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="exam.course.code"
+                            text="sitnet_code"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('exam.course.code')"
+                        >
+                        </xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="answerLanguage"
+                            text="sitnet_language"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('answerLanguage')"
+                        >
+                        </xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="exam.name"
+                            text="sitnet_exam_name"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('exam.name')"
+                        >
+                        </xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="ownerAggregate"
+                            text="sitnet_teachers"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('ownerAggregate')"
+                        >
+                        </xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="created"
+                            text="sitnet_arrived"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('created')"
+                        >
+                        </xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="studentNameAggregate"
+                            text="sitnet_student"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('studentNameAggregate')"
+                        >
+                        </xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="exam.created"
+                            text="sitnet_finished"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('exam.created')"
+                        >
+                        </xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="inspectorNameAggregate"
+                            text="sitnet_language_inspector"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('inspectorNameAggregate')"
+                        >
+                        </xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="finishedAt"
+                            text="sitnet_inspection_finished"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('finishedAt')"
+                        >
+                        </xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="approved"
+                            text="sitnet_language_inspections"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('approved')"
+                        >
+                        </xm-table-sort>
+                    </th>
+                    <th class="with-top">{{ 'sitnet_feedback' | translate }}</th>
+                </tr>
+            </thead>
 
-        <tbody>
-            <tr
-                *ngFor="
-                    let inspection of filteredInspections
-                        | orderBy: sorting.predicate:sorting.reverse
-                        | slice: currentPage * pageSize:currentPage * pageSize + pageSize
-                "
-            >
-                <!-- 1 -->
-                <td>
-                    {{ inspection.exam.course?.code }}
-                </td>
-                <!-- 2 -->
-                <td>
-                    {{ inspection.answerLanguage }}
-                </td>
-                <!-- 3 -->
-                <td>
-                    <a class="table-column-examname" [routerLink]="['/staff/assessments', inspection.exam.id]">
-                        {{ inspection.exam.name }}
-                    </a>
-                </td>
-                <!-- 4 -->
-                <td>
-                    {{ inspection.ownerAggregate }}
-                </td>
-                <!-- 5 -->
-                <td>{{ inspection.created | date: 'dd.MM.yyyy' }}</td>
-                <!-- 6 -->
-                <td>
-                    <span>{{ inspection.studentName }}</span>
-                    <span *ngIf="inspection.exam.creator.userIdentifier"
-                        >&nbsp;({{ inspection.exam.creator.userIdentifier }})</span
-                    >
-                    <span>
-                        <br />
-                        <a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{
-                            inspection.exam.creator.email
+            <tbody>
+                <tr
+                    *ngFor="
+                        let inspection of filteredInspections
+                            | orderBy: sorting.predicate:sorting.reverse
+                            | slice: currentPage * pageSize:currentPage * pageSize + pageSize
+                    "
+                >
+                    <!-- 1 -->
+                    <td>
+                        {{ inspection.exam.course?.code }}
+                    </td>
+                    <!-- 2 -->
+                    <td>
+                        {{ inspection.answerLanguage }}
+                    </td>
+                    <!-- 3 -->
+                    <td>
+                        <a class="table-column-examname" [routerLink]="['/staff/assessments', inspection.exam.id]">
+                            {{ inspection.exam.name }}
+                        </a>
+                    </td>
+                    <!-- 4 -->
+                    <td>
+                        {{ inspection.ownerAggregate }}
+                    </td>
+                    <!-- 5 -->
+                    <td>{{ inspection.created | date: 'dd.MM.yyyy' }}</td>
+                    <!-- 6 -->
+                    <td>
+                        <span>{{ inspection.studentName }}</span>
+                        <span *ngIf="inspection.exam.creator.userIdentifier"
+                            >&nbsp;({{ inspection.exam.creator.userIdentifier }})</span
+                        >
+                        <span>
+                            <br />
+                            <a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{
+                                inspection.exam.creator.email
+                            }}</a>
+                        </span>
+                    </td>
+                    <!-- 7 -->
+                    <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
+                    <!-- 8 -->
+                    <td *ngIf="inspection.modifier">
+                        <span>{{ inspection.inspectorName }} </span>
+                        <span>
+                            <br />
+                            <a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{
+                                inspection.modifier.email
+                            }}</a>
+                        </span>
+                    </td>
+                    <!-- 9 -->
+                    <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
+                    <!-- 10 -->
+                    <td>
+                        <span *ngIf="inspection.approved" class="approved">
+                            {{ 'sitnet_approved' | translate }}
+                        </span>
+                        <span *ngIf="!inspection.approved" class="rejected">
+                            {{ 'sitnet_rejected' | translate }}
+                        </span>
+                    </td>
+                    <!-- 11 -->
+                    <td>
+                        <a class="pointer smaller" (click)="showStatement(inspection.statement)">{{
+                            'sitnet_view' | translate
                         }}</a>
-                    </span>
-                </td>
-                <!-- 7 -->
-                <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
-                <!-- 8 -->
-                <td *ngIf="inspection.modifier">
-                    <span>{{ inspection.inspectorName }} </span>
-                    <span>
-                        <br />
-                        <a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{
-                            inspection.modifier.email
-                        }}</a>
-                    </span>
-                </td>
-                <!-- 9 -->
-                <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
-                <!-- 10 -->
-                <td>
-                    <span *ngIf="inspection.approved" class="approved">
-                        {{ 'sitnet_approved' | translate }}
-                    </span>
-                    <span *ngIf="!inspection.approved" class="rejected">
-                        {{ 'sitnet_rejected' | translate }}
-                    </span>
-                </td>
-                <!-- 11 -->
-                <td>
-                    <a class="pointer smaller" (click)="showStatement(inspection.statement)">{{
-                        'sitnet_view' | translate
-                    }}</a>
-                </td>
-            </tr>
-            <!--Fill if page not full-->
-            <tr *ngFor="let r of [] | pageFill: filteredInspections.length:currentPage:pageSize">
-                <td class="table-column-bold" colspan="11">&nbsp;</td>
-            </tr>
-            <tr *ngIf="filteredInspections.length === 0">
-                <td class="table-column-bold" colspan="11">
-                    {{ 'sitnet_processed_language_inspections_no_results' | translate }}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
+                    </td>
+                </tr>
+                <!--Fill if page not full-->
+                <tr *ngFor="let r of [] | pageFill: filteredInspections.length:currentPage:pageSize">
+                    <td class="table-column-bold" colspan="11">&nbsp;</td>
+                </tr>
+                <tr *ngIf="filteredInspections.length === 0">
+                    <td class="table-column-bold" colspan="11">
+                        {{ 'sitnet_processed_language_inspections_no_results' | translate }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
     <div [hidden]="filteredInspections.length <= pageSize">
         <xm-paginator
             [items]="filteredInspections"

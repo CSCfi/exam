@@ -1,6 +1,6 @@
 <div id="dashboard">
-    <div class="row ms-4 me-4 mt-4">
-        <div class="col-md-12 ps-4">
+    <div class="reservation-border mobile-paddings border-none">
+        <div class="col-md-12">
             <div class="row mt-4">
                 <div class="col-md-12">
                     <div style="display: inline-block">
@@ -44,7 +44,7 @@
                 </div>
             </div>
 
-            <div class="row mt-4" *ngIf="events.length > 0">
+            <div class="mt-4 overflow-x-auto" *ngIf="events.length > 0">
                 <div class="col-md-12">
                     <table class="table table-striped exams-table">
                         <thead>
@@ -130,10 +130,10 @@
                                 </td>
                                 <!-- 4 -->
                                 <td>
-                                    {{ event.examinationEvent?.start | date: 'dd.MM.yyyy hh:mm' }} -
+                                    {{ event.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm' }} -
                                     {{
                                         getEventEndTime(event.examinationEvent?.start, event.exam?.duration)
-                                            | date: 'hh:mm'
+                                            | date: 'HH:mm'
                                     }}
                                 </td>
                                 <!-- 5 -->

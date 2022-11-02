@@ -21,7 +21,7 @@ import { EnrolmentService } from '../enrolment.service';
 @Component({
     selector: 'xm-exam-search-result',
     template: `<div
-        class="student-enrolment-result-wrapper max-w-1100 container"
+        class="student-enrolment-result-wrapper max-w-1100"
         [ngClass]="exam.alreadyEnrolled && exam.reservationMade ? '' : 'notactive'"
     >
         <div class="row">
