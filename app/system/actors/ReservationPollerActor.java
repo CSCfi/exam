@@ -43,11 +43,11 @@ public class ReservationPollerActor extends AbstractActor {
     private boolean isPast(ExamEnrolment ee) {
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
         if (ee.getExaminationEventConfiguration() == null && ee.getReservation() != null) {
-            return ee.getReservation().getEndAt().isAfter(now);
+            return ee.getReservation().getEndAt().isBefore(now);
         } else if (ee.getExaminationEventConfiguration() != null) {
             int duration = ee.getExam().getDuration();
             DateTime start = ee.getExaminationEventConfiguration().getExaminationEvent().getStart();
-            return start.plusMinutes(duration).isAfter(now);
+            return start.plusMinutes(duration).isBefore(now);
         }
         return false;
     }
