@@ -1043,6 +1043,7 @@
   "sitnet_published_joint_exams": "Published and pre-published joint exams",
   "sitnet_expired_joint_exams": "Expired joint exams",
   "sitnet_joint_exam_drafts": "Joint exam drafts",
+  "sitnet_show_all": "Show all",
   "sitnet_exam_status_initialized": "Exam started EN",
   "sitnet_removed": "Removed",
   "sitnet_exception_datetimes_info": "Tila pois käytöstä. Poikkeusaukioloajalla tarkoitetaan aina sitä, että tila on silloin pois käytöstä. EN",

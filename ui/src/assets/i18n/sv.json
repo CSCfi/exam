@@ -1043,6 +1043,7 @@
   "sitnet_published_joint_exams": "Publicedare och förhandspublicerade gemensamma tentamina",
   "sitnet_expired_joint_exams": "Stängda gemensamma tentamina",
   "sitnet_joint_exam_drafts": "Gemensamma tentamina utkasts",
+  "sitnet_show_all": "Näytä kaikki SV",
   "sitnet_exam_status_initialized": "Tentti aloitettu SV",
   "sitnet_removed": "Removed SV",
   "sitnet_exception_datetimes_info": "Tila pois käytöstä. Poikkeusaukioloajalla tarkoitetaan aina sitä, että tila on silloin pois käytöstä. SV",
