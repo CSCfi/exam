@@ -15,6 +15,7 @@ import { MultiRoomComponent } from './rooms/room-mass-edit.component';
 import { RoomComponent } from './rooms/room.component';
 import { RoomService } from './rooms/room.service';
 import { RoomListComponent } from './rooms/rooms.component';
+import { ExceptionDeleteDialogComponent } from './schedule/exception-delete-dialog.component';
 import { ExceptionDialogComponent } from './schedule/exception-dialog.component';
 import { ExceptionListComponent } from './schedule/exceptions.component';
 import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-dialog.component';
@@ -35,6 +36,7 @@ import { StartingTimeComponent } from './schedule/starting-time.component';
     declarations: [
         FacilityComponent,
         ExceptionDialogComponent,
+        ExceptionDeleteDialogComponent,
         ExceptionListComponent,
         MaintenancePeriodDialogComponent,
         OpenHoursComponent,

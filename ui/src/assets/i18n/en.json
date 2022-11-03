@@ -1096,5 +1096,6 @@
   "sitnet_add_out_of_service_time": "Lisää poikkeuskiinnioloaika EN",
   "sitnet_add_extra_working_hour": "Lisää poikkeusaukioloaika EN",
   "sitnet_maintenance_period_removed": "Huoltokatko poistettu EN",
-  "sitnet_maintenance_period_updated": "Huoltokatko päivitetty EN"
+  "sitnet_maintenance_period_updated": "Huoltokatko päivitetty EN",
+  "sitnet_remove_exception_confirmation": "Confirm exception deletion"
 }
