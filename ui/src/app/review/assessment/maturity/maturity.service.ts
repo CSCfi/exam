@@ -34,7 +34,7 @@ type State = {
     warn: boolean;
     validate?: (exam: Exam) => boolean;
     showHint?: (exam: Exam) => boolean;
-    hint?: string;
+    hint?: (exam: Exam) => string;
     alternateState?: StateName;
 };
 export enum StateName {
@@ -71,6 +71,19 @@ export class MaturityService {
     canFinalizeInspection = (exam: Exam): boolean =>
         exam.languageInspection?.statement?.comment ? exam.languageInspection.statement.comment.length > 0 : false;
 
+    resolveHint = (exam: Exam) => {
+        if (!this.isGraded(exam) && this.isMissingStatement(exam)) {
+            return `${this.translate.instant('sitnet_not_reviewed')}, ${this.translate.instant(
+                'sitnet_missing_content_statement',
+            )}`;
+        } else if (this.isGraded(exam) && this.isMissingStatement(exam)) {
+            return this.translate.instant('sitnet_missing_content_statement');
+        } else if (!this.isMissingStatement(exam) && !this.isGraded(exam)) {
+            return this.translate.instant('sitnet_not_reviewed');
+        }
+        return '';
+    };
+
     // eslint-disable-next-line @typescript-eslint/member-ordering
     MATURITY_STATES: States = {
         [StateName.NOT_REVIEWED]: {
@@ -80,7 +93,7 @@ export class MaturityService {
             canProceed: false,
             warn: false,
             showHint: (exam) => !this.isGraded(exam),
-            hint: 'sitnet_not_reviewed',
+            hint: this.resolveHint,
         },
         [StateName.REJECT_STRAIGHTAWAY]: {
             id: 2,
@@ -111,7 +124,7 @@ export class MaturityService {
             warn: true,
             validate: this.canFinalizeInspection,
             showHint: this.isMissingStatement,
-            hint: 'sitnet_missing_statement',
+            hint: () => 'sitnet_missing_statement',
         },
         [StateName.APPROVE_LANGUAGE]: {
             id: 6,
@@ -121,7 +134,7 @@ export class MaturityService {
             warn: false,
             validate: this.canFinalizeInspection,
             showHint: this.isMissingStatement,
-            hint: 'sitnet_missing_statement',
+            hint: () => 'sitnet_missing_statement',
             alternateState: StateName.REJECT_LANGUAGE,
         },
         [StateName.MISSING_STATEMENT]: {
@@ -131,7 +144,7 @@ export class MaturityService {
             canProceed: false,
             warn: false,
             showHint: this.isMissingStatement,
-            hint: 'sitnet_missing_statement',
+            hint: this.resolveHint,
         },
     };
 

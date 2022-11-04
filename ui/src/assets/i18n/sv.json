@@ -1096,5 +1096,7 @@
   "sitnet_add_out_of_service_time": "Lisää poikkeuskiinnioloaika SV",
   "sitnet_add_extra_working_hour": "Lisää poikkeusaukioloaika SV",
   "sitnet_maintenance_period_removed": "Huoltokatko poistettu SV",
-  "sitnet_maintenance_period_updated": "Huoltokatko päivitetty SV"
+  "sitnet_maintenance_period_updated": "Huoltokatko päivitetty SV",
+  "sitnet_give_content_statement": "Anna sisällöntarkastuksen lausunto SV",
+  "sitnet_missing_content_statement": "Sisällöntarkastuksen lausunto puuttuu SV"
 }
