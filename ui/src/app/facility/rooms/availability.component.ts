@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import type { CalendarEvent } from 'calendar-utils';
 import { addHours, format } from 'date-fns';
@@ -39,9 +39,9 @@ import { RoomService } from './room.service';
     ],
 })
 export class AvailabilityComponent implements OnInit {
+    @Input() room!: ExamRoom;
     openingHours: OpeningHours[] = [];
     exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
-    room!: ExamRoom;
     events: CalendarEvent<SlotMeta>[] = [];
 
     constructor(
@@ -53,11 +53,12 @@ export class AvailabilityComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.roomService.getRoom$(this.route.snapshot.params.id).subscribe((room) => {
-            this.openingHours = this.calendar.processOpeningHours(room);
-            this.exceptionHours = this.calendar.getExceptionalAvailability(room);
-            this.room = room;
-        });
+        if (!this.room) {
+            console.error('No room given for availability.component');
+            return;
+        }
+        this.openingHours = this.calendar.processOpeningHours(this.room);
+        this.exceptionHours = this.calendar.getExceptionalAvailability(this.room);
     }
 
     query$ = (date: string) => this.roomService.getAvailability$(this.room.id, date);
