@@ -64,8 +64,8 @@ export class ExceptionDialogComponent {
         });
         this.monthOfYear = this.selectableMonths[0];
         this.selectedOrdinal = this.ordinals[0];
-        this.startTime = { hour: this.date.getHours(), minute: 60, second: 0 };
-        this.endTime = { hour: this.date.getHours(), minute: 60, second: 0 };
+        this.startTime = { hour: this.date.getHours(), minute: 0, second: 0 };
+        this.endTime = { hour: this.date.getHours(), minute: 0, second: 0 };
     }
 
     ok = () => {
@@ -229,7 +229,7 @@ export class ExceptionDialogComponent {
                     ' - ' +
                     this.endTime.hour +
                     ':' +
-                    (this.startTime.minute.toString().length === 1 && '0') +
+                    (this.endTime.minute.toString().length === 1 && '0') +
                     this.endTime.minute +
                     '.',
             )
@@ -302,12 +302,30 @@ export class ExceptionDialogComponent {
     onStartDateChange(e: { date: Date | null }) {
         if (e.date) {
             this.startDate = new Date(e.date);
+            if (this.endDate < e.date) {
+                this.endDate = new Date(e.date);
+            }
         }
     }
 
     onEndDateChange(e: { date: Date | null }) {
         if (e.date) {
             this.endDate = new Date(e.date);
+            if (this.startDate > e.date) {
+                this.startDate = new Date(e.date);
+            }
+        }
+    }
+
+    onStartTimeChange() {
+        if (this.startTime.hour * 100 + this.startTime.minute > this.endTime.hour * 100 + this.endTime.minute) {
+            this.endTime = this.startTime;
+        }
+    }
+
+    onEndTimeChange() {
+        if (this.startTime.hour * 100 + this.startTime.minute > this.endTime.hour * 100 + this.endTime.minute) {
+            this.startTime = this.endTime;
         }
     }
 
