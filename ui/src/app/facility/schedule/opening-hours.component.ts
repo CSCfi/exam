@@ -106,6 +106,7 @@ interface RoomWithAddressVisibility extends ExamRoom {
                         size="small"
                         [minuteStep]="15"
                         [(ngModel)]="newTime.pickStartingTime"
+                        (ngModelChange)="onStartTimeChange()"
                     ></ngb-timepicker>
                     <div class="align-self-center">-</div>
                     <ngb-timepicker
@@ -113,6 +114,7 @@ interface RoomWithAddressVisibility extends ExamRoom {
                         size="small"
                         [minuteStep]="15"
                         [(ngModel)]="newTime.pickEndingTime"
+                        (ngModelChange)="onEndTimeChange()"
                     ></ngb-timepicker>
                 </div>
             </div>
@@ -222,6 +224,24 @@ export class OpenHoursComponent implements OnInit, OnChanges {
     }
 
     updateNewTime = (weekday: string) => (this.newTime.weekday = weekday);
+
+    onStartTimeChange() {
+        if (
+            this.newTime.pickStartingTime.hour * 100 + this.newTime.pickStartingTime.minute >
+            this.newTime.pickEndingTime.hour * 100 + this.newTime.pickEndingTime.minute
+        ) {
+            this.newTime.pickEndingTime = this.newTime.pickStartingTime;
+        }
+    }
+
+    onEndTimeChange() {
+        if (
+            this.newTime.pickStartingTime.hour * 100 + this.newTime.pickStartingTime.minute >
+            this.newTime.pickEndingTime.hour * 100 + this.newTime.pickEndingTime.minute
+        ) {
+            this.newTime.pickStartingTime = this.newTime.pickEndingTime;
+        }
+    }
 
     init = () =>
         (this.extendedRoom = {
