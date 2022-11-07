@@ -1098,5 +1098,6 @@
   "sitnet_maintenance_period_removed": "Huoltokatko poistettu SV",
   "sitnet_maintenance_period_updated": "Huoltokatko päivitetty SV",
   "sitnet_give_content_statement": "Anna sisällöntarkastuksen lausunto SV",
-  "sitnet_missing_content_statement": "Sisällöntarkastuksen lausunto puuttuu SV"
+  "sitnet_missing_content_statement": "Sisällöntarkastuksen lausunto puuttuu SV",
+  "sitnet_remove_exception_confirmation": "Vahvista poikkeusajan poisto. SV"
 }

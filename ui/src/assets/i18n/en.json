@@ -1098,5 +1098,6 @@
   "sitnet_maintenance_period_removed": "Huoltokatko poistettu EN",
   "sitnet_maintenance_period_updated": "Huoltokatko päivitetty EN",
   "sitnet_give_content_statement": "Anna sisällöntarkastuksen lausunto EN",
-  "sitnet_missing_content_statement": "Sisällöntarkastuksen lausunto puuttuu EN"
+  "sitnet_missing_content_statement": "Sisällöntarkastuksen lausunto puuttuu EN",
+  "sitnet_remove_exception_confirmation": "Confirm exception deletion EN"
 }
