@@ -68,7 +68,7 @@ import { MaturityService } from './maturity.service';
             >
                 <span *ngIf="isMissingStatement()" class="text-danger"
                     >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
-                        getNextState()?.hint || '' | translate
+                        getNextState()?.hint(exam) || '' | translate
                     }}</span
                 >
             </div>
@@ -78,7 +78,7 @@ import { MaturityService } from './maturity.service';
             >
                 <span *ngIf="getNextState()?.hint" class="text-danger"
                     >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
-                        getNextState()?.hint || '' | translate
+                        getNextState()?.hint(exam) || '' | translate
                     }}</span
                 >
             </div>
