@@ -122,6 +122,12 @@ export class ExamAssessmentComponent implements OnInit, OnDestroy {
                     scaleChange: resetAutoEvaluationConfig,
                     initScale: false,
                 });
+                if (this.examFeedbackConfig.enabled === false) {
+                    delete this.exam.examFeedbackConfig;
+                }
+                if (this.autoEvaluation.enabled === false) {
+                    delete this.exam.autoEvaluationConfig;
+                }
             },
             error: (err) => this.toast.error(err),
         });

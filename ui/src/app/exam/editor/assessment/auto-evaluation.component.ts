@@ -83,7 +83,7 @@ export class AutoEvaluationComponent implements OnInit, OnChanges {
         this.updated.emit({ config: this.config });
     };
 
-    selectedReleaseType = () => this.autoevaluation.releaseTypes.find((rt) => rt.filtered);
+    selectedReleaseType = () => this.autoevaluation.releaseTypes.find((rt) => rt.filtered || 'ONCE_LOCKED');
 
     calculateExamMaxScore = () => this.Exam.getMaxScore(this.exam);
 
