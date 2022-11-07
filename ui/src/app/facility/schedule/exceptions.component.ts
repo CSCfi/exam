@@ -13,9 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
+import { from } from 'rxjs';
 import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 import { RoomService } from '../rooms/room.service';
+import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.component';
 
 @Component({
     selector: 'xm-exceptions',
@@ -68,7 +73,12 @@ export class ExceptionListComponent implements OnInit, OnChanges {
 
     orderedExceptions: ExceptionWorkingHours[] = [];
 
-    constructor(private roomService: RoomService) {
+    constructor(
+        private roomService: RoomService,
+        private Confirmation: ConfirmationDialogService,
+        private translate: TranslateService,
+        private modal: NgbModal,
+    ) {
         this.filter = () => true;
     }
 
@@ -101,9 +111,20 @@ export class ExceptionListComponent implements OnInit, OnChanges {
     createExceptionCallback = (exception: ExceptionWorkingHours[]) => this.created.emit(exception);
 
     deleteException = (exception: ExceptionWorkingHours) => {
-        this.exceptions = this.exceptions.splice(this.exceptions.indexOf(exception), 1);
-        this.init();
-        this.removed.emit(exception);
+        const modal = this.modal.open(ExceptionDeleteDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'lg',
+        });
+        modal.componentInstance.message = this.formatDate(exception);
+        modal.componentInstance.exception = exception;
+        from(modal.result).subscribe({
+            next: () => {
+                this.exceptions = this.exceptions.splice(this.exceptions.indexOf(exception), 1);
+                this.init();
+                this.removed.emit(exception);
+            },
+        });
     };
 
     private init = () =>
