@@ -46,7 +46,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                 </div>
                 <div class="col-md-11">
                     <div class="vcenter">
-                        {{ 'sitnet_give_feedback' | translate }}
+                        {{ title | translate }}
                     </div>
                 </div>
             </div>
@@ -89,6 +89,7 @@ export class FeedbackComponent implements OnInit {
     @Input() collaborative = false;
     @Input() participation!: ExamParticipation;
     feedbackComment = '';
+    title = '';
 
     hideEditor = false;
     id = 0;
@@ -105,6 +106,8 @@ export class FeedbackComponent implements OnInit {
     ngOnInit() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
+        this.title =
+            this.exam.executionType.type === 'MATURITY' ? 'sitnet_give_content_statement' : 'sitnet_give_feedback';
     }
 
     toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);
