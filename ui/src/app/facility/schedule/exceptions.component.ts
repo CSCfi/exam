@@ -120,7 +120,7 @@ export class ExceptionListComponent implements OnInit, OnChanges {
         modal.componentInstance.exception = exception;
         from(modal.result).subscribe({
             next: () => {
-                this.exceptions = this.exceptions.splice(this.exceptions.indexOf(exception), 1);
+                this.exceptions.splice(this.exceptions.indexOf(exception), 1);
                 this.init();
                 this.removed.emit(exception);
             },
