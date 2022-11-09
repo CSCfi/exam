@@ -15,7 +15,6 @@ import models.questions.Question;
 import org.joda.time.DateTime;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
-import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
@@ -77,7 +76,7 @@ public class ExamAnswerController extends BaseController {
             .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
             .findOneOrEmpty();
         if (oe.isEmpty() || !canReleaseAnswers(oe.get())) {
-            return ok(Json.newObject());
+            return ok();
         }
         Exam exam = oe.get();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
