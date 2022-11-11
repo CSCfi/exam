@@ -188,7 +188,7 @@
     </div>
     <div
         class="row evaluation-padtop margin-20"
-        *ngIf="!collaborative && assessmentWithAnswers && assessment.state === 'GRADED_LOGGED'"
+        *ngIf="!collaborative && assessmentWithAnswers && assessment.state === 'GRADED_LOGGED' && !assessment.gradeless"
     >
         <div class="row">
             <div class="col-md-12">{{ 'sitnet_questions_with_your_answers' | translate }}:</div>
@@ -203,7 +203,12 @@
     </div>
     <div
         class="row evaluation-padtop margin-20"
-        *ngIf="!collaborative && assessment.executionType.type !== 'MATURITY' && assessment.state === 'GRADED_LOGGED'"
+        *ngIf="
+            !collaborative &&
+            assessment.executionType.type !== 'MATURITY' &&
+            assessment.state === 'GRADED_LOGGED' &&
+            !assessment.gradeless
+        "
     >
         <div class="col-md-12">
             <div class="row">
