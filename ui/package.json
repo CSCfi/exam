@@ -10,7 +10,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --output-path ../public",
+    "build": "ng build --build-optimizer false --output-path ../public",
     "analyze": "ng build --stats-json && webpack-bundle-analyzer dist/exam/stats.json",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
