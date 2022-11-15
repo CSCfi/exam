@@ -337,32 +337,31 @@ public class RoomController extends BaseController {
         final JsonNode exceptionsNode = request.body().asJson().get("exceptions");
         final JsonNode ids = request.body().asJson().get("roomIds");
 
-        List<ExceptionWorkingHours> exceptions = StreamSupport
-            .stream(exceptionsNode.spliterator(), false)
-            .map(this::parse)
-            .collect(Collectors.toList());
-
         List<Long> roomIds = StreamSupport
             .stream(ids.spliterator(), false)
             .map(JsonNode::asLong)
             .collect(Collectors.toList());
         List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().idIn(roomIds).findList();
-
-        exceptions.forEach(hours -> {
-            for (ExamRoom room : rooms) {
-                hours.setStartDateTimezoneOffset(
-                    DateTimeZone.forID(room.getLocalTimezone()).getOffset(hours.getStartDate().getTime())
+        for (ExamRoom room : rooms) {
+            for (JsonNode node : exceptionsNode) {
+                ExceptionWorkingHours exception = parse(node);
+                exception.setStartDateTimezoneOffset(
+                    DateTimeZone.forID(room.getLocalTimezone()).getOffset(exception.getStartDate().getTime())
                 );
-                hours.setEndDateTimezoneOffset(
-                    DateTimeZone.forID(room.getLocalTimezone()).getOffset(hours.getEndDate().getTime())
+                exception.setEndDateTimezoneOffset(
+                    DateTimeZone.forID(room.getLocalTimezone()).getOffset(exception.getEndDate().getTime())
                 );
-                hours.setRoom(room);
-                hours.save();
-                room.getCalendarExceptionEvents().add(hours);
+                exception.setRoom(room);
+                exception.save();
+                room.getCalendarExceptionEvents().add(exception);
                 asyncUpdateRemote(room);
             }
-        });
-        return ok(Json.toJson(exceptions));
+        }
+        return ok(
+            Json.toJson(
+                rooms.stream().flatMap(r -> r.getCalendarExceptionEvents().stream()).collect(Collectors.toList())
+            )
+        );
     }
 
     @Restrict(@Group({ "ADMIN" }))
