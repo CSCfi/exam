@@ -25,6 +25,7 @@ import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../shared/date/date.service';
 import { RoomService } from './room.service';
+import findKey = CKEDITOR.tools.object.findKey;
 
 interface ExtendedRoom extends ExamRoom {
     addressVisible: boolean;
@@ -126,6 +127,7 @@ export class RoomListComponent implements OnInit {
     }
 
     getWorkingHoursDisplayFormat = (workingHours: DefaultWorkingHours[]): string[] => {
+        const sorter = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         const capitalize = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
         const timePart = (s: string) => format(new Date(s), 'HH:mm');
         const mapping: Record<string, DefaultWorkingHours[]> = groupBy(
@@ -134,6 +136,11 @@ export class RoomListComponent implements OnInit {
         );
         return Object.keys(mapping).map((k) => {
             const days = mapping[k]
+                .sort((a, b) => {
+                    const day1 = a.weekday.toLowerCase();
+                    const day2 = b.weekday.toLowerCase();
+                    return sorter.indexOf(day1) - sorter.indexOf(day2);
+                })
                 .map((v) => capitalize(this.timeDateService.translateWeekdayName(v.weekday)))
                 .join(', ');
             return `${days}: ${k}`;
