@@ -30,7 +30,7 @@
         <li [disabled]="!isOwner() && !user.isAdmin" [ngbNavItem]="2">
             <a ngbNavLink>{{ 'sitnet_exam_question_tab' | translate }}</a>
         </li>
-        <li [disabled]="(!isOwner() && !user.isAdmin) || exam.executionType?.type === 'MATURITY'" [ngbNavItem]="3">
+        <li [disabled]="!isOwner() && !user.isAdmin" [ngbNavItem]="3">
             <a ngbNavLink>{{ 'sitnet_exam_assessment_settings' | translate }}</a>
         </li>
         <li [disabled]="!isOwner() && !user.isAdmin" [ngbNavItem]="4">
