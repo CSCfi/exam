@@ -33,9 +33,9 @@ interface RoomWithAddressVisibility extends ExamRoom {
             <div class="col-2 min-w-100 align-self-center">{{ dateTime.translateWeekdayName(dwh.weekday, true) }}</div>
             <div class="col row">
                 <div class="col flex justify-content-around align-self-center" *ngIf="!dwh.editing">
-                    <div>{{ workingHourFormat(dwh.pickStartingTime) }}</div>
+                    <div>{{ workingHourFormat(dwh.displayStartingTime) }}</div>
                     <div class="align-self-center">-</div>
-                    <div>{{ workingHourFormat(dwh.pickEndingTime) }}</div>
+                    <div>{{ workingHourFormat(dwh.displayEndingTime) }}</div>
                 </div>
                 <div class="col flex justify-content-around align-self-center" *ngIf="dwh.editing">
                     <ngb-timepicker
@@ -150,6 +150,18 @@ export class OpenHoursComponent implements OnInit, OnChanges {
             second: 0,
             millisecond: 0,
         },
+        displayStartingTime: {
+            hour: 0,
+            minute: 0,
+            second: 0,
+            millisecond: 0,
+        },
+        displayEndingTime: {
+            hour: 0,
+            minute: 0,
+            second: 0,
+            millisecond: 0,
+        },
     };
     WEEKDAYS = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'];
 
@@ -207,6 +219,8 @@ export class OpenHoursComponent implements OnInit, OnChanges {
                 }
                 this.toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
             });
+        wh.displayStartingTime = wh.pickStartingTime;
+        wh.displayEndingTime = wh.pickEndingTime;
     }
 
     deleteHours(wh: DefaultWorkingHoursWithEditing) {
@@ -259,6 +273,18 @@ export class OpenHoursComponent implements OnInit, OnChanges {
                         millisecond: 0,
                     },
                     pickEndingTime: {
+                        hour: new Date(wh.endTime).getHours(),
+                        minute: new Date(wh.endTime).getMinutes(),
+                        second: 0,
+                        millisecond: 0,
+                    },
+                    displayStartingTime: {
+                        hour: new Date(wh.startTime).getHours(),
+                        minute: new Date(wh.startTime).getMinutes(),
+                        second: 0,
+                        millisecond: 0,
+                    },
+                    displayEndingTime: {
                         hour: new Date(wh.endTime).getHours(),
                         minute: new Date(wh.endTime).getMinutes(),
                         second: 0,

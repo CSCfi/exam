@@ -192,9 +192,9 @@ export class ExceptionDialogComponent {
                 overlapExceptions
                     .map(
                         (e) =>
-                            formatDate(e.startDate, 'yyyy.MM.dd hh:mm', this.translate.currentLang) +
+                            formatDate(e.startDate, 'yyyy.MM.dd HH:mm', this.translate.currentLang) +
                             '-' +
-                            formatDate(e.endDate, 'yyyy.MM.dd hh:mm', this.translate.currentLang),
+                            formatDate(e.endDate, 'yyyy.MM.dd HH:mm', this.translate.currentLang),
                     )
                     .toString();
             this.toast.error(message);

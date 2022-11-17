@@ -25,7 +25,6 @@ import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../shared/date/date.service';
 import { RoomService } from './room.service';
-import findKey = CKEDITOR.tools.object.findKey;
 
 interface ExtendedRoom extends ExamRoom {
     addressVisible: boolean;
@@ -36,6 +35,8 @@ export interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
     editing: boolean;
     pickStartingTime: { hour: number; minute: number; second: number; millisecond?: number };
     pickEndingTime: { hour: number; minute: number; second: number; millisecond?: number };
+    displayStartingTime: { hour: number; minute: number; second: number; millisecond?: number };
+    displayEndingTime: { hour: number; minute: number; second: number; millisecond?: number };
 }
 
 @Component({
