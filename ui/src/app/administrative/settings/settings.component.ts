@@ -16,6 +16,7 @@ export class SettingsComponent implements OnInit {
 
     ngOnInit() {
         this.Settings.getConfig$().subscribe((resp) => (this.config = resp));
+        this.Settings.listAttributes$().subscribe((resp) => (this.attributes = resp));
     }
 
     updateAgreement = () =>
@@ -26,8 +27,6 @@ export class SettingsComponent implements OnInit {
 
     updateReservationWindow = () =>
         this.Settings.updateReservationWindow$(this.config).subscribe({ next: this.onSuccess, error: this.onError });
-
-    showAttributes = () => this.Settings.listAttributes$().subscribe((resp) => (this.attributes = resp));
 
     private onSuccess = () =>
         this.toast.info(this.translate.instant('sitnet_settings') + ' ' + this.translate.instant('sitnet_updated'));
