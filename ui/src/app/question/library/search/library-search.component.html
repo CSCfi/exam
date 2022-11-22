@@ -17,7 +17,7 @@
                 <span class="caret"></span>
             </button>
             <ul class="scrollable-menu" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
-                <li ngbDropdownItem role="presentation" class="input-group">
+                <li ngbDropdownItem role="presentation">
                     <input
                         [(ngModel)]="limitations.course"
                         (ngModelChange)="filterCourses()"
@@ -53,7 +53,7 @@
                 {{ 'sitnet_exam' | translate }}&nbsp;
             </button>
             <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
-                <li ngbDropdownItem role="presentation" class="input-group">
+                <li ngbDropdownItem role="presentation">
                     <input
                         [(ngModel)]="limitations.exam"
                         (ngModelChange)="filterExams()"
@@ -91,7 +91,7 @@
                 <span class="caret"></span>
             </button>
             <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
-                <li ngbDropdownItem role="presentation" class="input-group">
+                <li ngbDropdownItem role="presentation">
                     <input
                         [(ngModel)]="limitations.tag"
                         (ngModelChange)="filterTags()"
@@ -127,7 +127,7 @@
         <div class="row">
             <div [ngClass]="user.isAdmin ? 'col-md-6' : 'col-md-12'">
                 <form>
-                    <div class="input-group">
+                    <div>
                         <input
                             class="form-control"
                             name="filterSearcg"
@@ -143,7 +143,7 @@
             </div>
             <div class="col-md-6" *ngIf="user.isAdmin">
                 <form>
-                    <div class="input-group">
+                    <div>
                         <input
                             class="form-control"
                             name="ownerSearch"
