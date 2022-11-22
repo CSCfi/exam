@@ -49,8 +49,8 @@ class SystemInitializer {
     private static final int EXAM_AUTO_SAVER_INTERVAL_MINUTES = 1;
     private static final int RESERVATION_POLLER_START_AFTER_SECONDS = 30;
     private static final int RESERVATION_POLLER_INTERVAL_HOURS = 1;
-    private static final int EXAM_EXPIRY_POLLER_START_AFTER_SECONDS = 45;
-    private static final int EXAM_EXPIRY_POLLER_INTERVAL_DAYS = 1;
+    private static final int EXAM_EXPIRATION_POLLER_START_AFTER_SECONDS = 45;
+    private static final int EXAM_EXPIRATION_POLLER_INTERVAL_DAYS = 1;
     private static final int AUTO_EVALUATION_NOTIFIER_START_AFTER_SECONDS = 60;
     private static final int AUTO_EVALUATION_NOTIFIER_INTERVAL_MINUTES = 15;
     private static final int ASSESSMENT_TRANSFER_START_AFTER_SECONDS = 70;
@@ -59,6 +59,8 @@ class SystemInitializer {
     private static final int COLLABORATIVE_ASSESSMENT_SENDER_INTERVAL_MINUTES = 15;
     private static final int RESERVATION_REMINDER_START_AFTER_SECONDS = 90;
     private static final int RESERVATION_REMINDER_INTERVAL_MINUTES = 10;
+    private static final int EXTERNAL_EXAM_EXPIRATION_POLLER_START_AFTER_SECONDS = 100;
+    private static final int EXTERNAL_EXAM_EXPIRATION_POLLER_INTERVAL_DAYS = 1;
 
     private static final Logger.ALogger logger = Logger.of(SystemInitializer.class);
 
@@ -82,7 +84,8 @@ class SystemInitializer {
         @Named("exam-expiration-actor") ActorRef examExpirationChecker,
         @Named("assessment-transfer-actor") ActorRef assessmentTransferrer,
         @Named("collaborative-assessment-sender-actor") ActorRef collaborativeAssessmentSender,
-        @Named("reservation-reminder-actor") ActorRef reservationReminder
+        @Named("reservation-reminder-actor") ActorRef reservationReminder,
+        @Named("external-exam-expiration-actor") ActorRef externalExamExpirationChecker
     ) {
         this.system = system;
         this.composer = composer;
@@ -129,12 +132,12 @@ class SystemInitializer {
                 )
         );
         tasks.put(
-            "EXPIRY_POLLER",
+            "EXAM_EXPIRATION_POLLER",
             system
                 .scheduler()
                 .scheduleAtFixedRate(
-                    Duration.create(EXAM_EXPIRY_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
-                    Duration.create(EXAM_EXPIRY_POLLER_INTERVAL_DAYS, TimeUnit.DAYS),
+                    Duration.create(EXAM_EXPIRATION_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
+                    Duration.create(EXAM_EXPIRATION_POLLER_INTERVAL_DAYS, TimeUnit.DAYS),
                     examExpirationChecker,
                     "tick",
                     ec,
@@ -142,7 +145,7 @@ class SystemInitializer {
                 )
         );
         tasks.put(
-            "AUTOEVALUATION_NOTIFIER",
+            "AUTO_EVALUATION_NOTIFIER",
             system
                 .scheduler()
                 .scheduleAtFixedRate(
@@ -188,6 +191,19 @@ class SystemInitializer {
                     Duration.create(RESERVATION_REMINDER_START_AFTER_SECONDS, TimeUnit.SECONDS),
                     Duration.create(RESERVATION_REMINDER_INTERVAL_MINUTES, TimeUnit.MINUTES),
                     reservationReminder,
+                    "tick",
+                    ec,
+                    null
+                )
+        );
+        tasks.put(
+            "EXTERNAL_EXAM_EXPIRATION_POLLER",
+            system
+                .scheduler()
+                .scheduleAtFixedRate(
+                    Duration.create(EXTERNAL_EXAM_EXPIRATION_POLLER_START_AFTER_SECONDS, TimeUnit.SECONDS),
+                    Duration.create(EXTERNAL_EXAM_EXPIRATION_POLLER_INTERVAL_DAYS, TimeUnit.DAYS),
+                    externalExamExpirationChecker,
                     "tick",
                     ec,
                     null
