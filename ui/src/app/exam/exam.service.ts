@@ -215,9 +215,8 @@ export class ExamService {
     };
 
     previewExam = (exam: Exam, fromTab: number, collaborative: boolean) => {
-        const params = { id: exam.id, tab: fromTab };
         if (collaborative) {
-            this.router.navigate(['/staff/exams/collaborative', exam.id, 'preview'], {
+            this.router.navigate(['/staff/exams', exam.id, 'preview', 'collaborative'], {
                 queryParams: { tab: fromTab },
             });
         } else if (exam.executionType.type === 'PRINTOUT') {

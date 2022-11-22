@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { parseISO, roundToNearestMinutes } from 'date-fns';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
@@ -35,7 +35,7 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
     templateUrl: './printed-assessment.component.html',
 })
 export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
-    @Input() collaborative = false;
+    collaborative = false;
     questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
     exam!: Exam;
     user: User;
@@ -63,6 +63,7 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
     ngOnInit() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
+        this.collaborative = this.route.snapshot.data.collaborative;
     }
 
     ngAfterViewInit() {

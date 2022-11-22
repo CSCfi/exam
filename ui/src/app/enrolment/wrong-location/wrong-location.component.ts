@@ -14,7 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { addHours, format, parseISO } from 'date-fns';
@@ -30,8 +30,7 @@ import { EnrolmentService } from '../enrolment.service';
     templateUrl: './wrong-location.component.html',
 })
 export class WrongLocationComponent implements OnInit {
-    @Input() cause = '';
-
+    cause = '';
     enrolment!: ExamEnrolment;
     reservation!: Reservation;
     isUpcoming = false;
@@ -49,6 +48,7 @@ export class WrongLocationComponent implements OnInit {
     ) {}
 
     ngOnInit() {
+        this.cause = this.route.snapshot.data.cause;
         if (this.route.snapshot.params.eid) {
             this.isUpcoming = true;
             this.http.get<ExamEnrolment>(`/app/student/enrolments/${this.route.snapshot.params.eid}`).subscribe({
