@@ -153,7 +153,9 @@ export class ReservationComponentBase implements OnInit {
                                 ? `${r.user.lastName}  ${r.user.firstName}`
                                 : r.externalUserRef
                                 ? r.externalUserRef
-                                : r.enrolment.exam.id.toString(),
+                                : r.enrolment?.exam
+                                ? r.enrolment.exam.id.toString()
+                                : '',
                             org: '',
                             stateOrd: 0,
                             enrolment: r.enrolment ? { ...r.enrolment, teacherAggregate: '' } : r.enrolment,
@@ -241,7 +243,7 @@ export class ReservationComponentBase implements OnInit {
                                     !this.byodExamsOnly,
                             );
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 });
         }
     }
@@ -352,8 +354,10 @@ export class ReservationComponentBase implements OnInit {
         return params;
     };
 
+    // Transfer examination taking place here
     private isLocalTransfer = (reservation: AnyReservation): reservation is LocalTransferExamReservation =>
         !reservation.enrolment || isObject(reservation.enrolment.externalExam);
+    // Transfer examination taking place elsewhere
     private isRemoteTransfer = (reservation: AnyReservation): reservation is RemoteTransferExamReservation =>
         isObject(reservation.externalReservation);
     private isCollaborative = (reservation: AnyReservation): reservation is CollaborativeExamReservation =>
