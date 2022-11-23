@@ -82,10 +82,15 @@
             <td class="reservation-search">
                 <span>{{ r.userAggregate }}</span>
                 <span *ngIf="r.user?.userIdentifier">&nbsp;({{ r.user.userIdentifier }})</span>
-                <span *ngIf="r.user || !r.externalUserRef">
+                <span *ngIf="r.user">
                     <!-- local reservation or external taken reservation -->
                     <br />
                     <a class="reservation" href="mailto:{{ r.user.email }}">{{ r.user.email }}</a>
+                </span>
+                <span *ngIf="!r.user && !r.externalUserRef">
+                    <!-- i don't know what this is -->
+                    <br />
+                    <span class="reservation">N/A</span>
                 </span>
                 <span *ngIf="r.externalUserRef && !r.user">
                     <!-- external non-taken reservation -->
