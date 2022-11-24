@@ -213,14 +213,7 @@
         </div>
     </div>
 </div>
-
-<div class="row mt-2 marr30" [hidden]="exam.executionType.type === 'PRINTOUT'">
-    <!-- Exam type and trial count input elements -->
-    <div class="col-md-12 margin-20">
-        <div class="review-list-title">{{ 'sitnet_publish_settings' | translate }}</div>
-    </div>
-</div>
-<div class="row mt-2" [hidden]="exam.executionType.type === 'MATURITY' || exam.executionType.type === 'PRINTOUT'">
+<div class="row mt-4" [hidden]="exam.executionType.type === 'MATURITY' || exam.executionType.type === 'PRINTOUT'">
     <div class="col-md-3 exam-basic-title">
         {{ 'sitnet_publish_max_count' | translate }}
         <sup
