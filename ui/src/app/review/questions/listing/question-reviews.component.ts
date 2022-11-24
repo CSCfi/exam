@@ -102,7 +102,7 @@ export class QuestionReviewsComponent implements OnInit {
             next: (resp) => (this.reviews = resp),
             error: (err) => this.toast.error(err),
         });
-        this.Tabs.notifyTabChange(5);
+        this.Tabs.notifyTabChange(6);
     }
 
     onReviewSelection = (event: { id: number; selected: boolean }) => {
