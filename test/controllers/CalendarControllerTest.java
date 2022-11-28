@@ -87,9 +87,20 @@ public class CalendarControllerTest extends IntegrationTestCase {
         exam.setExecutionType(Ebean.find(ExamExecutionType.class, 2));
         exam.getExamOwners().add(Ebean.find(User.class, 4));
         exam.save();
-        DateTime start = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(2);
-        DateTime end = DateTime.now().withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0).plusHours(3);
-
+        DateTime start = DateTime
+            .now()
+            .withMinuteOfHour(0)
+            .withSecondOfMinute(0)
+            .withMillisOfSecond(0)
+            .plusDays(1)
+            .withHourOfDay(12);
+        DateTime end = DateTime
+            .now()
+            .withMinuteOfHour(0)
+            .withSecondOfMinute(0)
+            .withMillisOfSecond(0)
+            .plusDays(1)
+            .withHourOfDay(13);
         final int callCount = 10;
         final Waiter waiter = new Waiter();
         List<Integer> status = new ArrayList<>();

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
@@ -27,7 +27,7 @@ import { ExaminationService } from './examination.service';
     templateUrl: './examination.component.html',
 })
 export class ExaminationComponent implements OnInit, OnDestroy {
-    @Input() isCollaborative = false;
+    isCollaborative = false;
     exam!: Examination;
     activeSection?: ExaminationSection;
     isPreview = false;
@@ -42,7 +42,8 @@ export class ExaminationComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.isPreview = window.location.pathname.includes('preview'); // FIXME! once UI-router issues are settled
+        this.isPreview = this.route.snapshot.data.isPreview;
+        this.isCollaborative = this.route.snapshot.data.isCollaborative || false;
         if (!this.isPreview) {
             window.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         }
