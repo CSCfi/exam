@@ -14,8 +14,9 @@
  */
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { addHours, parseISO } from 'date-fns';
-import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+import { parseISO } from 'date-fns';
+import { format, zonedTimeToUtc } from 'date-fns-tz';
+import * as moment from 'moment-timezone';
 import type { Observable } from 'rxjs';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { Course, Exam, ExamSection, MaintenancePeriod } from '../exam/exam.model';
@@ -75,8 +76,8 @@ export class CalendarService {
 
     reserve$(
         examId: number,
-        start: Date,
-        end: Date,
+        start: moment.Moment,
+        end: moment.Moment,
         room: ExamRoom,
         accs: Accessibility[],
         org: { _id: string | null },
@@ -165,14 +166,20 @@ export class CalendarService {
 
     getEarliestOpening(room: ExamRoom): Date {
         const tz = room.localTimezone;
-        const openings = room.defaultWorkingHours.map((dwh) => zonedTimeToUtc(parseISO(dwh.startTime), tz));
-        return openings.reduce((a, b) => (a < b ? a : b));
+        const openings = room.defaultWorkingHours.map(function (dwh) {
+            const start = moment.tz(dwh.startTime, tz);
+            return moment().hours(start.hours()).minutes(start.minutes()).seconds(start.seconds());
+        });
+        return moment.min(...openings).toDate();
     }
 
     getLatestClosing(room: ExamRoom): Date {
         const tz = room.localTimezone;
-        const closings = room.defaultWorkingHours.map((dwh) => zonedTimeToUtc(parseISO(dwh.endTime), tz));
-        return closings.reduce((a, b) => (a > b ? a : b));
+        const closings = room.defaultWorkingHours.map(function (dwh) {
+            const end = moment.tz(dwh.endTime, tz);
+            return moment().hours(end.hours()).minutes(end.minutes()).seconds(end.seconds());
+        });
+        return moment.max(...closings).toDate();
     }
 
     getClosedWeekdays(room: ExamRoom): number[] {
@@ -203,10 +210,10 @@ export class CalendarService {
     getExamInfo$ = (collaborative: boolean, id: number) =>
         this.http.get<ExamInfo>(collaborative ? `/app/iop/exams/${id}/info` : `/app/student/exam/${id}/info`);
 
-    private adjustBack(date: Date, tz: string): string {
-        const adjusted = zonedTimeToUtc(date, tz);
-        const offset = this.DateTime.isDST(adjusted) ? 1 : 0;
-        return utcToZonedTime(addHours(adjusted, offset), tz).toISOString();
+    private adjustBack(date: moment.Moment, tz: string): string {
+        const adjusted = moment.tz(date, tz);
+        const offset = adjusted.isDST() ? 1 : 0;
+        return moment.utc(adjusted.add(offset, 'hour')).format();
     }
 
     private reserveInternal$ = (slot: Slot, accs: Accessibility[], collaborative: boolean): Observable<void> => {

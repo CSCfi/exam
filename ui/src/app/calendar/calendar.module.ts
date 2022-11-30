@@ -14,12 +14,12 @@
  */
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { FullCalendarModule } from '@fullcalendar/angular';
+import momentTimezonePlugin from '@fullcalendar/moment-timezone';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import { NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
-import { CalendarModule as ExtCalendarModule, DateAdapter } from 'angular-calendar';
-import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { SharedModule } from '../shared/shared.module';
 import { BookingCalendarComponent } from './booking-calendar.component';
-import { CalendarHomeComponent } from './calendar-home.component';
 import { CalendarComponent } from './calendar.component';
 import { CalendarService } from './calendar.service';
 import { CalendarExamInfoComponent } from './helpers/exam-info.component';
@@ -28,20 +28,12 @@ import { OrganisationPickerComponent } from './helpers/organisation-picker.compo
 import { SelectedRoomComponent } from './helpers/selected-room.component';
 import { SlotPickerComponent } from './helpers/slot-picker.component';
 
+FullCalendarModule.registerPlugins([timeGridPlugin, momentTimezonePlugin]);
+
 @NgModule({
-    imports: [
-        ExtCalendarModule.forRoot({
-            provide: DateAdapter,
-            useFactory: adapterFactory,
-        }),
-        RouterModule, // CalendarRouterModule
-        NgbPopoverModule,
-        NgbDropdownModule,
-        SharedModule,
-    ],
+    imports: [FullCalendarModule, RouterModule, NgbPopoverModule, NgbDropdownModule, SharedModule],
     declarations: [
         BookingCalendarComponent,
-        CalendarHomeComponent,
         CalendarComponent,
         CalendarExamInfoComponent,
         OptionalSectionsComponent,
