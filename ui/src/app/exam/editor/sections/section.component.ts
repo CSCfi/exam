@@ -55,7 +55,11 @@ export class SectionComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.section.sectionQuestions.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
+        this.updateSection(true);
+    }
+
+    ngOnChanges() {
+        this.updateSection(true);
     }
 
     questionPointsMatch = () => {
@@ -169,6 +173,7 @@ export class SectionComponent implements OnInit {
                 next: (resp) => {
                     this.section.sectionQuestions.splice(this.section.sectionQuestions.indexOf(sq), 1);
                     this.toast.info(this.translate.instant('sitnet_question_removed'));
+                    this.updateSection(true);
                     if (this.section.sectionQuestions.length < 2 && this.section.lotteryOn) {
                         // turn off lottery
                         this.section.lotteryOn = false;
