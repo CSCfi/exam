@@ -16,6 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { addHours, format, parseISO } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
+import * as moment from 'moment-timezone';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import type { ExamEnrolment } from '../../enrolment/enrolment.model';
@@ -51,7 +52,7 @@ export class StudentDashboardService {
             ),
         );
 
-    private getOccasion(reservation: Reservation): Occasion {
+    private getOccasion2(reservation: Reservation): Occasion {
         const machine = reservation.machine;
         const external = reservation.externalReservation;
         let tz;
@@ -71,6 +72,32 @@ export class StudentDashboardService {
         return {
             startAt: format(start, 'HH:mm'),
             endAt: format(end, 'HH:mm'),
+        };
+    }
+
+    private getOccasion(reservation: Reservation): Occasion {
+        const machine = reservation.machine;
+        const external = reservation.externalReservation;
+        let tz;
+        if (external) {
+            tz = external.roomTz;
+        } else if (machine) {
+            tz = machine.room.localTimezone;
+        } else {
+            tz = 'Europe/Helsinki';
+        }
+        // const tz = machine ? machine.room.localTimezone : external.roomTz;
+        const start = moment.tz(reservation.startAt, tz);
+        const end = moment.tz(reservation.endAt, tz);
+        if (start.isDST()) {
+            start.add(-1, 'hour');
+        }
+        if (end.isDST()) {
+            end.add(-1, 'hour');
+        }
+        return {
+            startAt: start.format('HH:mm'),
+            endAt: end.format('HH:mm'),
         };
     }
 }

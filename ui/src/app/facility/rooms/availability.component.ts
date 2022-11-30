@@ -15,11 +15,10 @@
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import type { CalendarEvent } from 'calendar-utils';
+import { EventInput } from '@fullcalendar/angular';
 import { addHours, format } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
 import { ToastrService } from 'ngx-toastr';
-import type { SlotMeta } from '../../calendar/booking-calendar.component';
 import type { OpeningHours } from '../../calendar/calendar.service';
 import { CalendarService } from '../../calendar/calendar.service';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
@@ -42,7 +41,6 @@ export class AvailabilityComponent implements OnInit {
     @Input() room!: ExamRoom;
     openingHours: OpeningHours[] = [];
     exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
-    events: CalendarEvent<SlotMeta>[] = [];
 
     constructor(
         private route: ActivatedRoute,
@@ -65,28 +63,28 @@ export class AvailabilityComponent implements OnInit {
 
     getColor = (slot: Availability) => {
         const ratio = slot.reserved / slot.total;
-        if (ratio <= 0.5) return { primary: '#27542f', secondary: '#a6e9b2' }; // green;
-        if (ratio <= 0.9) return { primary: '#8f8f8f', secondary: '#d8d8d8' }; // grey
-        return { primary: '#f50f35', secondary: '#fc3858' }; // red
+        if (ratio <= 0.5) return '#27542f'; // green;
+        if (ratio <= 0.9) return '#8f8f8f'; // grey
+        return '#f50f35'; // red
     };
 
-    refresh = (event: { date: Date }) => {
+    refresh = ($event: { date: Date; success: (events: EventInput[]) => void }) => {
         if (!this.room) {
             return;
         }
         const successFn = (resp: Availability[]) => {
-            this.events = resp.map((slot: Availability, i) => ({
-                id: i,
+            const events: EventInput[] = resp.map((slot: Availability, i) => ({
+                id: i.toString(),
                 title: slot.reserved + ' / ' + slot.total,
                 start: this.adjust(slot.start, this.room?.localTimezone as string),
                 end: this.adjust(slot.end, this.room?.localTimezone as string),
                 color: this.getColor(slot),
-                cssClass: 'black-event-text',
-                meta: { availableMachines: 0 },
+                availableMachines: 0,
             }));
+            $event.success(events);
         };
         const errorFn = (resp: string) => this.toast.error(resp);
-        this.query$(format(event.date, 'yyyy-MM-dd')).subscribe({ next: successFn, error: errorFn });
+        this.query$(format($event.date, 'yyyy-MM-dd')).subscribe({ next: successFn, error: errorFn });
     };
 
     private adjust = (date: string, tz: string): Date => {

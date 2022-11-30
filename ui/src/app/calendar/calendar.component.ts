@@ -16,7 +16,8 @@ import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { addDays, format } from 'date-fns';
+import { addDays } from 'date-fns';
+import * as moment from 'moment-timezone';
 import { ToastrService } from 'ngx-toastr';
 import { switchMap, tap } from 'rxjs/operators';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
@@ -43,8 +44,8 @@ export class CalendarComponent implements OnInit {
     };
     reservation?: {
         room: ExamRoom;
-        start: Date;
-        end: Date;
+        start: moment.Moment;
+        end: moment.Moment;
         time: string;
         accessibilities: Accessibility[];
     };
@@ -166,12 +167,15 @@ export class CalendarComponent implements OnInit {
 
     cancel = () => this.router.navigate(['/dashboard']);
 
-    createReservation($event: { start: Date; end: Date; room: ExamRoom; accessibilities: Accessibility[] }) {
+    createReservation($event: { start: string; end: string; room: ExamRoom; accessibilities: Accessibility[] }) {
         this.reservation = {
             room: $event.room,
-            time: format($event.start, 'dd.MM.yyyy HH:mm') + ' - ' + format($event.end, 'HH:mm'),
-            start: $event.start,
-            end: $event.end,
+            time:
+                this.adjust($event.start, $event.room.localTimezone).format('dd.MM.yyyy HH:mm') +
+                ' - ' +
+                this.adjust($event.end, $event.room.localTimezone).format('HH:mm'),
+            start: this.adjust($event.start, $event.room.localTimezone),
+            end: this.adjust($event.end, $event.room.localTimezone),
             accessibilities: $event.accessibilities,
         };
     }
@@ -224,6 +228,12 @@ export class CalendarComponent implements OnInit {
     printExamDuration(exam: { duration: number }) {
         return this.DateTime.printExamDuration(exam);
     }
+
+    private adjust = (date: string, tz: string): moment.Moment => {
+        const adjusted: moment.Moment = moment.tz(date, tz);
+        const offset = adjusted.isDST() ? -1 : 0;
+        return adjusted.add(offset, 'hour');
+    };
 
     private prepareOptionalSections = (data: ExamEnrolment | null) => {
         this.examInfo.examSections
