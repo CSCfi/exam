@@ -26,6 +26,7 @@
                                 [options]="months"
                                 [noSearch]="true"
                                 (optionSelected)="monthChanged($event)"
+                                placeholder="{{ 'sitnet_select' | translate }}"
                             ></xm-dropdown-select>
                         </div>
                         <div class="col">
@@ -36,6 +37,7 @@
                                 [noSearch]="true"
                                 [options]="years"
                                 (optionSelected)="yearChanged($event)"
+                                placeholder="{{ 'sitnet_select' | translate }}"
                             ></xm-dropdown-select>
                         </div>
                     </div>

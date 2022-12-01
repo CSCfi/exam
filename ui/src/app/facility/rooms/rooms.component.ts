@@ -126,6 +126,9 @@ export class RoomListComponent implements OnInit {
             .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
             .slice(0, 2);
     }
+    getFutureExceptionEvent(ees: ExceptionWorkingHours[]): ExceptionWorkingHours[] {
+        return ees.filter((ee) => new Date(ee.endDate) > new Date());
+    }
 
     getWorkingHoursDisplayFormat = (workingHours: DefaultWorkingHours[]): string[] => {
         const sorter = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];

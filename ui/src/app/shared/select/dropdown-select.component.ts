@@ -72,7 +72,7 @@ export interface Option<V, I> {
 })
 export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
     @Input() options: Option<V, I>[] = []; // everything
-    @Input() placeholder = '';
+    @Input() placeholder = ' ';
     @Input() limitTo?: number;
     @Input() fullWidth = false;
     @Input() noSearch = false;

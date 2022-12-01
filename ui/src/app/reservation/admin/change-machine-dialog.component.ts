@@ -35,6 +35,7 @@ import type { ExamMachine, Reservation } from '../reservation.model';
                 [options]="availableMachineOptions"
                 (optionSelected)="machineChanged($event)"
                 (limitTo)="(0)"
+                placeholder="{{ 'sitnet_select' | translate }}"
             ></xm-dropdown-select>
         </div>
         <div class="modal-footer">
