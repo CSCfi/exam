@@ -16,8 +16,7 @@ import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { addDays } from 'date-fns';
-import * as moment from 'moment-timezone';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { switchMap, tap } from 'rxjs/operators';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
@@ -44,8 +43,8 @@ export class CalendarComponent implements OnInit {
     };
     reservation?: {
         room: ExamRoom;
-        start: moment.Moment;
-        end: moment.Moment;
+        start: DateTime;
+        end: DateTime;
         time: string;
         accessibilities: Accessibility[];
     };
@@ -64,7 +63,7 @@ export class CalendarComponent implements OnInit {
         private route: ActivatedRoute,
         private translate: TranslateService,
         private toast: ToastrService,
-        private DateTime: DateTimeService,
+        private DateTimeService: DateTimeService,
         private Dialog: ConfirmationDialogService,
         private Calendar: CalendarService,
     ) {}
@@ -89,7 +88,7 @@ export class CalendarComponent implements OnInit {
                 switchMap(() => this.Calendar.getReservationiWindowSize$()),
                 tap((resp) => {
                     this.reservationWindowSize = resp.value;
-                    this.reservationWindowEndDate = addDays(new Date(), resp.value);
+                    this.reservationWindowEndDate = DateTime.now().plus({ day: resp.value }).toJSDate();
                     this.minDate = [new Date(), new Date(this.examInfo.examActiveStartDate as string)].reduce((a, b) =>
                         a > b ? a : b,
                     );
@@ -171,9 +170,9 @@ export class CalendarComponent implements OnInit {
         this.reservation = {
             room: $event.room,
             time:
-                this.adjust($event.start, $event.room.localTimezone).format('dd.MM.yyyy HH:mm') +
+                this.adjust($event.start, $event.room.localTimezone).toFormat('dd.MM.yyyy HH:mm') +
                 ' - ' +
-                this.adjust($event.end, $event.room.localTimezone).format('HH:mm'),
+                this.adjust($event.end, $event.room.localTimezone).toFormat('HH:mm'),
             start: this.adjust($event.start, $event.room.localTimezone),
             end: this.adjust($event.end, $event.room.localTimezone),
             accessibilities: $event.accessibilities,
@@ -226,13 +225,13 @@ export class CalendarComponent implements OnInit {
     }
 
     printExamDuration(exam: { duration: number }) {
-        return this.DateTime.printExamDuration(exam);
+        return this.DateTimeService.printExamDuration(exam);
     }
 
-    private adjust = (date: string, tz: string): moment.Moment => {
-        const adjusted: moment.Moment = moment.tz(date, tz);
-        const offset = adjusted.isDST() ? -1 : 0;
-        return adjusted.add(offset, 'hour');
+    private adjust = (date: string, tz: string): DateTime => {
+        const adjusted = DateTime.fromISO(date, { zone: tz });
+        const offset = adjusted.isInDST ? -1 : 0;
+        return adjusted.plus({ hour: offset });
     };
 
     private prepareOptionalSections = (data: ExamEnrolment | null) => {

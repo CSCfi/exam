@@ -15,7 +15,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
-import momentTimezonePlugin from '@fullcalendar/moment-timezone';
+import luxon2Plugin from '@fullcalendar/luxon2';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from '../shared/shared.module';
@@ -28,7 +28,7 @@ import { OrganisationPickerComponent } from './helpers/organisation-picker.compo
 import { SelectedRoomComponent } from './helpers/selected-room.component';
 import { SlotPickerComponent } from './helpers/slot-picker.component';
 
-FullCalendarModule.registerPlugins([timeGridPlugin, momentTimezonePlugin]);
+FullCalendarModule.registerPlugins([timeGridPlugin, luxon2Plugin]);
 
 @NgModule({
     imports: [FullCalendarModule, RouterModule, NgbPopoverModule, NgbDropdownModule, SharedModule],

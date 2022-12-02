@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { addWeeks } from 'date-fns';
+import { DateTime } from 'luxon';
 import { MaintenancePeriod } from '../../exam/exam.model';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import type { OpeningHours } from '../calendar.service';
@@ -102,6 +102,10 @@ export class SelectedRoomComponent implements OnInit, OnChanges {
 
     private init() {
         this.openingHours = this.Calendar.processOpeningHours(this.room);
-        this.exceptionHours = this.Calendar.getExceptionHours(this.room, this.viewStart, addWeeks(this.viewStart, 1));
+        this.exceptionHours = this.Calendar.getExceptionHours(
+            this.room,
+            this.viewStart,
+            DateTime.fromJSDate(this.viewStart).plus({ week: 1 }).toJSDate(),
+        );
     }
 }

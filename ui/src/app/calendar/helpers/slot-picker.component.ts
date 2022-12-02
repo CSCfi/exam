@@ -1,17 +1,14 @@
-import { WeekDay } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EventApi, EventInput } from '@fullcalendar/angular';
 import { TranslateService } from '@ngx-translate/core';
-import { format, startOfWeek } from 'date-fns';
-import * as moment from 'moment-timezone';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { MaintenancePeriod } from '../../exam/exam.model';
 import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
-import { DateTimeService } from '../../shared/date/date.service';
 import type { Organisation, Slot } from '../calendar.service';
 import { CalendarService } from '../calendar.service';
 
@@ -22,13 +19,6 @@ type AvailableSlot = Slot & { availableMachines: number };
 @Component({
     selector: 'xm-calendar-slot-picker',
     templateUrl: './slot-picker.component.html',
-    styles: [
-        `
-            .black-event-text span {
-                color: black !important;
-            }
-        `,
-    ],
     encapsulation: ViewEncapsulation.None,
 })
 export class SlotPickerComponent implements OnInit, OnChanges {
@@ -61,7 +51,6 @@ export class SlotPickerComponent implements OnInit, OnChanges {
         private route: ActivatedRoute,
         private toast: ToastrService,
         private Calendar: CalendarService,
-        private DateTime: DateTimeService,
     ) {}
 
     ngOnInit() {
@@ -95,7 +84,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
         if (!this.selectedRoom) {
             return;
         }
-        this.currentWeek = startOfWeek($event.date, { weekStartsOn: WeekDay.Monday });
+        this.currentWeek = DateTime.fromJSDate($event.date).startOf('week').toJSDate();
         const accessibilities = this.accessibilities.filter((i) => i.filtered).map((i) => i.id);
 
         const getColor = (slot: AvailableSlot) => {
@@ -120,7 +109,10 @@ export class SlotPickerComponent implements OnInit, OnChanges {
             $event.success(events);
         };
         const errorFn = (resp: string) => this.toast.error(resp);
-        this.query(format($event.date, 'yyyy-MM-dd'), accessibilities).subscribe({ next: successFn, error: errorFn });
+        this.query(DateTime.fromJSDate($event.date).toFormat('yyyy-MM-dd'), accessibilities).subscribe({
+            next: successFn,
+            error: errorFn,
+        });
     }
 
     makeExternalReservation = () => {
@@ -170,8 +162,8 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     }
 
     private adjust = (date: string, tz: string): Date => {
-        const adjusted = moment.tz(date, tz);
-        const offset = this.DateTime.isDST(adjusted.toDate()) ? -1 : 0;
-        return adjusted.add(offset, 'hour').toDate();
+        const adjusted = DateTime.fromISO(date, { zone: tz });
+        const offset = adjusted.isInDST ? -1 : 0;
+        return adjusted.plus({ hours: offset }).toJSDate();
     };
 }
