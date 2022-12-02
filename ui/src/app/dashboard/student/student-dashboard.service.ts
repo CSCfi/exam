@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { addHours, format, parseISO } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
-import * as moment from 'moment-timezone';
+import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import type { ExamEnrolment } from '../../enrolment/enrolment.model';
@@ -86,18 +86,15 @@ export class StudentDashboardService {
         } else {
             tz = 'Europe/Helsinki';
         }
-        // const tz = machine ? machine.room.localTimezone : external.roomTz;
-        const start = moment.tz(reservation.startAt, tz);
-        const end = moment.tz(reservation.endAt, tz);
-        if (start.isDST()) {
-            start.add(-1, 'hour');
-        }
-        if (end.isDST()) {
-            end.add(-1, 'hour');
-        }
+        const start = DateTime.fromISO(reservation.startAt, { zone: tz });
+        const end = DateTime.fromISO(reservation.endAt, { zone: tz });
         return {
-            startAt: start.format('HH:mm'),
-            endAt: end.format('HH:mm'),
+            startAt: start.isInDST
+                ? start.minus({ hours: 1 }).toLocaleString(DateTime.TIME_24_SIMPLE)
+                : start.toLocaleString(DateTime.TIME_24_SIMPLE),
+            endAt: end.isInDST
+                ? end.minus({ hours: 1 }).toLocaleString(DateTime.TIME_24_SIMPLE)
+                : end.toLocaleString(DateTime.TIME_24_SIMPLE),
         };
     }
 }

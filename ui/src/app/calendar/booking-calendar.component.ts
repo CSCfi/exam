@@ -28,7 +28,7 @@ import enLocale from '@fullcalendar/core/locales/en-gb';
 import fiLocale from '@fullcalendar/core/locales/fi';
 import svLocale from '@fullcalendar/core/locales/sv';
 import { TranslateService } from '@ngx-translate/core';
-import { addHours, endOfWeek, format, startOfWeek } from 'date-fns';
+import { DateTime } from 'luxon';
 import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
 import { CalendarService } from './calendar.service';
 
@@ -66,6 +66,7 @@ export class BookingCalendarComponent implements OnInit, OnChanges {
             allDaySlot: false,
             height: 'auto',
             nowIndicator: true,
+            slotDuration: '00:30:00',
             eventMinHeight: 45,
             events: this.refetch,
             eventClick: this.eventClicked.bind(this),
@@ -83,8 +84,8 @@ export class BookingCalendarComponent implements OnInit, OnChanges {
         }
         if (this.minDate && this.maxDate) {
             this.calendarOptions.validRange = {
-                end: format(endOfWeek(this.maxDate, { weekStartsOn: 1 }), 'yyyy-MM-dd'),
-                start: format(startOfWeek(this.minDate, { weekStartsOn: 1 }), 'yyyy-MM-dd'),
+                end: DateTime.fromJSDate(this.maxDate).endOf('week').toFormat('yyyy-MM-dd'),
+                start: DateTime.fromJSDate(this.minDate).startOf('week').toFormat('yyyy-MM-dd'),
             };
         }
     }
@@ -92,12 +93,18 @@ export class BookingCalendarComponent implements OnInit, OnChanges {
     ngOnChanges(changes: SimpleChanges) {
         if (changes.room && this.room) {
             const earliestOpening = this.Calendar.getEarliestOpening(this.room);
-            const minTime = earliestOpening.getHours() > 1 ? addHours(earliestOpening, -1) : earliestOpening;
+            const minTime =
+                earliestOpening.getHours() > 1
+                    ? DateTime.fromJSDate(earliestOpening).minus({ hour: 1 }).toJSDate()
+                    : earliestOpening;
             const latestClosing = this.Calendar.getLatestClosing(this.room);
-            const maxTime = latestClosing.getHours() < 23 ? addHours(latestClosing, 1) : latestClosing;
+            const maxTime =
+                latestClosing.getHours() < 23
+                    ? DateTime.fromJSDate(latestClosing).plus({ hour: 1 }).toJSDate()
+                    : latestClosing;
             this.calendarOptions.hiddenDays = this.Calendar.getClosedWeekdays(this.room);
-            this.calendarOptions.slotMinTime = format(minTime, 'HH:mm');
-            this.calendarOptions.slotMaxTime = format(maxTime, 'HH:mm');
+            this.calendarOptions.slotMinTime = DateTime.fromJSDate(minTime).toLocaleString(DateTime.TIME_24_SIMPLE);
+            this.calendarOptions.slotMaxTime = DateTime.fromJSDate(maxTime).toLocaleString(DateTime.TIME_24_SIMPLE);
             this.calendarOptions.timeZone = this.room.localTimezone;
             if (this.calendar) this.calendar.getApi().refetchEvents();
         }
