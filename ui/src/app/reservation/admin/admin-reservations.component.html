@@ -16,6 +16,7 @@
                     [fullWidth]="true"
                     [options]="studentOptions"
                     (optionSelected)="studentChanged($event)"
+                    placeholder="{{ 'sitnet_select' | translate }}"
                 >
                 </xm-dropdown-select>
             </div>
@@ -26,6 +27,7 @@
                     [fullWidth]="true"
                     [options]="examOptions"
                     (optionSelected)="examChanged($event)"
+                    placeholder="{{ 'sitnet_select' | translate }}"
                 >
                 </xm-dropdown-select>
             </div>
@@ -46,6 +48,7 @@
                     [fullWidth]="true"
                     [options]="teacherOptions"
                     (optionSelected)="ownerChanged($event)"
+                    placeholder="{{ 'sitnet_select' | translate }}"
                 >
                 </xm-dropdown-select>
             </div>
@@ -57,6 +60,7 @@
                     (optionSelected)="roomChanged($event)"
                     [limitTo]="0"
                     [fullWidth]="true"
+                    placeholder="{{ 'sitnet_select' | translate }}"
                 >
                 </xm-dropdown-select>
             </div>
@@ -68,12 +72,18 @@
                     (optionSelected)="machineChanged($event)"
                     [limitTo]="0"
                     [fullWidth]="true"
+                    placeholder="{{ 'sitnet_select' | translate }}"
                 >
                 </xm-dropdown-select>
             </div>
             <div class="col-md-3">
                 <strong class="reservation-search-titles">{{ 'sitnet_exam_state' | translate }}</strong>
-                <xm-dropdown-select [options]="stateOptions" [fullWidth]="true" (optionSelected)="stateChanged($event)">
+                <xm-dropdown-select
+                    [options]="stateOptions"
+                    [fullWidth]="true"
+                    (optionSelected)="stateChanged($event)"
+                    placeholder="{{ 'sitnet_select' | translate }}"
+                >
                 </xm-dropdown-select>
             </div>
             <div class="col-md-3">
