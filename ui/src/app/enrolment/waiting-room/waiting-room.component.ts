@@ -17,8 +17,7 @@ import type { OnDestroy, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { addHours, format, parseISO } from 'date-fns';
-import { zonedTimeToUtc } from 'date-fns-tz';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom, Reservation } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
@@ -46,7 +45,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         private translate: TranslateService,
         private toast: ToastrService,
         private Session: SessionService,
-        private DateTime: DateTimeService,
+        private DateTimeService: DateTimeService,
     ) {}
 
     ngOnInit() {
@@ -92,29 +91,23 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
             return;
         }
         const tz = reservation.machine.room.localTimezone;
-        let start = zonedTimeToUtc(parseISO(reservation.startAt), tz);
-        let end = zonedTimeToUtc(parseISO(reservation.endAt), tz);
-        if (this.DateTime.isDST(start)) {
-            start = addHours(start, -1);
-        }
-        if (this.DateTime.isDST(end)) {
-            end = addHours(end, -1);
-        }
+        const start = DateTime.fromISO(reservation.startAt, { zone: tz });
+        const end = DateTime.fromISO(reservation.endAt, { zone: tz });
         reservation.occasion = {
-            startAt: format(start, 'HH:mm'),
-            endAt: format(end, 'HH:mm'),
+            startAt: start.minus({ hour: start.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
+            endAt: end.minus({ hour: end.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
         };
     };
 
     private getStart = () => {
         if (this.enrolment.examinationEventConfiguration) {
-            return parseISO(this.enrolment.examinationEventConfiguration.examinationEvent.start);
+            return DateTime.fromISO(this.enrolment.examinationEventConfiguration.examinationEvent.start).toJSDate();
         }
-        const start = parseISO(this.enrolment.reservation.startAt);
-        if (this.DateTime.isDST(new Date())) {
-            return addHours(start, -1);
+        const start = DateTime.fromISO(this.enrolment.reservation.startAt);
+        if (this.DateTimeService.isDST(new Date())) {
+            return start.minus({ hour: 1 }).toJSDate();
         }
-        return start;
+        return start.toJSDate();
     };
 
     private calculateOffset = () => this.getStart().getTime() - new Date().getTime();

@@ -14,10 +14,9 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { EventInput } from '@fullcalendar/angular';
-import { addHours, format } from 'date-fns';
-import { zonedTimeToUtc } from 'date-fns-tz';
+import { format } from 'date-fns';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { OpeningHours } from '../../calendar/calendar.service';
 import { CalendarService } from '../../calendar/calendar.service';
@@ -43,11 +42,10 @@ export class AvailabilityComponent implements OnInit {
     exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
 
     constructor(
-        private route: ActivatedRoute,
         private toast: ToastrService,
         private roomService: RoomService,
         private calendar: CalendarService,
-        private DateTime: DateTimeService,
+        private DateTimeService: DateTimeService,
     ) {}
 
     ngOnInit() {
@@ -88,8 +86,8 @@ export class AvailabilityComponent implements OnInit {
     };
 
     private adjust = (date: string, tz: string): Date => {
-        const adjusted = zonedTimeToUtc(date, tz);
-        const offset = this.DateTime.isDST(adjusted) ? -1 : 0;
-        return addHours(adjusted, offset);
+        const adjusted = DateTime.fromISO(date, { zone: tz });
+        const offset = adjusted.isInDST ? -1 : 0;
+        return adjusted.plus({ hours: offset }).toJSDate();
     };
 }

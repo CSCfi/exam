@@ -41,7 +41,6 @@
     "chart.js": "^3.8.0",
     "chartjs-plugin-datalabels": "^2.0.0",
     "date-fns": "^2.25.0",
-    "date-fns-tz": "^1.1.6",
     "file-saver": "^2.0.5",
     "luxon": "^2.0.0",
     "ngx-toastr": "^14.2.2",

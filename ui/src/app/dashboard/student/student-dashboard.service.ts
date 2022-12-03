@@ -14,8 +14,6 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { addHours, format, parseISO } from 'date-fns';
-import { zonedTimeToUtc } from 'date-fns-tz';
 import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -51,29 +49,6 @@ export class StudentDashboardService {
                 }),
             ),
         );
-
-    private getOccasion2(reservation: Reservation): Occasion {
-        const machine = reservation.machine;
-        const external = reservation.externalReservation;
-        let tz;
-        if (external) {
-            tz = external.roomTz;
-        } else if (machine) {
-            tz = machine.room.localTimezone;
-        }
-        let start = tz ? zonedTimeToUtc(parseISO(reservation.startAt), tz) : parseISO(reservation.startAt);
-        let end = tz ? zonedTimeToUtc(parseISO(reservation.endAt), tz) : parseISO(reservation.endAt);
-        if (this.DateTime.isDST(start)) {
-            start = addHours(start, -1);
-        }
-        if (this.DateTime.isDST(end)) {
-            end = addHours(end, -1);
-        }
-        return {
-            startAt: format(start, 'HH:mm'),
-            endAt: format(end, 'HH:mm'),
-        };
-    }
 
     private getOccasion(reservation: Reservation): Occasion {
         const machine = reservation.machine;
