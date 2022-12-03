@@ -213,7 +213,6 @@ export class CalendarService {
     private adjustBack(date: DateTime): string {
         const offset = date.isInDST ? 1 : 0;
         return date.toUTC().plus({ hour: offset }).toISO();
-        //return DateTime.utc(date.year, date.month, date.day, date.hour + offset, date.minute, date.second).toISO();
     }
 
     private reserveInternal$ = (slot: Slot, accs: Accessibility[], collaborative: boolean): Observable<void> => {
