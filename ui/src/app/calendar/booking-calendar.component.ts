@@ -35,7 +35,15 @@ import { CalendarService } from './calendar.service';
 @Component({
     selector: 'xm-booking-calendar',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    templateUrl: './booking-calendar.component.html',
+    template: `
+        <div *ngIf="visible">
+            <div class="row mart20 marb10" id="calendarBlock">
+                <div *ngIf="visible" class="col-md-12">
+                    <full-calendar #fc [options]="calendarOptions"></full-calendar>
+                </div>
+            </div>
+        </div>
+    `,
 })
 export class BookingCalendarComponent implements OnInit, OnChanges {
     @Output() eventSelected = new EventEmitter<EventApi>();
@@ -53,12 +61,10 @@ export class BookingCalendarComponent implements OnInit, OnChanges {
     @ViewChild('fc') calendar!: FullCalendarComponent;
 
     calendarOptions: CalendarOptions;
-    clickedEvent?: EventClickArg;
 
     constructor(private translate: TranslateService, private Calendar: CalendarService) {
         this.calendarOptions = {
             initialView: 'timeGridWeek',
-            timeZone: 'Europe/Helsinki',
             firstDay: 1,
             dayHeaderFormat: { weekday: 'short', day: 'numeric', month: 'numeric', separator: '.' },
             locale: this.translate.currentLang,
@@ -66,7 +72,7 @@ export class BookingCalendarComponent implements OnInit, OnChanges {
             allDaySlot: false,
             height: 'auto',
             nowIndicator: true,
-            slotDuration: '00:30:00',
+            slotLabelFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
             eventMinHeight: 45,
             events: this.refetch,
             eventClick: this.eventClicked.bind(this),
@@ -117,12 +123,6 @@ export class BookingCalendarComponent implements OnInit, OnChanges {
 
     eventClicked(arg: EventClickArg): void {
         if (arg.event.extendedProps?.availableMachines > 0) {
-            if (!this.clickedEvent) {
-                this.clickedEvent = arg;
-            } else if (arg.event.id !== this.clickedEvent.event.id) {
-                //this.clickedEvent.color = { primary: '#add2eb', secondary: '#a6e9b2' };
-                this.clickedEvent = arg;
-            }
             this.eventSelected.emit(arg.event);
         }
     }
