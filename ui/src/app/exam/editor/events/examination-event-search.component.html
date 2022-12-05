@@ -35,7 +35,8 @@
                     (updated)="endDateChanged($event)"
                 ></xm-date-picker>
             </div>
-            <div class="marr20 max-w-350 min-w-100">
+            <div class="marr20 max-w-350 min-w-100 align-items-end">
+                <span class="exam-basic-selecttitle">{{ 'sitnet_search' | translate }}</span>
                 <div class="input-group">
                     <input
                         [(ngModel)]="filterText"
@@ -54,7 +55,9 @@
             </div>
         </div>
     </div>
-
+    <div *ngIf="events.length <= 0" class="marl30 mart20">
+        {{ 'sitnet_exam_no_result' | translate }}
+    </div>
     <div class="mt-4 overflow-x-auto" *ngIf="events.length > 0">
         <div class="col-md-12">
             <table class="table table-striped exams-table">
@@ -122,7 +125,6 @@
                         </th>
                     </tr>
                 </thead>
-
                 <tbody>
                     <tr *ngFor="let event of events | orderBy: sorting.predicate:sorting.reverse">
                         <!-- 1 -->
