@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import type { ClozeTestAnswer, ExamParticipation } from '../../exam/exam.model';
@@ -31,8 +31,7 @@ import { CollaborativeAssesmentService } from './collaborative-assessment.servic
     templateUrl: './assessment.component.html',
 })
 export class AssessmentComponent implements OnInit {
-    @Input() collaborative = false;
-
+    collaborative = false;
     questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
     exam!: Examination;
     participation!: ExamParticipation;
@@ -57,6 +56,7 @@ export class AssessmentComponent implements OnInit {
     }
 
     ngOnInit() {
+        this.collaborative = this.route.snapshot.data.collaborative;
         this.examId = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
         const path = this.collaborative ? `${this.examId}/${this.ref}` : this.examId.toString();
@@ -98,7 +98,7 @@ export class AssessmentComponent implements OnInit {
     print = () => {
         const url = this.collaborative
             ? `/staff/assessments/${this.examId}/print/${this.ref}`
-            : `/staff/assessments/${this.exam.id}`;
+            : `/staff/assessments/${this.exam.id}/print`;
         window.open(url, '_blank');
     };
 

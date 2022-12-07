@@ -84,7 +84,8 @@ export class ExamFeedbackConfigComponent implements OnInit {
         this.updated.emit({ config: this.config });
     };
 
-    selectedReleaseType = () => this.examFeedbackConfig.releaseTypes.find((rt) => rt.filtered);
+    selectedReleaseType = () =>
+        this.examFeedbackConfig.releaseTypes.find((rt) => rt.filtered) || this.examFeedbackConfig.releaseTypes[0];
 
     releaseDateChanged = (event: { date: Date | null }) => {
         if (!this.config) return;

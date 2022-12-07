@@ -35,6 +35,7 @@ import { Option } from '../../../shared/select/dropdown-select.component';
                     *ngIf="students"
                     [options]="students"
                     (optionSelected)="studentSelected($event)"
+                    placeholder="{{ 'sitnet_select' | translate }}"
                 ></xm-dropdown-select>
             </div>
             <div class="col-lg-3 mb-2">

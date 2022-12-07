@@ -90,7 +90,7 @@
                     >
                     </xm-auto-evaluation>
                 </div>
-                <div *ngIf="!collaborative" class="">
+                <div *ngIf="!collaborative && exam.executionType?.type !== 'MATURITY'" class="">
                     <xm-exam-feedback-config
                         [exam]="exam"
                         [modifiable]="isAllowedToUpdateFeedbackConfig"

@@ -468,7 +468,7 @@
   "sitnet_remove_software": "Radera programvara / resurs",
   "sitnet_average_word_length_finnish": "Genomsnittlig ordlängd i det svenska språket är 6 tecken",
   "sitnet_course_unique_code": "Kursens ID",
-  "sitnet_show_http_headers": "Visa HTTP headers som skickas till Exam",
+  "sitnet_show_http_headers": "HTTP headers som skickas till Exam",
   "sitnet_you_dont_have_exams_today": "Du har inga tentamina idag",
   "sitnet_please_check_following_infos": "Var god och kontrollera följande information",
   "sitnet_your_exam_will_start_at": "Din tentamen börjar kl.",
@@ -1096,5 +1096,9 @@
   "sitnet_add_out_of_service_time": "Lisää poikkeuskiinnioloaika SV",
   "sitnet_add_extra_working_hour": "Lisää poikkeusaukioloaika SV",
   "sitnet_maintenance_period_removed": "Huoltokatko poistettu SV",
-  "sitnet_maintenance_period_updated": "Huoltokatko päivitetty SV"
+  "sitnet_maintenance_period_updated": "Huoltokatko päivitetty SV",
+  "sitnet_give_content_statement": "Anna sisällöntarkastuksen lausunto SV",
+  "sitnet_missing_content_statement": "Sisällöntarkastuksen lausunto puuttuu SV",
+  "sitnet_remove_exception_confirmation": "Vahvista poikkeusajan poisto. SV",
+  "sitnet_exam_instance_settings": "EXAM-instanssin asetukset SV"
 }

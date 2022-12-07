@@ -28,7 +28,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
         <div cdkDrag id="draggable" class="wrapper">
             <div class="row">
                 <div
-                    class="col-md-1 min-w-100"
+                    class="col-1"
                     ngbPopover="{{ (hideEditor ? 'sitnet_show' : 'sitnet_hide') | translate }}"
                     popoverTitle="{{ 'sitnet_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
@@ -44,9 +44,9 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                     >
                     </i>
                 </div>
-                <div class="col-md-11">
+                <div class="col-11">
                     <div class="vcenter">
-                        {{ 'sitnet_give_feedback' | translate }}
+                        {{ title | translate }}
                     </div>
                 </div>
             </div>
@@ -89,6 +89,7 @@ export class FeedbackComponent implements OnInit {
     @Input() collaborative = false;
     @Input() participation!: ExamParticipation;
     feedbackComment = '';
+    title = '';
 
     hideEditor = false;
     id = 0;
@@ -105,6 +106,8 @@ export class FeedbackComponent implements OnInit {
     ngOnInit() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
+        this.title =
+            this.exam.executionType.type === 'MATURITY' ? 'sitnet_give_content_statement' : 'sitnet_give_feedback';
     }
 
     toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);

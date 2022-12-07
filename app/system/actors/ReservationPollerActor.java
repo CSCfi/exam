@@ -19,6 +19,7 @@ import akka.actor.AbstractActor;
 import impl.NoShowHandler;
 import io.ebean.Ebean;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ExamEnrolment;
 import models.Reservation;
@@ -39,6 +40,18 @@ public class ReservationPollerActor extends AbstractActor {
         this.dateTimeHandler = dateTimeHandler;
     }
 
+    private boolean isPast(ExamEnrolment ee) {
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
+        if (ee.getExaminationEventConfiguration() == null && ee.getReservation() != null) {
+            return ee.getReservation().getEndAt().isBefore(now);
+        } else if (ee.getExaminationEventConfiguration() != null) {
+            int duration = ee.getExam().getDuration();
+            DateTime start = ee.getExaminationEventConfiguration().getExaminationEvent().getStart();
+            return start.plusMinutes(duration).isBefore(now);
+        }
+        return false;
+    }
+
     @Override
     public Receive createReceive() {
         return receiveBuilder()
@@ -46,21 +59,20 @@ public class ReservationPollerActor extends AbstractActor {
                 String.class,
                 s -> {
                     logger.debug("Starting no-show check ->");
-                    DateTime now = dateTimeHandler.adjustDST(DateTime.now());
                     List<ExamEnrolment> enrolments = Ebean
                         .find(ExamEnrolment.class)
                         .fetch("exam")
                         .fetch("collaborativeExam")
                         .fetch("externalExam")
                         .fetch("reservation")
+                        .fetch("examinationEventConfiguration.examinationEvent")
                         .where()
                         .eq("noShow", false)
-                        .or()
-                        .lt("reservation.endAt", now)
-                        .lt("examinationEventConfiguration.examinationEvent.start", now) // FIXME: exam duration
-                        .endOr()
                         .isNull("reservation.externalReservation")
-                        .findList();
+                        .findList()
+                        .stream()
+                        .filter(this::isPast)
+                        .collect(Collectors.toList());
                     // The following are cases where external user has made a reservation but did not log in before
                     // reservation ended. Mark those as no-shows as well.
                     List<Reservation> reservations = Ebean
@@ -70,7 +82,7 @@ public class ReservationPollerActor extends AbstractActor {
                         .isNotNull("externalRef")
                         .isNull("user")
                         .isNotNull("externalUserRef")
-                        .lt("endAt", now)
+                        .lt("endAt", dateTimeHandler.adjustDST(DateTime.now()))
                         .findList();
                     if (enrolments.isEmpty() && reservations.isEmpty()) {
                         logger.debug("None found");

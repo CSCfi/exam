@@ -79,9 +79,10 @@
         </div>
     </div>
 
-    <div class="top-row" *ngIf="config">
-        <div class="col-md-12">
-            <ul>
+    <div class="row mt-4 ms-2">
+        <div class="col-md-6">
+            <strong>{{ 'sitnet_exam_instance_settings' | translate }}</strong>
+            <ul *ngIf="config">
                 <li>
                     <strong>{{ 'sitnet_interoperable' | translate }}:</strong>&nbsp;
                     <span *ngIf="config.isExamVisitSupported">{{ 'DIALOGS_YES' | translate }}</span>
@@ -168,25 +169,13 @@
                 </li>
             </ul>
         </div>
-    </div>
-
-    <div class="main-row"></div>
-    <div class="top-row">
-        <div class="col-md-12">
-            <ul [hidden]="!attributes">
+        <div class="col-md-6">
+            <strong>{{ 'sitnet_show_http_headers' | translate }}</strong>
+            <ul>
                 <li *ngFor="let item of attributes | keyvalue">
                     <strong>{{ item.key }}:</strong>&nbsp;{{ item.value }}
                 </li>
             </ul>
-        </div>
-    </div>
-
-    <div class="bottom-row mart10">
-        <div class="col-md-12">
-            <a [hidden]="attributes" (click)="showAttributes()" class="pointer">{{
-                'sitnet_show_http_headers' | translate
-            }}</a>
-            <a class="pointer" [hidden]="!attributes" (click)="attributes = []">{{ 'sitnet_hide' | translate }}</a>
         </div>
     </div>
 </div>

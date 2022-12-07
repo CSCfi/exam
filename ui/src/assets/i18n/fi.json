@@ -468,7 +468,7 @@
   "sitnet_remove_software": "Poista ohjelmisto/resurssi",
   "sitnet_average_word_length_finnish": "Suomen kielessä sanan keskipituus on 8 merkkiä",
   "sitnet_course_unique_code": "Opintojakson yksilöivä tunniste",
-  "sitnet_show_http_headers": "Näytä Examille välitetyt HTTP-headerit",
+  "sitnet_show_http_headers": "Examille välitetyt HTTP-headerit",
   "sitnet_you_dont_have_exams_today": "Sinulla ei ole tenttejä tälle päivälle",
   "sitnet_please_check_following_infos": "Ole hyvä ja tarkista seuraavat tiedot",
   "sitnet_your_exam_will_start_at": "Sinulla on tentti alkamassa klo",
@@ -1096,5 +1096,9 @@
   "sitnet_add_out_of_service_time": "Lisää poikkeuskiinnioloaika",
   "sitnet_add_extra_working_hour": "Lisää poikkeusaukioloaika",
   "sitnet_maintenance_period_removed": "Huoltokatko poistettu",
-  "sitnet_maintenance_period_updated": "Huoltokatko päivitetty"
+  "sitnet_maintenance_period_updated": "Huoltokatko päivitetty",
+  "sitnet_give_content_statement": "Anna sisällöntarkastuksen lausunto",
+  "sitnet_missing_content_statement": "Sisällöntarkastuksen lausunto puuttuu",
+  "sitnet_remove_exception_confirmation": "Vahvista poikkeusajan poisto.",
+  "sitnet_exam_instance_settings": "EXAM-instanssin asetukset"
 }

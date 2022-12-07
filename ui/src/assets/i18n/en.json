@@ -468,7 +468,7 @@
   "sitnet_remove_software": "Remove software resource",
   "sitnet_average_word_length_finnish": "Average word length in English is 5 characters",
   "sitnet_course_unique_code": "Course code",
-  "sitnet_show_http_headers": "Show the HTTP headers sent to Exam",
+  "sitnet_show_http_headers": "HTTP headers sent to Exam",
   "sitnet_you_dont_have_exams_today": "You have no exams for today",
   "sitnet_please_check_following_infos": "Please check the following information",
   "sitnet_your_exam_will_start_at": "Your exam starts at",
@@ -1096,5 +1096,9 @@
   "sitnet_add_out_of_service_time": "Lisää poikkeuskiinnioloaika EN",
   "sitnet_add_extra_working_hour": "Lisää poikkeusaukioloaika EN",
   "sitnet_maintenance_period_removed": "Huoltokatko poistettu EN",
-  "sitnet_maintenance_period_updated": "Huoltokatko päivitetty EN"
+  "sitnet_maintenance_period_updated": "Huoltokatko päivitetty EN",
+  "sitnet_give_content_statement": "Anna sisällöntarkastuksen lausunto EN",
+  "sitnet_missing_content_statement": "Sisällöntarkastuksen lausunto puuttuu EN",
+  "sitnet_remove_exception_confirmation": "Confirm exception deletion EN",
+  "sitnet_exam_instance_settings": "EXAM-instanssin asetukset EN"
 }

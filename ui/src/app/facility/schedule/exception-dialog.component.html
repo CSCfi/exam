@@ -102,6 +102,7 @@
                             [minuteStep]="15"
                             [hourStep]="1"
                             [ngClass]="wholeDay ? 'disable-gray-out' : ''"
+                            (ngModelChange)="onStartTimeChange()"
                         ></ngb-timepicker>
                         <label for="endDate">{{ 'sitnet_end' | translate }}:</label>
                         <ngb-timepicker
@@ -111,6 +112,7 @@
                             [minuteStep]="15"
                             [hourStep]="1"
                             [ngClass]="wholeDay ? 'disable-gray-out' : ''"
+                            (ngModelChange)="onEndTimeChange()"
                         ></ngb-timepicker>
                     </div>
                     <div class="col">
@@ -156,6 +158,7 @@
                             [minuteStep]="15"
                             [hourStep]="1"
                             [ngClass]="wholeDay ? 'disable-gray-out' : ''"
+                            (ngModelChange)="onStartTimeChange()"
                         ></ngb-timepicker>
                         <label for="endDate">{{ 'sitnet_end' | translate }}:</label>
                         <ngb-timepicker
@@ -165,6 +168,7 @@
                             [minuteStep]="15"
                             [hourStep]="1"
                             [ngClass]="wholeDay ? 'disable-gray-out' : ''"
+                            (ngModelChange)="onEndTimeChange()"
                         ></ngb-timepicker>
                     </div>
                     <div class="col marb20">
@@ -289,6 +293,7 @@
                             [minuteStep]="15"
                             [hourStep]="1"
                             [ngClass]="wholeDay ? 'disable-gray-out' : ''"
+                            (ngModelChange)="onStartTimeChange()"
                         ></ngb-timepicker>
                         <label for="endDate">{{ 'sitnet_end' | translate }}:</label>
                         <ngb-timepicker
@@ -298,6 +303,7 @@
                             [minuteStep]="15"
                             [hourStep]="1"
                             [ngClass]="wholeDay ? 'disable-gray-out' : ''"
+                            (ngModelChange)="onEndTimeChange()"
                         ></ngb-timepicker>
                     </div>
                     <div class="col marb20">

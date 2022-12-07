@@ -85,7 +85,7 @@ export class ExaminationEventSearchComponent implements OnInit {
                 this.Enrolment.removeAllEventEnrolmentConfigs$(configuration).subscribe({
                     next: () => {
                         this.toast.info(this.translate.instant('sitnet_removed'));
-                        this.events.splice(this.events.indexOf(configuration));
+                        this.events.splice(this.events.indexOf(configuration), 1);
                     },
                     error: this.toast.error,
                 });

@@ -37,12 +37,12 @@
                     <div>
                         <span class="marr10">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
                         <i
-                            class="bi-chevron-down"
+                            class="bi-chevron-down pointer"
                             *ngIf="room.addressVisible"
                             (click)="room.addressVisible = false"
                         ></i>
                         <i
-                            class="bi-chevron-right"
+                            class="bi-chevron-right pointer"
                             *ngIf="!room.addressVisible"
                             (click)="room.addressVisible = true"
                         ></i>
@@ -137,12 +137,12 @@
                         </span>
                         <div class="">
                             <i
-                                class="bi-chevron-down"
+                                class="bi-chevron-down pointer"
                                 *ngIf="room.availabilityVisible"
                                 (click)="room.availabilityVisible = false"
                             ></i>
                             <i
-                                class="bi-chevron-right"
+                                class="bi-chevron-right pointer"
                                 *ngIf="!room.availabilityVisible"
                                 (click)="room.availabilityVisible = true"
                             ></i>
@@ -166,6 +166,15 @@
                             </div>
                             <div class="justify-self-right">
                                 {{ formatDate(exception) }}
+                            </div>
+                        </div>
+                        <div
+                            *ngIf="getFutureExceptionEvent(room.calendarExceptionEvents).length > 2"
+                            class="flex justify-content-end flex-nowrap"
+                        >
+                            <i class="bi-three-dots pointer marr10" (click)="room.availabilityVisible = true"></i>
+                            <div class="text-danger">
+                                ({{ getFutureExceptionEvent(room.calendarExceptionEvents).length }})
                             </div>
                         </div>
                     </div>
