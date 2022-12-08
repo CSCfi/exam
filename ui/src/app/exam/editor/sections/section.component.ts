@@ -182,6 +182,11 @@ export class SectionComponent implements OnInit {
             });
     };
 
+    updateQuestion = (sq: ExamSectionQuestion) => {
+        const index = this.section.sectionQuestions.findIndex((q) => q.id == sq.id);
+        this.section.sectionQuestions[index] = sq;
+    };
+
     openLibrary = () => {
         if (this.section.lotteryOn) {
             this.toast.error(this.translate.instant('sitnet_error_drop_disabled_lottery_on'));
