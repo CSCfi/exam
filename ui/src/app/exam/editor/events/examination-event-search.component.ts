@@ -28,8 +28,8 @@ import { ExaminationEventConfiguration } from '../../exam.model';
 })
 export class ExaminationEventSearchComponent implements OnInit {
     date = new Date();
-    startDate: Date | null = null;
-    endDate: Date | null = null;
+    startDate: Date | null = new Date();
+    endDate: Date | null = new Date();
     events: ExaminationEventConfiguration[] = [];
     sorting = {
         predicate: 'examinationEvent.start',
