@@ -886,7 +886,7 @@ $sitnet-icon-size: 32px;
 }
 
 .dropdown-select-full-width {
-  display: flex;
+  display: flex !important;
   width: 100%;
   justify-content: space-between;
   align-items: center;
