@@ -14,8 +14,7 @@
  */
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { addHours, parseISO } from 'date-fns';
-import { format, utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
+import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { Course, Exam, ExamSection, MaintenancePeriod } from '../exam/exam.model';
@@ -75,8 +74,8 @@ export class CalendarService {
 
     reserve$(
         examId: number,
-        start: Date,
-        end: Date,
+        start: DateTime,
+        end: DateTime,
         room: ExamRoom,
         accs: Accessibility[],
         org: { _id: string | null },
@@ -85,8 +84,8 @@ export class CalendarService {
     ) {
         const tz = room.localTimezone;
         const slot: Slot = {
-            start: this.adjustBack(start, tz),
-            end: this.adjustBack(end, tz),
+            start: this.adjustBack(start),
+            end: this.adjustBack(end),
             examId: examId,
             roomId: room._id ? room._id : room.id,
             orgId: org._id,
@@ -132,8 +131,8 @@ export class CalendarService {
             }
             const hours = this.findOpeningHours(dwh, openingHours);
             if (hours) {
-                const start = format(parseISO(dwh.startTime), 'HH:mm', { timeZone: tz });
-                const end = format(parseISO(dwh.endTime), 'HH:mm', { timeZone: tz });
+                const start = DateTime.fromISO(dwh.startTime, { zone: tz }).toLocaleString(DateTime.TIME_24_SIMPLE);
+                const end = DateTime.fromISO(dwh.endTime, { zone: tz }).toLocaleString(DateTime.TIME_24_SIMPLE);
                 hours.periods.push(`${start} - ${end}`);
             }
         });
@@ -152,7 +151,7 @@ export class CalendarService {
     ): (ExceptionWorkingHours & { start: string; end: string; description: string })[] {
         const maxStart = [new Date(), start].reduce((a, b) => (a > b ? a : b));
         const events = room.calendarExceptionEvents.filter(
-            (e) => parseISO(e.startDate) > maxStart && parseISO(e.endDate) < end,
+            (e) => DateTime.fromISO(e.startDate).toJSDate() > maxStart && DateTime.fromISO(e.endDate).toJSDate() < end,
         );
         return events.map((e) => this.formatExceptionEvent(e, room.localTimezone));
     }
@@ -165,14 +164,22 @@ export class CalendarService {
 
     getEarliestOpening(room: ExamRoom): Date {
         const tz = room.localTimezone;
-        const openings = room.defaultWorkingHours.map((dwh) => zonedTimeToUtc(parseISO(dwh.startTime), tz));
-        return openings.reduce((a, b) => (a < b ? a : b));
+        const openings = room.defaultWorkingHours.map((dwh) => {
+            const start = DateTime.fromISO(dwh.startTime, { zone: tz });
+            return DateTime.now().set({ hour: start.hour, minute: start.minute, second: start.second });
+        });
+        return DateTime.min(...openings)
+            .set({ minute: 0 })
+            .toJSDate();
     }
 
     getLatestClosing(room: ExamRoom): Date {
         const tz = room.localTimezone;
-        const closings = room.defaultWorkingHours.map((dwh) => zonedTimeToUtc(parseISO(dwh.endTime), tz));
-        return closings.reduce((a, b) => (a > b ? a : b));
+        const closings = room.defaultWorkingHours.map((dwh) => {
+            const end = DateTime.fromISO(dwh.endTime, { zone: tz });
+            return DateTime.now().set({ hour: end.hour, minute: end.minute, second: end.second });
+        });
+        return DateTime.max(...closings).toJSDate();
     }
 
     getClosedWeekdays(room: ExamRoom): number[] {
@@ -203,10 +210,9 @@ export class CalendarService {
     getExamInfo$ = (collaborative: boolean, id: number) =>
         this.http.get<ExamInfo>(collaborative ? `/app/iop/exams/${id}/info` : `/app/student/exam/${id}/info`);
 
-    private adjustBack(date: Date, tz: string): string {
-        const adjusted = zonedTimeToUtc(date, tz);
-        const offset = this.DateTime.isDST(adjusted) ? 1 : 0;
-        return utcToZonedTime(addHours(adjusted, offset), tz).toISOString();
+    private adjustBack(date: DateTime): string {
+        const offset = date.isInDST ? 1 : 0;
+        return date.toUTC().plus({ hour: offset }).toISO();
     }
 
     private reserveInternal$ = (slot: Slot, accs: Accessibility[], collaborative: boolean): Observable<void> => {
@@ -227,12 +233,12 @@ export class CalendarService {
         event: ExceptionWorkingHours,
         tz: string,
     ): ExceptionWorkingHours & { start: string; end: string; description: string } {
-        const startDate = zonedTimeToUtc(parseISO(event.startDate), tz);
-        const endDate = zonedTimeToUtc(parseISO(event.endDate), tz);
+        const startDate = DateTime.fromISO(event.startDate, { zone: tz });
+        const endDate = DateTime.fromISO(event.endDate, { zone: tz });
         return {
             ...event,
-            start: format(startDate, 'dd.MM.yyyy HH:mm'),
-            end: format(endDate, 'dd.MM.yyyy HH:mm'),
+            start: startDate.toFormat('dd.MM.yyyy HH:mm'),
+            end: endDate.toFormat('dd.MM.yyyy HH:mm'),
             description: event.outOfService ? 'sitnet_closed' : 'sitnet_open',
         };
     }

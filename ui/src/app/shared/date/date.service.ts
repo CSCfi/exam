@@ -14,8 +14,8 @@
  */
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { format, parseISO, roundToNearestMinutes } from 'date-fns';
-import { format as formatTz, utcToZonedTime } from 'date-fns-tz';
+import { format, roundToNearestMinutes } from 'date-fns';
+import { DateTime } from 'luxon';
 import { range } from 'ramda';
 
 export enum REPEAT_OPTIONS {
@@ -45,10 +45,9 @@ export class DateTimeService {
     }
 
     getDuration = (timestamp: string) =>
-        format(roundToNearestMinutes(utcToZonedTime(parseISO(timestamp), 'UTC')), 'HH:mm');
+        format(roundToNearestMinutes(DateTime.fromISO(timestamp, { zone: 'UTC' }).toJSDate()), 'HH:mm');
 
-    formatInTimeZone = (date: Date, tz: string) =>
-        formatTz(utcToZonedTime(date, tz), "yyyy-MM-dd'T'HH:mm:ss'Z'", { timeZone: tz });
+    formatInTimeZone = (date: Date, tz: string) => DateTime.fromJSDate(date, { zone: tz }).toISO();
 
     getDateForWeekday(ordinal: number): Date {
         const now = new Date();

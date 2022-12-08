@@ -17,8 +17,7 @@ import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { addHours, format, parseISO } from 'date-fns';
-import { zonedTimeToUtc } from 'date-fns-tz';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamMachine, ExamRoom, Reservation } from '../../reservation/reservation.model';
 import { DateTimeService } from '../../shared/date/date.service';
@@ -44,7 +43,7 @@ export class WrongLocationComponent implements OnInit {
         private translate: TranslateService,
         private toast: ToastrService,
         private Enrolment: EnrolmentService,
-        private DateTime: DateTimeService,
+        private DateTimeService: DateTimeService,
     ) {}
 
     ngOnInit() {
@@ -71,7 +70,7 @@ export class WrongLocationComponent implements OnInit {
         }
     }
 
-    printExamDuration = () => this.DateTime.printExamDuration(this.enrolment.exam);
+    printExamDuration = () => this.DateTimeService.printExamDuration(this.enrolment.exam);
     showInstructions = () => this.Enrolment.showInstructions(this.enrolment);
 
     private getRoomInstructions = (lang: string, room: ExamRoom) => {
@@ -87,17 +86,11 @@ export class WrongLocationComponent implements OnInit {
 
     private setOccasion = (reservation: Reservation) => {
         const tz = reservation.machine.room.localTimezone;
-        let start = zonedTimeToUtc(parseISO(reservation.startAt), tz);
-        let end = zonedTimeToUtc(parseISO(reservation.endAt), tz);
-        if (this.DateTime.isDST(start)) {
-            start = addHours(start, -1);
-        }
-        if (this.DateTime.isDST(end)) {
-            end = addHours(end, -1);
-        }
+        const start = DateTime.fromISO(reservation.startAt, { zone: tz });
+        const end = DateTime.fromISO(reservation.endAt, { zone: tz });
         this.occasion = {
-            startAt: format(start, 'HH:mm'),
-            endAt: format(end, 'HH:mm'),
+            startAt: start.minus({ hour: start.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
+            endAt: end.minus({ hour: end.isInDST ? 1 : 0 }).toLocaleString(DateTime.TIME_24_SIMPLE),
         };
     };
 }
