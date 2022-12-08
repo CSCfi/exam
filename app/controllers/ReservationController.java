@@ -280,7 +280,7 @@ public class ReservationController extends BaseController {
                     .eq("exam.parent.examOwners", user)
                     .eq("exam.examOwners", user)
                     .endJunction()
-                    .eq("exam.state", Exam.State.DELETED);
+                    .ne("exam.state", Exam.State.DELETED);
         }
 
         if (start.isPresent()) {
