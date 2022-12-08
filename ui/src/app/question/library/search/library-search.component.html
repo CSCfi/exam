@@ -127,10 +127,10 @@
         <div class="row">
             <div [ngClass]="user.isAdmin ? 'col-md-6' : 'col-md-12'">
                 <form>
-                    <div>
+                    <div class="input-group">
                         <input
                             class="form-control"
-                            name="filterSearcg"
+                            name="filterSearch"
                             (input)="applySearchFilter()"
                             [(ngModel)]="filter.text"
                             placeholder="{{ 'sitnet_search_by_question_text' | translate }}"
