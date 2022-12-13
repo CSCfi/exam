@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamInspection;
+import models.ExaminationEventConfiguration;
 import models.Reservation;
 import play.Logger;
 import play.libs.Json;
@@ -145,11 +146,16 @@ public class NoShowHandlerImpl implements NoShowHandler {
             // For no-shows with private examinations we remove the reservation so student can re-reserve.
             // This is needed because student is not able to re-enroll by himself.
             Reservation reservation = enrolment.getReservation();
+            ExaminationEventConfiguration eec = enrolment.getExaminationEventConfiguration();
             enrolment.setReservation(null);
+            enrolment.setExaminationEventConfiguration(null);
             enrolment.setNoShow(false);
             enrolment.update();
             if (reservation != null) {
                 reservation.delete();
+            }
+            if (eec != null) {
+                eec.delete();
             }
         } else {
             enrolment.setNoShow(true);
