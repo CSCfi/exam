@@ -218,7 +218,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
 
     @Override
     public boolean isAllowedToRemove(Exam exam) {
-        return !hasFutureReservations(exam) && exam.getChildren().isEmpty();
+        return !hasFutureReservations(exam) && !hasFutureEvents(exam) && exam.getChildren().isEmpty();
     }
 
     @Override
@@ -367,6 +367,15 @@ public class ExamUpdaterImpl implements ExamUpdater {
             .stream()
             .map(ExamEnrolment::getReservation)
             .anyMatch(r -> r != null && r.getEndAt().isAfter(now));
+    }
+
+    private boolean hasFutureEvents(Exam exam) {
+        DateTime now = DateTime.now();
+        return exam
+            .getExamEnrolments()
+            .stream()
+            .map(ExamEnrolment::getExaminationEventConfiguration)
+            .anyMatch(eec -> eec != null && eec.getExaminationEvent().getStart().isAfter(now));
     }
 
     private Optional<Result> getFormValidationError(boolean checkPeriod, Http.Request request) {
