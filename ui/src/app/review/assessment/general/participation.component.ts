@@ -45,8 +45,8 @@ export class ParticipationComponent {
 
     viewAnswers = () => {
         const url = this.collaborative
-            ? `/assessments/collaborative/${this.route.snapshot.params.id}/${this.participation._id}`
-            : `/assessments/${this.participation.exam?.id}`;
+            ? `/staff/assessments/${this.route.snapshot.params.id}/collaborative/${this.participation._id}`
+            : `/staff/assessments/${this.participation.exam?.id}`;
         window.open(url, '_blank');
     };
 
