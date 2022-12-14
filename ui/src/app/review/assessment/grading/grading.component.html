@@ -128,8 +128,7 @@
         *ngIf="exam.examFeedback?.comment"
         class="col-md-10"
         [ngClass]="isCommentRead() ? 'general-info-content' : 'sitnet-text-alarm'"
-        xmMathJax
-        math="exam.examFeedback?.comment"
+        [innerHTML]="exam.examFeedback.comment"
     ></div>
     <div *ngIf="exam.examFeedback?.attachment" class="col-md-offset-2 col-md-10 general-info-content">
         <a class="pointer" (click)="downloadFeedbackAttachment()">
