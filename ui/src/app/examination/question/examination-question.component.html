@@ -27,8 +27,7 @@
                         <div
                             class="section-box-title"
                             *ngIf="!expanded"
-                            xmMathJax
-                            math="sq.question.question | slice: 0:240"
+                            [xmMathJax]="sq.question.question | slice: 0:240"
                         ></div>
                     </div>
                     <div *ngIf="sq.question.type === 'ClozeTestQuestion'">

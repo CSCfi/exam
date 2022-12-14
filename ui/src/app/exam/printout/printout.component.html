@@ -141,14 +141,12 @@
             <span
                 class="col-md-12 question"
                 *ngIf="esq.question.type !== 'ClozeTestQuestion'"
-                xmMathJax
-                math="esq.question.question"
+                [xmMathJax]="esq.question.question"
             ></span>
             <span
                 class="col-md-12 question"
                 *ngIf="esq.question.type === 'ClozeTestQuestion'"
-                xmMathJax
-                math]="esq.clozeTestAnswer?.question"
+                [xmMathJax]="esq.clozeTestAnswer?.question"
             ></span>
             <span
                 *ngIf="

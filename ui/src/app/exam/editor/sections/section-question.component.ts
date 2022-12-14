@@ -39,6 +39,7 @@ export class SectionQuestionComponent {
     @Input() section!: ExamSection;
     @Input() examId = 0;
     @Output() removed = new EventEmitter<ExamSectionQuestion>();
+    @Output() updated = new EventEmitter<ExamSectionQuestion>();
 
     constructor(
         private http: HttpClient,
@@ -119,7 +120,10 @@ export class SectionQuestionComponent {
                     })
                     .subscribe({
                         next: (resp) => {
-                            this.sectionQuestion = mergeDeepRight(this.sectionQuestion, resp) as ExamSectionQuestion;
+                            this.sectionQuestion = {
+                                ...mergeDeepRight(this.sectionQuestion, resp),
+                            } as ExamSectionQuestion;
+                            this.updated.emit(this.sectionQuestion);
                             // Collaborative exam question handling.
                             if (!this.collaborative) {
                                 return;
@@ -171,7 +175,8 @@ export class SectionQuestionComponent {
                     next: (esq: ExamSectionQuestion) => {
                         this.toast.info(this.translate.instant('sitnet_question_saved'));
                         // apply changes back to scope
-                        this.sectionQuestion = mergeDeepRight(this.sectionQuestion, esq) as ExamSectionQuestion;
+                        this.sectionQuestion = { ...mergeDeepRight(this.sectionQuestion, esq) } as ExamSectionQuestion;
+                        this.updated.emit(this.sectionQuestion);
                     },
                     error: this.toast.error,
                 });
