@@ -88,12 +88,7 @@
             "
             ngbDropdownItem
         >
-            <button
-                [hidden]="enrolment.exam.executionType.type !== 'PUBLIC'"
-                class="infolink-light pointer border rounded"
-                (click)="makeReservation()"
-                tabindex="0"
-            >
+            <button class="infolink-light pointer border rounded" (click)="makeReservation()" tabindex="0">
                 {{ 'sitnet_student_new_reservation' | translate }}
             </button>
         </div>
