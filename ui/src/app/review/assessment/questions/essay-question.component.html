@@ -6,6 +6,15 @@
                 <!-- question title -->
                 <div class="review-question-title marr20" [xmMathJax]="sectionQuestion.question.question"></div>
                 <!--chevron -->
+                <div class="d-inline-block review-points">
+                    <span *ngIf="!!sectionQuestion.forcedScore" class="text text-danger">
+                        {{ sectionQuestion.forcedScore }}
+                    </span>
+                    <span *ngIf="!sectionQuestion.forcedScore" class="text text-danger">
+                        {{ scoreValue }}
+                    </span>
+                    / {{ displayMaxScore() }} {{ 'sitnet_unit_points' | translate }}
+                </div>
                 <a (click)="reviewExpanded = !reviewExpanded">
                     <img
                         *ngIf="!reviewExpanded"
