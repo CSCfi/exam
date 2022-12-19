@@ -54,6 +54,10 @@ const routes: Route[] = [
         component: WaitingRoomComponent,
     },
     {
+        path: 'waitingroom',
+        component: WaitingRoomComponent,
+    },
+    {
         path: 'wrongroom/:eid/:mid',
         component: WrongLocationComponent,
         data: {
