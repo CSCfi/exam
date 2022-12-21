@@ -1100,5 +1100,6 @@
   "sitnet_give_content_statement": "Anna sisällöntarkastuksen lausunto",
   "sitnet_missing_content_statement": "Sisällöntarkastuksen lausunto puuttuu",
   "sitnet_remove_exception_confirmation": "Vahvista poikkeusajan poisto.",
-  "sitnet_exam_instance_settings": "EXAM-instanssin asetukset"
+  "sitnet_exam_instance_settings": "EXAM-instanssin asetukset",
+  "sitnet_other_publication_settings": "Muut julkaisuasetukset"
 }
