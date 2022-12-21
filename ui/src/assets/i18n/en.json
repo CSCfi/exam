@@ -1100,5 +1100,6 @@
   "sitnet_give_content_statement": "Anna sisällöntarkastuksen lausunto EN",
   "sitnet_missing_content_statement": "Sisällöntarkastuksen lausunto puuttuu EN",
   "sitnet_remove_exception_confirmation": "Confirm exception deletion EN",
-  "sitnet_exam_instance_settings": "EXAM-instanssin asetukset EN"
+  "sitnet_exam_instance_settings": "EXAM-instanssin asetukset EN",
+  "sitnet_other_publication_settings": "Muut julkaisuasetukset EN"
 }
