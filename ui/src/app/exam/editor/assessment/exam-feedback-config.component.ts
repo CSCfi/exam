@@ -70,6 +70,9 @@ export class ExamFeedbackConfigComponent implements OnInit {
         if (this.modifiable) {
             this.examFeedbackConfig.enabled = true;
             this.enabled.emit();
+            if (this.config) {
+                this.updated.emit({ config: this.config });
+            }
         }
     };
 

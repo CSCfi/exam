@@ -583,8 +583,8 @@ public class ReviewController extends BaseController {
             .find(Exam.class)
             .where()
             .eq("parent.id", eid)
-            .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED, Exam.State.REJECTED)
-            .isNotNull("parent.examFeedbackConfig")
+            .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.REJECTED)
+            //.isNotNull("parent.examFeedbackConfig")
             .findSet();
         return ok(Json.newObject().put("status", assessments.isEmpty()));
     }
