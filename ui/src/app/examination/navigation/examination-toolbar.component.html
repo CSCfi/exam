@@ -46,7 +46,7 @@
 </div>
 
 <!-- ATTACHMENT -->
-<div class="row ms-3 mt-3 align-items-center overflow-hidden flex-nowrap" [hidden]="!exam.attachment">
+<div class="row ms-3 mt-3 align-items-center" [hidden]="!exam.attachment">
     <button
         class="pointer attachment-button green_button text-nowrap"
         [title]="exam.attachment?.fileName"
@@ -61,7 +61,7 @@
         />
     </button>
     <div class="attachment-name ps-1" [title]="exam.attachment?.fileName">
-        {{ exam.attachment?.fileName | uppercase }}
+        {{ exam.attachment?.fileName | uppercase | slice: 0:50 }}
     </div>
 </div>
 
