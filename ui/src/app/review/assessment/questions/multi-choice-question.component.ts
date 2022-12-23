@@ -92,7 +92,7 @@ export class MultiChoiceQuestionComponent implements OnInit {
     };
 
     displayMaxScore = () =>
-        Number.isInteger(this.sectionQuestion.maxScore)
+        !this.sectionQuestion.maxScore || Number.isInteger(this.sectionQuestion.maxScore)
             ? this.sectionQuestion.maxScore
             : this.sectionQuestion.maxScore.toFixed(2);
 

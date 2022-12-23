@@ -125,7 +125,7 @@ export class EssayQuestionComponent implements OnInit {
         return this.CommonExam.countCharacters(this.sectionQuestion.essayAnswer.answer);
     };
     displayMaxScore = () =>
-        Number.isInteger(this.sectionQuestion.maxScore)
+        !this.sectionQuestion.maxScore || Number.isInteger(this.sectionQuestion.maxScore)
             ? this.sectionQuestion.maxScore
             : this.sectionQuestion.maxScore.toFixed(2);
 }
