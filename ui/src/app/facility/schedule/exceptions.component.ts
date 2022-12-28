@@ -108,7 +108,7 @@ export class ExceptionListComponent implements OnInit, OnChanges {
         this.roomService.openExceptionDialog(this.createExceptionCallback, true, this.exceptions);
     addExceptionOpen = () => this.roomService.openExceptionDialog(this.createExceptionCallback, false, this.exceptions);
 
-    createExceptionCallback = (exception: ExceptionWorkingHours[]) => this.created.emit(exception);
+    createExceptionCallback = (exceptions: ExceptionWorkingHours[]) => this.created.emit(exceptions);
 
     deleteException = (exception: ExceptionWorkingHours) => {
         const modal = this.modal.open(ExceptionDeleteDialogComponent, {
