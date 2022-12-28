@@ -237,13 +237,8 @@ public class ExamUpdaterImpl implements ExamUpdater {
             }
             config.setReleaseType(newConfig.getReleaseType());
             if (config.getReleaseType() == ExamFeedbackConfig.ReleaseType.GIVEN_DATE) {
-                config.setAmountDays(null);
                 config.setReleaseDate(newConfig.getReleaseDate());
-            } else if (config.getReleaseType() == ExamFeedbackConfig.ReleaseType.GIVEN_AMOUNT_DAYS) {
-                config.setAmountDays(newConfig.getAmountDays());
-                config.setReleaseDate(null);
             } else {
-                config.setAmountDays(null);
                 config.setReleaseDate(null);
             }
             config.save();

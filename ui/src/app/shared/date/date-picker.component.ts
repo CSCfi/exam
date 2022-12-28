@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
+import type { OnChanges, OnInit } from '@angular/core';
 import { Component, EventEmitter, Injectable, Input, Output } from '@angular/core';
 import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDate, NgbDateParserFormatter, NgbDatepickerI18n } from '@ng-bootstrap/ng-bootstrap';
@@ -66,7 +66,7 @@ export class DatePickerI18n extends NgbDatepickerI18n {
         { provide: NgbDatepickerI18n, useClass: DatePickerI18n },
     ],
 })
-export class DatePickerComponent implements OnInit {
+export class DatePickerComponent implements OnInit, OnChanges {
     @Input() initialDate: Date | string | number | null = null;
     @Input() initiallyEmpty = false;
     @Input() extra = false;
@@ -74,7 +74,7 @@ export class DatePickerComponent implements OnInit {
     @Input() modelOptions: Record<string, string> = {};
     @Input() disabled = false;
     @Input() optional = true;
-    @Input() examMaxDate?: string;
+    @Input() minDate?: string;
 
     @Output() updated = new EventEmitter<{ date: Date | null }>();
     @Output() extraActionHappened = new EventEmitter<{ date: Date | null }>();
@@ -85,7 +85,7 @@ export class DatePickerComponent implements OnInit {
     today!: NgbDate;
     startDate!: NgbDate;
     nowDateStruct!: NgbDateStruct;
-    maxDateStruct!: NgbDateStruct;
+    minDateStruct!: NgbDateStruct;
 
     ngOnInit() {
         const now = new Date();
@@ -93,19 +93,18 @@ export class DatePickerComponent implements OnInit {
         this.today = new NgbDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
         const date = new NgbDate(d.getFullYear(), d.getMonth() + 1, d.getDate());
 
-        if (this.examMaxDate) {
-            const maxDate = new Date(Date.parse(this.examMaxDate)).getTime() - new Date(0).getTime();
-            const maxDateInit = new Date(now.getTime() + maxDate);
-            this.maxDateStruct = {
-                day: maxDateInit.getDate(),
-                month: maxDateInit.getMonth() + 1,
-                year: maxDateInit.getFullYear(),
+        if (this.minDate) {
+            const minDate = new Date(Date.parse(this.minDate));
+            this.minDateStruct = {
+                day: minDate.getDate(),
+                month: minDate.getMonth() + 1,
+                year: minDate.getFullYear(),
             } as NgbDateStruct;
         } else {
-            this.maxDateStruct = {
+            this.minDateStruct = {
                 day: now.getDate(),
-                month: now.getMonth() + 1,
-                year: now.getFullYear() + 10,
+                month: now.getMonth() - 1,
+                year: now.getFullYear() - 10,
             } as NgbDateStruct;
         }
         if (!this.initiallyEmpty) {

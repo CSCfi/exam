@@ -37,7 +37,7 @@
         <div class="review-attachment-button autoeval-button">
             <a
                 class="pointer"
-                [ngClass]="{ notinuse: !modifiable }"
+                [ngClass]="{ notinuse: modifiable !== 'everything' }"
                 *ngIf="!examFeedbackConfig.enabled"
                 name="enableExamFeedbackConfig"
                 (click)="enable()"
@@ -47,7 +47,7 @@
             <a
                 class="pointer"
                 *ngIf="examFeedbackConfig.enabled"
-                [ngClass]="{ notinuse: !modifiable }"
+                [ngClass]="{ notinuse: modifiable !== 'everything' }"
                 name="disableExamFeedbackConfig"
                 (click)="disable()"
             >
@@ -58,12 +58,12 @@
 </div>
 
 <div class="row mt-2 align-items-end" [hidden]="!examFeedbackConfigDisplay.visible">
-    <div class="col-md-3">
+    <div class="col-6">
         {{ 'sitnet_exam_feedback_release_type' | translate }}:
         <div class="dropdown" ngbDropdown>
             <button
                 class="btn btn-outline-dark"
-                [disabled]="!examFeedbackConfig.enabled || !modifiable"
+                [disabled]="!examFeedbackConfig.enabled || modifiable === 'nothing'"
                 type="button"
                 ngbDropdownToggle
                 aria-expanded="true"
@@ -72,7 +72,7 @@
             </button>
             <ul ngbDropdownMenu role="menu">
                 <li
-                    *ngFor="let type of examFeedbackConfig.releaseTypes"
+                    *ngFor="let type of availableReleaseTypes()"
                     role="presentation"
                     [ngClass]="type.filtered ? 'active' : ''"
                     (click)="applyFilter(type)"
@@ -85,24 +85,12 @@
         </div>
     </div>
 
-    <div class="col-md-3" [hidden]="!examFeedbackConfigDisplay.visible">
+    <div class="col-6" [hidden]="!examFeedbackConfigDisplay.visible">
         <xm-date-picker
             *ngIf="selectedReleaseType()?.name === 'GIVEN_DATE'"
             (updated)="releaseDateChanged($event)"
-            [disabled]="!modifiable"
+            [disabled]="modifiable === 'nothing'"
             [initialDate]="config ? config.releaseDate : null"
         ></xm-date-picker>
-        <input
-            *ngIf="config && selectedReleaseType()?.name === 'GIVEN_AMOUNT_DAYS'"
-            name="amountDays"
-            type="number"
-            lang="en"
-            class="form-control"
-            [disabled]="!modifiable"
-            [(ngModel)]="config.amountDays"
-            [min]="1"
-            [max]="60"
-            required
-        />
     </div>
 </div>
