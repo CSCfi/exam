@@ -22,7 +22,6 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
                 <xm-date-picker
                     [disabled]="disabled"
                     [initialDate]="initialTime"
-                    [examMaxDate]="examMaxDate"
                     (updated)="onDateUpdate($event)"
                 ></xm-date-picker>
             </div>
