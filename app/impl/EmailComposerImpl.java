@@ -414,12 +414,13 @@ class EmailComposerImpl implements EmailComposer {
 
     @Override
     public void composeExaminationEventCancellationNotification(Set<User> users, Exam exam, ExaminationEvent event) {
-        Lang lang = Lang.forCode("en");
-        String content = generateExaminationEventCancellationMail(exam, event, lang, true);
-        String subject = messaging.get(lang, "email.examinationEvent.cancel.subject");
-        Set<String> bcc = users.stream().map(User::getEmail).collect(Collectors.toSet());
-        // email.examinationEvent.cancel.message.admin
-        emailSender.send(systemAccount, bcc, subject, content);
+        users.forEach(user -> {
+            Lang lang = getLang(user);
+            String content = generateExaminationEventCancellationMail(exam, event, lang, true);
+            String subject = messaging.get(lang, "email.examinationEvent.cancel.subject");
+            // email.examinationEvent.cancel.message.admin
+            emailSender.send(user.getEmail(), systemAccount, subject, content);
+        });
     }
 
     public void composeExaminationEventCancellationNotification(User user, Exam exam, ExaminationEvent event) {
