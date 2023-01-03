@@ -90,7 +90,6 @@ public class ExamAnswerController extends BaseController {
                     esq.update();
                 }
                 esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText);
-                esq.getQuestion().setQuestion(null); // hide the correct answers
             });
         exam
             .getExamSections()
@@ -102,6 +101,14 @@ public class ExamAnswerController extends BaseController {
             });
         exam.setMaxScore();
         exam.setTotalScore();
+        // hide the correct answers for cloze test questions
+        exam
+            .getExamSections()
+            .stream()
+            .flatMap((es -> es.getSectionQuestions().stream()))
+            .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
+            .forEach(esq -> esq.getQuestion().setQuestion(null));
+
         return ok(exam);
     }
 }
