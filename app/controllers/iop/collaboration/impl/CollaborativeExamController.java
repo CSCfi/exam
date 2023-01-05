@@ -105,41 +105,8 @@ public class CollaborativeExamController extends CollaborationController {
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
-    public CompletionStage<Result> listExams(Http.Request request) {
-        Optional<URL> url = parseUrl();
-        if (url.isEmpty()) {
-            return wrapAsPromise(internalServerError());
-        }
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        WSRequest wsRequest = wsClient.url(url.get().toString());
-        String homeOrg = configReader.getHomeOrganisationRef();
-
-        Function<WSResponse, Result> onSuccess = response ->
-            findExamsToProcess(response)
-                .map(items -> {
-                    List<JsonNode> exams = items
-                        .entrySet()
-                        .stream()
-                        .map(e -> e.getKey().getExam(e.getValue()))
-                        .filter(e -> isAuthorizedToView(e, user, homeOrg))
-                        .map(this::serialize)
-                        .collect(Collectors.toList());
-
-                    return ok(Json.newArray().addAll(exams));
-                })
-                .getOrElseGet(Function.identity());
-
-        return wsRequest.get().thenApplyAsync(onSuccess);
-    }
-
-    @Authenticated
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public CompletionStage<Result> searchExams(Http.Request request, final Optional<String> filter) {
-        if (filter.isEmpty() || filter.get().isEmpty()) {
-            return wrapAsPromise(badRequest());
-        }
-
-        Optional<URL> url = parseUrlWithSearchParam(filter.get(), false);
+        Optional<URL> url = filter.orElse("").isEmpty() ? parseUrl() : parseUrlWithSearchParam(filter.get(), false);
         if (url.isEmpty()) {
             return wrapAsPromise(internalServerError("sitnet_internal_error"));
         }
