@@ -304,8 +304,7 @@ DELETE        /app/iop/reservations/external/:ref/force                controlle
 GET           /app/iop/student/finishedExams                           controllers.iop.collaboration.impl.CollaborativeStudentActionController.getFinishedExams(request: Request)
 
 ################# Collaborative Exam interface #########
-GET           /app/iop/exams                                           controllers.iop.collaboration.impl.CollaborativeExamController.listExams(request: Request)
-GET           /app/iop/exams/search                                    controllers.iop.collaboration.impl.CollaborativeExamController.searchExams(request: Request, filter: java.util.Optional[String])
+GET           /app/iop/exams                                           controllers.iop.collaboration.impl.CollaborativeExamController.searchExams(request: Request, filter: java.util.Optional[String])
 POST          /app/iop/exams                                           controllers.iop.collaboration.impl.CollaborativeExamController.createExam(request: Request)
 GET           /app/iop/exams/:id                                       controllers.iop.collaboration.impl.CollaborativeExamController.getExam(id: Long, request: Request)
 GET           /app/iop/exams/:id/preview                               controllers.iop.collaboration.impl.CollaborativeExamController.getExamPreview(id: Long, request: Request)
@@ -326,8 +325,7 @@ PUT           /app/iop/exams/:eid/sections/:sid/reorder                controlle
 PUT           /app/iop/exams/:eid/reorder                              controllers.iop.collaboration.impl.CollaborativeExamSectionController.reorderSections(eid: Long, request: Request)
 PUT           /app/iop/exams/:eid/sections/:sid/questions/:qid         controllers.iop.collaboration.impl.CollaborativeExamSectionController.updateQuestion(eid: Long, sid: Long, qid: Long, request: Request)
 ################# Collaborative Exam enrolment interface #########
-GET           /app/iop/enrolments                                      controllers.iop.collaboration.impl.CollaborativeEnrolmentController.listExams
-GET           /app/iop/enrolment/search                                controllers.iop.collaboration.impl.CollaborativeEnrolmentController.searchExams(filter: java.util.Optional[String])
+GET           /app/iop/enrolment                                       controllers.iop.collaboration.impl.CollaborativeEnrolmentController.searchExams(filter: java.util.Optional[String])
 GET           /app/iop/enrolments/exam/:eid                            controllers.iop.collaboration.impl.CollaborativeEnrolmentController.checkIfEnrolled(eid: Long, request: Request)
 POST          /app/iop/enrolments/:eid                                 controllers.iop.collaboration.impl.CollaborativeEnrolmentController.createEnrolment(eid: Long, request: Request)
 ################# Collaborative Exam reservation interface #########
