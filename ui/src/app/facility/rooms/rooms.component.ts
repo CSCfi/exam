@@ -97,8 +97,8 @@ export class RoomListComponent implements OnInit {
                     });
                     const roomsWithNoName = this.rooms.filter((r) => !r.name);
                     this.rooms = this.rooms
-                        .sort((a, b) => (a.name > b.name ? 1 : -1))
                         .filter((r) => r.name)
+                        .sort((a, b) => (a.name > b.name ? 1 : -1))
                         .concat(roomsWithNoName);
                 });
             }
