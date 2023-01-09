@@ -52,6 +52,7 @@ import models.Attachment;
 import models.Comment;
 import models.Exam;
 import models.ExamEnrolment;
+import models.ExamFeedbackConfig;
 import models.ExamInspection;
 import models.ExamParticipation;
 import models.ExamType;
@@ -579,14 +580,30 @@ public class ReviewController extends BaseController {
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result hasLockedAssessments(Long eid) {
+        // if no assessments => everything
+        // if assessments and type == locked => none
+        // else date only
         Set<Exam> assessments = Ebean
             .find(Exam.class)
             .where()
             .eq("parent.id", eid)
-            .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED, Exam.State.REJECTED)
-            .isNotNull("parent.examFeedbackConfig")
+            .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.REJECTED)
+            //.isNotNull("parent.examFeedbackConfig")
             .findSet();
-        return ok(Json.newObject().put("status", assessments.isEmpty()));
+        if (assessments.isEmpty()) {
+            return ok(Json.newObject().put("status", "everything"));
+        } else {
+            Exam exam = Ebean.find(Exam.class, eid);
+            if (
+                exam != null &&
+                exam.getExamFeedbackConfig() != null &&
+                exam.getExamFeedbackConfig().getReleaseType() == ExamFeedbackConfig.ReleaseType.GIVEN_DATE
+            ) {
+                return ok(Json.newObject().put("status", "date"));
+            } else {
+                return ok(Json.newObject().put("status", "nothing"));
+            }
+        }
     }
 
     private static boolean isEligibleForArchiving(Exam exam, DateTime start, DateTime end) {

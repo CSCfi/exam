@@ -37,6 +37,7 @@ export class ExamAnswersDialogComponent implements OnInit {
 
     ngOnInit() {
         this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
+        this.exam.examSections.forEach((es) => es.sectionQuestions.sort((a, b) => a.sequenceNumber - b.sequenceNumber));
     }
 
     downloadAttachment = (answer: ExamSectionQuestion) =>

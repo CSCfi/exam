@@ -22,10 +22,12 @@ import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
 import util.datetime.DateTimeAdapter;
 
 @Entity
@@ -35,11 +37,7 @@ public class ExamFeedbackConfig extends GeneratedIdentityModel {
         @EnumValue("1")
         ONCE_LOCKED,
         @EnumValue("2")
-        AFTER_EXAM_PERIOD,
-        @EnumValue("3")
         GIVEN_DATE,
-        @EnumValue("4")
-        GIVEN_AMOUNT_DAYS,
     }
 
     private ReleaseType releaseType;
@@ -51,8 +49,6 @@ public class ExamFeedbackConfig extends GeneratedIdentityModel {
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
     private DateTime releaseDate;
-
-    private Integer amountDays;
 
     public ReleaseType getReleaseType() {
         return releaseType;
@@ -78,12 +74,11 @@ public class ExamFeedbackConfig extends GeneratedIdentityModel {
         this.releaseDate = releaseDate;
     }
 
-    public Integer getAmountDays() {
-        return amountDays;
-    }
-
-    public void setAmountDays(Integer amountDays) {
-        this.amountDays = amountDays;
+    @Transient
+    public ExamFeedbackConfig copy() {
+        ExamFeedbackConfig clone = new ExamFeedbackConfig();
+        BeanUtils.copyProperties(this, clone, "id", "exam");
+        return clone;
     }
 
     @Override

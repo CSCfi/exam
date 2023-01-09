@@ -42,7 +42,7 @@ export class ExceptionDialogComponent {
     repeats: REPEAT_OPTIONS = REPEAT_OPTIONS.once;
     repeatEvery = 1;
     isNumericNotWeekday = true;
-    weeks = [range(1, 7), range(8, 14), range(15, 21), range(22, 28)];
+    weeks = [range(1, 8), range(8, 15), range(15, 22), range(22, 29)];
     ordinals: { ordinal: string; number: number }[] = Object.values(ORDINAL).map((o, i) => ({ ordinal: o, number: i }));
     selectedOrdinal: { ordinal: string; number: number };
 
@@ -249,8 +249,8 @@ export class ExceptionDialogComponent {
             start: this.startDate,
             end: this.endDate,
         }).filter((date) => {
-            const filter = this.calculateLastWeek(date);
             if (this.selectedOrdinal.number === 4) {
+                const filter = this.calculateLastWeek(date);
                 return filter.includes(date.getDate());
             }
             return !!selectedWeekdays

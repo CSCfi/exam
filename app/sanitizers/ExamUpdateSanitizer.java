@@ -105,7 +105,6 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
                         .parseEnum("releaseType", node, ExamFeedbackConfig.ReleaseType.class)
                         .orElseThrow(() -> new SanitizingException("bad releaseType"))
                 );
-                config.setAmountDays(SanitizingHelper.parse("amountDays", node, Integer.class).orElse(null));
                 Optional<Long> releaseDateMs = SanitizingHelper.parse("releaseDate", node, Long.class);
                 releaseDateMs.ifPresent(rd -> config.setReleaseDate(new DateTime(rd)));
                 request = request.addAttr(Attrs.EXAM_FEEDBACK_CONFIG, config);

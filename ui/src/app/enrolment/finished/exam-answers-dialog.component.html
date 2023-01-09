@@ -32,11 +32,14 @@
                 </div>
             </div>
             <div class="row" *ngIf="exam.instruction">
-                <div class="col-2">
+                <div class="col-12">
                     <strong>{{ 'sitnet_exam_instruction' | translate }}:</strong>
                 </div>
-                <div class="col-10" [xmMathJax]="exam.instruction"></div>
             </div>
+            <div class="row" *ngIf="exam.instruction">
+                <div class="col-12" [xmMathJax]="exam.instruction"></div>
+            </div>
+
             <div class="row mt-3" *ngFor="let section of exam.examSections">
                 <div class="col-12" id="dashboard">
                     <h4 class="row">

@@ -32,16 +32,12 @@ public class ExamAnswerController extends BaseController {
     }
 
     private boolean canReleaseAnswers(Exam exam) {
-        ExamFeedbackConfig config = exam.getParent().getExamFeedbackConfig();
+        ExamFeedbackConfig config = exam.getExamFeedbackConfig();
         switch (config.getReleaseType()) {
             case ONCE_LOCKED:
                 return true;
-            case AFTER_EXAM_PERIOD:
-                return DateTime.now().isAfter(exam.getExamActiveEndDate());
             case GIVEN_DATE:
-                return DateTime.now().isAfter(config.getReleaseDate());
-            case GIVEN_AMOUNT_DAYS:
-                return DateTime.now().isAfter(exam.getGradedTime().plusDays(config.getAmountDays()));
+                return DateTime.now().isAfter(config.getReleaseDate().withTimeAtStartOfDay());
             default:
                 return false;
         }
@@ -94,7 +90,6 @@ public class ExamAnswerController extends BaseController {
                     esq.update();
                 }
                 esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText);
-                esq.getQuestion().setQuestion(null); // hide the correct answers
             });
         exam
             .getExamSections()
@@ -106,6 +101,14 @@ public class ExamAnswerController extends BaseController {
             });
         exam.setMaxScore();
         exam.setTotalScore();
+        // hide the correct answers for cloze test questions
+        exam
+            .getExamSections()
+            .stream()
+            .flatMap((es -> es.getSectionQuestions().stream()))
+            .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
+            .forEach(esq -> esq.getQuestion().setQuestion(null));
+
         return ok(exam);
     }
 }

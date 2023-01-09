@@ -29,7 +29,7 @@ type ExamFeedbackConfigTemplate = {
 })
 export class ExamFeedbackConfigComponent implements OnInit {
     @Input() exam!: Exam;
-    @Input() modifiable = false;
+    @Input() modifiable: 'everything' | 'nothing' | 'date' = 'nothing';
     @Output() enabled = new EventEmitter<void>();
     @Output() disabled = new EventEmitter<void>();
     @Output() updated = new EventEmitter<{ config: ExamFeedbackConfig }>();
@@ -47,9 +47,7 @@ export class ExamFeedbackConfigComponent implements OnInit {
                     translation: 'sitnet_release_type_once_locked',
                     filtered: true,
                 },
-                { name: 'AFTER_EXAM_PERIOD', translation: 'sitnet_release_type_period' },
-                { name: 'GIVEN_DATE', translation: 'sitnet_release_type_given_date' },
-                { name: 'GIVEN_AMOUNT_DAYS', translation: 'sitnet_release_type_given_days' },
+                { name: 'GIVEN_DATE', translation: 'sitnet_feedback_config_release_type_date' },
             ],
         };
         this.examFeedbackConfigDisplay = { visible: false };
@@ -60,16 +58,19 @@ export class ExamFeedbackConfigComponent implements OnInit {
     }
 
     disable = () => {
-        if (this.modifiable) {
+        if (this.modifiable === 'everything') {
             this.examFeedbackConfig.enabled = false;
             this.disabled.emit();
         }
     };
 
     enable = () => {
-        if (this.modifiable) {
+        if (this.modifiable === 'everything') {
             this.examFeedbackConfig.enabled = true;
             this.enabled.emit();
+            if (this.config) {
+                this.updated.emit({ config: this.config });
+            }
         }
     };
 
@@ -85,12 +86,16 @@ export class ExamFeedbackConfigComponent implements OnInit {
     };
 
     selectedReleaseType = () =>
-        this.examFeedbackConfig.releaseTypes.find((rt) => rt.filtered) || this.examFeedbackConfig.releaseTypes[0];
+        this.availableReleaseTypes().find((rt) => rt.filtered) || this.examFeedbackConfig.releaseTypes[0];
 
     releaseDateChanged = (event: { date: Date | null }) => {
         if (!this.config) return;
         this.config.releaseDate = event.date;
         this.updated.emit({ config: this.config });
+    };
+    availableReleaseTypes = () => {
+        if (this.modifiable === 'date') return [this.examFeedbackConfig.releaseTypes[1]];
+        else return this.examFeedbackConfig.releaseTypes;
     };
 
     private prepareExamFeedbackConfig = () => {

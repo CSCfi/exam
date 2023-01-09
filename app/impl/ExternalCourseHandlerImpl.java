@@ -299,7 +299,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
 
     private List<GradeScale> getGradeScales(JsonNode src) {
         JsonNode scaleNode = src.path("gradeScale");
-        if (!scaleNode.isMissingNode()) {
+        if (!scaleNode.isEmpty()) {
             Set<JsonNode> scales;
             if (scaleNode.isArray()) {
                 scales =
