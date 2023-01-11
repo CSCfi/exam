@@ -188,10 +188,7 @@ export class EnrolmentService {
 
     searchExams$ = (searchTerm: string): Observable<CollaborativeExam[]> => {
         const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? encodeURIComponent(searchTerm) : '');
-        // This path is used to search from student view only
-        const path = this.Session.getUser().isStudent
-            ? `/app/iop/enrolment/search${paramStr}`
-            : `/app/iop/exams/search${paramStr}`;
+        const path = `/app/iop/enrolment${paramStr}`;
         return this.http.get<CollaborativeExam[]>(path);
     };
 

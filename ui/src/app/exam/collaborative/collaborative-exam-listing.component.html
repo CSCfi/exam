@@ -56,12 +56,9 @@
             </div>
         </div>
         <div class="col" [hidden]="!loader.loading">
-            <button class="btn btn-sm btn-success">
+            <button class="btn btn-success" type="button" disabled>
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 {{ 'sitnet_searching' | translate }}...
-                <div role="status">
-                    <i class="spinner-border spinner-border-sm"></i>
-                    <span class="sr-only">Loading...</span>
-                </div>
             </button>
         </div>
     </div>
