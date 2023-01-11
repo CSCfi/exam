@@ -18,16 +18,7 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
-import {
-    debounceTime,
-    distinctUntilChanged,
-    exhaustMap,
-    finalize,
-    map,
-    switchMap,
-    takeUntil,
-    tap,
-} from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, exhaustMap, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import type { CollaborativeExam } from '../exam.model';
@@ -80,12 +71,6 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
                 distinctUntilChanged(),
                 switchMap((text) => this.CollaborativeExam.searchExams$(text)),
                 tap(() => (this.loader.loading = true)),
-                tap((exams) => {
-                    const exam = exams.find((e) => e.name.includes('27.4.2022'));
-                    if (exam) {
-                        console.log('here: ' + (Date.now() > new Date(exam.examActiveEndDate).getTime()));
-                    }
-                }),
                 map((exams) => this.returnListedCollaborativeExams(exams)),
                 tap((exams) => (this.exams = exams)),
                 tap(() => (this.loader.loading = false)),
@@ -110,13 +95,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
         this.listAllExams();
     }
 
-    listAllExams = () =>
-        this.CollaborativeExam.listExams$()
-            .pipe(
-                tap((exams) => (this.exams = this.returnListedCollaborativeExams(exams))),
-                finalize(() => (this.loader.loading = false)),
-            )
-            .subscribe();
+    listAllExams = () => this.filterChanged.next('');
 
     returnListedCollaborativeExams(exams: CollaborativeExam[]): ListedCollaborativeExam[] {
         const listedExams: ListedCollaborativeExam[] = exams

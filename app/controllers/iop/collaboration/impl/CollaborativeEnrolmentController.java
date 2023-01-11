@@ -65,46 +65,10 @@ public class CollaborativeEnrolmentController extends CollaborationController {
     }
 
     @Restrict({ @Group("STUDENT") })
-    public CompletionStage<Result> listExams() {
-        Optional<URL> url = parseUrl();
+    public CompletionStage<Result> searchExams(Optional<String> filter) {
+        Optional<URL> url = filter.orElse("").isEmpty() ? parseUrl() : parseUrlWithSearchParam(filter.get(), false);
         if (url.isEmpty()) {
-            return wrapAsPromise(internalServerError());
-        }
-
-        WSRequest request = wsClient.url(url.get().toString());
-        String homeOrg = configReader.getHomeOrganisationRef();
-        Function<WSResponse, Result> onSuccess = response ->
-            findExamsToProcess(response)
-                .map(items -> {
-                    List<Exam> exams = items
-                        .entrySet()
-                        .stream()
-                        .map(e -> e.getKey().getExam(e.getValue()))
-                        .filter(e -> isEnrollable(e, homeOrg))
-                        .collect(Collectors.toList());
-
-                    return ok(
-                        exams,
-                        PathProperties.parse(
-                            "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
-                            "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
-                            "enrollInstruction, implementation, examinationEventConfigurations)"
-                        )
-                    );
-                })
-                .getOrElseGet(Function.identity());
-        return request.get().thenApplyAsync(onSuccess);
-    }
-
-    @Restrict({ @Group("STUDENT") })
-    public CompletionStage<Result> searchExams(final Optional<String> filter) {
-        if (filter.isEmpty() || filter.get().isEmpty()) {
-            return wrapAsPromise(badRequest());
-        }
-
-        Optional<URL> url = parseUrlWithSearchParam(filter.get(), true);
-        if (url.isEmpty()) {
-            return wrapAsPromise(internalServerError());
+            return wrapAsPromise(internalServerError("sitnet_internal_error"));
         }
 
         WSRequest request = wsClient.url(url.get().toString());
