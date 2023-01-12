@@ -109,8 +109,8 @@ export class BookingCalendarComponent implements OnInit, OnChanges {
                     ? DateTime.fromJSDate(latestClosing).plus({ hour: 1 }).toJSDate()
                     : latestClosing;
             this.calendarOptions.hiddenDays = this.Calendar.getClosedWeekdays(this.room);
-            this.calendarOptions.slotMinTime = DateTime.fromJSDate(minTime).toLocaleString(DateTime.TIME_24_SIMPLE);
-            this.calendarOptions.slotMaxTime = DateTime.fromJSDate(maxTime).toLocaleString(DateTime.TIME_24_SIMPLE);
+            this.calendarOptions.slotMinTime = DateTime.fromJSDate(minTime).toFormat('HH:mm:ss');
+            this.calendarOptions.slotMaxTime = DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss');
             this.calendarOptions.timeZone = this.room.localTimezone;
             if (this.calendar) this.calendar.getApi().refetchEvents();
         }
