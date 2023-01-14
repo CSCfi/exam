@@ -23,10 +23,13 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-import { CalendarOptions, EventApi, EventClickArg, EventInput, FullCalendarComponent } from '@fullcalendar/angular';
+import { FullCalendarComponent } from '@fullcalendar/angular';
+import { CalendarOptions, EventApi, EventClickArg, EventInput } from '@fullcalendar/core';
 import enLocale from '@fullcalendar/core/locales/en-gb';
 import fiLocale from '@fullcalendar/core/locales/fi';
 import svLocale from '@fullcalendar/core/locales/sv';
+import luxon2Plugin from '@fullcalendar/luxon2';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
@@ -64,6 +67,7 @@ export class BookingCalendarComponent implements OnInit, OnChanges {
 
     constructor(private translate: TranslateService, private Calendar: CalendarService) {
         this.calendarOptions = {
+            plugins: [luxon2Plugin, timeGridPlugin],
             initialView: 'timeGridWeek',
             firstDay: 1,
             dayHeaderFormat: { weekday: 'short', day: 'numeric', month: 'numeric', separator: '.' },

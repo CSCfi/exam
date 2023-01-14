@@ -14,7 +14,7 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import { EventInput } from '@fullcalendar/angular';
+import { EventInput } from '@fullcalendar/core';
 import { format } from 'date-fns';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
