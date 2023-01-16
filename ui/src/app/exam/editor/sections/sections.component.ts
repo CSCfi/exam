@@ -87,14 +87,14 @@ export class SectionsComponent implements OnInit, OnChanges {
     };
 
     updateExam = (silent: boolean) =>
-        this.Exam.updateExam$(this.exam, {}, this.collaborative).pipe(
-            tap(() => {
+        this.Exam.updateExam$(this.exam, {}, this.collaborative).subscribe({
+            next: () => {
                 if (!silent) {
                     this.toast.info(this.translate.instant('sitnet_exam_saved'));
                 }
-            }),
-            catchError(async (resp) => this.toast.error(this.translate.instant(resp))),
-        );
+            },
+            error: (resp) => this.toast.error(this.translate.instant(resp)),
+        });
 
     previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
 

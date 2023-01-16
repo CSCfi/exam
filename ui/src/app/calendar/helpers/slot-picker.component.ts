@@ -2,7 +2,7 @@ import { HttpParams } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { EventApi, EventInput } from '@fullcalendar/angular';
+import { EventApi, EventInput } from '@fullcalendar/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';

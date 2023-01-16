@@ -26,7 +26,7 @@ import type { User } from '../session.service';
             </div>
             <div class="modal-body">
                 <div ngbDropdown>
-                    <button ngbDropdownToggle class="btn btn-default" type="button" id="dropDownMenu1">
+                    <button ngbDropdownToggle class="btn btn-light" type="button" id="dropDownMenu1">
                         {{ 'sitnet_choose' | translate }}
                     </button>
                     <div ngbDropdownMenu aria-labelledby="dropDownMenu1">
@@ -42,7 +42,7 @@ import type { User } from '../session.service';
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-sm btn-danger" (click)="activeModal.dismiss('sitnet_canceled')">
+                <button class="btn btn-danger" (click)="activeModal.dismiss('sitnet_canceled')">
                     {{ 'sitnet_button_decline' | translate }}
                 </button>
             </div>
