@@ -57,12 +57,9 @@ import { EnrolmentService } from '../enrolment.service';
         </div>
         <div class="student-details-title-wrap padleft">
             <div class="col" [hidden]="!loader.loading">
-                <button class="btn btn-sm btn-success">
+                <button class="btn btn-success" type="button" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     {{ 'sitnet_searching' | translate }}...
-                    <div role="status">
-                        <i class="spinner-border spinner-border-sm"></i>
-                        <span class="sr-only">Loading...</span>
-                    </div>
                 </button>
             </div>
         </div>
@@ -92,6 +89,7 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.filter = { text: '' };
         this.loader = { loading: false };
+        this.search('');
     }
 
     ngOnDestroy() {
@@ -123,9 +121,6 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
     }
 
     private _search = (text: string) => {
-        if (text.length <= 2) {
-            return;
-        }
         this.filter.text = text;
         this.loader = { loading: true };
 

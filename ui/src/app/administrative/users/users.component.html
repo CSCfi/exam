@@ -88,12 +88,10 @@
         </div>
     </div>
     <div class="main-row">
-        <div class="col-md-12">
-            <button [hidden]="!loader.loading" class="btn btn-success">
+        <div class="col-md-12" [hidden]="!loader.loading">
+            <button class="btn btn-success" type="button" disabled>
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 {{ 'sitnet_searching' | translate }}&hellip;
-                <div class="spinner-border spinner-border-sm" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
             </button>
         </div>
     </div>
