@@ -11,17 +11,22 @@ import { CalendarService } from '../calendar.service';
                     <span class="col-md-11 col-9">
                         <span class="calendar-phase-title">
                             {{ sequenceNumber }}. {{ 'sitnet_choose_institution' | translate }}
-                            <small class="col-12 ps-0">
-                                <button class="btn btn-sm btn-outline-dark" (click)="makeInternalReservation()">
-                                    {{ 'sitnet_internal_reservation' | translate }}&nbsp;
-                                </button>
-                            </small>
                         </span>
                     </span>
                     <span class="col-md-1 col-3">
                         <span class="calendar-phase-icon float-end" *ngIf="selectedOrganisation">
                             <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="choose institution" />
                         </span>
+                    </span>
+                </div>
+                <div class="row">
+                    <span class="col-md-12 flex justify-content-end">
+                        {{ 'sitnet_internal_reservation' | translate }}&nbsp;
+                        <small class="ps-0">
+                            <button class="btn btn-sm btn-outline-dark" (click)="makeInternalReservation()">
+                                {{ 'sitnet_go_to_internal_reservation' | translate }}&nbsp;
+                            </button>
+                        </small>
                     </span>
                 </div>
                 <div class="row">
