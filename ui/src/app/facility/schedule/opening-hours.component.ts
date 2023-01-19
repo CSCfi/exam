@@ -225,7 +225,7 @@ export class OpenHoursComponent implements OnInit, OnChanges {
 
     deleteHours(wh: DefaultWorkingHoursWithEditing) {
         if (!wh.id) return;
-        return this.roomService.removeWorkingHours$(wh.id).subscribe(() => {
+        return this.roomService.removeWorkingHours$(wh.id, this.room.id).subscribe(() => {
             const index = this.extendedRoom.extendedDwh.indexOf(wh);
             this.extendedRoom.extendedDwh.splice(index, 1);
             this.toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
