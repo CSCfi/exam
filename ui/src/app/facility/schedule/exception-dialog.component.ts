@@ -192,6 +192,8 @@ export class ExceptionDialogComponent {
                 overlapExceptions
                     .map(
                         (e) =>
+                            e.ownerRoom +
+                            ': ' +
                             formatDate(e.startDate, 'yyyy.MM.dd HH:mm', this.translate.currentLang) +
                             '-' +
                             formatDate(e.endDate, 'yyyy.MM.dd HH:mm', this.translate.currentLang),
