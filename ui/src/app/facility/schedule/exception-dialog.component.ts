@@ -226,12 +226,12 @@ export class ExceptionDialogComponent {
                     ' ' +
                     this.startTime.hour +
                     ':' +
-                    (this.startTime.minute.toString().length === 1 && '0') +
+                    (this.startTime.minute.toString().length === 1 ? '0' : '') +
                     this.startTime.minute +
                     ' - ' +
                     this.endTime.hour +
                     ':' +
-                    (this.endTime.minute.toString().length === 1 && '0') +
+                    (this.endTime.minute.toString().length === 1 ? '0' : '') +
                     this.endTime.minute +
                     '.',
             )
@@ -256,7 +256,7 @@ export class ExceptionDialogComponent {
                 return filter.includes(date.getDate());
             }
             return !!selectedWeekdays
-                ? [...selectedWeekdays].includes(date.getDay())
+                ? [...selectedWeekdays].includes(date.getDay() + 1)
                 : suitableDays.includes(date.getDate());
         });
     }
