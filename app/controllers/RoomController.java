@@ -269,18 +269,22 @@ public class RoomController extends BaseController {
             hours.setEndTime(end.withMillisOfDay(endMillisOfDay));
             hours.setTimezoneOffset(offset);
             hours.save();
+            examRoom.getDefaultWorkingHours().add(hours);
             asyncUpdateRemote(examRoom);
         }
         return ok(Json.newObject().put("id", hours.getId()));
     }
 
     @Restrict(@Group({ "ADMIN" }))
-    public Result removeExamRoomWorkingHours(Long id) {
+    public Result removeExamRoomWorkingHours(Long roomId, Long id) {
         DefaultWorkingHours dwh = Ebean.find(DefaultWorkingHours.class, id);
-        if (dwh == null) {
+        ExamRoom room = Ebean.find(ExamRoom.class, roomId);
+        if (dwh == null || room == null) {
             return forbidden();
         }
         dwh.delete();
+        room.getDefaultWorkingHours().remove(dwh);
+        asyncUpdateRemote(room);
         return ok();
     }
 
@@ -353,6 +357,7 @@ public class RoomController extends BaseController {
                 );
                 exception.setRoom(room);
                 exception.save();
+                room.getCalendarExceptionEvents().add(exception);
                 asyncUpdateRemote(room);
             }
         }
