@@ -176,7 +176,7 @@ export class RoomService {
 
     updateWorkingHours$ = (hours: DefaultWorkingHours, ids: number[]) =>
         this.http.post<{ id: number }>('/app/workinghours', { workingHours: hours, roomIds: ids });
-    removeWorkingHours$ = (id: number) => this.http.delete<void>(`/app/workinghours/${id}`);
+    removeWorkingHours$ = (id: number, roomId: number) => this.http.delete<void>(`/app/workinghours/${roomId}/${id}`);
     listMaintenancePeriods$ = () => this.http.get<MaintenancePeriod[]>('/app/maintenance');
     createMaintenancePeriod$ = (period: MaintenancePeriod) =>
         this.http.post<MaintenancePeriod>('/app/maintenance', period);
