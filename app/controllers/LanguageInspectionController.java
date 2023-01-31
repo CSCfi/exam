@@ -74,7 +74,7 @@ public class LanguageInspectionController extends BaseController {
 
         if (start.isPresent() || end.isPresent()) {
             if (start.isPresent()) {
-                DateTime startDate = new DateTime(start.get()).withTimeAtStartOfDay();
+                DateTime startDate = new DateTime(start.get()).plusDays(1).withTimeAtStartOfDay();
                 query = query.ge("finishedAt", startDate.toDate());
             }
 
