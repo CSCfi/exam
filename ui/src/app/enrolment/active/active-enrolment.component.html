@@ -126,14 +126,14 @@
     </div>
     <div class="" *ngIf="enrolment.reservation">
         <div class="row mt-3">
-            <div class="col">{{ 'sitnet_exam_room' | translate }}:</div>
-            <div class="col" *ngIf="enrolment.reservation.machine">
+            <div class="col-md-3 col-lg-2">{{ 'sitnet_exam_room' | translate }}:</div>
+            <div class="col-md-9 col-lg-10" *ngIf="enrolment.reservation.machine">
                 {{ enrolment.reservation.machine.name }}&nbsp;&nbsp;|&nbsp;&nbsp;{{
                     enrolment.reservation.machine.room.name
                 }}
                 ({{ enrolment.reservation.machine.room.roomCode }})
             </div>
-            <div class="col" *ngIf="enrolment.reservation.externalReservation">
+            <div class="col-sm-12" *ngIf="enrolment.reservation.externalReservation">
                 <span *ngIf="enrolment.reservation.externalReservation.orgName">
                     <strong>{{ 'sitnet_faculty_name' | translate | uppercase }}:</strong>
                     {{ enrolment.reservation.externalReservation.orgName }} ({{
@@ -156,8 +156,8 @@
 
             <div class="clearfix visible-xs"></div>
             <div class="clearfix visible-sm"></div>
-            <div class="col">{{ 'sitnet_reservation' | translate }}:</div>
-            <div class="col">
+            <div class="col-md-3 col-lg-2 mt-md-2 mt-3">{{ 'sitnet_reservation' | translate }}:</div>
+            <div class="col-md-9 col-lg-10 mt-md-2">
                 {{ enrolment.reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
                 {{ enrolment.occasion?.startAt }} &ndash; {{ enrolment.occasion?.endAt }}
             </div>
