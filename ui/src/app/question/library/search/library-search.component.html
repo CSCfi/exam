@@ -16,8 +16,8 @@
                 {{ 'sitnet_course' | translate }}&nbsp;
                 <span class="caret"></span>
             </button>
-            <ul class="scrollable-menu" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
-                <li ngbDropdownItem role="presentation">
+            <ul class="scrollable-menu max-w-1100" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
+                <li ngbDropdownItem role="presentation" class="important-flex min-width-300 max-w-1100">
                     <input
                         [(ngModel)]="limitations.course"
                         (ngModelChange)="filterCourses()"
@@ -27,7 +27,7 @@
                     />
                     <div class="input-group-append">
                         <div class="input-group-text">
-                            <i id="search-icon-1" class="bi-search"></i>
+                            <i id="search-icon-1" class="bi-search" width="46" height="38"></i>
                         </div>
                     </div>
                 </li>
@@ -52,8 +52,8 @@
             >
                 {{ 'sitnet_exam' | translate }}&nbsp;
             </button>
-            <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
-                <li ngbDropdownItem role="presentation">
+            <ul class="scrollable-menu max-w-1100" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
+                <li ngbDropdownItem role="presentation" class="important-flex min-width-300 max-w-1100">
                     <input
                         [(ngModel)]="limitations.exam"
                         (ngModelChange)="filterExams()"
@@ -90,8 +90,8 @@
                 {{ 'sitnet_category' | translate }}&nbsp;
                 <span class="caret"></span>
             </button>
-            <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
-                <li ngbDropdownItem role="presentation">
+            <ul class="scrollable-menu max-w-1100" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
+                <li ngbDropdownItem role="presentation" class="important-flex min-width-300 max-w-1100">
                     <input
                         [(ngModel)]="limitations.tag"
                         (ngModelChange)="filterTags()"
@@ -143,7 +143,7 @@
             </div>
             <div class="col-md-6" *ngIf="user.isAdmin">
                 <form>
-                    <div>
+                    <div class="input-group">
                         <input
                             class="form-control"
                             name="ownerSearch"
