@@ -37,7 +37,7 @@ public class ExamAnswerController extends BaseController {
             case ONCE_LOCKED:
                 return true;
             case GIVEN_DATE:
-                return DateTime.now().isAfter(config.getReleaseDate().withTimeAtStartOfDay());
+                return DateTime.now().isAfter(config.getReleaseDate().withTimeAtStartOfDay().plusDays(1));
             default:
                 return false;
         }
