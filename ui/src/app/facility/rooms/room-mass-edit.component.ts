@@ -34,9 +34,18 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                 <div class="col-md-12">
                     <div class="row">
                         <h3 class="col-auto header-text">{{ 'sitnet_exception_datetimes' | translate }}</h3>
-                        <div class="col">
-                            <button (click)="addMultiRoomException()" class="btn btn-primary">
-                                {{ 'sitnet_add' | translate }}
+                        <div class="col-12">
+                            <button
+                                (click)="addMultiRoomException(true)"
+                                class="btn btn-sm btn-outline-dark marr20 marb10"
+                            >
+                                {{ 'sitnet_add_out_of_service_time' | translate }}
+                            </button>
+                            <button
+                                (click)="addMultiRoomException(false)"
+                                class="btn btn-sm btn-outline-success marb10"
+                            >
+                                {{ 'sitnet_add_extra_working_hour' | translate }}
                             </button>
                         </div>
                     </div>
@@ -105,12 +114,13 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                     </div>
                 </div>
             </div>
-            <div class="row ms-4 mt-4">
-                <div class="col-md-12">
-                    <button (click)="addMultiRoomException()" class="btn btn-primary">
-                        {{ 'sitnet_add' | translate }}
-                    </button>
-                </div>
+            <div class="col-12">
+                <button (click)="addMultiRoomException(true)" class="btn btn-sm btn-outline-dark marr20 marb10">
+                    {{ 'sitnet_add_out_of_service_time' | translate }}
+                </button>
+                <button (click)="addMultiRoomException(false)" class="btn btn-sm btn-outline-success marb10">
+                    {{ 'sitnet_add_extra_working_hour' | translate }}
+                </button>
             </div>
         </div>
     `,
@@ -128,12 +138,12 @@ export class MultiRoomComponent implements OnInit, OnChanges {
 
     ngOnInit() {
         this.loadRooms();
+        this.selectableRooms = this.allRooms as SelectableRoom[];
     }
 
     ngOnChanges(changes: SimpleChanges): void {
         if (changes.questions) {
             this.resetSelections();
-            this.selectableRooms = this.allRooms as SelectableRoom[];
         }
     }
 
@@ -148,17 +158,21 @@ export class MultiRoomComponent implements OnInit, OnChanges {
         });
     };
 
-    addMultiRoomException = () => {
+    addMultiRoomException = (outOfService: boolean) => {
         const allExceptions: ExceptionWorkingHours[] = [];
-        this.allRooms.forEach((room) =>
-            allExceptions.push(
-                ...room.calendarExceptionEvents.map((e) => {
-                    e.ownerRoom = room.name;
-                    return e;
-                }),
-            ),
-        );
-        this.roomService.openExceptionDialog(this.addExceptions, true, allExceptions);
+        this.selectableRooms.forEach((room) => {
+            if (room.selected) {
+                allExceptions.push(
+                    ...room.calendarExceptionEvents.map((e) => {
+                        e.ownerRoom = room.name;
+                        return e;
+                    }),
+                );
+            }
+        });
+        outOfService
+            ? this.roomService.openExceptionDialog(this.addExceptions, true, allExceptions)
+            : this.roomService.openExceptionDialog(this.addExceptions, false, allExceptions);
     };
 
     selectAll = () => {
