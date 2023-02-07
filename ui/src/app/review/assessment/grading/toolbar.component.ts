@@ -125,7 +125,7 @@ export class ToolbarComponent implements OnInit {
             this.CollaborativeAssessment.createExamRecord(this.participation, this.id, this.ref);
         } else {
             this.Assessment.doesPreviouslyLockedAssessmentsExist$(this.exam).subscribe((setting) => {
-                this.Assessment.createExamRecord$(this.exam, true, setting.status).subscribe(() => {
+                this.Assessment.createExamRecord$(this.exam, true, setting.status === 'everything').subscribe(() => {
                     this.toast.info(this.translate.instant('sitnet_review_recorded'));
                     const state = this.getExitState();
                     this.router.navigate(state.fragments, { queryParams: state.params });
