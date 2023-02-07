@@ -132,9 +132,7 @@ export class SectionsComponent implements OnInit, OnChanges {
         return this.exam.executionType.type === 'PUBLIC';
     };
 
-    private updateIndices = () => {
-        this.exam.examSections.forEach((es, i) => (es.sequenceNumber = i));
-    };
+    private updateIndices = () => this.exam.examSections.forEach((es, i) => (es.sequenceNumber = i));
 
     private init = () => {
         this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);

@@ -219,9 +219,7 @@ export class SectionComponent implements OnInit {
     getAmountOfSelectionEvaluatedQuestions = () =>
         this.section.sectionQuestions.filter((q) => q.evaluationType === 'Selection').length;
 
-    private updateIndices = () => {
-        this.section.sectionQuestions.forEach((sq, i) => (sq.sequenceNumber = i));
-    };
+    private updateIndices = () => this.section.sectionQuestions.forEach((sq, i) => (sq.sequenceNumber = i));
 
     private updateSection = (silent: boolean) => {
         this.http
