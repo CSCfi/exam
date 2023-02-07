@@ -187,7 +187,10 @@
                 >
                     <!-- 1 -->
                     <td>
-                        {{ inspection.exam.course?.code }}
+                        <xm-course-code
+                            *ngIf="inspection.exam.course"
+                            [course]="inspection.exam.course"
+                        ></xm-course-code>
                     </td>
                     <!-- 2 -->
                     <td>

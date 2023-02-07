@@ -152,6 +152,7 @@ export class SectionComponent implements OnInit {
                 .subscribe(() => {
                     this.toast.info(this.translate.instant('sitnet_questions_reordered'));
                     moveItemInArray(this.section.sectionQuestions, from, to);
+                    this.updateIndices();
                 });
         }
     }
@@ -217,6 +218,10 @@ export class SectionComponent implements OnInit {
 
     getAmountOfSelectionEvaluatedQuestions = () =>
         this.section.sectionQuestions.filter((q) => q.evaluationType === 'Selection').length;
+
+    private updateIndices = () => {
+        this.section.sectionQuestions.forEach((sq, i) => (sq.sequenceNumber = i));
+    };
 
     private updateSection = (silent: boolean) => {
         this.http
