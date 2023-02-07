@@ -260,13 +260,13 @@ export class MaturityService {
                 switchMap(() =>
                     exam.parent?.examFeedbackConfig
                         ? this.Assessment.doesPreviouslyLockedAssessmentsExist$(exam)
-                        : of({ status: false }),
+                        : of({ status: 'nothing' }),
                 ),
                 switchMap(
                     (setting) =>
                         reject
                             ? this.Assessment.rejectMaturity$(exam, false)
-                            : this.Assessment.createExamRecord$(exam, false, setting.status), // TODO: is this necessary with private examinations?
+                            : this.Assessment.createExamRecord$(exam, false, setting.status === 'everything'), // TODO: is this necessary with private examinations?
                 ),
             )
             .subscribe(() => {
