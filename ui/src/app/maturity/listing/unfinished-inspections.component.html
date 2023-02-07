@@ -139,7 +139,10 @@
             <tbody>
                 <tr *ngFor="let inspection of filteredInspections | orderBy: sorting.predicate:sorting.reverse">
                     <td>
-                        {{ inspection.exam.course?.code }}
+                        <xm-course-code
+                            *ngIf="inspection.exam.course"
+                            [course]="inspection.exam.course"
+                        ></xm-course-code>
                     </td>
                     <td>
                         {{ inspection.answerLanguage }}
