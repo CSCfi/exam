@@ -82,6 +82,7 @@ public class ReservationPollerActor extends AbstractActor {
                         .isNotNull("externalRef")
                         .isNull("user")
                         .isNotNull("externalUserRef")
+                        .eq("sentAsNoShow", false)
                         .lt("endAt", dateTimeHandler.adjustDST(DateTime.now()))
                         .findList();
                     if (enrolments.isEmpty() && reservations.isEmpty()) {

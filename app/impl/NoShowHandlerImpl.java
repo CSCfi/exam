@@ -75,9 +75,8 @@ public class NoShowHandlerImpl implements NoShowHandler {
             if (response.getStatus() != Http.Status.OK) {
                 logger.error("No success in sending no-show #{} to XM", reservation.getExternalRef());
             } else {
-                // Clear user reference so that we won't try to send this again.
-                // #TODO: find a more elegant way. Maybe delete the reservation altogether?
-                reservation.setExternalUserRef(null);
+                // Reservations without an enrolment meaning remote user didn't turn up at all
+                reservation.setSentAsNoShow(true);
                 reservation.update();
                 logger.info("Successfully sent no-show #{} to XM", reservation.getExternalRef());
             }
@@ -118,6 +117,7 @@ public class NoShowHandlerImpl implements NoShowHandler {
             .filter(ns ->
                 ns.getReservation() != null &&
                 ns.getReservation().getExternalRef() != null &&
+                !ns.getReservation().isSentAsNoShow() &&
                 (ns.getUser() == null || ns.getExternalExam() == null || ns.getExternalExam().getStarted() == null)
             );
         // Send to XM for further processing
