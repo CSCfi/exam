@@ -254,7 +254,12 @@ public class CalendarController extends BaseController {
                         .removeReservation(oldReservation, user, "")
                         .thenCompose(result -> {
                             // Refetch enrolment
-                            ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());
+                            ExamEnrolment updatedEnrolment = Ebean
+                                .find(ExamEnrolment.class)
+                                .fetch("exam.executionType")
+                                .where()
+                                .idEq(enrolment.getId())
+                                .findOne();
                             if (updatedEnrolment == null) {
                                 return wrapAsPromise(notFound());
                             }
