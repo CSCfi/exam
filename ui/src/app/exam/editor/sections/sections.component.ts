@@ -67,6 +67,7 @@ export class SectionsComponent implements OnInit, OnChanges {
             this.Exam.reorderSections$(from, to, this.exam, this.collaborative).subscribe({
                 next: () => {
                     moveItemInArray(this.exam.examSections, from, to);
+                    this.updateIndices();
                     this.toast.info(this.translate.instant('sitnet_sections_reordered'));
                 },
                 error: this.toast.error,
@@ -130,6 +131,8 @@ export class SectionsComponent implements OnInit, OnChanges {
         }
         return this.exam.executionType.type === 'PUBLIC';
     };
+
+    private updateIndices = () => this.exam.examSections.forEach((es, i) => (es.sequenceNumber = i));
 
     private init = () => {
         this.exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
