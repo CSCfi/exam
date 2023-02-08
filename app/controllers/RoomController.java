@@ -357,7 +357,6 @@ public class RoomController extends BaseController {
                 );
                 exception.setRoom(room);
                 exception.save();
-                room.getCalendarExceptionEvents().add(exception);
                 asyncUpdateRemote(room);
             }
         }

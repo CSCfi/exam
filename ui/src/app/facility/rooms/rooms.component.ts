@@ -30,6 +30,7 @@ interface ExtendedRoom extends ExamRoom {
     addressVisible: boolean;
     availabilityVisible: boolean;
     extendedDwh: DefaultWorkingHoursWithEditing[];
+    activate: boolean;
 }
 export interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
     editing: boolean;
@@ -105,6 +106,13 @@ export class RoomListComponent implements OnInit {
         } else {
             this.router.navigate(['/staff/admin']);
         }
+    }
+
+    switchVisibility(room: ExtendedRoom) {
+        if (!room.activate) {
+            room.activate = !room.activate;
+        }
+        room.availabilityVisible = !room.availabilityVisible;
     }
 
     disableRoom = (room: ExamRoom) => this.roomService.disableRoom(room);
