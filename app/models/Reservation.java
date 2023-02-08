@@ -47,6 +47,8 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
 
     private boolean reminderSent;
 
+    private boolean sentAsNoShow;
+
     @OneToOne(mappedBy = "reservation")
     @JsonBackReference
     private ExamEnrolment enrolment;
@@ -90,6 +92,14 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
 
     public void setReminderSent(boolean reminderSent) {
         this.reminderSent = reminderSent;
+    }
+
+    public boolean isSentAsNoShow() {
+        return sentAsNoShow;
+    }
+
+    public void setSentAsNoShow(boolean sentAsNoShow) {
+        this.sentAsNoShow = sentAsNoShow;
     }
 
     public ExamMachine getMachine() {
