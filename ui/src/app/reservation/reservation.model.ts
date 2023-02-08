@@ -25,6 +25,7 @@ export type DefaultWorkingHours = {
 
 export type ExceptionWorkingHours = {
     id: number;
+    ownerRoom?: string;
     startDate: string;
     endDate: string;
     outOfService: boolean;

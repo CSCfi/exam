@@ -192,6 +192,8 @@ export class ExceptionDialogComponent {
                 overlapExceptions
                     .map(
                         (e) =>
+                            e.ownerRoom +
+                            ': ' +
                             formatDate(e.startDate, 'yyyy.MM.dd HH:mm', this.translate.currentLang) +
                             '-' +
                             formatDate(e.endDate, 'yyyy.MM.dd HH:mm', this.translate.currentLang),
@@ -224,12 +226,12 @@ export class ExceptionDialogComponent {
                     ' ' +
                     this.startTime.hour +
                     ':' +
-                    (this.startTime.minute.toString().length === 1 && '0') +
+                    (this.startTime.minute.toString().length === 1 ? '0' : '') +
                     this.startTime.minute +
                     ' - ' +
                     this.endTime.hour +
                     ':' +
-                    (this.endTime.minute.toString().length === 1 && '0') +
+                    (this.endTime.minute.toString().length === 1 ? '0' : '') +
                     this.endTime.minute +
                     '.',
             )
@@ -254,7 +256,7 @@ export class ExceptionDialogComponent {
                 return filter.includes(date.getDate());
             }
             return !!selectedWeekdays
-                ? [...selectedWeekdays].includes(date.getDay())
+                ? [...selectedWeekdays].includes(date.getDay() + 1)
                 : suitableDays.includes(date.getDate());
         });
     }

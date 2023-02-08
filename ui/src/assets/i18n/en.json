@@ -1103,6 +1103,7 @@
   "sitnet_exam_instance_settings": "EXAM-instanssin asetukset EN",
   "sitnet_other_publication_settings": "Muut julkaisuasetukset EN",
   "sitnet_feedback_config_release_type_date": "Tiettynä päivänä suorituksen lukitsemisen jälkeen EN",
+  "sitnet_room_closed_overlap": "Huoneiden ajoissa on päällekkäisyyksiä EN",
   "sitnet_go_to_external_reservation": "External",
   "sitnet_go_to_internal_reservation": "Internal"
 }
