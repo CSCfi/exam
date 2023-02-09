@@ -123,7 +123,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                         this.toast.success(this.translate.instant('sitnet_exam_removed'));
                         this.exams.splice(this.exams.indexOf(exam), 1);
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 });
             },
             error: this.toast.error,

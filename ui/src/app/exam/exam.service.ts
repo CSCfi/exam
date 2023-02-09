@@ -194,7 +194,7 @@ export class ExamService {
                             this.toast.success(this.translate.instant('sitnet_exam_removed'));
                             this.router.navigate(['/staff', isAdmin ? 'admin' : 'teacher']);
                         },
-                        error: this.toast.error,
+                        error: (err) => this.toast.error(err),
                     }),
                 error: this.toast.error,
             });
