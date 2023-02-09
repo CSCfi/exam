@@ -181,14 +181,18 @@ export class MultiRoomComponent implements OnInit, OnChanges {
 
     switchShowAll = () => {
         this.showBreaks = !this.showBreaks;
-        this.selectableRooms.forEach((r) => (r.showBreaks = this.showBreaks));
+        this.showAll();
     };
+
+    showAll = () => this.selectableRooms.forEach((r) => (r.showBreaks = this.showBreaks));
 
     private loadRooms = () => {
         this.roomService.getRooms$().subscribe({
             next: (rooms) => {
                 this.allRooms = rooms;
                 this.selectableRooms = rooms.sort((a, b) => (a.name < b.name ? -1 : 1)) as SelectableRoom[];
+                this.showAll();
+                this.selectableRooms.forEach((r) => (r.selected = this.allSelected));
                 this.roomIds = this.getRoomIds();
             },
             error: this.toast.error,

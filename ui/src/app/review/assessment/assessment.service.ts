@@ -157,9 +157,9 @@ export class AssessmentService {
 
     doesPreviouslyLockedAssessmentsExist$ = (exam: Exam) => {
         if (!exam.parent?.id || !exam.parent.examFeedbackConfig) {
-            return of({ status: false });
+            return of({ status: 'nothing' });
         }
-        return this.http.get<{ status: boolean }>(`/app/review/${exam.parent.id}/locked`);
+        return this.http.get<{ status: 'nothing' | 'everything' }>(`/app/review/${exam.parent.id}/locked`);
     };
 
     isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
