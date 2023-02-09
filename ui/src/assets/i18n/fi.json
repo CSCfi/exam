@@ -1047,7 +1047,7 @@
   "sitnet_exam_status_initialized": "Tentti aloitettu",
   "sitnet_removed": "Poistettu",
   "sitnet_exception_datetimes_info": "Tila pois käytöstä. Poikkeusaukioloajalla tarkoitetaan sitä, että tila on silloin pois käytöstä.",
-  "sitnet_maintenance_period_created": "Poikkeusaukioloaika lisätty",
+  "sitnet_maintenance_period_created": "Huoltokatko lisätty",
   "sitnet_exam_assessment_settings": "Arviointiasetukset",
   "sitnet_exam_feedback_config": "Kysymysten ja vastausten julkaisu",
   "sitnet_exam_feedback_config_instructions": "Kun otat tämän toiminnon käyttöön, opiskelijat näkevät tentin arvioinnin lukitsemisen jälkeen tekemänsä tentin arvosanan, kokonaispisteiden, tehtäväkohtaisten pisteiden ja palautteen lisäksi hänellä tentissä olleet kysymykset ja omat vastaukset. Monivalinnoista opiskelija näkee vain valitsemansa vaihtoehdot, ei kaikkia vastausvaihtoehtoja. Voit valita alla kysymysten ja vastausten julkaisuajankohdan sekä muuttaa valintaa ensimmäisen arvioinnin lukitsemiseen asti.",
