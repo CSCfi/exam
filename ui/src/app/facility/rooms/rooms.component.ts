@@ -121,7 +121,13 @@ export class RoomListComponent implements OnInit {
 
     addExceptions = (exceptions: ExceptionWorkingHours[], examRoom: ExamRoom) => {
         this.roomService.addExceptions([examRoom.id], exceptions).then((data) => {
-            examRoom.calendarExceptionEvents = [...data];
+            const dataList: ExceptionWorkingHours[] = [];
+            data.forEach((d) => {
+                if (!dataList.map((e) => e.id).includes(d.id)) {
+                    dataList.push(d);
+                }
+            });
+            examRoom.calendarExceptionEvents = [...dataList];
         });
     };
 
