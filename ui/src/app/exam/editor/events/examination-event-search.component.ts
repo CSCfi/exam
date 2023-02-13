@@ -87,10 +87,9 @@ export class ExaminationEventSearchComponent implements OnInit {
                         this.toast.info(this.translate.instant('sitnet_removed'));
                         this.events.splice(this.events.indexOf(configuration), 1);
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 });
             },
-            error: this.toast.error,
         });
     };
 
