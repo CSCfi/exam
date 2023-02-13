@@ -15,7 +15,7 @@
 import type { CdkDragDrop } from '@angular/cdk/drag-drop';
 import { moveItemInArray } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -32,7 +32,7 @@ import { ExamService } from '../../exam.service';
     encapsulation: ViewEncapsulation.None,
     templateUrl: './section.component.html',
 })
-export class SectionComponent implements OnInit {
+export class SectionComponent implements OnInit, OnChanges {
     @Input() section!: ExamSection;
     @Input() index = 0;
     @Input() examId = 0;

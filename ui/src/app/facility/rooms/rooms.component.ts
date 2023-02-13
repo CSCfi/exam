@@ -30,6 +30,7 @@ interface ExtendedRoom extends ExamRoom {
     addressVisible: boolean;
     availabilityVisible: boolean;
     extendedDwh: DefaultWorkingHoursWithEditing[];
+    activate: boolean;
 }
 export interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
     editing: boolean;
@@ -107,13 +108,26 @@ export class RoomListComponent implements OnInit {
         }
     }
 
+    switchVisibility(room: ExtendedRoom) {
+        if (!room.activate) {
+            room.activate = !room.activate;
+        }
+        room.availabilityVisible = !room.availabilityVisible;
+    }
+
     disableRoom = (room: ExamRoom) => this.roomService.disableRoom(room);
 
     enableRoom = (room: ExamRoom) => this.roomService.enableRoom(room);
 
     addExceptions = (exceptions: ExceptionWorkingHours[], examRoom: ExamRoom) => {
         this.roomService.addExceptions([examRoom.id], exceptions).then((data) => {
-            examRoom.calendarExceptionEvents = [...data];
+            const dataList: ExceptionWorkingHours[] = [];
+            data.forEach((d) => {
+                if (!dataList.map((e) => e.id).includes(d.id)) {
+                    dataList.push(d);
+                }
+            });
+            examRoom.calendarExceptionEvents = [...dataList];
         });
     };
 

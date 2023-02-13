@@ -316,9 +316,9 @@ export class ExamPublicationComponent implements OnInit {
                             1,
                         );
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 }),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 
