@@ -37,8 +37,8 @@ import { StatisticsService } from '../statistics.service';
                     </thead>
                     <tbody>
                         <tr *ngFor="let month of months">
-                            <td class="warning">{{ month | date: 'yyyy' }}</td>
-                            <td class="warning">{{ month | date: 'M' }}</td>
+                            <td class="warning">{{ month | date : 'yyyy' }}</td>
+                            <td class="warning">{{ month | date : 'M' }}</td>
                             <td *ngFor="let room of rooms">{{ totalParticipations(month, room) }}</td>
                             <td class="success">{{ totalParticipations(month) }}</td>
                         </tr>

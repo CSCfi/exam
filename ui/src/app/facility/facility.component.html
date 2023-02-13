@@ -18,9 +18,9 @@
             <a (click)="createPeriod()" class="ms-2"><i class="pointer bi-plus-square"></i></a>
         </div>
     </div>
-    <div class="detail-row ms-1" *ngFor="let period of maintenancePeriods | orderBy: 'startsAt'">
+    <div class="detail-row ms-1" *ngFor="let period of maintenancePeriods | orderBy : 'startsAt'">
         <div class="col-md-12">
-            {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
+            {{ period.startsAt | date : 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date : 'dd.MM.yyyy HH:mm' }}
             {{ period.description }}
             <a (click)="updatePeriod(period)" class="pointer ms-2"><i class="bi-pencil-square"></i></a>
             <a (click)="removePeriod(period)" class="pointer ms-2"><i class="bi-x-square"></i></a>

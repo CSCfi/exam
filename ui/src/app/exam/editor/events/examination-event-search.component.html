@@ -124,7 +124,7 @@
                 </thead>
 
                 <tbody>
-                    <tr *ngFor="let event of events | orderBy: sorting.predicate:sorting.reverse">
+                    <tr *ngFor="let event of events | orderBy : sorting.predicate : sorting.reverse">
                         <!-- 1 -->
                         <td>
                             <xm-course-code *ngIf="event.exam.course" [course]="event.exam.course"></xm-course-code>
@@ -145,8 +145,8 @@
                         </td>
                         <!-- 4 -->
                         <td>
-                            {{ event.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm' }} -
-                            {{ getEventEndTime(event.examinationEvent?.start, event.exam?.duration) | date: 'HH:mm' }}
+                            {{ event.examinationEvent?.start | date : 'dd.MM.yyyy HH:mm' }} -
+                            {{ getEventEndTime(event.examinationEvent?.start, event.exam?.duration) | date : 'HH:mm' }}
                         </td>
                         <!-- 5 -->
                         <td>

@@ -78,7 +78,7 @@ export class ExamOwnerSelectorComponent implements OnInit {
                     delete this.newOwner.name;
                     delete this.newOwner.id;
                 },
-                error: (err) => this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         } else {
             this.toast.error(this.translate.instant('sitnet_teacher_not_found'));

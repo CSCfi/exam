@@ -21,7 +21,7 @@ import { CommonExamService } from '../../../shared/miscellaneous/common-exam.ser
 @Component({
     selector: 'xm-r-participation',
     template: `
-        <div class="col-md-2 general-info-title">{{ participation.started | date: 'dd.MM.yyyy' }}</div>
+        <div class="col-md-2 general-info-title">{{ participation.started | date : 'dd.MM.yyyy' }}</div>
         <div class="col-md-4 general-info-content">
             <span [ngStyle]="participation.exam.state === 'ABORTED' ? { color: '#F35D6C' } : { color: '#3CA34F' }">
                 {{ 'sitnet_exam_status_' + participation.exam.state | lowercase | translate }}

@@ -59,8 +59,8 @@
                 </sup>
             </div>
             <div class="col-md-6">
-                {{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }} -
-                {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}
+                {{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }} -
+                {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}
             </div>
         </div>
         <div class="row margin-20">
@@ -102,7 +102,7 @@
             </div>
             <div class="col-md-6" *ngIf="reviews">
                 {{ gradedCount }} / {{ getRegisteredCount() }} ({{
-                    (gradedCount / getRegisteredCount()) * 100 | number: '1.0-1'
+                    (gradedCount / getRegisteredCount()) * 100 | number : '1.0-1'
                 }}%)
             </div>
         </div>
@@ -122,7 +122,7 @@
                     />
                 </sup>
             </div>
-            <div class="col-md-6" *ngIf="reviews.length > 0">{{ getAverageTime() | number: '1.0-1' }} min</div>
+            <div class="col-md-6" *ngIf="reviews.length > 0">{{ getAverageTime() | number : '1.0-1' }} min</div>
         </div>
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
@@ -193,7 +193,7 @@
             </div>
             <div class="col-md-6" *ngIf="reviews">
                 {{ this.getReadFeedback() }} / {{ this.getTotalFeedback() }} ({{
-                    getFeedbackPercentage() | number: '1.0-1'
+                    getFeedbackPercentage() | number : '1.0-1'
                 }}%)
             </div>
         </div>
@@ -246,7 +246,7 @@
                     {{ kv.key }}
                 </div>
                 <div class="col-md-9" *ngIf="kv.value.max > 0">
-                    {{ calcAverage(kv.value.totals) | number: '1.2-2' }} / {{ kv.value.max | number: '1.2-2' }}
+                    {{ calcAverage(kv.value.totals) | number : '1.2-2' }} / {{ kv.value.max | number : '1.2-2' }}
                 </div>
             </div>
         </div>

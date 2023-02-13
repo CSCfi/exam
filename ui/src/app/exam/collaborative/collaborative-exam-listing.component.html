@@ -116,7 +116,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let exam of filterByView(view) | orderBy: examsPredicate:reverse">
+                    <tr *ngFor="let exam of filterByView(view) | orderBy : examsPredicate : reverse">
                         <td>
                             <a
                                 class="exams-info-title bold-button"
@@ -142,12 +142,12 @@
                         </td>
                         <td>
                             <span *ngIf="exam.examActiveStartDate">
-                                {{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }}
+                                {{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }}
                             </span>
                         </td>
                         <td>
                             <span *ngIf="exam.examActiveEndDate">
-                                {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}
+                                {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}
                             </span>
                         </td>
                     </tr>

@@ -70,8 +70,8 @@
                         <tr
                             *ngFor="
                                 let review of examReviews
-                                    | orderBy: reviewPredicate:reverse
-                                    | slice: currentPage * pageSize:currentPage * pageSize + pageSize
+                                    | orderBy : reviewPredicate : reverse
+                                    | slice : currentPage * pageSize : currentPage * pageSize + pageSize
                             "
                         >
                             <td class="table-column-bold reservation-search">
@@ -88,15 +88,15 @@
                                 </a>
                             </td>
                             <td>
-                                {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                                {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
                                 {{ 'sitnet_clock_short' | translate }}
-                                {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
-                                {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }} ({{
-                                    review.examParticipation.started | minuteDiff: review.examParticipation.ended
+                                {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
+                                {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }} ({{
+                                    review.examParticipation.started | minuteDiff : review.examParticipation.ended
                                 }}&nbsp;min)
                             </td>
                             <td>
-                                {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (
+                                {{ review.examParticipation.deadline | date : 'dd.MM.yyyy' }} (
                                 <span [innerHtml]="review.examParticipation.deadline | dayDiff"></span>)
                             </td>
                             <td>
@@ -143,7 +143,7 @@
                                     [disabled]="!isGradeable(review)"
                                     [(ngModel)]="review.selectedGrade"
                                 >
-                                    <option *ngFor="let grade of review.grades | orderBy: 'id'" [ngValue]="grade">
+                                    <option *ngFor="let grade of review.grades | orderBy : 'id'" [ngValue]="grade">
                                         {{ grade.name }}
                                     </option>
                                     <option value="" [selected]="!review.selectedGrade">
@@ -162,7 +162,7 @@
                             </td>
                         </tr>
                         <!--Fill if page not full-->
-                        <tr *ngFor="let r of [] | pageFill: examReviews.length:currentPage:pageSize">
+                        <tr *ngFor="let r of [] | pageFill : examReviews.length : currentPage : pageSize">
                             <td class="table-column-examname">&nbsp;</td>
                             <td colspan="8"></td>
                         </tr>

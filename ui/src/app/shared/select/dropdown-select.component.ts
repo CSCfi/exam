@@ -63,7 +63,7 @@ export interface Option<V, I> {
                 (click)="selectOption(opt)"
             >
                 <span *ngIf="!opt.isHeader">
-                    {{ opt.label || '' | translate | slice: 0:40 }}
+                    {{ opt.label || '' | translate | slice : 0 : 40 }}
                 </span>
                 <span *ngIf="opt.isHeader">{{ opt.label }}</span>
             </button>

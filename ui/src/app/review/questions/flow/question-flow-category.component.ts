@@ -50,7 +50,7 @@ import { QuestionReviewService } from '../question-review.service';
                     <input type="radio" [checked]="r.selected" (change)="selectQuestion(r)" />
                 </div>
                 <div class="col-md-9">
-                    <div [innerHtml]="r.question.question | slice: 0:50"></div>
+                    <div [innerHtml]="r.question.question | slice : 0 : 50"></div>
                 </div>
                 <div class="col-md-2">
                     <div [ngClass]="isFinalized(r) ? 'text-success' : ''">

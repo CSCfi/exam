@@ -47,7 +47,7 @@
 <div class="row ms-3" *ngIf="exam.state === 'GRADED_LOGGED'">
     <div class="col-md-4 general-info-title">{{ 'sitnet_graded' | translate }}:</div>
     <div class="col-md-8 general-info-content">
-        {{ exam.gradedTime | date: 'dd.MM.yyyy' }}
+        {{ exam.gradedTime | date : 'dd.MM.yyyy' }}
     </div>
 </div>
 

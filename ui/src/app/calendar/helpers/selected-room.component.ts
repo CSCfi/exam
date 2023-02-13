@@ -35,8 +35,8 @@ import { CalendarService } from '../calendar.service';
         <div class="row mt-2" *ngIf="maintenancePeriods.length > 0">
             <div class="col-md-2 col-12">{{ 'sitnet_maintenance_periods' | translate }}:</div>
             <div class="col-md-10 col-12">
-                <div *ngFor="let period of maintenancePeriods | orderBy: 'startsAt'">
-                    {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
+                <div *ngFor="let period of maintenancePeriods | orderBy : 'startsAt'">
+                    {{ period.startsAt | date : 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date : 'dd.MM.yyyy HH:mm' }}
                     {{ period.description }}
                 </div>
             </div>
