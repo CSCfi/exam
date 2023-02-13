@@ -126,7 +126,7 @@
                         {{ 'sitnet_openinghours_exception_datetimes' | translate }}
                     </div>
                     <div class="d-flex justify-content-end">
-                        <span class="marr10 d-" *ngIf="!room.availabilityVisible">
+                        <span class="marr10 d-" [hidden]="room.availabilityVisible">
                             <div
                                 class="flex justify-content-end"
                                 *ngFor="let timetable of getWorkingHoursDisplayFormat(room.defaultWorkingHours)"
@@ -139,17 +139,17 @@
                             <i
                                 class="bi-chevron-down pointer"
                                 *ngIf="room.availabilityVisible"
-                                (click)="room.availabilityVisible = false"
+                                (click)="switchVisibility(room)"
                             ></i>
                             <i
                                 class="bi-chevron-right pointer"
                                 *ngIf="!room.availabilityVisible"
-                                (click)="room.availabilityVisible = true"
+                                (click)="switchVisibility(room)"
                             ></i>
                         </div>
                     </div>
                 </div>
-                <div class="row" *ngIf="!room.availabilityVisible">
+                <div class="row" [hidden]="room.availabilityVisible">
                     <div class="col-md mart10 marr26">
                         <div
                             class="flex justify-content-end flex-nowrap"
@@ -179,7 +179,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="row" *ngIf="room.availabilityVisible">
+                <div class="row" [hidden]="!room.availabilityVisible" *ngIf="room.activate">
                     <div class="col-6">
                         <xm-opening-hours *ngIf="room" class="col-md-12" [room]="room"></xm-opening-hours>
                     </div>

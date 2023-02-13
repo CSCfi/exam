@@ -55,19 +55,13 @@ export class DateTimeService {
         return new Date(now.setDate(now.getDate() + distance));
     }
 
-    getDateForMonth(ordinal: number): Date {
-        const now = new Date();
-        const distance = ordinal - now.getMonth();
-        return new Date(now.setMonth(now.getMonth() + distance));
-    }
-
     getLocalizedDateForMonth = (ordinal: number, locale: string): DateTime =>
         DateTime.now().set({ month: ordinal }).setLocale(locale);
 
     getLocalizedDateForDay = (ordinal: number, locale: string): DateTime =>
         DateTime.now().set({ day: ordinal }).setLocale(locale);
 
-    getWeekdayNames(long?: boolean): string[] {
+    getWeekdayNames(long = false): string[] {
         const length = long ? 'long' : 'short';
         const lang = this.translate.currentLang;
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
@@ -77,7 +71,7 @@ export class DateTimeService {
             .map((d) => this.getDateForWeekday(d).toLocaleDateString(locale, options));
     }
 
-    translateWeekdayName(weekDay: string, long?: boolean): string {
+    translateWeekdayName(weekDay: string, long = false): string {
         const length = long ? 'long' : 'short';
         const lang = this.translate.currentLang;
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
@@ -101,15 +95,13 @@ export class DateTimeService {
         return '';
     }
 
-    getMonthNames(long?: boolean): string[] {
-        const length = long ? 'long' : 'short';
+    getMonthNames = (): string[] => {
         const lang = this.translate.currentLang;
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
-        const options: Intl.DateTimeFormatOptions = { month: length };
         return range(1, 12)
             .concat(0)
-            .map((m) => this.getDateForMonth(m - 1).toLocaleDateString(locale, options));
-    }
+            .map((m) => this.getLocalizedDateForMonth(m - 1, locale).monthLong);
+    };
 
     isDST = (date: Date | string | number): boolean => {
         const d = new Date(date);
