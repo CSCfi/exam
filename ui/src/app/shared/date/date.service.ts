@@ -61,6 +61,12 @@ export class DateTimeService {
         return new Date(now.setMonth(now.getMonth() + distance));
     }
 
+    getLocalizedDateForMonth = (ordinal: number, locale: string): DateTime =>
+        DateTime.now().set({ month: ordinal }).setLocale(locale);
+
+    getLocalizedDateForDay = (ordinal: number, locale: string): DateTime =>
+        DateTime.now().set({ day: ordinal }).setLocale(locale);
+
     getWeekdayNames(long?: boolean): string[] {
         const length = long ? 'long' : 'short';
         const lang = this.translate.currentLang;
@@ -70,8 +76,8 @@ export class DateTimeService {
             .concat(0)
             .map((d) => this.getDateForWeekday(d).toLocaleDateString(locale, options));
     }
+
     translateWeekdayName(weekDay: string, long?: boolean): string {
-        // This function has been moved to date service @DELETEME
         const length = long ? 'long' : 'short';
         const lang = this.translate.currentLang;
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
