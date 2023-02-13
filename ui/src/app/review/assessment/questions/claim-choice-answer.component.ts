@@ -19,7 +19,7 @@ import { QuestionService } from '../../../question/question.service';
 @Component({
     selector: 'xm-r-claim-choice-answer',
     template: `<div *ngIf="reviewExpanded">
-        <div class="padl15 marb10" *ngFor="let option of sectionQuestion.options | orderBy: 'option.id'">
+        <div class="padl15 marb10" *ngFor="let option of sectionQuestion.options | orderBy : 'option.id'">
             <div [ngClass]="getSelectedOptionClass(option)">
                 <div class="make-inline float-start">
                     <img

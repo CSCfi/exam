@@ -61,7 +61,7 @@
         />
     </button>
     <div class="attachment-name ps-1" [title]="exam.attachment?.fileName">
-        {{ exam.attachment?.fileName | uppercase | slice: 0:50 }}
+        {{ exam.attachment?.fileName | uppercase | slice : 0 : 50 }}
     </div>
 </div>
 
@@ -81,7 +81,7 @@
             <li
                 tabindex="1"
                 class="row d-flex align-items-center pointer phase-box"
-                *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let i = index"
+                *ngFor="let section of exam.examSections | orderBy : 'sequenceNumber'; let i = index"
                 [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
                 (click)="selectSection(section)"
                 (keydown.enter)="selectSection(section)"

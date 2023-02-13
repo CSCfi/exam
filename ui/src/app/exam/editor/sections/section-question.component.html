@@ -140,7 +140,7 @@
                 <li
                     class="mt-2"
                     [hidden]="sectionQuestion.question.type !== 'ClaimChoiceQuestion'"
-                    *ngFor="let option of sectionQuestion.options | orderBy: 'option.id'"
+                    *ngFor="let option of sectionQuestion.options | orderBy : 'option.id'"
                 >
                     <img
                         src="/assets/images/icon_correct_answer_radio.png"

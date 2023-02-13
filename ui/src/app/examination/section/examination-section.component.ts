@@ -59,7 +59,7 @@ import { ExaminationService } from '../examination.service';
                     </div>
                 </div>
                 <xm-examination-question
-                    *ngFor="let sq of section.sectionQuestions | orderBy: 'sequenceNumber'"
+                    *ngFor="let sq of section.sectionQuestions | orderBy : 'sequenceNumber'"
                     [question]="sq"
                     [exam]="exam"
                     [isPreview]="isPreview"

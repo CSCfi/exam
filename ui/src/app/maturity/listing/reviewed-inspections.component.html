@@ -181,8 +181,8 @@
                 <tr
                     *ngFor="
                         let inspection of filteredInspections
-                            | orderBy: sorting.predicate:sorting.reverse
-                            | slice: currentPage * pageSize:currentPage * pageSize + pageSize
+                            | orderBy : sorting.predicate : sorting.reverse
+                            | slice : currentPage * pageSize : currentPage * pageSize + pageSize
                     "
                 >
                     <!-- 1 -->
@@ -207,7 +207,7 @@
                         {{ inspection.ownerAggregate }}
                     </td>
                     <!-- 5 -->
-                    <td>{{ inspection.created | date: 'dd.MM.yyyy' }}</td>
+                    <td>{{ inspection.created | date : 'dd.MM.yyyy' }}</td>
                     <!-- 6 -->
                     <td>
                         <span>{{ inspection.studentName }}</span>
@@ -222,7 +222,7 @@
                         </span>
                     </td>
                     <!-- 7 -->
-                    <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
+                    <td>{{ inspection.exam.created | date : 'dd.MM.yyyy' }}</td>
                     <!-- 8 -->
                     <td *ngIf="inspection.modifier">
                         <span>{{ inspection.inspectorName }} </span>
@@ -234,7 +234,7 @@
                         </span>
                     </td>
                     <!-- 9 -->
-                    <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
+                    <td>{{ inspection.finishedAt | date : 'dd.MM.yyyy' }}</td>
                     <!-- 10 -->
                     <td>
                         <span *ngIf="inspection.approved" class="approved">
@@ -252,7 +252,7 @@
                     </td>
                 </tr>
                 <!--Fill if page not full-->
-                <tr *ngFor="let r of [] | pageFill: filteredInspections.length:currentPage:pageSize">
+                <tr *ngFor="let r of [] | pageFill : filteredInspections.length : currentPage : pageSize">
                     <td class="table-column-bold" colspan="11">&nbsp;</td>
                 </tr>
                 <tr *ngIf="filteredInspections.length === 0">

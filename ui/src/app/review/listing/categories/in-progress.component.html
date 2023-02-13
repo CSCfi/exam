@@ -132,8 +132,8 @@
                 <tr
                     *ngFor="
                         let review of view.filtered
-                            | orderBy: view.predicate:view.reverse
-                            | slice: view.page * view.pageSize:view.page * view.pageSize + view.pageSize
+                            | orderBy : view.predicate : view.reverse
+                            | slice : view.page * view.pageSize : view.page * view.pageSize + view.pageSize
                     "
                 >
                     <td *ngIf="showId()">{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
@@ -173,18 +173,18 @@
                         {{ review.duration + ' min' }}
                     </td>
                     <td *ngIf="review.examParticipation.exam.implementation === 'AQUARIUM'" class="table-column-10">
-                        {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                        {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
                         {{ 'sitnet_clock_short' | translate }}
-                        {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
-                        {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
+                        {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
+                        {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }}
                     </td>
                     <td *ngIf="review.examParticipation.exam.implementation !== 'AQUARIUM'" class="table-column-10">
-                        {{ review.examParticipation.started | date: 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }} {{ review.examParticipation.started | date: 'HH:mm' }} -
-                        {{ review.examParticipation.ended | date: 'HH:mm' }}
+                        {{ review.examParticipation.started | date : 'dd.MM.yyyy' }}
+                        {{ 'sitnet_clock_short' | translate }} {{ review.examParticipation.started | date : 'HH:mm' }} -
+                        {{ review.examParticipation.ended | date : 'HH:mm' }}
                     </td>
                     <td class="table-column-10">
-                        {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (<span
+                        {{ review.examParticipation.deadline | date : 'dd.MM.yyyy' }} (<span
                             [innerHtml]="review.examParticipation.deadline | dayDiff"
                         ></span
                         >)
@@ -214,7 +214,7 @@
                     <td *ngIf="!showId()" colspan="7">{{ 'sitnet_review_no_result' | translate }}</td>
                 </tr>
                 <!--Fill if page not full-->
-                <tr *ngFor="let r of [] | pageFill: view.filtered.length:view.page:view.pageSize">
+                <tr *ngFor="let r of [] | pageFill : view.filtered.length : view.page : view.pageSize">
                     <td class="table-column-bold">&nbsp;</td>
                     <td *ngIf="showId()" colspan="7"></td>
                     <td *ngIf="!showId()" colspan="6"></td>

@@ -53,10 +53,6 @@ export class WrongLocationService {
     };
 
     displayWrongUserAgent = (startsAtTxt: string) => {
-        const opts = {
-            timeOut: 10000,
-            preventDuplicates: true,
-        };
         const startsAt = parseISO(startsAtTxt);
         if (startsAt > new Date()) {
             this.toast.warning(

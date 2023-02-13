@@ -137,7 +137,7 @@
             </thead>
 
             <tbody>
-                <tr *ngFor="let inspection of filteredInspections | orderBy: sorting.predicate:sorting.reverse">
+                <tr *ngFor="let inspection of filteredInspections | orderBy : sorting.predicate : sorting.reverse">
                     <td>
                         <xm-course-code
                             *ngIf="inspection.exam.course"
@@ -157,7 +157,7 @@
                             {{ inspection.ownerAggregate }}
                         </span>
                     </td>
-                    <td>{{ inspection.created | date: 'dd.MM.yyyy' }}</td>
+                    <td>{{ inspection.created | date : 'dd.MM.yyyy' }}</td>
                     <td>
                         <span>{{ inspection.studentName }}</span>
                         <span *ngIf="inspection.exam.creator.userIdentifier"
@@ -170,7 +170,7 @@
                             }}</a>
                         </span>
                     </td>
-                    <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
+                    <td>{{ inspection.exam.created | date : 'dd.MM.yyyy' }}</td>
                     <td *ngIf="inspection.modifier">
                         <span>{{ inspection.inspectorName }} </span>
                         <span>

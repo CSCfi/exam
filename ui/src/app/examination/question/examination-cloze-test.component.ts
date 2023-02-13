@@ -21,7 +21,7 @@ import { ExaminationService } from '../examination.service';
     template: `<div class="row">
             <div class="col-md-12">
                 <small class="sitnet-info-text" *ngIf="sq.autosaved">
-                    {{ 'sitnet_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date: 'HH:mm' }}
+                    {{ 'sitnet_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date : 'HH:mm' }}
                 </small>
                 <small class="sitnet-info-text" *ngIf="!sq.autosaved"> &nbsp; </small>
             </div>

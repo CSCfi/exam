@@ -73,7 +73,7 @@
         [ngStyle]="gradesForm?.invalid ? { border: 'red 1px solid' } : { border: 'white 1px solid' }"
     >
         <form role="form" #gradesForm="ngForm" xmUniqueValues name="gradeEvaluations" *ngIf="config">
-            <div *ngFor="let ge of config.gradeEvaluations | orderBy: 'grade.name'">
+            <div *ngFor="let ge of config.gradeEvaluations | orderBy : 'grade.name'">
                 <div class="row padl30 mb-2">
                     <div class="col-md-2">
                         {{ getGradeDisplayName(ge.grade) }}
