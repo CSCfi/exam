@@ -123,15 +123,13 @@ export class FeedbackComponent implements OnInit {
     selectFile = () => {
         this.Attachment.selectFile(false, {}).then((res: FileResult) => {
             if (this.collaborative) {
-                this._saveCollaborativeFeedback$().subscribe(() => {
-                    const url = `/app/iop/attachment/exam/${this.id}/${this.ref}/feedback`;
-                    this._upload(res, url);
-                });
+                this._saveCollaborativeFeedback$().subscribe(() =>
+                    this._upload(res, `/app/iop/collab/attachment/exam/${this.id}/${this.ref}/feedback`),
+                );
             } else {
-                this._saveFeedback$().subscribe(() => {
-                    const url = `/app/attachment/exam/${this.exam.id}/feedback`;
-                    this._upload(res, url);
-                });
+                this._saveFeedback$().subscribe(() =>
+                    this._upload(res, `/app/attachment/exam/${this.exam.id}/feedback`),
+                );
             }
         });
     };
