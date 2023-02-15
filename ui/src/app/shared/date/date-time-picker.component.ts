@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 
 @Component({
     selector: 'xm-date-time-picker',
@@ -38,7 +38,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
         </div>
     `,
 })
-export class DateTimePickerComponent implements OnInit {
+export class DateTimePickerComponent implements OnInit, OnChanges {
     @Input() initialTime: Date | null = null;
     @Input() hourStep = 0;
     @Input() minuteStep = 0;
