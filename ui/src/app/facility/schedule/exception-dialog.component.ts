@@ -59,7 +59,7 @@ export class ExceptionDialogComponent {
             return { selected: true, day: d, number: i === 7 ? 0 : i + 1 }; // 1-7 mo-su converted to 0-6 su-sa
         });
         this.weekdayOfMonth = this.selectableWeekDays[0];
-        this.selectableMonths = this.dateTime.getMonthNames(true).map((m, i) => {
+        this.selectableMonths = this.dateTime.getMonthNames().map((m, i) => {
             return { selected: true, month: m, number: i + 1 };
         });
         this.monthOfYear = this.selectableMonths[0];
