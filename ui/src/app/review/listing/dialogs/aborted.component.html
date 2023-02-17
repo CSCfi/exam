@@ -50,14 +50,14 @@
                             [predicate]="abortedPredicate"
                             by="examParticipation.reservation.trialCount"
                             text="sitnet_trial"
-                            (click)="setPredicate('examParticipation.exam.examEnrolments[0].trialCount')"
+                            (click)="setPredicate('examParticipation.exam.trialCount')"
                         ></xm-table-sort>
                     </th>
                 </tr>
             </thead>
 
             <tbody>
-                <tr *ngFor="let review of abortedExams | orderBy: abortedPredicate:reverse">
+                <tr *ngFor="let review of abortedExams | orderBy : abortedPredicate : reverse">
                     <td *ngIf="showId()">{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
                     <td class="table-column-examname">
                         {{ review.displayName }}
@@ -77,18 +77,18 @@
                             review.examParticipation.exam.implementation === 'WHATEVER'
                         "
                     >
-                        {{ review.examParticipation.started | date: 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }} {{ review.examParticipation.started | date: 'HH:mm' }} -
-                        {{ review.examParticipation.ended | date: 'HH:mm' }} ({{
-                            review.examParticipation.started | minuteDiff: review.examParticipation.ended
+                        {{ review.examParticipation.started | date : 'dd.MM.yyyy' }}
+                        {{ 'sitnet_clock_short' | translate }} {{ review.examParticipation.started | date : 'HH:mm' }} -
+                        {{ review.examParticipation.ended | date : 'HH:mm' }} ({{
+                            review.examParticipation.started | minuteDiff : review.examParticipation.ended
                         }}&nbsp;min)
                     </td>
                     <td class="table-column-25" *ngIf="review.examParticipation.exam.implementation === 'AQUARIUM'">
-                        {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                        {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
                         {{ 'sitnet_clock_short' | translate }}
-                        {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
-                        {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }} ({{
-                            review.examParticipation.started | minuteDiff: review.examParticipation.ended
+                        {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
+                        {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }} ({{
+                            review.examParticipation.started | minuteDiff : review.examParticipation.ended
                         }}&nbsp;min)
                     </td>
                     <td class="table-column-15 sitnet-text-aborted">
