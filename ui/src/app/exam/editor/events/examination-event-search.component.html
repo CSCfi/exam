@@ -138,7 +138,7 @@
                         <!-- 3 -->
                         <td>
                             {{
-                                event.exam?.creator
+                                event.exam?.creator?.firstName && event.exam?.creator?.lastName
                                     ? event.exam?.creator?.firstName + ' ' + event.exam?.creator?.lastName
                                     : '–'
                             }}
