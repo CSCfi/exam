@@ -25,12 +25,12 @@ import impl.CalendarHandler;
 import impl.EmailComposer;
 import io.ebean.Ebean;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
@@ -317,18 +317,14 @@ public class CalendarController extends BaseController {
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
-    public Result getSlots(Long examId, Long roomId, String day, String aids, Http.Request request) {
+    public Result getSlots(Long examId, Long roomId, String day, Optional<List<Integer>> aids, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment ee = getEnrolment(examId, user);
         // Sanity check so that we avoid accidentally getting reservations for SEB exams
         if (ee == null || ee.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             return forbidden("sitnet_error_enrolment_not_found");
         }
-        Collection<Integer> accessibilityIds = Stream
-            .of(aids.split(","))
-            .filter(s -> !s.isEmpty())
-            .map(Integer::parseInt)
-            .collect(Collectors.toList());
+        List<Integer> accessibilityIds = aids.orElse(Collections.emptyList());
         return calendarHandler.getSlots(user, ee.getExam(), roomId, day, accessibilityIds);
     }
 
