@@ -374,7 +374,7 @@ public class ReservationController extends BaseController {
     ) {
         ExpressionList<Reservation> query = Ebean
             .find(Reservation.class)
-            .fetch("enrolment", "noShow")
+            .fetch("enrolment", "noShow, retrialPermitted")
             .fetch("user", "id, firstName, lastName, email, userIdentifier")
             .fetch("enrolment.exam", "id, name, state, trialCount, implementation")
             .fetch("enrolment.externalExam", "id, externalRef, finished")
@@ -382,6 +382,7 @@ public class ReservationController extends BaseController {
             .fetch("enrolment.exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
             .fetch("enrolment.exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
             .fetch("enrolment.exam.examInspections.user", "id, firstName, lastName")
+            .fetch("enrolment.exam.executionType", "type")
             .fetch("enrolment.collaborativeExam", "*")
             .fetch("externalReservation")
             .fetch("machine", "id, name, ipAddress, otherIdentifier")
