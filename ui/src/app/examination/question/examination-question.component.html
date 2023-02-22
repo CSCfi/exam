@@ -93,6 +93,7 @@
                                 *ngSwitchCase="'ClozeTestQuestion'"
                                 [sq]="sq"
                                 [examHash]="exam.hash"
+                                [isPreview]="isPreview"
                             >
                             </xm-examination-cloze-test>
 
@@ -101,7 +102,6 @@
                                 [sq]="sq"
                                 [examHash]="exam.hash"
                                 [isPreview]="isPreview"
-                                [isCollaborative]="isCollaborative"
                                 [orderOptions]="!exam.external"
                             >
                             </xm-examination-multi-choice-question>
@@ -111,7 +111,6 @@
                                 [sq]="sq"
                                 [examHash]="exam.hash"
                                 [isPreview]="isPreview"
-                                [isCollaborative]="isCollaborative"
                                 [orderOptions]="true"
                             >
                             </xm-examination-multi-choice-question>

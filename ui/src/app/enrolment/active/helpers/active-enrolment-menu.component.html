@@ -9,7 +9,7 @@
             <a
                 *ngIf="enrolment.reservation.machine && enrolment.collaborativeExam"
                 class="infolink-light border rounded"
-                [routerLink]="['calendar', enrolment.collaborativeExam.id, 'collaborative']"
+                [routerLink]="['/calendar', enrolment.collaborativeExam.id, 'collaborative']"
                 >{{ 'sitnet_student_change_reservation' | translate }}
             </a>
             <a
