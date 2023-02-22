@@ -37,7 +37,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let sw of software | orderBy: 'name'" scope="row">
+                    <tr *ngFor="let sw of software | orderBy : 'name'" scope="row">
                         <td>
                             <div [hidden]="sw.showName">
                                 {{ sw.name }}

@@ -32,7 +32,7 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
                 {{ comment.creator.firstName }} {{ comment.creator.lastName }}
                 <small>({{ comment.creator.email }})</small>
                 <br />
-                {{ comment.created | date: 'dd.MM.yyyy HH:mm' }}
+                {{ comment.created | date : 'dd.MM.yyyy HH:mm' }}
             </div>
             <div class="col-md-8">
                 {{ comment.comment }}

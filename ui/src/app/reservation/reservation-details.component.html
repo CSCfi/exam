@@ -78,7 +78,7 @@
         </tr>
     </thead>
     <tbody>
-        <tr *ngFor="let r of fixedReservations | orderBy: predicate:reverse">
+        <tr *ngFor="let r of fixedReservations | orderBy : predicate : reverse">
             <td class="reservation-search">
                 <span>{{ r.userAggregate }}</span>
                 <span *ngIf="r.user?.userIdentifier">&nbsp;({{ r.user.userIdentifier }})</span>
@@ -144,15 +144,17 @@
                 class="reservation-search"
                 *ngIf="r.enrolment.exam.external || r.enrolment.exam.implementation === 'AQUARIUM'"
             >
-                {{ r.startAt | applyDst | date: 'dd.MM.yyyy' }} <br />{{ r.startAt | applyDst | date: 'HH:mm' }}-{{
-                    r.endAt | applyDst | date: 'HH:mm'
+                {{ r.startAt | applyDst | date : 'dd.MM.yyyy' }} <br />{{ r.startAt | applyDst | date : 'HH:mm' }}-{{
+                    r.endAt | applyDst | date : 'HH:mm'
                 }}
             </td>
             <td
                 class="reservation-search"
                 *ngIf="!r.enrolment.exam.external && r.enrolment.exam.implementation !== 'AQUARIUM'"
             >
-                {{ r.startAt | date: 'dd.MM.yyyy' }} <br />{{ r.startAt | date: 'HH:mm' }}-{{ r.endAt | date: 'HH:mm' }}
+                {{ r.startAt | date : 'dd.MM.yyyy' }} <br />{{ r.startAt | date : 'HH:mm' }}-{{
+                    r.endAt | date : 'HH:mm'
+                }}
             </td>
             <td class="reservation-search">
                 <span *ngIf="r.externalUserRef || r.enrolment.exam.implementation === 'AQUARIUM'">

@@ -9,7 +9,7 @@
     </div>
 
     <div class="top-row">
-        <div class="col-md-12" *ngFor="let enrolment of userEnrolments | orderBy: 'startAtAggregate'">
+        <div class="col-md-12" *ngFor="let enrolment of userEnrolments | orderBy : 'startAtAggregate'">
             <xm-active-enrolment [enrolment]="enrolment" (removed)="enrolmentRemoved($event)"></xm-active-enrolment>
         </div>
         <div *ngIf="userEnrolments?.length === 0" style="padding-left: 30px">

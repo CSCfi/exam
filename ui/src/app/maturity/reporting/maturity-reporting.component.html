@@ -5,7 +5,7 @@
                 <span class="student-enroll-title marl20">{{
                     'sitnet_monthly_language_inspection_report' | translate
                 }}</span>
-                <span class="print-only compact-header-text">{{ month | date: 'MM/yyyy' }}</span>
+                <span class="print-only compact-header-text">{{ month | date : 'MM/yyyy' }}</span>
             </div>
             <div class="review-attachment-button print-button float-end marr20 no-print">
                 <a (click)="printReport()" class="pointer"> {{ 'sitnet_print' | translate }}&nbsp;&nbsp; </a>
@@ -70,7 +70,7 @@
                     </thead>
 
                     <tbody>
-                        <tr *ngFor="let inspection of processedInspections | orderBy: 'finishedAt'">
+                        <tr *ngFor="let inspection of processedInspections | orderBy : 'finishedAt'">
                             <td>
                                 <xm-course-code
                                     *ngIf="inspection.exam.course"
@@ -83,7 +83,7 @@
                                     {{ owner.firstName }} {{ owner.lastName }}
                                 </span>
                             </td>
-                            <td>{{ inspection.created | date: 'dd.MM.yyyy' }}</td>
+                            <td>{{ inspection.created | date : 'dd.MM.yyyy' }}</td>
                             <td>
                                 <span
                                     >{{ inspection.exam.creator.firstName }}
@@ -98,7 +98,7 @@
                                     }}</a></span
                                 >
                             </td>
-                            <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
+                            <td>{{ inspection.exam.created | date : 'dd.MM.yyyy' }}</td>
                             <td *ngIf="inspection.assignee">
                                 <span>{{ inspection.assignee.firstName }} {{ inspection.assignee.lastName }} </span>
                                 <span
@@ -107,7 +107,7 @@
                                     }}</a></span
                                 >
                             </td>
-                            <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
+                            <td>{{ inspection.finishedAt | date : 'dd.MM.yyyy' }}</td>
                             <td [ngClass]="inspection.approved ? 'text-success' : 'text-danger'">
                                 <strong>{{
                                     (inspection.approved ? 'sitnet_approved' : 'sitnet_rejected') | translate

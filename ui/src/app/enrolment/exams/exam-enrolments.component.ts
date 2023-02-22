@@ -48,7 +48,7 @@ import { EnrolmentService } from '../enrolment.service';
 export class ExamEnrolmentsComponent implements OnInit {
     exam!: EnrolmentInfo;
     exams: EnrolmentInfo[] = [];
-    code: string = '';
+    code = '';
 
     constructor(
         private route: ActivatedRoute,

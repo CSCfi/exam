@@ -41,8 +41,8 @@ import type { ExamInfo } from '../calendar.service';
                                 {{ 'sitnet_exam_validity' | translate }}:
                             </div>
                             <div class="col-6 col-sm-6 col-md-2 col-lg-2">
-                                {{ examInfo.examActiveStartDate | date: 'dd.MM.yyyy' }} -
-                                {{ examInfo.examActiveEndDate | date: 'dd.MM.yyyy' }}
+                                {{ examInfo.examActiveStartDate | date : 'dd.MM.yyyy' }} -
+                                {{ examInfo.examActiveEndDate | date : 'dd.MM.yyyy' }}
                             </div>
                             <div class="col-6 col-sm-6 col-md-2 col-lg-2">
                                 {{ 'sitnet_exam_duration' | translate }}:

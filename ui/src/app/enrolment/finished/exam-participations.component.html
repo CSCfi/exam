@@ -89,8 +89,8 @@
         class="row mart10"
         *ngFor="
             let participation of participations
-                | orderBy: filter.ordering:filter.reverse
-                | slice: currentPage * pageSize:currentPage * pageSize + pageSize
+                | orderBy : filter.ordering : filter.reverse
+                | slice : currentPage * pageSize : currentPage * pageSize + pageSize
         "
     >
         <div class="col-md-12">

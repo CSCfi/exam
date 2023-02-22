@@ -36,7 +36,7 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
 
         <div
             class="row"
-            *ngFor="let exception of orderedExceptions | filterBy: filter; let i = index"
+            *ngFor="let exception of orderedExceptions | filterBy : filter; let i = index"
             [class]="i % 2 === 0 ? 'background-light-blue' : ''"
         >
             <div class="col">

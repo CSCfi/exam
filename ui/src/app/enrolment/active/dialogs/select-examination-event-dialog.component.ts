@@ -40,7 +40,7 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
                 <div *ngFor="let config of configs" class="examination-event">
                     <div class="row">
                         <div class="col-md-12">
-                            <h3>{{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}</h3>
+                            <h3>{{ config.examinationEvent.start | date : 'dd.MM.yyyy HH:mm' }}</h3>
                         </div>
                     </div>
                     <div class="row">

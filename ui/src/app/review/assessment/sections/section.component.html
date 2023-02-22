@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="detail-row">
-            <div class="col-md-12 mt-8" *ngFor="let sq of section.sectionQuestions | orderBy: 'sequenceNumber'">
+            <div class="col-md-12 mt-8" *ngFor="let sq of section.sectionQuestions | orderBy : 'sequenceNumber'">
                 <div *ngIf="sq.question.type === 'MultipleChoiceQuestion'">
                     <xm-r-multi-choice-question
                         [sectionQuestion]="sq"
