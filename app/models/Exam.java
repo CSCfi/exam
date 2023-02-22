@@ -658,7 +658,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             configClone.save();
             clone.setAutoEvaluationConfig(configClone);
         }
-        if (examFeedbackConfig != null) {
+        if (examFeedbackConfig != null && produceStudentExam) { // TODO: this block is going to be removed altogether
             ExamFeedbackConfig configClone = examFeedbackConfig.copy();
             configClone.setExam(clone);
             configClone.save();
