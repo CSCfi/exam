@@ -165,8 +165,8 @@
                 <tr
                     *ngFor="
                         let review of view.filtered
-                            | orderBy: view.predicate:view.reverse
-                            | slice: view.page * view.pageSize:view.page * view.pageSize + view.pageSize
+                            | orderBy : view.predicate : view.reverse
+                            | slice : view.page * view.pageSize : view.page * view.pageSize + view.pageSize
                     "
                 >
                     <td class="table-column-checkbox">
@@ -215,13 +215,13 @@
                     </td>
                     <td class="table-column-10">{{ review.duration + ' min' }}</td>
                     <td class="table-column-10">
-                        {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                        {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
                         {{ 'sitnet_clock_short' | translate }}
-                        {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
-                        {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
+                        {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
+                        {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }}
                     </td>
                     <td class="table-column-10">
-                        {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (<span
+                        {{ review.examParticipation.deadline | date : 'dd.MM.yyyy' }} (<span
                             [innerHtml]="review.examParticipation.deadline | dayDiff"
                         ></span
                         >)
@@ -244,14 +244,16 @@
                     <td class="table-column-10">
                         {{ review.displayedCredit }}
                     </td>
-                    <td class="table-column-10">{{ review.examParticipation.exam.gradedTime | date: 'dd.MM.yyyy' }}</td>
+                    <td class="table-column-10">
+                        {{ review.examParticipation.exam.gradedTime | date : 'dd.MM.yyyy' }}
+                    </td>
                 </tr>
                 <tr *ngIf="view.filtered.length === 0">
                     <td *ngIf="showId()" colspan="11">{{ 'sitnet_review_no_result' | translate }}</td>
                     <td *ngIf="!showId()" colspan="10">{{ 'sitnet_review_no_result' | translate }}</td>
                 </tr>
                 <!--Fill if page not full-->
-                <tr *ngFor="let r of [] | pageFill: view.filtered.length:view.page:view.pageSize">
+                <tr *ngFor="let r of [] | pageFill : view.filtered.length : view.page : view.pageSize">
                     <td *ngIf="showId()" colspan="11">&nbsp;</td>
                     <td *ngIf="!showId()" colspan="10">&nbsp;</td>
                 </tr>

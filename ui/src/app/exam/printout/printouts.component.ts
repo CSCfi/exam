@@ -70,7 +70,7 @@ import type { Exam } from '../exam.model';
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let exam of printouts | orderBy: predicate:reverse">
+                            <tr *ngFor="let exam of printouts | orderBy : predicate : reverse">
                                 <td>{{ exam.examinationDatesAggregate }}</td>
                                 <td><xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code></td>
                                 <td>

@@ -82,7 +82,6 @@ export class CalendarService {
         collaborative = false,
         sectionIds: number[] = [],
     ) {
-        const tz = room.localTimezone;
         const slot: Slot = {
             start: this.adjustBack(start),
             end: this.adjustBack(end),

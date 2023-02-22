@@ -16,8 +16,8 @@
 <div class="row mt-2" [hidden]="exam.executionType.type !== 'PRINTOUT'">
     <div class="col-md-9 offset-md-3">
         <ul class="list-inline mart10">
-            <li *ngFor="let ed of exam.examinationDates | orderBy: 'date'" class="list-inline-item">
-                {{ ed.date | date: 'dd.MM.yyyy' }}
+            <li *ngFor="let ed of exam.examinationDates | orderBy : 'date'" class="list-inline-item">
+                {{ ed.date | date : 'dd.MM.yyyy' }}
                 <button
                     class="reviewer-remove"
                     (click)="removeExaminationDate(ed)"
@@ -113,7 +113,7 @@
                     (click)="modifyExaminationEvent(config)"
                     class="pointer examination-event-list-item rounded-start"
                 >
-                    {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}<i class="bi-pencil marl5"></i>
+                    {{ config.examinationEvent.start | date : 'dd.MM.yyyy HH:mm' }}<i class="bi-pencil marl5"></i>
                 </span>
                 <span
                     *ngIf="config.examEnrolments.length === 0"

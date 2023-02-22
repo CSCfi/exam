@@ -67,7 +67,7 @@
     </div>
 
     <!-- Sections -->
-    <div *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let index = index">
+    <div *ngFor="let section of exam.examSections | orderBy : 'sequenceNumber'; let index = index">
         <xm-r-section
             [section]="section"
             [participation]="participation"

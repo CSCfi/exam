@@ -20,7 +20,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
     template: `<div
         class="padl15 marb10"
         [hidden]="!reviewExpanded"
-        *ngFor="let option of sectionQuestion.options | orderBy: 'id'"
+        *ngFor="let option of sectionQuestion.options | orderBy : 'id'"
     >
         <div *ngIf="option.answered">
             <div *ngIf="option.score >= 0" class="exam-answered-correct">

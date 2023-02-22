@@ -12,8 +12,8 @@
             </div>
             <div *ngIf="maintenancePeriods.length > 0" class="alert alert-warning form-text mb-2">
                 {{ 'sitnet_maintenance_periods' | translate }}
-                <div *ngFor="let period of maintenancePeriods | orderBy: 'startsAt'">
-                    {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
+                <div *ngFor="let period of maintenancePeriods | orderBy : 'startsAt'">
+                    {{ period.startsAt | date : 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date : 'dd.MM.yyyy HH:mm' }}
                     {{ period.description }}
                 </div>
             </div>

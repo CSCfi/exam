@@ -147,7 +147,10 @@ export class ReviewListComponent implements OnInit, OnChanges {
     };
 
     abortedExamsToBeFreed = (): number =>
-        this.exam.trialCount
-            ? this.abortedExams.filter((x) => !x.examParticipation.exam.examEnrolments[0].retrialPermitted).length
-            : 0;
+        this.abortedExams.filter(
+            (ae) =>
+                ae.examParticipation.exam.trialCount &&
+                ae.examParticipation.exam.examEnrolments.length > 0 &&
+                ae.examParticipation.exam.examEnrolments[0].retrialPermitted === false,
+        ).length;
 }

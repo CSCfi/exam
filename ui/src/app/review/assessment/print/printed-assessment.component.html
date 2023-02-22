@@ -31,13 +31,13 @@
             <strong>{{ 'sitnet_time_of_exam_participation' | translate }}:</strong>
         </div>
         <div class="col-md-4">
-            {{ participation?.started | applyDst | date: 'dd.MM.yyyy HH:mm' }} -
-            {{ participation?.ended | applyDst | date: 'dd.MM.yyyy HH:mm' }}
+            {{ participation?.started | applyDst | date : 'dd.MM.yyyy HH:mm' }} -
+            {{ participation?.ended | applyDst | date : 'dd.MM.yyyy HH:mm' }}
         </div>
         <div class="col-md-2">
             <strong>{{ 'sitnet_exam_duration' | translate }}:</strong>
         </div>
-        <div class="col-md-4">{{ participation?.duration | date: 'HH:mm' }}</div>
+        <div class="col-md-4">{{ participation?.duration | date : 'HH:mm' }}</div>
     </div>
     <div class="row" *ngIf="enrolment?.information">
         <div class="col-md-2">
@@ -68,7 +68,7 @@
         </div>
     </div>
     <div class="row" *ngFor="let participation of previousParticipations">
-        <div class="col-md-2">{{ participation.started | applyDst | date: 'dd.MM.yyyy' }}</div>
+        <div class="col-md-2">{{ participation.started | applyDst | date : 'dd.MM.yyyy' }}</div>
         <div class="col-md-4">
             <strong>{{ 'sitnet_exam_state' | translate }}:</strong>&nbsp;&nbsp;&nbsp;
             {{ translateState(participation) | lowercase | translate }}
@@ -121,7 +121,7 @@
     <div class="row firefox-print-fix">
         <div
             class="top-margin-1 col-md-12"
-            *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let index = index"
+            *ngFor="let section of exam.examSections | orderBy : 'sequenceNumber'; let index = index"
         >
             <xm-printed-section [section]="section" [index]="index"></xm-printed-section>
         </div>

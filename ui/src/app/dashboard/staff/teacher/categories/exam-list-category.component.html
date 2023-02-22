@@ -80,7 +80,7 @@
             </thead>
 
             <tbody>
-                <tr *ngFor="let exam of items | orderBy: sorting.predicate:sorting.reverse">
+                <tr *ngFor="let exam of items | orderBy : sorting.predicate : sorting.reverse">
                     <td *ngIf="exam.name" class="table-column-examname">
                         <a
                             *ngIf="isOwner(exam)"
@@ -108,8 +108,8 @@
                     </td>
                     <td class="table-column-open-until">
                         <span *ngIf="exam.examActiveStartDate && exam.examActiveEndDate">
-                            {{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }} -
-                            {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}
+                            {{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }} -
+                            {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}
                         </span>
                     </td>
 
