@@ -3,17 +3,17 @@
         <!-- calendar box -->
         <div class="col-auto" *ngIf="enrolment.reservation || enrolment.examinationEventConfiguration">
             <div class="student-enrolment-date-box" *ngIf="enrolment.reservation">
-                {{ enrolment.reservation!.startAt | date: 'dd' }}
+                {{ enrolment.reservation!.startAt | date : 'dd' }}
                 <span class="month-name">{{
-                    enrolment.reservation!.startAt | date: 'MMM' | slice: 0:3 | uppercase
+                    enrolment.reservation!.startAt | date : 'MMM' | slice : 0 : 3 | uppercase
                 }}</span>
             </div>
             <div class="student-enrolment-date-box" *ngIf="enrolment.examinationEventConfiguration">
-                {{ enrolment.examinationEventConfiguration!.examinationEvent.start | date: 'dd' }}
+                {{ enrolment.examinationEventConfiguration!.examinationEvent.start | date : 'dd' }}
                 <span class="month-name">{{
                     enrolment.examinationEventConfiguration!.examinationEvent.start
-                        | date: 'MMM'
-                        | slice: 0:3
+                        | date : 'MMM'
+                        | slice : 0 : 3
                         | uppercase
                 }}</span>
             </div>
@@ -114,12 +114,12 @@
             <div>
                 {{
                     enrolment.exam?.examActiveStartDate || enrolment.collaborativeExam.examActiveStartDate
-                        | date: 'dd.MM.yyyy'
+                        | date : 'dd.MM.yyyy'
                 }}
                 &ndash;
                 {{
                     enrolment.exam?.examActiveEndDate || enrolment.collaborativeExam.examActiveEndDate
-                        | date: 'dd.MM.yyyy'
+                        | date : 'dd.MM.yyyy'
                 }}
             </div>
         </div>
@@ -158,7 +158,7 @@
             <div class="clearfix visible-sm"></div>
             <div class="col-md-3 col-lg-2 mt-md-2 mt-3">{{ 'sitnet_reservation' | translate }}:</div>
             <div class="col-md-9 col-lg-10 mt-md-2">
-                {{ enrolment.reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
+                {{ enrolment.reservation.startAt | applyDst | date : 'dd.MM.yyyy' }}
                 {{ enrolment.occasion?.startAt }} &ndash; {{ enrolment.occasion?.endAt }}
             </div>
         </div>
@@ -202,7 +202,7 @@
         <div class="row mt-3 justify-content-start">
             <div class="">{{ 'sitnet_examination_event' | translate }}:</div>
             <div class="">
-                {{ enrolment.examinationEventConfiguration?.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm' }}
+                {{ enrolment.examinationEventConfiguration?.examinationEvent?.start | date : 'dd.MM.yyyy HH:mm' }}
             </div>
         </div>
     </div>

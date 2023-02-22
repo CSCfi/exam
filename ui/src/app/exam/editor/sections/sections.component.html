@@ -20,7 +20,7 @@
 <div class="row" id="exam" cdkDropList [cdkDropListData]="exam.examSections" (cdkDropListDropped)="moveSection($event)">
     <div class="col-md-12">
         <div
-            *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let i = index"
+            *ngFor="let section of exam.examSections | orderBy : 'sequenceNumber'; let i = index"
             cdkDrag
             cdkDragLockAxis="y"
         >

@@ -24,7 +24,7 @@ import type { ExamSection } from '../../../exam/exam.model';
         <p>{{ section.description }}</p>
         <div
             class="sub-content-row col-md-12"
-            *ngFor="let sectionQuestion of section.sectionQuestions | orderBy: 'sequenceNumber'"
+            *ngFor="let sectionQuestion of section.sectionQuestions | orderBy : 'sequenceNumber'"
         >
             <xm-printed-multi-choice
                 *ngIf="

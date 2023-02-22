@@ -382,6 +382,7 @@ public class ReservationController extends BaseController {
             .fetch("enrolment.exam.examOwners", "id, firstName, lastName", new FetchConfig().query())
             .fetch("enrolment.exam.parent.examOwners", "id, firstName, lastName", new FetchConfig().query())
             .fetch("enrolment.exam.examInspections.user", "id, firstName, lastName")
+            .fetch("enrolment.exam.executionType", "type")
             .fetch("enrolment.collaborativeExam", "*")
             .fetch("externalReservation")
             .fetch("machine", "id, name, ipAddress, otherIdentifier")

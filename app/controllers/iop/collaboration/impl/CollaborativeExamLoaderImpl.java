@@ -94,20 +94,20 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     public PathProperties getAssessmentPath() {
         String path =
             "(*, user(id, firstName, lastName, email, eppn, userIdentifier)" +
-            "exam(id, name, state, instruction, hash, implementation, duration, executionType(id, type), " +
+            "exam(id, name, state, instruction, hash, implementation, duration, trialCount, executionType(id, type), " + // exam
             "examLanguages(code), attachment(id, externalId, fileName)" +
             "autoEvaluationConfig(*, gradeEvaluations(*, grade(*)))" +
             "creditType(*), examType(*), executionType(*)" +
             "gradeScale(*, grades(*))" +
-            "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," +
-            "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " +
+            "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // exam.examSections
+            "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // exam.examSections.sectionQuestions
             "question(id, type, question, attachment(id, externalId, fileName), options(*))" +
             "options(*, option(*))" +
             "essayAnswer(id, answer, objectVersion, attachment(id, externalId, fileName))" +
             "clozeTestAnswer(id, question, answer, objectVersion)" +
-            ")), examEnrolments(*, user(firstName, lastName, email, eppn, userIdentifier), " +
-            "reservation(*, machine(*, room(*))) )" +
-            "))";
+            ")), examEnrolments(*, user(firstName, lastName, email, eppn, userIdentifier), " + // exam.examEnrolments
+            "reservation(*, machine(*, room(*)))" +
+            ")))";
         return PathProperties.parse(path);
     }
 
@@ -132,8 +132,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         if (ou.isEmpty()) {
             return CompletableFuture.completedFuture(false);
         }
-        WSRequest request = wsClient.url(ou.get().toString());
-        request.setContentType("application/json");
+        WSRequest request = wsClient.url(ou.get().toString()).setContentType("application/json");
         Function<WSResponse, Boolean> onSuccess = response -> {
             if (response.getStatus() != Http.Status.CREATED) {
                 logger.error("Failed in sending assessment for exam " + ref);

@@ -1068,7 +1068,7 @@
   "sitnet_monthly": "Toistuu kuukausittain EN",
   "sitnet_yearly": "Toistuu vuosittain EN",
   "sitnet_repeating_info": "Select exception repetition",
-  "sitnet_repeats_once": "Kerran toistuva poikkeusaukioloaika. EN",
+  "sitnet_repeats_once": "Time repeats once EN",
   "sitnet_repeats_weekly_or_every_day": "Viikoittain tai päivittäin toistuva poikkeusaukioloaika. Valitse kellonajat ja kuinka pitkään toistuvuutta jatketaan. Valitse viikonpäivät joina toistuvuus halutaan. EN",
   "sitnet_repeats_monthly": "Kuukausittain toistuva poikkeusaukioloaika. Valitse kellonajat ja kuinka pitkään toistuvuutta jatketaan. EN",
   "sitnet_repeats_yearly": "Vuosittain toistuva poikkeusaukioloaika. Valitse kellonajat ja kuinka pitkään toistuvuutta jatketaan. EN",
@@ -1085,7 +1085,7 @@
   "sitnet_repeats_weekly_confirm": "Toistuu viikko-toisteisuudella EN",
   "sitnet_repeats_monthly_confirm": "Toistuu kuukausi-toisteisuudella EN",
   "sitnet_repeats_yearly_confirm": "Toistuu vuosi-toisteisuudella EN",
-  "sitnet_whole_day": "Poikkeusaukoioloaika koko päivälle EN",
+  "sitnet_whole_day": "Koko päivä EN",
   "sitnet_and_repeats_every_x": "Toistuu joka EN",
   "sitnet_exception_happens_at": "Poikkeusaukioloajan kellonaika EN",
   "sitnet_questions_with_your_answers": "Kysymykset ja vastauksesi EN",
@@ -1103,5 +1103,6 @@
   "sitnet_exam_instance_settings": "EXAM-instanssin asetukset EN",
   "sitnet_other_publication_settings": "Muut julkaisuasetukset EN",
   "sitnet_feedback_config_release_type_date": "Tiettynä päivänä suorituksen lukitsemisen jälkeen EN",
-  "sitnet_room_closed_overlap": "Huoneiden ajoissa on päällekkäisyyksiä EN"
+  "sitnet_room_closed_overlap": "Huoneiden ajoissa on päällekkäisyyksiä EN",
+  "sitnet_select_room_error": "Valitse ainakin yksi tenttitila EN"
 }

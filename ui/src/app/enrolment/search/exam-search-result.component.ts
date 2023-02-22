@@ -62,8 +62,8 @@ import { EnrolmentService } from '../enrolment.service';
             <div class="col">
                 <span>{{ 'sitnet_exam_validity' | translate }}: </span>
                 <span
-                    >{{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }} &ndash;
-                    {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}</span
+                    >{{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }} &ndash;
+                    {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}</span
                 >
             </div>
         </div>

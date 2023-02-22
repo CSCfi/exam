@@ -1,5 +1,8 @@
 {
   "root": true,
+  "ignorePatterns": [
+    "projects/**/*"
+  ],
   "overrides": [
     {
       "files": [
@@ -12,13 +15,13 @@
         "createDefaultProgram": true
       },
       "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
         "plugin:@angular-eslint/recommended",
         "plugin:@angular-eslint/template/process-inline-templates"
       ],
-      "plugins": ["deprecation"],
       "rules": {
         "@typescript-eslint/no-explicit-any": "error",
-        "deprecation/deprecation": "error",
         "@angular-eslint/directive-selector": [
           "error",
           {
@@ -44,7 +47,8 @@
       ],
       "extends": [
         "plugin:@angular-eslint/template/recommended"
-      ]
+      ],
+      "rules": {}
     }
   ]
 }

@@ -50,7 +50,7 @@
             </thead>
 
             <tbody>
-                <tr *ngFor="let noShow of noShows | orderBy: noShowPredicate:reverse">
+                <tr *ngFor="let noShow of noShows | orderBy : noShowPredicate : reverse">
                     <td class="table-column-examname">
                         {{ noShow.displayName }}
                         <span *ngIf="noShow.user?.userIdentifier"><br />({{ noShow.user?.userIdentifier }})</span>
@@ -59,23 +59,23 @@
                         <a class="pointer" href="mailto:{{ noShow.user?.email }}"> {{ noShow.user?.email }}</a>
                     </td>
                     <td class="table-column-25" *ngIf="noShow.reservation">
-                        {{ noShow.reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
+                        {{ noShow.reservation.startAt | applyDst | date : 'dd.MM.yyyy' }}
                         {{ 'sitnet_clock_short' | translate }}
-                        {{ noShow.reservation.startAt | applyDst | date: 'HH:mm' }} -
-                        {{ noShow.reservation.endAt | applyDst | date: 'HH:mm' }}
+                        {{ noShow.reservation.startAt | applyDst | date : 'HH:mm' }} -
+                        {{ noShow.reservation.endAt | applyDst | date : 'HH:mm' }}
                     </td>
                     <td
                         class="table-column-25"
                         *ngIf="!noShow.reservation && !noShow.examinationEventConfiguration"
                     ></td>
                     <td class="table-column-25" *ngIf="noShow.examinationEventConfiguration">
-                        {{ noShow.examinationEventConfiguration.examinationEvent.start | date: 'dd.MM.yyyy' }}
+                        {{ noShow.examinationEventConfiguration.examinationEvent.start | date : 'dd.MM.yyyy' }}
                         {{ 'sitnet_clock_short' | translate }}
-                        {{ noShow.examinationEventConfiguration.examinationEvent.start | date: 'HH:mm' }} -
+                        {{ noShow.examinationEventConfiguration.examinationEvent.start | date : 'HH:mm' }} -
                         {{
                             noShow.examinationEventConfiguration.examinationEvent.start + noShow.exam.duration
                                 | applyDst
-                                | date: 'HH:mm'
+                                | date : 'HH:mm'
                         }}
                     </td>
                     <td class="table-column-15" class="sitnet-text-aborted">

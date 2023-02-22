@@ -113,7 +113,8 @@
                 <tbody>
                     <tr
                         *ngFor="
-                            let user of filteredUsers | slice: currentPage * pageSize:currentPage * pageSize + pageSize
+                            let user of filteredUsers
+                                | slice : currentPage * pageSize : currentPage * pageSize + pageSize
                         "
                     >
                         <td>{{ user.lastName }}</td>
@@ -123,7 +124,7 @@
                         </td>
                         <td>{{ user.userIdentifier }}</td>
                         <td>{{ user.employeeNumber }}</td>
-                        <td>{{ user.lastLogin | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
+                        <td>{{ user.lastLogin | date : 'dd.MM.yyyy HH:mm:ss' }}</td>
                         <td>
                             <i *ngIf="hasRole(user, 'ADMIN')" class="bi-gear-fill"></i>
                             <i *ngIf="hasRole(user, 'TEACHER')" class="bi-person-fill"></i>

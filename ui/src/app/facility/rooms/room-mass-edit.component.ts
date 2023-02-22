@@ -15,6 +15,7 @@
 
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Output } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import { RoomService } from './room.service';
@@ -134,7 +135,7 @@ export class MultiRoomComponent implements OnInit, OnChanges {
     allSelected = false;
     showBreaks = false;
 
-    constructor(private toast: ToastrService, private roomService: RoomService) {}
+    constructor(private toast: ToastrService, private roomService: RoomService, private translate: TranslateService) {}
 
     ngOnInit() {
         this.loadRooms();
@@ -170,6 +171,10 @@ export class MultiRoomComponent implements OnInit, OnChanges {
                 );
             }
         });
+        if (allExceptions.length === 0) {
+            this.toast.error(this.translate.instant('sitnet_select_room_error'));
+            return;
+        }
         outOfService
             ? this.roomService.openExceptionDialog(this.addExceptions, true, allExceptions)
             : this.roomService.openExceptionDialog(this.addExceptions, false, allExceptions);

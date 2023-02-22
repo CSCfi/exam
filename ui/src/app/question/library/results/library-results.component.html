@@ -84,8 +84,8 @@
                 <tr
                     *ngFor="
                         let question of fixedQuestions
-                            | orderBy: questionsPredicate:reverse
-                            | slice: currentPage * pageSize:currentPage * pageSize + pageSize
+                            | orderBy : questionsPredicate : reverse
+                            | slice : currentPage * pageSize : currentPage * pageSize + pageSize
                     "
                 >
                     <td class="question-table-checkbox">
@@ -98,7 +98,7 @@
                         />
                     </td>
                     <td class="question-table-name">
-                        <span *ngIf="question.question" [xmMathJax]="question.question | slice: 0:360"> </span>
+                        <span *ngIf="question.question" [xmMathJax]="question.question | slice : 0 : 360"> </span>
                         <span *ngIf="!question.question" class="text-danger">
                             {{ 'sitnet_no_name' | translate }}
                         </span>
@@ -124,7 +124,7 @@
                     </td>
                     <td>
                         <span *ngIf="question.modified" class="timestamp">
-                            {{ question.modified | date: 'dd.MM.yyyy HH:mm' }}
+                            {{ question.modified | date : 'dd.MM.yyyy HH:mm' }}
                             <br />
                             <small>{{ question.modifier?.firstName }} {{ question.modifier?.lastName }}</small>
                         </span>
@@ -183,7 +183,7 @@
                     </td>
                 </tr>
                 <!--Fill if page not full-->
-                <tr *ngFor="let r of [] | pageFill: questions.length:currentPage:pageSize">
+                <tr *ngFor="let r of [] | pageFill : questions.length : currentPage : pageSize">
                     <td colspan="9">&nbsp;</td>
                     <td *ngIf="user.isAdmin"></td>
                 </tr>

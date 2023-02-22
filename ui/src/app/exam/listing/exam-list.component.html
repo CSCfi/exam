@@ -149,7 +149,7 @@
                                 let exam of filterByStateAndExpiration(
                                     views[activeId].view,
                                     views[activeId].showExpired
-                                ) | orderBy: examsPredicate:reverse
+                                ) | orderBy : examsPredicate : reverse
                             "
                         >
                             <td><xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code></td>
@@ -175,12 +175,12 @@
                             </td>
                             <td>
                                 <span *ngIf="exam.examActiveStartDate">
-                                    {{ exam.examActiveStartDate | date: 'dd.MM.yyyy' }}
+                                    {{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }}
                                 </span>
                             </td>
                             <td>
                                 <span *ngIf="exam.examActiveEndDate">
-                                    {{ exam.examActiveEndDate | date: 'dd.MM.yyyy' }}
+                                    {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}
                                 </span>
                             </td>
                             <td class="text-center">

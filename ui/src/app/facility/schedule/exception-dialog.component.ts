@@ -21,7 +21,7 @@ enum ORDINAL {
     templateUrl: './exception-dialog.component.html',
 })
 export class ExceptionDialogComponent {
-    @Input() outOfService: boolean = true;
+    @Input() outOfService = true;
     @Input() exceptions: ExceptionWorkingHours[] = [];
     dateOptions = {
         'starting-day': 1,
@@ -32,7 +32,7 @@ export class ExceptionDialogComponent {
     date: Date = new Date();
     startTime: { hour: number; minute: number; second: number };
     endTime: { hour: number; minute: number; second: number };
-    wholeDay: boolean = false;
+    wholeDay = false;
     weekdayOfMonth: { selected: boolean; day: string; number: number };
     monthOfYear: { selected: boolean; month: string; number: number };
     dayOfMonth = 1;
@@ -255,7 +255,7 @@ export class ExceptionDialogComponent {
                 const filter = this.calculateLastWeek(date);
                 return filter.includes(date.getDate());
             }
-            return !!selectedWeekdays
+            return selectedWeekdays
                 ? [...selectedWeekdays].includes(date.getDay() + 1)
                 : suitableDays.includes(date.getDate());
         });
