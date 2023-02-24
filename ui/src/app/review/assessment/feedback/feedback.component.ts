@@ -26,28 +26,21 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
     selector: 'xm-r-feedback',
     template: `<div id="feedback">
         <div cdkDrag id="draggable" class="wrapper">
-            <div class="row">
+            <div class="row align-items-center">
                 <div
                     class="col-1"
                     ngbPopover="{{ (hideEditor ? 'sitnet_show' : 'sitnet_hide') | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <i
                         (click)="toggleFeedbackVisibility()"
-                        class="pointer vcenter font-6"
-                        [ngClass]="
-                            hideEditor
-                                ? 'bi-arrow-right-circle-fill sitnet-green'
-                                : 'bi-arrow-down-circle-fill sitnet-red'
-                        "
+                        class="pointer font-6"
+                        [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"
                     >
                     </i>
                 </div>
                 <div class="col-11">
-                    <div class="vcenter">
-                        {{ title | translate }}
-                    </div>
+                    {{ title | translate }}
                 </div>
             </div>
             <div [hidden]="hideEditor" class="body">
