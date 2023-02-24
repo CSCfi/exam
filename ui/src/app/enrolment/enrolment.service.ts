@@ -272,8 +272,10 @@ export class EnrolmentService {
             this.selectExaminationEvent(enrolment.exam, enrolment);
         } else {
             const params = enrolment.collaborativeExam ? enrolment.collaborativeExam.id : enrolment.exam.id;
-            const fragments = enrolment.collaborativeExam ? '/collaborative/calendar' : '/calendar';
-            this.router.navigate([fragments, params]);
+            const fragments = enrolment.collaborativeExam
+                ? ['/calendar', params, 'collaborative']
+                : ['/calendar', params];
+            this.router.navigate(fragments);
         }
     };
 
