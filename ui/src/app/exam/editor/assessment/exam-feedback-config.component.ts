@@ -26,6 +26,7 @@ type ExamFeedbackConfigTemplate = {
 @Component({
     selector: 'xm-exam-feedback-config',
     templateUrl: './exam-feedback-config.component.html',
+    styleUrls: ['./exam-feedback-config.component.css'], // CSCEXAM-1127
 })
 export class ExamFeedbackConfigComponent implements OnInit {
     @Input() exam!: Exam;
@@ -47,7 +48,8 @@ export class ExamFeedbackConfigComponent implements OnInit {
                     translation: 'sitnet_release_type_once_locked',
                     filtered: true,
                 },
-                { name: 'GIVEN_DATE', translation: 'sitnet_feedback_config_release_type_date' },
+                // CSCEXAM-1127
+                //{ name: 'GIVEN_DATE', translation: 'sitnet_feedback_config_release_type_date' },
             ],
         };
         this.examFeedbackConfigDisplay = { visible: false };

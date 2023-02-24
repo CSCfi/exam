@@ -1104,5 +1104,7 @@
   "sitnet_other_publication_settings": "Muut julkaisuasetukset",
   "sitnet_feedback_config_release_type_date": "Tiettynä päivänä suorituksen lukitsemisen jälkeen",
   "sitnet_room_closed_overlap": "Huoneiden ajoissa on päällekkäisyyksiä",
-  "sitnet_select_room_error": "Valitse ainakin yksi tenttitila"
+  "sitnet_select_room_error": "Valitse ainakin yksi tenttitila",
+  "sitnet_examination_answer": "Tenttivastaus",
+  "sitnet_not_available": "Ei saatavilla"
 }

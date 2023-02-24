@@ -32,7 +32,7 @@ public class ExamAnswerController extends BaseController {
     }
 
     private boolean canReleaseAnswers(Exam exam) {
-        ExamFeedbackConfig config = exam.getExamFeedbackConfig();
+        ExamFeedbackConfig config = exam.getParent().getExamFeedbackConfig();
         switch (config.getReleaseType()) {
             case ONCE_LOCKED:
                 return true;

@@ -1104,5 +1104,7 @@
   "sitnet_other_publication_settings": "Other publication settings",
   "sitnet_feedback_config_release_type_date": "On selected day after exam is assessed and locked ",
   "sitnet_room_closed_overlap": "There is overlapping with existing opening hours exceptions",
-  "sitnet_select_room_error": "You have to select at least one exam room"
+  "sitnet_select_room_error": "You have to select at least one exam room",
+  "sitnet_examination_answer": "Tenttivastaus EN",
+  "sitnet_not_available": "Ei saatavilla EN"
 }
