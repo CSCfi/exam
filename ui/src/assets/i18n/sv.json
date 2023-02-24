@@ -1104,5 +1104,7 @@
   "sitnet_other_publication_settings": "Andra publiceringsinställningar",
   "sitnet_feedback_config_release_type_date": "En vald dag efter att prestationen har låsts",
   "sitnet_room_closed_overlap": "Det finns överlappningar i rummens tidpunkter",
-  "sitnet_select_room_error": "Välj minst ett examensutrymmet"
+  "sitnet_select_room_error": "Välj minst ett examensutrymmet",
+  "sitnet_examination_answer": "Tenttivastaus SV",
+  "sitnet_not_available": "Ei saatavilla SV"
 }
