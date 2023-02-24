@@ -27,13 +27,14 @@ import { QuestionDraft, QuestionService } from '../question.service';
                     class="col-md-6 question-option-empty"
                     [ngClass]="{ 'question-correct-option': option.correctOption }"
                 >
-                    <input
+                    <textarea
                         type="text"
+                        rows="1"
                         name="option-{{ index }}"
-                        class="make-inline question-option-input radiobut"
+                        class="make-inline question-option-input radiobut form-control"
                         [(ngModel)]="option.option"
                         required
-                    />
+                    ></textarea>
                 </div>
                 <div
                     class="col-md-2 question-option-empty-radio"

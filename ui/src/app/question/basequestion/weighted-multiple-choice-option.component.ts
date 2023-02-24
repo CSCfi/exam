@@ -27,14 +27,15 @@ import { QuestionDraft } from '../question.service';
                     class="col-md-6 question-option-empty"
                     [ngClass]="option.defaultScore > 0 ? 'question-correct-option' : ''"
                 >
-                    <input
+                    <textarea
                         id="optionText-{{ index }}"
                         name="optionText-{{ index }}"
                         type="text"
-                        class="question-option-input"
+                        rows="1"
+                        class="question-option-input form-control"
                         [(ngModel)]="option.option"
                         required
-                    />
+                    ></textarea>
                 </div>
                 <div
                     class="col-md-2 question-option-empty-radio"
