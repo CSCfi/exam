@@ -464,6 +464,7 @@ public class ExamController extends BaseController {
         copy.setCreatorWithDate(user);
         copy.setParent(null);
         copy.setCourse(null);
+        copy.setExamFeedbackConfig(null);
         copy.setSubjectToLanguageInspection(null);
         DateTime now = DateTime.now().withTimeAtStartOfDay();
         copy.setExamActiveStartDate(now);

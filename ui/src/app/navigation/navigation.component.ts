@@ -15,7 +15,7 @@
 import type { OnDestroy, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ToastrService } from 'ngx-toastr';
-import { Subject } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ExaminationStatusService } from '../examination/examination-status.service';
 import type { User } from '../session/session.service';
@@ -32,7 +32,6 @@ export class NavigationComponent implements OnInit, OnDestroy {
     links: Link[] = [];
     mobileMenuOpen = false;
     user?: User;
-    isInteroperable = false;
     private ngUnsubscribe = new Subject();
 
     constructor(
@@ -58,11 +57,11 @@ export class NavigationComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.user = this.Session.getUser();
         if (this.user && this.user.isAdmin) {
-            this.Navigation.getAppVersion().subscribe({
+            this.Navigation.getAppVersion$().subscribe({
                 next: (resp) => (this.appVersion = resp.appVersion),
                 error: this.toast.error,
             });
-            this.getLinks(true);
+            this.getLinks(true, true);
         } else if (this.user) {
             this.getLinks(true);
         } else {
@@ -79,23 +78,27 @@ export class NavigationComponent implements OnInit, OnDestroy {
         return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
     };
 
-    // isActive = (link: Link): boolean => link.route === this.routing.current.name; // TODO!
-
     openMenu = () => (this.mobileMenuOpen = !this.mobileMenuOpen);
 
     switchLanguage = (key: string) => this.Session.switchLanguage(key);
 
-    private getLinks = (checkInteroperability: boolean) => {
-        if (checkInteroperability) {
-            this.Navigation.getInteroperability().subscribe({
-                next: (resp) => {
-                    this.isInteroperable = resp.isExamCollaborationSupported;
-                    this.links = this.Navigation.getLinks(this.isInteroperable);
-                },
+    private getLinks = (checkInteroperability: boolean, checkByod = false) => {
+        if (checkInteroperability && checkByod) {
+            forkJoin([this.Navigation.getInteroperability$(), this.Navigation.getByodSupport$()]).subscribe({
+                next: ([iop, byod]) =>
+                    (this.links = this.Navigation.getLinks(
+                        iop.isExamCollaborationSupported,
+                        byod.isByodExaminationSupported,
+                    )),
+                error: this.toast.error,
+            });
+        } else if (checkInteroperability) {
+            this.Navigation.getInteroperability$().subscribe({
+                next: (resp) => (this.links = this.Navigation.getLinks(resp.isExamCollaborationSupported, false)),
                 error: this.toast.error,
             });
         } else {
-            this.links = this.Navigation.getLinks(false);
+            this.links = this.Navigation.getLinks(false, false);
         }
     };
 }

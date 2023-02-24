@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { addDays, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { EnrolmentService } from '../../../enrolment/enrolment.service';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
@@ -46,16 +46,20 @@ export class ExaminationEventSearchComponent implements OnInit {
     ) {}
 
     ngOnInit() {
+        this.endDate?.setHours(24, 0, 0);
+        this.startDate?.setHours(0, 0, 0);
         this.query();
     }
 
     startDateChanged = (event: { date: Date | null }) => {
         this.startDate = event.date;
+        this.startDate?.setHours(0, 0, 0);
         this.query();
     };
 
     endDateChanged = (event: { date: Date | null }) => {
         this.endDate = event.date;
+        this.endDate?.setHours(24, 0, 0);
         this.query();
     };
 
@@ -100,7 +104,7 @@ export class ExaminationEventSearchComponent implements OnInit {
             params.start = new Date(this.startDate.getTime() + tzOffset).toISOString();
         }
         if (this.endDate) {
-            params.end = addDays(this.endDate, 1).toISOString();
+            params.end = new Date(this.endDate.getTime() + tzOffset).toISOString();
         }
         this.http
             .get<ExaminationEventConfiguration[]>('/app/examinationevents', { params: params })

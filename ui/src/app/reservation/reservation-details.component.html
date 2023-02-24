@@ -183,7 +183,11 @@
                     {{ 'sitnet_remove_reservation' | translate }}
                 </button>
                 <button
-                    *ngIf="r.enrolment.exam.state === 'ABORTED' && r.enrolment.exam.implementation === 'AQUARIUM'"
+                    *ngIf="
+                        r.enrolment.exam.state === 'ABORTED' &&
+                        r.enrolment.exam.implementation === 'AQUARIUM' &&
+                        r.enrolment.exam.executionType.type === 'PUBLIC'
+                    "
                     (click)="permitRetrial(r.enrolment)"
                     [disabled]="!r.enrolment.exam.trialCount || r.enrolment.retrialPermitted"
                     class="btn btn-sm btn-primary float-start"

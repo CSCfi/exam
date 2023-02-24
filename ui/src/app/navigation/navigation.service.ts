@@ -15,7 +15,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import type { Observable } from 'rxjs';
 import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
 
@@ -32,15 +31,14 @@ export interface Link {
 export class NavigationService {
     constructor(private http: HttpClient, private router: Router, private Session: SessionService) {}
 
-    getAppVersion(): Observable<{ appVersion: string }> {
-        return this.http.get<{ appVersion: string }>('/app/settings/appVersion');
-    }
+    getAppVersion$ = () => this.http.get<{ appVersion: string }>('/app/settings/appVersion');
 
-    getInteroperability(): Observable<{ isExamCollaborationSupported: boolean }> {
-        return this.http.get<{ isExamCollaborationSupported: boolean }>('/app/settings/iop/examCollaboration');
-    }
+    getInteroperability$ = () =>
+        this.http.get<{ isExamCollaborationSupported: boolean }>('/app/settings/iop/examCollaboration');
 
-    getLinks(interoperable: boolean): Link[] {
+    getByodSupport$ = () => this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod');
+
+    getLinks(interoperable: boolean, hasByod: boolean): Link[] {
         const user: User = this.Session.getUser();
 
         if (!user) {
@@ -135,7 +133,7 @@ export class NavigationService {
                         },
                         {
                             route: 'staff/examinationevents',
-                            visible: interoperable,
+                            visible: hasByod,
                             name: 'sitnet_byod_exams',
                             iconPng: 'icon_admin_exams.png',
                             submenu: { hidden: true, items: [] },

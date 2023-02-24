@@ -52,7 +52,6 @@ export class ExaminationMultiChoiceComponent implements OnInit {
     @Input() sq!: ExaminationQuestion;
     @Input() examHash = '';
     @Input() isPreview = false;
-    @Input() isCollaborative = false;
     @Input() orderOptions = false;
 
     constructor(private Examination: ExaminationService) {}

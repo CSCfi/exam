@@ -36,13 +36,16 @@ import { ExaminationService } from '../examination.service';
         </div>
         <div class="row top-margin-1">
             <div class="col-md-12">
-                <button (click)="saveAnswer()" class="green_button">{{ 'sitnet_save' | translate }}</button>
+                <button (click)="saveAnswer()" [disabled]="isPreview" class="pointer btn btn-success">
+                    {{ 'sitnet_save' | translate }}
+                </button>
             </div>
         </div> `,
 })
 export class ExaminationClozeTestComponent {
     @Input() sq!: ExaminationQuestion;
     @Input() examHash = '';
+    @Input() isPreview = false;
 
     constructor(private Examination: ExaminationService) {}
 

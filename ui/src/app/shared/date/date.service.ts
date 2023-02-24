@@ -59,7 +59,7 @@ export class DateTimeService {
         DateTime.now().set({ month: ordinal }).setLocale(locale);
 
     getLocalizedDateForDay = (ordinal: number, locale: string): DateTime =>
-        DateTime.now().set({ day: ordinal }).setLocale(locale);
+        DateTime.now().set({ weekday: ordinal }).setLocale(locale);
 
     getWeekdayNames(long = false): string[] {
         const length = long ? 'long' : 'short';
