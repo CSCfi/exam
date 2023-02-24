@@ -11,11 +11,6 @@ import { CalendarService } from '../calendar.service';
                     <span class="col-md-11 col-9">
                         <span class="calendar-phase-title">
                             {{ sequenceNumber }}. {{ 'sitnet_choose_institution' | translate }}
-                            <small class="col-12 ps-0">
-                                <button class="btn btn-sm btn-outline-dark" (click)="makeInternalReservation()">
-                                    {{ 'sitnet_internal_reservation' | translate }}&nbsp;
-                                </button>
-                            </small>
                         </span>
                     </span>
                     <span class="col-md-1 col-3">
@@ -52,6 +47,13 @@ import { CalendarService } from '../calendar.service';
                                         </li>
                                     </ul>
                                 </span>
+                            </div>
+                            <div class="col">
+                                <div class="col-12 ps-0">
+                                    <button class="btn btn-outline-dark" (click)="makeInternalReservation()">
+                                        {{ 'sitnet_internal_reservation' | translate }}&nbsp;
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
