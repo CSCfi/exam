@@ -658,12 +658,13 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             configClone.save();
             clone.setAutoEvaluationConfig(configClone);
         }
-        if (examFeedbackConfig != null && produceStudentExam) { // TODO: this block is going to be removed altogether
+        /* CSCEXAM-1127
+        if (examFeedbackConfig != null && produceStudentExam) {
             ExamFeedbackConfig configClone = examFeedbackConfig.copy();
             configClone.setExam(clone);
             configClone.save();
             clone.setExamFeedbackConfig(configClone);
-        }
+        }*/
 
         for (ExamInspection ei : examInspections) {
             ExamInspection inspection = new ExamInspection();

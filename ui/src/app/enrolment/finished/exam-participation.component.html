@@ -2,9 +2,9 @@
     class="student-enrolment-wrapper row align-items-center"
     [ngClass]="{ 'unseen-review': reviewedExam && reviewedExam.examFeedback?.feedbackStatus === null }"
 >
-    <div class="col-md-12">
-        <div class="row">
-            <div class="col-md-12">
+    <div class="col-12">
+        <div class="row mb-2">
+            <div class="col-12">
                 <!-- exam title n stuff -->
                 <div class="student-enrolment-exam">
                     <span *ngIf="!participation.exam.anonymous">#{{ participation.exam.id }}</span>
@@ -14,7 +14,7 @@
             </div>
         </div>
         <div *ngIf="!collaborative" class="row">
-            <div class="col-md-12">
+            <div class="col-12">
                 <div class="row">
                     <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
                     <div *ngIf="participation.exam.course" class="col-6 col-sm-6 col-md-3 col-lg-3">
@@ -31,7 +31,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-12">
                 <div class="row">
                     <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_endtime' | translate }}:</div>
                     <div class="col-6 col-sm-6 col-md-3 col-lg-3">
@@ -44,9 +44,9 @@
         </div>
 
         <div class="row mt-2" *ngIf="reviewedExam">
-            <div class="col-md-12">
+            <div class="col-12">
                 <div class="row align-items-center">
-                    <div class="col-md-12">
+                    <div class="col-12">
                         <a
                             tabindex="0"
                             class="infolink pointer"
@@ -56,42 +56,36 @@
                         >
                             <span [hidden]="showEvaluation">{{ 'sitnet_comments_open' | translate }}</span>
                             <span [hidden]="!showEvaluation">{{ 'sitnet_comments_hide' | translate }}</span>
-                            <img
-                                class="arrow_icon marl10"
-                                alt="hide evaluation"
-                                [hidden]="showEvaluation"
-                                src="/assets/images/arrow_right.png"
-                            />
-                            <img
-                                class="arrow_icon marl10"
-                                alt="show evaluation"
-                                [hidden]="!showEvaluation"
-                                src="/assets/images/arrow_down.png"
-                            />
+                            <i [hidden]="showEvaluation" class="bi bi-chevron-right ms-2" alt="hide evaluation"></i>
+                            <i [hidden]="!showEvaluation" class="bi bi-chevron-down ms-2" alt="show evaluation"></i>
                         </a>
-                        <xm-exam-feedback
-                            class="student-exam-row-infobox"
-                            [hidden]="!showEvaluation"
-                            [assessment]="reviewedExam"
-                            [participationTime]="participation.ended || ''"
-                            [participationDuration]="participation.duration || 0"
-                            [collaborative]="collaborative"
-                            [scores]="scores"
-                        >
-                        </xm-exam-feedback>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="row" *ngIf="showEvaluation">
+            <div class="col-12">
+                <xm-exam-feedback
+                    class="student-exam-row-infobox"
+                    [hidden]="!showEvaluation"
+                    [assessment]="reviewedExam"
+                    [participationTime]="participation.ended || ''"
+                    [participationDuration]="participation.duration || 0"
+                    [collaborative]="collaborative"
+                    [scores]="scores"
+                >
+                </xm-exam-feedback>
+            </div>
+        </div>
         <div class="row mt-2">
-            <div class="col-md-12" *ngIf="participation.noShow">
+            <div class="col-12" *ngIf="participation.noShow">
                 <div class="row">
-                    <div class="col-md-12 text-danger">{{ 'sitnet_no_show' | translate }}</div>
+                    <div class="col-12 text-danger">{{ 'sitnet_no_show' | translate }}</div>
                 </div>
             </div>
-            <div class="col-md-12" *ngIf="!participation.noShow && !reviewedExam">
+            <div class="col-12" *ngIf="!participation.noShow && !reviewedExam">
                 <div class="row">
-                    <div class="col-md-12 text-muted">{{ 'sitnet_no_comments' | translate }}</div>
+                    <div class="col-12 text-muted">{{ 'sitnet_no_comments' | translate }}</div>
                 </div>
             </div>
         </div>

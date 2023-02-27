@@ -61,13 +61,7 @@
     <div class="col-6">
         {{ 'sitnet_exam_feedback_release_type' | translate }}:
         <div class="dropdown" ngbDropdown>
-            <button
-                class="btn btn-outline-dark"
-                [disabled]="!examFeedbackConfig.enabled || modifiable === 'nothing'"
-                type="button"
-                ngbDropdownToggle
-                aria-expanded="true"
-            >
+            <button class="btn btn-outline-dark" [disabled]="true" type="button" ngbDropdownToggle aria-expanded="true">
                 {{ selectedReleaseType()?.translation || '' | translate }}&nbsp;<span class="caret"></span>
             </button>
             <ul ngbDropdownMenu role="menu">
