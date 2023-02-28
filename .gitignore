@@ -5,7 +5,5 @@ project/project
 target
 default-drop-all.sql
 default-create-all.sql
-.DS_Store
 /data/
 .angular
-.idea/
