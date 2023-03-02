@@ -383,21 +383,18 @@
     color: #266B99;
     font-family: $sitnet-family-helvetica;
     font-weight: bold;
-    font-size: 14px;
     text-decoration: none;
   }
 
   .infolink-light {
     color: #266B99;
     font-family: $sitnet-family-helvetica;
-    font-size: 14px;
     text-decoration: none;
   }
 
   .infolink-light-alert {
     color: $sitnet-aborted;
     font-family: $sitnet-family-helvetica;
-    font-size: 14px;
     text-decoration: none;
   }
 
@@ -1646,7 +1643,7 @@
     border-left: 1px solid white;
     border-bottom: 1px solid white;
     background-color: white;
-    padding: 10px;
+    padding: 10px 10px 0 10px;
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
   }
@@ -1666,9 +1663,10 @@
   .question-correct-option {
     border-top: 1px solid $sitnet-green-new !important;
     border-left: 1px solid $sitnet-green-new;
+    border-right: 1px solid $sitnet-green-new;
     border-bottom: 1px solid $sitnet-green-new;
     background-color: #F3FFF5;
-    padding: 10px;
+    padding: 10px 10px 0 10px;
     border-top-left-radius: 4px;
     border-bottom-left-radius: 4px;
   }
@@ -1677,6 +1675,7 @@
     border-top: 1px solid $sitnet-green-new;
     border-right: 1px solid $sitnet-green-new;
     border-bottom: 1px solid $sitnet-green-new;
+    box-shadow: -2px 0px 0px -1px #F3FFF5;
     padding-left: 15px;
     background-color: #F3FFF5;
     padding: 10px;
@@ -2092,6 +2091,6 @@
   .min-width-300{
     min-width: 300px;
   }
-  
+
 }
 
