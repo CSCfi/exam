@@ -68,7 +68,12 @@ public class ExternalExamExpirationActor extends AbstractActor {
                 String.class,
                 s -> {
                     logger.debug("Starting external exam expiration check ->");
-                    Set<ExternalExam> exams = Ebean.find(ExternalExam.class).where().isNotNull("sent").findSet();
+                    Set<ExternalExam> exams = Ebean
+                        .find(ExternalExam.class)
+                        .where()
+                        .isNotNull("sent")
+                        .jsonExists("content", "id")
+                        .findSet();
 
                     for (ExternalExam ee : exams) {
                         if (ee.getSent() == null) {
