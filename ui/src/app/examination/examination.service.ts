@@ -171,7 +171,7 @@ export class ExaminationService {
                     sq.options.forEach((o) => (o.answered = ids.indexOf(o.id as number) > -1));
                     this.setQuestionColors(sq);
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         } else {
             this.setQuestionColors(sq);

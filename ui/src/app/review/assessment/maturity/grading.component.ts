@@ -91,7 +91,7 @@ export class MaturityGradingComponent extends GradingBaseComponent implements On
                 this.toast.info(this.translate.instant('sitnet_email_sent'));
                 delete this.message.text;
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 }

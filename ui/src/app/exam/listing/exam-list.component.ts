@@ -109,7 +109,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                     this.toast.success(this.translate.instant('sitnet_exam_copied'));
                     this.router.navigate(['/staff/exams', resp.id, '1']);
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 
     deleteExam = (exam: ExamListExam) =>
@@ -126,7 +126,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                     error: (err) => this.toast.error(err),
                 });
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
 
     filterByStateAndExpiration = (state: string, expired: boolean) =>

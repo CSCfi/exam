@@ -88,10 +88,10 @@ export class ExamOwnerSelectorComponent implements OnInit {
     removeOwner = (id: number) =>
         this.http
             .delete(`/app/exam/${this.exam.id}/owner/${id}`)
-            .subscribe({ next: this.getExamOwners, error: this.toast.error });
+            .subscribe({ next: this.getExamOwners, error: (err) => this.toast.error(err) });
 
     private getExamOwners = () =>
         this.http
             .get<User[]>(`/app/exam/${this.exam.id}/owners`)
-            .subscribe({ next: (owners) => (this.examOwners = owners), error: this.toast.error });
+            .subscribe({ next: (owners) => (this.examOwners = owners), error: (err) => this.toast.error(err) });
 }

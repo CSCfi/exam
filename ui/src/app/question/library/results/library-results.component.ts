@@ -97,7 +97,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
                     next: () => this.questions.splice(this.questions.indexOf(question), 1),
                     error: () => this.toast.info(this.translate.instant('sitnet_question_removed')),
                 }),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
 
     copyQuestion = (question: SelectableQuestion) =>
@@ -111,9 +111,9 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
                         this.questions.splice(this.questions.indexOf(question), 0, copy);
                         this.copied.emit(copy);
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 }),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
 
     downloadQuestionAttachment = (question: LibraryQuestion) => this.Attachment.downloadQuestionAttachment(question);

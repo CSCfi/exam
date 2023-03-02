@@ -237,7 +237,7 @@ export class ExceptionDialogComponent {
             )
             .subscribe({
                 next: () => this.activeModal.close(result),
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
     }
 

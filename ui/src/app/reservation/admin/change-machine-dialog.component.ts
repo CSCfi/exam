@@ -85,7 +85,7 @@ export class ChangeMachineDialogComponent implements OnInit {
                     this.toast.info(this.translate.instant('sitnet_updated'));
                     this.activeModal.close(resp);
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 
     cancel = () => this.activeModal.dismiss();

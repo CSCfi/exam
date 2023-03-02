@@ -143,7 +143,7 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
                 this.exams = exams;
                 this.checkEnrolment();
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
 
     private checkEnrolment = () => {

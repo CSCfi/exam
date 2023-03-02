@@ -50,7 +50,7 @@ export class RemoveReservationDialogComponent {
             })
             .subscribe({
                 next: this.activeModal.close,
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 
     cancel = () => this.activeModal.dismiss();

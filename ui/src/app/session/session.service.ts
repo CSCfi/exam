@@ -110,7 +110,7 @@ export class SessionService implements OnDestroy {
                 // delete this.user;
                 this.onLogoutSuccess(resp);
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     }
 

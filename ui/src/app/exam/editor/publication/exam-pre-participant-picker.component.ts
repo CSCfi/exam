@@ -103,7 +103,7 @@ export class ExamPreParticipantSelectorComponent implements OnInit {
                     this.exam.examEnrolments.push(enrolment);
                     delete this.newPreParticipant.email;
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         }
     };
@@ -114,7 +114,7 @@ export class ExamPreParticipantSelectorComponent implements OnInit {
                 this.exam.examEnrolments = this.exam.examEnrolments.filter((ee) => ee.id !== id);
                 this.toast.info(this.translate.instant('sitnet_participant_removed'));
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 

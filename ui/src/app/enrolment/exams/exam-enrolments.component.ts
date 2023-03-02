@@ -67,11 +67,11 @@ export class ExamEnrolmentsComponent implements OnInit {
         const id = Number(this.route.snapshot.paramMap.get('id'));
         this.Enrolment.getEnrolmentInfo$(code, id).subscribe({
             next: (exam) => (this.exam = exam),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
         this.Enrolment.listEnrolments$(code, id).subscribe({
             next: (exams) => (this.exams = exams),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     }
 }

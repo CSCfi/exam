@@ -53,7 +53,7 @@ export class FacilityComponent implements OnInit {
                 this.toast.info(this.translate.instant('sitnet_room_draft_created'));
                 this.router.navigate(['/staff/rooms', room.id]);
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 
@@ -70,10 +70,10 @@ export class FacilityComponent implements OnInit {
                         this.toast.info(this.translate.instant('sitnet_maintenance_period_created'));
                         this.maintenancePeriods.push(mp);
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 });
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 
@@ -92,10 +92,10 @@ export class FacilityComponent implements OnInit {
                         const index = this.maintenancePeriods.indexOf(period);
                         this.maintenancePeriods.splice(index, 1, res);
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 });
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 
@@ -105,7 +105,7 @@ export class FacilityComponent implements OnInit {
                 this.toast.info(this.translate.instant('sitnet_maintenance_period_removed'));
                 this.maintenancePeriods.splice(this.maintenancePeriods.indexOf(period), 1);
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 

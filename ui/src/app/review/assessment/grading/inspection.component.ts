@@ -75,7 +75,7 @@ export class InspectionComponent implements OnInit {
                     this.toast.info(this.translate.instant('sitnet_exam_updated'));
                     this.inspected.emit();
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         }
     };

@@ -70,7 +70,7 @@ export class SectionsComponent implements OnInit, OnChanges {
                     this.updateIndices();
                     this.toast.info(this.translate.instant('sitnet_sections_reordered'));
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         }
     };
@@ -109,7 +109,7 @@ export class SectionsComponent implements OnInit, OnChanges {
                     this.toast.info(this.translate.instant('sitnet_section_removed'));
                     this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
     };
 

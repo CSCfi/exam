@@ -121,7 +121,7 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
                     this.toast.success(this.translate.instant('sitnet_exam_copied'));
                     this.router.navigate(['/staff/exams', resp.id, '1']);
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 
     deleteExam = (exam: DashboardExam) => {

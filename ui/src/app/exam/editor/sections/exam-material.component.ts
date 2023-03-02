@@ -51,7 +51,7 @@ export class ExamMaterialComponent implements OnInit {
                 this.newMaterial = {};
                 this.materialsChanged = true;
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 
@@ -62,7 +62,7 @@ export class ExamMaterialComponent implements OnInit {
                 this.filterMaterials();
                 this.materialsChanged = true;
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 

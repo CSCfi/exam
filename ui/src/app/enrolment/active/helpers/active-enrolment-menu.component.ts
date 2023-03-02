@@ -42,7 +42,7 @@ export class ActiveEnrolmentMenuComponent {
                     this.Enrolment.removeEnrolment$(this.enrolment).subscribe(() =>
                         this.removed.emit(this.enrolment.id),
                     ),
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         }
     };

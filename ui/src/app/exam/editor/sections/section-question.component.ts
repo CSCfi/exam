@@ -71,7 +71,7 @@ export class SectionQuestionComponent {
         this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_question'),
-        ).subscribe({ next: () => this.removed.emit(this.sectionQuestion), error: this.toast.error });
+        ).subscribe({ next: () => this.removed.emit(this.sectionQuestion), error: (err) => this.toast.error(err) });
 
     determineClaimOptionType(examOption: ExamSectionQuestionOption) {
         return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
@@ -148,10 +148,10 @@ export class SectionQuestionComponent {
                                 });
                             }
                         },
-                        error: this.toast.error,
+                        error: (err) => this.toast.error(err),
                     });
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 
@@ -178,7 +178,7 @@ export class SectionQuestionComponent {
                         this.sectionQuestion = { ...mergeDeepRight(this.sectionQuestion, esq) } as ExamSectionQuestion;
                         this.updated.emit(this.sectionQuestion);
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 });
             })
             .catch(noop);

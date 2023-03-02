@@ -76,7 +76,7 @@ export class QuestionComponent implements OnInit, QuestionEditQuard {
                     this.question = question;
                     this.currentOwners = [...this.question.questionOwners];
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         }
     }

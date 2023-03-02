@@ -84,7 +84,7 @@ export class AssessmentComponent implements OnInit {
                 this.exam = exam;
                 this.participation = participation;
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     }
 

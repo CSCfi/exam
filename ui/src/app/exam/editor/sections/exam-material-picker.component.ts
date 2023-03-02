@@ -70,7 +70,7 @@ export class ExamMaterialSelectorComponent implements OnInit, OnChanges {
                 this.filterOutExisting();
                 this.filter = '';
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 
