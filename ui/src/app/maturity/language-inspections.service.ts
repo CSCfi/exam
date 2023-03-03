@@ -59,9 +59,9 @@ export class LanguageInspectionService {
                 next: () => {
                     this.http.put(`/app/inspection/${inspection.id}`, {}).subscribe({
                         next: () => this.router.navigate(['/staff/assessments', inspection.exam.id]),
-                        error: this.toast.error,
+                        error: (err) => this.toast.error(err),
                     });
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 }

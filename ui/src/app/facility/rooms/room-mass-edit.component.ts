@@ -200,7 +200,7 @@ export class MultiRoomComponent implements OnInit, OnChanges {
                 this.selectableRooms.forEach((r) => (r.selected = this.allSelected));
                 this.roomIds = this.getRoomIds();
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 

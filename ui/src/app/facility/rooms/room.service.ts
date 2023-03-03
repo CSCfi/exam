@@ -92,9 +92,9 @@ export class RoomService {
                             this.toast.info(this.translate.instant('sitnet_room_inactivated'));
                             room.state = 'INACTIVE';
                         },
-                        error: this.toast.error,
+                        error: (err) => this.toast.error(err),
                     }),
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 
     enableRoom = (room: ExamRoom) =>
@@ -103,7 +103,7 @@ export class RoomService {
                 this.toast.info(this.translate.instant('sitnet_room_activated'));
                 room.state = 'ACTIVE';
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
 
     addExceptions = (ids: number[], exceptions: ExceptionWorkingHours[]) =>

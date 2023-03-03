@@ -92,14 +92,14 @@ export class ExaminationEventDialogComponent implements OnInit {
                 next: (response: ExaminationEventConfiguration) => {
                     this.activeModal.close(response);
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         } else {
             this.Exam.updateExaminationEvent$(this.examId, { ...config, id: this.config.id }).subscribe({
                 next: (response: ExaminationEventConfiguration) => {
                     this.activeModal.close(response);
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         }
     }

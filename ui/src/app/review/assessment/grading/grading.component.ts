@@ -111,7 +111,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
                     delete this.message.text;
                     this.toast.info(this.translate.instant('sitnet_email_sent'));
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         } else {
             this.http.post(`/app/email/inspection/${this.exam.id}`, { msg: this.message.text }).subscribe({
@@ -119,7 +119,7 @@ export class GradingComponent extends GradingBaseComponent implements OnInit {
                     this.toast.info(this.translate.instant('sitnet_email_sent'));
                     delete this.message.text;
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         }
     };

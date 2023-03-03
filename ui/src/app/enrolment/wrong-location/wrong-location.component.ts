@@ -65,7 +65,7 @@ export class WrongLocationComponent implements OnInit {
                         .get<ExamMachine>(`/app/machines/${this.route.snapshot.params.mid}`)
                         .subscribe((machine) => (this.currentMachine = machine));
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         }
     }

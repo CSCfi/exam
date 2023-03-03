@@ -84,16 +84,16 @@ export class SectionComponent implements OnInit, OnChanges {
                                 this.section.lotteryOn = false;
                                 this.toast.info(this.translate.instant('sitnet_all_questions_removed'));
                             },
-                            error: this.toast.error,
+                            error: (err) => this.toast.error(err),
                         });
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 
     removeSection = () =>
         this.dialogs
             .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_remove_section'))
-            .subscribe({ next: () => this.removed.emit(this.section), error: this.toast.error });
+            .subscribe({ next: () => this.removed.emit(this.section), error: (err) => this.toast.error(err) });
 
     renameSection = () => this.updateSection(false);
     expandSection = () => this.updateSection(true);
@@ -125,7 +125,7 @@ export class SectionComponent implements OnInit, OnChanges {
                     }
                     this.toast.info(this.translate.instant('sitnet_section_updated'));
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
     };
 
@@ -184,7 +184,7 @@ export class SectionComponent implements OnInit, OnChanges {
                         this.section.lotteryItemCount = resp.lotteryItemCount;
                     }
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
     };
 
@@ -277,7 +277,7 @@ export class SectionComponent implements OnInit, OnChanges {
                 });
                 this.section.sectionQuestions = [...this.section.sectionQuestions, newSectionQuestion];
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 

@@ -82,7 +82,7 @@ export class AttachmentService {
                         error: (err) => this.toast.error(err),
                     });
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 
     removeFeedbackAttachment = (exam: Examination) =>
@@ -98,7 +98,7 @@ export class AttachmentService {
                         error: (err) => this.toast.error(err),
                     });
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 
     removeCollaborativeExamFeedbackAttachment = (id: number, ref: string, participation: ExamParticipation) =>
@@ -117,7 +117,7 @@ export class AttachmentService {
                             error: (resp) => this.toast.error(resp),
                         });
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 
     removeStatementAttachment = (exam: Exam) =>
@@ -133,7 +133,7 @@ export class AttachmentService {
                         error: (err) => this.toast.error(err),
                     });
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 
     downloadExternalQuestionAttachment(exam: Exam, sq: ExamSectionQuestion) {
@@ -240,7 +240,7 @@ export class AttachmentService {
                         error: (err) => this.toast.error(err),
                     });
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 
     private questionAttachmentApi = (id: number) => `/app/attachment/question/${id}`;

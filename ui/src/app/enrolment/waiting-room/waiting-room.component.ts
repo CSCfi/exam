@@ -66,7 +66,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                         .post<void>(`/app/student/exam/${this.route.snapshot.params.hash}`, {})
                         .subscribe(() => console.log(`exam ${this.route.snapshot.params.hash} prepared ok`));
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         }
     }

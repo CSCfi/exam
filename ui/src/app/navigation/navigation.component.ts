@@ -59,7 +59,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
         if (this.user && this.user.isAdmin) {
             this.Navigation.getAppVersion$().subscribe({
                 next: (resp) => (this.appVersion = resp.appVersion),
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
             this.getLinks(true, true);
         } else if (this.user) {
@@ -90,12 +90,12 @@ export class NavigationComponent implements OnInit, OnDestroy {
                         iop.isExamCollaborationSupported,
                         byod.isByodExaminationSupported,
                     )),
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         } else if (checkInteroperability) {
             this.Navigation.getInteroperability$().subscribe({
                 next: (resp) => (this.links = this.Navigation.getLinks(resp.isExamCollaborationSupported, false)),
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         } else {
             this.links = this.Navigation.getLinks(false, false);

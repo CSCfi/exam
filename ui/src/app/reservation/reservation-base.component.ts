@@ -371,7 +371,7 @@ export class ReservationComponentBase implements OnInit {
                     return { id: s.id, value: s, label: s.name };
                 });
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
         this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit').subscribe((resp) => {
             this.isInteroperable = resp.isExamVisitSupported;
@@ -384,7 +384,7 @@ export class ReservationComponentBase implements OnInit {
                     const teachers = this.orderPipe.transform(resp, 'lastName');
                     this.teacherOptions = teachers.map((t) => ({ id: t.id, value: t, label: t.name }));
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
 
             this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe({
@@ -396,7 +396,7 @@ export class ReservationComponentBase implements OnInit {
                         this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
                     });
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         }
     }

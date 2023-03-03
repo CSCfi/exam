@@ -84,7 +84,7 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
                         this.toast.info(this.translate.instant('sitnet_results_send_ok'));
                     },
                 ),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 

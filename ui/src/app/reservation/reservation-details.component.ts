@@ -69,7 +69,7 @@ export class ReservationDetailsComponent implements OnChanges {
                 enrolment.retrialPermitted = true;
                 this.toast.info(this.translate.instant('sitnet_retrial_permitted'));
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     }
 

@@ -93,7 +93,7 @@ export class ExaminationToolbarComponent implements OnInit {
                         ),
                     )
                     .subscribe(),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
 
     abortExam = () =>
@@ -113,9 +113,9 @@ export class ExaminationToolbarComponent implements OnInit {
                             },
                         });
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 }),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
 
     downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.isCollaborative);

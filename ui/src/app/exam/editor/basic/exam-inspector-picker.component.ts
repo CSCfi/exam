@@ -81,11 +81,13 @@ export class ExamInspectorSelectorComponent implements OnInit {
     };
 
     removeInspector = (id: number) =>
-        this.http.delete(`/app/exams/inspector/${id}`).subscribe({ next: this.getInspectors, error: this.toast.error });
+        this.http
+            .delete(`/app/exams/inspector/${id}`)
+            .subscribe({ next: this.getInspectors, error: (err) => this.toast.error(err) });
 
     private getInspectors = () =>
         this.http.get<ExamInspection[]>(`/app/exam/${this.exam.id}/inspections`).subscribe({
             next: (inspections) => (this.examInspections = inspections),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
 }

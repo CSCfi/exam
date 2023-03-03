@@ -61,7 +61,7 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
                 );
                 this.participations = data.filter((d) => d.ended);
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 }

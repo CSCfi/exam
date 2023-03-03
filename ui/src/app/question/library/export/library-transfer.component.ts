@@ -55,7 +55,7 @@ export class LibraryTransferComponent implements OnInit {
                 })
                 .subscribe({
                     next: () => this.toast.info(this.translate.instant('sitnet_questions_transferred')),
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 });
         }
     };

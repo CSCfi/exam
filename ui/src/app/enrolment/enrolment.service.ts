@@ -60,9 +60,9 @@ export class EnrolmentService {
                         this.toast.info(this.translate.instant('sitnet_examination_event_removed'));
                         delete enrolment.examinationEventConfiguration;
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 }),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 
@@ -84,7 +84,7 @@ export class EnrolmentService {
             this.translate.instant('sitnet_are_you_sure'),
         ).subscribe({
             next: () => this.http.delete(url).subscribe({ next: successFn, error: errorFn }),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     }
 
@@ -206,7 +206,7 @@ export class EnrolmentService {
                     this.toast.success(this.translate.instant('sitnet_saved'));
                     enrolment.information = information;
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         });
     };
@@ -305,7 +305,7 @@ export class EnrolmentService {
                     error: (err) => this.toast.error(err),
                 });
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 

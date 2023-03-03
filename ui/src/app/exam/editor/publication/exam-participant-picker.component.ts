@@ -122,7 +122,7 @@ export class ExamParticipantSelectorComponent implements OnInit {
                 delete this.newParticipant.name;
                 delete this.newParticipant.id;
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
 
     removeParticipant = (id: number) =>
@@ -131,7 +131,7 @@ export class ExamParticipantSelectorComponent implements OnInit {
                 this.exam.examEnrolments = this.exam.examEnrolments.filter((ee) => ee.id !== id);
                 this.toast.info(this.translate.instant('sitnet_participant_removed'));
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
 
     renderParticipantLabel = (enrolment: ExamEnrolment) =>

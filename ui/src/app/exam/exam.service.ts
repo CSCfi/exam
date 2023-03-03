@@ -77,7 +77,7 @@ export class ExamService {
                     this.toast.info(this.translate.instant('sitnet_exam_added'));
                     this.router.navigate(['/staff/exams', response.id, 'course']);
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
     };
 
@@ -196,7 +196,7 @@ export class ExamService {
                         },
                         error: (err) => this.toast.error(err),
                     }),
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         } else {
             this.toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));

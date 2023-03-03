@@ -126,7 +126,7 @@ export class CollaborativeAssesmentService {
                 );
                 dialog.subscribe({
                     next: () => this.sendAssessment(newState, payload, messages, participation, id, ref),
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 });
             }
         }
@@ -149,7 +149,10 @@ export class CollaborativeAssesmentService {
             const payload = this.getPayload(participation.exam, 'GRADED', participation._rev as string);
             this.dialogs
                 .open$(this.translate.instant('sitnet_confirm'), dialogNote)
-                .subscribe({ next: () => this.register(participation, examId, ref, payload), error: this.toast.error });
+                .subscribe({
+                    next: () => this.register(participation, examId, ref, payload),
+                    error: (err) => this.toast.error(err),
+                });
         }
     };
 
@@ -179,10 +182,10 @@ export class CollaborativeAssesmentService {
                             this.router.navigate(state.fragments, state.params);
                         }
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 });
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 
@@ -196,7 +199,7 @@ export class CollaborativeAssesmentService {
                 const state = this.Assessment.getExitStateById(examId, true);
                 this.router.navigate(state.fragments, state.params);
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 
@@ -213,10 +216,10 @@ export class CollaborativeAssesmentService {
                         }
                         this.sendToRegistry(payload, examId, ref, participation);
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 });
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 }

@@ -61,7 +61,7 @@ export class MachineComponent implements OnInit {
                     });
                 });
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     }
 
@@ -76,15 +76,15 @@ export class MachineComponent implements OnInit {
                         this.toast.info(this.translate.instant('sitnet_machine_removed'));
                         this.router.navigate(['staff/rooms']);
                     },
-                    error: this.toast.error,
+                    error: (err) => this.toast.error(err),
                 }),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
 
     toggleSoftware = (software: SoftwareWithClass) => {
         this.machines.toggleMachineSoftware(this.machine.id, software.id).subscribe({
             next: (response) => (software.class = response.turnedOn === true ? 'btn-info' : 'btn-default'),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 

@@ -54,7 +54,7 @@ export class RoomComponent implements OnInit {
                 room.availableForExternals = room.externalRef !== null;
                 this.room = room;
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     }
 
@@ -100,7 +100,7 @@ export class RoomComponent implements OnInit {
             next: () => {
                 this.toast.info(this.translate.instant('sitnet_room_updated'));
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 
@@ -113,7 +113,7 @@ export class RoomComponent implements OnInit {
                 this.toast.info(this.translate.instant('sitnet_room_saved'));
                 this.router.navigate(['/staff/rooms']);
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 

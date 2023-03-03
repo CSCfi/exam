@@ -99,7 +99,7 @@ export class CollaborativeExamOwnerSelectorComponent {
                     this.exam.examOwners.push(user);
                     delete this.newOwner.email;
                 },
-                error: this.toast.error,
+                error: (err) => this.toast.error(err),
             });
         }
     };
@@ -107,7 +107,7 @@ export class CollaborativeExamOwnerSelectorComponent {
     removeOwner = (id: number) => {
         this.http.delete(`/app/iop/exams/${this.exam.id}/owners/${id}`).subscribe({
             next: () => (this.exam.examOwners = this.exam.examOwners.filter((o) => o.id !== id)),
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     };
 }

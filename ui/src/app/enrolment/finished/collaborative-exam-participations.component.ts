@@ -46,7 +46,7 @@ export class CollaborativeParticipationsComponent implements OnInit, AfterViewIn
                 this.originals = participations;
                 this.search('');
             },
-            error: this.toast.error,
+            error: (err) => this.toast.error(err),
         });
     }
 
