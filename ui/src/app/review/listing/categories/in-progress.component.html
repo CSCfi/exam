@@ -193,7 +193,7 @@
                         <div *ngFor="let inspection of review.examParticipation.exam.examInspections">
                             <span [ngClass]="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
                                 <span [ngClass]="isOwner(inspection.user) ? 'bold' : ''">
-                                    {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                                    {{ inspection.user?.firstName }} {{ inspection.user?.lastName }}
                                 </span>
                             </span>
                         </div>

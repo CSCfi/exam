@@ -19,6 +19,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import type { ExamEnrolment } from '../../enrolment/enrolment.model';
 import { ExamTabService } from '../../exam/editor/exam-tabs.service';
 import type { Exam, ExamParticipation } from '../../exam/exam.model';
+import { SessionService, User } from '../../session/session.service';
 import type { Review } from '../review.model';
 import { AbortedExamsComponent } from './dialogs/aborted.component';
 import { NoShowsComponent } from './dialogs/no-shows.component';
@@ -29,6 +30,7 @@ import { ReviewListService } from './review-list.service';
     templateUrl: './review-list.component.html',
 })
 export class ReviewListComponent implements OnInit, OnChanges {
+    user?: User;
     exam!: Exam;
     collaborative = false;
     reviews: ExamParticipation[] = [];
@@ -48,6 +50,7 @@ export class ReviewListComponent implements OnInit, OnChanges {
         private route: ActivatedRoute,
         private ReviewList: ReviewListService,
         private Tabs: ExamTabService,
+        private Session: SessionService,
     ) {}
 
     ngOnInit() {
@@ -55,6 +58,7 @@ export class ReviewListComponent implements OnInit, OnChanges {
             this.reviews = data.reviews;
             this.exam = this.Tabs.getExam();
             this.collaborative = this.Tabs.isCollaborative();
+            this.user = this.Session.getUser();
 
             this.refreshLists();
             // No-shows
@@ -153,4 +157,16 @@ export class ReviewListComponent implements OnInit, OnChanges {
                 ae.examParticipation.exam.examEnrolments.length > 0 &&
                 ae.examParticipation.exam.examEnrolments[0].retrialPermitted === false,
         ).length;
+
+    isOwner = (): boolean => {
+        return (
+            this.exam &&
+            this.exam.examOwners.some((o) => {
+                if (!this.user || !this.user.id) {
+                    return false;
+                }
+                return o?.id === this.user.id;
+            })
+        );
+    };
 }

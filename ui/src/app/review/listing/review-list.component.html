@@ -62,7 +62,7 @@
             <xm-rl-in-language-inspection [reviews]="languageInspectedReviews"></xm-rl-in-language-inspection>
         </div>
 
-        <div class="review-border mb-5">
+        <div class="review-border mb-5" *ngIf="isOwner()">
             <!-- Graded -->
             <xm-rl-graded
                 [exam]="exam"
@@ -73,7 +73,7 @@
             </xm-rl-graded>
         </div>
 
-        <div class="review-border mb-5">
+        <div class="review-border mb-5" *ngIf="isOwner()">
             <!-- Graded and Logged -->
             <xm-rl-graded-logged
                 [exam]="exam"

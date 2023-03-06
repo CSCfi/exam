@@ -45,7 +45,12 @@ export class InProgressReviewsComponent implements OnInit {
         this.view = this.ReviewList.prepareView(this.reviews, (r) => r, 'examParticipation.deadline');
     }
 
-    isOwner = (user: User) => this.exam && this.exam.examOwners.some((o) => o.id === user.id);
+    isOwner = (user: User) => {
+        if (!user) {
+            return false;
+        }
+        return this.exam && this.exam.examOwners.some((o) => o?.id === user.id);
+    };
 
     showId = () => this.Session.getUser().isAdmin && this.exam?.anonymous;
 
