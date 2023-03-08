@@ -52,15 +52,16 @@ import { QuestionDraft, QuestionService } from '../question.service';
                     *ngFor="let opt of question.options"
                 >
                     <div class="claim-choice-option-inputs">
-                        <input
+                        <textarea
                             id="optionText"
                             [(ngModel)]="opt.option"
                             type="text"
-                            class="question-option-input"
+                            rows="1"
+                            class="question-option-input form-control"
                             required
                             (change)="updateOptionTypes()"
                             [disabled]="lotteryOn || opt.claimChoiceType === 'SkipOption'"
-                        />
+                        ></textarea>
                         <input
                             id="optionScore"
                             name="maxScore"
