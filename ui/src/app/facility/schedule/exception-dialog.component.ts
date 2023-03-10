@@ -256,7 +256,7 @@ export class ExceptionDialogComponent {
                 return filter.includes(date.getDate());
             }
             return selectedWeekdays
-                ? [...selectedWeekdays].includes(date.getDay() + 1)
+                ? [...selectedWeekdays].map((n) => n - 1).includes(date.getDay())
                 : suitableDays.includes(date.getDate());
         });
     }
