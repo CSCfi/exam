@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy } from '@angular/core';
 import { Inject, Injectable } from '@angular/core';
@@ -73,6 +74,7 @@ export class SessionService implements OnDestroy {
         private i18n: TranslateService,
         private router: Router,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
+        @Inject(DOCUMENT) private document: Document,
         private modal: NgbModal,
         private toast: ToastrService,
     ) {
@@ -118,10 +120,6 @@ export class SessionService implements OnDestroy {
         const user = this.getUser();
         return user ? user.lang : 'en';
     };
-
-    translate$(lang: string) {
-        return this.i18n.use(lang);
-    }
 
     switchLanguage(lang: string) {
         const user = this.getUser();
@@ -213,6 +211,8 @@ export class SessionService implements OnDestroy {
                     return throwError(() => new Error(resp));
                 }),
             );
+
+    translate$ = (lang: string) => this.i18n.use(lang).pipe(tap(() => (this.document.documentElement.lang = lang)));
 
     private processLogin$(user: User): Observable<User> {
         const userAgreementConfirmation$ = (u: User): Observable<User> =>
