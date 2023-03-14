@@ -184,7 +184,7 @@
                     />
                 </button>
             </div>
-            <div class="" [hidden]="!showGuide">
+            <div class="" [ngbCollapse]="!showGuide" [attr.aria-expanded]="showGuide">
                 {{ getRoomInstruction() }}
             </div>
         </div>
@@ -358,7 +358,8 @@
             </button>
             <div
                 class="border rounded col"
-                [hidden]="!showInstructions"
+                [ngbCollapse]="!showInstructions"
+                [attr.aria-expanded]="showInstructions"
                 [xmMathJax]="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction || ''"
             ></div>
         </div>

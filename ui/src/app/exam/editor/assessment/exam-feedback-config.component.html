@@ -29,7 +29,7 @@
     </div>
 </div>
 
-<div class="row" [hidden]="!examFeedbackConfigDisplay.visible">
+<div class="row" [ngbCollapse]="!examFeedbackConfigDisplay.visible">
     <div class="col-md-12 margin-20">
         <span class="autoevaluation-info">
             {{ 'sitnet_exam_feedback_config_instructions' | translate }}

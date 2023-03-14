@@ -92,7 +92,7 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
                     }
                 },
             );
-        } else {
+        } else if (exam.examFeedback) {
             this.Enrolment.setCommentRead(exam);
         }
     };
