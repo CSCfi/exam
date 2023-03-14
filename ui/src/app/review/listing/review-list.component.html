@@ -1,4 +1,4 @@
-<div>
+<div class="row ms-2 me-2">
     <div class="mt-3 mb-3">
         <span class="review-list-subtitle">{{ 'sitnet_teachers' | translate }}:</span>
         <span class="review-list-subtitle" *ngFor="let owner of exam.examOwners; let isLast = last">
@@ -29,8 +29,8 @@
                 />
             </sup>
             <!-- no-shows -->
-            <a style="margin-left: 100px" class="pointer" (click)="openNoShows()">
-                {{ 'sitnet_no_shows' | translate }} ({{ noShows.length }})</a
+            <a style="margin-left: 100px" class="pointer" (click)="openNoShows()"
+                >{{ 'sitnet_no_shows' | translate }} ({{ noShows.length }})</a
             >
             <sup
                 class="padl05"

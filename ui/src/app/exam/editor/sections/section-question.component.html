@@ -55,117 +55,111 @@
     </div>
     <div class="row mt-2">
         <div class="col-md-12">
-            <a
+            <button
                 (click)="sectionQuestion.expanded = !sectionQuestion.expanded"
-                class="pointer-hand"
+                class="btn btn-outline-dark"
                 *ngIf="sectionQuestion.answerInstructions || sectionQuestion.options.length > 0"
             >
-                <img
-                    *ngIf="!sectionQuestion.expanded"
-                    (click)="(!sectionQuestion.expanded)"
-                    src="/assets/images/icon_list_show_right.svg"
-                    alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
-                />
-                <img
-                    *ngIf="sectionQuestion.expanded"
-                    (click)="(sectionQuestion.expanded)"
-                    src="/assets/images/icon_list_show_down.svg"
-                    alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
-                />
-            </a>
+                <span [hidden]="sectionQuestion.expanded">{{ 'sitnet_show_more' | translate }}</span>
+                <span [hidden]="!sectionQuestion.expanded">{{ 'sitnet_hide' | translate }}</span>
+                <i [hidden]="sectionQuestion.expanded" class="bi bi-chevron-right ms-2" alt="hide evaluation"></i>
+                <i [hidden]="!sectionQuestion.expanded" class="bi bi-chevron-down ms-2" alt="show evaluation"></i>
+            </button>
         </div>
     </div>
-    <div class="row mt-2 ms-3" *ngIf="sectionQuestion.expanded">
-        <div class="col-md-12 mb-3 ms-2">
-            <img
-                src="/assets/images/icon_info.png"
-                *ngIf="sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0"
-                alt="exam"
-                onerror="this.onerror=null;this.src='/assets/images/icon_info.png'"
-            />
-            <span
-                *ngIf="sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0"
-                class="padl10"
-            >
-                {{ sectionQuestion.answerInstructions }}</span
-            >
-        </div>
-    </div>
-    <div class="row ms-3" *ngIf="sectionQuestion.expanded">
+    <div class="row" [ngbCollapse]="!sectionQuestion.expanded">
         <div class="col-md-12">
-            <ul class="exam-section-question-options">
-                <li
-                    class="ms-2"
-                    [hidden]="sectionQuestion.question.type !== 'MultipleChoiceQuestion'"
-                    *ngFor="let option of sectionQuestion.options"
-                >
+            <div class="row mt-2 ms-3">
+                <div class="col-md-12 mb-3 ms-2">
                     <img
-                        src="/assets/images/icon_correct_answer.png"
-                        *ngIf="option.option.correctOption"
+                        src="/assets/images/icon_info.png"
+                        *ngIf="sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0"
                         alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer.png'"
+                        onerror="this.onerror=null;this.src='/assets/images/icon_info.png'"
                     />
-                    <img
-                        src="/assets/images/icon_wrong_answer.png"
-                        *ngIf="!option.option.correctOption"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
-                    />
-                    <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
-                </li>
-                <li
-                    class="ms-2"
-                    [hidden]="sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion'"
-                    *ngFor="let option of sectionQuestion.options"
-                >
-                    <img
-                        src="/assets/images/icon_correct_answer_checkbox.png"
-                        *ngIf="option.score >= 0"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer_checkbox.png'"
-                    />
-                    <img
-                        src="/assets/images/icon_wrong_answer_checkbox.png"
-                        *ngIf="option.score < 0"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer_checkbox.png'"
-                    />
-                    <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
-                    <span class="exam-question-option-text ps-2"
-                        >{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
+                    <span
+                        *ngIf="sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0"
+                        class="padl10"
                     >
-                </li>
-                <li
-                    class="mt-2"
-                    [hidden]="sectionQuestion.question.type !== 'ClaimChoiceQuestion'"
-                    *ngFor="let option of sectionQuestion.options | orderBy : 'option.id'"
-                >
-                    <img
-                        src="/assets/images/icon_correct_answer_radio.png"
-                        *ngIf="determineClaimOptionType(option) === 'CorrectOption'"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
-                    />
-                    <img
-                        src="/assets/images/icon_wrong_answer_radio.png"
-                        *ngIf="determineClaimOptionType(option) === 'IncorrectOption'"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
-                    />
-                    <img
-                        src="/assets/images/icon_wrong_answer.png"
-                        *ngIf="determineClaimOptionType(option) === 'SkipOption'"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
-                    />
-                    <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
-                    <span class="exam-question-option-text ps-2"
-                        >{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
+                        {{ sectionQuestion.answerInstructions }}</span
                     >
-                </li>
-            </ul>
+                </div>
+            </div>
+            <div class="row ms-3">
+                <div class="col-md-12">
+                    <ul class="exam-section-question-options">
+                        <li
+                            class="ms-2"
+                            [hidden]="sectionQuestion.question.type !== 'MultipleChoiceQuestion'"
+                            *ngFor="let option of sectionQuestion.options"
+                        >
+                            <img
+                                src="/assets/images/icon_correct_answer.png"
+                                *ngIf="option.option.correctOption"
+                                alt="exam"
+                                onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer.png'"
+                            />
+                            <img
+                                src="/assets/images/icon_wrong_answer.png"
+                                *ngIf="!option.option.correctOption"
+                                alt="exam"
+                                onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
+                            />
+                            <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
+                        </li>
+                        <li
+                            class="ms-2"
+                            [hidden]="sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion'"
+                            *ngFor="let option of sectionQuestion.options"
+                        >
+                            <img
+                                src="/assets/images/icon_correct_answer_checkbox.png"
+                                *ngIf="option.score >= 0"
+                                alt="exam"
+                                onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer_checkbox.png'"
+                            />
+                            <img
+                                src="/assets/images/icon_wrong_answer_checkbox.png"
+                                *ngIf="option.score < 0"
+                                alt="exam"
+                                onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer_checkbox.png'"
+                            />
+                            <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
+                            <span class="exam-question-option-text ps-2"
+                                >{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
+                            >
+                        </li>
+                        <li
+                            class="mt-2"
+                            [hidden]="sectionQuestion.question.type !== 'ClaimChoiceQuestion'"
+                            *ngFor="let option of sectionQuestion.options | orderBy : 'option.id'"
+                        >
+                            <img
+                                src="/assets/images/icon_correct_answer_radio.png"
+                                *ngIf="determineClaimOptionType(option) === 'CorrectOption'"
+                                alt="exam"
+                                onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
+                            />
+                            <img
+                                src="/assets/images/icon_wrong_answer_radio.png"
+                                *ngIf="determineClaimOptionType(option) === 'IncorrectOption'"
+                                alt="exam"
+                                onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
+                            />
+                            <img
+                                src="/assets/images/icon_wrong_answer.png"
+                                *ngIf="determineClaimOptionType(option) === 'SkipOption'"
+                                alt="exam"
+                                onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
+                            />
+                            <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
+                            <span class="exam-question-option-text ps-2"
+                                >{{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
+                            >
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>
