@@ -70,7 +70,7 @@ export class BookingCalendarComponent implements OnInit, OnChanges {
             plugins: [luxon2Plugin, timeGridPlugin],
             initialView: 'timeGridWeek',
             firstDay: 1,
-            dayHeaderFormat: { weekday: 'short', day: 'numeric', month: 'numeric', separator: '.' },
+            dayHeaderFormat: 'EEEE d.L',
             locale: this.translate.currentLang,
             locales: [fiLocale, svLocale, enLocale],
             allDaySlot: false,
