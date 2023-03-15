@@ -56,7 +56,7 @@ export class ExceptionDialogComponent {
         this.startDate.setMinutes(60, 0);
         this.endDate.setMinutes(60, 0);
         this.selectableWeekDays = this.dateTime.getWeekdayNames(true).map((d, i) => {
-            return { selected: true, day: d, number: i === 7 ? 0 : i + 1 }; // 1-7 mo-su converted to 0-6 su-sa
+            return { selected: true, day: d, number: i === 6 ? 0 : i + 1 }; // 1-7 mo-su converted to 0-6 su-sa
         });
         this.weekdayOfMonth = this.selectableWeekDays[0];
         this.selectableMonths = this.dateTime.getMonthNames().map((m, i) => {
@@ -137,7 +137,7 @@ export class ExceptionDialogComponent {
     }
     repeatMonthly() {
         const monthlyExceptions = this.getFilteredExceptionDates().filter((date) =>
-            this.isNumericNotWeekday ? true : [this.weekdayOfMonth.number].includes(date.getDay()),
+            this.isNumericNotWeekday ? true : this.weekdayOfMonth.number === date.getDay(),
         );
         const result = this.parseExceptionDays(monthlyExceptions);
         const message =
@@ -154,8 +154,8 @@ export class ExceptionDialogComponent {
 
     repeatYearly() {
         const yearlyExceptions = this.getFilteredExceptionDates()
-            .filter((date) => (this.isNumericNotWeekday ? true : [this.weekdayOfMonth.number].includes(date.getDay())))
-            .filter((date) => [this.monthOfYear.number].includes(date.getMonth() + 1));
+            .filter((date) => (this.isNumericNotWeekday ? true : this.weekdayOfMonth.number === date.getDay()))
+            .filter((date) => this.monthOfYear.number === date.getMonth() + 1);
         const result = this.parseExceptionDays(yearlyExceptions);
         const message =
             this.translate.instant('sitnet_year').toLowerCase() +
@@ -251,12 +251,11 @@ export class ExceptionDialogComponent {
             start: this.startDate,
             end: this.endDate,
         }).filter((date) => {
-            if (this.selectedOrdinal.number === 4) {
-                const filter = this.calculateLastWeek(date);
-                return filter.includes(date.getDate());
+            if (selectedWeekdays) {
+                return [...selectedWeekdays].includes(date.getDay());
             }
-            return selectedWeekdays
-                ? [...selectedWeekdays].map((n) => n - 1).includes(date.getDay())
+            return this.selectedOrdinal.number === 4
+                ? this.calculateLastWeek(date).includes(date.getDate())
                 : suitableDays.includes(date.getDate());
         });
     }
