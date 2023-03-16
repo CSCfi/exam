@@ -1107,5 +1107,5 @@
   "sitnet_select_room_error": "You have to select at least one exam room",
   "sitnet_examination_answer": "Questions and your answers",
   "sitnet_not_available": "Not available",
-  "sitnet_external_room": "External room EN"
+  "sitnet_external_room": "Exam room"
 }

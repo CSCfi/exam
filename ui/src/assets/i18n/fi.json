@@ -1107,5 +1107,5 @@
   "sitnet_select_room_error": "Valitse ainakin yksi tenttitila",
   "sitnet_examination_answer": "Tenttivastaus",
   "sitnet_not_available": "Ei saatavilla",
-  "sitnet_external_room": "Ulkopuolinen tenttitila FI"
+  "sitnet_external_room": "Tenttitila"
 }
