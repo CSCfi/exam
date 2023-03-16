@@ -75,7 +75,7 @@
                     aria-expanded="true"
                     [disabled]="(isExternal && !organisation) || disabled"
                 >
-                    {{ 'sitnet_room' | translate }}
+                    {{ isExternal ? ('sitnet_external_room' | translate) : ('sitnet_room' | translate) }}
                     <span class="caret"></span>
                 </button>
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1" class="scrollable-menu">
