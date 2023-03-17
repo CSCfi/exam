@@ -108,11 +108,7 @@
                             popoverTitle="{{ 'sitnet_instructions' | translate }}"
                             triggers="mouseenter:mouseleave"
                         >
-                            <img
-                                src="/assets/images/icon_tooltip.svg"
-                                alt="exam"
-                                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                            />
+                            <img src="/assets/images/icon_tooltip.svg" alt="exam" />
                         </sup>
                     </label>
                 </div>
@@ -224,8 +220,8 @@
         </div>
     </div>
 
-    <div class="row ms-2 me-2">
-        <div class="col-md-12 mt-2" *ngIf="section.expanded">
+    <div class="row ms-2 me-2" [ngbCollapse]="!section.expanded">
+        <div class="col-md-12 mt-2">
             <div id="exam" cdkDropList (cdkDropListDropped)="moveQuestion($event)" class="sortable no-padding mb-2">
                 <div *ngFor="let sectionQuestion of section.sectionQuestions" cdkDrag cdkDragLockAxis="y" class="mb-4">
                     <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>

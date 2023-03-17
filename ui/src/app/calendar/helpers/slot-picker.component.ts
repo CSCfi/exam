@@ -89,11 +89,13 @@ export class SlotPickerComponent implements OnInit, OnChanges {
 
         const getColor = (slot: AvailableSlot) => {
             if (slot.availableMachines < 0) {
-                return '#92c3e4'; // blueish
+                // conflicting event
+                return '#fc3858'; // red
             } else if (slot.availableMachines > 0) {
-                return '#0d6efd';
+                return '#a6e9b2'; // green
             } else {
-                return '#D8D8D8'; // grey
+                // none available
+                return '#92c3e4'; // blueish
             }
         };
 
@@ -103,7 +105,8 @@ export class SlotPickerComponent implements OnInit, OnChanges {
                 title: this.getTitle(slot),
                 start: this.adjust(slot.start, this.selectedRoom?.localTimezone as string),
                 end: this.adjust(slot.end, this.selectedRoom?.localTimezone as string),
-                color: getColor(slot),
+                backgroundColor: getColor(slot),
+                textColor: 'black',
                 availableMachines: slot.availableMachines,
             }));
             $event.success(events);

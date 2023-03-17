@@ -1,7 +1,7 @@
 <div class="tab-wrapper-exams review">
     <div class="review-border">
         <div class="padt50 padl30 padr30">
-            <div class="col-md-12 review-list-title padl0">
+            <h4 class="col-md-12 padl0">
                 {{ index }}. &nbsp; &nbsp;{{ section.name }}
                 <span class="score-details">
                     <span *ngIf="getSectionMaxScore() > 0">
@@ -16,7 +16,7 @@
                         >
                     </span>
                 </span>
-            </div>
+            </h4>
         </div>
         <div class="detail-row padr0 padl0 mar0" *ngIf="section.description">
             <div class="col-md-12 padr0 padl0">
@@ -30,8 +30,8 @@
                 </div>
             </div>
         </div>
-        <div class="detail-row">
-            <div class="col-md-12 mt-8" *ngFor="let sq of section.sectionQuestions | orderBy : 'sequenceNumber'">
+        <div class="detail-row ms-2 me-2">
+            <div class="col-md-12 mt-4" *ngFor="let sq of section.sectionQuestions | orderBy : 'sequenceNumber'">
                 <div *ngIf="sq.question.type === 'MultipleChoiceQuestion'">
                     <xm-r-multi-choice-question
                         [sectionQuestion]="sq"
@@ -61,7 +61,6 @@
                         [collaborative]="collaborative"
                         (scored)="scoreSet($event)"
                     >
-                        >
                     </xm-r-multi-choice-question>
                 </div>
                 <div *ngIf="sq.question.type === 'ClozeTestQuestion'">
@@ -72,7 +71,6 @@
                         [collaborative]="collaborative"
                         (scored)="scoreSet($event)"
                     >
-                        >
                     </xm-r-cloze-test>
                 </div>
                 <div *ngIf="sq.question.type === 'ClaimChoiceQuestion'">
@@ -83,19 +81,18 @@
                         [collaborative]="collaborative"
                         (scored)="scoreSet($event)"
                     >
-                        >
                     </xm-r-multi-choice-question>
                 </div>
             </div>
         </div>
-        <div class="detail-row padt20 padr30 d-flex justify-content-end">
+        <div class="detail-row ms-2 me-2 d-flex justify-content-end">
             <div class="review-list-footer">
                 <div *ngIf="getSectionMaxScore() > 0">
                     {{ 'sitnet_word_points' | translate }}:
                     <span> {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }} </span>
                 </div>
                 <div *ngIf="selectionEvaluatedAmounts.accepted > 0 || selectionEvaluatedAmounts.rejected > 0">
-                    {{ 'sitnet_section_accepted_and_rejected' | translate }}:
+                    {{ 'sitnet_section_accepted_and_rejected' | translate }}
                     <span> {{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }} </span>
                 </div>
             </div>
