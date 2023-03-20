@@ -29,7 +29,7 @@
     </div>
 </div>
 
-<div class="row" [hidden]="!autoevaluationDisplay.visible">
+<div class="row" [ngbCollapse]="!autoevaluationDisplay.visible">
     <div class="col-md-12 margin-20">
         <span class="autoevaluation-info">
             {{ 'sitnet_autoevaluation_instructions' | translate }}

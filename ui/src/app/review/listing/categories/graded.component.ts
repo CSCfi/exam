@@ -53,9 +53,13 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
 
     ngOnInit() {
         this.init();
-        this.http
-            .get<{ status: boolean }>(`/app/review/${this.exam.id}/locked`)
-            .subscribe((setting) => (this.needsFeedbackWarning = setting.status));
+        if (!this.exam.examFeedbackConfig) {
+            this.needsFeedbackWarning = false;
+        } else {
+            this.http
+                .get<{ status: 'nothing' | 'everything' }>(`/app/review/${this.exam.id}/locked`)
+                .subscribe((setting) => (this.needsFeedbackWarning = setting.status === 'everything'));
+        }
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -84,7 +88,6 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
                         this.toast.info(this.translate.instant('sitnet_results_send_ok'));
                     },
                 ),
-            error: (err) => this.toast.error(err),
         });
     };
 
