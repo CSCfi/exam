@@ -214,26 +214,39 @@
                     <div class="row" *ngIf="question?.type === 'WeightedMultipleChoiceQuestion'">
                         <div class="col-md-12">
                             <div
-                                class="row form-horizontal question-editor-option"
+                                class="row form-horizontal question-editor-option mb-3"
                                 *ngFor="let option of examQuestion.options"
                             >
                                 <div
                                     class="col-md-6 question-option-empty"
                                     *ngIf="option.option"
-                                    [ngClass]="option.score || 0 > 0 ? 'question-correct-option' : ''"
+                                    [ngClass]="
+                                        option.score.valueOf() > 0
+                                            ? 'question-correct-option'
+                                            : option.score.valueOf() < 0
+                                            ? 'question-incorrect-option'
+                                            : ''
+                                    "
                                 >
-                                    <input
+                                    <textarea
                                         id="weightedOptionText_{{ option.id }}"
                                         type="text"
+                                        rows="1"
                                         name="weightedOptionText_{{ option.id }}"
-                                        class="question-option-input"
+                                        class="question-option-input form-control marb10"
                                         [(ngModel)]="option.option!.option"
                                         required
-                                    />
+                                    ></textarea>
                                 </div>
                                 <div
                                     class="col-md-2 question-option-empty-radio"
-                                    [ngClass]="option.score || 0 > 0 ? 'question-correct-option-radio' : ''"
+                                    [ngClass]="
+                                        option.score.valueOf() > 0
+                                            ? 'question-correct-option-radio'
+                                            : option.score.valueOf() < 0
+                                            ? 'question-incorrect-option-radio'
+                                            : ''
+                                    "
                                 >
                                     <input
                                         xmFixedPrecision
@@ -274,15 +287,16 @@
                             class="col-md-6 question-option-empty"
                             [ngClass]="{ 'question-correct-option': option.option?.correctOption }"
                         >
-                            <input
+                            <textarea
                                 *ngIf="option.option"
                                 id="optionText_{{ option.id }}"
                                 name="optionText_{{ option.id }}"
                                 type="text"
-                                class="make-inline question-option-input radiobut"
+                                rows="1"
+                                class="make-inline question-option-input radiobut form-control"
                                 [(ngModel)]="option.option!.option"
                                 required
-                            />
+                            ></textarea>
                         </div>
                         <div
                             class="col-md-2 question-option-empty-radio"
@@ -342,19 +356,22 @@
                         <div class="row">
                             <div class="col-md-12 margin-10">
                                 <div
-                                    class="form-horizontal question-editor-claim-choice-option"
+                                    class="question-editor-claim-choice-option row"
                                     *ngFor="let opt of examQuestion.options"
                                     [ngClass]="returnOptionClass(opt)"
                                 >
-                                    <div class="claim-choice-option-inputs" *ngIf="opt.option">
-                                        <input
+                                    <div class="claim-choice-option-inputs col-md-9" *ngIf="opt.option">
+                                        <textarea
                                             [(ngModel)]="opt.option!.option"
                                             name="claimChoiceOption_{{ opt.id }}"
                                             type="text"
-                                            class="question-option-input"
+                                            rows="1"
+                                            class="make-inline form-control"
                                             required
                                             [disabled]="lotteryOn || opt.option?.claimChoiceType === 'SkipOption'"
-                                        />
+                                        ></textarea>
+                                    </div>
+                                    <div class="col-md-2">
                                         <input
                                             name="claimChoiceOptionScore_{{ opt.id }}"
                                             class="question-option-input points"
