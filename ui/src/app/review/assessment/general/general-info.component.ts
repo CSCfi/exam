@@ -50,7 +50,7 @@ export class GeneralInfoComponent implements OnInit {
 
     ngOnInit() {
         const duration = roundToNearestMinutes(parseISO(this.participation.duration as string));
-        this.participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC');
+        this.participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC') as string;
         this.student = this.participation.user as User;
         this.studentName = this.student
             ? `${this.student.lastName} ${this.student.firstName}`
