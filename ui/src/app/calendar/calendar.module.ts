@@ -18,6 +18,7 @@ import { FullCalendarModule } from '@fullcalendar/angular';
 import { NgbCollapseModule, NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from '../shared/shared.module';
 import { BookingCalendarComponent } from './booking-calendar.component';
+import { CalendarTitleResolverService } from './calendar-title-resolver.service';
 import { CalendarComponent } from './calendar.component';
 import { CalendarService } from './calendar.service';
 import { CalendarExamInfoComponent } from './helpers/exam-info.component';
@@ -37,7 +38,7 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
         SlotPickerComponent,
         SelectedRoomComponent,
     ],
-    providers: [CalendarService],
+    providers: [CalendarService, CalendarTitleResolverService],
     exports: [CalendarComponent, BookingCalendarComponent],
 })
 export class CalendarModule {}
