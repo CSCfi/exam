@@ -89,7 +89,7 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
             this.user = this.Session.getUser();
             this.participation = participation;
             const duration = roundToNearestMinutes(parseISO(this.participation.duration as string));
-            this.participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC');
+            this.participation.duration = this.DateTime.formatInTimeZone(duration, 'UTC') as string;
 
             this.student = this.participation.user;
             this.enrolment = this.exam.examEnrolments[0];

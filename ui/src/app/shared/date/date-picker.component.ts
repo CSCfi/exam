@@ -44,11 +44,11 @@ export class DatePickerI18n extends NgbDatepickerI18n {
     }
 
     getWeekdayShortName = (weekday: number): string =>
-        this.DateTime.getLocalizedDateForDay(weekday, this.getLocale()).weekdayShort;
+        this.DateTime.getLocalizedDateForDay(weekday, this.getLocale()).weekdayShort as string;
     getMonthShortName = (month: number): string =>
-        this.DateTime.getLocalizedDateForMonth(month, this.getLocale()).monthShort;
+        this.DateTime.getLocalizedDateForMonth(month, this.getLocale()).monthShort as string;
     getMonthFullName = (month: number): string =>
-        this.DateTime.getLocalizedDateForMonth(month, this.getLocale()).monthLong;
+        this.DateTime.getLocalizedDateForMonth(month, this.getLocale()).monthLong as string;
     getDayAriaLabel = (date: NgbDateStruct): string => new Date(date.year, date.month - 1, date.day).toISOString();
     getWeekdayLabel = (weekday: number): string => this.getWeekdayShortName(weekday);
 

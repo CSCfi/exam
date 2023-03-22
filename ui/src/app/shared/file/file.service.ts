@@ -16,7 +16,7 @@ import type { HttpResponse } from '@angular/common/http';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { saveAs } from 'file-saver';
+import { saveAs } from 'file-saver-es';
 import { ToastrService } from 'ngx-toastr';
 import type { Attachment, EssayAnswer } from '../../exam/exam.model';
 
