@@ -384,9 +384,9 @@ public class ExamUpdaterImpl implements ExamUpdater {
                 reason = "sitnet_error_end_date";
             } else if (start.get().isAfter(end.get())) {
                 reason = "sitnet_error_end_sooner_than_start";
-            } else if (end.get().isBeforeNow()) {
+            }/*else if (end.get().isBeforeNow()) { // CSCEXAM-1127
                 reason = "sitnet_error_end_sooner_than_now";
-            }
+            }*/
         }
         return reason == null ? Optional.empty() : Optional.of(badRequest(reason));
     }
