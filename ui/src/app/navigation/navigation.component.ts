@@ -88,7 +88,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
                 next: ([iop, byod]) =>
                     (this.links = this.Navigation.getLinks(
                         iop.isExamCollaborationSupported,
-                        byod.isByodExaminationSupported,
+                        byod.sebExaminationSupported || byod.homeExaminationSupported,
                     )),
                 error: (err) => this.toast.error(err),
             });

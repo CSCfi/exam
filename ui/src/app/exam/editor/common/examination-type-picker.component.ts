@@ -6,7 +6,7 @@ import { ExamService } from '../../exam.service';
 export type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
 
 @Component({
-    selector: 'xm-examinatino-type-selector',
+    selector: 'xm-examination-type-selector',
     template: `
         <div id="sitnet-dialog">
             <div class="modal-header">
@@ -61,23 +61,26 @@ export class ExaminationTypeSelectorComponent implements OnInit {
     constructor(private http: HttpClient, private modal: NgbActiveModal, private Exam: ExamService) {}
 
     ngOnInit() {
-        this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod').subscribe((resp) => {
-            const byodSupported = resp.isByodExaminationSupported;
-            this.Exam.listExecutionTypes$().subscribe((types) => {
-                this.executionTypes = types.map((t) => {
-                    const implementations =
-                        t.type != 'PRINTOUT' && byodSupported
-                            ? [
-                                  { type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' },
-                                  { type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' },
-                                  { type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' },
-                              ]
-                            : [];
-                    return { ...t, examinationTypes: implementations };
+        this.http
+            .get<{ homeExaminationSupported: boolean; sebExaminationSupported: boolean }>('/app/settings/byod')
+            .subscribe((resp) => {
+                this.Exam.listExecutionTypes$().subscribe((types) => {
+                    this.executionTypes = types.map((t) => {
+                        const implementations = [];
+                        if (t.type !== 'PRINTOUT' && (resp.sebExaminationSupported || resp.homeExaminationSupported)) {
+                            implementations.push({ type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' });
+                            if (resp.sebExaminationSupported) {
+                                implementations.push({ type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' });
+                            }
+                            if (resp.homeExaminationSupported) {
+                                implementations.push({ type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' });
+                            }
+                        }
+                        return { ...t, examinationTypes: implementations };
+                    });
                 });
+                this.acc.expand('toggle-1');
             });
-            this.acc.expand('toggle-1');
-        });
     }
 
     selectType = (type: ExamConfig) => {

@@ -64,8 +64,12 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
         this.exam = this.Tabs.getExam();
         this.collaborative = this.Tabs.isCollaborative();
         this.http
-            .get<{ isByodExaminationSupported: boolean }>('/app/settings/byod')
-            .subscribe((setting) => (this.byodExaminationSupported = setting.isByodExaminationSupported));
+            .get<{ homeExaminationSupported: boolean; sebExaminationSupported: boolean }>('/app/settings/byod')
+            .subscribe(
+                (setting) =>
+                    (this.byodExaminationSupported =
+                        setting.homeExaminationSupported || setting.sebExaminationSupported),
+            );
         this.http
             .get<{ overridable: boolean }>('/app/settings/gradescale')
             .subscribe((setting) => (this.gradeScaleSetting = setting));
