@@ -147,12 +147,10 @@ export class CollaborativeAssesmentService {
                       false,
                   );
             const payload = this.getPayload(participation.exam, 'GRADED', participation._rev as string);
-            this.dialogs
-                .open$(this.translate.instant('sitnet_confirm'), dialogNote)
-                .subscribe({
-                    next: () => this.register(participation, examId, ref, payload),
-                    error: (err) => this.toast.error(err),
-                });
+            this.dialogs.open$(this.translate.instant('sitnet_confirm'), dialogNote).subscribe({
+                next: () => this.register(participation, examId, ref, payload),
+                error: (err) => this.toast.error(err),
+            });
         }
     };
 

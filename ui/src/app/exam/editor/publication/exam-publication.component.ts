@@ -80,27 +80,21 @@ export class ExamPublicationComponent implements OnInit {
     ngOnInit() {
         this.exam = this.Tabs.getExam();
         this.collaborative = this.Tabs.isCollaborative();
-        this.http
-            .get<{ examDurations: number[] }>('/app/settings/durations')
-            .subscribe({
-                next: (data) => (this.examDurations = data.examDurations),
-                error: (err) => this.toast.error(err),
-            });
+        this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe({
+            next: (data) => (this.examDurations = data.examDurations),
+            error: (err) => this.toast.error(err),
+        });
         this.http
             .get<{ maxDate: Date }>('/app/settings/maxDate')
             .subscribe({ next: (data) => (this.examMaxDate = data.maxDate), error: (err) => this.toast.error(err) });
-        this.http
-            .get<{ maxDuration: number }>('/app/settings/maxDuration')
-            .subscribe({
-                next: (data) => (this.maxDuration = data.maxDuration),
-                error: (err) => this.toast.error(err),
-            });
-        this.http
-            .get<{ minDuration: number }>('/app/settings/minDuration')
-            .subscribe({
-                next: (data) => (this.minDuration = data.minDuration),
-                error: (err) => this.toast.error(err),
-            });
+        this.http.get<{ maxDuration: number }>('/app/settings/maxDuration').subscribe({
+            next: (data) => (this.maxDuration = data.maxDuration),
+            error: (err) => this.toast.error(err),
+        });
+        this.http.get<{ minDuration: number }>('/app/settings/minDuration').subscribe({
+            next: (data) => (this.minDuration = data.minDuration),
+            error: (err) => this.toast.error(err),
+        });
         if (this.exam.implementation !== 'AQUARIUM') {
             this.http
                 .get<MaintenancePeriod[]>('/app/maintenance')
