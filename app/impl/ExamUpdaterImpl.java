@@ -196,7 +196,13 @@ public class ExamUpdaterImpl implements ExamUpdater {
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
-        exam.setImplementation(configReader.isByodExaminationSupported() ? impl : Exam.Implementation.AQUARIUM);
+        if (impl == Exam.Implementation.WHATEVER && configReader.isHomeExaminationSupported()) {
+            exam.setImplementation(impl);
+        } else if (impl == Exam.Implementation.CLIENT_AUTH && configReader.isSebExaminationSupported()) {
+            exam.setImplementation(impl);
+        } else {
+            exam.setImplementation(Exam.Implementation.AQUARIUM);
+        }
         if (
             loginRole == Role.Name.ADMIN &&
             ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType()) &&
