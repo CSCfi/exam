@@ -169,12 +169,11 @@ export class CalendarComponent implements OnInit {
     createReservation($event: { start: string; end: string; room: ExamRoom; accessibilities: Accessibility[] }) {
         this.reservation = {
             room: $event.room,
-            time:
-                this.adjust($event.start, $event.room.localTimezone).toFormat('dd.MM.yyyy HH:mm') +
-                ' - ' +
-                this.adjust($event.end, $event.room.localTimezone).toFormat('HH:mm'),
-            start: this.adjust($event.start, $event.room.localTimezone),
-            end: this.adjust($event.end, $event.room.localTimezone),
+            time: `${this.asDateTime($event.start, $event.room.localTimezone).toFormat(
+                'dd.MM.yyyy HH:mm',
+            )} - ${this.asDateTime($event.end, $event.room.localTimezone).toFormat('HH:mm')}`,
+            start: this.asDateTime($event.start, $event.room.localTimezone),
+            end: this.asDateTime($event.end, $event.room.localTimezone),
             accessibilities: $event.accessibilities,
         };
     }
@@ -228,11 +227,7 @@ export class CalendarComponent implements OnInit {
         return this.DateTimeService.printExamDuration(exam);
     }
 
-    private adjust = (date: string, tz: string): DateTime => {
-        const adjusted = DateTime.fromISO(date, { zone: tz });
-        const offset = adjusted.isInDST ? -1 : 0;
-        return adjusted.plus({ hour: offset });
-    };
+    private asDateTime = (date: string, tz: string): DateTime => DateTime.fromISO(date, { zone: tz });
 
     private prepareOptionalSections = (data: ExamEnrolment | null) => {
         this.examInfo.examSections
