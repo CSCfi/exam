@@ -6,6 +6,7 @@ import models.{Attachment, Tag, User}
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
 import org.apache.commons.compress.compressors.CompressorStreamFactory
 import org.jsoup.Jsoup
+import org.jsoup.nodes.{Element, TextNode}
 import play.api.Logger
 import util.file.FileHandler
 
@@ -87,6 +88,23 @@ class MoodleXmlImporterImpl @Inject()(fileHandler: FileHandler) extends MoodleXm
         Some(fileHandler.createNew(name, ct, newFilePath))
     }
 
+  private def parseMediaFileName(el: Element): String =
+    s"[Attachment: ${el.attr("src").dropWhile(_ != '/').tail}]"
+
+  private def parseMedia(html: String, selector: String): String = {
+    val doc      = Jsoup.parse(html)
+    val elements = doc.select(selector)
+    def sourceFn: (Element) => Element = selector match {
+      case "audio" | "video" => _.select("source").first
+      case "img"             => identity
+    }
+    elements.forEach(el => el.replaceWith(new TextNode(parseMediaFileName(sourceFn(el)))))
+    doc.body.children.toString
+  }
+
+  private def stripMediaTags(src: String): String =
+    Seq("img", "video", "audio").foldLeft(src)((html, tag) => parseMedia(html, tag))
+
   private def convertCommon(src: Node, user: User, mode: String): Question = {
     val srcText = src \ "questiontext"
     val format  = srcText.head.attribute("format").get.text
@@ -95,7 +113,7 @@ class MoodleXmlImporterImpl @Inject()(fileHandler: FileHandler) extends MoodleXm
       case _      => "<p>" + (srcText \ "text").text + "</p>"
     }
     val question = new Question
-    question.setQuestion(questionText)
+    question.setQuestion(stripMediaTags(questionText))
     question.setTags(tags(src, user).asJava)
     question.setCreatorWithDate(user)
     question.setModifierWithDate(user)
