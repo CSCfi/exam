@@ -94,7 +94,7 @@ class MoodleXmlImporterImpl @Inject()(fileHandler: FileHandler) extends MoodleXm
   private def parseMedia(html: String, selector: String): String = {
     val doc      = Jsoup.parse(html)
     val elements = doc.select(selector)
-    def sourceFn: (Element) => Element = selector match {
+    def sourceFn: Element => Element = selector match {
       case "audio" | "video" => _.select("source").first
       case "img"             => identity
     }
@@ -103,7 +103,7 @@ class MoodleXmlImporterImpl @Inject()(fileHandler: FileHandler) extends MoodleXm
   }
 
   private def stripMediaTags(src: String): String =
-    Seq("img", "video", "audio").foldLeft(src)((html, tag) => parseMedia(html, tag))
+    Seq("img", "video", "audio").foldLeft(src)(parseMedia)
 
   private def convertCommon(src: Node, user: User, mode: String): Question = {
     val srcText = src \ "questiontext"
