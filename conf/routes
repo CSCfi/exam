@@ -413,7 +413,7 @@ GET           /app/tags                                                controlle
 GET           /app/config                                              controllers.SettingsController.getConfig
 GET           /app/settings/agreement                                  controllers.SettingsController.getUserAgreement
 PUT           /app/settings/agreement                                  controllers.SettingsController.updateUserAgreement(request: Request)
-GET           /app/settings/byod                                       controllers.SettingsController.isByodExaminationSupported
+GET           /app/settings/byod                                       controllers.SettingsController.getByodSupport
 GET           /app/settings/deadline                                   controllers.SettingsController.getDeadline
 PUT           /app/settings/deadline                                   controllers.SettingsController.setDeadline(request: Request)
 GET           /app/settings/reservationWindow                          controllers.SettingsController.getReservationWindowSize

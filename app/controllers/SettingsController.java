@@ -267,9 +267,11 @@ public class SettingsController extends BaseController {
     }
 
     @ActionMethod
-    public Result isByodExaminationSupported() {
+    public Result getByodSupport() {
         ObjectNode node = Json.newObject();
-        node.put("isByodExaminationSupported", configReader.isByodExaminationSupported());
+        node
+            .put("sebExaminationSupported", configReader.isSebExaminationSupported())
+            .put("homeExaminationSupported", configReader.isHomeExaminationSupported());
         return ok(Json.toJson(node));
     }
 
@@ -321,7 +323,8 @@ public class SettingsController extends BaseController {
         node.put("expirationPeriod", configReader.getExamExpirationPeriod());
         node.put("defaultTimeZone", configReader.getDefaultTimeZone().getID());
         node.put("sebQuitLink", configReader.getQuitExaminationLink());
-        node.put("isByodExaminationSupported", configReader.isByodExaminationSupported());
+        node.put("isSebExaminationSupported", configReader.isSebExaminationSupported());
+        node.put("isHomeExaminationSupported", configReader.isHomeExaminationSupported());
 
         return ok(Json.toJson(node));
     }

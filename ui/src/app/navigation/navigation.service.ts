@@ -36,7 +36,8 @@ export class NavigationService {
     getInteroperability$ = () =>
         this.http.get<{ isExamCollaborationSupported: boolean }>('/app/settings/iop/examCollaboration');
 
-    getByodSupport$ = () => this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod');
+    getByodSupport$ = () =>
+        this.http.get<{ homeExaminationSupported: boolean; sebExaminationSupported: boolean }>('/app/settings/byod');
 
     getLinks(interoperable: boolean, hasByod: boolean): Link[] {
         const user: User = this.Session.getUser();
