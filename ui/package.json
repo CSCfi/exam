@@ -16,7 +16,9 @@
     "test": "ng test",
     "lint": "ng lint --fix",
     "format": "prettier --write \"src/app/**/*.{ts,html}\" --write \"../app/**/*.java\" --print-width=120 --tab-width=4; exit 0",
-    "prepare": "cd .. && npx husky install ui/.husky"
+    "prepare": "cd .. && npx husky install ui/.husky",
+    "check-format": "prettier --check \"src/app/**/*.{ts,html}\" --check \"../app/**/*.java\" --print-width=120 --tab-width=4; exit 0",
+    "check-lint": "ng lint"
   },
   "dependencies": {
     "@angular/animations": "^13.3.0",
