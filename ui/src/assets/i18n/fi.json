@@ -1038,7 +1038,7 @@
   "sitnet_toolbar_import_questions": "Tuo kysymyksiä Moodlesta",
   "sitnet_import_questions_detail": "Valitse Moodle XML-muodossa oleva kysymystiedosto",
   "sitnet_questions_imported_successfully": "Kysymykset tuotu onnistuneesti",
-  "sitnet_force_remove_exam_warning_dialogue": "Poista tenttitilaisuus? Toimenpidettä ei voi perua. Ilmoittautuneille opiskelijoille, sekä opettajille lähetetään sähköposti tenttitilaisuuden poistamisesta.",
+  "sitnet_force_remove_exam_warning_dialogue": "Poista tenttitilaisuus? Toimenpidettä ei voi perua. Ilmoittautuneille opiskelijoille lähetetään sähköposti tenttitilaisuuden poistamisesta.",
   "sitnet_select_all_rooms": "Valitse kaikki tenttitilat",
   "sitnet_published_joint_exams": "Julkaistut ja esijulkaistut yhteistentit",
   "sitnet_expired_joint_exams": "Yhteistentit, joiden voimassaoloaika on päättynyt",

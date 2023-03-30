@@ -19,7 +19,8 @@ public interface ConfigReader {
     boolean isEnrolmentPermissionCheckActive();
     boolean isVisitingExaminationSupported();
     boolean isCollaborationExaminationSupported();
-    boolean isByodExaminationSupported();
+    boolean isHomeExaminationSupported();
+    boolean isSebExaminationSupported();
     boolean isCourseSearchActive();
     Map<String, String> getCourseIntegrationUrls();
     DateTime getExamExpirationDate(DateTime timeOfSubmission);

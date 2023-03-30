@@ -589,7 +589,7 @@ public class ExamController extends BaseController {
             .fetch("examSections")
             .fetch(
                 "examSections.sectionQuestions",
-                "sequenceNumber, maxScore, optional, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType"
+                "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType"
             )
             .fetch("examSections.sectionQuestions.question", "id, type, question, shared")
             .fetch("examSections.sectionQuestions.question.attachment", "fileName")

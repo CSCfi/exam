@@ -21,7 +21,7 @@ import { ToastrService } from 'ngx-toastr';
 import { from, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { ExaminationTypeSelectorComponent } from '../../../../exam/editor/common/examination-type-picker.component';
-import type { Exam, ExamExecutionType } from '../../../../exam/exam.model';
+import type { Exam } from '../../../../exam/exam.model';
 import { ExamService } from '../../../../exam/exam.service';
 import { SessionService } from '../../../../session/session.service';
 import { DateTimeService } from '../../../../shared/date/date.service';
@@ -34,14 +34,13 @@ export interface ExtraData {
     link: string[];
     checkOwnership: boolean;
 }
-type ExecutionType = ExamExecutionType & { examinationTypes: { type: string; name: string }[] };
 @Component({
     selector: 'xm-exam-list-category',
     templateUrl: './exam-list-category.component.html',
 })
 export class ExamListCategoryComponent implements OnInit, OnDestroy {
     @Input() items: DashboardExam[] = [];
-    @Input() examTypes: ExecutionType[] = [];
+
     @Input() extraData: ExtraData[] = [];
     @Input() defaultPredicate = '';
     @Input() defaultReverse = false;
