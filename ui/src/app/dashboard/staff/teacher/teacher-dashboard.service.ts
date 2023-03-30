@@ -146,8 +146,6 @@ export class TeacherDashboardService {
         this.http.post<Exam>(`/app/exams/${id}`, { type: type, examinationType: examinationType });
     deleteExam$ = (id: number) => this.http.delete(`/app/exams/${id}`);
 
-    getByodSupportStatus$ = () => this.http.get<{ isByodExaminationSupported: boolean }>('/app/settings/byod');
-
     // Exam is private and has unfinished participants
     private participationsInFuture = (exam: Exam) =>
         exam.executionType.type === 'PUBLIC' || exam.examEnrolments.length > 0;

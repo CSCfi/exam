@@ -196,7 +196,13 @@ public class ExamUpdaterImpl implements ExamUpdater {
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
-        exam.setImplementation(configReader.isByodExaminationSupported() ? impl : Exam.Implementation.AQUARIUM);
+        if (impl == Exam.Implementation.WHATEVER && configReader.isHomeExaminationSupported()) {
+            exam.setImplementation(impl);
+        } else if (impl == Exam.Implementation.CLIENT_AUTH && configReader.isSebExaminationSupported()) {
+            exam.setImplementation(impl);
+        } else {
+            exam.setImplementation(Exam.Implementation.AQUARIUM);
+        }
         if (
             loginRole == Role.Name.ADMIN &&
             ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType()) &&
@@ -384,9 +390,9 @@ public class ExamUpdaterImpl implements ExamUpdater {
                 reason = "sitnet_error_end_date";
             } else if (start.get().isAfter(end.get())) {
                 reason = "sitnet_error_end_sooner_than_start";
-            } else if (end.get().isBeforeNow()) {
+            }/*else if (end.get().isBeforeNow()) { // CSCEXAM-1127
                 reason = "sitnet_error_end_sooner_than_now";
-            }
+            }*/
         }
         return reason == null ? Optional.empty() : Optional.of(badRequest(reason));
     }

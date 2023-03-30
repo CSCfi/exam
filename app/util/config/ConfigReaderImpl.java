@@ -111,8 +111,13 @@ public class ConfigReaderImpl implements ConfigReader {
     }
 
     @Override
-    public boolean isByodExaminationSupported() {
-        return config.getBoolean("sitnet.byod.active");
+    public boolean isHomeExaminationSupported() {
+        return config.getBoolean("sitnet.byod.home.active");
+    }
+
+    @Override
+    public boolean isSebExaminationSupported() {
+        return config.getBoolean("sitnet.byod.seb.active");
     }
 
     @Override

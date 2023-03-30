@@ -15,7 +15,6 @@
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import type { ExamExecutionType } from '../../../exam/exam.model';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { ExtraData } from './categories/exam-list-category.component';
@@ -30,7 +29,6 @@ import { TeacherDashboardService } from './teacher-dashboard.service';
 export class TeacherDashboardComponent implements OnInit {
     activeTab = 1;
     userId = 0;
-    executionTypes: (ExamExecutionType & { examinationTypes: { type: string; name: string }[] })[] = [];
     activeExtraData: ExtraData[];
     finishedExtraData: ExtraData[];
     archivedExtraData: ExtraData[];
@@ -100,20 +98,6 @@ export class TeacherDashboardComponent implements OnInit {
             this.filteredActive = this.activeExams = dashboard.activeExams;
             this.filteredArchived = this.archivedExams = dashboard.archivedExams;
             this.filteredDrafts = this.draftExams = dashboard.draftExams;
-            this.TeacherDashboard.getByodSupportStatus$().subscribe((resp) => {
-                const byodSupported = resp.isByodExaminationSupported;
-                this.executionTypes = dashboard.executionTypes.map((t) => {
-                    const examinationTypes =
-                        t.type !== 'PRINTOUT' && byodSupported
-                            ? [
-                                  { type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' },
-                                  { type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' },
-                                  { type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' },
-                              ]
-                            : [];
-                    return { ...t, examinationTypes: examinationTypes };
-                });
-            });
         });
     }
 
