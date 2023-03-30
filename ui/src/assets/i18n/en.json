@@ -1038,7 +1038,7 @@
   "sitnet_toolbar_import_questions": "Import questions from Moodle",
   "sitnet_import_questions_detail": "Select file with questions in Moodle XML format",
   "sitnet_questions_imported_successfully": "Questions imported",
-  "sitnet_force_remove_exam_warning_dialogue": "Do you want to remove exam event (Removal can't be cancelled)? Email notification about removal will be sent to participants and to teachers of the exam.",
+  "sitnet_force_remove_exam_warning_dialogue": "Do you want to remove exam event (Removal can't be cancelled)? Email notification about removal will be sent to participants of the exam.",
   "sitnet_select_all_rooms": "Select all rooms",
   "sitnet_published_joint_exams": "Published and pre-published joint exams",
   "sitnet_expired_joint_exams": "Expired joint exams",
