@@ -12,14 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, tap } from 'rxjs/operators';
+import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import type { Course } from '../../exam.model';
 import { CoursePickerService } from './course-picker.service';
 
@@ -42,11 +42,12 @@ export class CoursePickerComponent implements OnInit {
         private translate: TranslateService,
         private toast: ToastrService,
         private Course: CoursePickerService,
+        private CourseCode: CourseCodeService,
     ) {}
 
     ngOnInit() {
         this.nameFilter = this.course ? this.course.name : '';
-        this.codeFilter = this.course ? this.course.code.split('_')[0] : '';
+        this.codeFilter = this.course ? this.CourseCode.formatCode(this.course.code) : '';
     }
 
     getCoursesByCode$ = (text$: Observable<string>) => this.getCourses$('code', text$);
@@ -55,7 +56,7 @@ export class CoursePickerComponent implements OnInit {
     nameFormat = (c: Course | string) => (this.isCourse(c) ? c.name : c);
 
     onCourseSelect = (event: NgbTypeaheadSelectItemEvent) => {
-        this.codeFilter = event.item.code.split('_')[0];
+        this.codeFilter = this.CourseCode.formatCode(event.item.code);
         this.nameFilter = event.item.name;
         this.updated.emit(event.item);
     };

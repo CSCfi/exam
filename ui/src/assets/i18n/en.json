@@ -1106,5 +1106,6 @@
   "sitnet_room_closed_overlap": "There is overlapping with existing opening hours exceptions",
   "sitnet_select_room_error": "You have to select at least one exam room",
   "sitnet_examination_answer": "Questions and your answers",
-  "sitnet_not_available": "Not available"
+  "sitnet_not_available": "Not available",
+  "sitnet_external_room": "Exam room"
 }
