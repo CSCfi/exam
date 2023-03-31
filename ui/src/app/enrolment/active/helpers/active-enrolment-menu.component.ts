@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
+import { Reservation } from 'src/app/reservation/reservation.model';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
 import type { ExamEnrolment } from '../../enrolment.model';
 import { EnrolmentService } from '../../enrolment.service';
@@ -21,6 +23,12 @@ export class ActiveEnrolmentMenuComponent {
     ) {}
 
     makeReservation = () => this.Enrolment.makeReservation(this.enrolment);
+
+    canChangeReservation = (reservation: Reservation) => {
+        const now = DateTime.now();
+        const [start, end] = [DateTime.fromISO(reservation.startAt), DateTime.fromISO(reservation.endAt)];
+        return now < start || now > end;
+    };
 
     removeReservation = () => {
         if (this.enrolment.reservation) {
