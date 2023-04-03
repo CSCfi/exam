@@ -321,6 +321,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, ExamEnrolment> onSuccess = response -> {
             if (response.getStatus() != Http.Status.OK) {
+                logger.warn("Bad status {} received while requesting external enrolment data", response.getStatus());
                 return null;
             }
             JsonNode root = response.asJson();
