@@ -70,10 +70,11 @@ public class ExaminationRepository {
                 studentExam.setParent(prototype);
             }
             studentExam.generateHash();
-            studentExam.save();
-            enrolment.setExam(studentExam);
-            enrolment.save();
 
+            db.save(studentExam);
+            initClozeTestQuestions(studentExam);
+            enrolment.setExam(studentExam);
+            db.save(enrolment);
             txn.commit();
             result = Optional.of(studentExam);
         } finally {
@@ -82,8 +83,7 @@ public class ExaminationRepository {
         return result;
     }
 
-    public void processClozeTestQuestions(Exam exam) {
-        Set<Question> questionsToHide = new HashSet<>();
+    public void initClozeTestQuestions(Exam exam) {
         exam
             .getExamSections()
             .stream()
@@ -96,9 +96,18 @@ public class ExaminationRepository {
                 }
                 answer.setQuestion(esq);
                 esq.setClozeTestAnswer(answer);
-                esq.update();
-                questionsToHide.add(esq.getQuestion());
+                db.update(esq);
             });
+    }
+
+    public void processClozeTestQuestions(Exam exam) {
+        Set<Question> questionsToHide = new HashSet<>();
+        exam
+            .getExamSections()
+            .stream()
+            .flatMap(es -> es.getSectionQuestions().stream())
+            .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
+            .forEach(esq -> questionsToHide.add(esq.getQuestion()));
         questionsToHide.forEach(q -> q.setQuestion(null));
     }
 
@@ -106,7 +115,7 @@ public class ExaminationRepository {
         return CompletableFuture.supplyAsync(
             () -> {
                 clone.setState(Exam.State.STUDENT_STARTED);
-                clone.save();
+                db.update(clone);
                 clone.setCloned(false);
                 clone.setDerivedMaxScores();
                 processClozeTestQuestions(clone);
@@ -133,7 +142,7 @@ public class ExaminationRepository {
                                 );
                     }
                     examParticipation.setStarted(now);
-                    examParticipation.save();
+                    db.save(examParticipation);
                 }
                 return clone;
             },
