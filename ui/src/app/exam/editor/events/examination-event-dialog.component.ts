@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { DatePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -45,6 +46,7 @@ export class ExaminationEventDialogComponent implements OnInit {
         private translate: TranslateService,
         private toast: ToastrService,
         private Exam: ExamService,
+        private datePipe: DatePipe,
     ) {}
 
     ngOnInit() {
@@ -63,9 +65,14 @@ export class ExaminationEventDialogComponent implements OnInit {
 
     togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');
     onStartDateChange = (event: { date: Date }) => {
-        if (this.maxDateValidator && this.maxDateValidator > event.date) {
-            this.start = event.date;
+        if (this.maxDateValidator && this.maxDateValidator < event.date) {
+            this.toast.error(
+                this.translate.instant('sitnet_date_too_far_in_future') +
+                    ' ' +
+                    this.datePipe.transform(this.maxDateValidator || new Date(), 'dd.MM.yyyy HH:mm'),
+            );
         }
+        this.start = event.date;
     };
 
     ok() {
