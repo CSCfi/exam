@@ -43,7 +43,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                     {{ title | translate }}
                 </div>
             </div>
-            <div [hidden]="hideEditor" class="body">
+            <div [ngbCollapse]="hideEditor" class="body">
                 <div class="row mt-2 mb-1">
                     <div class="col-md-12">
                         <xm-ckeditor

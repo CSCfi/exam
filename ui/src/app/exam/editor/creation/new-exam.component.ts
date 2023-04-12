@@ -26,7 +26,8 @@ export class NewExamComponent implements OnInit {
     executionTypes: (ExamExecutionType & { name: string })[] = [];
     type?: ExamExecutionType;
     examinationType: Implementation = 'AQUARIUM';
-    byodExaminationSupported = false;
+    homeExaminationSupported = false;
+    sebExaminationSupported = false;
 
     constructor(private http: HttpClient, private Exam: ExamService) {}
 
@@ -34,13 +35,16 @@ export class NewExamComponent implements OnInit {
         this.Exam.listExecutionTypes$().subscribe((types) => {
             this.executionTypes = types;
             this.http
-                .get<{ isByodExaminationSupported: boolean }>('/app/settings/byod')
-                .subscribe((resp) => (this.byodExaminationSupported = resp.isByodExaminationSupported));
+                .get<{ homeExaminationSupported: boolean; sebExaminationSupported: boolean }>('/app/settings/byod')
+                .subscribe((resp) => {
+                    this.homeExaminationSupported = resp.homeExaminationSupported;
+                    this.sebExaminationSupported = resp.sebExaminationSupported;
+                });
         });
     }
 
     selectType = () => {
-        if (!this.byodExaminationSupported && this.type) {
+        if (!this.homeExaminationSupported && !this.sebExaminationSupported && this.type) {
             this.Exam.createExam(this.type.type, this.examinationType);
         }
     };

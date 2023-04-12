@@ -15,7 +15,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { FullCalendarModule } from '@fullcalendar/angular';
-import { NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapseModule, NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from '../shared/shared.module';
 import { BookingCalendarComponent } from './booking-calendar.component';
 import { CalendarComponent } from './calendar.component';
@@ -27,7 +27,7 @@ import { SelectedRoomComponent } from './helpers/selected-room.component';
 import { SlotPickerComponent } from './helpers/slot-picker.component';
 
 @NgModule({
-    imports: [FullCalendarModule, RouterModule, NgbPopoverModule, NgbDropdownModule, SharedModule],
+    imports: [FullCalendarModule, RouterModule, NgbPopoverModule, NgbDropdownModule, NgbCollapseModule, SharedModule],
     declarations: [
         BookingCalendarComponent,
         CalendarComponent,

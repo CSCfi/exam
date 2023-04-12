@@ -395,7 +395,7 @@ public class EnrolmentController extends BaseController {
                     enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
                 ) {
                     // External reservation, assessment not returned yet. We must wait for it to arrive first
-                    return wrapAsPromise(forbidden("Not allowed to re-enroll, external assessment not returned yet"));
+                    return wrapAsPromise(forbidden("sitnet_enrolment_assessment_not_received"));
                 }
             }
             ExamEnrolment newEnrolment = makeEnrolment(exam, user);
