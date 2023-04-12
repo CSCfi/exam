@@ -277,6 +277,17 @@
     box-shadow: 4px 4px 9px 0px rgba(0,0,0,0.75);
   }
 
+  .cloze-neutral {
+    margin-right: 3px;
+    padding-right: 3px;
+    border: 1px solid gray;
+    border-radius: 3px;
+    background: white;
+    min-width:30px; 
+    display: inline-block; 
+    box-shadow: 4px 4px 9px 0px rgba(0,0,0,0.75);
+  }
+
   .lottery-item-count {
     margin-top: 0 !important;
     margin-right: 1em;
