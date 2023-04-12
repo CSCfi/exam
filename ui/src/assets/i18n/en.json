@@ -1109,5 +1109,7 @@
   "sitnet_not_available": "Not available",
   "sitnet_external_room": "Exam room",
   "sitnet_enrolment_assessment_not_received": "Uudelleen ilmoittautuminen ei sallittu, edellinen tenttivierailusuoritus ei ole vielä saapunut EN",
-  "sitnet_not_allowed_to_modify_reservation": "Varaus on käynnissä ja sitä ei voi muuttaa EN"
+  "sitnet_not_allowed_to_modify_reservation": "Varaus on käynnissä ja sitä ei voi muuttaa EN",
+  "sitnet_mobile_menu": "Mobiili-menu EN",
+  "sitnet_exam_logo": "Exam-logo EN"
 }
