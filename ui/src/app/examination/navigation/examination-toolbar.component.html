@@ -82,6 +82,7 @@
                 [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
                 (click)="selectSection(section)"
                 (keydown.enter)="selectSection(section)"
+                tabindex="0"
                 ngbPopover="{{ section.name }}: {{ 'sitnet_question_status_answered' | translate }}
                  {{ getQuestionAmount(section, 'answered') }}, {{ 'sitnet_questions_total' | translate }}
                  {{ getQuestionAmount(section, 'total') }}"

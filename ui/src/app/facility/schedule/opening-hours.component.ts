@@ -83,8 +83,8 @@ interface RoomWithAddressVisibility extends ExamRoom {
                 >
                     {{ dateTime.translateWeekdayName(newTime.weekday, true) }}&nbsp;<span class="caret"></span>
                 </button>
-                <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
-                    <li
+                <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
+                    <button
                         ngbDropdownItem
                         *ngFor="let weekday of WEEKDAYS"
                         role="presentation"
@@ -92,11 +92,9 @@ interface RoomWithAddressVisibility extends ExamRoom {
                         (click)="updateNewTime(weekday)"
                         (keydown.enter)="updateNewTime(weekday)"
                     >
-                        <a role="menuitem" title="{{ dateTime.translateWeekdayName(weekday, true) }}">{{
-                            dateTime.translateWeekdayName(weekday, true)
-                        }}</a>
-                    </li>
-                </ul>
+                        {{ dateTime.translateWeekdayName(weekday, true) }}
+                    </button>
+                </div>
             </span>
             <div class="col row">
                 <div class="col flex justify-content-around align-self-center">
