@@ -30,7 +30,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
                     {{ 'sitnet_clock_hidden' | translate }}
                 </span>
             </span>
-            <button tabindex="1" (click)="showRemainingTime = !showRemainingTime" class="border-none background-none">
+            <button (click)="showRemainingTime = !showRemainingTime" class="border-none background-none">
                 <img
                     src="/assets/images/icon_clock.svg"
                     alt="clock"

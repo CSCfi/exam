@@ -48,7 +48,6 @@ import { AccessibilityService } from './accessibility.service';
                         [ngClass]="isSelected(ac) ? 'active' : ''"
                         (click)="updateAccessibility(ac)"
                         (keydown.enter)="updateAccessibility(ac)"
-                        tabindex="0"
                     >
                         <a role="menuitem" title="{{ ac.name }}">{{ ac.name }}</a>
                     </li>

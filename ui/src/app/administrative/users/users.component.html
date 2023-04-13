@@ -41,7 +41,6 @@
                 <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
                     <li
                         ngbDropdownItem
-                        tabindex="0"
                         *ngFor="let role of roles"
                         role="presentation"
                         [ngClass]="role.filtered ? 'active' : ''"
@@ -59,7 +58,6 @@
             <span class="dropdown" ngbDropdown>
                 <button
                     ngbDropdownToggle
-                    tabindex="0"
                     class="btn btn-outline-secondary"
                     type="button"
                     id="dropDownMenu2"
@@ -71,7 +69,6 @@
                 <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
                     <li
                         ngbDropdownItem
-                        tabindex="0"
                         *ngFor="let permission of permissions"
                         role="presentation"
                         [ngClass]="permission.filtered ? 'active' : ''"
@@ -153,7 +150,6 @@
                                         <li
                                             *ngFor="let role of user.availableRoles"
                                             ngbDropdownItem
-                                            tabindex="0"
                                             (click)="addRole(user, role)"
                                             (keydown.enter)="addRole(user, role)"
                                         >
@@ -193,7 +189,6 @@
                                         <li
                                             *ngFor="let role of user.removableRoles"
                                             ngbDropdownItem
-                                            tabindex="0"
                                             (click)="removeRole(user, role)"
                                             (keydown.enter)="removeRole(user, role)"
                                         >
@@ -239,7 +234,6 @@
                                         <li
                                             *ngFor="let permission of user.availablePermissions"
                                             ngbDropdownItem
-                                            tabindex="0"
                                             (click)="addPermission(user, permission)"
                                             (keydown.enter)="addPermission(user, permission)"
                                         >
@@ -276,7 +270,6 @@
                                         <li
                                             *ngFor="let permission of user.removablePermissions"
                                             ngbDropdownItem
-                                            tabindex="0"
                                             (click)="removePermission(user, permission)"
                                             (keydown.enter)="removePermission(user, permission)"
                                         >

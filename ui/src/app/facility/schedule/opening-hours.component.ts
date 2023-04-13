@@ -91,7 +91,6 @@ interface RoomWithAddressVisibility extends ExamRoom {
                         class="pointer"
                         (click)="updateNewTime(weekday)"
                         (keydown.enter)="updateNewTime(weekday)"
-                        tabindex="0"
                     >
                         <a role="menuitem" title="{{ dateTime.translateWeekdayName(weekday, true) }}">{{
                             dateTime.translateWeekdayName(weekday, true)

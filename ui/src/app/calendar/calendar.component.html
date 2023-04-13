@@ -1,7 +1,7 @@
 <div id="dashboard">
     <div class="col-md-12 mt-2">
         <div class="student-details-title-wrap">
-            <xm-history-back></xm-history-back>
+            <xm-history-back xmAutoFocus></xm-history-back>
             <h1 class="student-exam-details-title">{{ 'sitnet_calendar' | translate }}</h1>
         </div>
     </div>
@@ -136,7 +136,6 @@
                         class="btn btn-lg btn-success float-end"
                         style="width: 100%; line-height: 1.5; border-radius: 3px"
                         (click)="confirmReservation()"
-                        tabindex="0"
                     >
                         {{ 'sitnet_student_confirm_reservation' | translate }}
                     </button>
