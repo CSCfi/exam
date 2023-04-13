@@ -48,7 +48,14 @@
                                 </option>
                             </select>
                         </div>
-                        <div class="mb-3" *ngIf="byodExaminationSupported && type && type?.type !== 'PRINTOUT'">
+                        <div
+                            class="mb-3"
+                            *ngIf="
+                                (homeExaminationSupported || sebExaminationSupported) &&
+                                type &&
+                                type?.type !== 'PRINTOUT'
+                            "
+                        >
                             <label class="form-label" for="examinationType"
                                 >{{ 'sitnet_examination_type' | translate }}
                                 <sup
@@ -71,8 +78,12 @@
                                 required
                             >
                                 <option value="AQUARIUM">{{ 'sitnet_examination_type_aquarium' | translate }}</option>
-                                <option value="CLIENT_AUTH">{{ 'sitnet_examination_type_seb' | translate }}</option>
-                                <option value="WHATEVER">{{ 'sitnet_examination_type_home_exam' | translate }}</option>
+                                <option *ngIf="sebExaminationSupported" value="CLIENT_AUTH">
+                                    {{ 'sitnet_examination_type_seb' | translate }}
+                                </option>
+                                <option *ngIf="homeExaminationSupported" value="WHATEVER">
+                                    {{ 'sitnet_examination_type_home_exam' | translate }}
+                                </option>
                             </select>
                         </div>
                     </form>
@@ -81,7 +92,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12" *ngIf="byodExaminationSupported">
+        <div class="col-md-12" *ngIf="homeExaminationSupported || sebExaminationSupported">
             <div class="marl50 mart40">
                 <button class="btn btn-success" (click)="createExam()" [disabled]="!type">
                     {{ 'sitnet_create_new' | translate }}

@@ -25,6 +25,8 @@ before_script:
   - npm install
 script:
   - npm run build
+  - npm run check-format
+  - npm run check-lint
   - cd ..
   - sbt test
 
@@ -35,5 +37,6 @@ before_cache:
 
 cache:
   directories:
-    - $HOME/.ivy2/cache
+    - $HOME/.cache/coursier
+    # $HOME/.ivy2/cache
     - $HOME/.sbt

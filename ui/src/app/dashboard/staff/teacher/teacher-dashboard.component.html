@@ -41,7 +41,6 @@
                     <xm-exam-list-category
                         [items]="filteredActive"
                         defaultPredicate="examActiveEndDate"
-                        [examTypes]="executionTypes"
                         [extraData]="activeExtraData"
                         (filtered)="search($event)"
                     >
@@ -61,7 +60,6 @@
                         defaultPredicate="unassessedCount"
                         [defaultReverse]="true"
                         [extraData]="finishedExtraData"
-                        [examTypes]="executionTypes"
                         (filtered)="search($event)"
                     >
                     </xm-exam-list-category>
@@ -80,7 +78,6 @@
                         defaultPredicate="examActiveEndDate"
                         [defaultReverse]="true"
                         [extraData]="archivedExtraData"
-                        [examTypes]="executionTypes"
                         (filtered)="search($event)"
                     >
                     </xm-exam-list-category>
@@ -98,7 +95,6 @@
                         [items]="filteredDrafts"
                         defaultPredicate="examActiveEndDate"
                         [defaultReverse]="true"
-                        [examTypes]="executionTypes"
                         (filtered)="search($event)"
                     >
                     </xm-exam-list-category>

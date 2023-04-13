@@ -1,6 +1,7 @@
 import { Component, Inject, Input } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Course } from '../../exam/exam.model';
+import { CourseCodeService } from './course-code.service';
 
 @Component({
     selector: 'xm-course-code',
@@ -8,14 +9,10 @@ import type { Course } from '../../exam/exam.model';
 })
 export class CourseCodeComponent {
     @Input() course!: Course;
-    constructor(@Inject(SESSION_STORAGE) private webStorageService: WebStorageService) {}
+    constructor(
+        @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
+        private CodeService: CourseCodeService,
+    ) {}
 
-    formatCode() {
-        const prefix = this.webStorageService.get('COURSE_CODE_PREFIX');
-        if (prefix) {
-            const parts = this.course.code.split(prefix);
-            return parts.length > 1 ? parts.slice(0, parts.length - 1).join(prefix) : parts[0];
-        }
-        return this.course.code;
-    }
+    formatCode = () => this.CodeService.formatCode(this.course.code);
 }

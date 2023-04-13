@@ -21,7 +21,7 @@ import { QuestionReviewService } from '../question-review.service';
 
 @Component({
     selector: 'xm-question-reviews',
-    template: `<div>
+    template: `<div class="row ms-2 me-2">
         <div class="p-2 mt-2">
             <img class="me-3" src="/assets/images/icon_info.png" alt="info" />
             <strong>{{ 'sitnet_question_review_info' | translate }}</strong>

@@ -22,6 +22,7 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { forkJoin, noop, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
+import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import type {
     Course,
     Exam,
@@ -69,6 +70,7 @@ export class SpeedReviewComponent implements OnInit {
         private Files: FileService,
         private Attachment: AttachmentService,
         private DateTime: DateTimeService,
+        private CourseCode: CourseCodeService,
     ) {}
 
     ngOnInit() {
@@ -80,7 +82,7 @@ export class SpeedReviewComponent implements OnInit {
                     (exam) =>
                         (this.examInfo = {
                             examOwners: exam.examOwners,
-                            title: `${(exam.course as Course).code.split('_')[0]} ${exam.name}`,
+                            title: `${this.CourseCode.formatCode((exam.course as Course).code)} ${exam.name}`,
                             anonymous: exam.anonymous,
                         }),
                 ),
