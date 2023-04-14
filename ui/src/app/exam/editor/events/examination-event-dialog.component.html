@@ -72,7 +72,7 @@
         </form>
         <div class="modal-footer">
             <div class="student-message-dialog-button-save">
-                <button [disabled]="eventForm.invalid" (click)="ok()">
+                <button [disabled]="eventForm.invalid || (maxDateValidator && maxDateValidator < start)" (click)="ok()">
                     {{ 'sitnet_button_accept' | translate }}
                 </button>
             </div>
