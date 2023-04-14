@@ -31,6 +31,7 @@
         <div class="col-6">
             <div class="form-group input-group search">
                 <input
+                    xmAutoFocus
                     aria-label="search"
                     [(ngModel)]="filter.text"
                     type="text"
@@ -52,7 +53,6 @@
                     ngbDropdownItem
                     role="presentation"
                     (click)="filter.ordering = 'exam.name'; filter.reverse = false"
-                    tabindex="0"
                 >
                     {{ 'sitnet_exam_name_ascending' | translate }}
                 </button>
@@ -60,24 +60,13 @@
                     ngbDropdownItem
                     role="presentation"
                     (click)="filter.ordering = 'exam.name'; filter.reverse = true"
-                    tabindex="0"
                 >
                     {{ 'sitnet_exam_name_descending' | translate }}
                 </button>
-                <button
-                    ngbDropdownItem
-                    role="presentation"
-                    (click)="filter.ordering = 'ended'; filter.reverse = false"
-                    tabindex="0"
-                >
+                <button ngbDropdownItem role="presentation" (click)="filter.ordering = 'ended'; filter.reverse = false">
                     {{ 'sitnet_exam_participation_descending' | translate }}
                 </button>
-                <button
-                    ngbDropdownItem
-                    role="presentation"
-                    (click)="filter.ordering = 'ended'; filter.reverse = true"
-                    tabindex="0"
-                >
+                <button ngbDropdownItem role="presentation" (click)="filter.ordering = 'ended'; filter.reverse = true">
                     {{ 'sitnet_exam_participation_ascending' | translate }}
                 </button>
             </div>

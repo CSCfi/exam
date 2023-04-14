@@ -50,7 +50,6 @@
     <button
         class="pointer attachment-button green_button text-nowrap"
         [title]="exam.attachment?.fileName"
-        tabindex="0"
         (click)="downloadExamAttachment()"
     >
         {{ 'sitnet_exam_attachment' | translate }}
@@ -69,7 +68,6 @@
     <div class="col-md-12">
         <ul class="list-muted">
             <li
-                tabindex="1"
                 class="row align-items-center pointer phase-box"
                 [ngClass]="!activeSection ? '' : 'notactive'"
                 (click)="selectGuidePage()"
@@ -79,12 +77,12 @@
             </li>
 
             <li
-                tabindex="1"
                 class="row d-flex align-items-center pointer phase-box"
                 *ngFor="let section of exam.examSections | orderBy : 'sequenceNumber'; let i = index"
                 [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
                 (click)="selectSection(section)"
                 (keydown.enter)="selectSection(section)"
+                tabindex="0"
                 ngbPopover="{{ section.name }}: {{ 'sitnet_question_status_answered' | translate }}
                  {{ getQuestionAmount(section, 'answered') }}, {{ 'sitnet_questions_total' | translate }}
                  {{ getQuestionAmount(section, 'total') }}"
@@ -134,7 +132,6 @@
 <div class="row" [hidden]="!room || exam.executionType.type === 'MATURITY'">
     <div class="col-md-12">
         <button
-            tabindex="0"
             type="button"
             class="row pointer d-flex align-items-center m-0 border-none background-none"
             ngbPopover="{{ displayRoomInstructions() }}"
@@ -156,12 +153,7 @@
 
 <!-- MATURITY INSTRUCTIONS -->
 <div class="row">
-    <button
-        class="col-md-12"
-        tabindex="0"
-        (click)="showMaturityInstructions()"
-        [hidden]="exam.executionType.type !== 'MATURITY'"
-    >
+    <button class="col-md-12" (click)="showMaturityInstructions()" [hidden]="exam.executionType.type !== 'MATURITY'">
         <div class="row pointer d-flex align-items-center m-0">
             <a class="me-2">
                 <img
@@ -178,7 +170,7 @@
 </div>
 <div class="row" [hidden]="!isPreview">
     <div class="col-md-12">
-        <button tabindex="0" class="row pointer d-flex align-items-center m-0" (click)="exitPreview()">
+        <button class="row pointer d-flex align-items-center m-0" (click)="exitPreview()">
             <a class="me-2">
                 <img
                     src="/assets/images/icon_info.svg"

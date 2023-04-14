@@ -58,13 +58,13 @@
                 >
                     {{ 'sitnet_choose' | translate }}&nbsp;<span class="caret"></span>
                 </button>
-                <ul
+                <div
                     ngbDropdownMenu
                     style="padding-left: 0; min-width: 17em"
                     role="menu"
                     aria-labelledby="dropDownMenu1"
                 >
-                    <li role="presentation" class="dropdown-header input-group">
+                    <div role="presentation" class="input-group">
                         <input
                             [ngModel]="limitations.department"
                             (change)="handleDepartmentInputChange()"
@@ -77,19 +77,18 @@
                                 <i class="bi-search"></i>
                             </span>
                         </div>
-                    </li>
-                    <li
+                    </div>
+                    <button
                         ngbDropdownItem
-                        tabindex="0"
                         *ngFor="let department of filteredDepartments"
                         role="presentation"
                         [ngClass]="department.filtered ? 'active' : ''"
                         (click)="setDepartmentFilter(department)"
                         (keydown.enter)="setDepartmentFilter(department)"
                     >
-                        <a role="menuitem" title="{{ department.name }}">{{ department.name }}</a>
-                    </li>
-                </ul>
+                        {{ department.name }} {{ department.name }}
+                    </button>
+                </div>
             </span>
         </div>
         <div class="col-md">

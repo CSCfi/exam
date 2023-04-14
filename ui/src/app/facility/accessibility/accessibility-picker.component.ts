@@ -34,13 +34,13 @@ import { AccessibilityService } from './accessibility.service';
                 >
                     {{ selectedAccessibilities() }}&nbsp;<span class="caret"></span>
                 </button>
-                <ul
+                <div
                     ngbDropdownMenu
                     style="padding-left: 0; min-width: 17em"
                     role="menu"
                     aria-labelledby="dropDownMenu1"
                 >
-                    <li
+                    <button
                         ngbDropdownItem
                         *ngFor="let ac of accessibilities"
                         role="presentation"
@@ -48,11 +48,10 @@ import { AccessibilityService } from './accessibility.service';
                         [ngClass]="isSelected(ac) ? 'active' : ''"
                         (click)="updateAccessibility(ac)"
                         (keydown.enter)="updateAccessibility(ac)"
-                        tabindex="0"
                     >
-                        <a role="menuitem" title="{{ ac.name }}">{{ ac.name }}</a>
-                    </li>
-                </ul>
+                        {{ ac.name }}
+                    </button>
+                </div>
             </span>
         </div>
     </div> `,

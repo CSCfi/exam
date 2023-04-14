@@ -109,7 +109,7 @@
             <div class="row">
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_feedback_attachment' | translate }}:</div>
                 <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                    <button class="btn btn-link" tabindex="0" (click)="downloadFeedbackAttachment()">
+                    <button class="btn btn-link" (click)="downloadFeedbackAttachment()">
                         {{ assessment.examFeedback?.attachment?.fileName }}
                     </button>
                 </div>
@@ -152,7 +152,7 @@
             <div class="row">
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_statement_attachment' | translate }}:</div>
                 <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                    <button class="btn btn-link" tabindex="0" (click)="downloadStatementAttachment()">
+                    <button class="btn btn-link" (click)="downloadStatementAttachment()">
                         {{ assessment.languageInspection.statement.attachment?.fileName }}
                     </button>
                 </div>
@@ -183,7 +183,7 @@
         </div>
         <div class="row">
             <div class="col-12" *ngIf="assessmentWithAnswers">
-                <button class="btn btn-link" tabindex="0" (ngEnter)="showAnswers()" (click)="showAnswers()">
+                <button class="btn btn-link" (ngEnter)="showAnswers()" (click)="showAnswers()">
                     {{ 'sitnet_show' | translate }}
                 </button>
             </div>
@@ -210,12 +210,7 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    <button
-                        class="btn btn-link"
-                        tabindex="0"
-                        (ngEnter)="downloadScoreReport()"
-                        (click)="downloadScoreReport()"
-                    >
+                    <button class="btn btn-link" (ngEnter)="downloadScoreReport()" (click)="downloadScoreReport()">
                         {{ 'sitnet_download_report' | translate }}
                     </button>
                 </div>
