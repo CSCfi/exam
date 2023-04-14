@@ -8,26 +8,26 @@
                 <div class="hidden-mobile">
                     <img
                         src="/assets/images/exam-logo-new.svg"
-                        alt="exam"
+                        alt="{{ 'sitnet_exam_logo' | translate }}"
                         onerror="this.onerror = null;
                             this.src = '/assets/images/exam-logo-new.png'"
                     />
                 </div>
                 <div class="visible-mobile">
-                    <button class="mobile-menu" (click)="openMenu()" [hidden]="!user">
+                    <img
+                        src="/assets/images/exam-logo-mobile.svg"
+                        alt="{{ 'sitnet_exam_logo' | translate }}"
+                        onerror="this.onerror = null;
+                            this.src = '/assets/images/exam-logo-mobile.png'"
+                    />
+                    <button class="mobile-menu" (click)="openMenu()" [hidden]="!user" [attr.aria-open]="mobileMenuOpen">
                         <img
                             src="/assets/images/icon_menu_mobile.svg"
-                            alt="exam-menu-mobile"
+                            alt="{{ 'sitnet_mobile_menu' | translate }}"
                             onerror="this.onerror = null;
                                 this.src = '/assets/images/icon_menu_mobile.png'"
                         />
                     </button>
-                    <img
-                        src="/assets/images/exam-logo-mobile.svg"
-                        alt="exam-log-mobile"
-                        onerror="this.onerror = null;
-                            this.src = '/assets/images/exam-logo-mobile.png'"
-                    />
                 </div>
             </div>
             <div [hidden]="!appVersion">
@@ -40,6 +40,7 @@
                 <li *ngFor="let link of links" [hidden]="!link.visible">
                     <a [routerLink]="link.route" routerLinkActive="selected">
                         <img
+                            aria-hidden="true"
                             width="18"
                             src="/assets/images/nav/{{ link.iconPng }}"
                             alt="{{ link.route | translate }}"
@@ -53,11 +54,12 @@
                     <a class="skip" id="skip-button" [href]="getSkipLinkPath('#mainView')">{{
                         'sitnet_skip_to_content' | translate
                     }}</a>
-                    <ul class="submenu" [hidden]="!link.submenu.hidden">
+                    <ul class="submenu" [ngbCollapse]="link.submenu.hidden && link.submenu.items.length > 0">
                         <li *ngFor="let subitem of link.submenu.items" [hidden]="!subitem.visible">
                             <a [routerLink]="subitem.route" routerLinkActive="selected">
                                 <div>
                                     <img
+                                        aria-hidden="true"
                                         width="18"
                                         src="/assets/images/nav/{{ subitem.iconPng }}"
                                         alt="{{ link.route | translate }}"
@@ -75,7 +77,7 @@
             </ul>
         </div>
 
-        <div class="nav-body-mobile pt-2 pb-2" [hidden]="!mobileMenuOpen">
+        <div class="nav-body-mobile pt-2 pb-2" [ngbCollapse]="!mobileMenuOpen">
             <ul class="links">
                 <li *ngFor="let link of links" [hidden]="!link.visible">
                     <a
@@ -84,17 +86,19 @@
                         (click)="link.submenu.hidden = !link.submenu.hidden"
                     >
                         <img
+                            aria-hidden="true"
                             width="18"
                             src="/assets/images/nav/{{ link.iconPng }}"
                             alt="{{ link.route | translate }}"
                         />
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>
-                    <ul class="submenu" *ngIf="!link.submenu.hidden && link.submenu.items">
+                    <ul class="submenu" [ngbCollapse]="!link.submenu.hidden && link.submenu.items.length > 0">
                         <li *ngFor="let subitem of link.submenu.items" [hidden]="!subitem.visible">
                             <a [routerLink]="subitem.route" routerLinkActive="selected">
                                 <div>
                                     <img
+                                        aria-hidden="true"
                                         width="18"
                                         src="/assets/images/nav/{{ subitem.iconPng }}"
                                         alt="{{ link.route | translate }}"
@@ -118,15 +122,9 @@
                     </div>
                 </li>
                 <li>
-                    <button class="locale-item border-none background-none" (click)="switchLanguage('fi')" tabindex="0">
-                        FI
-                    </button>
-                    <button class="locale-item border-none background-none" (click)="switchLanguage('sv')" tabindex="0">
-                        SV
-                    </button>
-                    <button class="locale-item border-none background-none" (click)="switchLanguage('en')" tabindex="0">
-                        EN
-                    </button>
+                    <button class="locale-item border-none background-none" (click)="switchLanguage('fi')">FI</button>
+                    <button class="locale-item border-none background-none" (click)="switchLanguage('sv')">SV</button>
+                    <button class="locale-item border-none background-none" (click)="switchLanguage('en')">EN</button>
                 </li>
             </ul>
         </div>
@@ -145,15 +143,9 @@
                 </div>
             </div>
             <div class="locale-bar">
-                <button class="locale-item border-none background-none" (click)="switchLanguage('fi')" tabindex="0">
-                    FI
-                </button>
-                <button class="locale-item border-none background-none" (click)="switchLanguage('sv')" tabindex="0">
-                    SV
-                </button>
-                <button class="locale-item border-none background-none" (click)="switchLanguage('en')" tabindex="0">
-                    EN
-                </button>
+                <button class="locale-item border-none background-none" (click)="switchLanguage('fi')">FI</button>
+                <button class="locale-item border-none background-none" (click)="switchLanguage('sv')">SV</button>
+                <button class="locale-item border-none background-none" (click)="switchLanguage('en')">EN</button>
             </div>
         </div>
     </div>
