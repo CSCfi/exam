@@ -18,6 +18,7 @@ import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
+import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { ExaminationEventConfiguration, MaintenancePeriod } from '../../exam.model';
 import { ExamService } from '../../exam.service';
@@ -69,7 +70,7 @@ export class ExaminationEventDialogComponent implements OnInit {
             this.toast.error(
                 this.translate.instant('sitnet_date_too_far_in_future') +
                     ' ' +
-                    this.datePipe.transform(this.maxDateValidator || new Date(), 'dd.MM.yyyy HH:mm'),
+                    DateTime.fromJSDate(this.maxDateValidator || new Date()).toFormat('dd.MM.yyyy HH:mm'),
             );
         }
         this.start = event.date;
