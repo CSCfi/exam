@@ -70,9 +70,7 @@ public class ExaminationRepository {
                 studentExam.setParent(prototype);
             }
             studentExam.generateHash();
-
             db.save(studentExam);
-            initClozeTestQuestions(studentExam);
             enrolment.setExam(studentExam);
             db.save(enrolment);
             txn.commit();
@@ -83,7 +81,8 @@ public class ExaminationRepository {
         return result;
     }
 
-    public void initClozeTestQuestions(Exam exam) {
+    public void processClozeTestQuestions(Exam exam) {
+        Set<Question> questionsToHide = new HashSet<>();
         exam
             .getExamSections()
             .stream()
@@ -97,17 +96,8 @@ public class ExaminationRepository {
                 answer.setQuestion(esq);
                 esq.setClozeTestAnswer(answer);
                 db.update(esq);
+                questionsToHide.add(esq.getQuestion());
             });
-    }
-
-    public void processClozeTestQuestions(Exam exam) {
-        Set<Question> questionsToHide = new HashSet<>();
-        exam
-            .getExamSections()
-            .stream()
-            .flatMap(es -> es.getSectionQuestions().stream())
-            .filter(esq -> esq.getQuestion().getType() == Question.Type.ClozeTestQuestion)
-            .forEach(esq -> questionsToHide.add(esq.getQuestion()));
         questionsToHide.forEach(q -> q.setQuestion(null));
     }
 
