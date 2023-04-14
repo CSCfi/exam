@@ -1109,5 +1109,8 @@
   "sitnet_not_available": "Inte tillgänglig",
   "sitnet_external_room": "Tentamensutrymmet",
   "sitnet_enrolment_assessment_not_received": "Uudelleen ilmoittautuminen ei sallittu, edellinen tenttivierailusuoritus ei ole vielä saapunut SV",
-  "sitnet_not_allowed_to_modify_reservation": "Varaus on käynnissä ja sitä ei voi muuttaa SV"
+  "sitnet_not_allowed_to_modify_reservation": "Varaus on käynnissä ja sitä ei voi muuttaa SV",
+  "sitnet_mobile_menu": "Mobiili-menu SV",
+  "sitnet_exam_logo": "Exam-logo SV",
+  "sitnet_show_hide_clock": "Näytä/piilota aika"
 }

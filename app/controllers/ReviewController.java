@@ -205,7 +205,7 @@ public class ReviewController extends BaseController {
                     esq.setClozeTestAnswer(cta);
                     esq.update();
                 }
-                esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText);
+                esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText, true);
             });
         return writeAnonymousResult(request, ok(examParticipation), exam.isAnonymous());
     }

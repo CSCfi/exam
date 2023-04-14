@@ -23,7 +23,12 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
                 <span class="sitnet-white">{{ 'sitnet_exam_time_left' | translate }}: </span>
             </span>
             <span class="exam-clock">
-                <span *ngIf="showRemainingTime" [ngClass]="remainingTime <= alarmThreshold ? 'sitnet-text-alarm' : ''">
+                <span
+                    role="region"
+                    *ngIf="showRemainingTime"
+                    [ngClass]="remainingTime <= alarmThreshold ? 'sitnet-text-alarm' : ''"
+                    [attr.aria-live]="remainingTime <= alarmThreshold ? 'polite' : 'off'"
+                >
                     {{ formatRemainingTime() }}
                 </span>
                 <span *ngIf="!showRemainingTime" class="clock-hide text-muted">
@@ -33,7 +38,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
             <button (click)="showRemainingTime = !showRemainingTime" class="border-none background-none">
                 <img
                     src="/assets/images/icon_clock.svg"
-                    alt="clock"
+                    alt="{{ 'sitnet_show_hide_clock' | translate }}"
                     onerror="this.onerror=null;this.src='/assets/images/icon_clock.png';"
                 />
             </button>
