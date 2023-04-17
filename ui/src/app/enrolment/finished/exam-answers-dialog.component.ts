@@ -42,6 +42,7 @@ export class ExamAnswersDialogComponent implements OnInit {
 
     downloadAttachment = (answer: ExamSectionQuestion) =>
         this.Attachment.downloadQuestionAnswerAttachment(answer as AnsweredQuestion);
+    getGradeName = (grade: string): string => this.CommonExam.getExamGradeDisplayName(grade);
 
     countWords = (answer: ExamSectionQuestion) => this.CommonExam.countWords(answer.essayAnswer?.answer);
     countCharacters = (answer: ExamSectionQuestion) => this.CommonExam.countCharacters(answer.essayAnswer?.answer);

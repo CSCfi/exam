@@ -147,8 +147,7 @@
                     </td>
                     <td class="question-table-name">
                         <a *ngIf="question.attachment" class="pointer" (click)="downloadQuestionAttachment(question)">
-                            <i class="bi-paperclip"></i>
-                            {{ question.attachment.fileName }}
+                            <i class="bi-paperclip"></i>{{ question.attachment.fileName }}
                         </a>
                     </td>
                     <td>{{ printTags(question) }}</td>
