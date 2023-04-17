@@ -109,9 +109,9 @@
             <div class="row">
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_feedback_attachment' | translate }}:</div>
                 <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                    <a class="link-text pointer" (click)="downloadFeedbackAttachment()">
+                    <button class="btn btn-link" (click)="downloadFeedbackAttachment()">
                         {{ assessment.examFeedback?.attachment?.fileName }}
-                    </a>
+                    </button>
                 </div>
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">&nbsp;</div>
                 <div class="col-6 col-sm-6 col-md-3 col-lg-3">&nbsp;</div>
@@ -152,9 +152,9 @@
             <div class="row">
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_statement_attachment' | translate }}:</div>
                 <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                    <a class="link-text pointer col-md-8" (click)="downloadStatementAttachment()">
+                    <button class="btn btn-link" (click)="downloadStatementAttachment()">
                         {{ assessment.languageInspection.statement.attachment?.fileName }}
-                    </a>
+                    </button>
                 </div>
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">&nbsp;</div>
                 <div class="col-6 col-sm-6 col-md-3 col-lg-3">&nbsp;</div>
@@ -183,9 +183,9 @@
         </div>
         <div class="row">
             <div class="col-12" *ngIf="assessmentWithAnswers">
-                <a class="pointer" tabindex="0" (ngEnter)="showAnswers()" (click)="showAnswers()">
+                <button class="btn btn-link" (ngEnter)="showAnswers()" (click)="showAnswers()">
                     {{ 'sitnet_show' | translate }}
-                </a>
+                </button>
             </div>
             <div class="col-12" *ngIf="!assessmentWithAnswers">
                 {{ 'sitnet_not_available' | translate }}
@@ -210,9 +210,9 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    <a class="pointer" tabindex="0" (ngEnter)="downloadScoreReport()" (click)="downloadScoreReport()">
+                    <button class="btn btn-link" (ngEnter)="downloadScoreReport()" (click)="downloadScoreReport()">
                         {{ 'sitnet_download_report' | translate }}
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>

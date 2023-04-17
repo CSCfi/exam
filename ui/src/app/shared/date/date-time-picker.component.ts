@@ -23,6 +23,8 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angu
                     [disabled]="disabled"
                     [initialDate]="initialTime"
                     (updated)="onDateUpdate($event)"
+                    [minDate]="minDate"
+                    [maxDate]="maxDate"
                 ></xm-date-picker>
             </div>
             <div class="col" [ngClass]="disableTime ? 'disable-gray-out' : ''">
@@ -50,6 +52,8 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
 
     date: Date = new Date();
     time!: { hour: number; minute: number; second: number; millisecond?: number };
+    maxDate?: string;
+    minDate?: string;
 
     ngOnInit() {
         const now = new Date();
@@ -57,6 +61,10 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
         this.date = new Date();
         if (this.initialTime) {
             this.setDateTime(this.initialTime);
+        }
+        this.minDate = now.toISOString();
+        if (this.examMaxDate) {
+            this.maxDate = new Date(now.getTime() + new Date(this.examMaxDate).getTime()).toISOString();
         }
     }
     ngOnChanges() {

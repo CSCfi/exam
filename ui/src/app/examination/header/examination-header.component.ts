@@ -34,9 +34,9 @@ import type { Examination } from '../examination.model';
                     <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code>
                 </div>
                 <div class="language-selector">
-                    <button tabindex="1" class="green_button marl10" (click)="switchLanguage('fi')">FI</button>
-                    <button tabindex="1" class="green_button marl10" (click)="switchLanguage('sv')">SV</button>
-                    <button tabindex="1" class="green_button marl10" (click)="switchLanguage('en')">EN</button>
+                    <button class="green_button marl10" (click)="switchLanguage('fi')">FI</button>
+                    <button class="green_button marl10" (click)="switchLanguage('sv')">SV</button>
+                    <button class="green_button marl10" (click)="switchLanguage('en')">EN</button>
                     <div class="divider-free"></div>
                 </div>
                 <xm-examination-clock *ngIf="!isPreview" [examHash]="exam.hash" (timedOut)="notifyTimeout()">
@@ -63,9 +63,9 @@ import type { Examination } from '../examination.model';
                         />
                     </div>
                     <div class="language-selector col">
-                        <button tabindex="1" class="green_button marl10" (click)="switchLanguage('fi')">FI</button>
-                        <button tabindex="1" class="green_button marl10" (click)="switchLanguage('sv')">SV</button>
-                        <button tabindex="1" class="green_button marl10" (click)="switchLanguage('en')">EN</button>
+                        <button class="green_button marl10" (click)="switchLanguage('fi')">FI</button>
+                        <button class="green_button marl10" (click)="switchLanguage('sv')">SV</button>
+                        <button class="green_button marl10" (click)="switchLanguage('en')">EN</button>
                     </div>
                 </div>
             </div>

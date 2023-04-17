@@ -37,26 +37,25 @@
                 >
                     {{ 'sitnet_' + repeats.toLowerCase() | translate }}&nbsp;<span class="caret"></span>
                 </button>
-                <ul
+                <div
                     ngbDropdownMenu
                     style="padding-left: 0; min-width: 17em"
                     role="menu"
                     aria-labelledby="dropDownMenu1"
                 >
-                    <li
+                    <button
                         ngbDropdownItem
                         *ngFor="let ro of repeatOptions"
                         role="presentation"
                         class="pointer"
                         (click)="updateRepeatOption(ro)"
                         (keydown.enter)="updateRepeatOption(ro)"
-                        tabindex="0"
                     >
                         <a role="menuitem" title="{{ 'sitnet_' + ro.toLowerCase() | translate }}">{{
                             'sitnet_' + ro.toLowerCase() | translate
                         }}</a>
-                    </li>
-                </ul>
+                    </button>
+                </div>
             </span>
         </div>
         <div class="row align-items-center">
@@ -215,28 +214,27 @@
                                         class="caret"
                                     ></span>
                                 </button>
-                                <ul
+                                <div
                                     ngbDropdownMenu
                                     style="padding-left: 0; min-width: 17em"
                                     role="menu"
                                     aria-labelledby="selectWeekdayOrdinal"
                                 >
-                                    <li
+                                    <button
                                         ngbDropdownItem
                                         *ngFor="let ord of ordinals"
                                         role="presentation"
                                         class="pointer"
                                         (click)="updateOrdinal(ord)"
                                         (keydown.enter)="updateOrdinal(ord)"
-                                        tabindex="0"
                                     >
                                         <a
                                             role="menuitem"
                                             title="{{ 'sitnet_' + ord.ordinal.toLowerCase() | translate }}"
                                             >{{ 'sitnet_' + ord.ordinal.toLowerCase() | translate }}</a
                                         >
-                                    </li>
-                                </ul>
+                                    </button>
+                                </div>
                             </span>
                             <span class="dropdown" ngbDropdown>
                                 <button
@@ -249,24 +247,23 @@
                                 >
                                     {{ weekdayOfMonth.day }}&nbsp;<span class="caret"></span>
                                 </button>
-                                <ul
+                                <div
                                     ngbDropdownMenu
                                     style="padding-left: 0; min-width: 17em"
                                     role="menu"
                                     aria-labelledby="weekdayOfMonth"
                                 >
-                                    <li
+                                    <button
                                         ngbDropdownItem
                                         *ngFor="let swd of selectableWeekDays"
                                         role="presentation"
                                         class="pointer"
                                         (click)="updateDayOfMonth(swd)"
                                         (keydown.enter)="updateDayOfMonth(swd)"
-                                        tabindex="0"
                                     >
                                         <a role="menuitem" title="{{ swd.day }}">{{ swd.day }}</a>
-                                    </li>
-                                </ul>
+                                    </button>
+                                </div>
                             </span>
                         </div>
                         <div>{{ 'sitnet_period' | translate }}:</div>
@@ -337,24 +334,23 @@
                                 >
                                     {{ monthOfYear.month }}&nbsp;<span class="caret"></span>
                                 </button>
-                                <ul
+                                <div
                                     ngbDropdownMenu
                                     style="padding-left: 0; min-width: 17em"
                                     role="menu"
                                     aria-labelledby="monthOfYear"
                                 >
-                                    <li
+                                    <button
                                         ngbDropdownItem
                                         *ngFor="let swd of selectableMonths"
                                         role="presentation"
                                         class="pointer"
                                         (click)="updateMonthOfYear(swd)"
                                         (keydown.enter)="updateMonthOfYear(swd)"
-                                        tabindex="0"
                                     >
                                         <a role="menuitem" title="{{ swd.month }}">{{ swd.month }}</a>
-                                    </li>
-                                </ul>
+                                    </button>
+                                </div>
                             </span>
                         </div>
                         <div class="form-check mart10 marr5 marb5">
@@ -380,28 +376,27 @@
                                         class="caret"
                                     ></span>
                                 </button>
-                                <ul
+                                <div
                                     ngbDropdownMenu
                                     style="padding-left: 0; min-width: 17em"
                                     role="menu"
                                     aria-labelledby="selectWeekdayOrdinal2"
                                 >
-                                    <li
+                                    <button
                                         ngbDropdownItem
                                         *ngFor="let ord of ordinals"
                                         role="presentation"
                                         class="pointer"
                                         (click)="updateOrdinal(ord)"
                                         (keydown.enter)="updateOrdinal(ord)"
-                                        tabindex="0"
                                     >
                                         <a
                                             role="menuitem"
                                             title="{{ 'sitnet_' + ord.ordinal.toLowerCase() | translate }}"
                                             >{{ 'sitnet_' + ord.ordinal.toLowerCase() | translate }}</a
                                         >
-                                    </li>
-                                </ul>
+                                    </button>
+                                </div>
                             </span>
                             <span class="dropdown" ngbDropdown>
                                 <button
@@ -414,24 +409,23 @@
                                 >
                                     {{ weekdayOfMonth.day }}&nbsp;<span class="caret"></span>
                                 </button>
-                                <ul
+                                <div
                                     ngbDropdownMenu
                                     style="padding-left: 0; min-width: 17em"
                                     role="menu"
                                     aria-labelledby="dropDownMenu3"
                                 >
-                                    <li
+                                    <button
                                         ngbDropdownItem
                                         *ngFor="let swd of selectableWeekDays"
                                         role="presentation"
                                         class="pointer"
                                         (click)="updateDayOfMonth(swd)"
                                         (keydown.enter)="updateDayOfMonth(swd)"
-                                        tabindex="0"
                                     >
                                         <a role="menuitem" title="{{ swd.day }}">{{ swd.day }}</a>
-                                    </li>
-                                </ul>
+                                    </button>
+                                </div>
                             </span>
                             {{ 'sitnet_of_every' | translate }}
                             <span class="dropdown" ngbDropdown>
@@ -445,24 +439,23 @@
                                 >
                                     {{ monthOfYear.month }}&nbsp;<span class="caret"></span>
                                 </button>
-                                <ul
+                                <div
                                     ngbDropdownMenu
                                     style="padding-left: 0; min-width: 17em"
                                     role="menu"
                                     aria-labelledby="monthOfYear"
                                 >
-                                    <li
+                                    <button
                                         ngbDropdownItem
                                         *ngFor="let swd of selectableMonths"
                                         role="presentation"
                                         class="pointer"
                                         (click)="updateMonthOfYear(swd)"
                                         (keydown.enter)="updateMonthOfYear(swd)"
-                                        tabindex="0"
                                     >
                                         <a role="menuitem" title="{{ swd.month }}">{{ swd.month }}</a>
-                                    </li>
-                                </ul>
+                                    </button>
+                                </div>
                             </span>
                         </div>
                         <div>{{ 'sitnet_period' | translate }}:</div>

@@ -47,10 +47,8 @@
             <div class="col-12">
                 <div class="row align-items-center">
                     <div class="col-12">
-                        <a
-                            tabindex="0"
-                            class="infolink pointer"
-                            tabindex="0"
+                        <button
+                            class="btn btn-link"
                             (click)="showEvaluation = !showEvaluation; setCommentRead(reviewedExam)"
                             (ngEnter)="showEvaluation = !showEvaluation; setCommentRead(reviewedExam)"
                         >
@@ -58,16 +56,15 @@
                             <span [hidden]="!showEvaluation">{{ 'sitnet_comments_hide' | translate }}</span>
                             <i [hidden]="showEvaluation" class="bi bi-chevron-right ms-2" alt="hide evaluation"></i>
                             <i [hidden]="!showEvaluation" class="bi bi-chevron-down ms-2" alt="show evaluation"></i>
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row" *ngIf="showEvaluation">
-            <div class="col-12">
+        <div class="row" *ngIf="reviewedExam" [ngbCollapse]="!showEvaluation" [attr.aria-expanded]="showEvaluation">
+            <div class="col-12 ms-4">
                 <xm-exam-feedback
                     class="student-exam-row-infobox"
-                    [hidden]="!showEvaluation"
                     [assessment]="reviewedExam"
                     [participationTime]="participation.ended || ''"
                     [participationDuration]="participation.duration || 0"

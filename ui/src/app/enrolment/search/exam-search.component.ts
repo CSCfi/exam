@@ -45,6 +45,7 @@ import { ExamSearchService } from './exam-search.service';
             <div class="col-md-12">
                 <div class="form-group input-group search">
                     <input
+                        xmAutoFocus
                         aria-label="exam-search"
                         (ngModelChange)="search($event)"
                         [(ngModel)]="filter.text"

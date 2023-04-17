@@ -110,7 +110,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
         this.question = doc.body().children().toString();
     }
 
-    private void setQuestionWithResults(Document doc, String blankAnswerText) {
+    private void setQuestionWithResults(Document doc, String blankAnswerText, boolean showCorrect) {
         Map<String, String> answers = asMap(new Gson());
         Elements blanks = doc.select(CLOZE_SELECTOR);
         score = new Score();
@@ -131,7 +131,11 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             }
             b.text("");
             b.append(answer.isBlank() ? String.format("<em>%s</em>", blankAnswerText) : answer);
-            b.attr("class", isCorrectAnswer ? "cloze-correct" : "cloze-incorrect");
+            if (showCorrect) {
+                b.attr("class", isCorrectAnswer ? "cloze-correct" : "cloze-incorrect");
+            } else {
+                b.attr("class", "cloze-neutral");
+            }
             if (isNumeric) {
                 b.after("<span class=\"cloze-precision\">[&plusmn;" + precision + "]</span>");
             }
@@ -142,13 +146,13 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
     // This sets up the question, so it can be displayed for review
     public void setQuestionWithResults(JsonNode esq, String blankAnswerText) {
         Document doc = Jsoup.parse(esq.get("question").get("question").asText());
-        setQuestionWithResults(doc, blankAnswerText);
+        setQuestionWithResults(doc, blankAnswerText, true);
     }
 
     // This sets up the question, so it can be displayed for review
-    public void setQuestionWithResults(ExamSectionQuestion esq, String blankAnswerText) {
+    public void setQuestionWithResults(ExamSectionQuestion esq, String blankAnswerText, boolean showCorrect) {
         Document doc = Jsoup.parse(esq.getQuestion().getQuestion());
-        setQuestionWithResults(doc, blankAnswerText);
+        setQuestionWithResults(doc, blankAnswerText, showCorrect);
     }
 
     public Score calculateScore(ExamSectionQuestion esq) {

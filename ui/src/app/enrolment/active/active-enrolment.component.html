@@ -167,7 +167,6 @@
                 <button
                     class="infolink pointer mart10 pointer border rounded hover-grey"
                     (click)="showGuide = !showGuide"
-                    tabindex="0"
                 >
                     {{ 'sitnet_room_guidance' | translate }}
                     <img
@@ -184,7 +183,7 @@
                     />
                 </button>
             </div>
-            <div class="" [hidden]="!showGuide">
+            <div class="" [ngbCollapse]="!showGuide" [attr.aria-expanded]="showGuide">
                 {{ getRoomInstruction() }}
             </div>
         </div>
@@ -235,7 +234,6 @@
                 <div class="">
                     <span class="marr20">
                         <button
-                            tabindex="0"
                             (click)="downloadSebFile()"
                             class="text text-success pointer mart10 pointer border rounded hover-grey"
                         >
@@ -254,7 +252,6 @@
             <button
                 class="infolink pointer mart10 pointer border rounded hover-grey"
                 (click)="showMaterials = !showMaterials"
-                tabindex="0"
             >
                 {{ 'sitnet_selected_sections' | translate }}
                 <img
@@ -340,7 +337,6 @@
                 class="infolink pointer mart10 pointer border rounded hover-grey"
                 [hidden]="!enrolment.exam?.enrollInstruction && !enrolment.collaborativeExam?.enrollInstruction"
                 (click)="showInstructions = !showInstructions"
-                tabindex="0"
             >
                 {{ 'sitnet_view_instructions' | translate }}
                 <img
@@ -358,7 +354,8 @@
             </button>
             <div
                 class="border rounded col"
-                [hidden]="!showInstructions"
+                [ngbCollapse]="!showInstructions"
+                [attr.aria-expanded]="showInstructions"
                 [xmMathJax]="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction || ''"
             ></div>
         </div>
@@ -370,7 +367,7 @@
             "
             class="student-message-dialog-button-save"
         >
-            <button class="link-button pointer" (click)="makeReservation()" tabindex="0">
+            <button class="link-button pointer" (click)="makeReservation()">
                 {{ 'sitnet_student_new_reservation' | translate }}
             </button>
         </div>
@@ -382,7 +379,7 @@
             "
             class="student-message-dialog-button-save"
         >
-            <button class="link-button pointer" (click)="makeReservation()" tabindex="0">
+            <button class="link-button pointer" (click)="makeReservation()">
                 {{ 'sitnet_student_new_reservation' | translate }}
             </button>
         </div>

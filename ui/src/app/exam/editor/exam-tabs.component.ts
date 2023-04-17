@@ -19,6 +19,7 @@ import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import type { Exam } from '../exam.model';
@@ -44,6 +45,7 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
         private translate: TranslateService,
         private Session: SessionService,
         private Tabs: ExamTabService,
+        private CourseCode: CourseCodeService,
     ) {
         this.user = this.Session.getUser();
         this.examInfo = { title: null };
@@ -74,9 +76,9 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
 
     updateTitle = (code: string | null, name: string | null) => {
         if (code && name) {
-            this.examInfo.title = `${code.split('_')[0]} ${name}`;
+            this.examInfo.title = `${this.CourseCode.formatCode(code)} ${name}`;
         } else if (code) {
-            this.examInfo.title = `${code.split('_')[0]} ${this.translate.instant('sitnet_no_name')}`;
+            this.examInfo.title = `${this.CourseCode.formatCode(code)} ${this.translate.instant('sitnet_no_name')}`;
         } else if (name) {
             this.examInfo.title = name;
         } else {

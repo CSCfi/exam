@@ -37,8 +37,10 @@ import { LanguageService } from './language/language.service';
 import { MathJaxDirective } from './math/math-jax.directive';
 import { CommonExamService } from './miscellaneous/common-exam.service';
 import { CourseCodeComponent } from './miscellaneous/course-code.component';
+import { CourseCodeService } from './miscellaneous/course-code.service';
 import { PageFillPipe } from './paginator/page-fill.pipe';
 import { PaginatorComponent } from './paginator/paginator.component';
+import { AutoFocusDirective } from './select/auto-focus.directive';
 import { DropdownSelectComponent } from './select/dropdown-select.component';
 import { OrderByPipe } from './sorting/order-by.pipe';
 import { TableSortComponent } from './sorting/table-sort.component';
@@ -84,6 +86,7 @@ import { UniqueValuesValidatorDirective } from './validation/unique-values.direc
         DiffInMinutesPipe,
         DiffInDaysPipe,
         FilterByPipe,
+        AutoFocusDirective,
         MinDirective,
         MaxDirective,
         OrderByPipe,
@@ -110,6 +113,7 @@ import { UniqueValuesValidatorDirective } from './validation/unique-values.direc
         DiffInMinutesPipe,
         DiffInDaysPipe,
         FilterByPipe,
+        AutoFocusDirective,
         MinDirective,
         MaxDirective,
         OrderByPipe,
@@ -123,6 +127,7 @@ import { UniqueValuesValidatorDirective } from './validation/unique-values.direc
         LanguageService,
         CommonExamService,
         UserService,
+        CourseCodeService,
     ],
 })
 export class SharedModule {}

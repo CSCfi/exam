@@ -23,9 +23,12 @@ import controllers.iop.transfer.api.ExternalReservationHandler;
 import impl.EmailComposer;
 import impl.ExternalCourseHandler;
 import io.ebean.Ebean;
-import io.ebean.ExpressionList;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -41,9 +44,11 @@ import models.Role;
 import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import repository.EnrolmentRepository;
 import sanitizers.Attrs;
 import sanitizers.EnrolmentCourseInformationSanitizer;
 import sanitizers.EnrolmentInformationSanitizer;
@@ -65,6 +70,10 @@ public class EnrolmentController extends BaseController {
 
     private final ExternalReservationHandler externalReservationHandler;
 
+    private final EnrolmentRepository enrolmentRepository;
+
+    private final HttpExecutionContext httpExecutionContext;
+
     private final ActorSystem actor;
 
     private final DateTimeHandler dateTimeHandler;
@@ -74,6 +83,8 @@ public class EnrolmentController extends BaseController {
         EmailComposer emailComposer,
         ExternalCourseHandler externalCourseHandler,
         ExternalReservationHandler externalReservationHandler,
+        EnrolmentRepository enrolmentRepository,
+        HttpExecutionContext httpExecutionContext,
         ActorSystem actor,
         ConfigReader configReader,
         DateTimeHandler dateTimeHandler
@@ -81,6 +92,8 @@ public class EnrolmentController extends BaseController {
         this.emailComposer = emailComposer;
         this.externalCourseHandler = externalCourseHandler;
         this.externalReservationHandler = externalReservationHandler;
+        this.enrolmentRepository = enrolmentRepository;
+        this.httpExecutionContext = httpExecutionContext;
         this.actor = actor;
         this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
         this.dateTimeHandler = dateTimeHandler;
@@ -395,7 +408,7 @@ public class EnrolmentController extends BaseController {
                     enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
                 ) {
                     // External reservation, assessment not returned yet. We must wait for it to arrive first
-                    return wrapAsPromise(forbidden("Not allowed to re-enroll, external assessment not returned yet"));
+                    return wrapAsPromise(forbidden("sitnet_enrolment_assessment_not_received"));
                 }
             }
             ExamEnrolment newEnrolment = makeEnrolment(exam, user);
@@ -536,28 +549,14 @@ public class EnrolmentController extends BaseController {
 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
-    public Result getRoomInfoFromEnrolment(String hash, Http.Request request) {
+    public CompletionStage<Result> getRoomInfoFromEnrolment(String hash, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<ExamEnrolment> query = Ebean
-            .find(ExamEnrolment.class)
-            .fetch("user", "id")
-            .fetch("user.language")
-            .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
-            .where()
-            .disjunction()
-            .eq("exam.hash", hash)
-            .eq("externalExam.hash", hash)
-            .endJunction()
-            .isNotNull("reservation.machine.room");
-        if (user.hasRole(Role.Name.STUDENT)) {
-            query = query.eq("user", user);
-        }
-        ExamEnrolment enrolment = query.findOne();
-        if (enrolment == null) {
-            return notFound();
-        } else {
-            return ok(enrolment.getReservation().getMachine().getRoom());
-        }
+        return enrolmentRepository
+            .getRoomInfoForEnrolment(hash, user)
+            .thenComposeAsync(
+                room -> wrapAsPromise(room == null ? notFound() : ok(room)),
+                httpExecutionContext.current()
+            );
     }
 
     @Authenticated

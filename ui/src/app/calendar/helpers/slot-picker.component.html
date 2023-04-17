@@ -20,7 +20,6 @@
                         <button
                             class="infolink pointer border rounded"
                             *ngIf="!disabled"
-                            tabindex="0"
                             (click)="showAccessibilityMenu = !showAccessibilityMenu"
                         >
                             {{ 'sitnet_calendar_room_accessibility_info' | translate }}
@@ -40,25 +39,27 @@
                         <span *ngIf="disabled" class="text text-muted">
                             {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                         </span>
-                        <div class="row" [hidden]="!showAccessibilityMenu">
-                            <div class="col-md-12">
-                                <div class="calendar-accs-title">
-                                    {{ 'sitnet_exam_room_accessibility' | translate }}
+                        <div [ngbCollapse]="!showAccessibilityMenu" [attr.aria-expanded]="showAccessibilityMenu">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="calendar-accs-title">
+                                        {{ 'sitnet_exam_room_accessibility' | translate }}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row" [hidden]="!showAccessibilityMenu">
-                            <div class="col-md-12 calendar-accs-checkboxes">
-                                <span class="marr10 accs-list" *ngFor="let accessibility of accessibilities">
-                                    <input
-                                        aria-label="search for accessibility criteria"
-                                        type="checkbox"
-                                        role="presentation"
-                                        (click)="selectAccessibility(accessibility)"
-                                        value="{{ accessibility.name }}"
-                                    />
-                                    {{ accessibility.name }}
-                                </span>
+                            <div class="row">
+                                <div class="col-md-12 calendar-accs-checkboxes">
+                                    <span class="marr10 accs-list" *ngFor="let accessibility of accessibilities">
+                                        <input
+                                            aria-label="search for accessibility criteria"
+                                            type="checkbox"
+                                            role="presentation"
+                                            (click)="selectAccessibility(accessibility)"
+                                            value="{{ accessibility.name }}"
+                                        />
+                                        {{ accessibility.name }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </span>
@@ -75,7 +76,7 @@
                     aria-expanded="true"
                     [disabled]="(isExternal && !organisation) || disabled"
                 >
-                    {{ 'sitnet_room' | translate }}
+                    {{ isExternal ? ('sitnet_external_room' | translate) : ('sitnet_room' | translate) }}
                     <span class="caret"></span>
                 </button>
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1" class="scrollable-menu">

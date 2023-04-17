@@ -6,6 +6,7 @@ import models.{Attachment, Tag, User}
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
 import org.apache.commons.compress.compressors.CompressorStreamFactory
 import org.jsoup.Jsoup
+import org.jsoup.nodes.{Element, TextNode}
 import play.api.Logger
 import util.file.FileHandler
 
@@ -13,10 +14,12 @@ import java.io.{BufferedOutputStream, File}
 import java.nio.file.{Files, Path}
 import java.util.Base64
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
 import scala.xml._
 
 class MoodleXmlImporterImpl @Inject()(fileHandler: FileHandler) extends MoodleXmlImporter {
+
+  import scala.jdk.CollectionConverters._
+  import scala.jdk.StreamConverters._
 
   private val logger = Logger(this.getClass).logger
 
@@ -87,6 +90,32 @@ class MoodleXmlImporterImpl @Inject()(fileHandler: FileHandler) extends MoodleXm
         Some(fileHandler.createNew(name, ct, newFilePath))
     }
 
+  private def parseFileName(el: Element, attr: String): String =
+    s"[Attachment: ${el.attr(attr).dropWhile(_ != '/').tail}]"
+
+  private def parseMedia(html: String, selector: String, attr: String)(
+      ff: Element => Boolean): String = {
+    val doc      = Jsoup.parse(html)
+    val elements = doc.select(selector).stream.toScala(List).filter(ff)
+    def sourceFn: Element => Element = selector match {
+      case "audio" | "video" => _.select("source").first
+      case "img" | "a"       => identity
+    }
+    elements.foreach(el => el.replaceWith(new TextNode(parseFileName(sourceFn(el), attr))))
+    doc.body.children.toString
+  }
+
+  private def stripAttachmentTags(src: String): String = {
+    val anchorFilter: Element => Boolean = _.attr("href").contains("@@PLUGINFILE@@")
+    val mediaFilter: Element => Boolean  = _ => true
+    Seq(("img", "src", mediaFilter),
+        ("video", "src", mediaFilter),
+        ("audio", "src", mediaFilter),
+        ("a", "href", anchorFilter)).foldLeft(src) {
+      case (html, (el, attr, fn)) => parseMedia(html, el, attr)(fn)
+    }
+  }
+
   private def convertCommon(src: Node, user: User, mode: String): Question = {
     val srcText = src \ "questiontext"
     val format  = srcText.head.attribute("format").get.text
@@ -95,7 +124,7 @@ class MoodleXmlImporterImpl @Inject()(fileHandler: FileHandler) extends MoodleXm
       case _      => "<p>" + (srcText \ "text").text + "</p>"
     }
     val question = new Question
-    question.setQuestion(questionText)
+    question.setQuestion(stripAttachmentTags(questionText))
     question.setTags(tags(src, user).asJava)
     question.setCreatorWithDate(user)
     question.setModifierWithDate(user)

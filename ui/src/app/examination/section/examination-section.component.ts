@@ -64,7 +64,6 @@ import { ExaminationService } from '../examination.service';
                     [exam]="exam"
                     [isPreview]="isPreview"
                     [isCollaborative]="isCollaborative"
-                    tabindex="0"
                 ></xm-examination-question>
             </div>
         </div> `,

@@ -70,10 +70,9 @@ public class ExaminationRepository {
                 studentExam.setParent(prototype);
             }
             studentExam.generateHash();
-            studentExam.save();
+            db.save(studentExam);
             enrolment.setExam(studentExam);
-            enrolment.save();
-
+            db.save(enrolment);
             txn.commit();
             result = Optional.of(studentExam);
         } finally {
@@ -96,7 +95,7 @@ public class ExaminationRepository {
                 }
                 answer.setQuestion(esq);
                 esq.setClozeTestAnswer(answer);
-                esq.update();
+                db.update(esq);
                 questionsToHide.add(esq.getQuestion());
             });
         questionsToHide.forEach(q -> q.setQuestion(null));
@@ -106,7 +105,7 @@ public class ExaminationRepository {
         return CompletableFuture.supplyAsync(
             () -> {
                 clone.setState(Exam.State.STUDENT_STARTED);
-                clone.save();
+                db.update(clone);
                 clone.setCloned(false);
                 clone.setDerivedMaxScores();
                 processClozeTestQuestions(clone);
@@ -133,7 +132,7 @@ public class ExaminationRepository {
                                 );
                     }
                     examParticipation.setStarted(now);
-                    examParticipation.save();
+                    db.save(examParticipation);
                 }
                 return clone;
             },

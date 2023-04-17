@@ -89,7 +89,7 @@ public class ExamAnswerController extends BaseController {
                     esq.setClozeTestAnswer(cta);
                     esq.update();
                 }
-                esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText);
+                esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText, false);
             });
         exam
             .getExamSections()

@@ -74,6 +74,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
     @Input() disabled = false;
     @Input() optional = true;
     @Input() minDate?: string;
+    @Input() maxDate?: string;
 
     @Output() updated = new EventEmitter<{ date: Date | null }>();
     @Output() extraActionHappened = new EventEmitter<{ date: Date | null }>();
@@ -85,6 +86,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
     startDate!: NgbDate;
     nowDateStruct!: NgbDateStruct;
     minDateStruct!: NgbDateStruct;
+    maxDateStruct!: NgbDateStruct;
 
     ngOnInit() {
         const now = new Date();
@@ -102,10 +104,26 @@ export class DatePickerComponent implements OnInit, OnChanges {
         } else {
             this.minDateStruct = {
                 day: now.getDate(),
-                month: now.getMonth() - 1,
+                month: now.getMonth() + 1,
                 year: now.getFullYear() - 10,
             } as NgbDateStruct;
         }
+
+        if (this.maxDate) {
+            const maxDate = new Date(Date.parse(this.maxDate));
+            this.maxDateStruct = {
+                day: maxDate.getDate(),
+                month: maxDate.getMonth() + 1,
+                year: maxDate.getFullYear(),
+            } as NgbDateStruct;
+        } else {
+            this.maxDateStruct = {
+                day: now.getDate(),
+                month: now.getMonth() + 1,
+                year: now.getFullYear() + 10,
+            } as NgbDateStruct;
+        }
+
         if (!this.initiallyEmpty) {
             this.date = date;
         }
