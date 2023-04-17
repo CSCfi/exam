@@ -1106,5 +1106,6 @@
   "sitnet_room_closed_overlap": "Det finns överlappningar i rummens tidpunkter",
   "sitnet_select_room_error": "Välj minst ett examensutrymmet",
   "sitnet_examination_answer": "Frågorna och dina svar",
-  "sitnet_not_available": "Inte tillgänglig"
+  "sitnet_not_available": "Inte tillgänglig",
+  "sitnet_this_room": "This Room SV"
 }

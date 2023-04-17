@@ -1106,5 +1106,6 @@
   "sitnet_room_closed_overlap": "Huoneiden ajoissa on päällekkäisyyksiä",
   "sitnet_select_room_error": "Valitse ainakin yksi tenttitila",
   "sitnet_examination_answer": "Tenttivastaus",
-  "sitnet_not_available": "Ei saatavilla"
+  "sitnet_not_available": "Ei saatavilla",
+  "sitnet_this_room": "Tämä huone"
 }
