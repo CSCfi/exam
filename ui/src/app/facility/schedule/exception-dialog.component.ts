@@ -26,7 +26,7 @@ export class ExceptionDialogComponent {
     dateOptions = {
         'starting-day': 1,
     };
-    dateFormat = 'dd.MM.yyyy';
+    dateFormat = 'yyyy.MM.dd HH:mm';
     startDate: Date = new Date();
     endDate: Date = new Date();
     date: Date = new Date();
@@ -40,7 +40,6 @@ export class ExceptionDialogComponent {
     selectableMonths: { selected: boolean; month: string; number: number }[];
     repeatOptions: REPEAT_OPTIONS[] = Object.values(REPEAT_OPTIONS);
     repeats: REPEAT_OPTIONS = REPEAT_OPTIONS.once;
-    repeatEvery = 1;
     isNumericNotWeekday = true;
     weeks = [range(1, 8), range(8, 15), range(15, 22), range(22, 29)];
     ordinals: { ordinal: string; number: number }[] = Object.values(ORDINAL).map((o, i) => ({ ordinal: o, number: i }));
@@ -192,11 +191,12 @@ export class ExceptionDialogComponent {
                 overlapExceptions
                     .map(
                         (e) =>
-                            e.ownerRoom +
-                            ': ' +
-                            formatDate(e.startDate, 'yyyy.MM.dd HH:mm', this.translate.currentLang) +
-                            '-' +
-                            formatDate(e.endDate, 'yyyy.MM.dd HH:mm', this.translate.currentLang),
+                            e.ownerRoom ||
+                            this.translate.instant('sitnet_this_room') +
+                                ': ' +
+                                formatDate(e.startDate, this.dateFormat, this.translate.currentLang) +
+                                '-' +
+                                formatDate(e.endDate, this.dateFormat, this.translate.currentLang),
                     )
                     .toString();
             this.toast.error(message);
