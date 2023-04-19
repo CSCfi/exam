@@ -1108,12 +1108,12 @@
   "sitnet_examination_answer": "Questions and your answers",
   "sitnet_not_available": "Not available",
   "sitnet_external_room": "Exam room",
-  "sitnet_date_too_far_in_future": "Selected date is later that maximum date of:",
-  "sitnet_enrolment_assessment_not_received": "Uudelleen ilmoittautuminen ei sallittu, edellinen tenttivierailusuoritus ei ole vielä saapunut EN",
-  "sitnet_not_allowed_to_modify_reservation": "Varaus on käynnissä ja sitä ei voi muuttaa EN",
-  "sitnet_mobile_menu": "Mobiili-menu EN",
-  "sitnet_exam_logo": "Exam-logo EN",
-  "sitnet_show_hide_clock": "Näytä/piilota aika EN",
+  "sitnet_date_too_far_in_future": "Selected date is later than latest date allowed:",
+  "sitnet_enrolment_assessment_not_received": "Re-enrolment is not possible because your previous examination has not returned from exam visit university",
+  "sitnet_not_allowed_to_modify_reservation": "Your current reservation is active so you can't edit it",
+  "sitnet_mobile_menu": "Mobile menu",
+  "sitnet_exam_logo": "Exam logo",
+  "sitnet_show_hide_clock": "Show/hide time",
   "sitnet_select_time_in_future": "Time must be in future",
   "sitnet_this_room": "This Room"
 }

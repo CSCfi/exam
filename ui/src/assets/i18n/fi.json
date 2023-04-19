@@ -1108,7 +1108,7 @@
   "sitnet_examination_answer": "Tenttivastaus",
   "sitnet_not_available": "Ei saatavilla",
   "sitnet_external_room": "Tenttitila",
-  "sitnet_date_too_far_in_future": "Valittu päivämäärä on myöhemmin kuin kaukaisin mahdollinen aika:",
+  "sitnet_date_too_far_in_future": "Valittu ajankohta on myöhemmin kuin kaukaisin tällä hetkellä sallittu:",
   "sitnet_enrolment_assessment_not_received": "Uudelleen ilmoittautuminen ei sallittu, edellinen tenttivierailusuoritus ei ole vielä saapunut",
   "sitnet_not_allowed_to_modify_reservation": "Varaus on käynnissä ja sitä ei voi muuttaa",
   "sitnet_mobile_menu": "Mobiili-menu",
