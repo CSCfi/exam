@@ -1114,5 +1114,6 @@
   "sitnet_mobile_menu": "Mobile menu",
   "sitnet_exam_logo": "Exam logo",
   "sitnet_show_hide_clock": "Show/hide time",
+  "sitnet_select_time_in_future": "Time must be in future",
   "sitnet_this_room": "This Room"
 }

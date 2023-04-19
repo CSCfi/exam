@@ -33,7 +33,7 @@ export class ExaminationEventDialogComponent implements OnInit {
     @Input() maintenancePeriods: MaintenancePeriod[] = [];
     @Input() requiresPassword = false;
     @Input() examMaxDate?: string;
-    start = new Date();
+    start = new Date(new Date().getTime() + 60 * 1000);
     description = '';
     capacity = 0;
     password?: string;
@@ -57,6 +57,8 @@ export class ExaminationEventDialogComponent implements OnInit {
             this.capacity = this.config.examinationEvent.capacity;
             this.password = this.config.settingsPassword;
             this.hasEnrolments = this.config.examEnrolments.length > 0;
+        } else {
+            this.start.setMinutes(60);
         }
         if (this.examMaxDate) {
             const maxDate = new Date(Date.parse(this.examMaxDate)).getTime() - new Date(0).getTime();
@@ -66,12 +68,15 @@ export class ExaminationEventDialogComponent implements OnInit {
 
     togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');
     onStartDateChange = (event: { date: Date }) => {
-        if ((this.maxDateValidator && this.maxDateValidator < event.date) || this.now > event.date) {
+        if (this.maxDateValidator && this.maxDateValidator < event.date) {
             this.toast.error(
                 this.translate.instant('sitnet_date_too_far_in_future') +
                     ' ' +
                     DateTime.fromJSDate(this.maxDateValidator || new Date()).toFormat('dd.MM.yyyy HH:mm'),
             );
+        }
+        if (this.now > event.date) {
+            this.toast.error(this.translate.instant('sitnet_date_too_far_in_future'));
         }
         this.start = event.date;
     };
