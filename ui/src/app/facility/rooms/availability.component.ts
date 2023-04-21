@@ -61,7 +61,7 @@ export class AvailabilityComponent implements OnInit {
 
     getColor = (slot: Availability) => {
         const ratio = slot.reserved / slot.total;
-        if (ratio <= 0.5) return '#27542f'; // green;
+        if (ratio <= 0.5) return '#a6e9b2'; // green;
         if (ratio <= 0.9) return '#8f8f8f'; // grey
         return '#f50f35'; // red
     };
@@ -77,6 +77,7 @@ export class AvailabilityComponent implements OnInit {
                 start: this.adjust(slot.start, this.room?.localTimezone as string),
                 end: this.adjust(slot.end, this.room?.localTimezone as string),
                 color: this.getColor(slot),
+                textColor: 'black',
                 availableMachines: 0,
             }));
             $event.success(events);
