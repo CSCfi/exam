@@ -41,7 +41,13 @@
                     </div>
                 </div>
                 <div class="col-auto">
-                    <div class="section-header-right pointer section-box-title arrow" (click)="expanded = !expanded">
+                    <div
+                        tabindex="0"
+                        class="section-header-right pointer section-box-title arrow"
+                        [attr.aria-label]="expanded ? ('sitnet_collapse' | translate) : ('sitnet_expand' | translate)"
+                        (click)="expanded = !expanded"
+                        (keydown.enter)="expanded = !expanded"
+                    >
                         <i [ngClass]="expanded ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
                     </div>
                 </div>
@@ -64,7 +70,12 @@
             <!-- attachment -->
             <div class="row mt-3" *ngIf="sq.question.attachment && expanded">
                 <div class="col-md-12">
-                    <a class="pointer green_button left-floater-for-section" (click)="downloadQuestionAttachment()">
+                    <a
+                        class="pointer green_button left-floater-for-section"
+                        tabindex="0"
+                        (click)="downloadQuestionAttachment()"
+                        (keydown.enter)="downloadQuestionAttachment()"
+                    >
                         {{ 'sitnet_download_section_question_attachment' | translate }}
                         <img
                             src="/assets/images/icon_attachment.svg"
