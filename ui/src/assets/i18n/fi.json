@@ -1115,5 +1115,6 @@
   "sitnet_exam_logo": "Exam-logo",
   "sitnet_show_hide_clock": "Näytä/piilota aika",
   "sitnet_select_time_in_future": "Valitse aika tulevaisuudesta",
-  "sitnet_this_room": "Tämä huone"
+  "sitnet_this_room": "Tämä huone",
+  "sitnet_file_not_found_but_referred_in_database": "Tiedostoa ei voitu ladata. Sitä ei löytynyt levyltä, mutta oli referoitu tietokannassa!"
 }
