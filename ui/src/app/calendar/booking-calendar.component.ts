@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import {
+    AfterViewInit,
     ChangeDetectionStrategy,
     Component,
     EventEmitter,
@@ -48,7 +49,7 @@ import { CalendarService } from './calendar.service';
         </div>
     `,
 })
-export class BookingCalendarComponent implements OnInit, OnChanges {
+export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewInit {
     @Output() eventSelected = new EventEmitter<EventApi>();
     @Output() moreEventsNeeded = new EventEmitter<{
         date: Date;
@@ -89,14 +90,17 @@ export class BookingCalendarComponent implements OnInit, OnChanges {
     }
 
     ngOnInit() {
-        if (!this.minDate) {
-            this.calendar.getApi().render(); // TODO: see if needed
-        }
         if (this.minDate && this.maxDate) {
             this.calendarOptions.validRange = {
                 end: DateTime.fromJSDate(this.maxDate).endOf('week').toFormat('yyyy-MM-dd'),
                 start: DateTime.fromJSDate(this.minDate).startOf('week').toFormat('yyyy-MM-dd'),
             };
+        }
+    }
+
+    ngAfterViewInit() {
+        if (!this.minDate) {
+            this.calendar.getApi().render(); // TODO: see if needed
         }
     }
 
