@@ -76,7 +76,7 @@ export class ExaminationEventDialogComponent implements OnInit {
             );
         }
         if (this.now > event.date) {
-            this.toast.error(this.translate.instant('sitnet_date_too_far_in_future'));
+            this.toast.error(this.translate.instant('sitnet_select_time_in_future'));
         }
         this.start = event.date;
     };
