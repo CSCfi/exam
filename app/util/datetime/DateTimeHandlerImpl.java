@@ -33,6 +33,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.joda.time.base.AbstractInterval;
 import util.config.ConfigReader;
 
@@ -273,7 +274,8 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
             );
             int tzOffset;
             if (workingHours.isEmpty()) {
-                tzOffset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(new DateTime(date));
+                LocalTime lt = LocalTime.now().withHourOfDay(java.time.LocalTime.NOON.getHour());
+                tzOffset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(date.toDateTime(lt));
             } else {
                 tzOffset = workingHours.get(0).getTimezoneOffset();
             }
