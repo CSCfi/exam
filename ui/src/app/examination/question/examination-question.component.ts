@@ -34,6 +34,7 @@ export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
     clozeAnswer: { [key: string]: string } = {};
     expanded = true;
     sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
+    questionTitle!: string;
 
     constructor(
         private cdr: ChangeDetectorRef,
