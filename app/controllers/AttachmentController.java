@@ -395,9 +395,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     private CompletionStage<Result> serveAttachment(Attachment attachment) {
         File file = new File(attachment.getFilePath());
         if (!file.exists()) {
-            return wrapAsPromise(
-                internalServerError("Requested file does not exist on disk even though referenced from database!")
-            );
+            return wrapAsPromise(internalServerError("sitnet_file_not_found_but_referred_in_database"));
         }
         final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.toPath());
         return serveAsBase64Stream(attachment, source);

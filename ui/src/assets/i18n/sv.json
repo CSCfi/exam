@@ -1115,5 +1115,6 @@
   "sitnet_exam_logo": "Examlogo",
   "sitnet_show_hide_clock": "Visa/dölj tiden",
   "sitnet_select_time_in_future": "Välj tidpunkt i framtiden",
-  "sitnet_this_room": "Detta rum"
+  "sitnet_this_room": "Detta rum",
+  "sitnet_file_not_found_but_referred_in_database": "Requested file does not exist on disk even though referenced from database! SV"
 }

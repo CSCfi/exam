@@ -29,6 +29,8 @@ export class ExaminationEssayQuestionComponent implements OnInit {
     @Input() exam!: Examination;
     @Input() isPreview = false;
 
+    questionTitle!: string;
+
     constructor(
         private Examination: ExaminationService,
         private Attachment: AttachmentService,
@@ -40,6 +42,11 @@ export class ExaminationEssayQuestionComponent implements OnInit {
             Object.assign(this.sq, { essayAnswer: {} });
         }
         this.Examination.setQuestionColors(this.sq);
+        const html = this.sq.question.question;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const decodedString = doc.documentElement.innerText;
+        this.questionTitle = decodedString;
     }
     saveAnswer = () => this.Examination.saveTextualAnswer$(this.sq, this.exam.hash, false, false).subscribe();
     removeQuestionAnswerAttachment = () => {
