@@ -64,7 +64,12 @@
             <!-- attachment -->
             <div class="row mt-3" *ngIf="sq.question.attachment && expanded">
                 <div class="col-md-12">
-                    <a class="pointer green_button left-floater-for-section" (click)="downloadQuestionAttachment()">
+                    <a
+                        class="pointer green_button left-floater-for-section"
+                        (click)="downloadQuestionAttachment()"
+                        (keydown.enter)="downloadQuestionAttachment()"
+                        tabindex="0"
+                    >
                         {{ 'sitnet_download_section_question_attachment' | translate }}
                         <img
                             src="/assets/images/icon_attachment.svg"
