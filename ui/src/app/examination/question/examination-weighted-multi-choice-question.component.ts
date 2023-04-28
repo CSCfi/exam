@@ -20,17 +20,18 @@ import { ExaminationService } from '../examination.service';
     selector: 'xm-examination-weighted-multi-choice-question',
     template: `
         <div class="bottom-padding-2">
-            <fieldset>
+            <fieldset [attr.aria-label]="questionTitle">
                 <legend style="visibility: hidden;">answer options for multiple choice question</legend>
                 <div *ngFor="let sqo of sq.options" class="exam-answer-options">
-                    <input
-                        type="checkbox"
-                        aria-label="option"
-                        name="selectedOption"
-                        [(ngModel)]="sqo.answered"
-                        (change)="saveOption()"
-                    />
-                    {{ sqo.option.option }}
+                    <label>
+                        <input
+                            type="checkbox"
+                            name="selectedOption"
+                            [(ngModel)]="sqo.answered"
+                            (change)="saveOption()"
+                        />
+                        {{ sqo.option.option }}
+                    </label>
                 </div>
             </fieldset>
         </div>
@@ -44,12 +45,19 @@ export class ExaminationWeightedMultiChoiceComponent implements OnInit {
     @Input() isPreview = false;
     @Input() orderOptions = false;
 
+    questionTitle!: string;
+
     constructor(private Examination: ExaminationService) {}
 
     ngOnInit() {
         if (this.orderOptions) {
             this.sq.options.sort((a, b) => (a.id || -1) - (b.id || -1));
         }
+        const html = this.sq.question.question;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const decodedString = doc.documentElement.innerText;
+        this.questionTitle = decodedString;
     }
 
     saveOption = () => this.Examination.saveOption(this.examHash, this.sq, this.isPreview);

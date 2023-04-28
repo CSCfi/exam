@@ -20,19 +20,21 @@ import { ExaminationService } from '../examination.service';
     selector: 'xm-examination-multi-choice-question',
     template: `
         <div class="bottom-padding-2">
-            <fieldset>
+            <fieldset [attr.aria-label]="questionTitle">
                 <legend style="visibility: hidden;">answer options for multiple choice question</legend>
                 <div *ngFor="let sqo of sq.options" class="exam-answer-options">
-                    <input
-                        name="option-{{ sqo.id }}"
-                        id="option-{{ sqo.id }}"
-                        aria-label="option"
-                        type="radio"
-                        [value]="sqo.id"
-                        [(ngModel)]="sq.selectedOption"
-                        (change)="saveOption()"
-                    />
-                    {{ sqo.option.option }}
+                    <label>
+                        <input
+                            name="option-{{ sqo.id }}"
+                            id="option-{{ sqo.id }}"
+                            type="radio"
+                            [checked]="sqo.answered"
+                            [value]="sqo.id"
+                            [(ngModel)]="sq.selectedOption"
+                            (change)="saveOption()"
+                        />
+                        {{ sqo.option.option }}
+                    </label>
                 </div>
             </fieldset>
         </div>
@@ -54,6 +56,8 @@ export class ExaminationMultiChoiceComponent implements OnInit {
     @Input() isPreview = false;
     @Input() orderOptions = false;
 
+    questionTitle!: string;
+
     constructor(private Examination: ExaminationService) {}
 
     ngOnInit() {
@@ -70,6 +74,11 @@ export class ExaminationMultiChoiceComponent implements OnInit {
         if (answered.length === 1) {
             this.sq.selectedOption = answered[0].id as number;
         }
+        const html = this.sq.question.question;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const decodedString = doc.documentElement.innerText;
+        this.questionTitle = decodedString;
     }
 
     saveOption = () => this.Examination.saveOption(this.examHash, this.sq, this.isPreview);
