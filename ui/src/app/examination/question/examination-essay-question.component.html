@@ -61,7 +61,13 @@
             <div class="filename-text" *ngIf="!sq.essayAnswer.attachment?.fileName">
                 {{ 'sitnet_no_attachment' | translate }}
             </div>
-            <button class="pointer btn btn-success" [disabled]="isPreview" (click)="selectFile()">
+            <button
+                class="pointer btn btn-success"
+                [disabled]="isPreview"
+                (click)="selectFile()"
+                (keydown.enter)="selectFile()"
+                tabindex="0"
+            >
                 {{ 'sitnet_upload_answer_attachment' | translate }}
                 <img
                     src="/assets/images/icon_attachment.svg"
