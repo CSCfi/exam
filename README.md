@@ -1,9 +1,9 @@
-[![Build Status](https://travis-ci.org/CSCfi/exam.svg?branch=master)](https://travis-ci.org/CSCfi/exam)
+[![Build Status](https://travis-ci.org/CSCfi/exam.svg?branch=dev)](https://travis-ci.org/CSCfi/exam)
 
 EXAM Quickstart for developers
 =====================================
 
-1.  Prerequisites: install SBT, Java (11), Node (>= 12) and PostgreSQL (>= 9.4).
+1.  Prerequisites: install SBT, Java (11), Node (>= 14) and PostgreSQL (>= 9.4).
 
 2.  Create PostgreSQL database
 
@@ -64,7 +64,7 @@ You can run protractor tests with sbt build using following command:
 
 ### Passing parameters to protractor
 
-You can pass parameters to protactor using _protractor.args_ property.
+You can pass parameters to protractor using _protractor.args_ property.
 Passing multiple protractor parameters use comma (,) to separate parameters.
 
     -Dprotractor.args=--capabilities.browserName=firefox,--troubleshoot

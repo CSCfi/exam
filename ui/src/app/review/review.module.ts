@@ -14,63 +14,64 @@
  */
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
-
-import { UtilityModule } from '../utility/utility.module';
+import { SharedModule } from '../shared/shared.module';
 import { AssessmentComponent } from './assessment/assessment.component';
 import { AssessmentService } from './assessment/assessment.service';
-import { CollaborativeAssesmentService } from './assessment/collaborativeAssessment.service';
+import { CollaborativeAssesmentService } from './assessment/collaborative-assessment.service';
 import { FeedbackComponent } from './assessment/feedback/feedback.component';
 import { StatementComponent } from './assessment/feedback/statement.component';
-import { GeneralInfoComponent } from './assessment/general/generalInfo.component';
-import { NoShowComponent } from './assessment/general/noShow.component';
+import { GeneralInfoComponent } from './assessment/general/general-info.component';
+import { NoShowComponent } from './assessment/general/no-show.component';
 import { ParticipationComponent } from './assessment/general/participation.component';
 import { GradingComponent } from './assessment/grading/grading.component';
 import { InspectionComponent } from './assessment/grading/inspection.component';
 import { ToolbarComponent } from './assessment/grading/toolbar.component';
-import { InspectionCommentDialogComponent } from './assessment/maturity/dialogs/inspectionCommentDialog.component';
+import { InspectionCommentDialogComponent } from './assessment/maturity/dialogs/inspection-comment-dialog.component';
 import { MaturityGradingComponent } from './assessment/maturity/grading.component';
-import { InspectionCommentsComponent } from './assessment/maturity/inspectionComments.component';
+import { InspectionCommentsComponent } from './assessment/maturity/inspection-comments.component';
 import { MaturityService } from './assessment/maturity/maturity.service';
 import { MaturityToolbarComponent } from './assessment/maturity/toolbar.component';
-import { PrintedAssessmentComponent } from './assessment/print/printedAssessment.component';
-import { PrintedClozeTestComponent } from './assessment/print/printedClozeTest.component';
-import { PrintedEssayComponent } from './assessment/print/printedEssay.component';
-import { PrintedMultiChoiceComponent } from './assessment/print/printedMultiChoice.component';
-import { PrintedSectionComponent } from './assessment/print/printedSection.component';
-import { ClaimChoiceAnswerComponent } from './assessment/questions/claimChoiceAnswer.component';
-import { ClozeTestComponent } from './assessment/questions/clozeTest.component';
-import { EssayQuestionComponent } from './assessment/questions/essayQuestion.component';
-import { MultiChoiceAnswerComponent } from './assessment/questions/multiChoiceAnswer.component';
-import { MultiChoiceQuestionComponent } from './assessment/questions/multiChoiceQuestion.component';
-import { WeightedMultiChoiceAnswerComponent } from './assessment/questions/weightedMultiChoiceAnswer.component';
-import { ExamSectionComponent } from './assessment/sections/examSection.component';
+import { PrintedAssessmentComponent } from './assessment/print/printed-assessment.component';
+import { PrintedClozeTestComponent } from './assessment/print/printed-cloze-test.component';
+import { PrintedEssayComponent } from './assessment/print/printed-essay.component';
+import { PrintedMultiChoiceComponent } from './assessment/print/printed-multi-choice.component';
+import { PrintedSectionComponent } from './assessment/print/printed-section.component';
+import { ClaimChoiceAnswerComponent } from './assessment/questions/claim-choice-answer.component';
+import { ClozeTestComponent } from './assessment/questions/cloze-test.component';
+import { EssayQuestionComponent } from './assessment/questions/essay-question.component';
+import { MultiChoiceAnswerComponent } from './assessment/questions/multi-choice-answer.component';
+import { MultiChoiceQuestionComponent } from './assessment/questions/multi-choice-question.component';
+import { WeightedMultiChoiceAnswerComponent } from './assessment/questions/weighted-multi-choice-answer.component';
+import { ExamSectionComponent } from './assessment/sections/section.component';
 import { ArchivedReviewsComponent } from './listing/categories/archived.component';
+import { GradedLoggedReviewsComponent } from './listing/categories/graded-logged.component';
 import { GradedReviewsComponent } from './listing/categories/graded.component';
-import { GradedLoggedReviewsComponent } from './listing/categories/gradedLogged.component';
-import { InLanguageInspectionReviewsComponent } from './listing/categories/inLanguageInspection.component';
-import { InProgressReviewsComponent } from './listing/categories/inProgress.component';
+import { InLanguageInspectionReviewsComponent } from './listing/categories/in-language-inspection.component';
+import { InProgressReviewsComponent } from './listing/categories/in-progress.component';
 import { RejectedReviewsComponent } from './listing/categories/rejected.component';
-import { AbortedExamsComponent } from './listing/dialogs/abortedExams.component';
-import { ArchiveDownloadComponent } from './listing/dialogs/archiveDownload.component';
+import { AbortedExamsComponent } from './listing/dialogs/aborted.component';
+import { ArchiveDownloadComponent } from './listing/dialogs/archive-download.component';
 import { SpeedReviewFeedbackComponent } from './listing/dialogs/feedback.component';
-import { NoShowsComponent } from './listing/dialogs/noShows.component';
-import { ReviewListComponent } from './listing/reviewList.component';
-import { ReviewListService } from './listing/reviewList.service';
-import { SpeedReviewComponent } from './listing/speedReview.component';
-import { ExamSummaryComponent } from './listing/summary/examSummary.component';
-import { EssayAnswerComponent } from './questions/assessment/essayAnswer.component';
-import { EssayAnswerListComponent } from './questions/assessment/essayAnswers.component';
-import { QuestionAssessmentComponent } from './questions/assessment/questionAssessment.component';
-import { QuestionFlowComponent } from './questions/flow/questionFlow.component';
-import { QuestionFlowCategoryComponent } from './questions/flow/questionFlowCategory.component';
-import { QuestionReviewComponent } from './questions/listing/questionReview.component';
-import { QuestionReviewsComponent } from './questions/listing/questionReviews.component';
-import { QuestionReviewService } from './questions/questionReview.service';
+import { NoShowsComponent } from './listing/dialogs/no-shows.component';
+import { ReviewListResolverService } from './listing/review-list-resolver.service';
+import { ReviewListComponent } from './listing/review-list.component';
+import { ReviewListService } from './listing/review-list.service';
+import { SpeedReviewComponent } from './listing/speed-review.component';
+import { ExamSummaryComponent } from './listing/summary/exam-summary.component';
+import { ExamSummaryService } from './listing/summary/exam-summary.service';
+import { EssayAnswerComponent } from './questions/assessment/essay-answer.component';
+import { EssayAnswerListComponent } from './questions/assessment/essay-answers.component';
+import { QuestionAssessmentComponent } from './questions/assessment/question-assessment.component';
+import { QuestionFlowCategoryComponent } from './questions/flow/question-flow-category.component';
+import { QuestionFlowComponent } from './questions/flow/question-flow.component';
+import { QuestionReviewComponent } from './questions/listing/question-review.component';
+import { QuestionReviewsComponent } from './questions/listing/question-reviews.component';
+import { QuestionReviewService } from './questions/question-review.service';
 
 @NgModule({
-    imports: [NgbModule, UIRouterModule, UtilityModule, DragDropModule],
+    imports: [NgbModule, RouterModule, SharedModule, DragDropModule],
     exports: [ReviewListComponent, QuestionReviewsComponent, ExamSummaryComponent],
     declarations: [
         AssessmentComponent,
@@ -132,6 +133,8 @@ import { QuestionReviewService } from './questions/questionReview.service';
         ReviewListService,
         MaturityService,
         QuestionReviewService,
+        ExamSummaryService,
+        ReviewListResolverService,
     ],
 })
 export class ReviewModule {}

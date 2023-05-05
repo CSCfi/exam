@@ -52,6 +52,7 @@ import models.Attachment;
 import models.Comment;
 import models.Exam;
 import models.ExamEnrolment;
+import models.ExamFeedbackConfig;
 import models.ExamInspection;
 import models.ExamParticipation;
 import models.ExamType;
@@ -81,6 +82,7 @@ import play.data.DynamicForm;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import play.libs.Files.TemporaryFile;
+import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -203,7 +205,7 @@ public class ReviewController extends BaseController {
                     esq.setClozeTestAnswer(cta);
                     esq.update();
                 }
-                esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText);
+                esq.getClozeTestAnswer().setQuestionWithResults(esq, blankAnswerText, true);
             });
         return writeAnonymousResult(request, ok(examParticipation), exam.isAnonymous());
     }
@@ -232,7 +234,8 @@ public class ReviewController extends BaseController {
             .fetch("course.gradeScale.grades")
             .fetchQuery("examInspections", "ready")
             .fetch("examInspections.user", "id, firstName, lastName, email")
-            .fetchQuery("examLanguages");
+            .fetchQuery("examLanguages")
+            .fetchQuery("examEnrolments");
         query
             .where()
             .eq("parent.id", eid)
@@ -575,6 +578,34 @@ public class ReviewController extends BaseController {
         return ok();
     }
 
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    public Result hasLockedAssessments(Long eid) {
+        // if no assessments => everything
+        // if assessments and type == locked => none
+        // else date only
+        Set<Exam> assessments = Ebean
+            .find(Exam.class)
+            .where()
+            .eq("parent.id", eid)
+            .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.REJECTED)
+            //.isNotNull("parent.examFeedbackConfig")
+            .findSet();
+        if (assessments.isEmpty()) {
+            return ok(Json.newObject().put("status", "everything"));
+        } else {
+            Exam exam = Ebean.find(Exam.class, eid);
+            if (
+                exam != null &&
+                exam.getExamFeedbackConfig() != null &&
+                exam.getExamFeedbackConfig().getReleaseType() == ExamFeedbackConfig.ReleaseType.GIVEN_DATE
+            ) {
+                return ok(Json.newObject().put("status", "date"));
+            } else {
+                return ok(Json.newObject().put("status", "nothing"));
+            }
+        }
+    }
+
     private static boolean isEligibleForArchiving(Exam exam, DateTime start, DateTime end) {
         return (
             exam.hasState(Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED) &&
@@ -819,6 +850,7 @@ public class ReviewController extends BaseController {
             .fetch("exam.parent.gradeScale")
             .fetch("exam.parent.gradeScale.grades", new FetchConfig().query())
             .fetch("exam.parent.examOwners", new FetchConfig().query())
+            .fetch("exam.parent.examFeedbackConfig")
             .fetch("exam.examEnrolments")
             .fetch("exam.examEnrolments.reservation")
             .fetch("exam.examEnrolments.reservation.machine")

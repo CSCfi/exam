@@ -20,7 +20,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
 import controllers.base.BaseController;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,23 +30,25 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
+import util.config.ConfigReader;
 
 public class OrganisationController extends BaseController {
 
     @Inject
     private WSClient wsClient;
 
-    private static URL parseUrl() throws MalformedURLException {
-        return new URL(
-            ConfigFactory.load().getString("sitnet.integration.iop.host") + "/api/organisations?withFacilities=true"
-        );
+    @Inject
+    private ConfigReader configReader;
+
+    private URL parseUrl() throws MalformedURLException {
+        return new URL(configReader.getIopHost() + "/api/organisations?withFacilities=true");
     }
 
     @Restrict({ @Group("STUDENT"), @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> listOrganisations() throws MalformedURLException {
         URL url = parseUrl();
         WSRequest request = wsClient.url(url.toString());
-        String localRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
+        String localRef = configReader.getHomeOrganisationRef();
 
         Function<WSResponse, Result> onSuccess = response -> {
             JsonNode root = response.asJson();

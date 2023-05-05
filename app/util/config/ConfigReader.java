@@ -19,7 +19,8 @@ public interface ConfigReader {
     boolean isEnrolmentPermissionCheckActive();
     boolean isVisitingExaminationSupported();
     boolean isCollaborationExaminationSupported();
-    boolean isByodExaminationSupported();
+    boolean isHomeExaminationSupported();
+    boolean isSebExaminationSupported();
     boolean isCourseSearchActive();
     Map<String, String> getCourseIntegrationUrls();
     DateTime getExamExpirationDate(DateTime timeOfSubmission);
@@ -35,4 +36,21 @@ public interface ConfigReader {
     String getQuitPassword();
     String getHomeOrganisationRef();
     Integer getMaxByodExaminationParticipantCount();
+    String getCourseCodePrefix();
+    String getIopHost();
+    boolean isApiKeyUsed();
+    String getApiKeyName();
+    String getApiKeyValue();
+    String getPermissionCheckUserIdentifier();
+    String getPermissionCheckUrl();
+    String getBaseSystemUrl();
+    String getSystemAccount();
+    String getAttachmentPath();
+    String getLoginType();
+    String getCsrfCookie();
+    boolean isMultiStudentIdEnabled();
+    String getMultiStudentOrganisations();
+
+    boolean hasPath(String path);
+    String getString(String path);
 }

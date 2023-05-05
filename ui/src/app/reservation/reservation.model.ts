@@ -17,6 +17,7 @@ import type { Address, WorkingHour } from '../facility/rooms/room.service';
 import type { User } from '../session/session.service';
 
 export type DefaultWorkingHours = {
+    id?: number;
     startTime: string;
     endTime: string;
     weekday: string;
@@ -24,10 +25,10 @@ export type DefaultWorkingHours = {
 
 export type ExceptionWorkingHours = {
     id: number;
+    ownerRoom?: string;
     startDate: string;
     endDate: string;
     outOfService: boolean;
-    massEdited: boolean;
 };
 
 export type Accessibility = {

@@ -13,33 +13,32 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
-
-import { UtilityModule } from '../utility/utility.module';
-import { ClaimChoiceEditorComponent } from './basequestion/claimChoice.component';
+import { SharedModule } from '../shared/shared.module';
+import { ClaimChoiceEditorComponent } from './basequestion/claim-choice.component';
 import { EssayEditorComponent } from './basequestion/essay.component';
-import { MultipleChoiceEditorComponent } from './basequestion/multipleChoice.component';
-import { MultipleChoiceOptionEditorComponent } from './basequestion/multipleChoiceOption.component';
+import { MultipleChoiceOptionEditorComponent } from './basequestion/multiple-choice-option.component';
+import { MultipleChoiceEditorComponent } from './basequestion/multiple-choice.component';
+import { QuestionBodyComponent } from './basequestion/question-body.component';
 import { QuestionComponent } from './basequestion/question.component';
-import { QuestionBodyComponent } from './basequestion/questionBody.component';
-import { WeightedMultipleChoiceOptionEditorComponent } from './basequestion/weightedMultipleChoiceOption.component';
-import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
-import { ExamQuestionComponent } from './examquestion/examQuestion.component';
-import { ExamQuestionEditorComponent } from './examquestion/examQuestionEditor.component';
-import { LibraryFileExportComponent } from './library/export/libraryFileExport.component';
-import { LibraryTransferComponent } from './library/export/libraryTransfer.component';
+import { WeightedMultipleChoiceOptionEditorComponent } from './basequestion/weighted-multiple-choice-option.component';
+import { BaseQuestionEditorComponent } from './examquestion/base-question-editor.component';
+import { ExamQuestionEditorComponent } from './examquestion/exam-question-editor.component';
+import { ExamQuestionComponent } from './examquestion/exam-question.component';
+import { LibraryFileExportComponent } from './library/export/library-file-export.component';
+import { LibraryTransferComponent } from './library/export/library-transfer.component';
 import { LibraryComponent } from './library/library.component';
 import { LibraryService } from './library/library.service';
-import { LibraryOwnersComponent } from './library/owners/libraryOwners.component';
-import { LibraryResultsComponent } from './library/results/libraryResults.component';
-import { LibrarySearchComponent } from './library/search/librarySearch.component';
+import { LibraryOwnersComponent } from './library/owners/library-owners.component';
+import { LibraryResultsComponent } from './library/results/library-results.component';
+import { LibrarySearchComponent } from './library/search/library-search.component';
+import { QuestionSelectorComponent } from './picker/question-picker.component';
 import { QuestionService } from './question.service';
-import { QuestionSelectorComponent } from './selector/questionSelector.component';
-import { TagPickerComponent } from './tags/tagPicker.component';
+import { TagPickerComponent } from './tags/tag-picker.component';
 
 @NgModule({
-    imports: [UtilityModule, NgbModule, UIRouterModule],
+    imports: [SharedModule, NgbModule, RouterModule],
     declarations: [
         LibraryComponent,
         LibrarySearchComponent,

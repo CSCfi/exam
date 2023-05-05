@@ -20,6 +20,7 @@ import models.AutoEvaluationConfig;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamExecutionType;
+import models.ExamFeedbackConfig;
 import models.ExamType;
 import models.Grade;
 import models.GradeEvaluation;
@@ -195,7 +196,13 @@ public class ExamUpdaterImpl implements ExamUpdater {
         exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
-        exam.setImplementation(configReader.isByodExaminationSupported() ? impl : Exam.Implementation.AQUARIUM);
+        if (impl == Exam.Implementation.WHATEVER && configReader.isHomeExaminationSupported()) {
+            exam.setImplementation(impl);
+        } else if (impl == Exam.Implementation.CLIENT_AUTH && configReader.isSebExaminationSupported()) {
+            exam.setImplementation(impl);
+        } else {
+            exam.setImplementation(Exam.Implementation.AQUARIUM);
+        }
         if (
             loginRole == Role.Name.ADMIN &&
             ExamExecutionType.Type.PUBLIC.toString().equals(exam.getExecutionType().getType()) &&
@@ -217,7 +224,32 @@ public class ExamUpdaterImpl implements ExamUpdater {
 
     @Override
     public boolean isAllowedToRemove(Exam exam) {
-        return !hasFutureReservations(exam) && exam.getChildren().isEmpty();
+        return !hasFutureReservations(exam) && !hasFutureEvents(exam) && exam.getChildren().isEmpty();
+    }
+
+    @Override
+    public void updateExamFeedbackConfig(Exam exam, ExamFeedbackConfig newConfig) {
+        ExamFeedbackConfig config = exam.getExamFeedbackConfig();
+        if (newConfig == null) {
+            if (config != null) {
+                config.delete();
+                exam.setExamFeedbackConfig(null);
+            }
+        } else {
+            if (config == null) {
+                config = new ExamFeedbackConfig();
+                config.setExam(exam);
+                exam.setExamFeedbackConfig(config);
+            }
+            config.setReleaseType(newConfig.getReleaseType());
+            if (config.getReleaseType() == ExamFeedbackConfig.ReleaseType.GIVEN_DATE) {
+                config.setReleaseDate(newConfig.getReleaseDate());
+            } else {
+                config.setReleaseDate(null);
+            }
+            config.save();
+            exam.setExamFeedbackConfig(config);
+        }
     }
 
     @Override
@@ -338,6 +370,15 @@ public class ExamUpdaterImpl implements ExamUpdater {
             .anyMatch(r -> r != null && r.getEndAt().isAfter(now));
     }
 
+    private boolean hasFutureEvents(Exam exam) {
+        DateTime now = DateTime.now();
+        return exam
+            .getExamEnrolments()
+            .stream()
+            .map(ExamEnrolment::getExaminationEventConfiguration)
+            .anyMatch(eec -> eec != null && eec.getExaminationEvent().getStart().isAfter(now));
+    }
+
     private Optional<Result> getFormValidationError(boolean checkPeriod, Http.Request request) {
         String reason = null;
         if (checkPeriod) {
@@ -349,9 +390,9 @@ public class ExamUpdaterImpl implements ExamUpdater {
                 reason = "sitnet_error_end_date";
             } else if (start.get().isAfter(end.get())) {
                 reason = "sitnet_error_end_sooner_than_start";
-            } else if (end.get().isBeforeNow()) {
+            }/*else if (end.get().isBeforeNow()) { // CSCEXAM-1127
                 reason = "sitnet_error_end_sooner_than_now";
-            }
+            }*/
         }
         return reason == null ? Optional.empty() : Optional.of(badRequest(reason));
     }

@@ -12,26 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, TransitionService, UIRouterGlobals } from '@uirouter/core';
-import { clone } from 'lodash';
-import * as toast from 'toastr';
-
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { WindowRef } from '../../utility/window/window.service';
+import { ToastrService } from 'ngx-toastr';
+import { Observable, of } from 'rxjs';
+import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
+import type { User } from '../../session/session.service';
+import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import { QuestionEditQuard } from '../question-edit-guard';
+import type { QuestionDraft } from '../question.service';
 import { QuestionService } from '../question.service';
 
-import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
-import type { OnInit } from '@angular/core';
-import type { User } from '../../session/session.service';
-import type { QuestionDraft } from '../question.service';
-
 @Component({
-    selector: 'question',
+    selector: 'xm-question',
     templateUrl: './question.component.html',
 })
-export class QuestionComponent implements OnInit {
+export class QuestionComponent implements OnInit, QuestionEditQuard {
     @Input() newQuestion = false;
     @Input() questionId = 0;
     @Input() questionDraft!: Question;
@@ -39,75 +37,59 @@ export class QuestionComponent implements OnInit {
     @Input() collaborative = false;
     @Input() examId = 0;
     @Input() sectionQuestion!: ExamSectionQuestion;
-    @Input() nextState?: string;
 
-    @Output() onSave = new EventEmitter<Question | QuestionDraft>();
-    @Output() onCancel = new EventEmitter<void>();
+    @Output() saved = new EventEmitter<Question | QuestionDraft>();
+    @Output() cancelled = new EventEmitter<void>();
+
+    @ViewChild('questionForm', { static: false }) questionForm?: NgForm;
 
     currentOwners: User[] = [];
     question!: ReverseQuestion | QuestionDraft;
     transitionWatcher?: unknown;
+    cancelClicked = false;
+    nextState = '';
 
     constructor(
-        private state: StateService,
-        private routing: UIRouterGlobals,
-        private transition: TransitionService,
+        private router: Router,
+        private route: ActivatedRoute,
         private translate: TranslateService,
-        private window: WindowRef,
+        private toast: ToastrService,
         private dialogs: ConfirmationDialogService,
         private Question: QuestionService,
-    ) {
-        this.transitionWatcher = this.transition.onBefore({}, () => {
-            if (this.window.nativeWindow.onbeforeunload) {
-                // we got changes in the model, ask confirmation
-                return this.dialogs
-                    .open(
-                        this.translate.instant('sitnet_confirm_exit'),
-                        this.translate.instant('sitnet_unsaved_question_data'),
-                    )
-                    .result.then(() => {
-                        // ok to reroute
-                        this.window.nativeWindow.onbeforeunload = null;
-                        delete this.transitionWatcher;
-                    });
-            } else {
-                this.window.nativeWindow.onbeforeunload = null;
-                return true;
-            }
-        });
-    }
+    ) {}
 
     ngOnInit() {
-        this.nextState = this.nextState || this.routing.params.nextState;
+        this.nextState =
+            this.nextState || this.route.snapshot.queryParamMap.get('nextState') || this.route.snapshot.data.nextState;
+        this.newQuestion = this.newQuestion || this.route.snapshot.data.newQuestion;
+        const id = this.route.snapshot.paramMap.get('id');
         this.currentOwners = [];
         if (this.newQuestion) {
             this.question = this.Question.getQuestionDraft();
-            this.currentOwners = clone(this.question.questionOwners);
+            this.currentOwners = [...this.question.questionOwners];
         } else if (this.questionDraft && this.collaborative) {
             this.question = { ...this.questionDraft, examSectionQuestions: [] };
-            this.currentOwners = clone(this.question.questionOwners);
-            this.window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
+            this.currentOwners = [...this.question.questionOwners];
         } else {
-            this.Question.getQuestion(this.questionId || this.state.params.id).subscribe(
-                (question: ReverseQuestion) => {
+            this.Question.getQuestion(this.questionId || Number(id)).subscribe({
+                next: (question: ReverseQuestion) => {
                     this.question = question;
-                    this.currentOwners = clone(this.question.questionOwners);
-                    this.window.nativeWindow.onbeforeunload = () =>
-                        this.translate.instant('sitnet_unsaved_data_may_be_lost');
+                    this.currentOwners = [...this.question.questionOwners];
                 },
-                (error) => toast.error(error),
-            );
+                error: (err) => this.toast.error(err),
+            });
         }
     }
 
-    ngOnDestroy() {
-        this.clearListeners();
+    canDeactivate(): Observable<boolean> {
+        if (!this.cancelClicked || !this.questionForm?.dirty) {
+            return of(true);
+        }
+        return this.dialogs.open$(
+            this.translate.instant('sitnet_confirm_exit'),
+            this.translate.instant('sitnet_unsaved_question_data'),
+        );
     }
-
-    clearListeners = () => {
-        this.window.nativeWindow.onbeforeunload = null;
-        delete this.transitionWatcher;
-    };
 
     hasNoCorrectOption = () =>
         this.question.type === 'MultipleChoiceQuestion' && this.question.options.every((o) => !o.correctOption);
@@ -119,34 +101,31 @@ export class QuestionComponent implements OnInit {
     saveQuestion = () => {
         this.question.questionOwners = this.currentOwners;
         const fn = (q: Question | QuestionDraft) => {
-            this.clearListeners();
             if (this.nextState) {
-                this.state.go(this.nextState);
-            } else if (this.onSave) {
-                this.onSave.emit(q);
+                this.router.navigate(['/staff', this.nextState]);
+            } else if (this.saved) {
+                this.saved.emit(q);
             }
         };
 
         if (this.collaborative) {
             fn(this.question);
         } else if (this.newQuestion) {
-            this.Question.createQuestion(this.question as QuestionDraft).then(fn, (error) => toast.error(error));
+            this.Question.createQuestion(this.question as QuestionDraft).then(fn, (error) => this.toast.error(error));
         } else {
             this.Question.updateQuestion(this.question as Question).then(
                 () => fn(this.question),
-                (error) => toast.error(error),
+                (error) => this.toast.error(error),
             );
         }
     };
 
     cancel = () => {
-        toast.info(this.translate.instant('sitnet_canceled'));
-        // Call off the event listener so it won't ask confirmation now that we are going away
-        this.clearListeners();
+        this.cancelClicked = true;
         if (this.nextState) {
-            this.state.go(this.nextState);
-        } else if (this.onSave) {
-            this.onCancel.emit();
+            this.router.navigate(['/staff', ...this.nextState.split('/')]);
+        } else if (this.cancelled) {
+            this.cancelled.emit();
         }
     };
 }

@@ -22,7 +22,7 @@ export enum UserRole {
     ADMIN = 'ADMIN',
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ReportsService {
     constructor(private http: HttpClient) {}
 

@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamExecutionType;
@@ -25,9 +26,16 @@ import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
 import security.Authenticated;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class CollaborativeEnrolmentController extends CollaborationController {
+
+    private final DateTimeHandler dateTimeHandler;
+
+    @Inject
+    public CollaborativeEnrolmentController(DateTimeHandler dateTimeHandler) {
+        this.dateTimeHandler = dateTimeHandler;
+    }
 
     private static final Logger.ALogger logger = Logger.of(CollaborativeEnrolmentController.class);
 
@@ -57,46 +65,10 @@ public class CollaborativeEnrolmentController extends CollaborationController {
     }
 
     @Restrict({ @Group("STUDENT") })
-    public CompletionStage<Result> listExams() {
-        Optional<URL> url = parseUrl();
+    public CompletionStage<Result> searchExams(Optional<String> filter) {
+        Optional<URL> url = filter.orElse("").isEmpty() ? parseUrl() : parseUrlWithSearchParam(filter.get(), false);
         if (url.isEmpty()) {
-            return wrapAsPromise(internalServerError());
-        }
-
-        WSRequest request = wsClient.url(url.get().toString());
-        String homeOrg = configReader.getHomeOrganisationRef();
-        Function<WSResponse, Result> onSuccess = response ->
-            findExamsToProcess(response)
-                .map(items -> {
-                    List<Exam> exams = items
-                        .entrySet()
-                        .stream()
-                        .map(e -> e.getKey().getExam(e.getValue()))
-                        .filter(e -> isEnrollable(e, homeOrg))
-                        .collect(Collectors.toList());
-
-                    return ok(
-                        exams,
-                        PathProperties.parse(
-                            "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
-                            "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
-                            "enrollInstruction, implementation, examinationEventConfigurations)"
-                        )
-                    );
-                })
-                .getOrElseGet(Function.identity());
-        return request.get().thenApplyAsync(onSuccess);
-    }
-
-    @Restrict({ @Group("STUDENT") })
-    public CompletionStage<Result> searchExams(final Optional<String> filter) {
-        if (filter.isEmpty() || filter.get().isEmpty()) {
-            return wrapAsPromise(badRequest());
-        }
-
-        Optional<URL> url = parseUrlWithSearchParam(filter.get(), true);
-        if (url.isEmpty()) {
-            return wrapAsPromise(internalServerError());
+            return wrapAsPromise(internalServerError("sitnet_internal_error"));
         }
 
         WSRequest request = wsClient.url(url.get().toString());
@@ -136,7 +108,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
             .thenApplyAsync(result ->
                 checkExam(result.orElse(null), user)
                     .map(e -> {
-                        DateTime now = DateTimeUtils.adjustDST(new DateTime());
+                        DateTime now = dateTimeHandler.adjustDST(new DateTime());
                         List<ExamEnrolment> enrolments = Ebean
                             .find(ExamEnrolment.class)
                             .where()
@@ -167,7 +139,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
     }
 
     private Optional<Result> handleFutureReservations(List<ExamEnrolment> enrolments, User user, CollaborativeExam ce) {
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
         List<ExamEnrolment> enrolmentsWithFutureReservations = enrolments
             .stream()
             .filter(ee -> ee.getReservation().toInterval().isAfter(now))
@@ -212,7 +184,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                 enrolments
                     .stream()
                     .map(ExamEnrolment::getReservation)
-                    .anyMatch(r -> r.toInterval().contains(DateTimeUtils.adjustDST(DateTime.now(), r)))
+                    .anyMatch(r -> r.toInterval().contains(dateTimeHandler.adjustDST(DateTime.now(), r)))
             ) {
                 return forbidden("sitnet_reservation_in_effect");
             }

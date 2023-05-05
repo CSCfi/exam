@@ -13,19 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
-
-import { UtilityModule } from '../utility/utility.module';
-import { AdminReservationComponent } from './admin/adminReservations.component';
-import { ChangeMachineDialogComponent } from './admin/changeMachineDialog.component';
-import { RemoveReservationDialogComponent } from './admin/removeReservationDialog.component';
+import { SharedModule } from '../shared/shared.module';
+import { AdminReservationComponent } from './admin/admin-reservations.component';
+import { ChangeMachineDialogComponent } from './admin/change-machine-dialog.component';
+import { RemoveReservationDialogComponent } from './admin/remove-reservation-dialog.component';
+import { ReservationDetailsComponent } from './reservation-details.component';
 import { ReservationService } from './reservation.service';
-import { ReservationDetailsComponent } from './reservationDetails.component';
-import { TeacherReservationComponent } from './teacher/teacherReservations.component';
+import { TeacherReservationComponent } from './teacher/teacher-reservations.component';
 
 @NgModule({
-    imports: [NgbModule, UtilityModule, UIRouterModule],
+    imports: [NgbModule, SharedModule, RouterModule],
     exports: [AdminReservationComponent],
     declarations: [
         ChangeMachineDialogComponent,

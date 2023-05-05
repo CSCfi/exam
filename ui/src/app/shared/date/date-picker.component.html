@@ -1,0 +1,44 @@
+<form class="form">
+    <div class="input-group">
+        <input
+            class="form-control"
+            [disabled]="disabled"
+            [required]="!optional"
+            name="dp"
+            [(ngModel)]="date"
+            ngbDatepicker
+            #d="ngbDatepicker"
+            [footerTemplate]="footerTemplate"
+            [startDate]="startDate"
+            [minDate]="minDateStruct"
+            [maxDate]="maxDateStruct"
+            [showWeekNumbers]="true"
+            (dateSelect)="dateChange()"
+            (blur)="dateChange()"
+        />
+        <div class="input-group-append">
+            <button
+                class="btn btn-primary green rounded-0 rounded-end"
+                [disabled]="disabled"
+                (click)="d.toggle()"
+                type="button"
+            >
+                <img
+                    src="/assets/images/reservation_calendar.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='/assets/images/reservation_calendar.png';"
+                />
+            </button>
+            <!-- extra btn -->
+        </div>
+    </div>
+</form>
+<ng-template #footerTemplate>
+    <hr class="my-0" />
+    <button class="btn btn-primary btn-sm m-2 float-start" (click)="date = today; dateChange(); d.close()">
+        {{ 'sitnet_today' | translate }}
+    </button>
+    <button class="btn btn-secondary btn-sm m-2 float-end" (click)="date = null; dateCleared(); d.close()">
+        {{ 'sitnet_clear' | translate }}
+    </button>
+</ng-template>

@@ -3,7 +3,6 @@ package controllers.iop.collaboration.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import io.ebean.Ebean;
@@ -29,6 +28,7 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
+import util.config.ConfigReader;
 
 public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
 
@@ -39,11 +39,13 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     WSClient wsClient;
 
     @Inject
+    ConfigReader configReader;
+
+    @Inject
     private ExternalAttachmentLoader externalAttachmentLoader;
 
     private Optional<URL> parseUrl(String examRef) {
-        StringBuilder sb = new StringBuilder(ConfigFactory.load().getString("sitnet.integration.iop.host"))
-            .append("/api/exams");
+        StringBuilder sb = new StringBuilder(configReader.getIopHost()).append("/api/exams");
         if (examRef != null) {
             sb.append(String.format("/%s", examRef));
         }
@@ -58,10 +60,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     private Optional<URL> parseAssessmentUrl(String examRef) {
         try {
             return Optional.of(
-                new URL(
-                    ConfigFactory.load().getString("sitnet.integration.iop.host") +
-                    String.format("/api/exams/%s/assessments", examRef)
-                )
+                new URL(configReader.getIopHost() + String.format("/api/exams/%s/assessments", examRef))
             );
         } catch (MalformedURLException e) {
             logger.error("Malformed URL {}", e);
@@ -82,12 +81,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     }
 
     private Optional<URL> parseUrl(String examRef, String assessmentRef) {
-        String url = String.format(
-            "%s/api/exams/%s/assessments/%s",
-            ConfigFactory.load().getString("sitnet.integration.iop.host"),
-            examRef,
-            assessmentRef
-        );
+        String url = String.format("%s/api/exams/%s/assessments/%s", configReader.getIopHost(), examRef, assessmentRef);
         try {
             return Optional.of(new URL(url));
         } catch (MalformedURLException e) {
@@ -100,20 +94,20 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     public PathProperties getAssessmentPath() {
         String path =
             "(*, user(id, firstName, lastName, email, eppn, userIdentifier)" +
-            "exam(id, name, state, instruction, hash, implementation, duration, executionType(id, type), " +
+            "exam(id, name, state, instruction, hash, implementation, duration, trialCount, executionType(id, type), " + // exam
             "examLanguages(code), attachment(id, externalId, fileName)" +
             "autoEvaluationConfig(*, gradeEvaluations(*, grade(*)))" +
             "creditType(*), examType(*), executionType(*)" +
             "gradeScale(*, grades(*))" +
-            "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," +
-            "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " +
+            "examSections(id, name, sequenceNumber, description, lotteryOn, lotteryItemCount," + // exam.examSections
+            "sectionQuestions(id, sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType, derivedMaxScore, " + // exam.examSections.sectionQuestions
             "question(id, type, question, attachment(id, externalId, fileName), options(*))" +
             "options(*, option(*))" +
             "essayAnswer(id, answer, objectVersion, attachment(id, externalId, fileName))" +
             "clozeTestAnswer(id, question, answer, objectVersion)" +
-            ")), examEnrolments(*, user(firstName, lastName, email, eppn, userIdentifier), " +
-            "reservation(*, machine(*, room(*))) )" +
-            "))";
+            ")), examEnrolments(*, user(firstName, lastName, email, eppn, userIdentifier), " + // exam.examEnrolments
+            "reservation(*, machine(*, room(*)))" +
+            ")))";
         return PathProperties.parse(path);
     }
 
@@ -138,8 +132,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         if (ou.isEmpty()) {
             return CompletableFuture.completedFuture(false);
         }
-        WSRequest request = wsClient.url(ou.get().toString());
-        request.setContentType("application/json");
+        WSRequest request = wsClient.url(ou.get().toString()).setContentType("application/json");
         Function<WSResponse, Boolean> onSuccess = response -> {
             if (response.getStatus() != Http.Status.CREATED) {
                 logger.error("Failed in sending assessment for exam " + ref);
@@ -257,7 +250,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
 
     public CompletionStage<Result> deleteExam(CollaborativeExam ce) {
         final Optional<URL> url = parseUrl(ce.getExternalRef());
-        if (!url.isPresent()) {
+        if (url.isEmpty()) {
             return defer(Results.internalServerError());
         }
         final WSRequest request = wsClient.url(url.get().toString());

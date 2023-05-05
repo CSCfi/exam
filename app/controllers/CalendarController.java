@@ -25,12 +25,12 @@ import impl.CalendarHandler;
 import impl.EmailComposer;
 import io.ebean.Ebean;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
@@ -49,7 +49,7 @@ import sanitizers.CalendarReservationSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class CalendarController extends BaseController {
 
@@ -64,6 +64,9 @@ public class CalendarController extends BaseController {
 
     @Inject
     protected ConfigReader configReader;
+
+    @Inject
+    protected DateTimeHandler dateTimeHandler;
 
     @Inject
     protected ExternalReservationHandler externalReservationHandler;
@@ -88,7 +91,7 @@ public class CalendarController extends BaseController {
         }
         // Removal not permitted if reservation is in the past or ongoing
         final Reservation reservation = enrolment.getReservation();
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), reservation);
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
             return forbidden("sitnet_reservation_in_effect");
         }
@@ -144,6 +147,16 @@ public class CalendarController extends BaseController {
                 return Optional.of(forbidden("No optional sections selected. At least one needed"));
             }
         }
+        if (
+            oldReservation != null &&
+            oldReservation.getExternalRef() != null &&
+            !oldReservation.getStartAt().isAfter(dateTimeHandler.adjustDST(DateTime.now())) &&
+            !enrolment.isNoShow() &&
+            enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
+        ) {
+            // External reservation, assessment not returned yet. We must wait for it to arrive first
+            return Optional.of(forbidden("sitnet_enrolment_assessment_not_received"));
+        }
 
         return Optional.empty();
     }
@@ -152,7 +165,7 @@ public class CalendarController extends BaseController {
     @Restrict({ @Group("STUDENT") })
     public Result getCurrentEnrolment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
         Optional<ExamEnrolment> enrolment = Ebean
             .find(ExamEnrolment.class)
             .fetch("optionalSections")
@@ -177,7 +190,7 @@ public class CalendarController extends BaseController {
         Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), room);
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now(), room);
         final User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         // Start manual transaction.
         Ebean.beginTransaction();
@@ -241,7 +254,12 @@ public class CalendarController extends BaseController {
                         .removeReservation(oldReservation, user, "")
                         .thenCompose(result -> {
                             // Refetch enrolment
-                            ExamEnrolment updatedEnrolment = Ebean.find(ExamEnrolment.class, enrolment.getId());
+                            ExamEnrolment updatedEnrolment = Ebean
+                                .find(ExamEnrolment.class)
+                                .fetch("exam.executionType")
+                                .where()
+                                .idEq(enrolment.getId())
+                                .findOne();
                             if (updatedEnrolment == null) {
                                 return wrapAsPromise(notFound());
                             }
@@ -277,6 +295,9 @@ public class CalendarController extends BaseController {
             Set<ExamSection> sections = Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
             enrolment.setOptionalSections(sections);
         }
+        if (enrolment.getExam().isPrivate()) {
+            enrolment.setNoShow(false);
+        }
         Ebean.save(enrolment);
         Exam exam = enrolment.getExam();
         // Send some emails asynchronously
@@ -296,23 +317,19 @@ public class CalendarController extends BaseController {
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
-    public Result getSlots(Long examId, Long roomId, String day, String aids, Http.Request request) {
+    public Result getSlots(Long examId, Long roomId, String day, Optional<List<Integer>> aids, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment ee = getEnrolment(examId, user);
         // Sanity check so that we avoid accidentally getting reservations for SEB exams
         if (ee == null || ee.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
             return forbidden("sitnet_error_enrolment_not_found");
         }
-        Collection<Integer> accessibilityIds = Stream
-            .of(aids.split(","))
-            .filter(s -> !s.isEmpty())
-            .map(Integer::parseInt)
-            .collect(Collectors.toList());
+        List<Integer> accessibilityIds = aids.orElse(Collections.emptyList());
         return calendarHandler.getSlots(user, ee.getExam(), roomId, day, accessibilityIds);
     }
 
     protected ExamEnrolment getEnrolment(Long examId, User user) {
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
         return Ebean
             .find(ExamEnrolment.class)
             .fetch("exam")

@@ -8,7 +8,7 @@
     <div class="top-row" *ngIf="config">
         <div class="col-md-12 form-group">
             <label for="editor">{{ 'sitnet_user_agreement' | translate }}</label>
-            <ckeditor
+            <xm-ckeditor
                 id="editor"
                 #ck="ngModel"
                 name="editor"
@@ -16,10 +16,10 @@
                 rows="10"
                 cols="80"
                 [(ngModel)]="config.eula"
-            ></ckeditor>
+            ></xm-ckeditor>
         </div>
     </div>
-    <div class="bottom-row">
+    <div class="bottom-row mart10">
         <div class="col-md-12">
             <button (click)="updateAgreement()" class="btn btn-success">
                 {{ 'sitnet_button_save' | translate }}
@@ -28,7 +28,7 @@
     </div>
 
     <div class="top-row" *ngIf="config">
-        <div class="col-md-2 form-group">
+        <div class="col-md-2 form-group max-w-350">
             <label for="deadline">{{ 'sitnet_review_deadline' | translate }} ({{ 'sitnet_days' | translate }})</label>
             <input
                 id="deadline"
@@ -44,7 +44,7 @@
             />
         </div>
     </div>
-    <div class="bottom-row">
+    <div class="bottom-row mart10">
         <div class="col-md-12">
             <button (click)="updateDeadline()" class="btn btn-success">
                 {{ 'sitnet_button_save' | translate }}
@@ -53,7 +53,7 @@
     </div>
 
     <div class="top-row" *ngIf="config">
-        <div class="col-md-2 form-group">
+        <div class="col-md-2 form-group max-w-350">
             <label for="reservationWindow"
                 >{{ 'sitnet_reservation_window' | translate }} ({{ 'sitnet_days' | translate }})</label
             >
@@ -71,7 +71,7 @@
             />
         </div>
     </div>
-    <div class="bottom-row">
+    <div class="bottom-row mart10">
         <div class="col-md-12">
             <button (click)="updateReservationWindow()" class="btn btn-success">
                 {{ 'sitnet_button_save' | translate }}
@@ -79,9 +79,10 @@
         </div>
     </div>
 
-    <div class="top-row" *ngIf="config">
-        <div class="col-md-12">
-            <ul>
+    <div class="row mt-4 ms-2">
+        <div class="col-md-6">
+            <strong>{{ 'sitnet_exam_instance_settings' | translate }}</strong>
+            <ul *ngIf="config">
                 <li>
                     <strong>{{ 'sitnet_interoperable' | translate }}:</strong>&nbsp;
                     <span *ngIf="config.isExamVisitSupported">{{ 'DIALOGS_YES' | translate }}</span>
@@ -128,13 +129,21 @@
                 <ul>
                     <li>
                         <strong>{{ 'sitnet_student' | translate }}:</strong>&nbsp;
-                        {{ config.roles.STUDENT.join(',
-                        ') }}
+                        {{
+                            config.roles.STUDENT.join(
+                                ',
+                        '
+                            )
+                        }}
                     </li>
                     <li>
                         <strong>{{ 'sitnet_teacher' | translate }}:</strong>&nbsp;
-                        {{ config.roles.TEACHER.join(',
-                        ') }}
+                        {{
+                            config.roles.TEACHER.join(
+                                ',
+                        '
+                            )
+                        }}
                     </li>
                     <li>
                         <strong>{{ 'sitnet_admin' | translate }}:</strong>&nbsp; {{ config.roles.ADMIN.join(', ') }}
@@ -142,14 +151,16 @@
                 </ul>
                 <li>
                     <strong>{{ 'sitnet_exam_durations' | translate }}:</strong>&nbsp;{{
-                        config.examDurations.join(',
-                    ')
+                        config.examDurations.join(
+                            ',
+                    '
+                        )
                     }}
                 </li>
                 <li>
                     <strong>{{ 'sitnet_grade_scale_overridable' | translate }}:</strong>&nbsp;
-                    <span *ngIf="config.isGradeScaleOverridable">{{ 'DIALOGS_YES' | translate }}</span>
-                    <span *ngIf="!config.isGradeScaleOverridable">{{ 'DIALOGS_NO' | translate }}</span>
+                    <span *ngIf="!config.isGradeScaleOverridable">{{ 'DIALOGS_YES' | translate }}</span>
+                    <span *ngIf="config.isGradeScaleOverridable">{{ 'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
                     <strong>{{ 'sitnet_attachment_max_size' | translate }}:</strong>&nbsp;{{
@@ -168,25 +179,13 @@
                 </li>
             </ul>
         </div>
-    </div>
-
-    <div class="main-row"></div>
-    <div class="top-row">
-        <div class="col-md-12">
-            <ul [hidden]="!attributes">
+        <div class="col-md-6">
+            <strong>{{ 'sitnet_show_http_headers' | translate }}</strong>
+            <ul>
                 <li *ngFor="let item of attributes | keyvalue">
                     <strong>{{ item.key }}:</strong>&nbsp;{{ item.value }}
                 </li>
             </ul>
-        </div>
-    </div>
-
-    <div class="bottom-row">
-        <div class="col-md-12">
-            <a [hidden]="attributes" (click)="showAttributes()" class="pointer">{{
-                'sitnet_show_http_headers' | translate
-            }}</a>
-            <a class="pointer" [hidden]="!attributes" (click)="attributes = []">{{ 'sitnet_hide' | translate }}</a>
         </div>
     </div>
 </div>

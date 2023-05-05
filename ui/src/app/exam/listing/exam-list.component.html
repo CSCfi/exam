@@ -1,0 +1,221 @@
+<div id="sitnet-header" class="header">
+    <div class="col-md-12 header-wrapper">
+        <span class="header-text">{{ 'sitnet_exams' | translate }}</span>
+    </div>
+</div>
+
+<div id="dashboard">
+    <!-- toolbar -->
+    <div class="top-row">
+        <div class="col-md-12">
+            <button class="btn btn-primary float-end" (click)="newExam()">
+                {{ 'sitnet_toolbar_new_exam' | translate }}
+            </button>
+        </div>
+    </div>
+
+    <!-- TAB NAVIGATION -->
+    <div class="main-row">
+        <div class="col-md-12">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="activeId" class="nav-tabs">
+                <li role="presentation" [ngbNavItem]="0">
+                    <a ngbNavLink>
+                        {{ 'sitnet_published_exams' | translate }}
+                        <span class="badge bg-secondary">{{
+                            filterByStateAndExpiration('PUBLISHED', false).length
+                        }}</span>
+                    </a>
+                </li>
+                <li role="presentation" [ngbNavItem]="1">
+                    <a ngbNavLink>
+                        {{ 'sitnet_expired_exams' | translate }}
+                        <span class="badge bg-secondary">{{
+                            filterByStateAndExpiration('PUBLISHED', true).length
+                        }}</span>
+                    </a>
+                </li>
+                <li role="presentation" [ngbNavItem]="2">
+                    <a ngbNavLink>
+                        {{ 'sitnet_saved_exams' | translate }}
+                        <span class="badge bg-secondary">{{ filterByState('SAVED').length }}</span>
+                    </a>
+                </li>
+                <li role="presentation" [ngbNavItem]="3">
+                    <a ngbNavLink>
+                        {{ 'sitnet_draft_exams' | translate }}
+                        <span class="badge bg-secondary">{{ filterByState('DRAFT').length }}</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="detail-row mt-3">
+        <div class="col-md-4">
+            <div class="form-group input-group">
+                <input
+                    (keyup)="search($event)"
+                    type="text"
+                    class="form-control"
+                    placeholder="{{ 'sitnet_search' | translate }}"
+                    ngbPopover="{{ 'sitnet_exam_search_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                />
+
+                <div class="input-group-append search">
+                    <img class="nopad" src="/assets/images/icon_search.png" alt="search-icon" width="45" height="38" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-row" *ngIf="loader.loading">
+        <div class="col-md-12">
+            <button class="btn btn-success" type="button" disabled>
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                {{ 'sitnet_searching' | translate }}...
+            </button>
+        </div>
+    </div>
+
+    <div [hidden]="exams.length === 0 || loader.loading" style="min-height: 700px">
+        <div class="detail-row">
+            <div class="col-md-12">
+                <table class="table table-striped table-sm exams-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse"
+                                    [predicate]="examsPredicate"
+                                    by="course.code"
+                                    text="sitnet_examcode"
+                                    (click)="setPredicate('course.code')"
+                                ></xm-table-sort>
+                            </th>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse"
+                                    [predicate]="examsPredicate"
+                                    by="name"
+                                    text="sitnet_exam_name"
+                                    (click)="setPredicate('name')"
+                                ></xm-table-sort>
+                            </th>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse"
+                                    [predicate]="examsPredicate"
+                                    by="executionType.id"
+                                    text="sitnet_exam_credit_type"
+                                    (click)="setPredicate('executionType.id')"
+                                ></xm-table-sort>
+                            </th>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse"
+                                    [predicate]="examsPredicate"
+                                    by="ownerAggregate"
+                                    text="sitnet_teachers"
+                                    (click)="setPredicate('ownerAggregate')"
+                                ></xm-table-sort>
+                            </th>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse"
+                                    [predicate]="examsPredicate"
+                                    by="examActiveStartDate"
+                                    text="sitnet_start_time"
+                                    (click)="setPredicate('examActiveStartDate')"
+                                ></xm-table-sort>
+                            </th>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse"
+                                    [predicate]="examsPredicate"
+                                    by="examActiveEndDate"
+                                    text="sitnet_end_time"
+                                    (click)="setPredicate('examActiveEndDate')"
+                                ></xm-table-sort>
+                            </th>
+                            <th>{{ 'sitnet_copy' | translate }}</th>
+                            <th>{{ 'sitnet_exam_remove' | translate }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            *ngFor="
+                                let exam of filterByStateAndExpiration(
+                                    views[activeId].view,
+                                    views[activeId].showExpired
+                                ) | orderBy : examsPredicate : reverse
+                            "
+                        >
+                            <td><xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code></td>
+                            <td>
+                                <a
+                                    *ngIf="exam.name"
+                                    class="exams-info-title bold-button"
+                                    [routerLink]="['/staff/exams', exam.id, '1']"
+                                    >{{ exam.name }}</a
+                                >
+                                <a
+                                    *ngIf="!exam.name"
+                                    class="exams-info-title bold-button text-danger"
+                                    [routerLink]="['/staff/exams', exam.id, '1']"
+                                    >{{ 'sitnet_no_name' | translate }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ getExecutionTypeTranslation(exam) | translate | uppercase }}
+                            </td>
+                            <td>
+                                <xm-teacher-list [exam]="exam"></xm-teacher-list>
+                            </td>
+                            <td>
+                                <span *ngIf="exam.examActiveStartDate">
+                                    {{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }}
+                                </span>
+                            </td>
+                            <td>
+                                <span *ngIf="exam.examActiveEndDate">
+                                    {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <!-- todo: make a modal component out of this -->
+                                <a (click)="copyExam(exam)" class="pointer">
+                                    <i class="bi-files"></i>
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <a (click)="deleteExam(exam)" class="pointer">
+                                    <i class="bi-x sitnet-red"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="detail-row" *ngIf="views[activeId].view === 'PUBLISHED' && !views[activeId].showExpired">
+            <div class="col-md-12">
+                <strong>{{ 'sitnet_published_exams' | translate }}: </strong>
+                <em class="sitnet-text-medium"
+                    >{{ 'sitnet_published_exams_info_main' | translate }}
+                    {{ 'sitnet_published_exams_info_other' | translate }}</em
+                >
+            </div>
+        </div>
+        <div class="bottom-row" *ngIf="views[activeId].view === 'SAVED'">
+            <div class="col-md-12">
+                <strong>{{ 'sitnet_saved_exams' | translate }}: </strong>
+                <em class="sitnet-text-medium"
+                    >{{ 'sitnet_saved_exams_info_main' | translate }}
+                    {{ 'sitnet_saved_exams_info_other' | translate }}</em
+                >
+            </div>
+        </div>
+    </div>
+</div>

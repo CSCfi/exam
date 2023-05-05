@@ -9,12 +9,11 @@ import io.ebean.Ebean;
 import io.ebean.text.PathProperties;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
@@ -33,7 +32,7 @@ import sanitizers.Attrs;
 import sanitizers.CalendarReservationSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class CollaborativeCalendarController extends CollaborationController {
 
@@ -45,6 +44,9 @@ public class CollaborativeCalendarController extends CollaborationController {
 
     @Inject
     ActorSystem system;
+
+    @Inject
+    DateTimeHandler dateTimeHandler;
 
     private static final Logger.ALogger logger = Logger.of(CollaborativeCalendarController.class);
 
@@ -95,7 +97,7 @@ public class CollaborativeCalendarController extends CollaborationController {
         Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
 
         ExamRoom room = Ebean.find(ExamRoom.class, roomId);
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now(), room);
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now(), room);
         final User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
 
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
@@ -188,7 +190,13 @@ public class CollaborativeCalendarController extends CollaborationController {
 
     @Authenticated
     @Restrict({ @Group("STUDENT") })
-    public CompletionStage<Result> getSlots(Long examId, Long roomId, String day, String aids, Http.Request request) {
+    public CompletionStage<Result> getSlots(
+        Long examId,
+        Long roomId,
+        String day,
+        Optional<List<Integer>> aids,
+        Http.Request request
+    ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
         if (ce == null) {
@@ -207,17 +215,13 @@ public class CollaborativeCalendarController extends CollaborationController {
                 if (!exam.hasState(Exam.State.PUBLISHED)) {
                     return notFound("sitnet_error_exam_not_found");
                 }
-                Collection<Integer> accessibilityIds = Stream
-                    .of(aids.split(","))
-                    .filter(s -> !s.isEmpty())
-                    .map(Integer::parseInt)
-                    .collect(Collectors.toList());
+                List<Integer> accessibilityIds = aids.orElse(Collections.emptyList());
                 return calendarHandler.getSlots(user, exam, roomId, day, accessibilityIds);
             });
     }
 
     private ExamEnrolment getEnrolledExam(Long examId, User user) {
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
         return Ebean
             .find(ExamEnrolment.class)
             .where()

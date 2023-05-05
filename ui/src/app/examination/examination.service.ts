@@ -14,42 +14,44 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
-import { isEmpty, isInteger } from 'lodash';
-import { concat, throwError } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { WindowRef } from '../utility/window/window.service';
-
-import type { Observable } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { concat, Observable, of, throwError } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import type { ClozeTestAnswer, EssayAnswer } from '../exam/exam.model';
-import type { ExaminationQuestion, Examination, ExaminationSection } from './examination.model';
-@Injectable()
+import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
+
+@Injectable({ providedIn: 'root' })
 export class ExaminationService {
     isExternal = false;
 
     constructor(
-        private state: StateService,
+        private router: Router,
         private http: HttpClient,
         private translate: TranslateService,
-        private Window: WindowRef,
+        private toast: ToastrService,
     ) {}
 
     getResource = (url: string) => (this.isExternal ? url.replace('/app/', '/app/iop/') : url);
 
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
-        const url = isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + hash;
+        const getUrl = (h: string) => (isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + h);
         return this.http.get<void>('/app/session').pipe(
-            switchMap(() => this.http.get<Examination>(isCollaboration ? url.replace('/app/', '/app/iop/') : url)),
-            tap((e) => {
-                if (e.cloned) {
-                    // we came here with a reference to the parent exam so do not render page just yet,
-                    // reload with reference to student exam that we just created
-                    this.state.go('examination', { hash: e.hash });
-                }
+            switchMap(() =>
+                this.http.get<Examination>(isCollaboration ? getUrl(hash).replace('/app/', '/app/iop/') : getUrl(hash)),
+            ),
+            switchMap((e) => {
                 this.isExternal = e.external;
+                if (e.cloned) {
+                    this.router.navigate(['/exam', e.hash]);
+                    // we came here with a reference to the parent exam so we can't directly use it, reload the student exam (copy)
+                    return this.http.get<Examination>(
+                        isCollaboration ? getUrl(e.hash).replace('/app/', '/app/iop/') : getUrl(e.hash),
+                    );
+                } else {
+                    return of(e);
+                }
             }),
         );
     }
@@ -82,7 +84,7 @@ export class ExaminationService {
                     esq.autosaved = new Date();
                 } else {
                     if (!canFail) {
-                        toast.info(this.translate.instant('sitnet_answer_saved'));
+                        this.toast.info(this.translate.instant('sitnet_answer_saved'));
                     }
                 }
                 answerObj.objectVersion = a.objectVersion;
@@ -90,22 +92,11 @@ export class ExaminationService {
             }),
             catchError((err) => {
                 if (!canFail) {
-                    toast.error(err);
+                    this.toast.error(err);
                 }
-                return throwError(err);
+                return throwError(() => new Error(err));
             }),
         );
-    };
-
-    private isTextualAnswer = (esq: ExaminationQuestion, allowEmpty: boolean) => {
-        switch (esq.question.type) {
-            case 'EssayQuestion':
-                return esq.essayAnswer && (allowEmpty || (esq.essayAnswer.answer && esq.essayAnswer.answer.length > 0));
-            case 'ClozeTestQuestion':
-                return esq.clozeTestAnswer && (allowEmpty || !isEmpty(esq.clozeTestAnswer.answer));
-            default:
-                return false;
-        }
     };
 
     saveAllTextualAnswersOfSection$ = (
@@ -125,13 +116,6 @@ export class ExaminationService {
             ...exam.examSections.map((es) => this.saveAllTextualAnswersOfSection$(es, exam.hash, false, true, true)),
         );
 
-    private stripHtml = (text: string) => {
-        if (text && text.indexOf('math-tex') === -1) {
-            return String(text).replace(/<[^>]+>/gm, '');
-        }
-        return text;
-    };
-
     isAnswered = (sq: ExaminationQuestion) => {
         let isAnswered;
         switch (sq.question.type) {
@@ -148,7 +132,7 @@ export class ExaminationService {
                 break;
             case 'ClozeTestQuestion': {
                 const clozeTestAnswer = sq.clozeTestAnswer;
-                isAnswered = clozeTestAnswer && !isEmpty(clozeTestAnswer.answer);
+                isAnswered = clozeTestAnswer?.answer && Object.keys(clozeTestAnswer.answer).length > 0;
                 break;
             }
             case 'ClaimChoiceQuestion':
@@ -181,14 +165,14 @@ export class ExaminationService {
         }
         if (!preview) {
             const url = this.getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
-            this.http.post(url, { oids: ids }).subscribe(
-                () => {
-                    toast.info(this.translate.instant('sitnet_answer_saved'));
+            this.http.post(url, { oids: ids }).subscribe({
+                next: () => {
+                    this.toast.info(this.translate.instant('sitnet_answer_saved'));
                     sq.options.forEach((o) => (o.answered = ids.indexOf(o.id as number) > -1));
                     this.setQuestionColors(sq);
                 },
-                (resp) => toast.error(resp),
-            );
+                error: (err) => this.toast.error(err),
+            });
         } else {
             this.setQuestionColors(sq);
         }
@@ -204,7 +188,7 @@ export class ExaminationService {
             .map((esq) => esq.derivedMaxScore)
             .reduce((acc, current) => acc + current, 0);
 
-        return isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
+        return Number.isInteger(sum) ? sum : parseFloat(sum.toFixed(2));
     };
 
     abort$ = (hash: string): Observable<void> => {
@@ -214,14 +198,42 @@ export class ExaminationService {
 
     logout = (msg: string, hash: string, quitLinkEnabled: boolean, canFail: boolean) => {
         const ok = () => {
-            toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
-            this.Window.nativeWindow.onbeforeunload = null;
-            this.state.go('examinationLogout', { reason: 'finished', quitLinkEnabled: quitLinkEnabled });
+            this.toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
+            window.onbeforeunload = null;
+            this.router.navigate(['/examination/logout'], {
+                queryParams: { reason: 'finished', quitLinkEnabled: quitLinkEnabled },
+            });
         };
         const url = this.getResource('/app/student/exam/' + hash);
-        this.http.put<void>(url, {}).subscribe(ok, (resp) => {
-            if (!canFail) toast.error(this.translate.instant(resp));
-            else ok();
+        this.http.put<void>(url, {}).subscribe({
+            next: ok,
+            error: (resp) => {
+                if (!canFail) this.toast.error(this.translate.instant(resp));
+                else ok();
+            },
         });
+    };
+
+    private isTextualAnswer = (esq: ExaminationQuestion, allowEmpty: boolean) => {
+        switch (esq.question.type) {
+            case 'EssayQuestion':
+                return (
+                    esq.essayAnswer && (allowEmpty || (esq.essayAnswer?.answer && esq.essayAnswer.answer.length > 0))
+                );
+            case 'ClozeTestQuestion':
+                return (
+                    esq.clozeTestAnswer &&
+                    (allowEmpty || (esq.clozeTestAnswer?.answer && Object.keys(esq.clozeTestAnswer.answer).length > 0))
+                );
+            default:
+                return false;
+        }
+    };
+
+    private stripHtml = (text: string) => {
+        if (text && text.indexOf('math-tex') === -1) {
+            return String(text).replace(/<[^>]+>/gm, '');
+        }
+        return text;
     };
 }

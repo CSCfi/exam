@@ -12,42 +12,35 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { CommonModule, Location, LocationStrategy, PathLocationStrategy } from '@angular/common';
-import { HTTP_INTERCEPTORS, HttpClient, HttpClientModule } from '@angular/common/http';
+import { CommonModule } from '@angular/common';
+import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { LOCALE_ID, NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-
+import { ToastrModule } from 'ngx-toastr';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CalendarModule } from './calendar/calendar.module';
-import { StudentDashboardModule } from './dashboard/student/studentDashboard.module';
+import { StudentDashboardModule } from './dashboard/student/student-dashboard.module';
 import { EnrolmentModule } from './enrolment/enrolment.module';
 import { ExaminationModule } from './examination/examination.module';
-import { AuthInterceptor } from './interceptors/httpAuthInterceptor';
-import { ErrorInterceptor } from './interceptors/httpErrorInterceptor';
-import { ExaminationInterceptor } from './interceptors/httpExaminationInterceptor';
+import { AuthInterceptor } from './interceptors/auth-interceptor';
+import { ErrorInterceptor } from './interceptors/error-interceptor';
+import { ExaminationInterceptor } from './interceptors/examination-interceptor';
 import { NavigationModule } from './navigation/navigation.module';
 import { SessionModule } from './session/session.module';
 import { SessionService } from './session/session.service';
-import { UtilityModule } from './utility/utility.module';
+import { SharedModule } from './shared/shared.module';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http, '/assets/assets/i18n/');
+    return new TranslateHttpLoader(http, '/assets/i18n/');
 }
 
 @NgModule({
     imports: [
-        BrowserModule,
-        BrowserAnimationsModule,
         CommonModule,
         HttpClientModule,
-        FormsModule,
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,
@@ -55,9 +48,9 @@ export function HttpLoaderFactory(http: HttpClient) {
                 deps: [HttpClient],
             },
         }),
-        NgbModule,
+        ToastrModule.forRoot({ preventDuplicates: true }),
         AppRoutingModule,
-        UtilityModule,
+        SharedModule,
         SessionModule,
         NavigationModule,
         StudentDashboardModule,
@@ -75,8 +68,6 @@ export function HttpLoaderFactory(http: HttpClient) {
             deps: [SessionService],
             useFactory: (srv: SessionService) => srv.getLocale(),
         },
-        Location,
-        { provide: LocationStrategy, useClass: PathLocationStrategy },
     ],
     bootstrap: [AppComponent],
 })

@@ -12,17 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/angular';
-import * as toast from 'toastr';
-
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { MachineService } from './machines.service';
-
 import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
 import type { Software } from '../../exam/exam.model';
 import type { ExamMachine } from '../../reservation/reservation.model';
+import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import { MachineService } from './machines.service';
 
 interface SoftwareWithClass extends Software {
     class: string;
@@ -30,23 +28,24 @@ interface SoftwareWithClass extends Software {
 
 @Component({
     templateUrl: './machine.component.html',
-    selector: 'machine',
+    selector: 'xm-machine',
 })
 export class MachineComponent implements OnInit {
     machine!: ExamMachine;
     software: SoftwareWithClass[] = [];
 
     constructor(
+        private router: Router,
+        private route: ActivatedRoute,
         private Confirmation: ConfirmationDialogService,
         private machines: MachineService,
         private translate: TranslateService,
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private toast: ToastrService,
     ) {}
 
     ngOnInit() {
-        this.machines.getMachine(this.routing.params.id).subscribe(
-            (machine) => {
+        this.machines.getMachine(this.route.snapshot.params.id).subscribe({
+            next: (machine) => {
                 this.machine = machine;
                 this.machines.getSoftware().subscribe((data) => {
                     this.software = data as unknown as SoftwareWithClass[];
@@ -62,51 +61,43 @@ export class MachineComponent implements OnInit {
                     });
                 });
             },
-            (error) => {
-                toast.error(error.data);
-            },
-        );
+            error: (err) => this.toast.error(err),
+        });
     }
 
-    removeMachine = (machine: ExamMachine) => {
-        const dialog = this.Confirmation.open(
+    removeMachine = (machine: ExamMachine) =>
+        this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_machine'),
-        );
-        dialog.result.then(() => {
-            this.machines.removeMachine(machine.id).subscribe(
-                () => {
-                    toast.info(this.translate.instant('sitnet_machine_removed'));
-                    this.state.go('staff.rooms');
-                },
-                (error) => {
-                    toast.error(error.data);
-                },
-            );
+        ).subscribe({
+            next: () =>
+                this.machines.removeMachine(machine.id).subscribe({
+                    next: () => {
+                        this.toast.info(this.translate.instant('sitnet_machine_removed'));
+                        this.router.navigate(['staff/rooms']);
+                    },
+                    error: (err) => this.toast.error(err),
+                }),
+            error: (err) => this.toast.error(err),
+        });
+
+    toggleSoftware = (software: SoftwareWithClass) => {
+        this.machines.toggleMachineSoftware(this.machine.id, software.id).subscribe({
+            next: (response) => (software.class = response.turnedOn === true ? 'btn-info' : 'btn-default'),
+            error: (err) => this.toast.error(err),
         });
     };
 
-    toggleSoftware = (software: SoftwareWithClass) => {
-        this.machines.toggleMachineSoftware(this.machine.id, software.id).subscribe(
-            (response) => {
-                software.class = response.turnedOn === true ? 'btn-info' : 'btn-default';
-            },
-            (error) => {
-                toast.error(error.data);
-            },
-        );
-    };
-
     updateMachine = (cb?: () => void) =>
-        this.machines.updateMachine(this.machine).subscribe(
-            () => toast.info(this.translate.instant('sitnet_machine_updated')),
-            (error) => toast.error(error),
-            () => {
+        this.machines.updateMachine(this.machine).subscribe({
+            next: () => this.toast.info(this.translate.instant('sitnet_machine_updated')),
+            error: (err) => this.toast.error(this.translate.instant(err)),
+            complete: () => {
                 if (cb) cb();
             },
-        );
+        });
 
-    updateMachineAndExit = () => this.updateMachine(() => this.state.go('staff.rooms'));
+    updateMachineAndExit = () => this.updateMachine(() => this.router.navigate(['staff/rooms']));
 
     setReason = () => {
         if (!this.machine.outOfService) {

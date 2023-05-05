@@ -22,17 +22,19 @@ import javax.inject.Inject;
 import models.Reservation;
 import org.joda.time.DateTime;
 import play.Logger;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class ReservationReminderActor extends AbstractActor {
 
     private static final Logger.ALogger logger = Logger.of(ReservationReminderActor.class);
 
-    private EmailComposer emailComposer;
+    private final EmailComposer emailComposer;
+    private final DateTimeHandler dateTimeHandler;
 
     @Inject
-    public ReservationReminderActor(EmailComposer emailComposer) {
+    public ReservationReminderActor(EmailComposer emailComposer, DateTimeHandler dateTimeHandler) {
         this.emailComposer = emailComposer;
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     private void remind(Reservation r) {
@@ -48,7 +50,7 @@ public class ReservationReminderActor extends AbstractActor {
                 String.class,
                 s -> {
                     logger.debug("Starting reservation reminder task ->");
-                    DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+                    DateTime now = dateTimeHandler.adjustDST(DateTime.now());
                     DateTime tomorrow = now.plusDays(1);
                     Ebean
                         .find(Reservation.class)

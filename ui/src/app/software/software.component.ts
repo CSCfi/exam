@@ -13,21 +13,20 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import * as toast from 'toastr';
-
+import { ToastrService } from 'ngx-toastr';
 import type { Software } from '../exam/exam.model';
 
 @Component({
-    selector: 'software',
+    selector: 'xm-software',
     templateUrl: './software.component.html',
 })
-export class SoftwareComponent {
+export class SoftwareComponent implements OnInit {
     software: (Software & { showName: boolean })[] = [];
     newSoftware = { name: '' };
 
-    constructor(private http: HttpClient, private translate: TranslateService) {}
+    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
 
     ngOnInit() {
         this.http
@@ -36,27 +35,27 @@ export class SoftwareComponent {
     }
 
     updateSoftware = (software: Software) =>
-        this.http.put(`/app/softwares/${software.id}/${software.name}`, {}).subscribe(
-            () => toast.info(this.translate.instant('sitnet_software_updated')),
-            (err) => toast.error(err),
-        );
+        this.http.put(`/app/softwares/${software.id}/${software.name}`, {}).subscribe({
+            next: () => this.toast.info(this.translate.instant('sitnet_software_updated')),
+            error: (err) => this.toast.error(err),
+        });
 
     addSoftware = () =>
-        this.http.post<Software>(`/app/softwares/${this.newSoftware.name}`, {}).subscribe(
-            (resp) => {
-                toast.info(this.translate.instant('sitnet_software_added'));
+        this.http.post<Software>(`/app/softwares/${this.newSoftware.name}`, {}).subscribe({
+            next: (resp) => {
+                this.toast.info(this.translate.instant('sitnet_software_added'));
                 this.software.push({ ...resp, showName: false });
                 this.newSoftware.name = '';
             },
-            (err) => toast.error(err),
-        );
+            error: (err) => this.toast.error(err),
+        });
 
     removeSoftware = (software: Software & { showName: boolean }) =>
-        this.http.delete(`/app/softwares/${software.id}`).subscribe(
-            () => {
-                toast.info(this.translate.instant('sitnet_software_removed'));
+        this.http.delete(`/app/softwares/${software.id}`).subscribe({
+            next: () => {
+                this.toast.info(this.translate.instant('sitnet_software_removed'));
                 this.software.splice(this.software.indexOf(software), 1);
             },
-            (err) => toast.error(err),
-        );
+            error: (err) => this.toast.error(err),
+        });
 }

@@ -14,18 +14,16 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/angular';
 import { parseISO } from 'date-fns';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import * as toast from 'toastr';
-
 import { QuestionService } from '../question/question.service';
 import { SessionService } from '../session/session.service';
-import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import { CommonExamService } from '../utility/miscellaneous/commonExam.service';
-
-import type { Observable } from 'rxjs';
+import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
+import { CommonExamService } from '../shared/miscellaneous/common-exam.service';
 import type {
     Exam,
     ExamExecutionType,
@@ -49,12 +47,14 @@ export type ExaminationEventConfigurationInput = {
 };
 
 type SectionContainer = { examSections: ExamSection[] };
-@Injectable()
+
+@Injectable({ providedIn: 'root' })
 export class ExamService {
     constructor(
-        private translate: TranslateService,
-        private State: StateService,
+        private router: Router,
         private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
         private CommonExam: CommonExamService,
         private Question: QuestionService,
         private Session: SessionService,
@@ -70,13 +70,15 @@ export class ExamService {
         exam.children.filter((child) => ['REVIEW', 'REVIEW_STARTED', 'GRADED'].indexOf(child.state) === -1).length;
 
     createExam = (executionType: string, examinationType: Implementation = 'AQUARIUM') => {
-        this.http.post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType }).subscribe(
-            (response) => {
-                toast.info(this.translate.instant('sitnet_exam_added'));
-                this.State.go('staff.courseSelector', { id: response.id });
-            },
-            (err) => toast.error(err.data),
-        );
+        this.http
+            .post<Exam>('/app/exams', { executionType: executionType, implementation: examinationType })
+            .subscribe({
+                next: (response) => {
+                    this.toast.info(this.translate.instant('sitnet_exam_added'));
+                    this.router.navigate(['/staff/exams', response.id, 'course']);
+                },
+                error: (err) => this.toast.error(err),
+            });
     };
 
     updateExam$ = (exam: Exam, overrides = {}, collaborative = false): Observable<Exam> => {
@@ -158,50 +160,11 @@ export class ExamService {
             ),
         );
 
-    private isInteger = (n: number) => isFinite(n) && Math.floor(n) === n;
-
-    getSectionTotalNumericScore = (section: ExamSection): number => {
-        const score = section.sectionQuestions.reduce((n, sq) => {
-            const points = this.Question.calculateAnswerScore(sq);
-            // handle only numeric scores (leave out approved/rejected type of scores)
-            return n + (points.rejected === false && points.approved === false ? points.score : 0);
-        }, 0);
-        return this.isInteger(score) ? score : parseFloat(score.toFixed(2));
-    };
-
-    getSectionTotalScore = (section: ExamSection): number => {
-        const score = section.sectionQuestions.reduce((n, sq) => {
-            const points = this.Question.calculateAnswerScore(sq);
-            return n + points.score;
-        }, 0);
-        return this.isInteger(score) ? score : parseFloat(score.toFixed(2));
-    };
-
-    getSectionMaxScore = (section: ExamSection): number => {
-        let maxScore = section.sectionQuestions.reduce((n, sq) => {
-            if (!sq || !sq.question) {
-                return n;
-            }
-            return n + this.Question.calculateMaxScore(sq);
-        }, 0);
-        if (section.lotteryOn) {
-            maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
-        }
-        return this.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
-    };
-
     hasQuestions = (exam: SectionContainer) => exam.examSections.reduce((a, b) => a + b.sectionQuestions.length, 0) > 0;
 
     hasEssayQuestions = (exam: SectionContainer) =>
         exam.examSections.filter((es) => es.sectionQuestions.some((sq) => sq.question.type === 'EssayQuestion'))
             .length > 0;
-
-    getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
-
-    getTotalScore = (exam: SectionContainer): string => {
-        const score = exam.examSections.reduce((n, es) => n + this.getSectionTotalNumericScore(es), 0).toFixed(2);
-        return parseFloat(score) > 0 ? score : '0';
-    };
 
     isOwner = (exam: Exam, collaborative = false) => {
         const user = this.Session.getUser();
@@ -219,23 +182,24 @@ export class ExamService {
         return exam && user && (user.isAdmin || this.isOwner(exam, collaborative));
     };
 
-    removeExam = (exam: Exam, collaborative = false) => {
+    removeExam = (exam: Exam, collaborative = false, isAdmin = false) => {
         if (this.isAllowedToUnpublishOrRemove(exam, collaborative)) {
-            const dialog = this.ConfirmationDialog.open(
+            this.ConfirmationDialog.open$(
                 this.translate.instant('sitnet_confirm'),
                 this.translate.instant('sitnet_remove_exam'),
-            );
-            dialog.result.then(() =>
-                this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe(
-                    () => {
-                        toast.success(this.translate.instant('sitnet_exam_removed'));
-                        this.State.go('dashboard');
-                    },
-                    (err) => toast.error(err),
-                ),
-            );
+            ).subscribe({
+                next: () =>
+                    this.http.delete(this.getResource(`/app/exams/${exam.id}`, collaborative)).subscribe({
+                        next: () => {
+                            this.toast.success(this.translate.instant('sitnet_exam_removed'));
+                            this.router.navigate(['/staff', isAdmin ? 'admin' : 'teacher']);
+                        },
+                        error: (err) => this.toast.error(err),
+                    }),
+                error: (err) => this.toast.error(err),
+            });
         } else {
-            toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));
+            this.toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));
         }
     };
 
@@ -251,13 +215,14 @@ export class ExamService {
     };
 
     previewExam = (exam: Exam, fromTab: number, collaborative: boolean) => {
-        const params = { id: exam.id, tab: fromTab };
         if (collaborative) {
-            this.State.go('staff.collaborativePreview', params);
+            this.router.navigate(['/staff/exams', exam.id, 'preview', 'collaborative'], {
+                queryParams: { tab: fromTab },
+            });
         } else if (exam.executionType.type === 'PRINTOUT') {
-            this.State.go('staff.printout', params);
+            this.router.navigate(['/staff/exams', exam.id, 'printout'], { queryParams: { tab: fromTab } });
         } else {
-            this.State.go('staff.examPreview', params);
+            this.router.navigate(['/staff/exams', exam.id, 'preview'], { queryParams: { tab: fromTab } });
         }
     };
 
@@ -285,14 +250,46 @@ export class ExamService {
     removeExaminationEvent$ = (examId: number, config: ExaminationEventConfiguration) =>
         this.http.delete<void>(`/app/exam/${examId}/examinationevents/${config.id}`);
 
-    downloadExam = (id: number) => {
-        return this.http
+    downloadExam$ = (id: number) =>
+        this.http
             .get<Exam>(`/app/exams/${id}`)
-            .toPromise()
-            .then((exam: Exam) => {
-                exam.hasEnrolmentsInEffect = this.hasEffectiveEnrolments(exam);
-                return exam;
-            });
+            .pipe(map((exam) => ({ ...exam, hasEnrolmentsInEffect: this.hasEffectiveEnrolments(exam) })));
+
+    getMaxScore = (exam: SectionContainer) => exam.examSections.reduce((n, es) => n + this.getSectionMaxScore(es), 0);
+
+    getTotalScore = (exam: SectionContainer): string => {
+        const score = exam.examSections.reduce((n, es) => n + this.getSectionTotalNumericScore(es), 0).toFixed(2);
+        return parseFloat(score) > 0 ? score : '0';
+    };
+
+    getSectionTotalNumericScore = (section: ExamSection): number => {
+        const score = section.sectionQuestions.reduce((n, sq) => {
+            const points = this.Question.calculateAnswerScore(sq);
+            // handle only numeric scores (leave out approved/rejected type of scores)
+            return n + (points.rejected === false && points.approved === false ? points.score : 0);
+        }, 0);
+        return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
+    };
+
+    getSectionTotalScore = (section: ExamSection): number => {
+        const score = section.sectionQuestions.reduce((n, sq) => {
+            const points = this.Question.calculateAnswerScore(sq);
+            return n + points.score;
+        }, 0);
+        return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
+    };
+
+    getSectionMaxScore = (section: ExamSection): number => {
+        let maxScore = section.sectionQuestions.reduce((n, sq) => {
+            if (!sq || !sq.question) {
+                return n;
+            }
+            return n + this.Question.calculateMaxScore(sq);
+        }, 0);
+        if (section.lotteryOn) {
+            maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);
+        }
+        return Number.isInteger(maxScore) ? maxScore : parseFloat(maxScore.toFixed(2));
     };
 
     private hasEffectiveEnrolments = (exam: Exam) =>

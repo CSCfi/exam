@@ -14,87 +14,55 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
-import { isObject } from 'lodash';
-import { forkJoin, of, throwError } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { forkJoin, from, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { CollaborativeParticipation } from '../exam/collaborative/collaborativeExam.service';
-import { SessionService } from '../session/session.service';
-import { ConfirmationDialogService } from '../utility/dialogs/confirmationDialog.service';
-import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
-import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
-import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
-
-import type { Observable } from 'rxjs';
-import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from '../exam/exam.model';
+import { CollaborativeParticipation } from '../exam/collaborative/collaborative-exam.service';
+import type { CollaborativeExam, Exam, ExaminationEventConfiguration, ExamParticipation } from '../exam/exam.model';
 import type { ExamRoom } from '../reservation/reservation.model';
 import type { User } from '../session/session.service';
+import { SessionService } from '../session/session.service';
+import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
+import { isObject } from '../shared/miscellaneous/helpers';
+import { AddEnrolmentInformationDialogComponent } from './active/dialogs/add-enrolment-information-dialog.component';
+import { SelectExaminationEventDialogComponent } from './active/dialogs/select-examination-event-dialog.component';
+import { ShowInstructionsDialogComponent } from './active/dialogs/show-instructions-dialog.component';
 import type { EnrolmentInfo, ExamEnrolment, ReviewedExam } from './enrolment.model';
-@Injectable()
+
+export type ParticipationLike =
+    | (ExamParticipation & { noShow: boolean })
+    | (CollaborativeParticipation & { noShow: boolean })
+    | (ExamEnrolment & { started?: string; ended?: string; duration?: number });
+
+@Injectable({ providedIn: 'root' })
 export class EnrolmentService {
     constructor(
         private translate: TranslateService,
         private http: HttpClient,
-        private State: StateService,
+        private router: Router,
         private ngbModal: NgbModal,
+        private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private Session: SessionService,
     ) {}
 
-    private getMaturityInstructions = (exam: Exam): Observable<string> => {
-        if (exam.executionType.type !== 'MATURITY') {
-            return of('');
-        }
-        if (exam.examLanguages.length !== 1) {
-            console.warn('Exam has no exam languages or it has several!');
-        }
-        const lang = exam.examLanguages.length > 0 ? exam.examLanguages[0].code : 'fi';
-        return this.http
-            .get<{ value: string }>(`/app/settings/maturityInstructions?lang=${lang}`)
-            .pipe(map((data) => data.value));
-    };
-
-    private getResource = (path: string, collaborative: boolean) =>
-        (collaborative ? '/app/iop/enrolments/' : '/app/enrolments/') + path;
-
-    selectExaminationEvent = (exam: Exam, enrolment: ExamEnrolment, nextState?: string) => {
-        const modalRef = this.ngbModal.open(SelectExaminationEventDialogComponent, {
-            backdrop: 'static',
-            keyboard: false,
-        });
-        modalRef.componentInstance.exam = exam;
-        modalRef.componentInstance.existingEventId = enrolment.examinationEventConfiguration
-            ? enrolment.examinationEventConfiguration.id
-            : undefined;
-        modalRef.result.then((data: ExaminationEventConfiguration) => {
-            this.http.post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {}).subscribe(
-                () => {
-                    enrolment.examinationEventConfiguration = data;
-                    if (nextState) {
-                        this.State.go(nextState);
-                    }
-                },
-                (err) => toast.error(err),
-            );
-        });
-    };
-
     removeExaminationEvent = (enrolment: ExamEnrolment) => {
-        this.Confirmation.open(
+        this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_are_you_sure'),
-        ).result.then(() => {
-            this.http.delete(`/app/enrolments/${enrolment.id}/examination`).subscribe(
-                () => {
-                    toast.info(this.translate.instant('sitnet_examination_event_removed'));
-                    delete enrolment.examinationEventConfiguration;
-                },
-                (err) => toast.error(err.data),
-            );
+        ).subscribe({
+            next: () =>
+                this.http.delete(`/app/enrolments/${enrolment.id}/examination`).subscribe({
+                    next: () => {
+                        this.toast.info(this.translate.instant('sitnet_examination_event_removed'));
+                        delete enrolment.examinationEventConfiguration;
+                    },
+                    error: (err) => this.toast.error(err),
+                }),
+            error: (err) => this.toast.error(err),
         });
     };
 
@@ -103,20 +71,21 @@ export class EnrolmentService {
             return;
         }
         const externalRef = enrolment.reservation.externalRef;
-        const dialog = this.Confirmation.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
-        );
         const successFn = () => {
             delete enrolment.reservation;
             enrolment.reservationCanceled = true;
         };
-        const errorFn = (resp: { data: string }) => toast.error(resp.data);
+        const errorFn = (resp: { data: string }) => this.toast.error(resp.data);
         const url = externalRef
             ? `/app/iop/reservations/external/${externalRef}`
             : `/app/calendar/reservation/${enrolment.reservation.id}`;
-
-        dialog.result.then(() => this.http.delete(url).subscribe(successFn, errorFn));
+        this.Confirmation.open$(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_are_you_sure'),
+        ).subscribe({
+            next: () => this.http.delete(url).subscribe({ next: successFn, error: errorFn }),
+            error: (err) => this.toast.error(err),
+        });
     }
 
     enroll = (exam: Exam, collaborative = false): Observable<ExamEnrolment> =>
@@ -126,15 +95,15 @@ export class EnrolmentService {
             })
             .pipe(
                 tap((enrolment) => {
-                    toast.success(
-                        this.translate.instant('sitnet_you_have_enrolled_to_exam') +
-                            '<br/>' +
-                            this.translate.instant('sitnet_remember_exam_machine_reservation'),
+                    this.toast.success(
+                        this.translate.instant('sitnet_remember_exam_machine_reservation'),
+                        this.translate.instant('sitnet_you_have_enrolled_to_exam'),
                     );
                     if (exam.implementation !== 'AQUARIUM' && exam.examinationEventConfigurations.length > 0) {
-                        this.selectExaminationEvent(exam, enrolment, 'dashboard');
+                        this.selectExaminationEvent(exam, enrolment, '/dashboard');
                     } else {
-                        this.State.go(collaborative ? 'collaborativeCalendar' : 'calendar', { id: exam.id });
+                        const path = collaborative ? ['/calendar', exam.id, 'collaborative'] : ['/calendar', exam.id];
+                        this.router.navigate(path);
                     }
                 }),
             );
@@ -142,28 +111,30 @@ export class EnrolmentService {
     getEnrolments = (examId: number, collaborative = false): Observable<ExamEnrolment[]> =>
         this.http.get<ExamEnrolment[]>(this.getResource(`exam/${examId}`, collaborative));
 
-    checkAndEnroll = (exam: Exam, collaborative = false): Observable<ExamEnrolment> =>
+    checkAndEnroll$ = (exam: Exam, collaborative = false): Observable<ExamEnrolment> =>
         this.http.get<ExamEnrolment[]>(this.getResource(`exam/${exam.id}`, collaborative)).pipe(
             switchMap((resp) =>
-                resp.length == 0 ? this.enroll(exam, collaborative) : throwError('sitnet_already_enrolled'),
+                resp.length == 0
+                    ? this.enroll(exam, collaborative)
+                    : throwError(() => new Error(this.translate.instant('sitnet_already_enrolled'))),
             ),
             catchError((err) => {
-                toast.error(err);
-                return throwError(err);
+                this.toast.error(err);
+                return throwError(() => new Error(err));
             }),
         );
 
-    enrollStudent = (exam: Exam, student: Partial<User>): Observable<ExamEnrolment> => {
+    enrollStudent$ = (exam: Exam, student: Partial<User>): Observable<ExamEnrolment> => {
         const data = { uid: student.id, email: student.email };
         return this.http
             .post<ExamEnrolment>(`/app/enrolments/student/${exam.id}`, data)
-            .pipe(tap(() => toast.success(this.translate.instant('sitnet_student_enrolled_to_exam'))));
+            .pipe(tap(() => this.toast.success(this.translate.instant('sitnet_student_enrolled_to_exam'))));
     };
 
-    getEnrolmentInfo = (code: string, id: number): Observable<EnrolmentInfo> =>
+    getEnrolmentInfo$ = (code: string, id: number): Observable<EnrolmentInfo> =>
         this.http.get<Exam>(`/app/enrolments/${id}?code=${code}`).pipe(
             switchMap((exam) =>
-                this.getMaturityInstructions(exam).pipe(
+                this.getMaturityInstructions$(exam).pipe(
                     map((instructions) => {
                         return {
                             ...exam,
@@ -193,27 +164,7 @@ export class EnrolmentService {
             ),
         );
 
-    private check = (info: EnrolmentInfo): Observable<EnrolmentInfo> =>
-        this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${info.id}`).pipe(
-            map((resp) => {
-                if (resp.length > 0) {
-                    info.alreadyEnrolled = true;
-                    info.reservationMade = resp.some((e) => isObject(e.reservation));
-                } else {
-                    info.alreadyEnrolled = info.reservationMade = false;
-                }
-                return info;
-            }),
-            catchError(() => {
-                info.alreadyEnrolled = false;
-                info.reservationMade = false;
-                return of(info);
-            }),
-        );
-
-    private checkEnrolments = (infos: EnrolmentInfo[]): Observable<EnrolmentInfo[]> => forkJoin(infos.map(this.check));
-
-    listEnrolments = (code: string, id: number): Observable<EnrolmentInfo[]> =>
+    listEnrolments$ = (code: string, id: number): Observable<EnrolmentInfo[]> =>
         this.http.get<Exam[]>(`/app/enrolments?code=${code}`).pipe(
             map((resp) =>
                 resp
@@ -229,7 +180,7 @@ export class EnrolmentService {
                         };
                     }),
             ),
-            switchMap(this.checkEnrolments),
+            switchMap(this.checkEnrolments$),
         );
 
     listStudentParticipations$ = (): Observable<CollaborativeParticipation[]> =>
@@ -237,14 +188,11 @@ export class EnrolmentService {
 
     searchExams$ = (searchTerm: string): Observable<CollaborativeExam[]> => {
         const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? encodeURIComponent(searchTerm) : '');
-        // This path is used to search from student view only
-        const path = this.Session.getUser().isStudent
-            ? `/app/iop/enrolment/search${paramStr}`
-            : `/app/iop/exams/search${paramStr}`;
+        const path = `/app/iop/enrolment${paramStr}`;
         return this.http.get<CollaborativeExam[]>(path);
     };
 
-    removeEnrolment = (enrolment: ExamEnrolment) => this.http.delete<void>(`/app/enrolments/${enrolment.id}`);
+    removeEnrolment$ = (enrolment: ExamEnrolment) => this.http.delete<void>(`/app/enrolments/${enrolment.id}`);
 
     addEnrolmentInformation = (enrolment: ExamEnrolment): void => {
         const modalRef = this.ngbModal.open(AddEnrolmentInformationDialogComponent, {
@@ -253,17 +201,18 @@ export class EnrolmentService {
         });
         modalRef.componentInstance.information = enrolment.information;
         modalRef.result.then((information: string) => {
-            this.http.put(`/app/enrolments/${enrolment.id}`, { information: information }).subscribe(
-                () => {
-                    toast.success(this.translate.instant('sitnet_saved'));
+            this.http.put(`/app/enrolments/${enrolment.id}`, { information: information }).subscribe({
+                next: () => {
+                    this.toast.success(this.translate.instant('sitnet_saved'));
                     enrolment.information = information;
                 },
-                (err) => toast.error(err),
-            );
+                error: (err) => this.toast.error(err),
+            });
         });
     };
 
-    private isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
+    removeAllEventEnrolmentConfigs$ = (config: ExaminationEventConfiguration) =>
+        this.http.delete<void>(`/app/enrolments/configs/${config.id}`);
 
     setCommentRead = (exam: Exam | ReviewedExam) => {
         if (!this.isCommentRead(exam)) {
@@ -285,7 +234,7 @@ export class EnrolmentService {
         return this.http.post(url, { rev: revision });
     }
 
-    getRoomInstructions = (hash: string): Observable<ExamRoom> =>
+    getRoomInstructions$ = (hash: string): Observable<ExamRoom> =>
         this.http.get<ExamRoom>(`/app/enrolments/room/${hash}`);
 
     showInstructions = (enrolment: ExamEnrolment): void => {
@@ -295,18 +244,18 @@ export class EnrolmentService {
         });
         modalRef.componentInstance.instructions = enrolment.exam.enrollInstruction;
         modalRef.componentInstance.title = 'sitnet_instructions';
-        modalRef.result.catch((err) => toast.error(err));
+        modalRef.result.catch((err) => this.toast.error(err));
     };
 
-    showMaturityInstructions = (enrolment: { exam: Exam }) => {
-        this.getMaturityInstructions(enrolment.exam).subscribe((instructions) => {
+    showMaturityInstructions = (enrolment: { exam: Exam }, external = false) => {
+        this.getMaturityInstructions$(enrolment.exam, external).subscribe((instructions) => {
             const modalRef = this.ngbModal.open(ShowInstructionsDialogComponent, {
                 backdrop: 'static',
                 keyboard: false,
             });
             modalRef.componentInstance.instructions = instructions;
             modalRef.componentInstance.title = 'sitnet_maturity_instructions';
-            modalRef.result.catch((err) => toast.error(err));
+            modalRef.result.catch((err) => this.toast.error(err));
         });
     };
 
@@ -322,10 +271,81 @@ export class EnrolmentService {
         if (enrolment.exam && enrolment.exam.implementation !== 'AQUARIUM') {
             this.selectExaminationEvent(enrolment.exam, enrolment);
         } else {
-            const params = {
-                id: enrolment.collaborativeExam ? enrolment.collaborativeExam.id : enrolment.exam.id,
-            };
-            this.State.go(enrolment.collaborativeExam ? 'collaborativeCalendar' : 'calendar', params);
+            const params = enrolment.collaborativeExam ? enrolment.collaborativeExam.id : enrolment.exam.id;
+            const fragments = enrolment.collaborativeExam
+                ? ['/calendar', params, 'collaborative']
+                : ['/calendar', params];
+            this.router.navigate(fragments);
         }
     };
+
+    loadFeedback$ = (id: number) => this.http.get<ReviewedExam>(`/app/feedback/exams/${id}`);
+    loadScore$ = (id: number) => this.http.get<ReviewedExam>(`/app/feedback/exams/${id}/score`);
+    loadParticipations$ = (filter: string) =>
+        this.http.get<ParticipationLike[]>('/app/student/finishedexams', { params: { filter: filter } });
+
+    private selectExaminationEvent = (exam: Exam, enrolment: ExamEnrolment, nextState?: string) => {
+        const modalRef = this.ngbModal.open(SelectExaminationEventDialogComponent, {
+            backdrop: 'static',
+            keyboard: false,
+        });
+        modalRef.componentInstance.exam = exam;
+        modalRef.componentInstance.existingEventId = enrolment.examinationEventConfiguration
+            ? enrolment.examinationEventConfiguration.id
+            : undefined;
+        from(modalRef.result).subscribe({
+            next: (data: ExaminationEventConfiguration) => {
+                this.http.post(`/app/enrolments/${enrolment.id}/examination/${data.id}`, {}).subscribe({
+                    next: () => {
+                        enrolment.examinationEventConfiguration = data;
+                        if (nextState) {
+                            this.router.navigate([nextState]);
+                        }
+                    },
+                    error: (err) => this.toast.error(err),
+                });
+            },
+            error: (err) => this.toast.error(err),
+        });
+    };
+
+    private getMaturityInstructions$ = (exam: Exam, external = false): Observable<string> => {
+        if (exam.executionType.type !== 'MATURITY') {
+            return of('');
+        }
+        if (exam.examLanguages.length !== 1) {
+            console.warn('Exam has no exam languages or it has several!');
+        }
+        const lang = exam.examLanguages.length > 0 ? exam.examLanguages[0].code : 'fi';
+        const ref = external ? `&ref=${exam.hash}` : '';
+        return this.http
+            .get<{ value: string }>(`/app/settings/maturityInstructions?lang=${lang}${ref}`)
+            .pipe(map((data) => data.value));
+    };
+
+    private getResource = (path: string, collaborative: boolean) =>
+        (collaborative ? '/app/iop/enrolments/' : '/app/enrolments/') + path;
+
+    private check$ = (info: EnrolmentInfo): Observable<EnrolmentInfo> =>
+        this.http.get<ExamEnrolment[]>(`/app/enrolments/exam/${info.id}`).pipe(
+            map((resp) => {
+                if (resp.length > 0) {
+                    info.alreadyEnrolled = true;
+                    info.reservationMade = resp.some((e) => isObject(e.reservation));
+                } else {
+                    info.alreadyEnrolled = info.reservationMade = false;
+                }
+                return info;
+            }),
+            catchError(() => {
+                info.alreadyEnrolled = false;
+                info.reservationMade = false;
+                return of(info);
+            }),
+        );
+
+    private checkEnrolments$ = (infos: EnrolmentInfo[]): Observable<EnrolmentInfo[]> =>
+        forkJoin(infos.map(this.check$));
+
+    private isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
 }

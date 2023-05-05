@@ -2,6 +2,12 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-details-title-wrap">
+                <img
+                    (click)="cancel()"
+                    class="pointer arrow_icon"
+                    src="/assets/images/icon_history.png"
+                    alt="go back"
+                />
                 <div class="student-enroll-title-wrap">
                     <div *ngIf="!newQuestion" class="student-enroll-title">
                         {{ 'sitnet_questions_edit' | translate }}
@@ -16,8 +22,8 @@
     <div class="row marl50 marr50">
         <!-- Question body //-->
         <div class="col-md-12 question-border padl40 padr40">
-            <form role="form" #form="ngForm" class="form-horizontal" name="form" novalidate>
-                <question-body
+            <form role="form" #questionForm="ngForm" class="form-horizontal" name="questionForm" novalidate>
+                <xm-question-body
                     *ngIf="question"
                     [question]="question"
                     [currentOwners]="currentOwners"
@@ -25,7 +31,7 @@
                     [examId]="examId"
                     [sectionQuestion]="sectionQuestion"
                     [collaborative]="collaborative"
-                ></question-body>
+                ></xm-question-body>
             </form>
             <!-- buttons -->
             <div class="mart20">
@@ -36,7 +42,7 @@
                             !question.type ||
                             hasNoCorrectOption() ||
                             hasInvalidClaimChoiceOptions() ||
-                            form.invalid
+                            questionForm.invalid
                         "
                         (click)="saveQuestion()"
                         type="submit"
@@ -46,7 +52,7 @@
                     </button>
                 </div>
                 <div class="question-cancel marr20">
-                    <button (click)="cancel()" type="submit" class="btn btn-cancel pull-right bigbutton">
+                    <button (click)="cancel()" type="submit" class="btn btn-cancel float-end bigbutton">
                         {{ 'sitnet_button_cancel' | translate }}
                     </button>
                 </div>

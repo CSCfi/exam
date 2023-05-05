@@ -5,7 +5,6 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
 import exceptions.NotFoundException;
 import impl.CalendarHandler;
 import io.ebean.Ebean;
@@ -34,7 +33,7 @@ import sanitizers.Attrs;
 import sanitizers.ExternalCalendarReservationSanitizer;
 import security.Authenticated;
 import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class CollaborativeExternalCalendarController extends CollaborativeCalendarController {
 
@@ -43,6 +42,9 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
 
     @Inject
     private ConfigReader configReader;
+
+    @Inject
+    private DateTimeHandler dateTimeHandler;
 
     @Authenticated
     @With(ExternalCalendarReservationSanitizer.class)
@@ -59,7 +61,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
         DateTime end = request.attrs().get(Attrs.END_DATE);
         Long examId = request.attrs().get(Attrs.EXAM_ID);
         Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
 
         CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
         if (ce == null) {
@@ -97,7 +99,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
                 } catch (MalformedURLException e) {
                     throw new RuntimeException(e);
                 }
-                String homeOrgRef = ConfigFactory.load().getString("sitnet.integration.iop.organisationRef");
+                String homeOrgRef = configReader.getHomeOrganisationRef();
                 ObjectNode body = Json.newObject();
                 body.put("requestingOrg", homeOrgRef);
                 body.put("start", ISODateTimeFormat.dateTime().print(start));
@@ -198,7 +200,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
     }
 
     private ExamEnrolment getEnrolledExam(Long examId, User user) {
-        DateTime now = DateTimeUtils.adjustDST(DateTime.now());
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
         return Ebean
             .find(ExamEnrolment.class)
             .where()
@@ -211,23 +213,16 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
             .findOne();
     }
 
-    private static URL parseUrl(String orgRef, String facilityRef) throws MalformedURLException {
+    private URL parseUrl(String orgRef, String facilityRef) throws MalformedURLException {
         return new URL(
-            ConfigFactory.load().getString("sitnet.integration.iop.host") +
+            configReader.getIopHost() +
             String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
         );
     }
 
-    private static URL parseUrl(
-        String orgRef,
-        String facilityRef,
-        String date,
-        String start,
-        String end,
-        int duration
-    ) {
+    private URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration) {
         String url =
-            ConfigFactory.load().getString("sitnet.integration.iop.host") +
+            configReader.getIopHost() +
             String.format("/api/organisations/%s/facilities/%s/slots", orgRef, facilityRef) +
             String.format("?date=%s&startAt=%s&endAt=%s&duration=%d", date, start, end, duration);
         try {

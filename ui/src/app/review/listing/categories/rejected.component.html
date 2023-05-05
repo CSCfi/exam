@@ -4,15 +4,15 @@
         <a (click)="view.toggle = !view.toggle" class="pointer">
             <img
                 *ngIf="!view.toggle"
-                src="/assets/assets/images/icon_list_show_right.svg"
+                src="/assets/images/icon_list_show_right.svg"
                 alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"
+                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
             />
             <img
                 *ngIf="view.toggle"
-                src="/assets/assets/images/icon_list_show_down.svg"
+                src="/assets/images/icon_list_show_down.svg"
                 alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"
+                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
             />
         </a>
     </div>
@@ -26,16 +26,14 @@
 </div>
 
 <div *ngIf="view.toggle && view.items.length > 0" class="overflow-x-scroll">
-    <div class="col-lg-6 search input-group my-2">
+    <div class="col-lg-6 input-group my-2">
         <input
             (change)="applyFreeSearchFilter()"
             [(ngModel)]="view.filter"
-            class="form-control search"
+            class="form-control"
             placeholder="{{ 'sitnet_search' | translate }}"
         />
-        <div class="input-group-append search">
-            <i class="input-group-text bi-search"></i>
-        </div>
+        <i class="input-group-text bi-search"></i>
     </div>
 
     <table class="table table-striped exams-table">
@@ -43,76 +41,76 @@
             <tr>
                 <th *ngIf="showId()" class="with-top">Id</th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="displayName"
                         text="sitnet_student"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('displayName')"
-                    ></table-sort>
+                    ></xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="examParticipation.user.email"
                         text="sitnet_email"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('examParticipation.user.email')"
-                    ></table-sort>
+                    ></xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="duration"
                         text="sitnet_exam_duration"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('duration')"
-                    ></table-sort>
+                    ></xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="examParticipation.started"
                         text="sitnet_exam_time"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('examParticipation.started')"
-                    ></table-sort>
+                    ></xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="examParticipation.deadline"
                         text="sitnet_review_deadline"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('examParticipation.deadline')"
-                    ></table-sort>
+                    ></xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="displayedGrade"
                         text="sitnet_grade"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('displayedGrade')"
-                    ></table-sort>
+                    ></xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="displayedCredit"
                         text="sitnet_exam_credit"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('displayedCredit')"
-                    ></table-sort>
+                    ></xm-table-sort>
                 </th>
                 <th class="with-top">
-                    <table-sort
+                    <xm-table-sort
                         by="displayedGradingTime"
                         text="sitnet_graded"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('displayedGradingTime')"
-                    ></table-sort>
+                    ></xm-table-sort>
                 </th>
             </tr>
         </thead>
@@ -120,13 +118,13 @@
             <tr
                 *ngFor="
                     let review of view.filtered
-                        | orderBy: view.predicate:view.reverse
-                        | slice: view.page * view.pageSize:view.page * view.pageSize + view.pageSize
+                        | orderBy : view.predicate : view.reverse
+                        | slice : view.page * view.pageSize : view.page * view.pageSize + view.pageSize
                 "
             >
                 <td *ngIf="showId()">{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
                 <td class="table-column-13 table-column-bold">
-                    <a class="pointer" uiSref="staff.assessment" [uiParams]="{ id: review.examParticipation.exam.id }">
+                    <a class="pointer" [routerLink]="['/staff/assessments', review.examParticipation.exam.id]">
                         {{ review.displayName }}
                         <span *ngIf="review.examParticipation.user.userIdentifier">
                             <br />({{ review.examParticipation.user.userIdentifier }})</span
@@ -140,13 +138,13 @@
                 </td>
                 <td class="table-column-10">{{ review.duration + ' min' }}</td>
                 <td class="table-column-10">
-                    {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                    {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
                     {{ 'sitnet_clock_short' | translate }}
-                    {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
-                    {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
+                    {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
+                    {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }}
                 </td>
                 <td class="table-column-10">
-                    {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (<span
+                    {{ review.examParticipation.deadline | date : 'dd.MM.yyyy' }} (<span
                         [innerHtml]="review.examParticipation.deadline | dayDiff"
                     ></span
                     >)
@@ -157,14 +155,14 @@
                 <td class="table-column-10">
                     {{ review.displayedCredit }}
                 </td>
-                <td class="table-column-15">{{ review.displayedGradingTime | date: 'dd.MM.yyyy' }}</td>
+                <td class="table-column-15">{{ review.displayedGradingTime | date : 'dd.MM.yyyy' }}</td>
             </tr>
             <tr *ngIf="view.filtered.length === 0">
                 <td *ngIf="showId()" colspan="8">{{ 'sitnet_review_no_result' | translate }}</td>
                 <td *ngIf="!showId()" colspan="7">{{ 'sitnet_review_no_result' | translate }}</td>
             </tr>
             <!--Fill if page not full-->
-            <tr *ngFor="let r of [] | pageFill: view.filtered.length:view.page:view.pageSize">
+            <tr *ngFor="let r of [] | pageFill : view.filtered.length : view.page : view.pageSize">
                 <td class="table-column-examname">&nbsp;</td>
                 <td *ngIf="showId()" colspan="7"></td>
                 <td *ngIf="!showId()" colspan="6"></td>
@@ -175,11 +173,11 @@
 
 <div class="detail-row" *ngIf="view.toggle">
     <div class="col-md-12" *ngIf="view.filtered.length > view.pageSize">
-        <paginator
+        <xm-paginator
             [items]="view.filtered"
-            (onSelectPage)="pageSelected($event)"
+            (pageSelected)="pageSelected($event)"
             [pageSize]="view.pageSize"
             [currentPage]="view.page"
-        ></paginator>
+        ></xm-paginator>
     </div>
 </div>

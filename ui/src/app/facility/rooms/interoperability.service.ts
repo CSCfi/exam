@@ -14,10 +14,9 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-
 import type { ExamRoom } from '../../reservation/reservation.model';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class InteroperabilityService {
     constructor(private http: HttpClient) {}
     updateFacility$ = (room: ExamRoom) => this.http.put<ExamRoom>(`/app/iop/facilities/${room.id}`, room);

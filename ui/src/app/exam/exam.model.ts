@@ -1,4 +1,4 @@
-import type { Organisation } from '../calendar/calendar.component';
+import type { Organisation } from '../calendar/calendar.service';
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { LanguageInspection } from '../maturity/maturity.model';
 import type { Reservation } from '../reservation/reservation.model';
@@ -29,6 +29,13 @@ export interface AutoEvaluationConfig {
     amountDays?: number;
     releaseType?: string;
     gradeEvaluations: GradeEvaluation[];
+}
+
+export interface ExamFeedbackConfig {
+    id?: number;
+    releaseType?: string;
+    releaseDate: Date | null;
+    amountDays?: number;
 }
 
 export interface Course {
@@ -176,6 +183,7 @@ export interface ExamSectionQuestion {
     sequenceNumber: number;
     expanded: boolean;
     derivedMaxScore?: number;
+    derivedAssessedScore?: number;
 }
 
 export interface ExamMaterial {
@@ -281,6 +289,7 @@ export interface ExamImpl {
     examParticipation?: ExamParticipation;
     gradeScale?: GradeScale;
     autoEvaluationConfig?: AutoEvaluationConfig;
+    examFeedbackConfig?: ExamFeedbackConfig;
     children: Exam[];
     examinationDates: ExaminationDate[];
     trialCount: number | null;

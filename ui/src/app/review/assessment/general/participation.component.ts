@@ -13,34 +13,41 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-import { UIRouterGlobals } from '@uirouter/core';
-
-import { SessionService } from '../../../session/session.service';
-import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
-import { WindowRef } from '../../../utility/window/window.service';
-
+import { ActivatedRoute } from '@angular/router';
 import type { ExamParticipation } from '../../../exam/exam.model';
+import { SessionService } from '../../../session/session.service';
+import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
 
 @Component({
-    selector: 'r-participation',
-    templateUrl: './participation.component.html',
+    selector: 'xm-r-participation',
+    template: `
+        <div class="col-md-2 general-info-title">{{ participation.started | date : 'dd.MM.yyyy' }}</div>
+        <div class="col-md-4 general-info-content">
+            <span [ngStyle]="participation.exam.state === 'ABORTED' ? { color: '#F35D6C' } : { color: '#3CA34F' }">
+                {{ 'sitnet_exam_status_' + participation.exam.state | lowercase | translate }}
+            </span>
+        </div>
+        <div class="col-md-2 generail-info-title" [hidden]="hideGrade()">
+            {{ 'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span style="color: #3ca34f">{{
+                translateGrade()
+            }}</span>
+        </div>
+        <div class="col-md-4 general-info-link-bold" *ngIf="!hideAnswerLink()">
+            <a class="pointer" (click)="viewAnswers()">{{ 'sitnet_view_answers' | translate }}</a>
+        </div>
+    `,
 })
 export class ParticipationComponent {
     @Input() participation!: ExamParticipation;
     @Input() collaborative = false;
 
-    constructor(
-        private state: UIRouterGlobals,
-        private Exam: CommonExamService,
-        private Session: SessionService,
-        private Window: WindowRef,
-    ) {}
+    constructor(private route: ActivatedRoute, private Exam: CommonExamService, private Session: SessionService) {}
 
     viewAnswers = () => {
         const url = this.collaborative
-            ? `/assessments/collaborative/${this.state.params.id}/${this.participation._id}`
-            : `/assessments/${this.participation.exam?.id}`;
-        this.Window.nativeWindow.open(url, '_blank');
+            ? `/staff/assessments/${this.route.snapshot.params.id}/collaborative/${this.participation._id}`
+            : `/staff/assessments/${this.participation.exam?.id}`;
+        window.open(url, '_blank');
     };
 
     hideGrade = () => !this.participation.exam?.grade;

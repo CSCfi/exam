@@ -16,17 +16,10 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import { isNumber } from 'lodash';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { map } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { SessionService } from '../session/session.service';
-import { AttachmentService } from '../utility/attachment/attachment.service';
-import { FileService } from '../utility/file/file.service';
-import { BaseQuestionEditorComponent } from './examquestion/baseQuestionEditor.component';
-
-import type { Observable } from 'rxjs';
 import type {
     Exam,
     ExamSection,
@@ -36,6 +29,12 @@ import type {
     Question,
     ReverseQuestion,
 } from '../exam/exam.model';
+import { SessionService } from '../session/session.service';
+import { AttachmentService } from '../shared/attachment/attachment.service';
+import { FileService } from '../shared/file/file.service';
+import { isNumber } from '../shared/miscellaneous/helpers';
+import { BaseQuestionEditorComponent } from './examquestion/base-question-editor.component';
+
 export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
 export type QuestionAmounts = {
     accepted: number;
@@ -43,19 +42,17 @@ export type QuestionAmounts = {
     hasEssays: boolean;
 };
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class QuestionService {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
         private modal: NgbModal,
+        private toast: ToastrService,
         private Session: SessionService,
         private Files: FileService,
         private Attachment: AttachmentService,
     ) {}
-
-    private questionsApi = (id?: number) => (!id ? '/app/questions' : `/app/questions/${id}`);
-    private questionOwnerApi = (id?: number) => (!id ? '/app/questions/owner' : `/app/questions/owner/${id}`);
 
     getQuestionType = (type: string) => {
         let questionType;
@@ -126,26 +123,6 @@ export class QuestionService {
     calculateDefaultMaxPoints = (question: Question) =>
         question.options.filter((o) => o.defaultScore > 0).reduce((a, b) => a + b.defaultScore, 0);
 
-    calculateWeightedMaxPoints = (sectionQuestion: ExamSectionQuestion): number => {
-        const points = sectionQuestion.options.filter((o) => o.score > 0).reduce((a, b) => a + b.score, 0);
-        return parseFloat(points.toFixed(2));
-    };
-
-    calculateMaxScore = (question: ExamSectionQuestion) => {
-        const evaluationType = question.evaluationType;
-        const type = question.question.type;
-        if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion' || type === 'ClozeTestQuestion') {
-            return question.maxScore;
-        }
-        if (type === 'WeightedMultipleChoiceQuestion') {
-            return this.calculateWeightedMaxPoints(question);
-        }
-        if (type === 'ClaimChoiceQuestion') {
-            return this.getCorrectClaimChoiceOptionScore(question);
-        }
-        return 0;
-    };
-
     getMinimumOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
         const optionScores = sectionQuestion.options.map((o) => o.score);
         const scores = [0, ...optionScores]; // Make sure 0 is included
@@ -160,14 +137,6 @@ export class QuestionService {
         }
         const correctOption = question.options.filter((o) => o.correctOption && o.claimChoiceType === 'CorrectOption');
         return correctOption.length === 1 ? correctOption[0].defaultScore : 0;
-    };
-
-    getCorrectClaimChoiceOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
-        if (!sectionQuestion.options) {
-            return 0;
-        }
-        const optionScores = sectionQuestion.options.map((o) => o.score);
-        return Math.max(0, ...optionScores);
     };
 
     scoreClozeTestAnswer = (sectionQuestion: ExamSectionQuestion): number => {
@@ -254,43 +223,41 @@ export class QuestionService {
         }
     };
 
-    private getQuestionData(question: Partial<Question>): Partial<Question> {
-        const questionToUpdate: Partial<Question> = {
-            type: question.type,
-            defaultMaxScore: question.defaultMaxScore,
-            question: question.question,
-            shared: question.shared,
-            defaultAnswerInstructions: question.defaultAnswerInstructions,
-            defaultEvaluationCriteria: question.defaultEvaluationCriteria,
-            questionOwners: question.questionOwners,
-            tags: question.tags,
-            options: question.options,
-        };
-        if (question.id) {
-            questionToUpdate.id = question.id;
-        }
+    calculateWeightedMaxPoints = (sectionQuestion: ExamSectionQuestion): number => {
+        const points = sectionQuestion.options.filter((o) => o.score > 0).reduce((a, b) => a + b.score, 0);
+        return parseFloat(points.toFixed(2));
+    };
 
-        // update question specific attributes
-        switch (questionToUpdate.type) {
-            case 'EssayQuestion':
-                questionToUpdate.defaultExpectedWordCount = question.defaultExpectedWordCount;
-                questionToUpdate.defaultEvaluationType = question.defaultEvaluationType;
-                break;
-            case 'MultipleChoiceQuestion':
-            case 'WeightedMultipleChoiceQuestion':
-                questionToUpdate.options = question.options;
-                break;
+    getCorrectClaimChoiceOptionScore = (sectionQuestion: ExamSectionQuestion): number => {
+        if (!sectionQuestion.options) {
+            return 0;
         }
-        return questionToUpdate;
-    }
+        const optionScores = sectionQuestion.options.map((o) => o.score);
+        return Math.max(0, ...optionScores);
+    };
+
+    calculateMaxScore = (question: ExamSectionQuestion) => {
+        const evaluationType = question.evaluationType;
+        const type = question.question.type;
+        if (evaluationType === 'Points' || type === 'MultipleChoiceQuestion' || type === 'ClozeTestQuestion') {
+            return question.maxScore;
+        }
+        if (type === 'WeightedMultipleChoiceQuestion') {
+            return this.calculateWeightedMaxPoints(question);
+        }
+        if (type === 'ClaimChoiceQuestion') {
+            return this.getCorrectClaimChoiceOptionScore(question);
+        }
+        return 0;
+    };
 
     createQuestion = (question: QuestionDraft): Promise<Question> => {
         const body = this.getQuestionData(question);
         // TODO: make this a pipe
         return new Promise<Question>((resolve, reject) => {
-            this.http.post<Question>(this.questionsApi(), body).subscribe(
-                (response) => {
-                    toast.info(this.translate.instant('sitnet_question_added'));
+            this.http.post<Question>(this.questionsApi(), body).subscribe({
+                next: (response) => {
+                    this.toast.info(this.translate.instant('sitnet_question_added'));
                     if (question.attachment && question.attachment.file && question.attachment.modified) {
                         this.Files.upload(
                             '/app/attachment/question',
@@ -303,8 +270,8 @@ export class QuestionService {
                         resolve(response);
                     }
                 },
-                (error) => reject(error),
-            );
+                error: reject,
+            });
         });
     };
 
@@ -312,7 +279,7 @@ export class QuestionService {
         const body = this.getQuestionData(question);
         return new Promise<Question>((resolve) => {
             this.http.put<Question>(this.questionsApi(question.id), body).subscribe((response) => {
-                toast.info(this.translate.instant('sitnet_question_saved'));
+                this.toast.info(this.translate.instant('sitnet_question_saved'));
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
                     this.Files.upload(
                         '/app/attachment/question',
@@ -520,4 +487,37 @@ export class QuestionService {
         modal.componentInstance.collaborative = collaborative;
         return from(modal.result);
     };
+
+    private questionsApi = (id?: number) => (!id ? '/app/questions' : `/app/questions/${id}`);
+    private questionOwnerApi = (id?: number) => (!id ? '/app/questions/owner' : `/app/questions/owner/${id}`);
+
+    private getQuestionData(question: Partial<Question>): Partial<Question> {
+        const questionToUpdate: Partial<Question> = {
+            type: question.type,
+            defaultMaxScore: question.defaultMaxScore,
+            question: question.question,
+            shared: question.shared,
+            defaultAnswerInstructions: question.defaultAnswerInstructions,
+            defaultEvaluationCriteria: question.defaultEvaluationCriteria,
+            questionOwners: question.questionOwners,
+            tags: question.tags,
+            options: question.options,
+        };
+        if (question.id) {
+            questionToUpdate.id = question.id;
+        }
+
+        // update question specific attributes
+        switch (questionToUpdate.type) {
+            case 'EssayQuestion':
+                questionToUpdate.defaultExpectedWordCount = question.defaultExpectedWordCount;
+                questionToUpdate.defaultEvaluationType = question.defaultEvaluationType;
+                break;
+            case 'MultipleChoiceQuestion':
+            case 'WeightedMultipleChoiceQuestion':
+                questionToUpdate.options = question.options;
+                break;
+        }
+        return questionToUpdate;
+    }
 }

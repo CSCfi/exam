@@ -15,12 +15,11 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
+import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
+import type { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
 
-import type { Observable } from 'rxjs';
-import type { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
 export interface LibraryQuestion extends ReverseQuestion {
     icon: string;
     displayedMaxScore: number | string;
@@ -29,36 +28,13 @@ export interface LibraryQuestion extends ReverseQuestion {
     allowedToRemove: boolean;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class LibraryService {
     constructor(
         private http: HttpClient,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
         private Question: QuestionService,
     ) {}
-
-    private getQueryParams = (courseIds: number[], sectionIds: number[], tagIds: number[], examIds?: number[]) => {
-        let params = new HttpParams();
-
-        const returnAppendedHttpParams = (key: string, idArray: number[], paramsObj: HttpParams) => {
-            return idArray.reduce((paramObj, currentId) => paramObj.append(key, currentId.toString()), paramsObj);
-        };
-
-        if (courseIds.length > 0) {
-            params = returnAppendedHttpParams('course', courseIds, params);
-        }
-        if (sectionIds.length > 0) {
-            params = returnAppendedHttpParams('section', sectionIds, params);
-        }
-        if (tagIds.length > 0) {
-            params = returnAppendedHttpParams('tag', tagIds, params);
-        }
-        if (examIds && examIds.length > 0) {
-            params = returnAppendedHttpParams('exam', examIds, params);
-        }
-
-        return params;
-    };
 
     listExams = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Exam[]> =>
         this.http.get<Exam[]>('/app/examsearch', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
@@ -117,6 +93,65 @@ export class LibraryService {
         }
     };
 
+    search = (
+        examIds: number[],
+        courseIds: number[],
+        tagIds: number[],
+        sectionIds: number[],
+    ): Observable<LibraryQuestion[]> =>
+        this.http
+            .get<LibraryQuestion[]>('/app/questions', {
+                params: this.getQueryParams(courseIds, sectionIds, tagIds, examIds),
+            })
+            .pipe(
+                map((questions) => {
+                    questions.map((question) => Object.assign(question, { icon: this.getIcon(question) }));
+                    questions.forEach((q) => {
+                        q.displayedMaxScore = this.getDisplayedMaxScore(q);
+                        q.typeOrd = [
+                            'EssayQuestion',
+                            'ClozeTestQuestion',
+                            'MultipleChoiceQuestion',
+                            'WeightedMultipleChoiceQuestion',
+                            'ClaimChoiceQuestion',
+                        ].indexOf(q.type);
+                        q.ownerAggregate = this.getOwnerAggregate(q);
+                        q.allowedToRemove =
+                            q.examSectionQuestions.filter(function (esq) {
+                                const exam = esq.examSection.exam;
+                                return (
+                                    exam.state === 'PUBLISHED' &&
+                                    new Date(exam.examActiveEndDate || 0).getTime() > new Date().getTime()
+                                );
+                            }).length === 0;
+                    });
+                    return questions;
+                }),
+            );
+
+    private getQueryParams = (courseIds: number[], sectionIds: number[], tagIds: number[], examIds?: number[]) => {
+        let params = new HttpParams();
+
+        const returnAppendedHttpParams = (key: string, idArray: number[], paramsObj: HttpParams) => {
+            return idArray.reduce((paramObj, currentId) => paramObj.append(key, currentId.toString()), paramsObj);
+        };
+
+        if (courseIds.length > 0) {
+            params = returnAppendedHttpParams('course', courseIds, params);
+        }
+        if (sectionIds.length > 0) {
+            params = returnAppendedHttpParams('section', sectionIds, params);
+        }
+        if (tagIds.length > 0) {
+            params = returnAppendedHttpParams('tag', tagIds, params);
+        }
+        if (examIds && examIds.length > 0) {
+            params = returnAppendedHttpParams('exam', examIds, params);
+        }
+
+        return params;
+    };
+
     private getIcon = (question: LibraryQuestion) => {
         switch (question.type) {
             case 'MultipleChoiceQuestion':
@@ -153,42 +188,6 @@ export class LibraryService {
 
     private getOwnerAggregate = (q: LibraryQuestion): string =>
         q.questionOwners.reduce((acc, owner) => acc + owner.lastName + owner.firstName, '');
-
-    search = (
-        examIds: number[],
-        courseIds: number[],
-        tagIds: number[],
-        sectionIds: number[],
-    ): Observable<LibraryQuestion[]> =>
-        this.http
-            .get<LibraryQuestion[]>('/app/questions', {
-                params: this.getQueryParams(courseIds, sectionIds, tagIds, examIds),
-            })
-            .pipe(
-                map((questions) => {
-                    questions.map((question) => Object.assign(question, { icon: this.getIcon(question) }));
-                    questions.forEach((q) => {
-                        q.displayedMaxScore = this.getDisplayedMaxScore(q);
-                        q.typeOrd = [
-                            'EssayQuestion',
-                            'ClozeTestQuestion',
-                            'MultipleChoiceQuestion',
-                            'WeightedMultipleChoiceQuestion',
-                            'ClaimChoiceQuestion',
-                        ].indexOf(q.type);
-                        q.ownerAggregate = this.getOwnerAggregate(q);
-                        q.allowedToRemove =
-                            q.examSectionQuestions.filter(function (esq) {
-                                const exam = esq.examSection.exam;
-                                return (
-                                    exam.state === 'PUBLISHED' &&
-                                    new Date(exam.examActiveEndDate || 0).getTime() > new Date().getTime()
-                                );
-                            }).length === 0;
-                    });
-                    return questions;
-                }),
-            );
 
     private htmlDecode = (text: string) => {
         const el = document.createElement('html');

@@ -169,6 +169,9 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @OneToOne(mappedBy = "exam", cascade = CascadeType.ALL)
     private AutoEvaluationConfig autoEvaluationConfig;
 
+    @OneToOne(mappedBy = "exam", cascade = CascadeType.ALL)
+    private ExamFeedbackConfig examFeedbackConfig;
+
     @OneToOne(mappedBy = "exam")
     private LanguageInspection languageInspection;
 
@@ -212,10 +215,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @ManyToMany(cascade = CascadeType.ALL)
     private List<Software> softwares;
 
-    /*
-     * this is the user who is marked as evaluator of the Exam
-     * in WebOodi, or other system
-     */
     @ManyToOne
     private User gradedByUser;
 
@@ -659,6 +658,13 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
             configClone.save();
             clone.setAutoEvaluationConfig(configClone);
         }
+        /* CSCEXAM-1127
+        if (examFeedbackConfig != null && produceStudentExam) {
+            ExamFeedbackConfig configClone = examFeedbackConfig.copy();
+            configClone.setExam(clone);
+            configClone.save();
+            clone.setExamFeedbackConfig(configClone);
+        }*/
 
         for (ExamInspection ei : examInspections) {
             ExamInspection inspection = new ExamInspection();
@@ -757,6 +763,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
 
     public void setAutoEvaluationConfig(AutoEvaluationConfig autoEvaluationConfig) {
         this.autoEvaluationConfig = autoEvaluationConfig;
+    }
+
+    public ExamFeedbackConfig getExamFeedbackConfig() {
+        return examFeedbackConfig;
+    }
+
+    public void setExamFeedbackConfig(ExamFeedbackConfig examFeedbackConfig) {
+        this.examFeedbackConfig = examFeedbackConfig;
     }
 
     public Set<InspectionComment> getInspectionComments() {

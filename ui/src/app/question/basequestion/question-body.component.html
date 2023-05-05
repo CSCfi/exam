@@ -1,0 +1,427 @@
+<!-- SIT-1548 disable at least for now --->
+<!-- Shared -->
+<!--div class="row">
+    <div class="checkbox">
+        <label><input type="checkbox" [(ngModel)]="newQuestion.shared">
+            <strong class="sitnet-info-text">{{ 'sitnet_public_question' | translate }}</strong></label>
+    </div>
+</div-->
+<style>
+    #questionBody.ng-invalid {
+        border-color: transparent;
+    }
+    #editor.ng-invalid {
+        border-color: transparent;
+    }
+</style>
+<div ngModelGroup="questionBody" id="questionBody">
+    <div class="student-enrolment-wrapper review-view exam-view-warning mart40" *ngIf="showWarning()">
+        <!-- Exam contexts -->
+        <div class="row">
+            <div class="col-auto p-1">
+                <img
+                    src="/assets/images/icon_warning.png"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_warning.svg';"
+                />
+            </div>
+            <div class="col warning-text">
+                {{ 'sitnet_exam_question_edit_instructions' | translate }}
+                <ul class="list-inline margin-10">
+                    <li class="list-inline-item">
+                        <span *ngFor="let name of examNames" class="exists-text">
+                            <span class="padr10">{{ name }}</span>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question editor -->
+    <div class="row mt-3" *ngIf="!showWarning()">
+        <div class="col-md-12">
+            <div class="review-list-title">
+                {{ 'sitnet_exam_basic_information_tab' | translate }}
+            </div>
+        </div>
+    </div>
+    <div class="row mt-3" *ngIf="showWarning()">
+        <div class="col-md-12">
+            <div class="review-list-title">
+                {{ 'sitnet_exam_basic_information_tab' | translate }}
+                <i class="bi-exclamation-circle padl20 reddish"></i>
+                <span class="warning-text-small ps-2">
+                    {{ 'sitnet_shared_question_property_info' | translate }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-3 exam-basic-title" *ngIf="question.id">
+            {{ 'sitnet_question_id' | translate }}
+        </div>
+        <div class="col-md-9 padr0" *ngIf="question.id">#{{ question.id }}</div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-3 exam-basic-title">
+            {{ 'sitnet_new_question_type' | translate }}
+            <sup
+                ngbPopover="{{ 'sitnet_question_type_description' | translate }}"
+                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img
+                    src="/assets/images/icon_tooltip.svg"
+                    alt="exam"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                />
+            </sup>
+        </div>
+        <div class="col-md-9">
+            <select
+                [hidden]="question.type"
+                id="newQuestion"
+                name="newQuestion"
+                class="form-select wdtin"
+                [(ngModel)]="newType"
+                (change)="setQuestionType()"
+            >
+                <option *ngFor="let type of questionTypes" value="{{ type.type }}">{{ type.name | translate }}</option>
+            </select>
+            <span *ngIf="question.type === 'EssayQuestion'">
+                {{ 'sitnet_toolbar_essay_question' | translate }}
+            </span>
+            <span *ngIf="question.type === 'ClozeTestQuestion'">
+                {{ 'sitnet_toolbar_cloze_test_question' | translate }}
+            </span>
+            <span *ngIf="question.type === 'MultipleChoiceQuestion'">
+                {{ 'sitnet_toolbar_multiplechoice_question' | translate }}
+            </span>
+            <span *ngIf="question.type === 'WeightedMultipleChoiceQuestion'">
+                {{ 'sitnet_toolbar_weighted_multiplechoice_question' | translate }}
+            </span>
+            <span *ngIf="question.type === 'ClaimChoiceQuestion'">
+                {{ 'sitnet_toolbar_claim_choice_question' | translate }}
+            </span>
+        </div>
+    </div>
+    <div *ngIf="question.type">
+        <div class="row mt-3">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_question_text' | translate }}
+                <sup
+                    ngbPopover="{{ 'sitnet_question_text_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img
+                        src="/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                    />
+                </sup>
+            </div>
+            <div class="col-md-9" [ngClass]="ck.invalid ? 'ng-invalid' : ''">
+                <xm-ckeditor
+                    id="editor"
+                    name="editor"
+                    rows="10"
+                    cols="50"
+                    #ck="ngModel"
+                    [enableClozeTest]="question.type === 'ClozeTestQuestion'"
+                    [(ngModel)]="question.question"
+                    [required]="true"
+                >
+                </xm-ckeditor>
+            </div>
+        </div>
+
+        <div class="row mt-2">
+            <!-- Evaluation -->
+            <div class="col-md-12" *ngIf="question.type === 'EssayQuestion'">
+                <div class="review-list-title">{{ 'sitnet_comments' | translate }}</div>
+            </div>
+            <!-- Multiple choices -->
+            <div
+                class="col-md-12"
+                *ngIf="
+                    question.type === 'MultipleChoiceQuestion' ||
+                    question.type === 'WeightedMultipleChoiceQuestion' ||
+                    question.type === 'ClaimChoiceQuestion'
+                "
+            >
+                <div class="review-list-title">{{ 'sitnet_question_options' | translate }}</div>
+            </div>
+        </div>
+
+        <!-- Type specific content -->
+        <div [ngSwitch]="question.type">
+            <xm-essay-editor *ngSwitchCase="'EssayQuestion'" [question]="question"></xm-essay-editor>
+            <xm-multiple-choice-editor
+                *ngSwitchCase="'MultipleChoiceQuestion'"
+                [question]="question"
+                [showWarning]="showWarning()"
+                [lotteryOn]="lotteryOn"
+                [allowOptionRemoval]="!isInPublishedExam"
+            >
+            </xm-multiple-choice-editor>
+            <xm-multiple-choice-editor
+                *ngSwitchCase="'WeightedMultipleChoiceQuestion'"
+                [question]="question"
+                [showWarning]="showWarning()"
+                [lotteryOn]="lotteryOn"
+                [allowOptionRemoval]="!isInPublishedExam"
+            >
+            </xm-multiple-choice-editor>
+            <xm-claim-choice-editor
+                *ngSwitchCase="'ClaimChoiceQuestion'"
+                [question]="question"
+                [showWarning]="showWarning()"
+            >
+            </xm-claim-choice-editor>
+        </div>
+
+        <!-- Evaluation type - not allowed if question is in use in other published exam. -->
+        <div class="row mt-3" *ngIf="question.type === 'EssayQuestion'">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_evaluation_type' | translate }}
+            </div>
+            <div class="col-md-9">
+                <select
+                    id="evaluationType"
+                    name="evaluationType"
+                    class="form-select wdt240"
+                    [(ngModel)]="question.defaultEvaluationType"
+                    (change)="updateEvaluationType()"
+                    required="question.type == 'EssayQuestion'"
+                >
+                    <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
+                    <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Max score -->
+        <div
+            class="row mt-3"
+            *ngIf="
+                question.type === 'MultipleChoiceQuestion' ||
+                question.type === 'ClozeTestQuestion' ||
+                question.defaultEvaluationType === 'Points'
+            "
+        >
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_max_score' | translate }}
+            </div>
+            <div class="col-md-9">
+                <input
+                    id="defaultMaxScore"
+                    name="defaultMaxScore"
+                    type="number"
+                    lang="en"
+                    class="form-control wdt100"
+                    [(ngModel)]="question.defaultMaxScore"
+                    [min]="0"
+                    [max]="1000"
+                    required
+                    [disabled]="lotteryOn"
+                />
+            </div>
+        </div>
+
+        <!-- Additional info -->
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <div class="review-list-title">{{ 'sitnet_additional_info' | translate }}</div>
+            </div>
+        </div>
+
+        <!-- Exam owners -->
+        <div class="row mt-3 align-items-center">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_question_owners' | translate }}
+                <sup
+                    ngbPopover="{{ 'sitnet_question_owners_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img
+                        src="/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                    />
+                </sup>
+            </div>
+            <div class="col-md-3" *ngIf="isUserAllowedToModifyOwners()">
+                <div class="input-group">
+                    <input
+                        type="text"
+                        name="questionOnwers"
+                        class="form-control"
+                        [(ngModel)]="newOwner.name"
+                        [ngbTypeahead]="listQuestionOwners$"
+                        [editable]="false"
+                        [inputFormatter]="nameFormat"
+                        [resultFormatter]="nameFormat"
+                        (selectItem)="setQuestionOwner($event)"
+                    />
+                    <button
+                        (click)="addQuestionOwner()"
+                        [disabled]="!newOwner?.name"
+                        class="btn btn-primary green input-group-text"
+                    >
+                        {{ 'sitnet_add' | translate }}
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <ul class="list-inline mart10 padl10" *ngIf="isUserAllowedToModifyOwners()">
+                    <li *ngFor="let user of currentOwners" class="list-inline-item">
+                        {{ user.firstName }} {{ user.lastName }}
+                        <button
+                            class="reviewer-remove"
+                            [disabled]="removeOwnerDisabled(user)"
+                            (click)="removeOwner(user)"
+                            title="{{ 'sitnet_remove' | translate }}"
+                        >
+                            <img
+                                src="/assets/images/icon_remove.svg"
+                                alt="exam"
+                                onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
+                            />
+                        </button>
+                    </li>
+                </ul>
+                <div *ngIf="!isUserAllowedToModifyOwners()">
+                    <span *ngFor="let user of currentOwners" class="label label-default pe-2">
+                        {{ user.firstName }} {{ user.lastName }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attachment -->
+        <div class="row mt-3 align-items-center">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_question_attachment' | translate }}
+                <sup
+                    ngbPopover="{{ 'sitnet_attachment_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img
+                        src="/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                    />
+                </sup>
+            </div>
+            <div class="col-md-9" id="attachment">
+                <div class="review-attachment-button wdt120 make-inline">
+                    <a class="pointer" (click)="selectFile()">{{ 'sitnet_attach_file' | translate }}</a>
+                </div>
+                <div *ngIf="question.attachment && !question.attachment?.removed" class="make-inline padl10">
+                    <!-- Uploaded -->
+                    <a
+                        *ngIf="hasUploadedAttachment()"
+                        class="pointer attachment-link"
+                        (click)="downloadQuestionAttachment()"
+                    >
+                        <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
+                    </a>
+                    <!-- Not yet uploaded -->
+                    <span *ngIf="!hasUploadedAttachment()" class="attachment-link">
+                        <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
+                        <small *ngIf="question.attachment"> ({{ getFileSize() }})</small>
+                    </span>
+                    <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
+                        <img
+                            src="/assets/images/icon_remove.svg"
+                            alt="{{ 'sitnet_remove_attachment' | translate }}"
+                            onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
+                        />
+                    </span>
+                </div>
+                <div class="mart10" *ngIf="showWarning()">
+                    <i class="bi-exclamation-circle reddish"></i>
+                    <span class="warning-text-small">{{ 'sitnet_shared_question_property_info' | translate }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="row mt-3">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_question_instruction' | translate }}
+                <sup
+                    ngbPopover="{{ 'sitnet_question_instruction_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img
+                        src="/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                    />
+                </sup>
+            </div>
+            <div class="col-md-9 padr0">
+                <textarea
+                    id="defaultInstructions"
+                    name="defaultInstructions"
+                    class="form-control"
+                    rows="3"
+                    [(ngModel)]="question.defaultAnswerInstructions"
+                    placeholder="{{ 'sitnet_question_instruction' | translate }}"
+                >
+                </textarea>
+            </div>
+        </div>
+
+        <!-- Evaluation criteria -->
+        <div class="row mt-3" *ngIf="question.type === 'EssayQuestion'">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_exam_evaluation_criteria' | translate }}
+                <sup
+                    ngbPopover="{{ 'sitnet_question_evaluation_criteria_description' | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img
+                        src="/assets/images/icon_tooltip.svg"
+                        alt="exam"
+                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                    />
+                </sup>
+            </div>
+            <div class="col-md-9 padr0">
+                <textarea
+                    id="defaultEvaluationCriteria"
+                    name="defaultEvaluationCriteria"
+                    class="form-control"
+                    rows="3"
+                    [(ngModel)]="question.defaultEvaluationCriteria"
+                    placeholder="{{ 'sitnet_exam_evaluation_criteria' | translate }}"
+                >
+                </textarea>
+            </div>
+        </div>
+
+        <!-- Tags -->
+        <xm-tag-picker *ngIf="!collaborative" [question]="question"></xm-tag-picker>
+
+        <!-- Categories -->
+        <div class="row mt-3" *ngIf="sectionNames.length > 0">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'sitnet_added_to_sections' | translate }}
+            </div>
+            <div class="col-md-9 padr0">
+                <ul class="list-inline mart10">
+                    <li *ngFor="let name of sectionNames" class="list-inline-item">{{ name }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

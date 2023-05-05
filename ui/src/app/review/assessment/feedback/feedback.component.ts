@@ -12,37 +12,96 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
-import { UIRouterGlobals } from '@uirouter/core';
-
-import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { FileService } from '../../../utility/file/file.service';
-import { AssessmentService } from '../assessment.service';
-import { CollaborativeAssesmentService } from '../collaborativeAssessment.service';
-
+import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import type { ExamParticipation } from '../../../exam/exam.model';
 import type { Examination } from '../../../examination/examination.model';
-import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
+import { AttachmentService } from '../../../shared/attachment/attachment.service';
+import type { FileResult } from '../../../shared/attachment/dialogs/attachment-picker.component';
+import { FileService } from '../../../shared/file/file.service';
+import { AssessmentService } from '../assessment.service';
+import { CollaborativeAssesmentService } from '../collaborative-assessment.service';
 
 @Component({
-    selector: 'r-feedback',
-    templateUrl: './feedback.component.html',
+    selector: 'xm-r-feedback',
+    template: `<div id="feedback">
+        <div cdkDrag id="draggable" class="wrapper">
+            <div class="row align-items-center">
+                <div
+                    class="col-1"
+                    ngbPopover="{{ (hideEditor ? 'sitnet_show' : 'sitnet_hide') | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <i
+                        (click)="toggleFeedbackVisibility()"
+                        class="pointer font-6"
+                        [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"
+                    >
+                    </i>
+                </div>
+                <div class="col-11">
+                    {{ title | translate }}
+                </div>
+            </div>
+            <div [ngbCollapse]="hideEditor" class="body">
+                <div class="row mt-2 mb-1">
+                    <div class="col-md-12">
+                        <xm-ckeditor
+                            id="feedback-editor"
+                            [enableClozeTest]="false"
+                            [(ngModel)]="exam.examFeedback.comment"
+                            #ck="ngModel"
+                            name="ck"
+                            rows="10"
+                            cols="80"
+                        ></xm-ckeditor>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end" *ngIf="exam.examFeedback?.attachment">
+                    <a class="pointer" (click)="downloadFeedbackAttachment()">{{
+                        exam.examFeedback?.attachment?.fileName
+                    }}</a>
+                    <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
+                        <i class="bi-x" title="{{ 'sitnet_remove_attachment' | translate }}"></i>
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                    <button class="btn btn-outline-secondary" (click)="saveFeedback()">
+                        {{ 'sitnet_save' | translate }}
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
+                        {{ 'sitnet_attach_file' | translate }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div> `,
 })
-export class FeedbackComponent {
+export class FeedbackComponent implements OnInit {
     @Input() exam!: Examination;
     @Input() collaborative = false;
     @Input() participation!: ExamParticipation;
     feedbackComment = '';
+    title = '';
 
     hideEditor = false;
+    id = 0;
+    ref = '';
 
     constructor(
-        private routing: UIRouterGlobals,
+        private route: ActivatedRoute,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Attachment: AttachmentService,
         private Files: FileService,
     ) {}
+
+    ngOnInit() {
+        this.id = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
+        this.title =
+            this.exam.executionType.type === 'MATURITY' ? 'sitnet_give_content_statement' : 'sitnet_give_feedback';
+    }
 
     toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);
 
@@ -54,36 +113,16 @@ export class FeedbackComponent {
         }
     };
 
-    private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
-
-    private _saveCollaborativeFeedback$ = () =>
-        this.CollaborativeAssessment.saveFeedback$(this.routing.params.id, this.routing.params.ref, this.participation);
-
-    private _upload = (res: FileResult, url: string) =>
-        this.Files.upload(
-            url,
-            res.$value.attachmentFile,
-            { examId: this.exam.id.toString() },
-            this.exam.examFeedback,
-            () => {
-                // kinda hacky, but let's do this mangling for time being
-                this.participation._rev = this.exam.examFeedback?.attachment?.rev;
-                delete this.exam.examFeedback?.attachment?.rev;
-            },
-        );
-
     selectFile = () => {
         this.Attachment.selectFile(false, {}).then((res: FileResult) => {
             if (this.collaborative) {
-                this._saveCollaborativeFeedback$().subscribe(() => {
-                    const url = `/app/iop/attachment/exam/${this.routing.params.id}/${this.routing.params.ref}/feedback`;
-                    this._upload(res, url);
-                });
+                this._saveCollaborativeFeedback$().subscribe(() =>
+                    this._upload(res, `/app/iop/collab/attachment/exam/${this.id}/${this.ref}/feedback`),
+                );
             } else {
-                this._saveFeedback$().subscribe(() => {
-                    const url = `/app/attachment/exam/${this.exam.id}/feedback`;
-                    this._upload(res, url);
-                });
+                this._saveFeedback$().subscribe(() =>
+                    this._upload(res, `/app/attachment/exam/${this.exam.id}/feedback`),
+                );
             }
         });
     };
@@ -100,13 +139,27 @@ export class FeedbackComponent {
 
     removeFeedbackAttachment = () => {
         if (this.collaborative) {
-            this.Attachment.removeCollaborativeExamFeedbackAttachment(
-                this.routing.params.id,
-                this.routing.params.ref,
-                this.participation,
-            );
+            this.Attachment.removeCollaborativeExamFeedbackAttachment(this.id, this.ref, this.participation);
         } else {
             this.Attachment.removeFeedbackAttachment(this.exam);
         }
     };
+
+    private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
+
+    private _saveCollaborativeFeedback$ = () =>
+        this.CollaborativeAssessment.saveFeedback$(this.id, this.ref, this.participation);
+
+    private _upload = (res: FileResult, url: string) =>
+        this.Files.upload(
+            url,
+            res.$value.attachmentFile,
+            { examId: this.exam.id.toString() },
+            this.exam.examFeedback,
+            () => {
+                // kinda hacky, but let's do this mangling for time being
+                this.participation._rev = this.exam.examFeedback?.attachment?.rev;
+                delete this.exam.examFeedback?.attachment?.rev;
+            },
+        );
 }

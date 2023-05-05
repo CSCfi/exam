@@ -25,7 +25,7 @@
                             >Opintojakson koodi ja nimi / Studieperiodens kod och namn / The code and the name of the
                             course:</strong
                         ><br />
-                        <h4><course-code *ngIf="exam.course" [course]="exam.course"></course-code></h4>
+                        <h4><xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code></h4>
                         <h4>{{ exam.course?.name }}</h4>
                     </td>
                 </tr>
@@ -41,8 +41,8 @@
                             >Tentin p&auml;iv&auml;m&auml;&auml;r&auml;t / Tentamensdatum / Examination dates:</strong
                         >
                         &nbsp;
-                        <span *ngFor="let ed of exam.examinationDates | orderBy: 'date'">
-                            {{ ed.date | date: 'dd.MM.yyyy' }}&nbsp;
+                        <span *ngFor="let ed of exam.examinationDates | orderBy : 'date'">
+                            {{ ed.date | date : 'dd.MM.yyyy' }}&nbsp;
                         </span>
                     </td>
                     <td>
@@ -54,7 +54,7 @@
                 <tr>
                     <td rowspan="2" class="multirow">
                         <strong>Tentaattorit / Tentatoren / Examiners:</strong><br />
-                        <teacher-list [exam]="exam"></teacher-list>
+                        <xm-teacher-list [exam]="exam"></xm-teacher-list>
                     </td>
                     <td>
                         <strong>Opintopistem&auml;&auml;r&auml; / Studiepo&auml;ng / Credit units:</strong>
@@ -77,8 +77,8 @@
                 <tr>
                     <td colspan="2">
                         <strong>Tenttiin vastaaminen / Svara på tentamen / Answer exam questions:</strong><br />
-                        <label *ngFor="let l of exam.examLanguages | orderBy: 'ord'" class="checkbox-inline">
-                            <input type="checkbox" onclick="return false;" value="true" />{{ getLanguageName(l) }}
+                        <label *ngFor="let l of exam.examLanguages | orderBy : 'ord'" class="checkbox-inline">
+                            <input type="checkbox" [disabled]="true" value="true" />{{ getLanguageName(l) }}
                         </label>
                         <div>
                             <p>
@@ -116,7 +116,7 @@
             <div [innerHtml]="exam.instruction"></div>
         </div>
     </div>
-    <div *ngFor="let es of exam.examSections | orderBy: 'sequenceNumber'">
+    <div *ngFor="let es of exam.examSections | orderBy : 'sequenceNumber'">
         <div class="prow">
             <div class="col-md-12">
                 <h4>{{ es.name }}</h4>
@@ -127,12 +127,12 @@
                 {{ es.description }}
             </div>
         </div>
-        <div *ngFor="let esq of es.sectionQuestions | orderBy: 'sequenceNumber'" class="prow question">
+        <div *ngFor="let esq of es.sectionQuestions | orderBy : 'sequenceNumber'" class="prow question">
             <span class="col-md-8"
                 ><strong>{{ esq.sequenceNumber + 1 }}.&nbsp;{{ getQuestionTypeName(esq) }}</strong></span
             >
             <span class="col-md-4"
-                ><strong class="pull-right">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span
+                ><strong class="float-end">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span
             >
             <span class="col-md-12 question" *ngIf="esq.answerInstructions.length > 0"
                 ><strong>Ohjeet / Anvisning / Instructions:</strong><br />
@@ -141,12 +141,12 @@
             <span
                 class="col-md-12 question"
                 *ngIf="esq.question.type !== 'ClozeTestQuestion'"
-                [MathJax]="esq.question.question"
+                [xmMathJax]="esq.question.question"
             ></span>
             <span
                 class="col-md-12 question"
                 *ngIf="esq.question.type === 'ClozeTestQuestion'"
-                [MathJax]="esq.clozeTestAnswer?.question"
+                [xmMathJax]="esq.clozeTestAnswer?.question"
             ></span>
             <span
                 *ngIf="
@@ -158,13 +158,13 @@
             >
                 <div *ngFor="let o of esq.options">
                     <div *ngIf="esq.question.type === 'WeightedMultipleChoiceQuestion'" class="checkbox">
-                        <label><input type="checkbox" onclick="return false;" value="" />{{ o.option.option }}</label>
+                        <label><input type="checkbox" [disabled]="true" value="" />{{ o.option.option }}</label>
                     </div>
                     <div *ngIf="esq.question.type === 'MultipleChoiceQuestion'" class="radio">
-                        <label><input type="radio" onclick="return false;" name="" />{{ o.option.option }}</label>
+                        <label><input type="radio" [disabled]="true" name="" />{{ o.option.option }}</label>
                     </div>
                     <div *ngIf="esq.question.type === 'ClaimChoiceQuestion'" class="radio">
-                        <label><input type="radio" onclick="return false;" name="" />{{ o.option.option }}</label>
+                        <label><input type="radio" [disabled]="true" name="" />{{ o.option.option }}</label>
                     </div>
                 </div>
             </span>

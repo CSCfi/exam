@@ -1,16 +1,13 @@
-import { Component } from '@angular/core';
+import type { OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { cloneDeep } from 'lodash';
+import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { SessionService } from '../../session/session.service';
-import { PermissionType, UserManagementService } from './users.service';
-
-import type { OnInit } from '@angular/core';
 import type { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
 import type { Permission } from './users.service';
+import { PermissionType, UserManagementService } from './users.service';
 
 interface PermissionOption extends Permission {
     name?: string;
@@ -34,9 +31,9 @@ interface UserWithOptions extends User {
 
 @Component({
     templateUrl: './users.component.html',
-    selector: 'users',
+    selector: 'xm-users',
 })
-export class UsersComponent implements OnInit {
+export class UsersComponent implements OnInit, OnDestroy {
     users: UserWithOptions[] = [];
     filteredUsers: UserWithOptions[] = [];
     pageSize = 30;
@@ -54,6 +51,7 @@ export class UsersComponent implements OnInit {
 
     constructor(
         private translate: TranslateService,
+        private toast: ToastrService,
         private session: SessionService,
         private userManagement: UserManagementService,
     ) {
@@ -66,7 +64,7 @@ export class UsersComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 
@@ -196,25 +194,25 @@ export class UsersComponent implements OnInit {
         user.removableRoles = [];
         this.roles.forEach((role) => {
             if (user.roles.map((r) => r.name).indexOf(role.type) === -1) {
-                user.availableRoles.push(cloneDeep(role));
+                user.availableRoles.push({ ...role });
             } else {
-                user.removableRoles.push(cloneDeep(role));
+                user.removableRoles.push({ ...role });
             }
         });
         user.availablePermissions = [];
         user.removablePermissions = [];
         this.permissions.forEach((permission) => {
             if (user.permissions.map((p) => p.type).indexOf(permission.type) === -1) {
-                user.availablePermissions.push(cloneDeep(permission));
+                user.availablePermissions.push({ ...permission });
             } else {
-                user.removablePermissions.push(cloneDeep(permission));
+                user.removablePermissions.push({ ...permission });
             }
         });
     };
 
     initSearch = () => {
-        this.userManagement.getUsers(this.filter.text).subscribe(
-            (users) => {
+        this.userManagement.getUsers(this.filter.text).subscribe({
+            next: (users) => {
                 this.users = users as UserWithOptions[];
                 this.users.forEach((user: UserWithOptions) => {
                     this.updateEditOptions(user);
@@ -222,10 +220,10 @@ export class UsersComponent implements OnInit {
                 this.filterUsers();
                 this.loader.loading = false;
             },
-            (err) => {
+            error: (err) => {
                 this.loader.loading = false;
-                toast.error(this.translate.instant(err.data));
+                this.toast.error(this.translate.instant(err));
             },
-        );
+        });
     };
 }

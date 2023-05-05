@@ -1,0 +1,279 @@
+<div>
+    <div class="review-list-title">
+        {{ 'sitnet_exam_graded_logged' | translate }}
+        <a (click)="view.toggle = !view.toggle" class="pointer">
+            <img
+                *ngIf="!view.toggle"
+                src="/assets/images/icon_list_show_right.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
+            />
+            <img
+                *ngIf="view.toggle"
+                src="/assets/images/icon_list_show_down.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
+            />
+        </a>
+        <sup
+            class="padl05"
+            ngbPopover="{{ 'sitnet_graded_logged_description' | translate }}"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
+        >
+            <img
+                src="/assets/images/icon_tooltip.svg"
+                alt="exam"
+                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+            />
+        </sup>
+    </div>
+</div>
+
+<div *ngIf="view.items.length === 0">
+    <div class="review-no-results">
+        <i class="bi-exclamation-circle grayish"></i>
+        {{ 'sitnet_exam_no_graded_logged' | translate }}
+    </div>
+</div>
+
+<div *ngIf="view.toggle && view.items.length > 0" class="overflow-x-scroll">
+    <div class="py-3 input-group my-2 max-w-350">
+        <input
+            (input)="applyFreeSearchFilter()"
+            [(ngModel)]="view.filter"
+            class="form-control"
+            placeholder="{{ 'sitnet_search' | translate }}"
+        />
+        <i class="input-group-text bi-search"></i>
+    </div>
+
+    <table class="table table-striped exams-table">
+        <thead>
+            <tr>
+                <th class="dropdown" ngbDropdown>
+                    <button class="btn btn-sm btn-outline-secondary font-sm align-items-center" ngbDropdownToggle>
+                        <i class="bi-square"></i>
+                    </button>
+                    <ul ngbDropdownMenu role="menu">
+                        <li ngbDropdownItem role="presentation" [ngClass]="selections.page ? 'active' : ''">
+                            <a role="menuitem" class="unstyled-link pointer" (click)="selectPage('selectionBox')">
+                                {{ 'sitnet_choose_visible' | translate }}
+                            </a>
+                        </li>
+                        <li ngbDropdownItem role="presentation" [ngClass]="selections.all ? 'active' : ''">
+                            <a role="menuitem" class="unstyled-link pointer" (click)="selectAll()">
+                                {{ 'sitnet_choose_all' | translate }}
+                            </a>
+                        </li>
+                    </ul>
+                </th>
+                <th *ngIf="showId()">Id</th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="displayName"
+                        text="sitnet_student"
+                        [predicate]="view.predicate"
+                        [reverse]="view.reverse"
+                        (click)="setPredicate('displayName')"
+                    ></xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="examParticipation.user.email"
+                        text="sitnet_email"
+                        [predicate]="view.predicate"
+                        [reverse]="view.reverse"
+                        (click)="setPredicate('examParticipation.user.email')"
+                    ></xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="duration"
+                        text="sitnet_exam_duration"
+                        [predicate]="view.predicate"
+                        [reverse]="view.reverse"
+                        (click)="setPredicate('duration')"
+                    ></xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="examParticipation.started"
+                        text="sitnet_exam_time"
+                        [predicate]="view.predicate"
+                        [reverse]="view.reverse"
+                        (click)="setPredicate('examParticipation.started')"
+                    ></xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="examParticipation.exan.totalScore"
+                        text="sitnet_total_score"
+                        [predicate]="view.predicate"
+                        [reverse]="view.reverse"
+                        (click)="setPredicate('examParticipation.exam.totalScore')"
+                    ></xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="displayedGrade"
+                        text="sitnet_grade"
+                        [predicate]="view.predicate"
+                        [reverse]="view.reverse"
+                        (click)="setPredicate('displayedGrade')"
+                    ></xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="displayedCredit"
+                        text="sitnet_exam_credit"
+                        [predicate]="view.predicate"
+                        [reverse]="view.reverse"
+                        (click)="setPredicate('displayedCredit')"
+                    ></xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="examParticipation.exam.examFeedback.feedbackStatus"
+                        text="sitnet_feedback"
+                        [predicate]="view.predicate"
+                        [reverse]="view.reverse"
+                        (click)="setPredicate('examParticipation.exam.examFeedback.feedbackStatus')"
+                    ></xm-table-sort>
+                </th>
+                <th class="with-top">
+                    <xm-table-sort
+                        by="displayedGradingTime"
+                        text="sitnet_graded"
+                        [predicate]="view.predicate"
+                        [reverse]="view.reverse"
+                        (click)="setPredicate('displayedGradingTime')"
+                    ></xm-table-sort>
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr
+                *ngFor="
+                    let review of view.filtered
+                        | orderBy : view.predicate : view.reverse
+                        | slice : view.page * view.pageSize : view.page * view.pageSize + view.pageSize
+                "
+            >
+                <td class="table-column-checkbox">
+                    <input
+                        type="checkbox"
+                        [(ngModel)]="review.selected"
+                        class="selectionBox"
+                        [value]="review.examParticipation.id"
+                    />
+                </td>
+                <td *ngIf="showId()">{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
+                <td class="table-column-13 table-column-bold">
+                    <a
+                        *ngIf="collaborative"
+                        class="pointer"
+                        [routerLink]="['/staff/assessments', exam.id, 'collaborative', review.examParticipation._id]"
+                    >
+                        {{ review.displayName }}
+                        <span *ngIf="review.examParticipation.user?.userIdentifier">
+                            <br />({{ review.examParticipation.user.userIdentifier }})</span
+                        >
+                    </a>
+                    <a
+                        *ngIf="!collaborative"
+                        class="pointer"
+                        [routerLink]="['/staff/assessments', review.examParticipation.exam.id]"
+                    >
+                        {{ review.displayName }}
+                        <span *ngIf="review.examParticipation.user?.userIdentifier">
+                            <br />({{ review.examParticipation.user.userIdentifier }})</span
+                        >
+                    </a>
+                </td>
+                <td class="table-column-15">
+                    <a class="pointer smaller" href="mailto:{{ review.examParticipation.user?.email }}">{{
+                        review.examParticipation.user?.email
+                    }}</a>
+                </td>
+                <td class="table-column-10">{{ review.duration + ' min' }}</td>
+                <td class="table-column-10">
+                    {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
+                    {{ 'sitnet_clock_short' | translate }}
+                    {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
+                    {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }}
+                </td>
+                <td class="table-column-15">
+                    {{ review.examParticipation.exam.totalScore }} / {{ review.examParticipation.exam.maxScore }}
+                    <span
+                        *ngIf="
+                            review.examParticipation.exam.rejectedAnswerCount > 0 ||
+                            review.examParticipation.exam.approvedAnswerCount > 0
+                        "
+                    >
+                        <br />{{ 'sitnet_approved' | translate }}:
+                        {{ review.examParticipation.exam.approvedAnswerCount }} <br />{{
+                            'sitnet_rejected' | translate
+                        }}: {{ review.examParticipation.exam.rejectedAnswerCount }}
+                    </span>
+                </td>
+                <td class="table-column-15">{{ review.displayedGrade }}</td>
+                <td class="table-column-10">
+                    {{ review.displayedCredit }}
+                </td>
+                <td class="table-column-10">
+                    <span *ngIf="review.examParticipation.exam.examFeedback?.feedbackStatus">{{
+                        'sitnet_teachers_comment_read' | translate
+                    }}</span>
+                    <span *ngIf="!review.examParticipation.exam.examFeedback?.feedbackStatus">{{
+                        'sitnet_teachers_comment_notread' | translate
+                    }}</span>
+                </td>
+                <td class="table-column-15">{{ review.displayedGradingTime | date : 'dd.MM.yyyy' }}</td>
+            </tr>
+            <!--Fill if page not full-->
+            <tr *ngIf="view.filtered.length === 0">
+                <td *ngIf="showId()" colspan="11">{{ 'sitnet_review_no_result' | translate }}</td>
+                <td *ngIf="!showId()" colspan="10">{{ 'sitnet_review_no_result' | translate }}</td>
+            </tr>
+            <tr *ngFor="let r of [] | pageFill : view.filtered.length : view.page : view.pageSize">
+                <td *ngIf="showId()" colspan="11">&nbsp;</td>
+                <td *ngIf="!showId()" colspan="10">&nbsp;</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="detail-row" *ngIf="view.toggle">
+    <div class="col-md-12" *ngIf="view.filtered.length > view.pageSize">
+        <xm-paginator
+            [items]="view.filtered"
+            (pageSelected)="pageSelected($event)"
+            [pageSize]="view.pageSize"
+            [currentPage]="view.page"
+        ></xm-paginator>
+    </div>
+</div>
+
+<div *ngIf="view.toggle && view.filtered.length > 0">
+    <!-- Buttons -->
+    <div class="padl0 padr0 marb20 w-100 d-flex justify-content-between align-items-center">
+        <div>
+            <div class="speed-review-csv mb-2">
+                <a class="pointer" (click)="printSelected(false)">{{ 'sitnet_print_selected_to_file' | translate }}</a>
+            </div>
+            <div class="speed-review-csv mb-2" *ngIf="!collaborative">
+                <a class="pointer" (click)="printSelected(true)">{{ 'sitnet_print_selected_to_excel' | translate }}</a>
+            </div>
+        </div>
+
+        <div *ngIf="!collaborative">
+            <div class="review-attachment-button make-inline">
+                <a class="pointer" (click)="archiveSelected()">
+                    {{ 'sitnet_archive_selected' | translate }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

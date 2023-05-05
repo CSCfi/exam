@@ -12,20 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
-
+import { Component, Input, OnInit } from '@angular/core';
+import type { Question } from '../../exam/exam.model';
 import { QuestionDraft } from '../question.service';
 
-import type { Question } from '../../exam/exam.model';
 @Component({
-    selector: 'essay-editor',
+    selector: 'xm-essay-editor',
     template: `
         <form name="essayForm">
             <div class="row mt-3">
                 <div class="col-md-3 exam-basic-title">
                     {{ 'sitnet_essay_length_recommendation' | translate }}
                 </div>
-                <div class="col-md-9">
+                <div class="col-md-6">
                     <div class="input-group">
                         <input
                             id="wc"
@@ -52,7 +51,7 @@ import type { Question } from '../../exam/exam.model';
         </form>
     `,
 })
-export class EssayEditorComponent {
+export class EssayEditorComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;
 
     ngOnInit() {

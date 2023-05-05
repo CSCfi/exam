@@ -29,13 +29,14 @@ import models.sections.ExamSection;
 import org.joda.time.DateTime;
 import play.Logger;
 import play.db.ebean.EbeanConfig;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class ExaminationRepository {
 
     private final EbeanServer db;
     private final CollaborativeExamLoader cel;
     private final DatabaseExecutionContext ec;
+    private final DateTimeHandler dateTimeHandler;
 
     private static final Logger.ALogger logger = Logger.of(ExaminationRepository.class);
 
@@ -43,11 +44,13 @@ public class ExaminationRepository {
     public ExaminationRepository(
         EbeanConfig ebeanConfig,
         CollaborativeExamLoader cel,
-        DatabaseExecutionContext databaseExecutionContext
+        DatabaseExecutionContext databaseExecutionContext,
+        DateTimeHandler dateTimeHandler
     ) {
         this.db = Ebean.getServer(ebeanConfig.defaultServer());
         this.cel = cel;
         this.ec = databaseExecutionContext;
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     private Optional<Exam> doCreateExam(Exam prototype, User user, ExamEnrolment enrolment) {
@@ -67,10 +70,9 @@ public class ExaminationRepository {
                 studentExam.setParent(prototype);
             }
             studentExam.generateHash();
-            studentExam.save();
+            db.save(studentExam);
             enrolment.setExam(studentExam);
-            enrolment.save();
-
+            db.save(enrolment);
             txn.commit();
             result = Optional.of(studentExam);
         } finally {
@@ -93,7 +95,7 @@ public class ExaminationRepository {
                 }
                 answer.setQuestion(esq);
                 esq.setClozeTestAnswer(answer);
-                esq.update();
+                db.update(esq);
                 questionsToHide.add(esq.getQuestion());
             });
         questionsToHide.forEach(q -> q.setQuestion(null));
@@ -103,7 +105,7 @@ public class ExaminationRepository {
         return CompletableFuture.supplyAsync(
             () -> {
                 clone.setState(Exam.State.STUDENT_STARTED);
-                clone.save();
+                db.update(clone);
                 clone.setCloned(false);
                 clone.setDerivedMaxScores();
                 processClozeTestQuestions(clone);
@@ -123,14 +125,14 @@ public class ExaminationRepository {
                     if (enrolment.getExaminationEventConfiguration() == null) {
                         now =
                             reservation == null
-                                ? DateTimeUtils.adjustDST(DateTime.now())
-                                : DateTimeUtils.adjustDST(
+                                ? dateTimeHandler.adjustDST(DateTime.now())
+                                : dateTimeHandler.adjustDST(
                                     DateTime.now(),
                                     enrolment.getReservation().getMachine().getRoom()
                                 );
                     }
                     examParticipation.setStarted(now);
-                    examParticipation.save();
+                    db.save(examParticipation);
                 }
                 return clone;
             },
@@ -182,7 +184,7 @@ public class ExaminationRepository {
 
     public CompletionStage<Optional<Exam>> getPrototype(String hash, CollaborativeExam ce, PathProperties pp) {
         if (ce != null) {
-            return cel.downloadExam(ce); // TODO: execution context for WS?
+            return cel.downloadExam(ce);
         }
         return CompletableFuture.supplyAsync(
             () -> {
@@ -204,7 +206,7 @@ public class ExaminationRepository {
 
     private boolean isInEffect(ExamEnrolment ee) {
         DateTime now = ee.getExaminationEventConfiguration() == null
-            ? DateTimeUtils.adjustDST(DateTime.now())
+            ? dateTimeHandler.adjustDST(DateTime.now())
             : DateTime.now();
         if (ee.getReservation() != null) {
             return (ee.getReservation().getStartAt().isBefore(now) && ee.getReservation().getEndAt().isAfter(now));

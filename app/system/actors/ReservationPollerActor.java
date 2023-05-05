@@ -19,21 +19,37 @@ import akka.actor.AbstractActor;
 import impl.NoShowHandler;
 import io.ebean.Ebean;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ExamEnrolment;
+import models.Reservation;
 import org.joda.time.DateTime;
 import play.Logger;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class ReservationPollerActor extends AbstractActor {
 
     private static final Logger.ALogger logger = Logger.of(ReservationPollerActor.class);
 
-    private NoShowHandler handler;
+    private final NoShowHandler noShowHandler;
+    private final DateTimeHandler dateTimeHandler;
 
     @Inject
-    public ReservationPollerActor(NoShowHandler handler) {
-        this.handler = handler;
+    public ReservationPollerActor(NoShowHandler noShowHandler, DateTimeHandler dateTimeHandler) {
+        this.noShowHandler = noShowHandler;
+        this.dateTimeHandler = dateTimeHandler;
+    }
+
+    private boolean isPast(ExamEnrolment ee) {
+        DateTime now = dateTimeHandler.adjustDST(DateTime.now());
+        if (ee.getExaminationEventConfiguration() == null && ee.getReservation() != null) {
+            return ee.getReservation().getEndAt().isBefore(now);
+        } else if (ee.getExaminationEventConfiguration() != null) {
+            int duration = ee.getExam().getDuration();
+            DateTime start = ee.getExaminationEventConfiguration().getExaminationEvent().getStart();
+            return start.plusMinutes(duration).isBefore(now);
+        }
+        return false;
     }
 
     @Override
@@ -43,26 +59,36 @@ public class ReservationPollerActor extends AbstractActor {
                 String.class,
                 s -> {
                     logger.debug("Starting no-show check ->");
-                    DateTime now = DateTimeUtils.adjustDST(DateTime.now());
                     List<ExamEnrolment> enrolments = Ebean
                         .find(ExamEnrolment.class)
                         .fetch("exam")
                         .fetch("collaborativeExam")
                         .fetch("externalExam")
                         .fetch("reservation")
+                        .fetch("examinationEventConfiguration.examinationEvent")
                         .where()
                         .eq("noShow", false)
-                        .or()
-                        .lt("reservation.endAt", now)
-                        .lt("examinationEventConfiguration.examinationEvent.start", now) // FIXME: exam duration
-                        .endOr()
                         .isNull("reservation.externalReservation")
+                        .findList()
+                        .stream()
+                        .filter(this::isPast)
+                        .collect(Collectors.toList());
+                    // The following are cases where external user has made a reservation but did not log in before
+                    // reservation ended. Mark those as no-shows as well.
+                    List<Reservation> reservations = Ebean
+                        .find(Reservation.class)
+                        .where()
+                        .isNull("enrolment")
+                        .isNotNull("externalRef")
+                        .isNull("user")
+                        .isNotNull("externalUserRef")
+                        .eq("sentAsNoShow", false)
+                        .lt("endAt", dateTimeHandler.adjustDST(DateTime.now()))
                         .findList();
-
-                    if (enrolments.isEmpty()) {
+                    if (enrolments.isEmpty() && reservations.isEmpty()) {
                         logger.debug("None found");
                     } else {
-                        handler.handleNoShows(enrolments);
+                        noShowHandler.handleNoShows(enrolments, reservations);
                     }
                     logger.debug("<- done");
                 }

@@ -15,7 +15,6 @@
 
 package impl;
 
-import com.typesafe.config.ConfigFactory;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,12 +25,15 @@ import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamInspection;
+import models.ExaminationEventConfiguration;
 import models.Reservation;
 import play.Logger;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
+import util.config.ConfigReader;
 
 public class NoShowHandlerImpl implements NoShowHandler {
 
@@ -39,21 +41,22 @@ public class NoShowHandlerImpl implements NoShowHandler {
 
     private final WSClient wsClient;
 
-    private static final String HOST = ConfigFactory.load().getString("sitnet.integration.iop.host");
+    private final ConfigReader configReader;
 
     private static final Logger.ALogger logger = Logger.of(NoShowHandlerImpl.class);
 
     @Inject
-    public NoShowHandlerImpl(EmailComposer composer, WSClient wsClient) {
+    public NoShowHandlerImpl(EmailComposer composer, WSClient wsClient, ConfigReader configReader) {
         this.composer = composer;
         this.wsClient = wsClient;
+        this.configReader = configReader;
     }
 
     private void send(ExamEnrolment enrolment) throws MalformedURLException {
         URL url = parseUrl(enrolment.getReservation().getExternalRef());
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, Void> onSuccess = response -> {
-            if (response.getStatus() != 200) {
+            if (response.getStatus() != Http.Status.OK) {
                 logger.error("No success in sending assessment #{} to XM", enrolment.getReservation().getExternalRef());
             } else {
                 enrolment.setNoShow(true);
@@ -65,8 +68,25 @@ public class NoShowHandlerImpl implements NoShowHandler {
         request.post(Json.newObject()).thenApplyAsync(onSuccess);
     }
 
-    private static URL parseUrl(String reservationRef) throws MalformedURLException {
-        return new URL(HOST + String.format("/api/enrolments/%s/noshow", reservationRef));
+    private void send(Reservation reservation) throws MalformedURLException {
+        URL url = parseUrl(reservation.getExternalRef());
+        WSRequest request = wsClient.url(url.toString());
+        Function<WSResponse, Void> onSuccess = response -> {
+            if (response.getStatus() != Http.Status.OK) {
+                logger.error("No success in sending no-show #{} to XM", reservation.getExternalRef());
+            } else {
+                // Reservations without an enrolment meaning remote user didn't turn up at all
+                reservation.setSentAsNoShow(true);
+                reservation.update();
+                logger.info("Successfully sent no-show #{} to XM", reservation.getExternalRef());
+            }
+            return null;
+        };
+        request.post(Json.newObject()).thenApplyAsync(onSuccess);
+    }
+
+    private URL parseUrl(String reservationRef) throws MalformedURLException {
+        return new URL(configReader.getIopHost() + String.format("/api/enrolments/%s/noshow", reservationRef));
     }
 
     private boolean isLocal(ExamEnrolment ee) {
@@ -85,7 +105,7 @@ public class NoShowHandlerImpl implements NoShowHandler {
     }
 
     @Override
-    public void handleNoShows(List<ExamEnrolment> noShows) {
+    public void handleNoShows(List<ExamEnrolment> noShows, List<Reservation> reservations) {
         Stream<ExamEnrolment> locals = noShows
             .stream()
             .filter(this::isNoShow)
@@ -97,16 +117,24 @@ public class NoShowHandlerImpl implements NoShowHandler {
             .filter(ns ->
                 ns.getReservation() != null &&
                 ns.getReservation().getExternalRef() != null &&
+                !ns.getReservation().isSentAsNoShow() &&
                 (ns.getUser() == null || ns.getExternalExam() == null || ns.getExternalExam().getStarted() == null)
             );
+        // Send to XM for further processing
+        // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed
+        // no-shows and sending them one by one over network would be inefficient. However, this is not very likely.
         externals.forEach(r -> {
-            // Send to XM for further processing
-            // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed
-            // no-shows and sending them one by one over network would be inefficient. However, this is not very likely.
             try {
                 send(r);
             } catch (IOException e) {
-                logger.error("Failed in sending assessment back", e);
+                logger.error("Failed in sending no-show back", e);
+            }
+        });
+        reservations.forEach(r -> {
+            try {
+                send(r);
+            } catch (IOException e) {
+                logger.error("Failed in sending no-show back", e);
             }
         });
     }
@@ -118,13 +146,20 @@ public class NoShowHandlerImpl implements NoShowHandler {
             // For no-shows with private examinations we remove the reservation so student can re-reserve.
             // This is needed because student is not able to re-enroll by himself.
             Reservation reservation = enrolment.getReservation();
+            ExaminationEventConfiguration eec = enrolment.getExaminationEventConfiguration();
             enrolment.setReservation(null);
+            enrolment.setExaminationEventConfiguration(null);
+            enrolment.setNoShow(false);
             enrolment.update();
             if (reservation != null) {
                 reservation.delete();
             }
+            if (eec != null) {
+                eec.delete();
+            }
+        } else {
+            enrolment.setNoShow(true);
         }
-        enrolment.setNoShow(true);
         enrolment.update();
         logger.info("Marked enrolment {} as no-show", enrolment.getId());
 

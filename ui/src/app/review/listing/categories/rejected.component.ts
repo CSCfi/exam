@@ -12,20 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
-
-import { SessionService } from '../../../session/session.service';
-import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
-import { ReviewListService } from '../reviewList.service';
-
+import { Component, Input, OnInit } from '@angular/core';
 import type { Exam } from '../../../exam/exam.model';
+import { SessionService } from '../../../session/session.service';
+import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
 import type { Review } from '../../review.model';
-import type { ReviewListView } from '../reviewList.service';
+import type { ReviewListView } from '../review-list.service';
+import { ReviewListService } from '../review-list.service';
+
 @Component({
-    selector: 'rl-rejected',
+    selector: 'xm-rl-rejected',
     templateUrl: './rejected.component.html',
 })
-export class RejectedReviewsComponent {
+export class RejectedReviewsComponent implements OnInit {
     @Input() reviews: Review[] = [];
     @Input() exam!: Exam;
 
@@ -47,11 +46,6 @@ export class RejectedReviewsComponent {
 
     pageSelected = (event: { page: number }) => (this.view.page = event.page);
 
-    private translateGrade = (exam: Exam) => {
-        const grade = exam.grade ? exam.grade.name : 'NONE';
-        return this.CommonExam.getExamGradeDisplayName(grade);
-    };
-
     handleGradedReviews = (r: Review) => {
         r.displayedGradingTime = r.examParticipation.exam.languageInspection
             ? r.examParticipation.exam.languageInspection.finishedAt
@@ -65,5 +59,10 @@ export class RejectedReviewsComponent {
             this.view.reverse = !this.view.reverse;
         }
         this.view.predicate = predicate;
+    };
+
+    private translateGrade = (exam: Exam) => {
+        const grade = exam.grade ? exam.grade.name : 'NONE';
+        return this.CommonExam.getExamGradeDisplayName(grade);
     };
 }

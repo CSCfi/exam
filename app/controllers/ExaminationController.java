@@ -67,9 +67,9 @@ import system.interceptors.ExamActionRouter;
 import system.interceptors.SensitiveDataPolicy;
 import util.AppUtil;
 import util.config.ByodConfigHandler;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
-@SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "configKey" })
+@SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "claimChoiceType", "configKey" })
 public class ExaminationController extends BaseController {
 
     protected final EmailComposer emailComposer;
@@ -80,6 +80,7 @@ public class ExaminationController extends BaseController {
     protected final Environment environment;
     private final ExternalAttachmentLoader externalAttachmentLoader;
     private final ByodConfigHandler byodConfigHandler;
+    protected final DateTimeHandler dateTimeHandler;
 
     private static final Logger.ALogger logger = Logger.of(ExaminationController.class);
 
@@ -92,7 +93,8 @@ public class ExaminationController extends BaseController {
         Environment environment,
         HttpExecutionContext httpExecutionContext,
         ExternalAttachmentLoader externalAttachmentLoader,
-        ByodConfigHandler byodConfigHandler
+        ByodConfigHandler byodConfigHandler,
+        DateTimeHandler dateTimeHandler
     ) {
         this.emailComposer = emailComposer;
         this.examinationRepository = examinationRepository;
@@ -102,6 +104,7 @@ public class ExaminationController extends BaseController {
         this.httpExecutionContext = httpExecutionContext;
         this.externalAttachmentLoader = externalAttachmentLoader;
         this.byodConfigHandler = byodConfigHandler;
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     private Result postProcessClone(ExamEnrolment enrolment, Optional<Exam> oe) {
@@ -449,8 +452,8 @@ public class ExaminationController extends BaseController {
         } else {
             now =
                 ep.getReservation() == null
-                    ? DateTimeUtils.adjustDST(DateTime.now())
-                    : DateTimeUtils.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
+                    ? dateTimeHandler.adjustDST(DateTime.now())
+                    : dateTimeHandler.adjustDST(DateTime.now(), ep.getReservation().getMachine().getRoom());
         }
         ep.setEnded(now);
         ep.setDuration(new DateTime(ep.getEnded().getMillis() - ep.getStarted().getMillis()));

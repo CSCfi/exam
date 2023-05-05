@@ -1,0 +1,168 @@
+<div class="row">
+    <div class="col-md-6">
+        <div class="input-group search tab-search">
+            <input
+                [(ngModel)]="filterText"
+                type="text"
+                class="form-control search"
+                placeholder="{{ 'sitnet_exam_search_description' | translate }}"
+                (ngModelChange)="search($event)"
+            />
+            <div class="input-group-text p-0 search">
+                <img src="/assets/images/icon_search.png" width="49" height="40" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="overflow-x-auto">
+    <div class="col-md-12">
+        <table class="table table-striped exams-table">
+            <thead>
+                <tr>
+                    <th class="with-top">
+                        <xm-table-sort
+                            [reverse]="sorting.reverse"
+                            [predicate]="sorting.predicate"
+                            by="name"
+                            text="sitnet_exam_name"
+                            (click)="setPredicate('name')"
+                        ></xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="course.code"
+                            text="sitnet_course_code"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('course.code')"
+                        ></xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="executionType.type"
+                            text="sitnet_exam_type"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('executionType.type')"
+                        ></xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="examActiveEndDate"
+                            text="sitnet_exam_validity"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('examActiveEndDate')"
+                        ></xm-table-sort>
+                    </th>
+
+                    <th *ngFor="let column of extraData" class="with-top with-space">
+                        <xm-table-sort
+                            by="{{ column.property }}"
+                            text="{{ column.text }}"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate(column.property)"
+                        ></xm-table-sort>
+                    </th>
+                    <th class="with-top">
+                        <xm-table-sort
+                            by="ownerAggregate"
+                            text="sitnet_teachers"
+                            [predicate]="sorting.predicate"
+                            [reverse]="sorting.reverse"
+                            (click)="setPredicate('ownerAggregate')"
+                        ></xm-table-sort>
+                    </th>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let exam of items | orderBy : sorting.predicate : sorting.reverse">
+                    <td *ngIf="exam.name" class="table-column-examname">
+                        <a
+                            *ngIf="isOwner(exam)"
+                            [routerLink]="['/staff/exams', exam.id, '1']"
+                            [state]="{ collaborative: false }"
+                            >{{ exam.name }}</a
+                        >
+                        <span *ngIf="!isOwner(exam)">{{ exam.name }}</span>
+                    </td>
+                    <td *ngIf="!exam.name" class="table-column-examname">
+                        <a
+                            class="text-danger"
+                            *ngIf="isOwner(exam)"
+                            [routerLink]="['/staff/exams', exam.id, '1']"
+                            [state]="{ collaborative: false }"
+                            >{{ 'sitnet_no_name' | translate }}</a
+                        >
+                        <span class="text-danger" *ngIf="!isOwner(exam)">{{ 'sitnet_no_name' | translate }}</span>
+                    </td>
+                    <td>
+                        <xm-course-code class="exam-code" *ngIf="exam.course" [course]="exam.course"></xm-course-code>
+                    </td>
+                    <td>
+                        <span class="exam-type">{{ getExecutionTypeTranslation(exam) }}</span>
+                    </td>
+                    <td class="table-column-open-until">
+                        <span *ngIf="exam.examActiveStartDate && exam.examActiveEndDate">
+                            {{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }} -
+                            {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}
+                        </span>
+                    </td>
+
+                    <td *ngFor="let column of extraData" class="table-column-enroll-participation">
+                        <span class="exam-count">
+                            <a
+                                *ngIf="
+                                    (!column.checkOwnership || isOwner(exam)) && exam.executionType.type !== 'PRINTOUT'
+                                "
+                                [routerLink]="getLink(column, exam)"
+                                >{{ exam[column.property] }}</a
+                            >
+                            <span
+                                *ngIf="
+                                    !isOwner(exam) && column.checkOwnership && exam.executionType.type !== 'PRINTOUT'
+                                "
+                                class="exam-count-not-active"
+                                >{{ exam[column.property] }}</span
+                            >
+                        </span>
+                        <div *ngIf="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
+                    </td>
+
+                    <td class="table-column-teachers">
+                        <xm-teacher-list [exam]="exam"></xm-teacher-list>
+                    </td>
+                    <td class="text-center">
+                        <a *ngIf="isOwner(exam)" (click)="deleteExam(exam)" class="pointer">
+                            <i
+                                class="bi-trash text-dark"
+                                ngbPopover="{{ 'sitnet_exam_remove' | translate }}"
+                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                triggers="mouseenter:mouseleave"
+                            ></i>
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <a class="pointer" (click)="copyExam(exam)">
+                            <i
+                                class="bi-files text-dark"
+                                ngbPopover="{{ 'sitnet_copy' | translate }}"
+                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                triggers="mouseenter:mouseleave"
+                            ></i>
+                        </a>
+                    </td>
+                </tr>
+                <tr *ngIf="items?.length === 0">
+                    <td [attr.colspan]="7 + extraData.length">
+                        {{ 'sitnet_exam_no_result' | translate }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -3,16 +3,17 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-
 import { SessionModule } from '../session/session.module';
-import { UtilityModule } from '../utility/utility.module';
+import { SharedModule } from '../shared/shared.module';
 import { ReportsModule } from './reports/reports.module';
 import { SettingsComponent } from './settings/settings.component';
-import { ExamStatisticsComponent } from './statistics/categories/examStatistics.component';
-import { ReservationStatisticsComponent } from './statistics/categories/reservationStatistics.component';
-import { ResponseStatisticsComponent } from './statistics/categories/responseStatistics.component';
-import { RoomStatisticsComponent } from './statistics/categories/roomStatistics.component';
+import { SettingsService } from './settings/settings.service';
+import { ExamStatisticsComponent } from './statistics/categories/exam-statistics.component';
+import { ReservationStatisticsComponent } from './statistics/categories/reservation-statistics.component';
+import { ResponseStatisticsComponent } from './statistics/categories/response-statistics.component';
+import { RoomStatisticsComponent } from './statistics/categories/room-statistics.component';
 import { StatisticsComponent } from './statistics/statistics.component';
+import { StatisticsService } from './statistics/statistics.service';
 import { UsersComponent } from './users/users.component';
 import { UserManagementService } from './users/users.service';
 
@@ -26,7 +27,7 @@ import { UserManagementService } from './users/users.service';
         RoomStatisticsComponent,
         StatisticsComponent,
     ],
-    imports: [CommonModule, NgbModule, TranslateModule, SessionModule, UtilityModule, FormsModule, ReportsModule],
-    providers: [UserManagementService],
+    imports: [CommonModule, NgbModule, TranslateModule, SessionModule, SharedModule, FormsModule, ReportsModule],
+    providers: [UserManagementService, SettingsService, StatisticsService],
 })
 export class AdministrativeModule {}

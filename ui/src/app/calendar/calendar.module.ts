@@ -13,31 +13,21 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
-import * as ac from 'angular-calendar';
-import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
-
-import { UtilityModule } from '../utility/utility.module';
-import { BookingCalendarComponent } from './bookingCalendar.component';
+import { RouterModule } from '@angular/router';
+import { FullCalendarModule } from '@fullcalendar/angular';
+import { NgbCollapseModule, NgbDropdownModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
+import { SharedModule } from '../shared/shared.module';
+import { BookingCalendarComponent } from './booking-calendar.component';
 import { CalendarComponent } from './calendar.component';
 import { CalendarService } from './calendar.service';
-import { CalendarExamInfoComponent } from './helpers/calendarExamInfo.component';
-import { OptionalSectionsComponent } from './helpers/optionalSections.component';
-import { OrganisationPickerComponent } from './helpers/organisationPicker.component';
-import { SelectedRoomComponent } from './helpers/selectedRoom.component';
-import { SlotPickerComponent } from './helpers/slotPicker.component';
+import { CalendarExamInfoComponent } from './helpers/exam-info.component';
+import { OptionalSectionsComponent } from './helpers/optional-sections.component';
+import { OrganisationPickerComponent } from './helpers/organisation-picker.component';
+import { SelectedRoomComponent } from './helpers/selected-room.component';
+import { SlotPickerComponent } from './helpers/slot-picker.component';
 
 @NgModule({
-    imports: [
-        NgbModule,
-        ac.CalendarModule.forRoot({
-            provide: ac.DateAdapter,
-            useFactory: adapterFactory,
-        }),
-        UIRouterModule,
-        UtilityModule,
-    ],
+    imports: [FullCalendarModule, RouterModule, NgbPopoverModule, NgbDropdownModule, NgbCollapseModule, SharedModule],
     declarations: [
         BookingCalendarComponent,
         CalendarComponent,

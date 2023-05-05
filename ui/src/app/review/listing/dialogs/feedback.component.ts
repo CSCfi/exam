@@ -12,22 +12,38 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-
-import { WindowRef } from '../../../utility/window/window.service';
+import type { Exam } from '../../../exam/exam.model';
 import { AssessmentService } from '../../assessment/assessment.service';
 
-import type { Exam } from '../../../exam/exam.model';
-
 @Component({
-    selector: 'speed-review-feedback',
-    templateUrl: './feedback.component.html',
+    selector: 'xm-speed-review-feedback',
+    template: `<div id="sitnet-dialog">
+        <div class="student-details-title-wrap mart20">
+            <div class="student-enroll-title">{{ 'sitnet_give_feedback' | translate }}</div>
+        </div>
+        <div class="modal-body marl20">
+            <div class="row">
+                <div class="col-md-12 padl0" *ngIf="exam.examFeedback !== null">
+                    <xm-ckeditor rows="10" #ck="ngModel" [(ngModel)]="exam.examFeedback.comment"></xm-ckeditor>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-between">
+            <button class="btn btn btn-success float-start" (click)="ok()">
+                {{ 'sitnet_save' | translate }}
+            </button>
+            <button class="btn btn-primary float-end" (click)="cancel()">
+                {{ 'sitnet_button_cancel' | translate }}
+            </button>
+        </div>
+    </div> `,
 })
-export class SpeedReviewFeedbackComponent {
+export class SpeedReviewFeedbackComponent implements OnInit {
     @Input() exam!: Exam;
 
-    constructor(private modal: NgbActiveModal, private Window: WindowRef, private Assessment: AssessmentService) {}
+    constructor(private modal: NgbActiveModal, private Assessment: AssessmentService) {}
 
     ngOnInit() {
         if (!this.exam.examFeedback) {

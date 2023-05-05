@@ -14,18 +14,18 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService } from '@uirouter/core';
-import { from, throwError } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import { of } from 'ramda';
+import { throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
-import { SessionService } from '../../../session/session.service';
-import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import { AssessmentService } from '../assessment.service';
-
 import type { Exam } from '../../../exam/exam.model';
 import type { LanguageInspection } from '../../../maturity/maturity.model';
+import { SessionService } from '../../../session/session.service';
+import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
+import { AssessmentService } from '../assessment.service';
+
 type State = {
     id: number;
     name: StateName;
@@ -34,7 +34,7 @@ type State = {
     warn: boolean;
     validate?: (exam: Exam) => boolean;
     showHint?: (exam: Exam) => boolean;
-    hint?: string;
+    hint?: (exam: Exam) => string;
     alternateState?: StateName;
 };
 export enum StateName {
@@ -50,17 +50,41 @@ type States = {
     [key in StateName]: State;
 };
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class MaturityService {
+    constructor(
+        private http: HttpClient,
+        private router: Router,
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Confirmation: ConfirmationDialogService,
+        private Assessment: AssessmentService,
+        private Session: SessionService,
+    ) {}
+
     isMissingStatement = (exam: Exam) => {
         if (!this.isUnderLanguageInspection(exam)) {
-            return false;
+            return !exam.examFeedback?.comment;
         }
         return !exam.languageInspection?.statement?.comment;
     };
-    private canFinalizeInspection = (exam: Exam): boolean =>
+    canFinalizeInspection = (exam: Exam): boolean =>
         exam.languageInspection?.statement?.comment ? exam.languageInspection.statement.comment.length > 0 : false;
 
+    resolveHint = (exam: Exam) => {
+        if (!this.isGraded(exam) && this.isMissingStatement(exam)) {
+            return `${this.translate.instant('sitnet_not_reviewed')}, ${this.translate.instant(
+                'sitnet_missing_content_statement',
+            )}`;
+        } else if (this.isGraded(exam) && this.isMissingStatement(exam)) {
+            return this.translate.instant('sitnet_missing_content_statement');
+        } else if (!this.isMissingStatement(exam) && !this.isGraded(exam)) {
+            return this.translate.instant('sitnet_not_reviewed');
+        }
+        return '';
+    };
+
+    // eslint-disable-next-line @typescript-eslint/member-ordering
     MATURITY_STATES: States = {
         [StateName.NOT_REVIEWED]: {
             id: 1,
@@ -68,6 +92,8 @@ export class MaturityService {
             name: StateName.NOT_REVIEWED,
             canProceed: false,
             warn: false,
+            showHint: (exam) => !this.isGraded(exam),
+            hint: this.resolveHint,
         },
         [StateName.REJECT_STRAIGHTAWAY]: {
             id: 2,
@@ -98,7 +124,7 @@ export class MaturityService {
             warn: true,
             validate: this.canFinalizeInspection,
             showHint: this.isMissingStatement,
-            hint: 'sitnet_missing_statement',
+            hint: () => 'sitnet_missing_statement',
         },
         [StateName.APPROVE_LANGUAGE]: {
             id: 6,
@@ -108,7 +134,7 @@ export class MaturityService {
             warn: false,
             validate: this.canFinalizeInspection,
             showHint: this.isMissingStatement,
-            hint: 'sitnet_missing_statement',
+            hint: () => 'sitnet_missing_statement',
             alternateState: StateName.REJECT_LANGUAGE,
         },
         [StateName.MISSING_STATEMENT]: {
@@ -117,20 +143,10 @@ export class MaturityService {
             name: StateName.MISSING_STATEMENT,
             canProceed: false,
             warn: false,
+            showHint: this.isMissingStatement,
+            hint: this.resolveHint,
         },
     };
-
-    constructor(
-        private http: HttpClient,
-        private state: StateService,
-        private translate: TranslateService,
-        private Confirmation: ConfirmationDialogService,
-        private Assessment: AssessmentService,
-        private Session: SessionService,
-    ) {}
-
-    private isUnderLanguageInspection = (exam: Exam) =>
-        this.Session.getUser().isLanguageInspector && exam.languageInspection && !exam.languageInspection.finishedAt;
 
     isMissingFeedback = (exam: Exam) => !exam.examFeedback || !exam.examFeedback.comment;
 
@@ -147,25 +163,6 @@ export class MaturityService {
         return this.http
             .put<LanguageInspection>(`/app/inspection/${inspection.id}/statement`, statement)
             .pipe(tap((li) => Object.assign(exam.languageInspection?.statement, { id: li.id })));
-    };
-
-    private getNextStateName = (exam: Exam): StateName => {
-        if (!this.isGraded(exam)) {
-            return StateName.NOT_REVIEWED;
-        }
-        if (this.isMissingFeedback(exam)) {
-            return StateName.MISSING_STATEMENT;
-        }
-        if (this.isUnderLanguageInspection(exam)) {
-            return StateName.APPROVE_LANGUAGE;
-        }
-        if (this.isAwaitingInspection(exam)) {
-            return StateName.AWAIT_INSPECTION;
-        }
-        const grade = exam.grade;
-        const disapproved = (!grade && !exam.gradeless) || grade?.marksRejection;
-
-        return disapproved ? StateName.REJECT_STRAIGHTAWAY : StateName.LANGUAGE_INSPECT;
     };
 
     getNextState = (exam: Exam): State => {
@@ -187,9 +184,9 @@ export class MaturityService {
         switch (state) {
             case StateName.REJECT_STRAIGHTAWAY:
                 this.Assessment.rejectMaturity$(exam).subscribe(() => {
-                    toast.info(this.translate.instant('sitnet_maturity_rejected'));
+                    this.toast.info(this.translate.instant('sitnet_maturity_rejected'));
                     const state = this.Assessment.getExitState(exam);
-                    this.state.go(state.name as string, state.params);
+                    this.router.navigate(state.fragments, state.params);
                 });
                 break;
             case StateName.LANGUAGE_INSPECT:
@@ -208,34 +205,52 @@ export class MaturityService {
         }
     };
 
+    private isUnderLanguageInspection = (exam: Exam) =>
+        this.Session.getUser().isLanguageInspector && exam.languageInspection && !exam.languageInspection.finishedAt;
+
+    private getNextStateName = (exam: Exam): StateName => {
+        if (!this.isGraded(exam)) {
+            return StateName.NOT_REVIEWED;
+        }
+        if (this.isMissingFeedback(exam)) {
+            return StateName.MISSING_STATEMENT;
+        }
+        if (this.isUnderLanguageInspection(exam)) {
+            return StateName.APPROVE_LANGUAGE;
+        }
+        if (this.isAwaitingInspection(exam)) {
+            return StateName.AWAIT_INSPECTION;
+        }
+        const grade = exam.grade;
+        const disapproved = (!grade && !exam.gradeless) || grade?.marksRejection;
+
+        return disapproved ? StateName.REJECT_STRAIGHTAWAY : StateName.LANGUAGE_INSPECT;
+    };
+
     private sendForLanguageInspection = (exam: Exam) =>
-        from(
-            this.Confirmation.open(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_confirm_maturity_approval'),
-            ).result,
+        this.Confirmation.open$(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_confirm_maturity_approval'),
         )
             .pipe(
                 switchMap(() => this.Assessment.saveFeedback$(exam)),
                 switchMap(() => this.http.put(`app/review/${exam.id}`, this.Assessment.getPayload(exam, 'GRADED'))),
                 switchMap(() => this.http.post('/app/inspection', { examId: exam.id })),
                 catchError((err) => {
-                    toast.error(err.data);
-                    return throwError(err);
+                    this.toast.error(err.data);
+                    return throwError(() => new Error(err));
                 }),
             )
             .subscribe(() => {
-                toast.info(this.translate.instant('sitnet_sent_for_language_inspection'));
+                this.toast.info(this.translate.instant('sitnet_sent_for_language_inspection'));
                 const state = this.Assessment.getExitState(exam);
-                this.state.go(state.name as string, state.params);
+                this.router.navigate(state.fragments, state.params);
             });
 
     private finalizeLanguageInspection = (exam: Exam, reject: boolean) => {
-        from(
-            this.Confirmation.open(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_confirm_language_inspection_approval'),
-            ).result,
+        this.Confirmation.open$(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_confirm_language_inspection_approval'),
         )
             .pipe(
                 switchMap(() => this.saveInspectionStatement$(exam)),
@@ -243,18 +258,24 @@ export class MaturityService {
                     this.http.put(`/app/inspection/${exam.languageInspection?.id}/approval`, { approved: !reject }),
                 ),
                 switchMap(() =>
-                    reject
-                        ? this.Assessment.rejectMaturity$(exam, false)
-                        : this.Assessment.createExamRecord$(exam, false),
+                    exam.parent?.examFeedbackConfig
+                        ? this.Assessment.doesPreviouslyLockedAssessmentsExist$(exam)
+                        : of({ status: 'nothing' }),
+                ),
+                switchMap(
+                    (setting) =>
+                        reject
+                            ? this.Assessment.rejectMaturity$(exam, false)
+                            : this.Assessment.createExamRecord$(exam, false, setting.status === 'everything'), // TODO: is this necessary with private examinations?
                 ),
             )
             .subscribe(() => {
                 if (reject) {
-                    toast.info(this.translate.instant('sitnet_maturity_rejected'));
-                    this.state.go('staff.languageInspections');
+                    this.toast.info(this.translate.instant('sitnet_maturity_rejected'));
+                    this.router.navigate(['/staff/inspections']);
                 } else {
-                    toast.info(this.translate.instant('sitnet_review_recorded'));
-                    this.state.go('staff.languageInspections');
+                    this.toast.info(this.translate.instant('sitnet_review_recorded'));
+                    this.router.navigate(['/staff/inspections']);
                 }
             });
     };

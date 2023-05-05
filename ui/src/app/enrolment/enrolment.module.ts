@@ -14,31 +14,32 @@
  */
 import { NgModule } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { UIRouterModule } from '@uirouter/angular';
-
-import { UtilityModule } from '../utility/utility.module';
-import { ActiveEnrolmentComponent } from './active/activeEnrolment.component';
-import { AddEnrolmentInformationDialogComponent } from './active/dialogs/addEnrolmentInformationDialog.component';
-import { SelectExaminationEventDialogComponent } from './active/dialogs/selectExaminationEventDialog.component';
-import { ShowInstructionsDialogComponent } from './active/dialogs/showInstructionsDialog.component';
-import { ActiveEnrolmentMenuComponent } from './active/helpers/activeEnrolmentMenu.component';
+import { RouterModule } from '@angular/router';
+import { NgbCollapseModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { SharedModule } from '../shared/shared.module';
+import { ActiveEnrolmentComponent } from './active/active-enrolment.component';
+import { AddEnrolmentInformationDialogComponent } from './active/dialogs/add-enrolment-information-dialog.component';
+import { SelectExaminationEventDialogComponent } from './active/dialogs/select-examination-event-dialog.component';
+import { ShowInstructionsDialogComponent } from './active/dialogs/show-instructions-dialog.component';
+import { ActiveEnrolmentMenuComponent } from './active/helpers/active-enrolment-menu.component';
 import { EnrolmentService } from './enrolment.service';
-import { EnrolmentDetailsComponent } from './exams/examEnrolmentDetails.component';
-import { ExamEnrolmentsComponent } from './exams/examEnrolments.component';
-import { CollaborativeParticipationsComponent } from './finished/collaborativeExamParticipations.component';
-import { ExamFeedbackComponent } from './finished/examFeedback.component';
-import { ExamParticipationComponent } from './finished/examParticipation.component';
-import { ExamParticipationsComponent } from './finished/examParticipations.component';
-import { CollaborativeExamSearchComponent } from './search/collaborativeExamSearch.component';
-import { ExamSearchComponent } from './search/examSearch.component';
-import { ExamSearchResultComponent } from './search/examSearchResult.component';
-import { WaitingRoomComponent } from './waiting-room/waitingRoom.component';
-import { WrongLocationComponent } from './wrong-location/wrongLocation.component';
-import { WrongLocationService } from './wrong-location/wrongLocation.service';
+import { EnrolmentDetailsComponent } from './exams/exam-enrolment-details.component';
+import { ExamEnrolmentsComponent } from './exams/exam-enrolments.component';
+import { CollaborativeParticipationsComponent } from './finished/collaborative-exam-participations.component';
+import { ExamAnswersDialogComponent } from './finished/exam-answers-dialog.component';
+import { ExamFeedbackComponent } from './finished/exam-feedback.component';
+import { ExamParticipationComponent } from './finished/exam-participation.component';
+import { ExamParticipationsComponent } from './finished/exam-participations.component';
+import { CollaborativeExamSearchComponent } from './search/collaborative-exam-search.component';
+import { ExamSearchResultComponent } from './search/exam-search-result.component';
+import { ExamSearchComponent } from './search/exam-search.component';
+import { ExamSearchService } from './search/exam-search.service';
+import { WaitingRoomComponent } from './waiting-room/waiting-room.component';
+import { WrongLocationComponent } from './wrong-location/wrong-location.component';
+import { WrongLocationService } from './wrong-location/wrong-location.service';
 
 @NgModule({
-    imports: [BrowserAnimationsModule, NgbModule, UIRouterModule, UtilityModule],
+    imports: [BrowserAnimationsModule, RouterModule, NgbDropdownModule, NgbCollapseModule, SharedModule],
     exports: [ActiveEnrolmentComponent, ExamSearchResultComponent],
     declarations: [
         ActiveEnrolmentComponent,
@@ -46,6 +47,7 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         ExamEnrolmentsComponent,
         CollaborativeParticipationsComponent,
         ExamFeedbackComponent,
+        ExamAnswersDialogComponent,
         ExamParticipationComponent,
         ExamParticipationsComponent,
         CollaborativeExamSearchComponent,
@@ -62,7 +64,8 @@ import { WrongLocationService } from './wrong-location/wrongLocation.service';
         AddEnrolmentInformationDialogComponent,
         SelectExaminationEventDialogComponent,
         ShowInstructionsDialogComponent,
+        ExamAnswersDialogComponent,
     ],
-    providers: [EnrolmentService, WrongLocationService],
+    providers: [EnrolmentService, ExamSearchService, WrongLocationService],
 })
 export class EnrolmentModule {}

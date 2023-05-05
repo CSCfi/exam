@@ -12,47 +12,54 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { forkJoin } from 'rxjs';
-import * as toast from 'toastr';
-
-import { SessionService } from '../../../session/session.service';
-import { ConfirmationDialogService } from '../../../utility/dialogs/confirmationDialog.service';
-import { CommonExamService } from '../../../utility/miscellaneous/commonExam.service';
-import { ReviewListService } from '../reviewList.service';
-
-import type { Exam } from '../../../exam/exam.model';
+import { HttpClient } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import { forkJoin } from 'rxjs';
+import type { Exam } from '../../../exam/exam.model';
+import { SessionService } from '../../../session/session.service';
+import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
+import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
+import { AssessmentService } from '../../assessment/assessment.service';
 import type { Review } from '../../review.model';
-import type { ReviewListView } from '../reviewList.service';
+import type { ReviewListView } from '../review-list.service';
+import { ReviewListService } from '../review-list.service';
+
 @Component({
-    selector: 'rl-graded',
+    selector: 'xm-rl-graded',
     templateUrl: './graded.component.html',
 })
-export class GradedReviewsComponent {
+export class GradedReviewsComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;
     @Input() reviews: Review[] = [];
     @Input() collaborative = false;
-    @Output() onRegistered = new EventEmitter<Review[]>();
+    @Output() registered = new EventEmitter<Review[]>();
     view!: ReviewListView;
+    needsFeedbackWarning = false;
     selections: { all: boolean; page: boolean } = { all: false, page: false };
 
     constructor(
+        private http: HttpClient,
         private translate: TranslateService,
+        private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private ReviewList: ReviewListService,
+        private Assessment: AssessmentService,
         private CommonExam: CommonExamService,
         private Session: SessionService,
     ) {}
 
-    private init() {
-        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.deadline');
-        this.selections = { all: false, page: false };
-    }
-
     ngOnInit() {
         this.init();
+        if (!this.exam.examFeedbackConfig) {
+            this.needsFeedbackWarning = false;
+        } else {
+            this.http
+                .get<{ status: 'nothing' | 'everything' }>(`/app/review/${this.exam.id}/locked`)
+                .subscribe((setting) => (this.needsFeedbackWarning = setting.status === 'everything'));
+        }
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -71,18 +78,17 @@ export class GradedReviewsComponent {
         if (selection.length == 0) {
             return;
         }
+        const content = this.Assessment.getRecordReviewConfirmationDialogContent('', this.needsFeedbackWarning);
         const examId = this.collaborative ? this.exam.id : undefined;
-        this.Confirmation.open(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_record_review'),
-        ).result.then(() =>
-            forkJoin(selection.map((s) => this.ReviewList.sendToRegistry$(s.examParticipation, examId))).subscribe(
-                () => {
-                    this.onRegistered.emit(selection);
-                    toast.info(this.translate.instant('sitnet_results_send_ok'));
-                },
-            ),
-        );
+        this.Confirmation.open$(this.translate.instant('sitnet_confirm'), content).subscribe({
+            next: () =>
+                forkJoin(selection.map((s) => this.ReviewList.sendToRegistry$(s.examParticipation, examId))).subscribe(
+                    () => {
+                        this.registered.emit(selection);
+                        this.toast.info(this.translate.instant('sitnet_results_send_ok'));
+                    },
+                ),
+        });
     };
 
     getLinkToAssessment = (review: Review) =>
@@ -102,6 +108,11 @@ export class GradedReviewsComponent {
         }
         this.view.predicate = predicate;
     };
+
+    private init() {
+        this.view = this.ReviewList.prepareView(this.reviews, this.handleGradedReviews, 'examParticipation.deadline');
+        this.selections = { all: false, page: false };
+    }
 
     private translateGrade = (exam: Exam) => {
         const grade = exam.grade ? exam.grade.name : 'NONE';

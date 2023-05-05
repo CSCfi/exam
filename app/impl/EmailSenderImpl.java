@@ -15,29 +15,26 @@
 
 package impl;
 
-import com.google.common.collect.Sets;
-import com.typesafe.config.ConfigFactory;
+import com.typesafe.config.Config;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Stream;
+import javax.inject.Inject;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailAttachment;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;
 import play.Logger;
 
-class EmailSenderImpl implements EmailSender {
-
-    private String SYSTEM_ACCOUNT = ConfigFactory.load().getString("sitnet.email.system.account");
-    private String HOST = ConfigFactory.load().getString("play.mailer.host");
-    private Integer PORT = ConfigFactory.load().getInt("play.mailer.port");
-    private Boolean USE_SSL = ConfigFactory.load().getString("play.mailer.ssl").equals("YES");
-    private String USER = ConfigFactory.load().getString("play.mailer.user");
-    private String PWD = ConfigFactory.load().getString("play.mailer.password");
-    private Boolean USE_MOCK =
-        ConfigFactory.load().hasPath("play.mailer.mock") && ConfigFactory.load().getBoolean("play.mailer.mock");
+public class EmailSenderImpl implements EmailSender {
 
     private static final Logger.ALogger logger = Logger.of(EmailSenderImpl.class);
+    private final Config config;
+
+    @Inject
+    public EmailSenderImpl(Config config) {
+        this.config = config;
+    }
 
     private void mockSending(HtmlEmail email, String content, EmailAttachment... attachments) {
         logger.info("mock implementation, send email");
@@ -54,6 +51,7 @@ class EmailSenderImpl implements EmailSender {
         Set<String> recipients,
         String sender,
         Set<String> cc,
+        Set<String> bcc,
         String subject,
         String content,
         EmailAttachment... attachments
@@ -63,21 +61,27 @@ class EmailSenderImpl implements EmailSender {
         for (EmailAttachment attachment : attachments) {
             email.attach(attachment);
         }
-        email.setHostName(HOST);
-        email.setSmtpPort(PORT);
-        email.setAuthenticator(new DefaultAuthenticator(USER, PWD));
-        email.setSSLOnConnect(USE_SSL);
+        email.setHostName(config.getString("play.mailer.host"));
+        email.setSmtpPort(config.getInt("play.mailer.port"));
+        email.setAuthenticator(
+            new DefaultAuthenticator(config.getString("play.mailer.user"), config.getString("play.mailer.password"))
+        );
+        email.setSSLOnConnect(config.getString("play.mailer.ssl").equals("YES"));
         email.setSubject(subject);
         for (String r : recipients) {
             email.addTo(r);
         }
-        email.setFrom(String.format("Exam <%s>", SYSTEM_ACCOUNT));
+        email.setFrom(String.format("Exam <%s>", config.getString("sitnet.email.system.account")));
         email.addReplyTo(sender);
         for (String addr : cc) {
             email.addCc(addr);
         }
+        for (String addr : bcc) {
+            email.addBcc(addr);
+        }
         email.setHtmlMsg(content);
-        if (USE_MOCK) {
+        boolean useMock = config.hasPath("play.mailer.mock") && config.getBoolean("play.mailer.mock");
+        if (useMock) {
             mockSending(email, content, attachments);
         } else {
             email.send();
@@ -87,7 +91,15 @@ class EmailSenderImpl implements EmailSender {
     @Override
     public void send(String recipient, String sender, String subject, String content, EmailAttachment... attachments) {
         try {
-            doSend(Sets.newHashSet(recipient), sender, Collections.emptySet(), subject, content, attachments);
+            doSend(
+                Set.of(recipient),
+                sender,
+                Collections.emptySet(),
+                Collections.emptySet(),
+                subject,
+                content,
+                attachments
+            );
         } catch (EmailException e) {
             logger.error("Creating mail failed. Stacktrace follows", e);
         }
@@ -96,7 +108,7 @@ class EmailSenderImpl implements EmailSender {
     @Override
     public void send(String recipient, String sender, Set<String> cc, String subject, String content) {
         try {
-            doSend(Sets.newHashSet(recipient), sender, cc, subject, content);
+            doSend(Set.of(recipient), sender, cc, Collections.emptySet(), subject, content);
         } catch (EmailException e) {
             logger.error("Creating mail failed. Stacktrace follows", e);
         }
@@ -105,7 +117,16 @@ class EmailSenderImpl implements EmailSender {
     @Override
     public void send(Set<String> recipients, String sender, Set<String> cc, String subject, String content) {
         try {
-            doSend(recipients, sender, cc, subject, content);
+            doSend(recipients, sender, cc, Collections.emptySet(), subject, content);
+        } catch (EmailException e) {
+            logger.error("Creating mail failed. Stacktrace follows", e);
+        }
+    }
+
+    @Override
+    public void send(String sender, Set<String> bcc, String subject, String content) {
+        try {
+            doSend(Collections.emptySet(), sender, Collections.emptySet(), bcc, subject, content);
         } catch (EmailException e) {
             logger.error("Creating mail failed. Stacktrace follows", e);
         }

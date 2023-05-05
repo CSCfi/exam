@@ -1,0 +1,105 @@
+<div class="top-padding-2 lightBorderBox">
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <span [xmMathJax]="sectionQuestion.question.question"></span>
+        </div>
+    </div>
+    <!-- question attachment -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:</div>
+        <div class="sub-content-row col-md-9">
+            <span [hidden]="sectionQuestion.question.attachment">N/A</span>
+            <span *ngIf="sectionQuestion.question.attachment">{{ sectionQuestion.question.attachment?.fileName }}</span>
+        </div>
+    </div>
+    <!-- answer -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
+
+        <div class="sub-content-row col-md-9">
+            <div
+                class="row"
+                [hidden]="sectionQuestion.question.type !== 'MultipleChoiceQuestion'"
+                *ngFor="let o of sectionQuestion.options"
+            >
+                <div class="col-md-12">
+                    <span>
+                        <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
+                    </span>
+                    <span [ngClass]="o.option.correctOption ? 'bold' : ''" class="review-question-option-name">
+                        {{ o.option.option }}
+                    </span>
+                </div>
+            </div>
+            <div
+                class="row"
+                [hidden]="sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion'"
+                *ngFor="let o of sectionQuestion.options"
+            >
+                <div class="col-md-3">
+                    <span>
+                        <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
+                    </span>
+                    <span [ngClass]="o.score > 0 ? 'font-bold' : ''"
+                        >&nbsp;&nbsp;{{ o.score }} {{ 'sitnet_unit_points' | translate }}</span
+                    >
+                </div>
+                <div class="col-md-9 review-question-option-name">
+                    <div class="text">{{ o.option.option }}</div>
+                </div>
+            </div>
+            <div
+                class="row"
+                [hidden]="sectionQuestion.question.type !== 'ClaimChoiceQuestion'"
+                *ngFor="let o of sectionQuestion.options"
+            >
+                <div class="col-md-12">
+                    <span>
+                        <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
+                    </span>
+                    <span
+                        [ngClass]="o.option.claimChoiceType === 'CorrectOption' ? 'bold' : ''"
+                        class="review-question-option-name"
+                    >
+                        {{ o.option.option }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- grade -->
+    <div class="row">
+        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_word_points' | translate }}:</div>
+        <div *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'" class="sub-content-row col-md-9">
+            <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                {{ scoreMultipleChoiceAnswer(true) }}
+            </span>
+            <span *ngIf="hasForcedScore()" class="text text-danger">
+                {{ sectionQuestion.forcedScore }}
+            </span>
+            / {{ calculateMultiChoiceMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
+        </div>
+        <div
+            *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
+            class="sub-content-row col-md-9"
+        >
+            <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                {{ scoreWeightedMultipleChoiceAnswer(true) }}
+            </span>
+            <span *ngIf="hasForcedScore()" class="text text-danger">
+                {{ sectionQuestion.forcedScore }}
+            </span>
+            / {{ calculateWeightedMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
+        </div>
+        <div *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'" class="sub-content-row col-md-9">
+            <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                {{ scoreClaimChoiceAnswer(true) }}
+            </span>
+            <span *ngIf="hasForcedScore()" class="text text-danger">
+                {{ sectionQuestion.forcedScore }}
+            </span>
+            / {{ getCorrectClaimChoiceOptionScore() }} {{ 'sitnet_unit_points' | translate }}
+        </div>
+    </div>
+</div>

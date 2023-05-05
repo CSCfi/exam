@@ -12,69 +12,67 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, Input } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
-
 import { EnrolmentService } from '../enrolment/enrolment.service';
 import { SessionService } from '../session/session.service';
-import { WindowRef } from '../utility/window/window.service';
+import type { Examination, ExaminationSection, NavigationPage } from './examination.model';
 import { ExaminationService } from './examination.service';
 
-import type { Examination, ExaminationSection, NavigationPage } from './examination.model';
 @Component({
-    selector: 'examination',
+    selector: 'xm-examination',
     templateUrl: './examination.component.html',
 })
-export class ExaminationComponent {
-    @Input() isCollaborative = false;
+export class ExaminationComponent implements OnInit, OnDestroy {
+    isCollaborative = false;
     exam!: Examination;
     activeSection?: ExaminationSection;
     isPreview = false;
 
     constructor(
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private router: Router,
+        private route: ActivatedRoute,
         private translate: TranslateService,
         private Examination: ExaminationService,
         private Session: SessionService,
         private Enrolment: EnrolmentService,
-        private Window: WindowRef,
     ) {}
 
     ngOnInit() {
-        this.isPreview = this.Window.nativeWindow.location.pathname.includes('preview'); // FIXME! once UI-router issues are settled
+        this.isPreview = this.route.snapshot.data.isPreview;
+        this.isCollaborative = this.route.snapshot.data.isCollaborative || false;
         if (!this.isPreview) {
-            this.Window.nativeWindow.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
+            window.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
         }
         this.Examination.startExam$(
-            this.routing.params.hash,
+            this.route.snapshot.params.hash,
             this.isPreview,
             this.isCollaborative,
-            this.routing.params.id,
-        ).subscribe(
-            (exam) => {
+            this.route.snapshot.params.id,
+        ).subscribe({
+            next: (exam) => {
                 exam.examSections.sort((a, b) => a.sequenceNumber - b.sequenceNumber);
                 this.exam = exam;
                 this.setActiveSection({ type: 'guide' });
-                if (!this.isPreview && !this.exam.cloned && this.exam.executionType.type === 'MATURITY') {
-                    this.Enrolment.showMaturityInstructions({ exam: this.exam });
+                if (!this.isPreview && this.exam.executionType.type === 'MATURITY') {
+                    this.Enrolment.showMaturityInstructions({ exam: this.exam }, this.exam.external);
                 }
                 if (!this.isPreview) {
                     this.Session.disableSessionCheck(); // we don't need this here and it might cause unwanted forwarding to another states
                 }
             },
-            (err) => {
+            error: (err) => {
                 console.log(JSON.stringify(err));
-                this.state.go('dashboard');
+                this.router.navigate(['/dashboard']);
             },
-        );
+        });
     }
 
     ngOnDestroy() {
-        this.Window.nativeWindow.onbeforeunload = null;
+        window.onbeforeunload = null;
     }
 
     selectNewPage = (event: { page: Partial<NavigationPage> }) => this.setActiveSection(event.page);
@@ -108,7 +106,7 @@ export class ExaminationComponent {
         if (page.type === 'section') {
             this.activeSection = this.findSection(page.id as number);
         }
-        this.Window.nativeWindow.scrollTo(0, 0);
+        window.scrollTo(0, 0);
     };
 
     private findSection = (sectionId: number) => {
@@ -116,5 +114,6 @@ export class ExaminationComponent {
         if (i >= 0) {
             return this.exam.examSections[i];
         }
+        throw Error('invalid index');
     };
 }

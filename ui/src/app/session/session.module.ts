@@ -13,17 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-
-import { UtilityModule } from '../utility/utility.module';
-import { DevLoginComponent } from './dev/devLogin.component';
-import { EulaDialogComponent } from './eula/eulaDialog.component';
+import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { SharedModule } from '../shared/shared.module';
+import { DevLoginComponent } from './dev/dev-login.component';
+import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { LogoutComponent } from './logout/logout.component';
-import { SelectRoleDialogComponent } from './role/selectRoleDialog.component';
+import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
 import { SessionService } from './session.service';
 
 @NgModule({
-    imports: [NgbModule, UtilityModule],
+    imports: [NgbDropdownModule, SharedModule],
     exports: [DevLoginComponent],
     declarations: [DevLoginComponent, EulaDialogComponent, SelectRoleDialogComponent, LogoutComponent],
     bootstrap: [EulaDialogComponent, SelectRoleDialogComponent],

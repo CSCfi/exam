@@ -19,7 +19,6 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectPresent;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.typesafe.config.ConfigFactory;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalExamAPI;
@@ -61,7 +60,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.EnrolmentRepository;
 import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class SessionController extends BaseController {
 
@@ -69,17 +68,10 @@ public class SessionController extends BaseController {
     private final ExternalExamAPI externalExamAPI;
     private final ConfigReader configReader;
     private final EnrolmentRepository enrolmentRepository;
+    private final DateTimeHandler dateTimeHandler;
 
     private static final Logger.ALogger logger = Logger.of(SessionController.class);
 
-    private static final String LOGIN_TYPE = ConfigFactory.load().getString("sitnet.login");
-    private static final String CSRF_COOKIE = ConfigFactory.load().getString("play.filters.csrf.cookie.name");
-    private static final Boolean MULTI_STUDENT_ID_ON = ConfigFactory
-        .load()
-        .getBoolean("sitnet.user.studentIds.multiple.enabled");
-    private static final String MULTI_STUDENT_ID_ORGS = ConfigFactory
-        .load()
-        .getString("sitnet.user.studentIds.multiple.organisations");
     private static final int SESSION_TIMEOUT_MINUTES = 30;
     private static final String URN_PREFIX = "urn:";
     private static final Map<String, String> SESSION_HEADER_MAP = Map.of(
@@ -102,18 +94,20 @@ public class SessionController extends BaseController {
         Environment environment,
         ExternalExamAPI externalExamAPI,
         ConfigReader configReader,
-        EnrolmentRepository enrolmentRepository
+        EnrolmentRepository enrolmentRepository,
+        DateTimeHandler dateTimeHandler
     ) {
         this.environment = environment;
         this.externalExamAPI = externalExamAPI;
         this.configReader = configReader;
         this.enrolmentRepository = enrolmentRepository;
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     @ActionMethod
     public CompletionStage<Result> login(Http.Request request) {
         CompletionStage<Result> result;
-        switch (LOGIN_TYPE) {
+        switch (configReader.getLoginType()) {
             case "HAKA":
                 result = hakaLogin(request);
                 break;
@@ -218,7 +212,7 @@ public class SessionController extends BaseController {
     }
 
     private Reservation getUpcomingExternalReservation(String eppn) {
-        DateTime now = DateTimeUtils.adjustDST(new DateTime());
+        DateTime now = dateTimeHandler.adjustDST(new DateTime());
         int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
         DateTime future = now.plusMinutes(lookAheadMinutes);
         List<Reservation> reservations = Ebean
@@ -284,7 +278,7 @@ public class SessionController extends BaseController {
     }
 
     private String parseUserIdentifier(String src) {
-        if (!MULTI_STUDENT_ID_ON || !src.startsWith(URN_PREFIX)) {
+        if (!configReader.isMultiStudentIdEnabled() || !src.startsWith(URN_PREFIX)) {
             // No specific handling
             return src.substring(src.lastIndexOf(":") + 1);
         } else {
@@ -306,7 +300,9 @@ public class SessionController extends BaseController {
                         () ->
                             new TreeMap<>(
                                 Comparator.comparingInt(o ->
-                                    !MULTI_STUDENT_ID_ORGS.contains(o) ? 1000 : MULTI_STUDENT_ID_ORGS.indexOf(o)
+                                    !configReader.getMultiStudentOrganisations().contains(o)
+                                        ? 1000
+                                        : configReader.getMultiStudentOrganisations().indexOf(o)
                                 )
                             )
                     )
@@ -440,11 +436,11 @@ public class SessionController extends BaseController {
             if (user != null && user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());
-                return ok(Json.toJson(node)).withNewSession();
+                return ok(Json.toJson(node)).withNewSession().discardingCookie("PLAY_SESSION");
             }
         }
-        Result result = ok().withNewSession();
-        return environment.isDev() ? result : result.discardingCookie(CSRF_COOKIE);
+        Result result = ok().withNewSession().discardingCookie("PLAY_SESSION");
+        return environment.isDev() ? result : result.discardingCookie(configReader.getCsrfCookie());
     }
 
     @SubjectPresent

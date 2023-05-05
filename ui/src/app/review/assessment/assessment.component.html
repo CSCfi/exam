@@ -1,9 +1,9 @@
 <div id="dashboard" *ngIf="exam">
-    <div class="top-row">
+    <div class="row">
         <div class="col-md-12">
             <div class="student-details-title-wrap">
                 <a (click)="goToAssessment()">
-                    <img class="pointer arrow_icon" src="/assets/assets/images/icon_history.png" alt="go back" />
+                    <img class="pointer arrow_icon" src="/assets/images/icon_history.png" alt="go back" />
                 </a>
                 <div class="student-exam-details-title">{{ 'sitnet_exam_review' | translate }}</div>
             </div>
@@ -38,102 +38,113 @@
     <div class="tab-wrapper-exams review">
         <div class="review-border">
             <div class="padt50 padl30 padr30">
-                <div class="review-list-title">
-                    <course-code *ngIf="exam.course" [course]="exam.course"></course-code> - {{ exam.name }}
+                <h3>
+                    <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code> - {{ exam.name }}
                     <a class="pointer" (click)="hideGeneralInfo = !hideGeneralInfo">
                         <img
                             *ngIf="hideGeneralInfo"
-                            src="/assets/assets/images/icon_list_show_right.svg"
+                            src="/assets/images/icon_list_show_right.svg"
                             alt="exam"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"
+                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
                         />
                         <img
                             *ngIf="!hideGeneralInfo"
-                            src="/assets/assets/images/icon_list_show_down.svg"
+                            src="/assets/images/icon_list_show_down.svg"
                             alt="exam"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
+                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
                         />
                     </a>
-                </div>
+                </h3>
             </div>
             <!-- General Information -->
-            <r-general-info
-                *ngIf="exam && !hideGeneralInfo"
-                [participation]="participation"
-                [exam]="exam"
-                [collaborative]="collaborative"
-            ></r-general-info>
+            <div class="row" [ngbCollapse]="hideGeneralInfo">
+                <div class="col-12">
+                    <xm-r-general-info
+                        [participation]="participation"
+                        [exam]="exam"
+                        [collaborative]="collaborative"
+                    ></xm-r-general-info>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Sections -->
-    <div *ngFor="let section of exam.examSections | orderBy: 'sequenceNumber'; let index = index">
-        <r-exam-section
+    <div *ngFor="let section of exam.examSections | orderBy : 'sequenceNumber'; let index = index">
+        <xm-r-section
             [section]="section"
             [participation]="participation"
             [exam]="exam"
             [collaborative]="collaborative"
-            (onScore)="scoreSet($event)"
+            (scored)="scoreSet($event)"
             [index]="index + 1"
             [isScorable]="(!isGraded() || isOwnerOrAdmin()) && !isReadOnly()"
         >
-        </r-exam-section>
+        </xm-r-section>
     </div>
 
     <div class="tab-wrapper-exams review">
         <div class="review-border">
             <div class="padt50 padl30 padr30">
-                <div class="review-list-title d-flex justify-content-between">
-                    <span class="review-question-title">{{ 'sitnet_grading_info' | translate }}</span>
+                <h4 class="d-flex justify-content-between">
+                    {{ 'sitnet_grading_info' | translate }}
                     <a (click)="hideGradeInfo = !hideGradeInfo">
                         <img
                             *ngIf="hideGradeInfo"
-                            src="/assets/assets/images/icon_list_show_right.svg"
+                            src="/assets/images/icon_list_show_right.svg"
                             alt="exam"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png'"
+                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
                         />
                         <img
                             [hidden]="hideGradeInfo"
-                            src="/assets/assets/images/icon_list_show_down.svg"
+                            src="/assets/images/icon_list_show_down.svg"
                             alt="exam"
-                            onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png'"
+                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
                         />
                     </a>
-                </div>
+                </h4>
             </div>
 
             <!-- Grading -->
-            <div [hidden]="hideGradeInfo" class="padl15 padr15">
-                <r-grading
-                    [exam]="exam"
-                    [questionSummary]="questionSummary"
-                    [participation]="participation"
-                    [collaborative]="collaborative"
-                    [user]="user"
-                    *ngIf="exam && !exam.subjectToLanguageInspection"
-                    (onUpdate)="gradingUpdated()"
-                >
-                </r-grading>
-                <r-maturity-grading
-                    *ngIf="exam && exam.executionType.type === 'MATURITY' && exam.subjectToLanguageInspection"
-                    (onUpdate)="gradingUpdated()"
-                    [user]="user"
-                    [exam]="exam"
-                    [questionSummary]="questionSummary"
-                >
-                </r-maturity-grading>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row" [ngbCollapse]="hideGradeInfo">
+                        <div class="col-12 padl15 padr15">
+                            <xm-r-grading
+                                [exam]="exam"
+                                [questionSummary]="questionSummary"
+                                [participation]="participation"
+                                [collaborative]="collaborative"
+                                [user]="user"
+                                *ngIf="exam && !exam.subjectToLanguageInspection"
+                                (updated)="gradingUpdated()"
+                            >
+                            </xm-r-grading>
+                            <xm-r-maturity-grading
+                                *ngIf="
+                                    exam && exam.executionType.type === 'MATURITY' && exam.subjectToLanguageInspection
+                                "
+                                (updated)="gradingUpdated()"
+                                [user]="user"
+                                [exam]="exam"
+                                [questionSummary]="questionSummary"
+                            >
+                            </xm-r-maturity-grading>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Floating feedback window -->
-            <r-feedback
+            <xm-r-feedback
                 *ngIf="exam.examFeedback && !isUnderLanguageInspection()"
                 [exam]="exam"
                 [collaborative]="collaborative"
                 [participation]="participation"
                 [hidden]="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
             >
-            </r-feedback>
-            <r-statement *ngIf="exam && isUnderLanguageInspection()" [exam]="exam"></r-statement>
+            </xm-r-feedback>
+            <xm-r-statement *ngIf="exam && isUnderLanguageInspection()" [exam]="exam"></xm-r-statement>
         </div>
     </div>
 </div>

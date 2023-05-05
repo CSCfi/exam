@@ -3,8 +3,8 @@
         <span class="header-text">{{ 'sitnet_exam_machine' | translate }}</span>
     </div>
 </div>
-<form id="dashboard" *ngIf="machine" #machineForm="ngForm">
-    <div class="detail-row">
+<form id="dashboard" *ngIf="machine" #machineForm="ngForm" class="container">
+    <div class="row">
         <div class="col-md-6">
             <div class="sitnet-info-text">
                 {{ 'sitnet_machine_name' | translate }}
@@ -15,7 +15,7 @@
         </div>
     </div>
 
-    <div class="detail-row">
+    <div class="row">
         <div class="col-md-12">
             <div class="checkbox">
                 <label>
@@ -39,7 +39,7 @@
     </div>
 
     <!-- Other indentifier & Surveillance camera information -->
-    <div class="detail-row">
+    <div class="row">
         <div class="col-md-6">
             <div class="sitnet-info-text">{{ 'sitnet_machine_other_identifier' | translate }}</div>
             <div>
@@ -55,7 +55,7 @@
         </div>
     </div>
     <!-- Video recordings & IP-address information -->
-    <div class="detail-row">
+    <div class="row">
         <!-- Video recordings URL -->
         <div class="col-md-6">
             <div class="sitnet-info-text">{{ 'sitnet_machine_video_recordings' | translate }}</div>
@@ -72,14 +72,15 @@
     </div>
 
     <!--Software-->
-    <div class="detail-row">
+    <div class="row">
         <div class="col-md-12">
             <div class="sitnet-info-text">{{ 'sitnet_machine_softwares' | translate }}</div>
             <div class="input-group">
                 <button
                     *ngFor="let software of software"
-                    class="btn mb-2 mr-2"
+                    class="btn mb-2 me-2"
                     name="software"
+                    type="button"
                     [ngClass]="software.class"
                     (click)="toggleSoftware(software)"
                 >
@@ -90,7 +91,7 @@
     </div>
 
     <!-- Service status -->
-    <div class="detail-row">
+    <div class="row">
         <div class="col-md-12">
             <div class="checkbox">
                 <label>
@@ -116,7 +117,7 @@
         </div>
     </div>
 
-    <div class="main-row">
+    <div class="row">
         <div class="col-md-12">
             <button [disabled]="!machineForm.valid" (click)="updateMachineAndExit()" class="btn btn-primary">
                 {{ 'sitnet_save' | translate }}

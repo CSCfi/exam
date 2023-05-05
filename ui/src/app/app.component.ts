@@ -16,39 +16,36 @@ import { registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
-import { Component } from '@angular/core';
-import { StateService } from '@uirouter/angular';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
-import { ExaminationStatusService } from './examination/examinationStatus.service';
-import { SessionService } from './session/session.service';
-import { WindowRef } from './utility/window/window.service';
-
+import { ExaminationStatusService } from './examination/examination-status.service';
 import type { User } from './session/session.service';
+import { SessionService } from './session/session.service';
+
 @Component({
-    selector: 'app',
+    selector: 'xm-app',
     template: `
         <div *ngIf="!user && devLoginRequired">
-            <dev-login (onLoggedIn)="setUser($event)"></dev-login>
+            <xm-dev-login (loggedIn)="setUser($event)"></xm-dev-login>
         </div>
         <div *ngIf="user">
-            <navigation [hidden]="hideNavBar"></navigation>
-            <main id="mainView" class="container-fluid pad0" [ngClass]="{ 'vmenu-on': !hideNavBar }">
-                <ui-view></ui-view>
+            <xm-navigation [hidden]="hideNavBar"></xm-navigation>
+            <main id="mainView" class="container-fluid pad0 w-auto" [ngClass]="{ 'vmenu-on': !hideNavBar }">
+                <router-outlet></router-outlet>
             </main>
         </div>
     `,
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
     user?: User;
     hideNavBar = false;
     devLoginRequired = false;
     private ngUnsubscribe = new Subject();
 
     constructor(
-        private Window: WindowRef,
-        private state: StateService,
+        private router: Router,
         private Session: SessionService,
         private ExaminationStatus: ExaminationStatusService,
     ) {
@@ -60,7 +57,7 @@ export class AppComponent {
         });
         this.Session.devLogoutChange$.pipe(takeUntil(this.ngUnsubscribe)).subscribe(() => {
             delete this.user;
-            this.state.go('app');
+            this.router.navigate(['']);
         });
         registerLocaleData(localeSv);
         registerLocaleData(localeFi);
@@ -76,25 +73,25 @@ export class AppComponent {
                 this.Session.logout();
                 return;
             }
-            this.Session.translate(user.lang);
+            this.Session.translate$(user.lang).subscribe();
             this.Session.restartSessionCheck();
             this.user = user;
         } else {
             this.Session.switchLanguage('en');
-            this.Session.getEnv$().subscribe(
-                (value: 'DEV' | 'PROD') => {
+            this.Session.getEnv$().subscribe({
+                next: (value: 'DEV' | 'PROD') => {
                     if (value === 'PROD') {
                         this.Session.login$('', '').subscribe((user) => (this.user = user));
                     }
                     this.devLoginRequired = value === 'DEV';
                 },
-                () => console.log('no env found'),
-            );
+                error: () => console.log('no env found'),
+            });
         }
     }
 
     ngOnDestroy() {
-        this.ngUnsubscribe.next();
+        this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
     }
 

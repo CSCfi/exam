@@ -2,7 +2,7 @@ package repository;
 
 import io.ebean.Ebean;
 import io.ebean.EbeanServer;
-import java.util.Collections;
+import io.ebean.ExpressionList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +13,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamMachine;
@@ -21,6 +20,7 @@ import models.ExamRoom;
 import models.ExaminationEvent;
 import models.ExaminationEventConfiguration;
 import models.Reservation;
+import models.Role;
 import models.User;
 import models.json.CollaborativeExam;
 import models.sections.ExamSection;
@@ -34,28 +34,31 @@ import play.db.ebean.EbeanConfig;
 import play.mvc.Http;
 import play.mvc.Result;
 import util.config.ByodConfigHandler;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 
 public class EnrolmentRepository {
 
     private final Environment environment;
-    private final Provider<EbeanConfig> config;
     private final DatabaseExecutionContext ec;
     private final ByodConfigHandler byodConfigHandler;
+    private final DateTimeHandler dateTimeHandler;
+    private final EbeanServer db;
 
     private static final Logger.ALogger logger = Logger.of(EnrolmentRepository.class);
 
     @Inject
     public EnrolmentRepository(
         Environment environment,
-        Provider<EbeanConfig> ebeanConfig,
+        EbeanConfig ebeanConfig,
         DatabaseExecutionContext databaseExecutionContext,
-        ByodConfigHandler byodConfigHandler
+        ByodConfigHandler byodConfigHandler,
+        DateTimeHandler dateTimeHandler
     ) {
         this.environment = environment;
-        this.config = ebeanConfig;
+        this.db = Ebean.getServer(ebeanConfig.defaultServer());
         this.ec = databaseExecutionContext;
         this.byodConfigHandler = byodConfigHandler;
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     public CompletionStage<Map<String, String>> getReservationHeaders(Http.Request request, Long userId) {
@@ -66,8 +69,32 @@ public class EnrolmentRepository {
         return CompletableFuture.supplyAsync(() -> doGetStudentEnrolments(user), ec);
     }
 
+    public CompletionStage<ExamRoom> getRoomInfoForEnrolment(String hash, User user) {
+        return CompletableFuture.supplyAsync(
+            () -> {
+                ExpressionList<ExamEnrolment> query = Ebean
+                    .find(ExamEnrolment.class)
+                    .fetch("user", "id")
+                    .fetch("user.language")
+                    .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
+                    .where()
+                    .disjunction()
+                    .eq("exam.hash", hash)
+                    .eq("externalExam.hash", hash)
+                    .endJunction()
+                    .isNotNull("reservation.machine.room");
+                if (user.hasRole(Role.Name.STUDENT)) {
+                    query = query.eq("user", user);
+                }
+                ExamEnrolment enrolment = query.findOne();
+                return enrolment == null ? null : enrolment.getReservation().getMachine().getRoom();
+            },
+            ec.current()
+        );
+    }
+
     private List<ExamEnrolment> doGetStudentEnrolments(User user) {
-        DateTime now = DateTimeUtils.adjustDST(new DateTime());
+        DateTime now = dateTimeHandler.adjustDST(new DateTime());
         List<ExamEnrolment> enrolments = Ebean
             .find(ExamEnrolment.class)
             .fetch("examinationEventConfiguration")
@@ -128,17 +155,14 @@ public class EnrolmentRepository {
     }
 
     private Map<String, String> doGetReservationHeaders(Http.RequestHeader request, Long userId) {
-        EbeanServer db = Ebean.getServer(config.get().defaultServer());
-        User user = db.find(User.class, userId);
-        if (user == null) return Collections.emptyMap();
         Map<String, String> headers = new HashMap<>();
-        Optional<ExamEnrolment> ongoingEnrolment = getNextEnrolment(user.getId(), 0);
+        Optional<ExamEnrolment> ongoingEnrolment = getNextEnrolment(userId, 0);
         if (ongoingEnrolment.isPresent()) {
             handleOngoingEnrolment(ongoingEnrolment.get(), request, headers);
         } else {
             DateTime now = new DateTime();
             int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
-            Optional<ExamEnrolment> upcomingEnrolment = getNextEnrolment(user.getId(), lookAheadMinutes);
+            Optional<ExamEnrolment> upcomingEnrolment = getNextEnrolment(userId, lookAheadMinutes);
             if (upcomingEnrolment.isPresent()) {
                 handleUpcomingEnrolment(upcomingEnrolment.get(), request, headers);
             } else if (isOnExamMachine(request)) {
@@ -150,7 +174,6 @@ public class EnrolmentRepository {
     }
 
     private boolean isOnExamMachine(Http.RequestHeader request) {
-        EbeanServer db = Ebean.getServer(config.get().defaultServer());
         return db.find(ExamMachine.class).where().eq("ipAddress", request.remoteAddress()).findOneOrEmpty().isPresent();
     }
 
@@ -187,7 +210,6 @@ public class EnrolmentRepository {
                 String header;
 
                 // Is this a known machine?
-                EbeanServer db = Ebean.getServer(config.get().defaultServer());
                 ExamMachine lookedUp = db.find(ExamMachine.class).where().eq("ipAddress", remoteIp).findOne();
                 if (lookedUp == null) {
                     // IP not known
@@ -262,7 +284,7 @@ public class EnrolmentRepository {
 
     private boolean isInsideBounds(ExamEnrolment ee, int minutesToFuture) {
         DateTime earliest = ee.getExaminationEventConfiguration() == null
-            ? DateTimeUtils.adjustDST(new DateTime())
+            ? dateTimeHandler.adjustDST(new DateTime())
             : DateTime.now();
         DateTime latest = earliest.plusMinutes(minutesToFuture);
         Reservation reservation = ee.getReservation();
@@ -290,7 +312,6 @@ public class EnrolmentRepository {
     }
 
     private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {
-        EbeanServer db = Ebean.getServer(config.get().defaultServer());
         Set<ExamEnrolment> results = db
             .find(ExamEnrolment.class)
             .fetch("reservation")

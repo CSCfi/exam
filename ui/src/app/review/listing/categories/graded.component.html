@@ -4,25 +4,27 @@
         <a (click)="view.toggle = !view.toggle" class="pointer">
             <img
                 *ngIf="!view.toggle"
-                src="/assets/assets/images/icon_list_show_right.svg"
+                src="/assets/images/icon_list_show_right.svg"
                 alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_right.png';"
+                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
             />
             <img
                 *ngIf="view.toggle"
-                src="/assets/assets/images/icon_list_show_down.svg"
+                src="/assets/images/icon_list_show_down.svg"
                 alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_list_show_down.png';"
+                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
             />
         </a>
-        <sup class="padl05">
+        <sup
+            class="padl05"
+            ngbPopover="{{ 'sitnet_graded_description' | translate }}"
+            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
+        >
             <img
-                ngbPopover="{{ 'sitnet_graded_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-                src="/assets/assets/images/icon_tooltip.svg"
+                src="/assets/images/icon_tooltip.svg"
                 alt="exam"
-                onerror="this.onerror=null;this.src='/assets/assets/images/icon_tooltip.png';"
+                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
             />
         </sup>
     </div>
@@ -37,16 +39,14 @@
 
 <div *ngIf="view.toggle && view.items.length > 0">
     <div class="py-3 d-flex flex-wrap justify-content-between">
-        <div class="search input-group my-2 max-w-350">
+        <div class="input-group my-2 max-w-350">
             <input
                 (input)="applyFreeSearchFilter()"
                 [(ngModel)]="view.filter"
-                class="form-control search"
+                class="form-control"
                 placeholder="{{ 'sitnet_search' | translate }}"
             />
-            <div class="input-group-append search">
-                <i class="input-group-text bi-search"></i>
-            </div>
+            <i class="input-group-text bi-search"></i>
         </div>
 
         <div class="review-attachment-button my-2" *ngIf="view.toggle && view.filtered.length > 0">
@@ -79,85 +79,85 @@
                     </th>
                     <th *ngIf="showId()" class="with-top">Id</th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="displayName"
                             text="sitnet_student"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('displayName')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="examParticipation.user.email"
                             text="sitnet_email"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.user.email')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="duration"
                             text="sitnet_exam_duration"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('duration')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="examParticipation.started"
                             text="sitnet_exam_time"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.started')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="examParticipation.deadline"
                             text="sitnet_review_deadline"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.deadline')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="examParticipation.exan.totalScore"
                             text="sitnet_total_score"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.exam.totalScore')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="displayedGrade"
                             text="sitnet_grade"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('displayedGrade')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="displayedCredit"
                             text="sitnet_exam_credit"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('displayedCredit')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                     <th class="with-top">
-                        <table-sort
+                        <xm-table-sort
                             by="displayedGradingTime"
                             text="sitnet_graded"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('displayedGradingTime')"
-                        ></table-sort>
+                        ></xm-table-sort>
                     </th>
                 </tr>
             </thead>
@@ -165,8 +165,8 @@
                 <tr
                     *ngFor="
                         let review of view.filtered
-                            | orderBy: view.predicate:view.reverse
-                            | slice: view.page * view.pageSize:view.page * view.pageSize + view.pageSize
+                            | orderBy : view.predicate : view.reverse
+                            | slice : view.page * view.pageSize : view.page * view.pageSize + view.pageSize
                     "
                 >
                     <td class="table-column-checkbox">
@@ -182,8 +182,12 @@
                         <a
                             *ngIf="collaborative"
                             class="pointer"
-                            uiSref="staff.collaborativeAssessment"
-                            [uiParams]="{ id: exam.id, ref: review.examParticipation._id }"
+                            [routerLink]="[
+                                '/staff/assessments',
+                                exam.id,
+                                'collaborative',
+                                review.examParticipation._id
+                            ]"
                         >
                             {{ review.displayName }}
                             <span *ngIf="review.examParticipation.user?.userIdentifier">
@@ -193,8 +197,7 @@
                         <a
                             *ngIf="!collaborative"
                             class="pointer"
-                            uiSref="staff.assessment"
-                            [uiParams]="{ id: review.examParticipation.exam.id }"
+                            [routerLink]="['/staff/assessments', review.examParticipation.exam.id]"
                         >
                             {{ review.displayName }}
                             <span *ngIf="review.examParticipation.user?.userIdentifier">
@@ -212,13 +215,13 @@
                     </td>
                     <td class="table-column-10">{{ review.duration + ' min' }}</td>
                     <td class="table-column-10">
-                        {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                        {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
                         {{ 'sitnet_clock_short' | translate }}
-                        {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
-                        {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
+                        {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
+                        {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }}
                     </td>
                     <td class="table-column-10">
-                        {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (<span
+                        {{ review.examParticipation.deadline | date : 'dd.MM.yyyy' }} (<span
                             [innerHtml]="review.examParticipation.deadline | dayDiff"
                         ></span
                         >)
@@ -241,14 +244,16 @@
                     <td class="table-column-10">
                         {{ review.displayedCredit }}
                     </td>
-                    <td class="table-column-10">{{ review.examParticipation.exam.gradedTime | date: 'dd.MM.yyyy' }}</td>
+                    <td class="table-column-10">
+                        {{ review.examParticipation.exam.gradedTime | date : 'dd.MM.yyyy' }}
+                    </td>
                 </tr>
                 <tr *ngIf="view.filtered.length === 0">
                     <td *ngIf="showId()" colspan="11">{{ 'sitnet_review_no_result' | translate }}</td>
                     <td *ngIf="!showId()" colspan="10">{{ 'sitnet_review_no_result' | translate }}</td>
                 </tr>
                 <!--Fill if page not full-->
-                <tr *ngFor="let r of [] | pageFill: view.filtered.length:view.page:view.pageSize">
+                <tr *ngFor="let r of [] | pageFill : view.filtered.length : view.page : view.pageSize">
                     <td *ngIf="showId()" colspan="11">&nbsp;</td>
                     <td *ngIf="!showId()" colspan="10">&nbsp;</td>
                 </tr>
@@ -259,12 +264,12 @@
 
 <div class="detail-row" *ngIf="view.toggle">
     <div class="col-md-12" *ngIf="view.filtered.length > view.pageSize">
-        <paginator
+        <xm-paginator
             [items]="view.filtered"
-            (onSelectPage)="pageSelected($event)"
+            (pageSelected)="pageSelected($event)"
             [pageSize]="view.pageSize"
             [currentPage]="view.page"
         >
-        </paginator>
+        </xm-paginator>
     </div>
 </div>

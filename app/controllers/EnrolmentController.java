@@ -23,12 +23,12 @@ import controllers.iop.transfer.api.ExternalReservationHandler;
 import impl.EmailComposer;
 import impl.ExternalCourseHandler;
 import io.ebean.Ebean;
-import io.ebean.ExpressionList;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -44,9 +44,11 @@ import models.Role;
 import models.User;
 import org.joda.time.DateTime;
 import play.Logger;
+import play.libs.concurrent.HttpExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
+import repository.EnrolmentRepository;
 import sanitizers.Attrs;
 import sanitizers.EnrolmentCourseInformationSanitizer;
 import sanitizers.EnrolmentInformationSanitizer;
@@ -54,7 +56,7 @@ import sanitizers.StudentEnrolmentSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
 import util.config.ConfigReader;
-import util.datetime.DateTimeUtils;
+import util.datetime.DateTimeHandler;
 import validators.JsonValidator;
 
 public class EnrolmentController extends BaseController {
@@ -68,24 +70,33 @@ public class EnrolmentController extends BaseController {
 
     private final ExternalReservationHandler externalReservationHandler;
 
+    private final EnrolmentRepository enrolmentRepository;
+
+    private final HttpExecutionContext httpExecutionContext;
+
     private final ActorSystem actor;
 
-    private final ConfigReader configReader;
+    private final DateTimeHandler dateTimeHandler;
 
     @Inject
     public EnrolmentController(
         EmailComposer emailComposer,
         ExternalCourseHandler externalCourseHandler,
         ExternalReservationHandler externalReservationHandler,
+        EnrolmentRepository enrolmentRepository,
+        HttpExecutionContext httpExecutionContext,
         ActorSystem actor,
-        ConfigReader configReader
+        ConfigReader configReader,
+        DateTimeHandler dateTimeHandler
     ) {
         this.emailComposer = emailComposer;
         this.externalCourseHandler = externalCourseHandler;
         this.externalReservationHandler = externalReservationHandler;
+        this.enrolmentRepository = enrolmentRepository;
+        this.httpExecutionContext = httpExecutionContext;
         this.actor = actor;
         this.permCheckActive = configReader.isEnrolmentPermissionCheckActive();
-        this.configReader = configReader;
+        this.dateTimeHandler = dateTimeHandler;
     }
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
@@ -173,7 +184,7 @@ public class EnrolmentController extends BaseController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (isAllowedToParticipate(exam, user)) {
-            DateTime now = DateTimeUtils.adjustDST(new DateTime());
+            DateTime now = dateTimeHandler.adjustDST(new DateTime());
             List<ExamEnrolment> enrolments = Ebean
                 .find(ExamEnrolment.class)
                 .where()
@@ -186,11 +197,25 @@ public class EnrolmentController extends BaseController {
                 .endJunction()
                 .findList()
                 .stream()
-                .filter(ExamEnrolment::isActive)
+                .filter(this::isActive)
                 .collect(Collectors.toList());
             return ok(enrolments);
         }
         return unauthorized("sitnet_no_trials_left");
+    }
+
+    private boolean isActive(ExamEnrolment enrolment) {
+        DateTime now = dateTimeHandler.adjustDST(new DateTime());
+        Exam exam = enrolment.getExam();
+        if (exam == null || exam.getImplementation() == Exam.Implementation.AQUARIUM) {
+            Reservation reservation = enrolment.getReservation();
+            return reservation == null || reservation.getEndAt().isAfter(now);
+        }
+        ExaminationEventConfiguration examinationEventConfiguration = enrolment.getExaminationEventConfiguration();
+        return (
+            examinationEventConfiguration == null ||
+            examinationEventConfiguration.getExaminationEvent().getStart().plusMinutes(exam.getDuration()).isAfter(now)
+        );
     }
 
     @Authenticated
@@ -304,7 +329,7 @@ public class EnrolmentController extends BaseController {
                 enrolments
                     .stream()
                     .map(ExamEnrolment::getReservation)
-                    .anyMatch(r -> r != null && r.toInterval().contains(DateTimeUtils.adjustDST(DateTime.now(), r)))
+                    .anyMatch(r -> r != null && r.toInterval().contains(dateTimeHandler.adjustDST(DateTime.now(), r)))
             ) {
                 return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
             }
@@ -318,14 +343,17 @@ public class EnrolmentController extends BaseController {
                             .getExaminationEventConfiguration()
                             .getExaminationEvent()
                             .toInterval(e.getExam())
-                            .contains(DateTimeUtils.adjustDST(DateTime.now()))
+                            .contains(dateTimeHandler.adjustDST(DateTime.now()))
                     )
             ) {
                 return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
             }
             List<ExamEnrolment> enrolmentsWithFutureReservations = enrolments
                 .stream()
-                .filter(ee -> ee.getReservation() != null && ee.getReservation().toInterval().isAfterNow())
+                .filter(ee ->
+                    ee.getReservation() != null &&
+                    ee.getReservation().toInterval().isAfter(dateTimeHandler.adjustDST(DateTime.now()))
+                )
                 .collect(Collectors.toList());
             if (enrolmentsWithFutureReservations.size() > 1) {
                 logger.error(
@@ -369,7 +397,20 @@ public class EnrolmentController extends BaseController {
                 ExamEnrolment newEnrolment = makeEnrolment(exam, user);
                 return wrapAsPromise(ok(newEnrolment));
             }
-
+            if (enrolments.size() == 1) {
+                ExamEnrolment enrolment = enrolments.get(0);
+                Reservation reservation = enrolment.getReservation();
+                if (
+                    reservation != null &&
+                    reservation.getExternalRef() != null &&
+                    !reservation.getStartAt().isAfter(dateTimeHandler.adjustDST(DateTime.now())) &&
+                    !enrolment.isNoShow() &&
+                    enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
+                ) {
+                    // External reservation, assessment not returned yet. We must wait for it to arrive first
+                    return wrapAsPromise(forbidden("sitnet_enrolment_assessment_not_received"));
+                }
+            }
             ExamEnrolment newEnrolment = makeEnrolment(exam, user);
             Ebean.commitTransaction();
             return wrapAsPromise(ok(newEnrolment));
@@ -508,28 +549,14 @@ public class EnrolmentController extends BaseController {
 
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
-    public Result getRoomInfoFromEnrolment(String hash, Http.Request request) {
+    public CompletionStage<Result> getRoomInfoFromEnrolment(String hash, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<ExamEnrolment> query = Ebean
-            .find(ExamEnrolment.class)
-            .fetch("user", "id")
-            .fetch("user.language")
-            .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
-            .where()
-            .disjunction()
-            .eq("exam.hash", hash)
-            .eq("externalExam.hash", hash)
-            .endJunction()
-            .isNotNull("reservation.machine.room");
-        if (user.hasRole(Role.Name.STUDENT)) {
-            query = query.eq("user", user);
-        }
-        ExamEnrolment enrolment = query.findOne();
-        if (enrolment == null) {
-            return notFound();
-        } else {
-            return ok(enrolment.getReservation().getMachine().getRoom());
-        }
+        return enrolmentRepository
+            .getRoomInfoForEnrolment(hash, user)
+            .thenComposeAsync(
+                room -> wrapAsPromise(room == null ? notFound() : ok(room)),
+                httpExecutionContext.current()
+            );
     }
 
     @Authenticated
@@ -602,8 +629,52 @@ public class EnrolmentController extends BaseController {
             .scheduleOnce(
                 Duration.create(1, TimeUnit.SECONDS),
                 () -> {
-                    emailComposer.composeExaminationEventCancellationNotification(user, enrolment, event);
+                    emailComposer.composeExaminationEventCancellationNotification(user, enrolment.getExam(), event);
                     logger.info("Examination event cancellation notification email sent to {}", user.getEmail());
+                },
+                actor.dispatcher()
+            );
+        return ok();
+    }
+
+    @Restrict({ @Group("ADMIN") })
+    public Result removeExaminationEvent(Long configId) {
+        ExaminationEventConfiguration config = Ebean.find(ExaminationEventConfiguration.class, configId);
+        if (config == null) {
+            return badRequest();
+        }
+        if (config.getExaminationEvent().getStart().isBeforeNow()) {
+            return forbidden();
+        }
+        ExaminationEvent event = config.getExaminationEvent();
+        Exam exam = config.getExam();
+        Set<ExamEnrolment> enrolments = Ebean
+            .find(ExamEnrolment.class)
+            .fetch("user")
+            .where()
+            .eq("examinationEventConfiguration.id", configId)
+            .eq("exam.state", Exam.State.PUBLISHED)
+            .findSet();
+        enrolments.forEach(e -> {
+            e.setExaminationEventConfiguration(null);
+            e.update();
+        });
+        config.delete();
+        event.delete();
+        actor
+            .scheduler()
+            .scheduleOnce(
+                Duration.create(1, TimeUnit.SECONDS),
+                () -> {
+                    emailComposer.composeExaminationEventCancellationNotification(
+                        enrolments.stream().map(ExamEnrolment::getUser).collect(Collectors.toSet()),
+                        exam,
+                        event
+                    );
+                    logger.info(
+                        "Examination event cancellation notification email sent to {} participants",
+                        enrolments.size()
+                    );
                 },
                 actor.dispatcher()
             );

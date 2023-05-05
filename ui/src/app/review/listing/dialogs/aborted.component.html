@@ -1,0 +1,135 @@
+<div id="dashboard">
+    <div class="top-row">
+        <div class="col-md-12">
+            <div class="student-enroll-title-wrap">
+                <div class="student-enroll-title">{{ 'sitnet_aborted_exams' | translate }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="row mart40 padl30" *ngIf="abortedExams.length === 0">
+        <div class="review-no-results">
+            <i class="bi-exclamation-circle padl20 grayish"></i> {{ 'sitnet_exam_no_aborted' | translate }}
+        </div>
+    </div>
+    <div class="row review-no-show" *ngIf="abortedExams.length > 0">
+        <table class="table table-striped exams-table">
+            <thead>
+                <tr>
+                    <th *ngIf="showId()">Id</th>
+                    <th>
+                        <xm-table-sort
+                            [reverse]="reverse"
+                            [predicate]="abortedPredicate"
+                            by="displayName"
+                            text="sitnet_student"
+                            (click)="setPredicate('displayName')"
+                        ></xm-table-sort>
+                    </th>
+                    <th>
+                        <xm-table-sort
+                            [reverse]="reverse"
+                            [predicate]="abortedPredicate"
+                            by="examParticipation.user.email"
+                            text="sitnet_email"
+                            (click)="setPredicate('examParticipation.user.email')"
+                        ></xm-table-sort>
+                    </th>
+                    <th>
+                        <xm-table-sort
+                            [reverse]="reverse"
+                            [predicate]="abortedPredicate"
+                            by="examParticipation.started"
+                            text="sitnet_exam_duration"
+                            (click)="setPredicate('examParticipation.started')"
+                        ></xm-table-sort>
+                    </th>
+                    <th>{{ 'sitnet_exam_state' | translate }}</th>
+                    <th>
+                        <xm-table-sort
+                            [reverse]="reverse"
+                            [predicate]="abortedPredicate"
+                            by="examParticipation.reservation.trialCount"
+                            text="sitnet_trial"
+                            (click)="setPredicate('examParticipation.exam.trialCount')"
+                        ></xm-table-sort>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let review of abortedExams | orderBy : abortedPredicate : reverse">
+                    <td *ngIf="showId()">{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
+                    <td class="table-column-examname">
+                        {{ review.displayName }}
+                        <span *ngIf="review.examParticipation.user?.userIdentifier"
+                            ><br />({{ review.examParticipation.user?.userIdentifier }})</span
+                        >
+                    </td>
+                    <td class="table-column-25">
+                        <a class="pointer" href="mailto:{{ review.examParticipation.user?.email }}">
+                            {{ review.examParticipation.user?.email }}</a
+                        >
+                    </td>
+                    <td
+                        class="table-column-25"
+                        *ngIf="
+                            review.examParticipation.exam.implementation === 'CLIENT_AUTH' ||
+                            review.examParticipation.exam.implementation === 'WHATEVER'
+                        "
+                    >
+                        {{ review.examParticipation.started | date : 'dd.MM.yyyy' }}
+                        {{ 'sitnet_clock_short' | translate }} {{ review.examParticipation.started | date : 'HH:mm' }} -
+                        {{ review.examParticipation.ended | date : 'HH:mm' }} ({{
+                            review.examParticipation.started | minuteDiff : review.examParticipation.ended
+                        }}&nbsp;min)
+                    </td>
+                    <td class="table-column-25" *ngIf="review.examParticipation.exam.implementation === 'AQUARIUM'">
+                        {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
+                        {{ 'sitnet_clock_short' | translate }}
+                        {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
+                        {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }} ({{
+                            review.examParticipation.started | minuteDiff : review.examParticipation.ended
+                        }}&nbsp;min)
+                    </td>
+                    <td class="table-column-15 sitnet-text-aborted">
+                        {{ 'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
+                    </td>
+                    <td class="table-column-10" *ngIf="review.examParticipation.exam.executionType.type === 'PUBLIC'">
+                        <div
+                            *ngIf="
+                                review.examParticipation.exam.trialCount &&
+                                review.examParticipation.exam.examEnrolments[0]
+                            "
+                        >
+                            <button
+                                [disabled]="review.examParticipation.exam.examEnrolments[0].retrialPermitted"
+                                (click)="permitRetrial(review.examParticipation.exam.examEnrolments[0])"
+                                class="btn btn-sm btn-primary"
+                            >
+                                {{
+                                    review.examParticipation.exam.examEnrolments[0].retrialPermitted
+                                        ? ('sitnet_retrial_permitted' | translate)
+                                        : ('sitnet_permit_retrial' | translate)
+                                }}
+                            </button>
+                        </div>
+                        <div *ngIf="!review.examParticipation.exam.trialCount" class="text-muted">
+                            {{ 'sitnet_unrestricted' | translate }}
+                        </div>
+                    </td>
+                    <td class="table-column-10" *ngIf="review.examParticipation.exam.executionType.type !== 'PUBLIC'">
+                        &ndash;
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- Buttons -->
+    <div class="flex justify-content-end">
+        <div class="review-attachment-button marr10 marb10">
+            <a class="pointer preview" (click)="cancel()">
+                {{ 'sitnet_button_ok' | translate }}
+            </a>
+        </div>
+    </div>
+</div>

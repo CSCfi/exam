@@ -13,57 +13,56 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
-import * as toast from 'toastr';
-
-import { ExamService } from '../../exam/exam.service';
-import { QuestionService } from '../../question/question.service';
-import { SessionService } from '../../session/session.service';
-import { WindowRef } from '../../utility/window/window.service';
-import { AssessmentService } from './assessment.service';
-import { CollaborativeAssesmentService } from './collaborativeAssessment.service';
-
-import type { Examination } from '../../examination/examination.model';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import type { ClozeTestAnswer, ExamParticipation } from '../../exam/exam.model';
+import { ExamService } from '../../exam/exam.service';
+import type { Examination } from '../../examination/examination.model';
 import type { QuestionAmounts } from '../../question/question.service';
+import { QuestionService } from '../../question/question.service';
 import type { User } from '../../session/session.service';
+import { SessionService } from '../../session/session.service';
+import { AssessmentService } from './assessment.service';
+import { CollaborativeAssesmentService } from './collaborative-assessment.service';
 
 @Component({
-    selector: 'assessment',
+    selector: 'xm-assessment',
     templateUrl: './assessment.component.html',
 })
-export class AssessmentComponent {
-    @Input() collaborative = false;
-
+export class AssessmentComponent implements OnInit {
+    collaborative = false;
     questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
     exam!: Examination;
     participation!: ExamParticipation;
     user: User;
     hideGeneralInfo = false;
     hideGradeInfo = false;
+    private ref = '';
+    private examId = 0;
 
     constructor(
-        private state: StateService,
-        private routing: UIRouterGlobals,
+        private router: Router,
+        private route: ActivatedRoute,
         private http: HttpClient,
+        private toast: ToastrService,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
         private Question: QuestionService,
         private Exam: ExamService,
         private Session: SessionService,
-        private Window: WindowRef,
     ) {
         this.user = this.Session.getUser();
     }
 
     ngOnInit() {
-        const path = this.collaborative
-            ? `${this.routing.params.id}/${this.routing.params.ref}`
-            : this.routing.params.id;
+        this.collaborative = this.route.snapshot.data.collaborative;
+        this.examId = this.route.snapshot.params.id;
+        this.ref = this.route.snapshot.params.ref;
+        const path = this.collaborative ? `${this.examId}/${this.ref}` : this.examId.toString();
         const url = this.getResource(path);
-        this.http.get<Omit<ExamParticipation, 'exam'> & { exam: Examination }>(url).subscribe(
-            (participation) => {
+        this.http.get<Omit<ExamParticipation, 'exam'> & { exam: Examination }>(url).subscribe({
+            next: (participation) => {
                 const exam = participation.exam;
                 exam.examSections.forEach((es) =>
                     es.sectionQuestions
@@ -85,8 +84,8 @@ export class AssessmentComponent {
                 this.exam = exam;
                 this.participation = participation;
             },
-            (err) => toast.error(err.data),
-        );
+            error: (err) => this.toast.error(err),
+        });
     }
 
     isUnderLanguageInspection = () => {
@@ -98,9 +97,9 @@ export class AssessmentComponent {
 
     print = () => {
         const url = this.collaborative
-            ? `/staff/print/exam/${this.routing.params.id}/${this.routing.params.ref}`
-            : `/staff/print/exam/${this.exam.id}`;
-        this.Window.nativeWindow.open(url, '_blank');
+            ? `/staff/assessments/${this.examId}/print/${this.ref}`
+            : `/staff/assessments/${this.exam.id}/print`;
+        window.open(url, '_blank');
     };
 
     scoreSet = (revision: string) => {
@@ -116,9 +115,8 @@ export class AssessmentComponent {
     isGraded = () => this.Assessment.isGraded(this.exam);
 
     goToAssessment = () =>
-        this.state.go('staff.examEditor.assessments', {
-            id: this.collaborative ? this.routing.params.id : this.exam.parent?.id,
-            collaborative: this.collaborative ? 'collaborative' : 'regular',
+        this.router.navigate(['/staff/exams/', this.collaborative ? this.examId : this.exam.parent?.id, '5'], {
+            queryParams: this.collaborative ? { collaborative: true } : {},
         });
 
     // Set review status as started if not already done so
@@ -134,7 +132,7 @@ export class AssessmentComponent {
                     state,
                     this.participation._rev as string,
                 );
-                const url = `/app/iop/reviews/${this.routing.params.id}/${this.routing.params.ref}`;
+                const url = `/app/iop/reviews/${this.examId}/${this.ref}`;
                 this.http.put<{ rev: string }>(url, review).subscribe((resp) => {
                     this.participation._rev = resp.rev;
                     this.exam.state = state;

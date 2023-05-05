@@ -18,13 +18,16 @@ before_script:
   - psql -c "CREATE USER sitnet WITH PASSWORD 'sitnetsitnet';" -U postgres
   - psql -c 'CREATE DATABASE sitnet_test WITH OWNER 'sitnet';' -U postgres
   - sed -i 's/\/var\/log\/exam/logs/g' $TRAVIS_BUILD_DIR/conf/logback.xml
-  - npm i -g npm@v8.0.0
-  - nvm install 16.11.0
-  - nvm use 16.11.0
+  - npm i -g npm@latest
+  - nvm install 16
   - rm -rf ui/node_modules
-  - npm --prefix ui install
+  - cd ui
+  - npm install
 script:
-  - npm --prefix ui run-script build
+  - npm run build
+  - npm run check-format
+  - npm run check-lint
+  - cd ..
   - sbt test
 
 before_cache:
@@ -34,5 +37,6 @@ before_cache:
 
 cache:
   directories:
-    - $HOME/.ivy2/cache
+    - $HOME/.cache/coursier
+    # $HOME/.ivy2/cache
     - $HOME/.sbt

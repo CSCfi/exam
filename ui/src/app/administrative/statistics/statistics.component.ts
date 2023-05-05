@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
-
 import type { OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { QueryParams, StatisticsService } from './statistics.service';
+
 interface Departments {
     name: string;
     filtered: boolean;
@@ -27,10 +27,10 @@ enum Tab {
     EXAMS = 'EXAMS',
     RESERVATIONS = 'RESERVATIONS',
 }
-export type QueryParams = { start?: string; end?: string; dept?: string };
+
 @Component({
     templateUrl: './statistics.component.html',
-    selector: 'statistics',
+    selector: 'xm-statistics',
 })
 export class StatisticsComponent implements OnInit {
     view: Tab = Tab.RESPONSES;
@@ -41,29 +41,14 @@ export class StatisticsComponent implements OnInit {
     startDate: Date | null = null;
     endDate: Date | null = null;
 
-    constructor(private http: HttpClient) {}
+    constructor(private Statistics: StatisticsService) {}
 
     ngOnInit() {
-        this.http.get<{ departments: string[] }>('/app/reports/departments').subscribe((resp) => {
+        this.Statistics.listDepartments$().subscribe((resp) => {
             this.departments = resp.departments.map((d) => ({ name: d, filtered: false }));
             this.filteredDepartments = this.departments;
         });
     }
-
-    private setQueryParams = () => {
-        const params: { start?: string; end?: string; dept?: string } = {};
-        if (this.startDate) {
-            params.start = this.startDate.toISOString();
-        }
-        if (this.endDate) {
-            params.end = this.endDate.toISOString();
-        }
-        const departments = this.departments.filter((d) => d.filtered);
-        if (departments.length > 0) {
-            params.dept = departments.map((d) => d.name).join();
-        }
-        this.queryParams = params;
-    };
 
     setDepartmentFilter = (dept: { name: string; filtered: boolean }) => {
         dept.filtered = !dept.filtered;
@@ -88,5 +73,20 @@ export class StatisticsComponent implements OnInit {
                 d.name.toLowerCase().includes(this.limitations.department.toLowerCase()),
             );
         }
+    };
+
+    private setQueryParams = () => {
+        const params: { start?: string; end?: string; dept?: string } = {};
+        if (this.startDate) {
+            params.start = this.startDate.toISOString();
+        }
+        if (this.endDate) {
+            params.end = this.endDate.toISOString();
+        }
+        const departments = this.departments.filter((d) => d.filtered);
+        if (departments.length > 0) {
+            params.dept = departments.map((d) => d.name).join();
+        }
+        this.queryParams = params;
     };
 }

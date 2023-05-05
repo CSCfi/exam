@@ -12,25 +12,21 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DOCUMENT } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { StateService, UIRouterGlobals } from '@uirouter/core';
-import { from, noop, of, throwError } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
+import type { Observable } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
-import * as toast from 'toastr';
-
+import type { ReviewedExam } from '../../enrolment/enrolment.model';
+import type { Exam, ExamLanguage, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
 import { isRealGrade } from '../../exam/exam.model';
 import { SessionService } from '../../session/session.service';
-import { ConfirmationDialogService } from '../../utility/dialogs/confirmationDialog.service';
-import { CommonExamService } from '../../utility/miscellaneous/commonExam.service';
-import { WindowRef } from '../../utility/window/window.service';
+import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
 
-import type { Observable } from 'rxjs';
-import type { Exam, ExamSectionQuestion, Feedback, ExamLanguage } from '../../exam/exam.model';
-import type { ReviewedExam } from '../../enrolment/enrolment.model';
-import type { StateDeclaration } from '@uirouter/core';
 type Payload = {
     id: number;
     state: string;
@@ -42,15 +38,18 @@ type Payload = {
     additionalInfo: string;
 };
 
-@Injectable()
+export type Link = {
+    fragments: string[];
+    params?: { [key: string]: unknown };
+};
+
+@Injectable({ providedIn: 'root' })
 export class AssessmentService {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
-        private state: StateService,
-        private routing: UIRouterGlobals,
-        @Inject(DOCUMENT) private document: Document,
-        private windowRef: WindowRef,
+        private router: Router,
+        private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private Session: SessionService,
         private Exam: CommonExamService,
@@ -64,7 +63,7 @@ export class AssessmentService {
         return this.http.put<Feedback>(`/app/review/${exam.id}/comment`, data).pipe(
             tap((comment) => {
                 if (!silent) {
-                    toast.info(this.translate.instant('sitnet_comment_updated'));
+                    this.toast.info(this.translate.instant('sitnet_comment_updated'));
                 }
                 Object.assign(exam.examFeedback, { id: comment.id });
             }),
@@ -88,7 +87,7 @@ export class AssessmentService {
         const valid = this.Exam.hasCustomCredit(exam);
         if (!valid) {
             if (!silent) {
-                toast.error(this.translate.instant('sitnet_not_a_valid_custom_credit'));
+                this.toast.error(this.translate.instant('sitnet_not_a_valid_custom_credit'));
             }
             // Reset to default
             exam.customCredit = exam.course ? exam.course.credits : 0;
@@ -98,73 +97,40 @@ export class AssessmentService {
 
     // Defining markup outside templates is not advisable, but creating a working custom dialog template for this
     // proved to be a bit too much of a hassle. Lets live with this.
-    getRecordReviewConfirmationDialogContent = (feedback: string) =>
-        `<h4>${this.translate.instant('sitnet_teachers_comment')}</h4>
-        ${feedback}<br/>
-        <strong>${this.translate.instant('sitnet_confirm_record_review')}</strong>
-        `;
-
-    countCharacters = (text?: string) => {
-        let normalizedText = text
-            ? text
-                  .replace(/\s/g, '')
-                  .replace(/&nbsp;/g, '')
-                  .replace(/(\r\n|\n|\r)/gm, '')
-                  .replace(/&nbsp;/gi, ' ')
+    getRecordReviewConfirmationDialogContent = (feedback: string, showFeedbackConfigWarning: boolean) => {
+        const feedbackContent = feedback
+            ? `<h4>${this.translate.instant('sitnet_teachers_comment')}</h4> ${feedback}`
             : '';
-        normalizedText = this.strip(normalizedText).replace(/^([\t\r\n]*)$/, '');
-        return normalizedText.length;
-    };
-
-    private strip = (html: string) => {
-        const tmp = this.document.createElement('div');
-        tmp.innerHTML = html;
-        if (!tmp.textContent && typeof tmp.innerText === 'undefined') {
-            return '';
+        const content = `${feedbackContent}<p>${this.translate.instant('sitnet_confirm_record_review')}</p>`;
+        if (showFeedbackConfigWarning) {
+            return `${content}<p>${this.translate.instant('sitnet_exam_feedback_config_warning')}</p>`;
         }
-        return tmp.textContent || tmp.innerText;
+        return content;
     };
 
-    countWords = (text?: string) => {
-        let normalizedText = text
-            ? text
-                  .replace(/(\r\n|\n|\r)/gm, ' ')
-                  .replace(/^\s+|\s+$/g, '')
-                  .replace('&nbsp;', ' ')
-            : '';
-        normalizedText = this.strip(normalizedText);
-        const words = normalizedText.split(/\s+/);
-        for (let wordIndex = words.length - 1; wordIndex >= 0; wordIndex--) {
-            if (words[wordIndex].match(/^([\s\t\r\n]*)$/)) {
-                words.splice(wordIndex, 1);
-            }
-        }
-        return words.length;
-    };
-
-    getExitStateById = (id: number, collaborative: boolean): StateDeclaration => {
+    getExitStateById = (id: number, collaborative: boolean): Link => {
         return {
-            name: 'staff.examEditor.assessments',
-            params: { collaborative: collaborative ? 'collaborative' : 'regular', id: id },
+            fragments: ['/staff/exams', id.toString(), '5'],
+            params: { collaborative: collaborative },
         };
     };
 
-    getExitState = (exam: Exam, collaborative = false): StateDeclaration => {
+    getExitState = (exam: Exam, collaborative = false): Link => {
         const user = this.Session.getUser();
         if (user && user.isAdmin) {
-            return { name: 'staff.admin' };
+            return { fragments: ['/staff/admin'] };
         }
-        const id = exam.parent ? exam.parent.id : this.routing.params.id;
+        const id = exam.parent ? exam.parent.id : exam.id; // TODO: check this
         return this.getExitStateById(id, collaborative);
     };
 
-    createExamRecord$ = (exam: Exam, needsConfirmation: boolean): Observable<void> => {
+    createExamRecord$ = (exam: Exam, needsConfirmation: boolean, needsWarning: boolean): Observable<void> => {
         if (!this.checkCredit(exam)) {
             return of();
         }
         const messages = this.getErrors(exam);
         if (messages.length > 0) {
-            messages.forEach((msg) => toast.error(this.translate.instant(msg)));
+            messages.forEach((msg) => this.toast.error(this.translate.instant(msg)));
             return of();
         } else {
             let dialogNote, res: string;
@@ -172,24 +138,35 @@ export class AssessmentService {
                 dialogNote = this.translate.instant('sitnet_confirm_archiving_without_grade');
                 res = '/app/exam/register';
             } else {
-                dialogNote = this.getRecordReviewConfirmationDialogContent((exam.examFeedback as Feedback).comment);
+                dialogNote = this.getRecordReviewConfirmationDialogContent(
+                    (exam.examFeedback as Feedback).comment,
+                    needsWarning,
+                );
                 res = '/app/exam/record';
             }
             const payload = this.getPayload(exam, 'GRADED');
             if (needsConfirmation) {
-                const dialog = this.Confirmation.open(this.translate.instant('sitnet_confirm'), dialogNote);
-                return from(dialog.result).pipe(switchMap(() => this.register$(exam, res, payload)));
+                return this.Confirmation.open$(this.translate.instant('sitnet_confirm'), dialogNote).pipe(
+                    switchMap(() => this.register$(exam, res, payload)),
+                );
             } else {
                 return this.sendToRegistry$(payload, res);
             }
         }
     };
 
+    doesPreviouslyLockedAssessmentsExist$ = (exam: Exam) => {
+        if (!exam.parent?.id || !exam.parent.examFeedbackConfig) {
+            return of({ status: 'nothing' });
+        }
+        return this.http.get<{ status: 'nothing' | 'everything' }>(`/app/review/${exam.parent.id}/locked`);
+    };
+
     isCommentRead = (exam: Exam | ReviewedExam) => exam.examFeedback && exam.examFeedback.feedbackStatus;
 
     saveEssayScore$ = (question: ExamSectionQuestion): Observable<void> => {
         if (!question.essayAnswer || isNaN(question.essayAnswer?.evaluatedScore as number)) {
-            return throwError({ data: 'sitnet_error_score_input' });
+            return throwError(() => new Error(this.translate.instant('sitnet_error_score_input')));
         }
         const url = `/app/review/examquestion/${question.id}/score`;
         return this.http.put<void>(url, { evaluatedScore: question.essayAnswer.evaluatedScore });
@@ -202,7 +179,7 @@ export class AssessmentService {
         rev: string,
     ): Observable<{ rev: string }> => {
         if (!question.essayAnswer || isNaN(question.essayAnswer?.evaluatedScore as number)) {
-            return throwError({ data: 'sitnet_error_score_input' });
+            return throwError(() => new Error(this.translate.instant('sitnet_error_score_input')));
         }
         const url = `/app/iop/reviews/${examId}/${examRef}/question/${question.id}`;
         return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });
@@ -212,7 +189,7 @@ export class AssessmentService {
         if (exam.state === 'GRADED_LOGGED' || exam.state === 'ARCHIVED') {
             return this.http
                 .put<void>(`/app/review/${exam.id}/info`, { assessmentInfo: exam.assessmentInfo })
-                .pipe(tap(() => toast.info(this.translate.instant('sitnet_saved'))));
+                .pipe(tap(() => this.toast.info(this.translate.instant('sitnet_saved'))));
         }
         return of();
     };
@@ -222,9 +199,9 @@ export class AssessmentService {
             if (exam.state !== 'GRADED') {
                 // Just save feedback and leave
                 this.saveFeedback$(exam).subscribe(() => {
-                    toast.info(this.translate.instant('sitnet_saved'));
+                    this.toast.info(this.translate.instant('sitnet_saved'));
                     const state = this.getExitState(exam);
-                    this.state.go(state.name as string, state.params);
+                    this.router.navigate(state.fragments, { queryParams: state.params });
                 });
             }
         } else {
@@ -241,11 +218,10 @@ export class AssessmentService {
                 if (newState !== 'GRADED' || oldState === 'GRADED') {
                     this.sendAssessment(newState, payload, messages, exam);
                 } else {
-                    const dialog = this.Confirmation.open(
+                    this.Confirmation.open$(
                         this.translate.instant('sitnet_confirm'),
                         this.translate.instant('sitnet_confirm_grade_review'),
-                    );
-                    dialog.result.then(() => this.sendAssessment(newState, payload, messages, exam)).catch(noop);
+                    ).subscribe(() => this.sendAssessment(newState, payload, messages, exam));
                 }
             }
         }
@@ -266,11 +242,9 @@ export class AssessmentService {
         );
 
         if (askConfirmation) {
-            return of(
-                this.Confirmation.open(
-                    this.translate.instant('sitnet_confirm'),
-                    this.translate.instant('sitnet_confirm_maturity_disapproval'),
-                ).result,
+            return this.Confirmation.open$(
+                this.translate.instant('sitnet_confirm'),
+                this.translate.instant('sitnet_confirm_maturity_disapproval'),
             ).pipe(switchMap(() => reject));
         } else {
             return reject;
@@ -295,18 +269,15 @@ export class AssessmentService {
                 switchMap(() => this.saveFeedback$(exam)),
                 tap(() => {
                     if (newState === 'REVIEW_STARTED') {
-                        messages.forEach((msg) => toast.warning(this.translate.instant(msg)));
-                        this.windowRef.nativeWindow.setTimeout(
-                            () => toast.info(this.translate.instant('sitnet_review_saved')),
-                            1000,
-                        );
+                        messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
+                        window.setTimeout(() => this.toast.info(this.translate.instant('sitnet_review_saved')), 1000);
                     } else {
-                        toast.info(this.translate.instant('sitnet_review_graded'));
+                        this.toast.info(this.translate.instant('sitnet_review_graded'));
                         const state = this.getExitState(exam);
-                        this.state.go(state.name as string, state.params);
+                        this.router.navigate(state.fragments, { queryParams: state.params });
                     }
                 }),
-                catchError((resp) => toast.error(resp)),
+                catchError(async (resp) => this.toast.error(resp)),
             )
             .subscribe();
     };
@@ -333,7 +304,7 @@ export class AssessmentService {
             switchMap(() => this.http.put(`/app/review/${exam.id}`, payload)),
             tap(() => {
                 if (exam.state !== 'GRADED') {
-                    toast.info(this.translate.instant('sitnet_review_graded'));
+                    this.toast.info(this.translate.instant('sitnet_review_graded'));
                 }
             }),
             switchMap(() => this.sendToRegistry$(payload, res)),

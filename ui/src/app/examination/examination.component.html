@@ -1,47 +1,47 @@
 <div id="studentexam">
     <!-- HEADER ROW -->
-    <examination-header *ngIf="exam" [exam]="exam" (onTimeout)="timedOut()" [isPreview]="isPreview">
-    </examination-header>
-    <div class="row ml-3">
+    <xm-examination-header *ngIf="exam" [exam]="exam" (timedOut)="timedOut()" [isPreview]="isPreview">
+    </xm-examination-header>
+    <div class="row ms-3">
         <!-- LEFT COLUMN -->
         <div class="col-md-8 col-xs-8">
             <!-- EXAM AREA -->
             <!-- EXAM SECTION -->
-            <examination-section
+            <xm-examination-section
                 *ngIf="activeSection"
                 [section]="activeSection"
-                [index]="activeSection?.sequenceNumber || 0 + 1"
+                [index]="activeSection.sequenceNumber + 1"
                 [exam]="exam"
                 [isPreview]="isPreview"
                 [isCollaborative]="isCollaborative"
             >
-            </examination-section>
+            </xm-examination-section>
 
             <!-- ANSWER INSTRUCTIONS -->
-            <answer-instructions *ngIf="!activeSection && exam" [exam]="exam"></answer-instructions>
+            <xm-answer-instructions *ngIf="!activeSection && exam" [exam]="exam"></xm-answer-instructions>
 
             <!-- NAVIGATION -->
-            <examination-navigation
+            <xm-examination-navigation
                 *ngIf="exam"
                 [exam]="exam"
                 [activeSection]="activeSection"
-                (onSelect)="selectNewPage($event)"
+                (selected)="selectNewPage($event)"
             >
-            </examination-navigation>
+            </xm-examination-navigation>
         </div>
 
         <!-- RIGHT COLUMN -->
-        <div class="col-md-4 col-xs-4 pr-4">
+        <div class="col-md-4 col-xs-4 pe-4">
             <!-- TOOLBAR -->
-            <examination-toolbar
+            <xm-examination-toolbar
                 *ngIf="exam"
                 [exam]="exam"
                 [activeSection]="activeSection"
                 [isPreview]="isPreview"
-                (onPageSelect)="selectNewPage($event)"
+                (pageSelected)="selectNewPage($event)"
                 [isCollaborative]="isCollaborative"
             >
-            </examination-toolbar>
+            </xm-examination-toolbar>
         </div>
     </div>
 </div>

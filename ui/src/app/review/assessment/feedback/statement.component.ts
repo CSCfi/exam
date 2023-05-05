@@ -13,16 +13,74 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
-
-import { AttachmentService } from '../../../utility/attachment/attachment.service';
-import { FileService } from '../../../utility/file/file.service';
+import type { Exam } from '../../../exam/exam.model';
+import { AttachmentService } from '../../../shared/attachment/attachment.service';
+import type { FileResult } from '../../../shared/attachment/dialogs/attachment-picker.component';
+import { FileService } from '../../../shared/file/file.service';
 import { MaturityService } from '../maturity/maturity.service';
 
-import type { Exam } from '../../../exam/exam.model';
-import type { FileResult } from '../../../utility/attachment/dialogs/attachmentSelector.component';
 @Component({
-    selector: 'r-statement',
-    templateUrl: './statement.component.html',
+    selector: 'xm-r-statement',
+    template: `<div id="feedback" [hidden]="hasGoneThroughLanguageInspection()">
+        <div cdkDrag id="draggable" class="wrapper">
+            <div class="row">
+                <div
+                    class="col-md-1"
+                    ngbPopover="{{ (hideEditor ? 'sitnet_show' : 'sitnet_hide') | translate }}"
+                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <i
+                        (click)="toggleEditorVisibility()"
+                        class="pointer vcenter font-6"
+                        [ngClass]="
+                            hideEditor
+                                ? 'bi-arrow-right-circle-fill sitnet-green'
+                                : 'bi-arrow-down-circle-fill sitnet-red'
+                        "
+                    >
+                    </i>
+                </div>
+                <div class="col-md-11">
+                    <div class="vcenter">
+                        {{ 'sitnet_give_statement' | translate }}
+                    </div>
+                </div>
+            </div>
+            <div [hidden]="hideEditor" class="body">
+                <div class="row editor">
+                    <div class="col-md-12">
+                        <xm-ckeditor
+                            [enableClozeTest]="false"
+                            [(ngModel)]="exam.languageInspection.statement.comment"
+                            #ck="ngModel"
+                            name="ck"
+                        ></xm-ckeditor>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <button class="btn btn-outline-secondary" (click)="saveInspectionStatement()">
+                            {{ 'sitnet_save' | translate }}
+                        </button>
+                    </div>
+                    <div>
+                        <span *ngIf="exam.languageInspection?.statement?.attachment">
+                            <a class="pointer" (click)="downloadStatementAttachment()">{{
+                                exam.languageInspection?.statement?.attachment?.fileName
+                            }}</a>
+                            <span class="sitnet-red pointer" (click)="removeStatementAttachment()">
+                                <i class="bi-x" title="{{ 'sitnet_remove_attachment' | translate }}"></i>
+                            </span>
+                        </span>
+                        <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
+                            {{ 'sitnet_attach_file' | translate }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> `,
 })
 export class StatementComponent {
     @Input() exam!: Exam;

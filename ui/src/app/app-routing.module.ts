@@ -13,150 +13,120 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { NgModule } from '@angular/core';
-import { UIRouterModule } from '@uirouter/angular';
-
+import { Route, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
 import { CalendarComponent } from './calendar/calendar.component';
-import { StudentDashboardComponent } from './dashboard/student/studentDashboard.component';
-import { ExamEnrolmentsComponent } from './enrolment/exams/examEnrolments.component';
-import { CollaborativeParticipationsComponent } from './enrolment/finished/collaborativeExamParticipations.component';
-import { ExamParticipationsComponent } from './enrolment/finished/examParticipations.component';
-import { CollaborativeExamSearchComponent } from './enrolment/search/collaborativeExamSearch.component';
-import { ExamSearchComponent } from './enrolment/search/examSearch.component';
-import { WaitingRoomComponent } from './enrolment/waiting-room/waitingRoom.component';
-import { WrongLocationComponent } from './enrolment/wrong-location/wrongLocation.component';
+import { StudentDashboardComponent } from './dashboard/student/student-dashboard.component';
+import { ExamEnrolmentsComponent } from './enrolment/exams/exam-enrolments.component';
+import { CollaborativeParticipationsComponent } from './enrolment/finished/collaborative-exam-participations.component';
+import { ExamParticipationsComponent } from './enrolment/finished/exam-participations.component';
+import { CollaborativeExamSearchComponent } from './enrolment/search/collaborative-exam-search.component';
+import { ExamSearchComponent } from './enrolment/search/exam-search.component';
+import { WaitingRoomComponent } from './enrolment/waiting-room/waiting-room.component';
+import { WrongLocationComponent } from './enrolment/wrong-location/wrong-location.component';
 import { ExaminationComponent } from './examination/examination.component';
-import { ExaminationLogoutComponent } from './examination/logout/examinationLogout.component';
+import { ExaminationLogoutComponent } from './examination/logout/examination-logout.component';
 import { LogoutComponent } from './session/logout/logout.component';
 
-import type { UIRouter, Ng2StateDeclaration } from '@uirouter/angular';
-function uiRouterConfigFn(router: UIRouter) {
-    // Configure the initial state
-    // If the browser URL doesn't matches any state when the router starts,
-    // go to the `dashboard` state by default
-    router.urlService.rules.initial({ state: 'app' });
-
-    // Use @uirouter/visualizer to show the states and transitions
-    // visualizer(router);
-}
-
-const studentStates: Ng2StateDeclaration[] = [
-    { name: 'app', url: '', component: AppComponent },
-    { name: 'dashboard', url: '/dashboard', component: StudentDashboardComponent },
+const routes: Route[] = [
     {
-        name: 'calendar',
-        url: '/calendar/:id?{selected}',
-        component: CalendarComponent,
-        resolve: [
-            {
-                token: 'isExternal',
-                resolveFn: () => false,
-            },
-            {
-                token: 'isCollaborative',
-                resolveFn: () => false,
-            },
-        ],
+        path: '',
+        component: AppComponent,
+        pathMatch: 'full',
     },
     {
-        name: 'externalCalendar',
-        url: '/iop/calendar/:id?{selected}&{isCollaborative}',
-        component: CalendarComponent,
-        resolve: {
-            isExternal: () => true,
-        },
+        path: 'dashboard',
+        component: StudentDashboardComponent,
     },
     {
-        name: 'collaborativeCalendar',
-        url: 'collaborative/calendar/:id',
-        component: CalendarComponent,
-        resolve: {
-            isExternal: () => false,
-            isCollaborative: () => true,
-        },
-    },
-    {
-        name: 'logout',
-        url: '/logout',
+        path: 'logout',
         component: LogoutComponent,
     },
     {
-        name: 'examination',
-        url: '/student/exam/:hash',
+        path: 'exam/:hash',
         component: ExaminationComponent,
-        resolve: {
-            isPreview: () => false,
+        data: {
+            isPreview: false,
         },
     },
     {
-        name: 'waitingRoom',
-        url: '/student/waiting-room/:id/:hash',
+        path: 'waitingroom/:id/:hash',
         component: WaitingRoomComponent,
     },
     {
-        name: 'waitingRoomNoExam',
-        url: '/student/waiting-room',
+        path: 'waitingroom',
         component: WaitingRoomComponent,
     },
     {
-        name: 'wrongRoom',
-        url: '/student/wrong-room/:eid/:mid',
+        path: 'wrongroom/:eid/:mid',
         component: WrongLocationComponent,
-        resolve: {
-            cause: () => 'room',
+        data: {
+            cause: 'room',
         },
     },
     {
-        name: 'wrongMachine',
-        url: '/student/wrong-room/:eid/:mid',
+        path: 'wrongmachine/:eid/:mid',
         component: WrongLocationComponent,
-        resolve: {
-            cause: () => 'machine',
+        data: {
+            cause: 'machine',
         },
     },
     {
-        name: 'examSearch',
-        url: '/student/exams',
+        path: 'exams',
         component: ExamSearchComponent,
     },
     {
-        name: 'collaborativeExamSearch',
-        url: '/student/exams/collaborative',
+        path: 'exams/collaborative',
         component: CollaborativeExamSearchComponent,
     },
     {
-        name: 'participations',
-        url: '/student/participations',
+        path: 'participations',
         component: ExamParticipationsComponent,
     },
     {
-        name: 'collaborativeParticipations',
-        url: '/student/participations/collaborative',
+        path: 'participations/collaborative',
         component: CollaborativeParticipationsComponent,
     },
     {
-        name: 'examinationLogout',
-        url: '/student/logout?{reason}&{quitLinkEnabled}',
+        path: 'examination/logout',
         component: ExaminationLogoutComponent,
     },
     {
-        name: 'enrolments',
-        url: '/enroll/exam/:id?{code}',
+        path: 'enrolments/:id',
         component: ExamEnrolmentsComponent,
     },
-];
-
-const staffFutureStates: Ng2StateDeclaration[] = [
     {
-        name: 'staff.**',
-        url: '/staff',
-        loadChildren: () => import('./dashboard/staff/staffDashboard.module').then((mod) => mod.StaffDashboardModule),
+        path: 'calendar/:id',
+        component: CalendarComponent,
+        data: {
+            isExternal: false,
+            isCollaborative: false,
+        },
+    },
+    {
+        path: 'calendar/:id/external',
+        component: CalendarComponent,
+        data: { isExternal: true },
+    },
+    {
+        path: 'calendar/:id/collaborative',
+        component: CalendarComponent,
+        data: { isExternal: false, isCollaborative: true },
+    },
+    /*
+     { // this does not work apparently because admin code uses some of calendar dependencies
+-        path: 'calendar',
+-        loadChildren: () => import('./calendar/calendar.module').then((mod) => mod.CalendarModule),
+-    },
+    */
+    {
+        path: 'staff',
+        loadChildren: () => import('./dashboard/staff/staff-dashboard.module').then((mod) => mod.StaffDashboardModule),
     },
 ];
 
-const appStates: Ng2StateDeclaration[] = studentStates.concat(staffFutureStates);
 @NgModule({
-    imports: [UIRouterModule.forRoot({ states: appStates, useHash: false, config: uiRouterConfigFn })],
-    exports: [UIRouterModule],
+    imports: [RouterModule.forRoot(routes, { enableTracing: false })],
+    exports: [RouterModule],
 })
 export class AppRoutingModule {}

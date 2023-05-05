@@ -30,20 +30,20 @@
         <!-- Start & End time datepickers, department selection -->
         <div class="col-md">
             <h4>{{ 'sitnet_begin' | translate }}</h4>
-            <date-picker
-                (onUpdate)="startDateChanged($event)"
+            <xm-date-picker
+                (updated)="startDateChanged($event)"
                 [initialDate]="null"
                 [modelOptions]="{ timezone: '+0000' }"
-            ></date-picker>
+            ></xm-date-picker>
         </div>
 
         <div class="col-md">
             <h4>{{ 'sitnet_end' | translate }}</h4>
-            <date-picker
-                (onUpdate)="endDateChanged($event)"
+            <xm-date-picker
+                (updated)="endDateChanged($event)"
                 [initialDate]="null"
                 [modelOptions]="{ timezone: '+0000' }"
-            ></date-picker>
+            ></xm-date-picker>
         </div>
 
         <div class="col-md">
@@ -58,13 +58,13 @@
                 >
                     {{ 'sitnet_choose' | translate }}&nbsp;<span class="caret"></span>
                 </button>
-                <ul
+                <div
                     ngbDropdownMenu
                     style="padding-left: 0; min-width: 17em"
                     role="menu"
                     aria-labelledby="dropDownMenu1"
                 >
-                    <li role="presentation" class="dropdown-header input-group">
+                    <div role="presentation" class="input-group">
                         <input
                             [ngModel]="limitations.department"
                             (change)="handleDepartmentInputChange()"
@@ -77,19 +77,18 @@
                                 <i class="bi-search"></i>
                             </span>
                         </div>
-                    </li>
-                    <li
+                    </div>
+                    <button
                         ngbDropdownItem
-                        tabindex="0"
                         *ngFor="let department of filteredDepartments"
                         role="presentation"
                         [ngClass]="department.filtered ? 'active' : ''"
                         (click)="setDepartmentFilter(department)"
                         (keydown.enter)="setDepartmentFilter(department)"
                     >
-                        <a role="menuitem" title="{{ department.name }}">{{ department.name }}</a>
-                    </li>
-                </ul>
+                        {{ department.name }} {{ department.name }}
+                    </button>
+                </div>
             </span>
         </div>
         <div class="col-md">
@@ -112,8 +111,8 @@
     </div>
 
     <!-- TAB CONTENT -->
-    <room-statistics *ngIf="view === 'ROOMS'" [queryParams]="queryParams"></room-statistics>
-    <reservation-statistics *ngIf="view === 'RESERVATIONS'" [queryParams]="queryParams"> </reservation-statistics>
-    <response-statistics *ngIf="view === 'RESPONSES'" [queryParams]="queryParams"></response-statistics>
-    <exam-statistics *ngIf="view === 'EXAMS'" [queryParams]="queryParams"></exam-statistics>
+    <xm-room-statistics *ngIf="view === 'ROOMS'" [queryParams]="queryParams"></xm-room-statistics>
+    <xm-reservation-statistics *ngIf="view === 'RESERVATIONS'" [queryParams]="queryParams"> </xm-reservation-statistics>
+    <xm-response-statistics *ngIf="view === 'RESPONSES'" [queryParams]="queryParams"></xm-response-statistics>
+    <xm-exam-statistics *ngIf="view === 'EXAMS'" [queryParams]="queryParams"></xm-exam-statistics>
 </div>

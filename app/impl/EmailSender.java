@@ -24,4 +24,5 @@ public interface EmailSender {
     void send(String recipient, String sender, String subject, String content, EmailAttachment... attachments);
     void send(String recipient, String sender, Set<String> cc, String subject, String content);
     void send(Set<String> recipients, String sender, Set<String> cc, String subject, String content);
+    void send(String sender, Set<String> bcc, String subject, String content);
 }
