@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/CSCfi/exam.svg?branch=dev)](https://travis-ci.org/CSCfi/exam)
-
+[![Build Status](https://api.travis-ci.com/CSCfi/exam.svg?branch=master)](https://app.travis-ci.com/github/CSCfi/exam)
 EXAM Quickstart for developers
 =====================================
 
