@@ -278,7 +278,28 @@ public class EnrolmentRepository {
                 );
             }
         } else if (isMachineOk(enrolment, request, headers)) {
-            headers.put("x-exam-upcoming-exam", String.format("%s:::%d", getExamHash(enrolment), enrolment.getId()));
+            if (
+                enrolment.getExam() != null && enrolment.getExam().getImplementation() == Exam.Implementation.AQUARIUM
+            ) {
+                // Aquarium exam, don't set headers unless it starts in 5 minutes
+                DateTime threshold = DateTime.now().plusMinutes(5);
+                DateTime start = dateTimeHandler.normalize(
+                    enrolment.getReservation().getStartAt(),
+                    enrolment.getReservation()
+                );
+                if (start.isBefore(threshold)) {
+                    headers.put(
+                        "x-exam-upcoming-exam",
+                        String.format("%s:::%d", getExamHash(enrolment), enrolment.getId())
+                    );
+                }
+            } else {
+                // SEB exam
+                headers.put(
+                    "x-exam-upcoming-exam",
+                    String.format("%s:::%d", getExamHash(enrolment), enrolment.getId())
+                );
+            }
         }
     }
 
