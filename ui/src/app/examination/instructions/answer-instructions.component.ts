@@ -22,7 +22,9 @@ import type { Examination } from '../examination.model';
         <!-- ANSWER INSTRUCTIONS -->
         <div class="row">
             <div class="col-md-12" class="studentexam-header">
-                <h2 class="exam-title">{{ 'sitnet_exam_guide' | translate }}</h2>
+                <h2 class="exam-title" aria-live="polite" id="examination-section">
+                    {{ 'sitnet_exam_guide' | translate }}
+                </h2>
             </div>
         </div>
         <div class="row ms-2 guide-wrapper">
