@@ -100,7 +100,7 @@ export class DateTimeService {
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
         return range(1, 12)
             .concat(0)
-            .map((m) => this.getLocalizedDateForMonth(m, locale).monthLong);
+            .map((m) => this.getLocalizedDateForMonth(m, locale).monthLong as string);
     };
 
     isDST = (date: Date | string | number): boolean => {

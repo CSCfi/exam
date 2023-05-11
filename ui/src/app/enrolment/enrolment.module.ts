@@ -24,6 +24,7 @@ import { ShowInstructionsDialogComponent } from './active/dialogs/show-instructi
 import { ActiveEnrolmentMenuComponent } from './active/helpers/active-enrolment-menu.component';
 import { EnrolmentService } from './enrolment.service';
 import { EnrolmentDetailsComponent } from './exams/exam-enrolment-details.component';
+import { ExamEnrolmentTitleResolverService } from './exams/exam-enrolment-title-resolver.service';
 import { ExamEnrolmentsComponent } from './exams/exam-enrolments.component';
 import { CollaborativeParticipationsComponent } from './finished/collaborative-exam-participations.component';
 import { ExamAnswersDialogComponent } from './finished/exam-answers-dialog.component';
@@ -66,6 +67,6 @@ import { WrongLocationService } from './wrong-location/wrong-location.service';
         ShowInstructionsDialogComponent,
         ExamAnswersDialogComponent,
     ],
-    providers: [EnrolmentService, ExamSearchService, WrongLocationService],
+    providers: [EnrolmentService, ExamSearchService, WrongLocationService, ExamEnrolmentTitleResolverService],
 })
 export class EnrolmentModule {}
