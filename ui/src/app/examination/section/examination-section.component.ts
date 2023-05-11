@@ -20,7 +20,13 @@ import { ExaminationService } from '../examination.service';
     selector: 'xm-examination-section',
     template: `<div class="row">
             <div class="col-md-12 studentexam-header">
-                <h2>
+                <h2
+                    aria-live="polite"
+                    attr.aria-label="{{ 'sitnet_exam_section' | translate }} {{ index ? index + '. ' : '' }}{{
+                        section.name
+                    }}"
+                    id="examination-section"
+                >
                     <span class="exam-title">{{ index ? index + '. ' : '' }}{{ section.name }}</span>
                     <span *ngIf="isPreview && section.lotteryOn" class="sitnet-text-medium">
                         <small class="ms-3">({{ 'sitnet_lottery_questions' | translate }})</small>

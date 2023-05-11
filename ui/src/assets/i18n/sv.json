@@ -1118,5 +1118,7 @@
   "sitnet_this_room": "Detta rum",
   "sitnet_file_not_found_but_referred_in_database": "Requested file does not exist on disk even though referenced from database! SV",
   "sitnet_collapse": "Collapse SV",
-  "sitnet_expand": "Expand SV"
+  "sitnet_expand": "Expand SV",
+  "sitnet_exam_section_selected": "Exam section selected SV",
+  "sitnet_select_exam_section": "Select Exam section SV"
 }

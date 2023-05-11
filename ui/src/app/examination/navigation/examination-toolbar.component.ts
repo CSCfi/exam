@@ -156,6 +156,14 @@ export class ExaminationToolbarComponent implements OnInit {
 
     showMaturityInstructions = () => this.Enrolment.showMaturityInstructions({ exam: this.exam }, this.exam.external);
 
+    sectionSelectedText = () => {
+        return this.translate.instant('sitnet_this_section_is_selected');
+    };
+
+    getSkipLinkPath = (skipTarget: string) => {
+        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
+    };
+
     exitPreview = () => {
         const tab = this.tab || 1;
         const qp = this.isCollaborative ? { collaborative: this.isCollaborative } : {};
