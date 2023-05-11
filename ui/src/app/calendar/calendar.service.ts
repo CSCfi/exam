@@ -211,7 +211,7 @@ export class CalendarService {
 
     private adjustBack(date: DateTime): string {
         const offset = date.isInDST ? 1 : 0;
-        return date.toUTC().plus({ hour: offset }).toISO();
+        return date.toUTC().plus({ hour: offset }).toISO() as string;
     }
 
     private reserveInternal$ = (slot: Slot, accs: Accessibility[], collaborative: boolean): Observable<void> => {

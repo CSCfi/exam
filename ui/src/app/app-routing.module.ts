@@ -15,8 +15,10 @@
 import { NgModule } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
 import { AppComponent } from './app.component';
+import { CalendarTitleResolverService } from './calendar/calendar-title-resolver.service';
 import { CalendarComponent } from './calendar/calendar.component';
 import { StudentDashboardComponent } from './dashboard/student/student-dashboard.component';
+import { ExamEnrolmentTitleResolverService } from './enrolment/exams/exam-enrolment-title-resolver.service';
 import { ExamEnrolmentsComponent } from './enrolment/exams/exam-enrolments.component';
 import { CollaborativeParticipationsComponent } from './enrolment/finished/collaborative-exam-participations.component';
 import { ExamParticipationsComponent } from './enrolment/finished/exam-participations.component';
@@ -33,10 +35,12 @@ const routes: Route[] = [
         path: '',
         component: AppComponent,
         pathMatch: 'full',
+        title: 'EXAM',
     },
     {
         path: 'dashboard',
         component: StudentDashboardComponent,
+        title: 'EXAM',
     },
     {
         path: 'logout',
@@ -48,14 +52,17 @@ const routes: Route[] = [
         data: {
             isPreview: false,
         },
+        title: 'EXAM - examination',
     },
     {
         path: 'waitingroom/:id/:hash',
         component: WaitingRoomComponent,
+        title: 'EXAM - waiting room',
     },
     {
         path: 'waitingroom',
         component: WaitingRoomComponent,
+        title: 'EXAM - waiting room',
     },
     {
         path: 'wrongroom/:eid/:mid',
@@ -63,6 +70,7 @@ const routes: Route[] = [
         data: {
             cause: 'room',
         },
+        title: 'EXAM - wrong location',
     },
     {
         path: 'wrongmachine/:eid/:mid',
@@ -70,30 +78,37 @@ const routes: Route[] = [
         data: {
             cause: 'machine',
         },
+        title: 'EXAM - wrong machine',
     },
     {
         path: 'exams',
         component: ExamSearchComponent,
+        title: 'EXAM - search',
     },
     {
         path: 'exams/collaborative',
         component: CollaborativeExamSearchComponent,
+        title: 'EXAM - search',
     },
     {
         path: 'participations',
         component: ExamParticipationsComponent,
+        title: 'EXAM - participations',
     },
     {
         path: 'participations/collaborative',
         component: CollaborativeParticipationsComponent,
+        title: 'EXAM - participations',
     },
     {
         path: 'examination/logout',
         component: ExaminationLogoutComponent,
+        title: 'EXAM - logout',
     },
     {
         path: 'enrolments/:id',
         component: ExamEnrolmentsComponent,
+        title: ExamEnrolmentTitleResolverService,
     },
     {
         path: 'calendar/:id',
@@ -102,16 +117,19 @@ const routes: Route[] = [
             isExternal: false,
             isCollaborative: false,
         },
+        title: CalendarTitleResolverService,
     },
     {
         path: 'calendar/:id/external',
         component: CalendarComponent,
         data: { isExternal: true },
+        title: 'EXAM - calendar',
     },
     {
         path: 'calendar/:id/collaborative',
         component: CalendarComponent,
         data: { isExternal: false, isCollaborative: true },
+        title: 'EXAM - calendar',
     },
     /*
      { // this does not work apparently because admin code uses some of calendar dependencies
