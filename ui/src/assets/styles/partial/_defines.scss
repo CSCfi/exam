@@ -991,12 +991,11 @@ a.skip-main:focus, a.skip-main:active {
   z-index:999;
 }
 .skip {
-  left:-999px;
+  left:-9999px;
   display:flex;
   position:absolute;
   top:auto;
   z-index:-999;
-  display:flex;
 
   margin: 5px;
   white-space: nowrap;

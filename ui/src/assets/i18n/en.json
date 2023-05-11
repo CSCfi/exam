@@ -1116,5 +1116,7 @@
   "sitnet_show_hide_clock": "Show/hide time",
   "sitnet_select_time_in_future": "Time must be in future",
   "sitnet_this_room": "This Room",
-  "sitnet_file_not_found_but_referred_in_database": "Requested file does not exist on disk even though referenced from database!"
+  "sitnet_file_not_found_but_referred_in_database": "Requested file does not exist on disk even though referenced from database!",
+  "sitnet_exam_section_selected": "Exam section selected",
+  "sitnet_select_exam_section": "Select Exam section"
 }
