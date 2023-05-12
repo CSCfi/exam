@@ -68,21 +68,26 @@
     <div class="col-md-12">
         <ul class="list-muted">
             <li
-                class="row align-items-center pointer phase-box"
+                class="row align-items-center phase-box"
                 [ngClass]="!activeSection ? '' : 'notactive'"
                 (click)="selectGuidePage()"
                 (keydown.enter)="selectGuidePage()"
             >
-                <div class="col-md-12">{{ 'sitnet_exam_guide' | translate }}</div>
+                <button class="col-md-12 green_button w-auto">{{ 'sitnet_exam_guide' | translate }}</button>
+                <a
+                    class="skip"
+                    id="skip-button-instructions"
+                    [href]="getSkipLinkPath('#examination-section')"
+                    [hidden]="!!activeSection"
+                >
+                    {{ 'sitnet_skip_to_content' | translate }}
+                </a>
             </li>
 
             <li
-                class="row d-flex align-items-center pointer phase-box"
+                class="row d-flex align-items-center phase-box"
                 *ngFor="let section of exam.examSections | orderBy : 'sequenceNumber'; let i = index"
                 [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
-                (click)="selectSection(section)"
-                (keydown.enter)="selectSection(section)"
-                tabindex="0"
                 ngbPopover="{{ section.name }}: {{ 'sitnet_question_status_answered' | translate }}
                  {{ getQuestionAmount(section, 'answered') }}, {{ 'sitnet_questions_total' | translate }}
                  {{ getQuestionAmount(section, 'total') }}"
@@ -116,12 +121,28 @@
                         {{ i + 1 }}. {{ section.name }}
                     </span>
                 </div>
-                <div>
+                <div class="flex justify-content-between">
                     <span class="section-answered">
                         {{ getQuestionAmount(section, 'answered') }}
                         <span class="horizontal-padding-05"> / </span>
                         {{ getQuestionAmount(section, 'total') }}
                     </span>
+                    <button
+                        class="w-auto green_button"
+                        (click)="selectSection(section)"
+                        (keydown.enter)="selectSection(section)"
+                        [attr.aria-current]="activeSection?.sequenceNumber === i"
+                    >
+                        {{ 'sitnet_select_exam_section' | translate }} {{ i + 1 }}.
+                    </button>
+                    <a
+                        class="skip"
+                        id="skip-button"
+                        [href]="getSkipLinkPath('#examination-section')"
+                        [hidden]="activeSection?.sequenceNumber !== i"
+                    >
+                        {{ 'sitnet_skip_to_content' | translate }}
+                    </a>
                 </div>
             </li>
         </ul>
