@@ -167,20 +167,12 @@
                 <button
                     class="infolink pointer mart10 pointer border rounded hover-grey"
                     (click)="showGuide = !showGuide"
+                    (keydown.enter)="showGuide = !showGuide"
+                    [attr.aria-expanded]="showGuide"
                 >
                     {{ 'sitnet_room_guidance' | translate }}
-                    <img
-                        class="arrow_icon"
-                        [hidden]="showGuide"
-                        alt="show guidance"
-                        src="/assets/images/arrow_right.png"
-                    />
-                    <img
-                        class="arrow_icon"
-                        [hidden]="!showGuide"
-                        alt="hide guidance"
-                        src="/assets/images/arrow_down.png"
-                    />
+                    <img class="arrow_icon" [hidden]="showGuide" alt="" src="/assets/images/arrow_right.png" />
+                    <img class="arrow_icon" [hidden]="!showGuide" alt="" src="/assets/images/arrow_down.png" />
                 </button>
             </div>
             <div class="" [ngbCollapse]="!showGuide" [attr.aria-expanded]="showGuide">
@@ -252,20 +244,12 @@
             <button
                 class="infolink pointer mart10 pointer border rounded hover-grey"
                 (click)="showMaterials = !showMaterials"
+                (keydown.enter)="showMaterials = !showMaterials"
+                [attr.aria-expanded]="showMaterials"
             >
                 {{ 'sitnet_selected_sections' | translate }}
-                <img
-                    class="arrow_icon"
-                    [hidden]="showMaterials"
-                    alt="show materials"
-                    src="/assets/images/arrow_right.png"
-                />
-                <img
-                    class="arrow_icon"
-                    [hidden]="!showMaterials"
-                    alt="hide materials"
-                    src="/assets/images/arrow_down.png"
-                />
+                <img class="arrow_icon" [hidden]="showMaterials" alt="" src="/assets/images/arrow_right.png" />
+                <img class="arrow_icon" [hidden]="!showMaterials" alt="" src="/assets/images/arrow_down.png" />
             </button>
             <div
                 class="student-exam-row-infobox"
