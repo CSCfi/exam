@@ -23,13 +23,13 @@ import type { Examination, ExaminationSection, NavigationPage } from '../examina
             <span class="col-md-12 ms-2">
                 <!-- PREVIOUS SECTION BUTTON -->
                 <button class="green_button" [hidden]="!prev.valid" (click)="previousPage()">
-                    <img class="arrow_icon" alt="previous page" src="/assets/images/icon_left_white.png" />
+                    <img class="arrow_icon" alt="" src="/assets/images/icon_left_white.png" />
                     {{ prev.text || '' | translate }}
                 </button>
                 <!-- NEXT SECTION BUTTON -->
                 <button class="green_button float-end me-2" [hidden]="!next.valid" (click)="nextPage()">
                     {{ next.text || '' | translate }}
-                    <img class="arrow_icon" alt="next page" src="/assets/images/icon_right_white.png" />
+                    <img class="arrow_icon" alt="" src="/assets/images/icon_right_white.png" />
                 </button>
             </span>
         </div> `,

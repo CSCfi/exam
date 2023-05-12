@@ -8,7 +8,7 @@
             </span>
             <span class="col-md-1 col-3">
                 <span class="calendar-phase-icon float-end" *ngIf="selectedRoom">
-                    <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="choose room" />
+                    <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
                 </span>
             </span>
         </div>
@@ -21,18 +21,20 @@
                             class="infolink pointer border rounded"
                             *ngIf="!disabled"
                             (click)="showAccessibilityMenu = !showAccessibilityMenu"
+                            (keydown.enter)="showAccessibilityMenu = !showAccessibilityMenu"
+                            [attr.aria-expanded]="showAccessibilityMenu"
                         >
                             {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                             <img
                                 class="arrow_icon"
                                 *ngIf="!showAccessibilityMenu"
-                                alt="show accessibility selection"
+                                alt=""
                                 src="/assets/images/arrow_right.png"
                             />
                             <img
                                 class="arrow_icon"
                                 *ngIf="showAccessibilityMenu"
-                                alt="hide accessibility selection"
+                                alt=""
                                 src="/assets/images/arrow_down.png"
                             />
                         </button>
