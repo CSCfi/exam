@@ -73,7 +73,9 @@
                 (click)="selectGuidePage()"
                 (keydown.enter)="selectGuidePage()"
             >
-                <button class="col-md-12 green_button w-auto">{{ 'sitnet_exam_guide' | translate }}</button>
+                <button class="col-md-12 btn btn-outline-secondary w-auto">
+                    {{ 'sitnet_exam_guide' | translate }}
+                </button>
                 <a
                     class="skip"
                     id="skip-button-instructions"
@@ -123,12 +125,13 @@
                 </div>
                 <div class="flex justify-content-between">
                     <span class="section-answered">
+                        {{ 'sitnet_number_of_answered_questions' | translate }}
                         {{ getQuestionAmount(section, 'answered') }}
                         <span class="horizontal-padding-05"> / </span>
                         {{ getQuestionAmount(section, 'total') }}
                     </span>
                     <button
-                        class="w-auto green_button"
+                        class="w-auto btn btn-outline-secondary"
                         (click)="selectSection(section)"
                         (keydown.enter)="selectSection(section)"
                         [attr.aria-current]="activeSection?.sequenceNumber === i"
