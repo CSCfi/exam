@@ -20,7 +20,7 @@ import type { Exam } from '../../exam.model';
 
 @Component({
     selector: 'xm-publication-dialog',
-    template: `<div id="sitnet-dialog">
+    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
                 <div class="student-enroll-title">{{ getTitle() | translate }}</div>
@@ -35,7 +35,7 @@ import type { Exam } from '../../exam.model';
             </div>
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
-                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()">
+                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
                         {{ 'sitnet_button_ok' | translate }}
                     </button>
                 </div>

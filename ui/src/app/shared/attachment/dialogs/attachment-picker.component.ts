@@ -23,7 +23,7 @@ export interface FileResult {
 
 @Component({
     selector: 'xm-attachment-selector',
-    template: `<div id="sitnet-dialog">
+    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="modal-header">
             <h2>{{ title | translate }}</h2>
         </div>
@@ -31,14 +31,18 @@ export interface FileResult {
         <div class="modal-body">
             <div class="row">
                 <div class="col-md-3">
-                    <label for="file-select" class="btn btn-success btn-file">{{ 'sitnet_choose' | translate }}</label>
+                    <label for="file-select" class="btn btn-success btn-file" aria-hidden="true"
+                        >{{ 'sitnet_choose' | translate }}
+                    </label>
                     <input
                         id="file-select"
                         type="file"
                         class="attachment-input"
+                        tabindex="0"
+                        autofocus
                         #file
-                        style="display: none"
                         (change)="onFilesAdded()"
+                        attr.aria-label="{{ 'sitnet_choose_file' | translate }}"
                     />
                 </div>
                 <div class="col-md-9 attachment-file">

@@ -1120,5 +1120,6 @@
   "sitnet_collapse": "Collapse",
   "sitnet_expand": "Expand",
   "sitnet_exam_section_selected": "Exam section selected",
-  "sitnet_select_exam_section": "Select Exam section"
+  "sitnet_select_exam_section": "Select Exam section",
+  "sitnet_choose_file": "Select file"
 }

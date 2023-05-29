@@ -18,7 +18,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'xm-inspection-statement-dialog',
-    template: `<div id="sitnet-dialog">
+    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
                 <div class="student-enroll-title">{{ 'sitnet_give_feedback' | translate }}</div>
@@ -28,7 +28,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
             </div>
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
-                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()">
+                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
                         {{ 'sitnet_close' | translate }}
                     </button>
                 </div>
