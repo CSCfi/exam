@@ -158,6 +158,7 @@ public class BaseController extends Controller {
             .eq("user", user)
             .eq("exam.parent.id", exam.getId())
             .ne("exam.state", Exam.State.DELETED)
+            .ne("exam.state", Exam.State.INITIALIZED)
             .ne("retrialPermitted", true)
             .findList()
             .stream()
