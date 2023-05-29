@@ -21,6 +21,16 @@ export interface FileResult {
     $value: { attachmentFile: File };
 }
 
+/*
+    file-select has been made accessible so that there is button (<label>)
+    that is hidden from non-visual_user and keyboard accessible input field
+    that is "hidden" from visual_user. Both works the same but one solution
+    is hidden from the other.
+
+    If this ever gets refactored. There should only be input field for
+    file-selection. Now it's split in two to have better language support.
+ */
+
 @Component({
     selector: 'xm-attachment-selector',
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
