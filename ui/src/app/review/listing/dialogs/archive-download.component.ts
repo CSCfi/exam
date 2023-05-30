@@ -20,7 +20,7 @@ import { ToastrService } from 'ngx-toastr';
 
 @Component({
     selector: 'xm-archive-download',
-    template: `<div id="sitnet-dialog">
+    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-details-title-wrap mart20">
             <div class="student-enroll-title">{{ 'sitnet_exam_validity' | translate }}</div>
         </div>
@@ -28,7 +28,11 @@ import { ToastrService } from 'ngx-toastr';
             <div id="dashboard">
                 <div>
                     <label for="archive-download-start">{{ 'sitnet_begin' | translate }}:</label>
-                    <xm-date-picker id="archive-download-start" (updated)="startDateChanged($event)"></xm-date-picker>
+                    <xm-date-picker
+                        id="archive-download-start"
+                        (updated)="startDateChanged($event)"
+                        autofocus
+                    ></xm-date-picker>
                 </div>
                 <div>
                     <label for="archive-download-end">{{ 'sitnet_end' | translate }}:</label>

@@ -25,7 +25,7 @@ import type { ExamMachine, Reservation } from '../reservation.model';
 
 @Component({
     selector: 'xm-change-machine-dialog',
-    template: `<div id="sitnet-dialog">
+    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="terms-dialog-header">
             <h4><i class="bi-info-circle"></i>&nbsp;&nbsp;{{ 'sitnet_change_reservation_machine' | translate }}</h4>
         </div>
@@ -36,6 +36,7 @@ import type { ExamMachine, Reservation } from '../reservation.model';
                 (optionSelected)="machineChanged($event)"
                 (limitTo)="(0)"
                 placeholder="{{ 'sitnet_select' | translate }}"
+                autofocus
             ></xm-dropdown-select>
         </div>
         <div class="modal-footer">

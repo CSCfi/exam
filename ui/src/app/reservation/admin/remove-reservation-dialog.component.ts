@@ -20,13 +20,13 @@ import type { Reservation } from '../reservation.model';
 
 @Component({
     selector: 'xm-remove-reservation-dialog',
-    template: `<div id="sitnet-dialog">
+    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="terms-dialog-header">
             <h4><i class="bi-trash"></i>&nbsp;&nbsp;{{ 'sitnet_remove_reservation' | translate }}</h4>
         </div>
         <div class="modal-body">
             <strong>{{ 'sitnet_message' | translate }}</strong>
-            <textarea class="form-control" [(ngModel)]="message.text" rows="3"> </textarea>
+            <textarea class="form-control" [(ngModel)]="message.text" rows="3" autofocus> </textarea>
         </div>
         <div class="modal-footer">
             <button class="btn btn-sm btn-danger" (click)="cancel()">

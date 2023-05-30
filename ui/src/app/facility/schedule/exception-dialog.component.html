@@ -1,4 +1,4 @@
-<div id="sitnet-dialog">
+<div id="sitnet-dialog" role="dialog" aria-modal="true">
     <div class="modal-header">
         <h4><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{ 'sitnet_exception_time' | translate }}</h4>
     </div>
@@ -19,6 +19,7 @@
                             type="checkbox"
                             [checked]="wholeDay"
                             (change)="wholeDay = !wholeDay"
+                            autofocus
                         />
                         {{ 'sitnet_whole_day' | translate }}
                     </label>

@@ -1,4 +1,4 @@
-<div id="sitnet-dialog">
+<div id="sitnet-dialog" role="dialog" aria-modal="true">
     <div class="student-message-dialog-wrapper-padding">
         <div class="student-enroll-dialog-wrap">
             <h1 class="student-enroll-title">{{ 'sitnet_modify_materials' | translate }}</h1>
@@ -13,6 +13,7 @@
                             type="text"
                             class="form-control"
                             placeholder="{{ 'sitnet_search_by_name' | translate }}"
+                            autofocus
                         />
                         <div class="input-group-append">
                             <i class="bi-search"></i>
