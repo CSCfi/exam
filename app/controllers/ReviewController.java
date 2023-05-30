@@ -475,7 +475,10 @@ public class ReviewController extends BaseController {
             .fetch("exam.course", "code, credits")
             .fetch("exam.grade", "id, name")
             .where()
+            .or()
             .eq("exam.id", eid)
+            .eq("exam.parent.id", eid)
+            .endOr()
             .eq("noShow", true)
             .orderBy("reservation.endAt")
             .findList();
