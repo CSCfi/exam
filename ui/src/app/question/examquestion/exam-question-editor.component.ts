@@ -22,7 +22,7 @@ import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
 @Component({
     selector: 'xm-exam-question-editor',
     template: `
-        <div id="sitnet-dialog">
+        <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-body">
                 <xm-exam-question
                     *ngIf="examQuestion"
@@ -30,6 +30,7 @@ import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
                     (saved)="save($event)"
                     (cancelled)="cancel()"
                     [lotteryOn]="lotteryOn"
+                    autofocus
                 ></xm-exam-question>
             </div>
             <div class="modal-footer"></div>
