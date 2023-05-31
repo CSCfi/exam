@@ -8,7 +8,7 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
 @Component({
     selector: 'xm-examination-type-selector',
     template: `
-        <div id="sitnet-dialog">
+        <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">
                 <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'sitnet_choose' | translate }}</h4>
             </div>
@@ -17,7 +17,12 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
                     <ngb-panel id="toggle-1" title="{{ 'sitnet_choose_execution_type' | translate }}">
                         <ng-template ngbPanelContent>
                             <div *ngFor="let type of executionTypes">
-                                <a class="pointer" *ngIf="type.examinationTypes.length > 0" (click)="selectType(type)">
+                                <a
+                                    class="pointer"
+                                    *ngIf="type.examinationTypes.length > 0"
+                                    (click)="selectType(type)"
+                                    autofocus
+                                >
                                     {{ type.name | translate }}
                                 </a>
                                 <a

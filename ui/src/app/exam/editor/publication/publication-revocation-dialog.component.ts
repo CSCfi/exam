@@ -18,7 +18,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'xm-publication-revoke-dialog',
-    template: `<div id="sitnet-dialog">
+    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
                 <div class="student-enroll-title">{{ 'sitnet_unpublish_exam_confirm_dialog_title' | translate }}</div>
@@ -30,7 +30,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
             </div>
             <div class="student-message-dialog-footer">
                 <div class="student-message-dialog-button-save marl10">
-                    <button class="btn btn-sm btn-primary nowdt" (click)="activeModal.close()">
+                    <button class="btn btn-sm btn-primary nowdt" (click)="activeModal.close()" autofocus>
                         {{ 'sitnet_unpublish_exam' | translate }}
                     </button>
                 </div>

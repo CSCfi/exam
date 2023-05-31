@@ -21,7 +21,7 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
 
 @Component({
     selector: 'xm-select-examination-event-dialog',
-    template: `<div id="sitnet-dialog">
+    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
                 <h1 class="student-enroll-title">
@@ -50,7 +50,7 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
                     </div>
                     <div class="row">
                         <div class="col-md-12 mart10">
-                            <button class="btn btn-sm btn-success" (click)="selectEvent(config)">
+                            <button class="btn btn-sm btn-success" (click)="selectEvent(config)" autofocus>
                                 {{ 'sitnet_select' | translate }}
                             </button>
                         </div>

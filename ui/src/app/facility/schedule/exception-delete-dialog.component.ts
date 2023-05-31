@@ -19,7 +19,7 @@ import { ExceptionWorkingHours } from '../../reservation/reservation.model';
 
 @Component({
     selector: 'xm-publication-delete-dialog',
-    template: `<div id="sitnet-dialog">
+    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
                 <div class="student-enroll-title">{{ 'sitnet_remove_exception_confirmation' | translate }}</div>
@@ -39,7 +39,7 @@ import { ExceptionWorkingHours } from '../../reservation/reservation.model';
             </div>
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save float-end">
-                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()">
+                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
                         {{ 'sitnet_confirm' | translate }}
                     </button>
                 </div>
