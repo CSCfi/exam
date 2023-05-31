@@ -19,14 +19,19 @@ import { AssessmentService } from '../../assessment/assessment.service';
 
 @Component({
     selector: 'xm-speed-review-feedback',
-    template: `<div id="sitnet-dialog">
+    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-details-title-wrap mart20">
             <div class="student-enroll-title">{{ 'sitnet_give_feedback' | translate }}</div>
         </div>
         <div class="modal-body marl20">
             <div class="row">
                 <div class="col-md-12 padl0" *ngIf="exam.examFeedback !== null">
-                    <xm-ckeditor rows="10" #ck="ngModel" [(ngModel)]="exam.examFeedback.comment"></xm-ckeditor>
+                    <xm-ckeditor
+                        rows="10"
+                        #ck="ngModel"
+                        [(ngModel)]="exam.examFeedback.comment"
+                        autofocus
+                    ></xm-ckeditor>
                 </div>
             </div>
         </div>

@@ -18,7 +18,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
     selector: 'xm-r-inspection-comment',
     template: `
-        <div id="sitnet-dialog">
+        <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="student-message-dialog-wrapper-padding">
                 <div class="student-enroll-dialog-wrap">
                     <div class="student-enroll-title">{{ 'sitnet_inspection_comment_title' | translate }}</div>
@@ -33,6 +33,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
                             name="message"
                             class="student-message-dialog-textarea"
                             [(ngModel)]="data.comment"
+                            autofocus
                         >
                         </textarea>
                     </form>

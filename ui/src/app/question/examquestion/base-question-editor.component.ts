@@ -22,7 +22,7 @@ import type { QuestionDraft } from '../question.service';
 @Component({
     selector: 'xm-base-question-editor',
     template: `
-        <div id="sitnet-dialog">
+        <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-body">
                 <xm-question
                     [newQuestion]="newQuestion"
@@ -34,6 +34,7 @@ import type { QuestionDraft } from '../question.service';
                     [lotteryOn]="lotteryOn"
                     [examId]="examId"
                     [sectionQuestion]="sectionQuestion"
+                    autofocus
                 ></xm-question>
             </div>
             <div class="modal-footer"></div>
