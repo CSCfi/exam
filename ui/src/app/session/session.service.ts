@@ -26,6 +26,7 @@ import { defer, from, interval, of, Subject, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
+import { SessionExpireWarningComponent } from './session-timeout-toastr';
 
 export interface Role {
     name: string;
@@ -67,7 +68,7 @@ export class SessionService implements OnDestroy {
     private sessionCheckSubscription?: Unsubscribable;
     private userChangeSubscription = new Subject<User | undefined>();
     private devLogoutSubscription = new Subject<void>();
-    private path = '';
+    private customSessionExpireWarning = SessionExpireWarningComponent;
 
     constructor(
         private http: HttpClient,
@@ -153,25 +154,14 @@ export class SessionService implements OnDestroy {
         this.http.get('/app/session', { responseType: 'text' }).subscribe({
             next: (resp) => {
                 if (resp === 'alarm') {
-                    this.toast
-                        .warning(
-                            this.i18n.instant('sitnet_continue_session'),
-                            this.i18n.instant('sitnet_session_will_expire_soon'),
-                            {
-                                timeOut: 0,
-                            },
-                        )
-                        .onTap.subscribe({
-                            next: () =>
-                                this.http.put<void>('/app/session', {}).subscribe({
-                                    next: () => {
-                                        this.toast.info(this.i18n.instant('sitnet_session_extended'), '', {
-                                            timeOut: 1000,
-                                        });
-                                    },
-                                    error: (resp) => this.toast.error(resp),
-                                }),
-                        });
+                    this.toast.warning(
+                        this.i18n.instant('sitnet_continue_session'),
+                        this.i18n.instant('sitnet_session_will_expire_soon'),
+                        {
+                            timeOut: 0,
+                            toastComponent: this.customSessionExpireWarning,
+                        },
+                    );
                 } else if (resp === 'no_session') {
                     this.disableSessionCheck();
                     this.toast.clear();
