@@ -19,12 +19,19 @@ import { DevLoginComponent } from './dev/dev-login.component';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { LogoutComponent } from './logout/logout.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
+import { SessionExpireWarningComponent } from './session-timeout-toastr';
 import { SessionService } from './session.service';
 
 @NgModule({
     imports: [NgbDropdownModule, SharedModule],
     exports: [DevLoginComponent],
-    declarations: [DevLoginComponent, EulaDialogComponent, SelectRoleDialogComponent, LogoutComponent],
+    declarations: [
+        DevLoginComponent,
+        EulaDialogComponent,
+        SelectRoleDialogComponent,
+        LogoutComponent,
+        SessionExpireWarningComponent,
+    ],
     bootstrap: [EulaDialogComponent, SelectRoleDialogComponent],
     providers: [SessionService],
 })
