@@ -76,7 +76,7 @@ import { EnrolmentService } from '../enrolment.service';
         <div class="row mt-3">
             <div class="col flex justify-content-end">
                 <button
-                    class="btn btn-success text-nowrap"
+                    class="btn btn-success text-nowrap important-clear-focus"
                     (click)="enrollForExam()"
                     *ngIf="!exam.alreadyEnrolled"
                     [disabled]="enrolling"
@@ -84,7 +84,7 @@ import { EnrolmentService } from '../enrolment.service';
                     {{ 'sitnet_enroll_to_exam' | translate }}
                 </button>
                 <button
-                    class="btn btn-success text-nowrap"
+                    class="btn btn-success text-nowrap important-clear-focus"
                     (click)="makeReservation()"
                     *ngIf="exam.alreadyEnrolled && !exam.reservationMade"
                 >
