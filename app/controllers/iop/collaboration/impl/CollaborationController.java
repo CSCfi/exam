@@ -1,6 +1,7 @@
 package controllers.iop.collaboration.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
@@ -17,6 +18,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -27,6 +29,7 @@ import models.User;
 import models.json.CollaborativeExam;
 import org.joda.time.DateTime;
 import play.Logger;
+import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
@@ -161,6 +164,12 @@ public class CollaborationController extends BaseController {
 
     long newId() {
         return ThreadLocalRandom.current().nextLong(SAFE_NUMBER);
+    }
+
+    JsonNode filterDeleted(JsonNode root) {
+        return stream(root)
+            .filter(ep -> !ep.at("/exam/state").asText("").equals("DELETED"))
+            .collect(Collector.of(Json::newArray, ArrayNode::add, ArrayNode::addAll));
     }
 
     void calculateScores(JsonNode root) {
