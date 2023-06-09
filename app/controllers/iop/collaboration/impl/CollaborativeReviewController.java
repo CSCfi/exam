@@ -132,14 +132,15 @@ public class CollaborativeReviewController extends CollaborationController {
         return writeAnonymousResult(request, ok(root), true, admin);
     }
 
-    private Result handleMultipleAssesmentResponse(Http.Request request, WSResponse response, boolean admin) {
+    private Result handleMultipleAssessmentResponse(Http.Request request, WSResponse response, boolean admin) {
         JsonNode root = response.asJson();
         if (response.getStatus() != OK) {
             return internalServerError(root.get("message").asText("Connection refused"));
         }
+        JsonNode valid = filterDeleted(root);
         // calculate scores
-        calculateScores(root);
-        return writeAnonymousResult(request, ok(root), true, admin);
+        calculateScores(valid);
+        return writeAnonymousResult(request, ok(valid), true, admin);
     }
 
     private void forceScoreAnswer(JsonNode examNode, Long qid, Double score) {
@@ -177,7 +178,7 @@ public class CollaborativeReviewController extends CollaborationController {
                         wsr
                             .get()
                             .thenApplyAsync(response ->
-                                handleMultipleAssesmentResponse(request, response, user.hasRole(Role.Name.ADMIN))
+                                handleMultipleAssessmentResponse(request, response, user.hasRole(Role.Name.ADMIN))
                             )
                     )
                     .getOrElseGet(Function.identity())
