@@ -25,7 +25,11 @@
         </div>
         <div class="col-md-3 col-6" *ngIf="!exam.alreadyEnrolled && !exam.noTrialsLeft">
             <div class="student-message-dialog-button-save">
-                <button class="btn btn-success" [disabled]="getExpiration()" (click)="enrollForExam()">
+                <button
+                    class="btn btn-success important-clear-focus"
+                    [disabled]="getExpiration()"
+                    (click)="enrollForExam()"
+                >
                     {{ 'sitnet_enroll_to_exam' | translate }}
                 </button>
                 <div class="text-danger marl10" *ngIf="getExpiration()">
