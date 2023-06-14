@@ -76,19 +76,19 @@
                     <div class="row mt-2">
                         <div class="col-md-12">
                             <div class="row">
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-3">
+                                <div class="col-12 col-sm-6 col-md-6 col-lg-6">
                                     {{ 'sitnet_course_name' | translate }}:
                                 </div>
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-3">
+                                <div class="col-12 col-sm-6 col-md-6 col-lg-6">
                                     <div *ngIf="examInfo.course">
                                         <xm-course-code *ngIf="examInfo" [course]="examInfo.course"></xm-course-code>
                                         {{ examInfo.course.name }}
                                     </div>
                                 </div>
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-2">
+                                <div class="mt-2 col-12 col-sm-6 col-md-6 col-lg-6">
                                     {{ 'sitnet_exam_validity' | translate }}:
                                 </div>
-                                <div class="col-12 col-sm-6 col-md-6 col-lg-4">
+                                <div class="col-12 col-sm-6 col-md-6 col-lg-6">
                                     {{ examInfo.examActiveStartDate | date : 'dd.MM.yyyy' }} -
                                     {{ examInfo.examActiveEndDate | date : 'dd.MM.yyyy' }}
                                 </div>
@@ -133,7 +133,7 @@
                 <div class="col-md-12">
                     <button
                         [disabled]="!reservation || confirming"
-                        class="btn btn-lg btn-success float-end"
+                        class="btn btn-lg btn-success float-end important-clear-focus"
                         style="width: 100%; line-height: 1.5; border-radius: 3px"
                         (click)="confirmReservation()"
                     >
