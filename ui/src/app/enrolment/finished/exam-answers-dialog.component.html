@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h2>{{ 'sitnet_questions_with_your_answers' | translate }}</h2>
+    <h2 ngbAutofocus tabindex="-1" id="modal-heading-id">{{ 'sitnet_questions_with_your_answers' | translate }}</h2>
 </div>
 <div class="modal-body ms-2 me-2">
     <h2 class="row mt-3">
@@ -75,7 +75,12 @@
                             <strong>{{ 'sitnet_answer_attachment' | translate }}:</strong>
                         </div>
                         <div class="col-md-8">
-                            <a class="pointer" (click)="downloadAttachment(esq)">
+                            <a
+                                class="pointer"
+                                (click)="downloadAttachment(esq)"
+                                (ngEnter)="downloadAttachment(esq)"
+                                tabindex="0"
+                            >
                                 {{ esq.essayAnswer?.attachment?.fileName }}
                             </a>
                         </div>
@@ -182,7 +187,7 @@
     </div>
     <div class="modal-footer mt-4">
         <div class="student-message-dialog-button-save">
-            <button ngbAutofocus class="btn btn-sm btn-primary" (click)="activeModal.close()">
+            <button class="btn btn-sm btn-primary" (click)="activeModal.close()">
                 {{ 'sitnet_button_ok' | translate }}
             </button>
         </div>
