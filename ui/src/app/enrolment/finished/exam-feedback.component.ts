@@ -49,7 +49,6 @@ export class ExamFeedbackComponent implements OnInit {
                 .subscribe((exam) => (this.assessmentWithAnswers = exam));
         }
     }
-
     downloadFeedbackAttachment = () => {
         const attachment = this.assessment.examFeedback?.attachment;
         if (this.collaborative && attachment && attachment.externalId) {
