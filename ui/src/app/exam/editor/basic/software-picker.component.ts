@@ -33,7 +33,7 @@ import type { Exam, Software } from '../../exam.model';
                     >
                         <img
                             src="/assets/images/icon_tooltip.svg"
-                            alt="exam"
+                            alt=""
                             onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
                         />
                     </sup>

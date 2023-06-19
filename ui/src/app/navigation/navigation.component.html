@@ -49,9 +49,8 @@
                             link.name | translate
                         }}</span>
                     </a>
-                    <!-- [hidden]="!isActive(link)" TODO-->
 
-                    <a class="skip" id="skip-button" [href]="getSkipLinkPath('#mainView')">{{
+                    <a class="skip" id="skip-button" *ngIf="isActive(link)" [href]="getSkipLinkPath('#mainView')">{{
                         'sitnet_skip_to_content' | translate
                     }}</a>
                     <ul class="submenu" [ngbCollapse]="link.submenu.hidden && link.submenu.items.length > 0">
@@ -67,10 +66,13 @@
                                     {{ subitem.name | translate }}
                                 </div>
                             </a>
-                            <!-- [hidden]="!isActive(subitem)" TODO -->
-                            <a class="skip" id="skip-button" [href]="getSkipLinkPath('#mainView')">{{
-                                'sitnet_skip_to_content' | translate
-                            }}</a>
+                            <a
+                                class="skip"
+                                id="skip-button-sub"
+                                *ngIf="isActive(link)"
+                                [href]="getSkipLinkPath('#mainView')"
+                                >{{ 'sitnet_skip_to_content' | translate }}</a
+                            >
                         </li>
                     </ul>
                 </li>
