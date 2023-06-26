@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -429,6 +430,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
             .filter(Objects::nonNull)
             .map(email -> {
                 User user = new User();
+                user.setId(ThreadLocalRandom.current().nextLong()); // users are hashed based on id, so we need to provide one here
                 user.setEmail(email);
                 return user;
             })
