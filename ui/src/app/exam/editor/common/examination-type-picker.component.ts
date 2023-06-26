@@ -19,6 +19,11 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
                             <div *ngFor="let type of executionTypes">
                                 <a
                                     class="pointer"
+                                    [ngStyle]="
+                                        selectedType === type
+                                            ? { color: 'black', 'font-weight': 'bold', 'text-decoration': 'none' }
+                                            : {}
+                                    "
                                     *ngIf="type.examinationTypes.length > 0"
                                     (click)="selectType(type)"
                                     autofocus
