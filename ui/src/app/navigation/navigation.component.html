@@ -39,12 +39,7 @@
             <ul class="links">
                 <li *ngFor="let link of links" [hidden]="!link.visible">
                     <a [routerLink]="link.route" routerLinkActive="selected">
-                        <img
-                            aria-hidden="true"
-                            width="18"
-                            src="/assets/images/nav/{{ link.iconPng }}"
-                            alt="{{ link.route | translate }}"
-                        />
+                        <img aria-hidden="true" width="18" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
                         <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{
                             link.name | translate
                         }}</span>
@@ -61,7 +56,7 @@
                                         aria-hidden="true"
                                         width="18"
                                         src="/assets/images/nav/{{ subitem.iconPng }}"
-                                        alt="{{ link.route | translate }}"
+                                        alt=""
                                     />
                                     {{ subitem.name | translate }}
                                 </div>
