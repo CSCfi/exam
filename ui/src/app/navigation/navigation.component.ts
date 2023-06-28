@@ -70,9 +70,7 @@ export class NavigationComponent implements OnInit, OnDestroy {
     }
 
     isActive(link: Link): boolean {
-        return link.route === window.location.href;
-        console.log('Links:', link.route, window.location.href);
-        return true;
+        return window.location.href.includes(link.route);
     }
 
     ngOnDestroy() {
