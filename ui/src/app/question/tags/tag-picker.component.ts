@@ -33,7 +33,7 @@ import { QuestionDraft } from '../question.service';
                         ngbPopover="{{ 'sitnet_question_tag_question_description' | translate }}"
                         popoverTitle="{{ 'sitnet_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
-                        ><img src="/assets/images/icon_tooltip.svg" alt="exam" /></sup
+                        ><img src="/assets/images/icon_tooltip.svg" alt="" /></sup
                 ></label>
 
                 <div class="col-md-3">
@@ -71,7 +71,7 @@ import { QuestionDraft } from '../question.service';
                                 (click)="removeTag(tag)"
                                 title="{{ 'sitnet_remove' | translate }}"
                             >
-                                <img src="/assets/images/icon_remove.svg" alt="exam" />
+                                <img src="/assets/images/icon_remove.svg" alt="" />
                             </button>
                         </li>
                     </ul>

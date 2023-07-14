@@ -1122,5 +1122,7 @@
   "sitnet_exam_section_selected": "Exam section selected",
   "sitnet_select_exam_section": "Select Exam section",
   "sitnet_choose_file": "Select file",
-  "sitnet_number_of_answered_questions": "Aswered questions:"
+  "sitnet_number_of_answered_questions": "Answered questions:",
+  "sitnet_all_questions_answered": "All question answered",
+  "sitnet_questions_unanswered": "Unanswered questions"
 }

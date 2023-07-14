@@ -11,25 +11,15 @@
                     class="ms-2"
                     triggers="mouseenter:mouseleave"
                 >
-                    <img
-                        *ngIf="!autoevaluationDisplay.visible"
-                        src="/assets/images/icon_list_show_right.svg"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
-                    />
-                    <img
-                        *ngIf="autoevaluationDisplay.visible"
-                        src="/assets/images/icon_list_show_down.svg"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
-                    />
+                    <img *ngIf="!autoevaluationDisplay.visible" src="/assets/images/icon_list_show_right.svg" alt="" />
+                    <img *ngIf="autoevaluationDisplay.visible" src="/assets/images/icon_list_show_down.svg" alt="" />
                 </span>
             </span>
         </div>
     </div>
 </div>
 
-<div class="row" [ngbCollapse]="!autoevaluationDisplay.visible">
+<div class="row" [ngbCollapse]="!autoevaluationDisplay.visible" [attr.aria-expanded]="autoevaluationDisplay.visible">
     <div class="col-md-12 margin-20">
         <span class="autoevaluation-info">
             {{ 'sitnet_autoevaluation_instructions' | translate }}

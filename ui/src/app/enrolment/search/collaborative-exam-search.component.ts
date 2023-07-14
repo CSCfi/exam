@@ -29,7 +29,7 @@ import { EnrolmentService } from '../enrolment.service';
         </div>
         <div class="student-details-title-wrap padleft">
             <span class="form-group">
-                <img class="nopad" src="/assets/images/icon_info.png" alt="info-icon" /> &nbsp;
+                <img class="nopad" src="/assets/images/icon_info.png" alt="" /> &nbsp;
                 <span>{{ 'sitnet_collaborative_exam_search_description' | translate }}</span>
             </span>
         </div>

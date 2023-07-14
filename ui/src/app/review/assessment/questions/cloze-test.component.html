@@ -3,19 +3,9 @@
         <div class="col-md-12">
             <!-- question text -->
             <div class="float-end">
-                <a class="float-end" (click)="reviewExpanded = !reviewExpanded">
-                    <img
-                        *ngIf="!reviewExpanded"
-                        src="/assets/images/icon_list_show_right.svg"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
-                    />
-                    <img
-                        *ngIf="reviewExpanded"
-                        src="/assets/images/icon_list_show_down.svg"
-                        alt="exam"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
-                    />
+                <a class="float-end" (click)="reviewExpanded = !reviewExpanded" [attr.aria-expanded]="reviewExpanded">
+                    <img *ngIf="!reviewExpanded" src="/assets/images/icon_list_show_right.svg" alt="" />
+                    <img *ngIf="reviewExpanded" src="/assets/images/icon_list_show_down.svg" alt="" />
                 </a>
                 <!-- grade -->
                 <div class="review-points me-2">
@@ -50,12 +40,12 @@
             </div>
 
             <!-- question instructions -->
-            <div *ngIf="reviewExpanded && sectionQuestion.answerInstructions" class="padl0 mart20 marb20 notice-text">
-                <img
-                    src="/assets/images/icon_info.svg"
-                    alt="exam"
-                    onerror="this.onerror=null;this.src='/assets/images/icon_info.png'"
-                />
+            <div
+                *ngIf="reviewExpanded && sectionQuestion.answerInstructions"
+                class="padl0 mart20 marb20 notice-text"
+                role="note"
+            >
+                <img src="/assets/images/icon_info.svg" alt="" />
                 <span class="padl10">{{ 'sitnet_instructions' | translate }}:</span>
                 <span [innerHtml]="sectionQuestion.answerInstructions"></span>
             </div>

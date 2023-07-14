@@ -1122,5 +1122,7 @@
   "sitnet_exam_section_selected": "Exam section selected SV",
   "sitnet_select_exam_section": "Select Exam section SV",
   "sitnet_choose_file": "Valitse liitetiedosto SV",
-  "sitnet_number_of_answered_questions": "Aswered questions: SV"
+  "sitnet_number_of_answered_questions": "Answered questions: SV",
+  "sitnet_all_questions_answered": "All question answered SV",
+  "sitnet_questions_unanswered": "Unanswered questions SV"
 }

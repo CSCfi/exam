@@ -45,7 +45,7 @@ import { ExaminationService } from '../examination.service';
                 <div *ngIf="section.description && section.description.length > 0">
                     <img
                         src="/assets/images/icon_info.svg"
-                        alt="info-icon"
+                        alt=""
                         onerror="this.onerror=null;this.src='/assets/images/icon_info.png';"
                     />
                     <span class="ps-2">{{ section.description }}</span>

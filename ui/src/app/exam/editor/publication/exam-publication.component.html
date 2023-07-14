@@ -30,7 +30,7 @@
                         >
                             <img
                                 src="/assets/images/icon_remove.svg"
-                                alt="exam"
+                                alt=""
                                 onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
                             />
                         </button>
@@ -79,8 +79,8 @@
                             </xm-date-picker>
                         </div>
                         <div class="col-md-3" [hidden]="!exam.hasEnrolmentsInEffect">
-                            <span class="text-info">
-                                <img class="arrow_icon" src="/assets/images/icon_info.png" />
+                            <span class="text-info" role="note">
+                                <img class="arrow_icon" alt="" src="/assets/images/icon_info.png" />
                                 {{ 'sitnet_restricting_validity_change_disallowed' | translate }}
                             </span>
                         </div>
