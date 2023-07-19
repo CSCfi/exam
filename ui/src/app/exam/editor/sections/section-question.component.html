@@ -96,13 +96,13 @@
                             <img
                                 src="/assets/images/icon_correct_answer.png"
                                 *ngIf="option.option.correctOption"
-                                alt="exam"
+                                alt=""
                                 onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer.png'"
                             />
                             <img
                                 src="/assets/images/icon_wrong_answer.png"
                                 *ngIf="!option.option.correctOption"
-                                alt="exam"
+                                alt=""
                                 onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                             />
                             <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
@@ -115,13 +115,13 @@
                             <img
                                 src="/assets/images/icon_correct_answer_checkbox.png"
                                 *ngIf="option.score >= 0"
-                                alt="exam"
+                                alt=""
                                 onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer_checkbox.png'"
                             />
                             <img
                                 src="/assets/images/icon_wrong_answer_checkbox.png"
                                 *ngIf="option.score < 0"
-                                alt="exam"
+                                alt=""
                                 onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer_checkbox.png'"
                             />
                             <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
@@ -137,19 +137,19 @@
                             <img
                                 src="/assets/images/icon_correct_answer_radio.png"
                                 *ngIf="determineClaimOptionType(option) === 'CorrectOption'"
-                                alt="exam"
+                                alt=""
                                 onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                             />
                             <img
                                 src="/assets/images/icon_wrong_answer_radio.png"
                                 *ngIf="determineClaimOptionType(option) === 'IncorrectOption'"
-                                alt="exam"
+                                alt=""
                                 onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                             />
                             <img
                                 src="/assets/images/icon_wrong_answer.png"
                                 *ngIf="determineClaimOptionType(option) === 'SkipOption'"
-                                alt="exam"
+                                alt=""
                                 onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
                             />
                             <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>

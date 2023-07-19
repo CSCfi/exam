@@ -67,13 +67,13 @@ import { QuestionReviewService } from '../question-review.service';
                 <img
                     *ngIf="!review.expanded"
                     src="/assets/images/icon_list_show_right.svg"
-                    alt="exam"
+                    alt=""
                     onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
                 />
                 <img
                     *ngIf="review.expanded"
                     src="/assets/images/icon_list_show_down.svg"
-                    alt="exam"
+                    alt=""
                     onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
                 />
             </a>
@@ -85,7 +85,7 @@ import { QuestionReviewService } from '../question-review.service';
                     review.question.defaultAnswerInstructions && review.question.defaultAnswerInstructions.length > 0
                 "
                 src="/assets/images/icon_info.png"
-                alt="exam"
+                alt=""
                 onerror="this.onerror=null;this.src='/assets/images/icon_info.png'"
             />
             <span

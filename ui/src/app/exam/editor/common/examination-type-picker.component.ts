@@ -19,6 +19,7 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
                             <div *ngFor="let type of executionTypes">
                                 <a
                                     class="pointer"
+                                    [ngClass]="{ 'selected-type': selectedType === type }"
                                     *ngIf="type.examinationTypes.length > 0"
                                     (click)="selectType(type)"
                                     autofocus
@@ -57,6 +58,15 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
             </div>
         </div>
     `,
+    styles: [
+        `
+            .selected-type {
+                color: black;
+                font-weight: bold;
+                text-decoration: none;
+            }
+        `,
+    ],
 })
 export class ExaminationTypeSelectorComponent implements OnInit {
     @ViewChild('acc', { static: false }) acc!: NgbAccordion;
