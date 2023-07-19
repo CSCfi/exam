@@ -39,19 +39,13 @@
             <ul class="links">
                 <li *ngFor="let link of links" [hidden]="!link.visible">
                     <a [routerLink]="link.route" routerLinkActive="selected">
-                        <img
-                            aria-hidden="true"
-                            width="18"
-                            src="/assets/images/nav/{{ link.iconPng }}"
-                            alt="{{ link.route | translate }}"
-                        />
+                        <img aria-hidden="true" width="18" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
                         <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{
                             link.name | translate
                         }}</span>
                     </a>
-                    <!-- [hidden]="!isActive(link)" TODO-->
 
-                    <a class="skip" id="skip-button" [href]="getSkipLinkPath('#mainView')">{{
+                    <a class="skip" id="skip-button" *ngIf="isActive(link)" [href]="getSkipLinkPath('#mainView')">{{
                         'sitnet_skip_to_content' | translate
                     }}</a>
                     <ul class="submenu" [ngbCollapse]="link.submenu.hidden && link.submenu.items.length > 0">
@@ -62,15 +56,18 @@
                                         aria-hidden="true"
                                         width="18"
                                         src="/assets/images/nav/{{ subitem.iconPng }}"
-                                        alt="{{ link.route | translate }}"
+                                        alt=""
                                     />
                                     {{ subitem.name | translate }}
                                 </div>
                             </a>
-                            <!-- [hidden]="!isActive(subitem)" TODO -->
-                            <a class="skip" id="skip-button" [href]="getSkipLinkPath('#mainView')">{{
-                                'sitnet_skip_to_content' | translate
-                            }}</a>
+                            <a
+                                class="skip"
+                                id="skip-button-sub"
+                                *ngIf="isActive(link)"
+                                [href]="getSkipLinkPath('#mainView')"
+                                >{{ 'sitnet_skip_to_content' | translate }}</a
+                            >
                         </li>
                     </ul>
                 </li>
@@ -85,12 +82,7 @@
                         routerLinkActive="selected"
                         (click)="link.submenu.hidden = !link.submenu.hidden"
                     >
-                        <img
-                            aria-hidden="true"
-                            width="18"
-                            src="/assets/images/nav/{{ link.iconPng }}"
-                            alt="{{ link.route | translate }}"
-                        />
+                        <img aria-hidden="true" width="18" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
                         <span class="menu-item">{{ link.name | translate }}</span>
                     </a>
                     <ul class="submenu" [ngbCollapse]="!link.submenu.hidden && link.submenu.items.length > 0">
@@ -101,7 +93,7 @@
                                         aria-hidden="true"
                                         width="18"
                                         src="/assets/images/nav/{{ subitem.iconPng }}"
-                                        alt="{{ link.route | translate }}"
+                                        alt=""
                                     />
                                     {{ subitem.name | translate }}
                                 </div>
