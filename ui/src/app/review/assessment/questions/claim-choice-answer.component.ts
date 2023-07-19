@@ -25,17 +25,17 @@ import { QuestionService } from '../../../question/question.service';
                     <img
                         *ngIf="determineClaimOptionType(option) === 'CorrectOption'"
                         src="/assets/images/icon_correct_answer_radio.png"
-                        alt="exam"
+                        alt=""
                     />
                     <img
                         *ngIf="determineClaimOptionType(option) === 'IncorrectOption'"
                         src="/assets/images/icon_wrong_answer_radio.png"
-                        alt="exam"
+                        alt=""
                     />
                     <img
                         *ngIf="determineClaimOptionType(option) === 'SkipOption'"
                         src="/assets/images/icon_correct_answer_radio_grey.png"
-                        alt="exam"
+                        alt=""
                     />
                 </div>
                 <div class="make-inline middle-column">
