@@ -64,7 +64,7 @@ import type { ExamInfo } from '../calendar.service';
                 </div>
                 <div class="row mart10">
                     <div class="col-md-12">
-                        <span *ngIf="showReservationWindowInfo()" class="infolink">
+                        <span *ngIf="showReservationWindowInfo()" class="infolink" role="note">
                             <img class="arrow_icon padr10" src="/assets/images/icon_info.png" alt="" />
                             {{ getReservationWindowDescription() }}
                         </span>
