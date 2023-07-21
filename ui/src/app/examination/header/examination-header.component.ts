@@ -24,7 +24,7 @@ import type { Examination } from '../examination.model';
                 <div class="exam-header-img-wrap">
                     <img
                         src="/assets/images//exam-logo-mobile.svg"
-                        alt="exam"
+                        alt=""
                         onerror="this.onerror=null;this.src='/assets/images/exam-logo-mobile.png'"
                     />
                 </div>
@@ -58,7 +58,7 @@ import type { Examination } from '../examination.model';
                     <div class="exam-header-img-wrap col">
                         <img
                             src="/assets/images//exam-logo-mobile.svg"
-                            alt="exam"
+                            alt=""
                             onerror="this.onerror=null;this.src='/assets/images/exam-logo-mobile.png'"
                         />
                     </div>

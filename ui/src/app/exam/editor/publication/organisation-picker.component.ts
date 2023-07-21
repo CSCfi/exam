@@ -81,7 +81,7 @@ type Organisation = {
                             <img
                                 [hidden]="exam.state === 'PUBLISHED'"
                                 src="/assets/images/icon_remove.svg"
-                                alt="exam"
+                                alt=""
                                 onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
                             />
                         </button>
