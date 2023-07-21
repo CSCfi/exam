@@ -79,7 +79,7 @@
   "sitnet_exam_evaluation_criteria": "Arviointikriteerit (ei näytetä opiskelijoille)",
   "sitnet_exam_feedback": "Kirjoita tenttiin liittyvä palaute tähän",
   "sitnet_exam_grade": "Tentin arvosana",
-  "sitnet_exam_in_review": "Arvioitavana olevat tenttivastaukset",
+  "sitnet_exam_in_review": "Palautetut tenttisuoritukset",
   "sitnet_exam_instructor": "Tentin arvioijat",
   "sitnet_exam_review_settings": "Tentin arviointi",
   "sitnet_exam_language": "Tentin kieli",
@@ -88,7 +88,7 @@
   "sitnet_exam_guide": "Tentin ohjeet",
   "sitnet_exam_remove": "Poista",
   "sitnet_exam_review": "Tenttivastauksen arviointi",
-  "sitnet_exam_reviewed": "Arvioidut tenttivastaukset",
+  "sitnet_exam_reviewed": "Arvioinnin lukitsemista odottavat tenttisuoritukset",
   "sitnet_exam_room": "Tenttipaikka",
   "sitnet_exam_room_address": "Osoite",
   "sitnet_exam_room_address_city": "Postitoimipaikka",
@@ -835,8 +835,8 @@
   "sitnet_aborted_description": "Lista opiskelijoista, jotka ovat jättäneet \"tyhjän paperin\" eli keskeyttäneet tentin suorittamisen. (Numero ilmoittaa kuinka monta tenttisuoritusta on vapauttamatta.)",
   "sitnet_no_shows_description": "Lista tenttiin saapumattomista opiskelijoista.",
   "sitnet_review_started_description": "Tenttisuoritukset, joille ei ole annettu arvosanaa.",
-  "sitnet_graded_description": "Tenttisuoritukset, joille on annettu arvosana joko manuaalisesti tai automaattisesti.",
-  "sitnet_graded_logged_description": "Tenttisuoritukset, jotka on lukittu ja valmiina rekisteröitäväksi opintohallinnon järjestelmään joko automaattisesti tai manuaalisesti.",
+  "sitnet_graded_description": "Tenttisuoritukset, joille on annettu arvosana joko manuaalisesti tai automaattisesti. Suoritustiedot vielä muutettavissa. Opiskelija ei näe vielä arviointia.",
+  "sitnet_graded_logged_description": "Tenttisuoritukset, joissa arviointi on valmis rekisteröitäväksi opintohallinnon järjestelmään joko manuaalisesti tai automaattisesti. Arviointitietoja ei voi enää muuttaa ja arviointi näkyy opiskelijalle.",
   "sitnet_new_exam_type_description": "Valitse tentin tyyppi. Yleinen tentti on kaikkien varattavissa. Henkilökohtainen tentti kohdennetaan 1-n osallistujalle.",
   "sitnet_error_autoevaluation_essay_question": "Automaattisesti arvioitavaan tenttiin ei ole mahdollista lisätä esseekysymyksiä",
   "sitnet_action_disabled_minimum_options": "Kysymyksessä joka on julkaistussa tentissä, pitää olla vähintään yksi oikea vaihtoehto",
@@ -1122,5 +1122,6 @@
   "sitnet_exam_section_selected": "Aihealue valittu",
   "sitnet_select_exam_section": "Valitse aihealue",
   "sitnet_choose_file": "Valitse liitetiedosto",
-  "sitnet_number_of_answered_questions": "Vastatut kysymykset:"
+  "sitnet_number_of_answered_questions": "Vastatut kysymykset:",
+  "sitnet_grading_inspector": "Arvioija"
 }
