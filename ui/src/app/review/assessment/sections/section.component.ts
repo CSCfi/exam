@@ -15,7 +15,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { Exam, ExamParticipation, ExamSection } from '../../../exam/exam.model';
-import { QuestionService } from '../../../question/question.service';
+import { QuestionAmounts, QuestionService } from '../../../question/question.service';
 
 @Component({
     selector: 'xm-r-section',
@@ -31,10 +31,12 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
     @Output() scored = new EventEmitter<string>();
 
     selectionEvaluatedAmounts: { accepted: number; rejected: number } = { accepted: 0, rejected: 0 };
+    selectionEssays?: QuestionAmounts;
 
     constructor(private Exam: ExamService, private Question: QuestionService, private cdr: ChangeDetectorRef) {}
 
     ngOnInit() {
+        this.selectionEssays = this.Question.getQuestionAmounts(this.exam);
         this.selectionEvaluatedAmounts = this.Question.getQuestionAmountsBySection(this.section);
     }
 

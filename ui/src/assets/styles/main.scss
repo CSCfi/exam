@@ -515,6 +515,12 @@ p, li {
   filter: grayscale(100%);
 }
 
+.warning-no-hover{
+  background-color: white;
+  border: #E3162E 1px solid;
+  color: #E3162E;
+}
+
 .warning{
   background-color: white;
   border: #E3162E 1px solid;

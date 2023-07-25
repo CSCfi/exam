@@ -16,11 +16,15 @@
                         / {{ displayMaxScore() }} {{ 'sitnet_unit_points' | translate }}
                     </div>
                     <div class="d-inline-block review-points" *ngIf="sectionQuestion.evaluationType === 'Selection'">
+                        {{ 'sitnet_evaluation_select' | translate }}:
                         <div *ngIf="scoreValue === 1">
                             {{ 'sitnet_approved' | translate }}
                         </div>
                         <div *ngIf="scoreValue === 0">
                             {{ 'sitnet_rejected' | translate }}
+                        </div>
+                        <div *ngIf="!scoreValue && scoreValue !== 0" class="warning-no-hover border-none">
+                            {{ 'sitnet_no_grading' | translate }}
                         </div>
                     </div>
                     <!--chevron -->
