@@ -25,7 +25,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
         <div *ngIf="option.answered">
             <div *ngIf="option.score >= 0" class="exam-answered-correct">
                 <div class="make-inline float-start">
-                    <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="exam" />
+                    <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
                 </div>
                 <div class="make-inline middle-column">
                     <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
@@ -36,7 +36,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
             </div>
             <div *ngIf="option.score < 0" class="exam-answered-wrong">
                 <div class="make-inline float-start">
-                    <img src="/assets/images/icon_wrong_answer_checkbox_red.svg" alt="exam" />
+                    <img src="/assets/images/icon_wrong_answer_checkbox_red.svg" alt="" />
                 </div>
                 <div class="make-inline middle-column">
                     <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
@@ -50,9 +50,9 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
             <div class="exam-not-answered">
                 <div class="make-inline float-start">
                     <div *ngIf="option.score >= 0">
-                        <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="exam" />
+                        <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
                     </div>
-                    <img *ngIf="option.score < 0" src="/assets/images/icon_wrong_answer_checkbox.png" alt="exam" />
+                    <img *ngIf="option.score < 0" src="/assets/images/icon_wrong_answer_checkbox.png" alt="" />
                 </div>
                 <div class="make-inline middle-column">
                     <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>

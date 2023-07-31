@@ -1,9 +1,9 @@
 <!-- settings menu -->
 <div ngbDropdown class="no-caret flex justify-content-end">
-    <button ngbDropdownToggle class="infolink pointer mart10 flex-middle pointer border rounded hover-grey" xmAutoFocus>
+    <button ngbDropdownToggle class="infolink pointer mart10 flex-middle pointer border rounded hover-grey">
         <i class="bi-pencil marr10"></i>{{ 'sitnet_edit_enrolment' | translate }}
     </button>
-    <div ngbDropdownMenu aria-labelledby="simple-dropdown">
+    <div ngbDropdownMenu>
         <!-- enrolment with reservation, allow changing -->
         <div *ngIf="enrolment.reservation && canChangeReservation(enrolment.reservation)" ngbDropdownItem>
             <a

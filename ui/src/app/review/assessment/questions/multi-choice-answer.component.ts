@@ -28,7 +28,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     <img
                         *ngIf="option.answered"
                         src="/assets/images/icon_correct_answer_radio.png"
-                        alt="exam"
+                        alt=""
                         onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer_radio.png'"
                     />
                 </div>
@@ -41,7 +41,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     <img
                         *ngIf="option.answered"
                         src="/assets/images/icon_wrong_answer_radio.png"
-                        alt="exam"
+                        alt=""
                         onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer_radio.svg'"
                     />
                 </div>
@@ -56,13 +56,13 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     <img
                         *ngIf="option.option.correctOption"
                         src="/assets/images/icon_correct_answer_radio.png"
-                        alt="exam"
+                        alt=""
                         onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer_radio.svg'"
                     />
                     <img
                         *ngIf="!option.option.correctOption"
                         src="/assets/images/icon_wrong_answer.png"
-                        alt="exam"
+                        alt=""
                         onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.svg'"
                     />
                 </div>

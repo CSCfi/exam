@@ -69,6 +69,10 @@ export class NavigationComponent implements OnInit, OnDestroy {
         }
     }
 
+    isActive(link: Link): boolean {
+        return window.location.href.includes(link.route);
+    }
+
     ngOnDestroy() {
         this.ngUnsubscribe.next(undefined);
         this.ngUnsubscribe.complete();
