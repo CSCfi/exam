@@ -17,8 +17,7 @@ import { Directive, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { addMinutes, endOfDay, parseISO, startOfDay } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import type { Observable } from 'rxjs';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { CollaborativeExam, Exam, ExamImpl, Implementation } from '../exam/exam.model';
@@ -126,10 +125,12 @@ export class ReservationComponentBase implements OnInit {
     query() {
         if (this.somethingSelected(this.selection)) {
             const params = this.createParams(this.selection);
-            forkJoin([
-                this.http.get<Reservation[]>('/app/reservations', { params: params }),
-                this.http.get<ExamEnrolment[]>('/app/events', { params: params }),
-            ])
+            // do not fetch byod exams if machine or room id in the query params
+            const eventRequest =
+                params.roomId || params.machineId
+                    ? of([])
+                    : this.http.get<ExamEnrolment[]>('/app/events', { params: params });
+            forkJoin([this.http.get<Reservation[]>('/app/reservations', { params: params }), eventRequest])
                 .pipe(
                     map(([reservations, enrolments]) => {
                         const events: Partial<Reservation>[] = enrolments.map((ee) => {
