@@ -125,9 +125,9 @@ export class ReservationComponentBase implements OnInit {
     query() {
         if (this.somethingSelected(this.selection)) {
             const params = this.createParams(this.selection);
-            // do not fetch byod exams if machine or room id in the query params
+            // do not fetch byod exams if machine id, room id or external ref in the query params
             const eventRequest =
-                params.roomId || params.machineId
+                params.roomId || params.machineId || params.externalRef
                     ? of([])
                     : this.http.get<ExamEnrolment[]>('/app/events', { params: params });
             forkJoin([this.http.get<Reservation[]>('/app/reservations', { params: params }), eventRequest])
@@ -313,9 +313,16 @@ export class ReservationComponentBase implements OnInit {
 
     examChanged(event: Option<Exam | CollaborativeExam, number> | undefined) {
         if (event?.value) {
-            this.selection.examId = event.value.id.toString();
+            if (event.value.externalRef) {
+                this.selection.externalRef = event.value.externalRef || '';
+                delete this.selection.examId;
+            } else {
+                this.selection.examId = event.value.id.toString();
+                delete this.selection.externalRef;
+            }
         } else {
             delete this.selection.examId;
+            delete this.selection.externalRef;
         }
         this.query();
     }
