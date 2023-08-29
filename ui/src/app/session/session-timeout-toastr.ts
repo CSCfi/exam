@@ -26,9 +26,6 @@ export class SessionExpireWarningComponent extends Toast {
         if (event.ctrlKey && event.key === 'e') {
             this.continue();
         }
-        if (event.ctrlKey && event.key === 'e') {
-            this.continue();
-        }
     }
 
     continue = () => {
