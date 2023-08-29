@@ -1,7 +1,7 @@
 <div class="row ms-3 mt-3">
     <div class="col-md-2 general-info-title">{{ 'sitnet_total_score' | translate }}:</div>
     <div class="col-md-4 general-info-content">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
-    <div class="col-md-2 general-info-title">{{ 'sitnet_inspection_status' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'sitnet_grading_inspector' | translate }}:</div>
     <div class="col-md-4 general-info-content">
         <div *ngFor="let inspection of exam.examInspections">
             <xm-r-inspection

@@ -198,14 +198,7 @@
                             </span>
                         </div>
                     </td>
-                    <td
-                        class="table-column-15"
-                        [ngClass]="
-                            review.examParticipation.exam.state !== 'ABORTED'
-                                ? 'sitnet-text-ready'
-                                : 'sitnet-text-aborted'
-                        "
-                    >
+                    <td class="table-column-15">
                         {{ 'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
                     </td>
                 </tr>
