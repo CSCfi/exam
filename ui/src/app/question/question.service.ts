@@ -40,6 +40,7 @@ export type QuestionAmounts = {
     accepted: number;
     rejected: number;
     hasEssays: boolean;
+    totalSelectionEssays: number;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -94,7 +95,7 @@ export class QuestionService {
     getQuestion = (id: number): Observable<ReverseQuestion> => this.http.get<ReverseQuestion>(this.questionsApi(id));
 
     getQuestionAmounts = (exam: Exam): QuestionAmounts => {
-        const data = { accepted: 0, rejected: 0, hasEssays: false };
+        const data = { accepted: 0, rejected: 0, hasEssays: false, totalSelectionEssays: 0 };
         exam.examSections.forEach((section) => {
             section.sectionQuestions.forEach((sectionQuestion) => {
                 const question = sectionQuestion.question;
@@ -105,6 +106,7 @@ export class QuestionService {
                         } else if (sectionQuestion.essayAnswer.evaluatedScore === 0) {
                             data.rejected++;
                         }
+                        data.totalSelectionEssays++;
                     }
                     data.hasEssays = true;
                 }

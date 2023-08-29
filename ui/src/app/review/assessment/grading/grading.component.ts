@@ -36,7 +36,7 @@ import { GradingBaseComponent } from '../common/grading-base.component';
 })
 export class GradingComponent extends GradingBaseComponent implements OnInit {
     @Input() exam!: Examination;
-    @Input() questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
+    @Input() questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false, totalSelectionEssays: 0 };
     @Input() participation!: ExamParticipation;
     @Input() collaborative = false;
     @Input() user!: User;
