@@ -9,7 +9,7 @@ import type { ExamInfo } from '../calendar.service';
                 <span class="col-md-12">
                     <span class="calendar-phase-title">2. {{ 'sitnet_exam_materials' | translate }}</span>
                     <span class="calendar-phase-icon float-end" *ngIf="sectionSelectionOk()">
-                        <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="phase 1" />
+                        <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
                     </span>
                 </span>
             </div>

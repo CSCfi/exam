@@ -13,7 +13,7 @@
             <xm-active-enrolment [enrolment]="enrolment" (removed)="enrolmentRemoved($event)"></xm-active-enrolment>
         </div>
         <div *ngIf="userEnrolments?.length === 0" style="padding-left: 30px">
-            <span class="form-group">
+            <span class="form-group" role="note">
                 <img class="nopad" src="/assets/images/icon_info.png" alt="" />&nbsp;
                 <span>{{ 'sitnet_no_enrolments' | translate }}</span>
             </span>

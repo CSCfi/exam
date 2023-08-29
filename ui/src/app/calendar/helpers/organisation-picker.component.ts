@@ -15,7 +15,7 @@ import { CalendarService } from '../calendar.service';
                     </span>
                     <span class="col-md-1 col-3">
                         <span class="calendar-phase-icon float-end" *ngIf="selectedOrganisation">
-                            <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="choose institution" />
+                            <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
                         </span>
                     </span>
                 </div>
