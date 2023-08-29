@@ -3,21 +3,11 @@
         <div class="guide-wrapper" [ngClass]="isAnswered() ? 'active' : 'notactive'">
             <div class="row justify-content-center">
                 <div class="col-auto">
-                    <div *ngIf="isAnswered()">
-                        <img
-                            class="mart05"
-                            src="/assets/images/icon_question_type_ready_grey.png"
-                            alt="question answered"
-                            onerror="this.onerror=null;this.src='/assets/images/icon_question_type_ready_grey.png';"
-                        />
+                    <div *ngIf="isAnswered()" [attr.aria-label]="'sitnet_all_questions_answered' | translate">
+                        <img class="mart05" src="/assets/images/icon_question_type_ready_grey.png" alt="" />
                     </div>
-                    <div *ngIf="!isAnswered()">
-                        <img
-                            class="mart05"
-                            src="/assets/images/icon_question_type_waiting.svg"
-                            alt="question not answered"
-                            onerror="this.onerror=null;this.src='/assets/images/icon_question_type_waiting.png';"
-                        />
+                    <div *ngIf="!isAnswered()" [attr.aria-label]="'sitnet_questions_unanswered' | translate">
+                        <img class="mart05" src="/assets/images/icon_question_type_waiting.svg" alt="" />
                     </div>
                 </div>
                 <!-- question text -->
@@ -55,13 +45,8 @@
             <!-- instruction -->
             <div class="row" *ngIf="sq.answerInstructions && expanded">
                 <div class="col-md-12">
-                    <p class="question-text question-type-text info">
-                        <img
-                            class="marr20"
-                            src="/assets/images/icon_info.svg"
-                            alt="info icon"
-                            onerror="this.onerror=null;this.src='/assets/images/icon_info.png';"
-                        />
+                    <p class="question-text question-type-text info" role="note">
+                        <img class="marr20" src="/assets/images/icon_info.svg" alt="" />
                         {{ 'sitnet_instructions' | translate }}:&nbsp;{{ sq.answerInstructions }}
                     </p>
                 </div>
@@ -77,10 +62,7 @@
                         (keydown.enter)="downloadQuestionAttachment()"
                     >
                         {{ 'sitnet_download_section_question_attachment' | translate }}
-                        <img
-                            src="/assets/images/icon_attachment.svg"
-                            alt="attachment"
-                            onerror="this.onerror=null;this.src='/assets/images/icon_attachment.png';"
+                        <img src="/assets/images/icon_attachment.svg" alt=""
                     /></a>
                     <div class="attachment-name">{{ sq.question.attachment?.fileName | uppercase }}</div>
                 </div>

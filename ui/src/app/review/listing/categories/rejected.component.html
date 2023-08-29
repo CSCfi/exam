@@ -1,19 +1,9 @@
 <div>
     <div class="review-list-title">
         {{ 'sitnet_exam_rejected' | translate }}
-        <a (click)="view.toggle = !view.toggle" class="pointer">
-            <img
-                *ngIf="!view.toggle"
-                src="/assets/images/icon_list_show_right.svg"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-            />
-            <img
-                *ngIf="view.toggle"
-                src="/assets/images/icon_list_show_down.svg"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-            />
+        <a (click)="view.toggle = !view.toggle" class="pointer" [attr.aria-expanded]="view.toggle">
+            <img *ngIf="!view.toggle" src="/assets/images/icon_list_show_right.svg" alt="" />
+            <img *ngIf="view.toggle" src="/assets/images/icon_list_show_down.svg" alt="" />
         </a>
     </div>
 </div>

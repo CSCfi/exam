@@ -1123,5 +1123,7 @@
   "sitnet_select_exam_section": "Valitse aihealue",
   "sitnet_choose_file": "Valitse liitetiedosto",
   "sitnet_number_of_answered_questions": "Vastatut kysymykset:",
-  "sitnet_grading_inspector": "Arvioija"
+  "sitnet_grading_inspector": "Arvioija",
+  "sitnet_all_questions_answered": "Kaikkiin kysymyksiin aihealueella on vastattu",
+  "sitnet_questions_unanswered": "Aihealueessa on vastaamattomia kysymyksiä"
 }
