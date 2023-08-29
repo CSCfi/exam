@@ -20,11 +20,20 @@ import { range as _range } from 'ramda';
     selector: 'xm-paginator',
     template: `
         <ul class="paginator">
-            <li [ngClass]="previousPageDisabled()"><a (click)="previousPage()">&#60;</a></li>
-            <li *ngFor="let n of range()" [ngClass]="{ active: isCurrent(n) }" (click)="setPage(n)">
-                <a>{{ printRange(n) }}</a>
+            <li [ngClass]="previousPageDisabled()">
+                <a tabindex="0" (click)="previousPage()" (keyup.enter)="previousPage()">&#60;</a>
             </li>
-            <li [ngClass]="nextPageDisabled()"><a (click)="nextPage()">&#62;</a></li>
+            <li
+                *ngFor="let n of range()"
+                [ngClass]="{ active: isCurrent(n) }"
+                (click)="setPage(n)"
+                (keyup.enter)="setPage(n)"
+            >
+                <a tabindex="0">{{ printRange(n) }}</a>
+            </li>
+            <li [ngClass]="nextPageDisabled()">
+                <a tabindex="0" (click)="nextPage()" (keyup.enter)="nextPage()">&#62;</a>
+            </li>
         </ul>
     `,
 })

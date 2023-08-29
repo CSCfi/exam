@@ -28,24 +28,19 @@
                         </div>
                     </div>
                     <!--chevron -->
-                    <a (click)="reviewExpanded = !reviewExpanded">
-                        <img
-                            *ngIf="!reviewExpanded"
-                            src="/assets/images/icon_list_show_right.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
-                        />
-                        <img
-                            *ngIf="reviewExpanded"
-                            src="/assets/images/icon_list_show_down.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
-                        />
+                    <a
+                        (click)="reviewExpanded = !reviewExpanded"
+                        [attr.aria-label]="
+                            reviewExpanded ? ('sitnet_collapse' | translate) : ('sitnet_expand' | translate)
+                        "
+                    >
+                        <img *ngIf="!reviewExpanded" src="/assets/images/icon_list_show_right.svg" alt="" />
+                        <img *ngIf="reviewExpanded" src="/assets/images/icon_list_show_down.svg" alt="" />
                     </a>
                 </div>
             </div>
 
-            <div class="row" [ngbCollapse]="!reviewExpanded">
+            <div class="row" [ngbCollapse]="!reviewExpanded" [attr.aria-expanded]="reviewExpanded">
                 <div class="col-12">
                     <!-- question attachment -->
                     <div *ngIf="sectionQuestion.question.attachment" class="padl0 mart20 marb20 notice-text">
@@ -55,12 +50,8 @@
                         </a>
                     </div>
                     <!-- question instructions -->
-                    <div *ngIf="sectionQuestion.answerInstructions" class="padl0 mart20 marb20 notice-text">
-                        <img
-                            src="/assets/images/icon_info.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_info.png'"
-                        />
+                    <div *ngIf="sectionQuestion.answerInstructions" class="padl0 mart20 marb20 notice-text" role="note">
+                        <img src="/assets/images/icon_info.svg" alt="" />
                         <span class="padl10">{{ 'sitnet_instructions' | translate }}:</span>
                         <span [innerHtml]="sectionQuestion.answerInstructions"></span>
                     </div>
@@ -79,11 +70,7 @@
                             (click)="downloadQuestionAnswerAttachment()"
                         >
                             {{ 'sitnet_download_answer_attachment' | translate }}
-                            <img
-                                src="/assets/images/icon_attachment.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_attachment.png'"
-                            />
+                            <img src="/assets/images/icon_attachment.svg" alt="" />
                         </a>
                         <div class="attachment-name">
                             {{ sectionQuestion.essayAnswer?.attachment?.fileName | uppercase }}

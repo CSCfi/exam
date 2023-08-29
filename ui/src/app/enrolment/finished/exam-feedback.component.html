@@ -1,8 +1,8 @@
 <div id="dashboard">
     <div class="row mt-2" *ngIf="assessment.grade?.name === 'NONE'">
         <div class="notice-wrap">
-            <span class="form-group"
-                ><img class="nopad" alt="info-icon" src="/assets/images/icon_info.png" />
+            <span class="form-group" role="note"
+                ><img class="nopad" alt="" src="/assets/images/icon_info.png" />
                 &nbsp;
                 <span>{{ 'sitnet_no_grading_description' | translate }}</span>
             </span>
@@ -11,8 +11,8 @@
 
     <div class="row mt-2" *ngIf="assessment.state === 'GRADED'">
         <div class="notice-wrap">
-            <span class="form-group"
-                ><img class="nopad" alt="info-icon" src="/assets/images/icon_info.png" />
+            <span class="form-group" role="note"
+                ><img class="nopad" alt="" src="/assets/images/icon_info.png" />
                 &nbsp;
                 <span>{{ 'sitnet_autoevaluation_release_description' | translate }}</span>
             </span>
@@ -183,7 +183,7 @@
         </div>
         <div class="row">
             <div class="col-12" *ngIf="assessmentWithAnswers">
-                <button class="btn btn-link" (ngEnter)="showAnswers()" (click)="showAnswers()">
+                <button class="btn btn-link" (keydown.enter)="showAnswers()" (click)="showAnswers()">
                     {{ 'sitnet_show' | translate }}
                 </button>
             </div>
@@ -210,7 +210,11 @@
             </div>
             <div class="row">
                 <div class="col-12">
-                    <button class="btn btn-link" (ngEnter)="downloadScoreReport()" (click)="downloadScoreReport()">
+                    <button
+                        class="btn btn-link"
+                        (keydown.enter)="downloadScoreReport()"
+                        (click)="downloadScoreReport()"
+                    >
                         {{ 'sitnet_download_report' | translate }}
                     </button>
                 </div>

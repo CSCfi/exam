@@ -51,6 +51,7 @@
                             class="btn btn-link"
                             (click)="showEvaluation = !showEvaluation; setCommentRead(reviewedExam)"
                             (ngEnter)="showEvaluation = !showEvaluation; setCommentRead(reviewedExam)"
+                            [attr.aria-expanded]="showEvaluation"
                         >
                             <span [hidden]="showEvaluation">{{ 'sitnet_comments_open' | translate }}</span>
                             <span [hidden]="!showEvaluation">{{ 'sitnet_comments_hide' | translate }}</span>
@@ -61,7 +62,7 @@
                 </div>
             </div>
         </div>
-        <div class="row" *ngIf="reviewedExam" [ngbCollapse]="!showEvaluation" [attr.aria-expanded]="showEvaluation">
+        <div class="row" *ngIf="reviewedExam" [ngbCollapse]="!showEvaluation">
             <div class="col-12 ms-4">
                 <xm-exam-feedback
                     class="student-exam-row-infobox"

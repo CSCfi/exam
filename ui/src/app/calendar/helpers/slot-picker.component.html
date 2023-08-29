@@ -28,20 +28,20 @@
                             <img
                                 class="arrow_icon"
                                 *ngIf="!showAccessibilityMenu"
-                                alt=""
+                                aria-hidden="true"
                                 src="/assets/images/arrow_right.png"
                             />
                             <img
                                 class="arrow_icon"
                                 *ngIf="showAccessibilityMenu"
-                                alt=""
+                                aria-hidden="true"
                                 src="/assets/images/arrow_down.png"
                             />
                         </button>
                         <span *ngIf="disabled" class="text text-muted">
                             {{ 'sitnet_calendar_room_accessibility_info' | translate }}
                         </span>
-                        <div [ngbCollapse]="!showAccessibilityMenu" [attr.aria-expanded]="showAccessibilityMenu">
+                        <div [ngbCollapse]="!showAccessibilityMenu">
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="calendar-accs-title">
@@ -52,13 +52,14 @@
                             <div class="row">
                                 <div class="col-md-12 calendar-accs-checkboxes">
                                     <span class="marr10 accs-list" *ngFor="let accessibility of accessibilities">
-                                        <input
-                                            aria-label="search for accessibility criteria"
-                                            type="checkbox"
-                                            role="presentation"
-                                            (click)="selectAccessibility(accessibility)"
-                                            value="{{ accessibility.name }}"
-                                        />
+                                        <label for="{{ accessibility.name }}">
+                                            <input
+                                                id="{{ accessibility.name }}"
+                                                type="checkbox"
+                                                (click)="selectAccessibility(accessibility)"
+                                                value="{{ accessibility.name }}"
+                                            />
+                                        </label>
                                         {{ accessibility.name }}
                                     </span>
                                 </div>
