@@ -154,14 +154,27 @@ export class SessionService implements OnDestroy {
         this.http.get('/app/session', { responseType: 'text' }).subscribe({
             next: (resp) => {
                 if (resp === 'alarm') {
-                    this.toast.warning(
-                        this.i18n.instant('sitnet_continue_session'),
-                        this.i18n.instant('sitnet_session_will_expire_soon'),
-                        {
-                            timeOut: 0,
-                            toastComponent: this.customSessionExpireWarning,
-                        },
-                    );
+                    this.toast
+                        .warning(
+                            this.i18n.instant('sitnet_continue_session'),
+                            this.i18n.instant('sitnet_session_will_expire_soon'),
+                            {
+                                timeOut: 30000,
+                                toastComponent: this.customSessionExpireWarning,
+                                progressBar: true,
+                            },
+                        )
+                        .onTap.subscribe(() => {
+                            this.http.put<void>('/app/session', {}).subscribe({
+                                next: () => {
+                                    this.toast.clear();
+                                    this.toast.info(this.i18n.instant('sitnet_session_extended'), '', {
+                                        timeOut: 2000,
+                                    });
+                                },
+                                error: (resp) => this.toast.error(resp),
+                            });
+                        });
                 } else if (resp === 'no_session') {
                     this.disableSessionCheck();
                     this.toast.clear();

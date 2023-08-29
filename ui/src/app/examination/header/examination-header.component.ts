@@ -48,10 +48,10 @@ import type { Examination } from '../examination.model';
             </xm-examination-clock>
             <div class="exam-mobile-header padt40">
                 <div class="row">
-                    <div class="exam-header-title col marl20 marr20">
+                    <h1 class="exam-header-title col marl20 marr20">
                         {{ exam.course?.name }}
                         <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code>
-                    </div>
+                    </h1>
                 </div>
                 <div class="exam-header-title mobile-divider row"></div>
                 <div class="row">

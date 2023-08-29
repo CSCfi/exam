@@ -5,7 +5,7 @@
         <div class="info-column bot-border">
             <img
                 src="/assets/images/icon_user.svg"
-                alt="user info"
+                alt=""
                 onerror="this.onerror=null;this.src='/assets/images/icon_user.png';"
             /><span class="user-span">{{ displayUser() }}</span>
         </div>
@@ -26,7 +26,7 @@
         <button class="grey-button abort-and-exit text-nowrap" (click)="abortExam()">
             <img
                 src="/assets/images/icon_exit.svg"
-                alt="abort exam"
+                alt=""
                 onerror="this.onerror=null;this.src='/assets/images/icon_exit.png';"
             /><span class="ps-2 abort-and-exit">{{ 'sitnet_abort_exam' | translate }}</span>
         </button>
@@ -96,7 +96,7 @@
                     >
                         <img
                             src="/assets/images/icon_question_type_ready_grey.png"
-                            alt="all questions answered"
+                            alt="{{ 'sitnet_all_questions_answered' | translate }}"
                             onerror="this.onerror=null;this.src='/assets/images/icon_question_type_ready_grey.png';"
                         />
                     </div>
@@ -106,7 +106,7 @@
                     >
                         <img
                             src="/assets/images/icon_question_type_waiting.svg"
-                            alt="unanswered questions remain"
+                            alt="{{ 'sitnet_unanswered_questions_remain' | translate }}"
                             onerror="this.onerror=null;this.src='/assets/images/icon_question_type_waiting.png';"
                         />
                     </div>
@@ -133,17 +133,14 @@
     <div class="col-md-12">
         <button
             type="button"
+            role="note"
             class="row pointer d-flex align-items-center m-0 border-none background-none"
             ngbPopover="{{ displayRoomInstructions() }}"
             popoverTitle="{{ 'sitnet_instructions' | translate }}"
         >
-            <a class="me-2">
-                <img
-                    src="/assets/images/icon_info.svg"
-                    alt="room guidance"
-                    onerror="this.onerror=null;this.src='/assets/images/icon_info.png';"
-                />
-            </a>
+            <div class="me-2">
+                <img src="/assets/images/icon_info.svg" alt="" />
+            </div>
             <div class="question-text question-type-text info">
                 {{ 'sitnet_room_guidance' | translate }}
             </div>
@@ -154,11 +151,11 @@
 <!-- MATURITY INSTRUCTIONS -->
 <div class="row">
     <button class="col-md-12" (click)="showMaturityInstructions()" [hidden]="exam.executionType.type !== 'MATURITY'">
-        <div class="row pointer d-flex align-items-center m-0">
+        <div class="row pointer d-flex align-items-center m-0" role="note">
             <a class="me-2">
                 <img
                     src="/assets/images/icon_info.svg"
-                    alt="maturity instructions"
+                    alt=""
                     onerror="this.onerror=null;this.src='/assets/images/icon_info.png';"
                 />
             </a>
@@ -177,11 +174,7 @@
             (keydown.enter)="exitPreview()"
         >
             <a class="me-2">
-                <img
-                    src="/assets/images/icon_info.svg"
-                    alt="exit preview"
-                    onerror="this.onerror=null;this.src='/assets/images/icon_info.png';"
-                />
+                <img src="/assets/images/icon_info.svg" alt="" />
             </a>
             <div class="question-text question-type-text info">
                 {{ 'sitnet_exit_preview' | translate }}

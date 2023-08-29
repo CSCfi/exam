@@ -27,9 +27,9 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                 <div class="make-inline float-start">
                     <img
                         *ngIf="option.answered"
-                        src="/assets/images/icon_correct_answer_radio.png"
+                        src="/assets/images/icon_correct_answer_radio.svg"
+                        [attr.aria-label]="'sitnet_correct_answer' | translate"
                         alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer_radio.png'"
                     />
                 </div>
                 <div class="make-inline middle-column">
@@ -40,9 +40,9 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                 <div class="make-inline float-start">
                     <img
                         *ngIf="option.answered"
-                        src="/assets/images/icon_wrong_answer_radio.png"
+                        src="/assets/images/icon_wrong_answer_radio.svg"
+                        [attr.aria-label]="'sitnet_incorrect_answer' | translate"
                         alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer_radio.svg'"
                     />
                 </div>
                 <div class="make-inline middle-column">
@@ -55,15 +55,15 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                 <div class="make-inline float-start">
                     <img
                         *ngIf="option.option.correctOption"
-                        src="/assets/images/icon_correct_answer_radio.png"
+                        src="/assets/images/icon_correct_answer_radio.svg"
+                        [attr.aria-label]="'sitnet_correct_answer' | translate"
                         alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer_radio.svg'"
                     />
                     <img
                         *ngIf="!option.option.correctOption"
-                        src="/assets/images/icon_wrong_answer.png"
+                        src="/assets/images/icon_wrong_answer.svg"
+                        [attr.aria-label]="'sitnet_incorrect_answer' | translate"
                         alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.svg'"
                     />
                 </div>
                 <div class="make-inline middle-column">

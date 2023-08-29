@@ -22,12 +22,12 @@ import type { Examination, ExaminationSection, NavigationPage } from '../examina
         <div class="row exam-navigation mb-3">
             <span class="col-md-12 ms-2">
                 <!-- PREVIOUS SECTION BUTTON -->
-                <button class="green_button" [hidden]="!prev.valid" (click)="previousPage()">
+                <button class="green_button" *ngIf="prev.valid" (click)="previousPage()">
                     <img class="arrow_icon" alt="" src="/assets/images/icon_left_white.png" />
                     {{ prev.text || '' | translate }}
                 </button>
                 <!-- NEXT SECTION BUTTON -->
-                <button class="green_button float-end me-2" [hidden]="!next.valid" (click)="nextPage()">
+                <button class="green_button float-end me-2" *ngIf="next.valid" (click)="nextPage()">
                     {{ next.text || '' | translate }}
                     <img class="arrow_icon" alt="" src="/assets/images/icon_right_white.png" />
                 </button>
