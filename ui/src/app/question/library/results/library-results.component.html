@@ -183,11 +183,12 @@
                 </tr>
                 <!--Fill if page not full-->
                 <tr *ngFor="let r of [] | pageFill : questions.length : currentPage : pageSize">
-                    <td colspan="9">&nbsp;</td>
+                    <td colspan="11">&nbsp;</td>
                     <td *ngIf="user.isAdmin"></td>
                 </tr>
                 <tr *ngIf="questions.length === 0">
-                    <td colspan="10">{{ 'sitnet_exam_library_no_results' | translate }}</td>
+                    <td colspan="11">{{ 'sitnet_exam_library_no_results' | translate }}</td>
+                    <td *ngIf="user.isAdmin"></td>
                 </tr>
             </tbody>
         </table>

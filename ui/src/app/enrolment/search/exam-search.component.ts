@@ -46,14 +46,14 @@ import { ExamSearchService } from './exam-search.service';
                 <div class="form-group input-group search">
                     <input
                         xmAutoFocus
-                        aria-label="exam-search"
                         (ngModelChange)="search($event)"
                         [(ngModel)]="filter.text"
                         type="text"
                         class="form-control search"
+                        [attr.aria-label]="'sitnet_search' | translate"
                         placeholder="{{ 'sitnet_search' | translate }}"
                     />
-                    <div class="input-group-append search">
+                    <div class="input-group-append search" aria-hidden="true">
                         <img
                             class="nopad"
                             src="/assets/images/icon_search.png"

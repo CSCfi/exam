@@ -223,6 +223,7 @@ export interface CollaborativeExam {
     enrollInstruction: string;
     examActiveStartDate: string | number;
     examActiveEndDate: string | number;
+    externalRef?: string;
 }
 
 export interface Feedback {
@@ -327,6 +328,7 @@ export interface ExamImpl {
     examinationEventConfigurations: ExaminationEventConfiguration[];
     totalScore: number;
     organisations?: string;
+    externalRef?: string;
 }
 
 export interface Exam extends ExamImpl {
