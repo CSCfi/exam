@@ -9,9 +9,9 @@ import { CalendarService } from '../calendar.service';
             <div class="col-md-12">
                 <div class="row">
                     <span class="col-md-11 col-9">
-                        <span class="calendar-phase-title">
+                        <h2 class="calendar-phase-title">
                             {{ sequenceNumber }}. {{ 'sitnet_choose_institution' | translate }}
-                        </span>
+                        </h2>
                     </span>
                     <span class="col-md-1 col-3">
                         <span class="calendar-phase-icon float-end" *ngIf="selectedOrganisation">
