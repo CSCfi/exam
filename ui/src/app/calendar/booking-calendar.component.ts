@@ -92,7 +92,7 @@ export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewIni
     ngOnInit() {
         if (this.minDate && this.maxDate) {
             this.calendarOptions.validRange = {
-                end: DateTime.fromJSDate(this.maxDate).endOf('week').toFormat('yyyy-MM-dd'),
+                end: DateTime.fromJSDate(this.maxDate).endOf('week').plus({ hours: 1 }).toFormat('yyyy-MM-dd'),
                 start: DateTime.fromJSDate(this.minDate).startOf('week').toFormat('yyyy-MM-dd'),
             };
         }
