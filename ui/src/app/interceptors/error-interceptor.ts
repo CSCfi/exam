@@ -26,9 +26,9 @@ export class ErrorInterceptor implements HttpInterceptor {
     intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
         return next.handle(req).pipe(
             catchError((response: HttpErrorResponse) => {
-                if (response.status === -1) {
+                if (response.status === 0 || response.status === 504) {
                     // connection failure
-                    this.toast.error(this.translate.instant('sitnet_connection_refused'));
+                    return throwError(() => this.translate.instant('sitnet_connection_refused'));
                 } else if (typeof response.error === 'string') {
                     return throwError(() => this.translate.instant(response.error));
                 }
