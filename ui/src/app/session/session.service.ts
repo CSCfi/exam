@@ -306,18 +306,16 @@ export class SessionService implements OnDestroy {
     }
 
     private redirect(user: User): void {
-        if (this.router.url === '/' && user.isLanguageInspector) {
+        const url = this.router.url.startsWith('/?=') ? '/' : this.router.url;
+        if (url === '/' && user.isLanguageInspector) {
             this.router.navigate(['staff/inspections']);
-        } else if (this.router.url === '/') {
+        } else if (url === '/') {
             let state;
             if (user.loginRole === 'STUDENT') state = 'dashboard';
             else if (user.loginRole === 'TEACHER') state = 'staff/teacher';
             else state = 'staff/admin';
             this.router.navigate([state]);
-        } /*else if (this.router.url === '/') {
-            // Hackish but will have to try
-            window.location.reload();
-        }*/
+        }
     }
 
     private hasPermission(user: User, permission: string) {
