@@ -125,9 +125,10 @@ export class ReservationComponentBase implements OnInit {
     query() {
         if (this.somethingSelected(this.selection)) {
             const params = this.createParams(this.selection);
-            // do not fetch byod exams if machine id, room id or external ref in the query params
+            // Do not fetch byod exams if machine id, room id or external ref in the query params.
+            // Also applies if searching for external reservations
             const eventRequest =
-                params.roomId || params.machineId || params.externalRef
+                params.roomId || params.machineId || params.externalRef || params.state?.startsWith('EXTERNAL_')
                     ? of([])
                     : this.http.get<ExamEnrolment[]>('/app/events', { params: params });
             forkJoin([this.http.get<Reservation[]>('/app/reservations', { params: params }), eventRequest])
