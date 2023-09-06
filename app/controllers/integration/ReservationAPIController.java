@@ -47,9 +47,9 @@ public class ReservationAPIController extends BaseController {
     @SubjectNotPresent
     public Result getReservations(Optional<String> start, Optional<String> end, Optional<Long> roomId) {
         PathProperties pp = PathProperties.parse(
-            "(startAt, endAt, externalUserRef, noShow, " +
+            "(startAt, endAt, externalUserRef, " +
             "user(firstName, lastName, email, userIdentifier), " +
-            "enrolment( " +
+            "enrolment(noShow, " +
             "exam(id, name, examOwners(firstName, lastName, email), parent(examOwners(firstName, lastName, email)), course(name, code, credits, " +
             "identifier, gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation))), " +
             "collaborativeExam(name)" +

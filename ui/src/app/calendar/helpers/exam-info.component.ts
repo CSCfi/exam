@@ -11,7 +11,7 @@ import type { ExamInfo } from '../calendar.service';
             <div class="col-md-12">
                 <div class="row">
                     <span class="col-md-12">
-                        <span class="calendar-phase-title">1. {{ 'sitnet_calendar_phase_1' | translate }}</span>
+                        <h2 class="calendar-phase-title">1. {{ 'sitnet_calendar_phase_1' | translate }}</h2>
                         <span class="calendar-phase-icon float-end">
                             <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
                         </span>
