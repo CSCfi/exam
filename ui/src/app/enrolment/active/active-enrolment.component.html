@@ -22,17 +22,17 @@
         <div class="col student-enrolment-exam">
             <div class="row">
                 <div class="col">
-                    <div *ngIf="enrolment.exam">
+                    <h2 *ngIf="enrolment.exam">
                         <a
                             [routerLink]="['/enrolments', enrolment.exam.id]"
                             [queryParams]="{ code: enrolment.exam.course?.code }"
                         >
                             {{ enrolment.exam.name }}
                         </a>
-                    </div>
-                    <div *ngIf="enrolment.collaborativeExam">
+                    </h2>
+                    <h2 *ngIf="enrolment.collaborativeExam">
                         {{ enrolment.collaborativeExam.name }}
-                    </div>
+                    </h2>
 
                     <small *ngIf="enrolment.exam?.anonymous || enrolment.collaborativeExam?.anonymous"
                         >({{ 'sitnet_anonymous_review' | translate }})</small

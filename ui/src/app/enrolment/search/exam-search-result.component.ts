@@ -26,7 +26,7 @@ import { EnrolmentService } from '../enrolment.service';
     >
         <div class="row">
             <div class="col">
-                <span class="student-exam-row-title-blue">
+                <h2 class="student-exam-row-title-blue">
                     <a
                         *ngIf="!collaborative"
                         class="infolink"
@@ -36,7 +36,7 @@ import { EnrolmentService } from '../enrolment.service';
                         {{ exam.name }}
                     </a>
                     <span *ngIf="collaborative">{{ exam.name }}</span>
-                </span>
+                </h2>
             </div>
         </div>
         <div class="row mt-1">
