@@ -294,6 +294,7 @@ export class SessionService implements OnDestroy {
         const location = window.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
         const env = this.getEnv();
+        this.webStorageService.clear();
         if (data && data.logoutUrl) {
             location.href = `${localLogout}?return=${data.logoutUrl}`;
         } else if (!env || env.isProd) {
