@@ -26,6 +26,7 @@ import models.json.CollaborativeExam;
 import models.sections.ExamSection;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Minutes;
 import org.joda.time.format.ISODateTimeFormat;
 import play.Environment;
@@ -214,16 +215,21 @@ public class EnrolmentRepository {
                 if (lookedUp == null) {
                     // IP not known
                     header = "x-exam-unknown-machine";
+                    DateTimeZone zone = DateTimeZone.forID(room.getLocalTimezone());
+                    String start = ISODateTimeFormat
+                        .dateTime()
+                        .withZone(zone)
+                        .print(new DateTime(enrolment.getReservation().getStartAt()));
                     message =
-                        room.getCampus() +
-                        ":::" +
-                        room.getBuildingName() +
-                        ":::" +
-                        room.getRoomCode() +
-                        ":::" +
-                        examMachine.getName() +
-                        ":::" +
-                        ISODateTimeFormat.dateTime().print(new DateTime(enrolment.getReservation().getStartAt()));
+                        String.format(
+                            "%s:::%s:::%s:::%s:::%s:::%s",
+                            room.getCampus(),
+                            room.getBuildingName(),
+                            room.getRoomCode(),
+                            examMachine.getName(),
+                            start,
+                            zone.getID()
+                        );
                 } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                     // Right room, wrong machine
                     header = "x-exam-wrong-machine";
