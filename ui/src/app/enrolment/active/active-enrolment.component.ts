@@ -24,7 +24,7 @@ import { EnrolmentService } from '../enrolment.service';
     templateUrl: './active-enrolment.component.html',
 })
 export class ActiveEnrolmentComponent {
-    @Input() enrolment!: ExamEnrolment & { occasion?: { startAt: string; endAt: string } };
+    @Input() enrolment!: ExamEnrolment & { occasion?: { startAt: string; endAt: string; tz: string } };
     @Output() removed = new EventEmitter<number>();
 
     showGuide = false;

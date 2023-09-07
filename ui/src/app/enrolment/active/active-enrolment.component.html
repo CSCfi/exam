@@ -159,7 +159,7 @@
             <div class="col-md-3 col-lg-2 mt-md-2 mt-3">{{ 'sitnet_reservation' | translate }}:</div>
             <div class="col-md-9 col-lg-10 mt-md-2">
                 {{ enrolment.reservation.startAt | applyDst | date : 'dd.MM.yyyy' }}
-                {{ enrolment.occasion?.startAt }} &ndash; {{ enrolment.occasion?.endAt }}
+                {{ enrolment.occasion?.startAt }} &ndash; {{ enrolment.occasion?.endAt }} ({{ enrolment.occasion?.tz }})
             </div>
         </div>
         <div class="row mt-3">
@@ -193,7 +193,7 @@
         <div class="row mt-3 justify-content-start">
             <div class="">{{ 'sitnet_examination_event' | translate }}:</div>
             <div class="">
-                {{ enrolment.examinationEventConfiguration?.examinationEvent?.start | date : 'dd.MM.yyyy HH:mm' }}
+                {{ enrolment.examinationEventConfiguration?.examinationEvent?.start | date : 'dd.MM.yyyy HH:mm zzzz' }}
             </div>
         </div>
     </div>

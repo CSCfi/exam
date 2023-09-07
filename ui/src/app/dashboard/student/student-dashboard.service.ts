@@ -24,6 +24,7 @@ import { DateTimeService } from '../../shared/date/date.service';
 interface Occasion {
     startAt: string;
     endAt: string;
+    tz: string;
 }
 
 export interface DashboardEnrolment extends ExamEnrolment {
@@ -70,6 +71,7 @@ export class StudentDashboardService {
             endAt: end.isInDST
                 ? end.minus({ hours: 1 }).toLocaleString(DateTime.TIME_24_SIMPLE)
                 : end.toLocaleString(DateTime.TIME_24_SIMPLE),
+            tz: tz,
         };
     }
 }
