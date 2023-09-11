@@ -1120,10 +1120,13 @@
   "sitnet_collapse": "Collapse",
   "sitnet_expand": "Expand",
   "sitnet_exam_section_selected": "Exam section selected",
-  "sitnet_select_exam_section": "Select Exam section",
+  "sitnet_select_exam_section": "Move to Exam section",
   "sitnet_choose_file": "Select file",
   "sitnet_number_of_answered_questions": "Aswered questions:",
   "sitnet_grading_inspector": "Arvioija EN",
   "sitnet_all_questions_answered": "All question answered",
-  "sitnet_questions_unanswered": "Unanswered questions"
+  "sitnet_questions_unanswered": "Unanswered questions",
+  "sitnet_move_to_section": "Move to Exam section",
+  "sitnet_move_to": "Move to",
+  "sitnet_open_it": "Open"
 }

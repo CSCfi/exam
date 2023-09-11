@@ -52,7 +52,7 @@
         [title]="exam.attachment?.fileName"
         (click)="downloadExamAttachment()"
     >
-        {{ 'sitnet_exam_attachment' | translate }}
+        {{ 'sitnet_open_it' | translate }} {{ 'sitnet_exam_attachment' | translate }}
         <img
             src="/assets/images/icon_attachment.svg"
             alt="attachment"
@@ -73,8 +73,8 @@
                 (click)="selectGuidePage()"
                 (keydown.enter)="selectGuidePage()"
             >
-                <button class="col-md-12 btn btn-outline-secondary w-auto">
-                    {{ 'sitnet_exam_guide' | translate }}
+                <button class="col-md-12 btn green_button w-auto">
+                    {{ 'sitnet_move_to' | translate }} {{ 'sitnet_exam_guide' | translate }}
                 </button>
                 <a
                     class="skip"
@@ -90,11 +90,6 @@
                 class="row d-flex align-items-center phase-box"
                 *ngFor="let section of exam.examSections | orderBy : 'sequenceNumber'; let i = index"
                 [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
-                ngbPopover="{{ section.name }}: {{ 'sitnet_question_status_answered' | translate }}
-                 {{ getQuestionAmount(section, 'answered') }}, {{ 'sitnet_questions_total' | translate }}
-                 {{ getQuestionAmount(section, 'total') }}"
-                triggers="mouseenter:mouseleave"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
             >
                 <div class="me-3">
                     <div
@@ -131,12 +126,12 @@
                         {{ getQuestionAmount(section, 'total') }}
                     </span>
                     <button
-                        class="w-auto btn btn-outline-secondary"
+                        class="w-auto btn green_button"
                         (click)="selectSection(section)"
                         (keydown.enter)="selectSection(section)"
                         [attr.aria-current]="activeSection?.sequenceNumber === i"
                     >
-                        {{ 'sitnet_select_exam_section' | translate }} {{ i + 1 }}.
+                        {{ 'sitnet_move_to_section' | translate }} {{ i + 1 }}.
                     </button>
                     <a
                         class="skip"
@@ -193,14 +188,14 @@
     <div class="col-md-12">
         <button
             tabindex="0"
-            class="row pointer d-flex align-items-center m-0"
+            class="row pointer d-flex align-items-center m-0 btn btn-outline-secondary"
             (click)="exitPreview()"
             (keydown.enter)="exitPreview()"
         >
             <a class="me-2">
                 <img src="/assets/images/icon_info.svg" alt="" />
             </a>
-            <div class="question-text question-type-text info">
+            <div class="">
                 {{ 'sitnet_exit_preview' | translate }}
             </div>
         </button>

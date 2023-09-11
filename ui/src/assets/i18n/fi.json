@@ -1125,5 +1125,8 @@
   "sitnet_number_of_answered_questions": "Vastatut kysymykset:",
   "sitnet_grading_inspector": "Arvioija",
   "sitnet_all_questions_answered": "Kaikkiin kysymyksiin aihealueella on vastattu",
-  "sitnet_questions_unanswered": "Aihealueessa on vastaamattomia kysymyksiä"
+  "sitnet_questions_unanswered": "Aihealueessa on vastaamattomia kysymyksiä",
+  "sitnet_move_to_section": "Siirry aihealueeseen",
+  "sitnet_move_to": "Siirry",
+  "sitnet_open_it": "Avaa"
 }
