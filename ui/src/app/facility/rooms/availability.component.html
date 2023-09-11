@@ -22,7 +22,7 @@
             <div class="calendar-room-info-title">{{ 'sitnet_exception_datetimes' | translate }}:</div>
             <button (click)="oldExceptionsHidden = !oldExceptionsHidden" class="btn btn-secondary marb20">
                 {{ 'sitnet_hide_over_year_old' | translate }} ({{
-                    oldExceptionsHidden ? translate.instant('sitnet_on') : translate.instant('sitnet_off')
+                    oldExceptionsHidden ? ('sitnet_on' | translate) : ('sitnet_off' | translate)
                 }})
             </button>
             <div class="calendar-room-info-content">

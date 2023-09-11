@@ -15,7 +15,6 @@
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
-import { TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
@@ -43,12 +42,7 @@ export class AvailabilityComponent implements OnInit {
     newExceptions: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
     oldExceptionsHidden = true;
 
-    constructor(
-        private toast: ToastrService,
-        private roomService: RoomService,
-        private calendar: CalendarService,
-        public translate: TranslateService,
-    ) {}
+    constructor(private toast: ToastrService, private roomService: RoomService, private calendar: CalendarService) {}
 
     ngOnInit() {
         if (!this.room) {
