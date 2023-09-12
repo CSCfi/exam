@@ -307,7 +307,7 @@ export class SessionService implements OnDestroy {
     }
 
     private redirect(user: User): void {
-        const url = this.router.url.startsWith('/?=') ? '/' : this.router.url;
+        const url = this.router.url.startsWith('/?') ? '/' : this.router.url;
         if (url === '/' && user.isLanguageInspector) {
             this.router.navigate(['staff/inspections']);
         } else if (url === '/') {
