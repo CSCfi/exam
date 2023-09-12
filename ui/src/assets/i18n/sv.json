@@ -1125,5 +1125,10 @@
   "sitnet_number_of_answered_questions": "Aswered questions: SV",
   "sitnet_grading_inspector": "Arvioija SV",
   "sitnet_all_questions_answered": "All question answered SV",
-  "sitnet_questions_unanswered": "Unanswered questions SV"
+  "sitnet_questions_unanswered": "Unanswered questions SV",
+  "sitnet_hide_over_year_old": "Hide over year old exceptions SV",
+  "sitnet_coming_exception": "Upcoming exception SV",
+  "sitnet_ongoing_exception": "Ongoing exception SV",
+  "sitnet_on": "On SV",
+  "sitnet_off": "Off SV"
 }
