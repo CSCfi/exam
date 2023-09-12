@@ -21,7 +21,6 @@ import { ToastrService } from 'ngx-toastr';
 import type { OpeningHours } from '../../calendar/calendar.service';
 import { CalendarService } from '../../calendar/calendar.service';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { DateTimeService } from '../../shared/date/date.service';
 import type { Availability } from './room.service';
 import { RoomService } from './room.service';
 
@@ -40,13 +39,10 @@ export class AvailabilityComponent implements OnInit {
     @Input() room!: ExamRoom;
     openingHours: OpeningHours[] = [];
     exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
+    newExceptions: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
+    oldExceptionsHidden = true;
 
-    constructor(
-        private toast: ToastrService,
-        private roomService: RoomService,
-        private calendar: CalendarService,
-        private DateTimeService: DateTimeService,
-    ) {}
+    constructor(private toast: ToastrService, private roomService: RoomService, private calendar: CalendarService) {}
 
     ngOnInit() {
         if (!this.room) {
@@ -54,7 +50,13 @@ export class AvailabilityComponent implements OnInit {
             return;
         }
         this.openingHours = this.calendar.processOpeningHours(this.room);
-        this.exceptionHours = this.calendar.getExceptionalAvailability(this.room);
+        this.exceptionHours = this.calendar
+            .getExceptionalAvailability(this.room)
+            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+        this.newExceptions = this.calendar
+            .getExceptionalAvailability(this.room)
+            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+            .filter((ee) => new Date(ee.endDate) > new Date(new Date().getTime() - 365 * 24 * 60 * 60 * 1000));
     }
 
     query$ = (date: string) => this.roomService.getAvailability$(this.room.id, date);
@@ -65,6 +67,13 @@ export class AvailabilityComponent implements OnInit {
         if (ratio <= 0.9) return '#8f8f8f'; // grey
         return '#f50f35'; // red
     };
+
+    isInFuture(date: string): boolean {
+        return new Date(date) > new Date();
+    }
+    isNow(startDate: string, endDate: string): boolean {
+        return new Date(startDate) < new Date() && new Date(endDate) > new Date();
+    }
 
     refresh = ($event: { date: Date; success: (events: EventInput[]) => void }) => {
         if (!this.room) {
