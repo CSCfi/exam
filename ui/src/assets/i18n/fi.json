@@ -406,7 +406,7 @@
   "sitnet_course": "Opintojakso",
   "sitnet_category": "Avainsana",
   "sitnet_question_metainfo": "Kysymyksen käyttökontekstit",
-  "sitnet_added_to_exams": "Kysymys on käytössä näissä tenteissä",
+  "sitnet_added_to_exams": "Kysymys on näissä tenteissä",
   "sitnet_added_to_sections": "Kysymys on käytössä näissä aihealueissa",
   "sitnet_activate_room": "Ota tenttitila käyttöön",
   "sitnet_inactivate_room": "Poista tenttitila käytöstä",
@@ -1128,5 +1128,10 @@
   "sitnet_questions_unanswered": "Aihealueessa on vastaamattomia kysymyksiä",
   "sitnet_move_to_section": "Siirry aihealueeseen",
   "sitnet_move_to": "Siirry",
-  "sitnet_open_it": "Avaa"
+  "sitnet_open_it": "Avaa",
+  "sitnet_hide_over_year_old": "Piilota yli vuoden vanhat poikkeusajat",
+  "sitnet_coming_exception": "Tuleva poikkeusaukioloaika",
+  "sitnet_ongoing_exception": "Meneillään oleva poikkeusaukioloaika",
+  "sitnet_on": "Päällä",
+  "sitnet_off": "Pois päältä"
 }

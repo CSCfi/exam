@@ -294,6 +294,7 @@ export class SessionService implements OnDestroy {
         const location = window.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
         const env = this.getEnv();
+        this.webStorageService.clear();
         if (data && data.logoutUrl) {
             location.href = `${localLogout}?return=${data.logoutUrl}`;
         } else if (!env || env.isProd) {
@@ -306,7 +307,7 @@ export class SessionService implements OnDestroy {
     }
 
     private redirect(user: User): void {
-        const url = this.router.url.startsWith('/?=') ? '/' : this.router.url;
+        const url = this.router.url.startsWith('/?') ? '/' : this.router.url;
         if (url === '/' && user.isLanguageInspector) {
             this.router.navigate(['staff/inspections']);
         } else if (url === '/') {

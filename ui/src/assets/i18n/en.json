@@ -1128,5 +1128,10 @@
   "sitnet_questions_unanswered": "Unanswered questions",
   "sitnet_move_to_section": "Move to Exam section",
   "sitnet_move_to": "Move to",
-  "sitnet_open_it": "Open"
+  "sitnet_open_it": "Open",
+  "sitnet_hide_over_year_old": "Hide over year old exceptions",
+  "sitnet_coming_exception": "Upcoming exception",
+  "sitnet_ongoing_exception": "Ongoing exception",
+  "sitnet_on": "On",
+  "sitnet_off": "Off"
 }
