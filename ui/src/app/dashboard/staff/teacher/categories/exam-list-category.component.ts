@@ -134,9 +134,9 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
                             this.toast.success(this.translate.instant('sitnet_exam_removed'));
                             this.items.splice(this.items.indexOf(exam), 1);
                         },
-                        error: (err) => this.toast.error(err),
+                        error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
                     }),
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
         } else {
             this.toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));

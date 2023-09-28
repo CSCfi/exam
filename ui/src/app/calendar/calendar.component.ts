@@ -151,7 +151,7 @@ export class CalendarComponent implements OnInit {
                         isCollaborative: this.isCollaborative,
                     },
                 }),
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     }
 

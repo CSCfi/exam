@@ -15,6 +15,7 @@
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
@@ -100,7 +101,7 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     filter = { text: '' };
     permissionCheck = { active: false };
 
-    constructor(private toast: ToastrService, private Search: ExamSearchService) {
+    constructor(private toast: ToastrService, private Search: ExamSearchService, private translate: TranslateService) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((txt) => {
@@ -144,7 +145,7 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
                 this.exams = exams;
                 this.checkEnrolment();
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
 
     private checkEnrolment = () => {

@@ -76,7 +76,7 @@ export class SectionComponent {
                                 this.section.lotteryOn = false;
                                 this.toast.info(this.translate.instant('sitnet_all_questions_removed'));
                             },
-                            error: (err) => this.toast.error(err),
+                            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
                         });
                 },
                 error: (err) => this.toast.error(err),

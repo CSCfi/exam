@@ -70,10 +70,10 @@ export class FacilityComponent implements OnInit {
                         this.toast.info(this.translate.instant('sitnet_maintenance_period_created'));
                         this.maintenancePeriods.push(mp);
                     },
-                    error: (err) => this.toast.error(err),
+                    error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
                 });
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     };
 
@@ -92,10 +92,10 @@ export class FacilityComponent implements OnInit {
                         const index = this.maintenancePeriods.indexOf(period);
                         this.maintenancePeriods.splice(index, 1, res);
                     },
-                    error: (err) => this.toast.error(err),
+                    error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
                 });
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     };
 

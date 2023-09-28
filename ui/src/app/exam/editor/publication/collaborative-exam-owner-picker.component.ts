@@ -14,6 +14,7 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
@@ -87,7 +88,12 @@ export class CollaborativeExamOwnerSelectorComponent {
     user: User;
     newOwner: { email: string | undefined } = { email: undefined };
 
-    constructor(private http: HttpClient, private toast: ToastrService, private Session: SessionService) {
+    constructor(
+        private http: HttpClient,
+        private toast: ToastrService,
+        private Session: SessionService,
+        private translate: TranslateService,
+    ) {
         this.user = this.Session.getUser();
     }
 
@@ -99,7 +105,7 @@ export class CollaborativeExamOwnerSelectorComponent {
                     this.exam.examOwners.push(user);
                     delete this.newOwner.email;
                 },
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
         }
     };
@@ -107,7 +113,7 @@ export class CollaborativeExamOwnerSelectorComponent {
     removeOwner = (id: number) => {
         this.http.delete(`/app/iop/exams/${this.exam.id}/owners/${id}`).subscribe({
             next: () => (this.exam.examOwners = this.exam.examOwners.filter((o) => o.id !== id)),
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     };
 }

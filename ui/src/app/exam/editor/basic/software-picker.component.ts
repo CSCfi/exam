@@ -97,7 +97,7 @@ export class SoftwareSelectorComponent implements OnInit {
                 }
                 this.toast.info(this.translate.instant('sitnet_exam_software_updated'));
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     };
 }

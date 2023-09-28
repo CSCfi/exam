@@ -231,7 +231,7 @@ export class ExamPublicationComponent implements OnInit {
                             this.toast.success(this.translate.instant(text));
                             this.router.navigate(['/staff', this.user.isAdmin ? 'admin' : 'teacher']);
                         },
-                        error: (err) => this.toast.error(err),
+                        error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
                     });
                 },
                 error: (err) => this.toast.error(err),

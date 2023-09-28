@@ -171,7 +171,7 @@ export class ExaminationService {
                     sq.options.forEach((o) => (o.answered = ids.indexOf(o.id as number) > -1));
                     this.setQuestionColors(sq);
                 },
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
         } else {
             this.setQuestionColors(sq);

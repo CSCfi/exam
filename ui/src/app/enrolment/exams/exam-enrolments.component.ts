@@ -15,6 +15,7 @@
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { SessionService } from '../../session/session.service';
 import type { EnrolmentInfo } from '../enrolment.model';
@@ -55,6 +56,7 @@ export class ExamEnrolmentsComponent implements OnInit {
         private toast: ToastrService,
         private Enrolment: EnrolmentService,
         private Session: SessionService,
+        private translate: TranslateService,
     ) {}
 
     ngOnInit() {
@@ -67,11 +69,11 @@ export class ExamEnrolmentsComponent implements OnInit {
         const id = Number(this.route.snapshot.paramMap.get('id'));
         this.Enrolment.getEnrolmentInfo$(code, id).subscribe({
             next: (exam) => (this.exam = exam),
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
         this.Enrolment.listEnrolments$(code, id).subscribe({
             next: (exams) => (this.exams = exams),
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     }
 }

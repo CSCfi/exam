@@ -15,6 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Reservation } from '../reservation.model';
 
@@ -40,7 +41,12 @@ export class RemoveReservationDialogComponent {
     @Input() reservation!: Reservation;
     message = { text: '' };
 
-    constructor(public activeModal: NgbActiveModal, private http: HttpClient, private toast: ToastrService) {}
+    constructor(
+        public activeModal: NgbActiveModal,
+        private http: HttpClient,
+        private toast: ToastrService,
+        private translate: TranslateService,
+    ) {}
 
     ok = () =>
         this.http
@@ -50,7 +56,7 @@ export class RemoveReservationDialogComponent {
             })
             .subscribe({
                 next: this.activeModal.close,
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
 
     cancel = () => this.activeModal.dismiss();

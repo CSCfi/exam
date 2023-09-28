@@ -93,7 +93,7 @@ export class ExaminationToolbarComponent implements OnInit {
                         ),
                     )
                     .subscribe(),
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
 
     abortExam = () =>
@@ -113,9 +113,9 @@ export class ExaminationToolbarComponent implements OnInit {
                             },
                         });
                     },
-                    error: (err) => this.toast.error(err),
+                    error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
                 }),
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
 
     downloadExamAttachment = () => this.Attachment.downloadExamAttachment(this.exam, this.isCollaborative);

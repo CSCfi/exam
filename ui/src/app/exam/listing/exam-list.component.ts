@@ -109,7 +109,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                     this.toast.success(this.translate.instant('sitnet_exam_copied'));
                     this.router.navigate(['/staff/exams', resp.id, '1']);
                 },
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
 
     deleteExam = (exam: ExamListExam) =>
@@ -123,10 +123,10 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                         this.toast.success(this.translate.instant('sitnet_exam_removed'));
                         this.exams.splice(this.exams.indexOf(exam), 1);
                     },
-                    error: (err) => this.toast.error(err),
+                    error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
                 });
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
 
     filterByStateAndExpiration = (state: string, expired: boolean) =>

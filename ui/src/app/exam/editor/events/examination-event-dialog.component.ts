@@ -105,14 +105,14 @@ export class ExaminationEventDialogComponent implements OnInit {
                 next: (response: ExaminationEventConfiguration) => {
                     this.activeModal.close(response);
                 },
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
         } else {
             this.Exam.updateExaminationEvent$(this.examId, { ...config, id: this.config.id }).subscribe({
                 next: (response: ExaminationEventConfiguration) => {
                     this.activeModal.close(response);
                 },
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
         }
     }

@@ -60,9 +60,9 @@ export class EnrolmentService {
                         this.toast.info(this.translate.instant('sitnet_examination_event_removed'));
                         delete enrolment.examinationEventConfiguration;
                     },
-                    error: (err) => this.toast.error(err),
+                    error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
                 }),
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     };
 
@@ -84,7 +84,7 @@ export class EnrolmentService {
             this.translate.instant('sitnet_are_you_sure'),
         ).subscribe({
             next: () => this.http.delete(url).subscribe({ next: successFn, error: errorFn }),
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     }
 
@@ -206,7 +206,7 @@ export class EnrolmentService {
                     this.toast.success(this.translate.instant('sitnet_saved'));
                     enrolment.information = information;
                 },
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
         });
     };
@@ -302,10 +302,10 @@ export class EnrolmentService {
                             this.router.navigate([nextState]);
                         }
                     },
-                    error: (err) => this.toast.error(err),
+                    error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
                 });
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     };
 

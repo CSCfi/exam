@@ -82,7 +82,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
                 toast.info(this.translate.instant('sitnet_exam_created'));
                 this.router.navigate(['/staff/exams', exam.id, '1'], { queryParams: { collaborative: true } });
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     }
 

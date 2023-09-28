@@ -78,6 +78,7 @@ export class SessionService implements OnDestroy {
         @Inject(DOCUMENT) private document: Document,
         private modal: NgbModal,
         private toast: ToastrService,
+        private translate: TranslateService,
     ) {
         this.userChange$ = this.userChangeSubscription.asObservable();
         this.devLogoutChange$ = this.devLogoutSubscription.asObservable();
@@ -113,7 +114,7 @@ export class SessionService implements OnDestroy {
                 // delete this.user;
                 this.onLogoutSuccess(resp);
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     }
 

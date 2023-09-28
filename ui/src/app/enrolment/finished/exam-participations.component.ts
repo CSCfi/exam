@@ -14,6 +14,7 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
@@ -33,7 +34,11 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
 
-    constructor(private toast: ToastrService, private Enrolment: EnrolmentService) {
+    constructor(
+        private toast: ToastrService,
+        private Enrolment: EnrolmentService,
+        private translate: TranslateService,
+    ) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(this._search);
@@ -61,7 +66,7 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
                 );
                 this.participations = data.filter((d) => d.ended);
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     };
 }

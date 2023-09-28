@@ -78,7 +78,7 @@ export class ExamOwnerSelectorComponent implements OnInit {
                     delete this.newOwner.name;
                     delete this.newOwner.id;
                 },
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
         } else {
             this.toast.error(this.translate.instant('sitnet_teacher_not_found'));
@@ -88,7 +88,10 @@ export class ExamOwnerSelectorComponent implements OnInit {
     removeOwner = (id: number) =>
         this.http
             .delete(`/app/exam/${this.exam.id}/owner/${id}`)
-            .subscribe({ next: this.getExamOwners, error: (err) => this.toast.error(err) });
+            .subscribe({
+                next: this.getExamOwners,
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
+            });
 
     private getExamOwners = () =>
         this.http

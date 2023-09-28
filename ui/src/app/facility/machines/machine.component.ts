@@ -76,9 +76,9 @@ export class MachineComponent implements OnInit {
                         this.toast.info(this.translate.instant('sitnet_machine_removed'));
                         this.router.navigate(['staff/rooms']);
                     },
-                    error: (err) => this.toast.error(err),
+                    error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
                 }),
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
 
     toggleSoftware = (software: SoftwareWithClass) => {

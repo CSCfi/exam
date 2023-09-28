@@ -15,6 +15,7 @@
  */
 import type { OnInit } from '@angular/core';
 import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { CollaborativeParticipation } from '../../exam/collaborative/collaborative-exam.service';
 import { EnrolmentService } from '../enrolment.service';
@@ -35,6 +36,7 @@ export class CollaborativeParticipationsComponent implements OnInit, AfterViewIn
         private changeDetector: ChangeDetectorRef,
         private toast: ToastrService,
         private Enrolment: EnrolmentService,
+        private translate: TranslateService,
     ) {}
 
     ngOnInit() {
@@ -46,7 +48,7 @@ export class CollaborativeParticipationsComponent implements OnInit, AfterViewIn
                 this.originals = participations;
                 this.search('');
             },
-            error: (err) => this.toast.error(err),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
         });
     }
 

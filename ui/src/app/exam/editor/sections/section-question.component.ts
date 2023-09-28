@@ -71,7 +71,10 @@ export class SectionQuestionComponent {
         this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_question'),
-        ).subscribe({ next: () => this.removed.emit(this.sectionQuestion), error: (err) => this.toast.error(err) });
+        ).subscribe({
+            next: () => this.removed.emit(this.sectionQuestion),
+            error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
+        });
 
     determineClaimOptionType(examOption: ExamSectionQuestionOption) {
         return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);

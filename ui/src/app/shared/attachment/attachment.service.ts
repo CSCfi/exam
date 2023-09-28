@@ -82,7 +82,7 @@ export class AttachmentService {
                         error: (err) => this.toast.error(err),
                     });
                 },
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
 
     removeFeedbackAttachment = (exam: Examination) =>
@@ -98,7 +98,7 @@ export class AttachmentService {
                         error: (err) => this.toast.error(err),
                     });
                 },
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
 
     removeCollaborativeExamFeedbackAttachment = (id: number, ref: string, participation: ExamParticipation) =>
@@ -117,7 +117,7 @@ export class AttachmentService {
                             error: (resp) => this.toast.error(resp),
                         });
                 },
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
 
     removeStatementAttachment = (exam: Exam) =>
@@ -133,7 +133,7 @@ export class AttachmentService {
                         error: (err) => this.toast.error(err),
                     });
                 },
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
 
     downloadExternalQuestionAttachment(exam: Exam, sq: ExamSectionQuestion) {
@@ -240,7 +240,7 @@ export class AttachmentService {
                         error: (err) => this.toast.error(err),
                     });
                 },
-                error: (err) => this.toast.error(err),
+                error: (err) => this.toast.error(err || this.translate.instant('sitnet_action_cancelled')),
             });
 
     private questionAttachmentApi = (id: number) => `/app/attachment/question/${id}`;

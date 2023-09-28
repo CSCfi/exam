@@ -1130,5 +1130,6 @@
   "sitnet_coming_exception": "Upcoming exception",
   "sitnet_ongoing_exception": "Ongoing exception",
   "sitnet_on": "On",
-  "sitnet_off": "Off"
+  "sitnet_off": "Off",
+  "sitnet_action_cancelled": "Action cancelled"
 }
