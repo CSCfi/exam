@@ -533,6 +533,12 @@
 
                     <!-- Attachment -->
                     <div class="row">
+                        <div class="mart10" *ngIf="showWarning()">
+                            <i class="bi-exclamation-circle reddish"></i>
+                            <span class="warning-text-small ps-2">{{
+                                'sitnet_shared_question_property_info' | translate
+                            }}</span>
+                        </div>
                         <div class="col-md-3 exam-basic-title">
                             {{ 'sitnet_question_attachment' | translate }}
                             <sup
@@ -576,12 +582,6 @@
                                         onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
                                     />
                                 </span>
-                            </div>
-                            <div class="mart10" *ngIf="showWarning()">
-                                <i class="bi-exclamation-circle reddish"></i>
-                                <span class="warning-text-small ps-2">{{
-                                    'sitnet_shared_question_property_info' | translate
-                                }}</span>
                             </div>
                         </div>
                     </div>
