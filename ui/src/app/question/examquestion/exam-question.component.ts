@@ -42,6 +42,7 @@ export class ExamQuestionComponent implements OnInit {
     sectionNames: string[] = [];
     missingOptions: string[] = [];
     isInPublishedExam = false;
+    hideRestExams = true;
 
     constructor(
         private http: HttpClient,
@@ -170,6 +171,8 @@ export class ExamQuestionComponent implements OnInit {
             .filter((type) => type !== 'SkipOption')
             .map((optionType) => this.Question.getOptionTypeTranslation(optionType));
     };
+
+    sortByString = (prop: string[]): Array<string> => prop.sort();
 
     hasInvalidClaimChoiceOptions = () =>
         this.examQuestion.question.type === 'ClaimChoiceQuestion' &&

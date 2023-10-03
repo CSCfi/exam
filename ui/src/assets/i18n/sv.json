@@ -1130,5 +1130,7 @@
   "sitnet_coming_exception": "Upcoming exception SV",
   "sitnet_ongoing_exception": "Ongoing exception SV",
   "sitnet_on": "On SV",
-  "sitnet_off": "Off SV"
+  "sitnet_off": "Off SV",
+  "sitnet_open_more": "Open more SV",
+  "sitnet_more_hidden": "More exams hidden SV"
 }

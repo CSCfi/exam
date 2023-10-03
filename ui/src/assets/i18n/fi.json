@@ -1130,5 +1130,7 @@
   "sitnet_coming_exception": "Tuleva poikkeusaukioloaika",
   "sitnet_ongoing_exception": "Meneillään oleva poikkeusaukioloaika",
   "sitnet_on": "Päällä",
-  "sitnet_off": "Pois päältä"
+  "sitnet_off": "Pois päältä",
+  "sitnet_open_more": "Avaa lisää",
+  "sitnet_more_hidden": "Lisää tenttejä piilotettuna"
 }
