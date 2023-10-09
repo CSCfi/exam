@@ -13,14 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input, OnInit } from '@angular/core';
+import { ControlContainer, NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionDraft, QuestionService } from '../question.service';
 
 @Component({
     selector: 'xm-claim-choice-editor',
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     template: `
-        <div>
+        <div ngModelGroup="claimChoice" name="claimChoice">
             <div class="col-md-9 col-md-offset-3">
                 <p>{{ 'sitnet_claim_choice_question_instruction' | translate }}</p>
                 <p>{{ 'sitnet_claim_choice_options_description' | translate }}</p>
@@ -53,7 +55,7 @@ import { QuestionDraft, QuestionService } from '../question.service';
                 >
                     <div class="claim-choice-option-inputs">
                         <textarea
-                            id="optionText"
+                            name="{{ opt.claimChoiceType }}-question"
                             [(ngModel)]="opt.option"
                             type="text"
                             rows="1"
@@ -63,8 +65,7 @@ import { QuestionDraft, QuestionService } from '../question.service';
                             [disabled]="lotteryOn || opt.claimChoiceType === 'SkipOption'"
                         ></textarea>
                         <input
-                            id="optionScore"
-                            name="maxScore"
+                            name="{{ opt.claimChoiceType }}-score"
                             class="question-option-input points"
                             type="number"
                             lang="en"

@@ -330,27 +330,17 @@
   }
 
   .floating-clock {
-
       display: inline-block;
       position: fixed;
-      right: 0;
+      right: 3em;
       z-index: 9999;
-    @media (min-width: $sitnet-mobile) {
-      margin-top: 10px;
-      margin-right: 40px;
-    }
     @media (max-width: $sitnet-mobile) {
       top: 0;
     }
     .header-wrapper {
-      width: 100%;
       background-color: black;
-      margin-right: 20px;
-
-      img {
-        padding-left: 0;
-      }
-
+      padding-right: 25px;
+      min-width: 16em;
     }
 
     .exam-clock {
@@ -374,6 +364,7 @@
       font-size: 14px;
       font-family: $sitnet-family-helvetica;
       font-weight: normal;
+      white-space: nowrap;
     }
 
   }

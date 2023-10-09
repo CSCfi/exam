@@ -14,7 +14,6 @@
  */
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { EnrolmentService } from '../enrolment/enrolment.service';
@@ -35,7 +34,6 @@ export class ExaminationComponent implements OnInit, OnDestroy {
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private translate: TranslateService,
         private Examination: ExaminationService,
         private Session: SessionService,
         private Enrolment: EnrolmentService,
@@ -45,7 +43,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
         this.isPreview = this.route.snapshot.data.isPreview;
         this.isCollaborative = this.route.snapshot.data.isCollaborative || false;
         if (!this.isPreview) {
-            window.onbeforeunload = () => this.translate.instant('sitnet_unsaved_data_may_be_lost');
+            window.addEventListener('beforeunload', this.onUnload);
         }
         this.Examination.startExam$(
             this.route.snapshot.params.hash,
@@ -72,7 +70,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        window.onbeforeunload = null;
+        window.removeEventListener('beforeunload', this.onUnload);
     }
 
     selectNewPage = (event: { page: Partial<NavigationPage> }) => this.setActiveSection(event.page);
@@ -115,5 +113,10 @@ export class ExaminationComponent implements OnInit, OnDestroy {
             return this.exam.examSections[i];
         }
         throw Error('invalid index');
+    };
+
+    private onUnload = (event: BeforeUnloadEvent) => {
+        event.preventDefault();
+        return (event.returnValue = '');
     };
 }

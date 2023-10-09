@@ -92,18 +92,20 @@ export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDes
                 this.onTouched();
                 if (this.instance) this.updateValue(this.instance.getData());
             };
-            this.instance.on('change', debounce(update, 500));
-            this.instance.on('dataReady', debounce(update, 500));
-            this.instance.on('key', debounce(update, 500));
-            this.instance.on('mode', update);
+            setTimeout(() => {
+                this.instance?.on('change', debounce(update, 500));
+                this.instance?.on('dataReady', debounce(update, 500));
+                this.instance?.on('key', debounce(update, 500));
+                this.instance?.on('mode', update);
+            }, 500);
         }
     }
 
-    ngAfterViewChecked(): void {
+    ngAfterViewInit(): void {
         this.editorInit();
     }
 
-    ngAfterViewInit(): void {
+    ngAfterViewChecked(): void {
         this.editorInit();
     }
 

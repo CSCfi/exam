@@ -105,7 +105,6 @@ export class ExaminationToolbarComponent implements OnInit {
                 this.Examination.abort$(this.exam.hash).subscribe({
                     next: () => {
                         this.toast.info(this.translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
-                        window.onbeforeunload = null;
                         this.router.navigate(['/examination/logout'], {
                             queryParams: {
                                 reason: 'aborted',
