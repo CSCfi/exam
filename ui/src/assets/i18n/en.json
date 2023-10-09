@@ -1134,5 +1134,19 @@
   "sitnet_ongoing_exception": "Ongoing exception",
   "sitnet_on": "On",
   "sitnet_off": "Off",
-  "sitnet_unexpected_error": "Oho, jotain meni pieleen :( EN"
+  "sitnet_unexpected_error": "Oho, jotain meni pieleen :( EN",
+  "sitnet_enrolments_title": "Enrolments",
+  "sitnet_exams_title": "Exams",
+  "sitnet_collaborative_exams_title": "Joint exams",
+  "sitnet_participations_title": "Study attainments",
+  "sitnet_collaborative_participations_title": "Attainments of joint exams",
+  "sitnet_enrolment_title": "Tentin tiedot EN",
+  "sitnet_reservation_title": "Exam time booking",
+  "sitnet_external_reservation_title": "Tenttivierailuajan varaaminen EN",
+  "sitnet_collaborative_reservation_title": "Yhteistentin ajan varaaminen EN",
+  "sitnet_examination_title": "Examination",
+  "sitnet_waiting_room_title": "Waiting room",
+  "sitnet_wrong_room_title": "Wrong room",
+  "sitnet_wrong_machine_title": "Wrong computer",
+  "sitnet_examination_logout_title": "Examination logout"
 }
