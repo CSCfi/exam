@@ -1134,5 +1134,19 @@
   "sitnet_ongoing_exception": "Meneillään oleva poikkeusaukioloaika",
   "sitnet_on": "Päällä",
   "sitnet_off": "Pois päältä",
-  "sitnet_unexpected_error": "Oho, jotain meni pieleen :("
+  "sitnet_unexpected_error": "Oho, jotain meni pieleen :(",
+  "sitnet_enrolments_title": "Ilmoittautumiset",
+  "sitnet_exams_title": "Tentit",
+  "sitnet_collaborative_exams_title": "Yhteistentit",
+  "sitnet_participations_title": "Suoritukset",
+  "sitnet_collaborative_participations_title": "Yhteistenttien suoritukset",
+  "sitnet_enrolment_title": "Tentin tiedot",
+  "sitnet_reservation_title": "Tenttiajan varaaminen",
+  "sitnet_external_reservation_title": "Tenttivierailuajan varaaminen",
+  "sitnet_collaborative_reservation_title": "Yhteistentin ajan varaaminen",
+  "sitnet_examination_title": "Tentti",
+  "sitnet_waiting_room_title": "Tentin odotushuone",
+  "sitnet_wrong_room_title": "Väärä tenttitila",
+  "sitnet_wrong_machine_title": "Väärä tenttikone",
+  "sitnet_examination_logout_title": "Tentin uloskirjautuminen"
 }
