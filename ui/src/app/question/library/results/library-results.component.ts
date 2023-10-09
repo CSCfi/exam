@@ -87,6 +87,14 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         this.selected.emit(selections);
     };
 
+    calculateExams = (question: LibraryQuestion): number => {
+        const sections = question.examSectionQuestions.map((esq) => esq.examSection);
+        const examNames = sections.map((s) => {
+            return s.exam.name as string;
+        });
+        return question.examSectionQuestions.length;
+    };
+
     deleteQuestion = (question: SelectableQuestion) =>
         this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),

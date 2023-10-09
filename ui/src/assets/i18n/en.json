@@ -1132,5 +1132,6 @@
   "sitnet_on": "On",
   "sitnet_off": "Off",
   "sitnet_open_more": "Open more",
-  "sitnet_more_hidden": "More exams hidden"
+  "sitnet_more_hidden": "More exams hidden",
+  "sitnet_used_in_exams": "Used in Exams"
 }

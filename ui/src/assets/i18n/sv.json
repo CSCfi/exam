@@ -1132,5 +1132,6 @@
   "sitnet_on": "On SV",
   "sitnet_off": "Off SV",
   "sitnet_open_more": "Open more SV",
-  "sitnet_more_hidden": "More exams hidden SV"
+  "sitnet_more_hidden": "More exams hidden SV",
+  "sitnet_used_in_exams": "Käytössä tenteissä SV"
 }

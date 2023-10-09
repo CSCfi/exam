@@ -78,6 +78,7 @@
                     </th>
                     <th>{{ 'sitnet_remove' | translate }}</th>
                     <th>{{ 'sitnet_copy' | translate }}</th>
+                    <th>{{ 'sitnet_used_in_exams' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -179,6 +180,9 @@
                                 ngbPopover="{{ 'sitnet_copy' | translate }}"
                             ></i>
                         </a>
+                    </td>
+                    <td>
+                        {{ calculateExams(question) }}
                     </td>
                 </tr>
                 <!--Fill if page not full-->
