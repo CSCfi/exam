@@ -28,7 +28,7 @@ import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
                     *ngIf="examQuestion"
                     [examQuestion]="examQuestion"
                     (saved)="save($event)"
-                    (cancelled)="cancel()"
+                    (cancelled)="cancel($event)"
                     [lotteryOn]="lotteryOn"
                     autofocus
                 ></xm-exam-question>
@@ -48,10 +48,12 @@ export class ExamQuestionEditorComponent {
     ) {}
 
     save = (event: { question: Question; examQuestion: ExamSectionQuestion }) => this.modal.close(event);
-    cancel = () => {
-        return this.Dialogs.open$(
-            this.translate.instant('sitnet_confirm_exit'),
-            this.translate.instant('sitnet_unsaved_question_data'),
-        ).subscribe(() => this.modal.dismiss());
+    cancel = (event: { dirty: boolean }) => {
+        if (event.dirty) {
+            this.Dialogs.open$(
+                this.translate.instant('sitnet_confirm_exit'),
+                this.translate.instant('sitnet_unsaved_question_data'),
+            ).subscribe(() => this.modal.dismiss());
+        } else this.modal.dismiss();
     };
 }

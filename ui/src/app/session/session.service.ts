@@ -290,7 +290,6 @@ export class SessionService implements OnDestroy {
         this.userChangeSubscription.next(undefined);
 
         this.toast.success(this.i18n.instant('sitnet_logout_success'));
-        window.onbeforeunload = null;
         const location = window.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
         const env = this.getEnv();

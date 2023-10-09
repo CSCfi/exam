@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input } from '@angular/core';
+import { ControlContainer, NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
@@ -20,8 +21,9 @@ import { QuestionDraft, QuestionService } from '../question.service';
 
 @Component({
     selector: 'xm-mc-option-editor',
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     template: `
-        <div class="question-editor-option">
+        <div ngModelGroup="mcOptions" class="question-editor-option">
             <div class="row">
                 <div
                     class="col-md-6 question-option-empty"
