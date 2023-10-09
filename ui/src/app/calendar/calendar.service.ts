@@ -145,12 +145,14 @@ export class CalendarService {
 
     getExceptionHours(
         room: ExamRoom,
-        start: Date,
-        end: Date,
+        start: DateTime,
+        end: DateTime,
     ): (ExceptionWorkingHours & { start: string; end: string; description: string })[] {
-        const maxStart = [new Date(), start].reduce((a, b) => (a > b ? a : b));
+        const maxStart = [DateTime.now().setZone(room.localTimezone), start].reduce((a, b) => (a > b ? a : b));
         const events = room.calendarExceptionEvents.filter(
-            (e) => DateTime.fromISO(e.startDate).toJSDate() > maxStart && DateTime.fromISO(e.endDate).toJSDate() < end,
+            (e) =>
+                DateTime.fromISO(e.startDate, { zone: room.localTimezone }) > maxStart &&
+                DateTime.fromISO(e.endDate, { zone: room.localTimezone }) < end,
         );
         return events.map((e) => this.formatExceptionEvent(e, room.localTimezone));
     }
