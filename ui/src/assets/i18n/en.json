@@ -1134,5 +1134,8 @@
   "sitnet_open_more": "Open more",
   "sitnet_more_hidden": "More exams hidden",
   "sitnet_used_in_exams": "Used in Exams",
-  "sitnet_shared_question_property_info_weighted": "If you make modifications to this information, it will have an effect to other exams. Except points in weighted multiple-choice questions like this. EN"
+  "sitnet_shared_question_property_info_weighted": "If you make modifications to this information, it will have an effect to other exams. Except points in weighted multiple-choice questions like this. EN",
+  "sitnet_exam_question_edit_instructions_more_than_one": "Tämä kysymys on käytössä useammassa tentissä. Muutokset kysymystekstiin, vastausvaihtoehtoihin ja liitetiedostoon päivittyvät seuraaviin tentteihin. Vastausvaihtoehtojen pisteet ja kysymykseen liittyvä ohjeistus eivät päivity. EN",
+  "sitnet_exam_question_edit_instructions_for_one": "Tämä kysymys on käytössä yhdessä tentissä. Muutokset kysymystekstiin, vastausvaihtoehtoihin ja liitetiedostoon päivittyvät seuraavaan tenttiin. Vastausvaihtoehtojen pisteet ja kysymykseen liittyvä ohjeistus eivät päivity. EN",
+  "sitnet_exam_question_edit_instructions_for_none": "Tämä kysymys ei ole käytössä yhdessäkään tentissä. EN"
 }

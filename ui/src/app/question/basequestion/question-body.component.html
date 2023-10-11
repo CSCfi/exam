@@ -26,14 +26,44 @@
                 />
             </div>
             <div class="col warning-text">
-                {{ 'sitnet_exam_question_edit_instructions' | translate }}
-                <ul class="list-inline margin-10">
-                    <li class="list-inline-item">
-                        <span *ngFor="let name of examNames" class="exists-text">
-                            <span class="padr10">{{ name }}</span>
-                        </span>
-                    </li>
-                </ul>
+                <div class="col warning-text" *ngIf="examNames.length > 1">
+                    {{ 'sitnet_exam_question_edit_instructions_more_than_one' | translate }}
+                </div>
+                <div class="col warning-text" *ngIf="examNames.length == 1">
+                    {{ 'sitnet_exam_question_edit_instructions_for_one' | translate }}
+                </div>
+                <div class="col warning-text" *ngIf="examNames.length == 0">
+                    {{ 'sitnet_exam_question_edit_instructions_for_none' | translate }}
+                </div>
+                <div class="col-12 justify-content-center">
+                    <ul class="list-inline padt20 row">
+                        <li
+                            *ngFor="let name of sortByString(examNames).slice(0, 10)"
+                            class="list-inline-item relation-text col-12"
+                        >
+                            <span class="text-nowrap">
+                                {{ name }}
+                            </span>
+                        </li>
+                        <li
+                            *ngFor="let name of sortByString(examNames).slice(10)"
+                            [hidden]="hideRestExams"
+                            class="list-inline-item relation-text col-12"
+                        >
+                            <span class="text-nowrap" aria-live="polite">
+                                {{ name }}
+                            </span>
+                        </li>
+                        <li *ngIf="examNames.length > 15 && hideRestExams">
+                            <i class="bi-three-dots" alt="" [attr.aria-label]="'sitnet_more_hidden' | translate"></i>
+                        </li>
+                        <li *ngIf="examNames.length > 15">
+                            <button (click)="hideRestExams = !hideRestExams" class="btn btn-secondary">
+                                {{ !hideRestExams ? ('sitnet_hide' | translate) : ('sitnet_open_more' | translate) }}
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

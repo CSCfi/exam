@@ -46,6 +46,7 @@ export class QuestionBodyComponent implements OnInit {
     newOwnerTemplate?: User;
     newType = '';
     questionTypes: { type: string; name: string }[] = [];
+    hideRestExams = true;
 
     constructor(
         private http: HttpClient,
@@ -74,6 +75,8 @@ export class QuestionBodyComponent implements OnInit {
     };
 
     showWarning = () => this.examNames.length > 1;
+
+    sortByString = (prop: string[]): Array<string> => prop.sort();
 
     listQuestionOwners$ = (filter$: Observable<string>): Observable<User[]> =>
         filter$.pipe(
