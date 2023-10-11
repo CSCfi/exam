@@ -1126,6 +1126,9 @@
   "sitnet_grading_inspector": "Arvioija",
   "sitnet_all_questions_answered": "Kaikkiin kysymyksiin aihealueella on vastattu",
   "sitnet_questions_unanswered": "Aihealueessa on vastaamattomia kysymyksiä",
+  "sitnet_move_to_section": "Siirry aihealueeseen",
+  "sitnet_move_to": "Siirry",
+  "sitnet_open_it": "Avaa",
   "sitnet_hide_over_year_old": "Piilota yli vuoden vanhat poikkeusajat",
   "sitnet_coming_exception": "Tuleva poikkeusaukioloaika",
   "sitnet_ongoing_exception": "Meneillään oleva poikkeusaukioloaika",
@@ -1137,5 +1140,6 @@
   "sitnet_shared_question_property_info_weighted": "If you make modifications to this information, it will have an effect to other exams. Except points in weighted multiple-choice questions like this. FI",
   "sitnet_exam_question_edit_instructions_more_than_one": "Tämä kysymys on käytössä useammassa tentissä. Muutokset kysymystekstiin, vastausvaihtoehtoihin ja liitetiedostoon päivittyvät seuraaviin tentteihin. Vastausvaihtoehtojen pisteet ja kysymykseen liittyvä ohjeistus eivät päivity.",
   "sitnet_exam_question_edit_instructions_for_one": "Tämä kysymys on käytössä yhdessä tentissä. Muutokset kysymystekstiin, vastausvaihtoehtoihin ja liitetiedostoon päivittyvät seuraavaan tenttiin. Vastausvaihtoehtojen pisteet ja kysymykseen liittyvä ohjeistus eivät päivity.",
-  "sitnet_exam_question_edit_instructions_for_none": "Tämä kysymys ei ole käytössä yhdessäkään tentissä."
+  "sitnet_exam_question_edit_instructions_for_none": "Tämä kysymys ei ole käytössä yhdessäkään tentissä.",
+  "sitnet_unexpected_error": "Oho, jotain meni pieleen :("
 }
