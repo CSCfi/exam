@@ -1134,5 +1134,19 @@
   "sitnet_ongoing_exception": "Ongoing exception SV",
   "sitnet_on": "On SV",
   "sitnet_off": "Off SV",
-  "sitnet_unexpected_error": "Oho, jotain meni pieleen :( SV"
+  "sitnet_unexpected_error": "Oho, jotain meni pieleen :( SV",
+  "sitnet_enrolments_title": "Anmälningar",
+  "sitnet_exams_title": "Tentamina",
+  "sitnet_collaborative_exams_title": "Gemensamma tentamina",
+  "sitnet_participations_title": "Prestationer",
+  "sitnet_collaborative_participations_title": "Prestationer av gemensamma tentamina",
+  "sitnet_enrolment_title": "Tentin tiedot SV",
+  "sitnet_reservation_title": "Boka tid för examen",
+  "sitnet_external_reservation_title": "Tenttivierailuajan varaaminen SV",
+  "sitnet_collaborative_reservation_title": "Yhteistentin ajan varaaminen SV",
+  "sitnet_examination_title": "Tentti SV",
+  "sitnet_waiting_room_title": "Tentin odotushuone SV",
+  "sitnet_wrong_room_title": "Fel tentamensutrymme",
+  "sitnet_wrong_machine_title": "Fel dator",
+  "sitnet_examination_logout_title": "Utloggning"
 }
