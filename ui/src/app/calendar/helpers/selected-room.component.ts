@@ -68,7 +68,7 @@ import { CalendarService } from '../calendar.service';
 export class SelectedRoomComponent implements OnInit, OnChanges {
     @Input() room!: ExamRoom;
     @Input() maintenancePeriods: MaintenancePeriod[] = [];
-    @Input() viewStart = new Date();
+    @Input() viewStart = DateTime.now();
 
     openingHours: OpeningHours[] = [];
     exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
@@ -105,7 +105,7 @@ export class SelectedRoomComponent implements OnInit, OnChanges {
         this.exceptionHours = this.Calendar.getExceptionHours(
             this.room,
             this.viewStart,
-            DateTime.fromJSDate(this.viewStart).plus({ week: 1 }).toJSDate(),
+            this.viewStart.plus({ week: 1 }),
         );
     }
 }
