@@ -15,7 +15,6 @@
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
-import { format } from 'date-fns';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { OpeningHours } from '../../calendar/calendar.service';
@@ -75,10 +74,11 @@ export class AvailabilityComponent implements OnInit {
         return new Date(startDate) < new Date() && new Date(endDate) > new Date();
     }
 
-    refresh = ($event: { date: Date; success: (events: EventInput[]) => void }) => {
+    refresh = ($event: { date: string; timeZone: string; success: (events: EventInput[]) => void }) => {
         if (!this.room) {
             return;
         }
+        const start = DateTime.fromISO($event.date, { zone: $event.timeZone }).startOf('week');
         const successFn = (resp: Availability[]) => {
             const events: EventInput[] = resp.map((slot: Availability, i) => ({
                 id: i.toString(),
@@ -92,7 +92,7 @@ export class AvailabilityComponent implements OnInit {
             $event.success(events);
         };
         const errorFn = (resp: string) => this.toast.error(resp);
-        this.query$(format($event.date, 'yyyy-MM-dd')).subscribe({ next: successFn, error: errorFn });
+        this.query$(start.toFormat('yyyy-MM-dd')).subscribe({ next: successFn, error: errorFn });
     };
 
     private adjust = (date: string, tz: string): Date => {
