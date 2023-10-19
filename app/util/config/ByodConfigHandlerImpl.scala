@@ -1,12 +1,5 @@
 package util.config
 
-import java.io.ByteArrayOutputStream
-import java.net.URL
-import java.nio.charset.StandardCharsets
-import java.util.Optional
-import java.util.zip.GZIPOutputStream
-
-import javax.inject.Inject
 import org.apache.commons.codec.digest.DigestUtils
 import org.cryptonode.jncryptor.AES256JNCryptor
 import play.Environment
@@ -14,7 +7,14 @@ import play.api.Logger
 import play.api.libs.json._
 import play.mvc.{Http, Result, Results}
 
-import scala.compat.java8.OptionConverters._
+import java.io.ByteArrayOutputStream
+import java.net.URI
+import java.nio.charset.StandardCharsets
+import java.util.Optional
+import java.util.zip.GZIPOutputStream
+import javax.inject.Inject
+import javax.xml.parsers.SAXParserFactory
+import scala.jdk.OptionConverters._
 import scala.io.Source
 import scala.xml.{Node, XML}
 
@@ -37,7 +37,7 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
   private val encryptionKey = configReader.getSettingsPasswordEncryptionKey
 
   /* FIXME: have Apache provide us with X-Forwarded-Proto header so we can resolve this automatically */
-  private val protocol = new URL(configReader.getHostName).getProtocol
+  private val protocol = URI.create(configReader.getHostName).toURL.getProtocol
 
   private def getTemplate(hash: String): String = {
     val path          = s"${env.rootPath.getAbsolutePath}/conf/seb.template.plist"
@@ -121,25 +121,32 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
   override def getEncryptedPassword(pwd: String, salt: String): Array[Byte] =
     crypto.encryptData((pwd + salt).getBytes(StandardCharsets.UTF_8), encryptionKey.toCharArray)
 
-  override def checkUserAgent(request: Http.RequestHeader, configKey: String): Optional[Result] =
-    request.header(ConfigKeyHeader).asScala match {
-      case None => Some(Results.unauthorized("SEB headers missing")).asJava
+  override def checkUserAgent(request: Http.RequestHeader, configKey: String): Optional[Result] = {
+    request.header(ConfigKeyHeader).toScala match {
+      case None => Some(Results.unauthorized("SEB headers missing")).toJava
       case Some(digest) =>
         val absoluteUrl = s"$protocol://${request.host}${request.uri}"
         DigestUtils.sha256Hex(absoluteUrl + configKey) match {
-          case sha if sha == digest => None.asJava
+          case sha if sha == digest => None.toJava
           case sha =>
             logger.warn(
               "Config key mismatch for URL {} and exam config key {}. Digest received: {}",
               absoluteUrl,
               configKey,
               sha)
-            Some(Results.unauthorized("Wrong configuration key digest")).asJava
+            Some(Results.unauthorized("Wrong configuration key digest")).toJava
         }
     }
+  }
 
   override def calculateConfigKey(hash: String): String = {
-    val plist: Node = XML.loadString(getTemplate(hash))
+    // Override the DTD setting. We need it with PLIST format and in order to integrate with SBT
+    val parser = XML.withSAXParser {
+      val factory = SAXParserFactory.newInstance()
+      factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+      factory.newSAXParser()
+    }
+    val plist: Node = parser.loadString(getTemplate(hash))
     // Construct a Json-like structure out of .plist and create a digest over it
     // See SEB documentation for details
     dictToJson((plist \ "dict").head) match {

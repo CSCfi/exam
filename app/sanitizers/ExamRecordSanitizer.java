@@ -17,7 +17,6 @@ package sanitizers;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Collection;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import play.mvc.Http;
 
@@ -27,10 +26,7 @@ public class ExamRecordSanitizer extends BaseSanitizer {
     protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
         if (body.has("params") && body.get("params").has("childIds")) {
             JsonNode node = body.get("params").get("childIds");
-            Collection<Long> ids = StreamSupport
-                .stream(node.spliterator(), false)
-                .map(JsonNode::asLong)
-                .collect(Collectors.toList());
+            Collection<Long> ids = StreamSupport.stream(node.spliterator(), false).map(JsonNode::asLong).toList();
             return req.addAttr(Attrs.ID_COLLECTION, ids);
         }
         throw new SanitizingException("no ids");

@@ -15,13 +15,13 @@
 
 package controllers.iop.transfer.impl;
 
-import akka.actor.ActorSystem;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -33,8 +33,10 @@ import models.ExamEnrolment;
 import models.Reservation;
 import models.User;
 import models.iop.ExternalReservation;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
@@ -62,7 +64,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     @Inject
     ConfigReader configReader;
 
-    private static final Logger.ALogger logger = Logger.of(ExternalReservationHandlerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(ExternalReservationHandlerImpl.class);
 
     private URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
         StringBuilder sb = new StringBuilder(configReader.getIopHost());
@@ -70,7 +72,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         if (reservationRef != null) {
             sb.append("/").append(reservationRef);
         }
-        return new URL(sb.toString());
+        return URI.create(sb.toString()).toURL();
     }
 
     @Override
@@ -93,7 +95,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     }
 
     private CompletionStage<Result> requestRemoval(String ref, User user, String msg) throws IOException {
-        final ExamEnrolment enrolment = Ebean
+        final ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("reservation.machine")
@@ -124,7 +126,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
             }
             enrolment.setReservation(null);
             enrolment.setReservationCanceled(true);
-            Ebean.save(enrolment);
+            DB.save(enrolment);
             reservation.delete();
 
             // send email asynchronously

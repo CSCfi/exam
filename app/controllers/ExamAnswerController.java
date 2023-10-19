@@ -3,7 +3,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.FetchConfig;
 import java.util.Optional;
 import javax.inject.Inject;
@@ -33,20 +33,16 @@ public class ExamAnswerController extends BaseController {
 
     private boolean canReleaseAnswers(Exam exam) {
         ExamFeedbackConfig config = exam.getParent().getExamFeedbackConfig();
-        switch (config.getReleaseType()) {
-            case ONCE_LOCKED:
-                return true;
-            case GIVEN_DATE:
-                return DateTime.now().isAfter(config.getReleaseDate().withTimeAtStartOfDay().plusDays(1));
-            default:
-                return false;
-        }
+        return switch (config.getReleaseType()) {
+            case ONCE_LOCKED -> true;
+            case GIVEN_DATE -> DateTime.now().isAfter(config.getReleaseDate().withTimeAtStartOfDay().plusDays(1));
+        };
     }
 
     @Authenticated
     @Restrict(@Group({ "STUDENT" }))
     public Result getAnswers(Long eid, Http.Request request) {
-        Optional<Exam> oe = Ebean
+        Optional<Exam> oe = DB
             .find(Exam.class)
             .fetch("course", "name, code, credits")
             .fetch("grade", "name")
@@ -55,7 +51,7 @@ public class ExamAnswerController extends BaseController {
             .fetch(
                 "examSections.sectionQuestions",
                 "sequenceNumber, maxScore, answerInstructions, evaluationCriteria, expectedWordCount, evaluationType",
-                new FetchConfig().query()
+                FetchConfig.ofQuery()
             )
             .fetch("examSections.sectionQuestions.question", "id, type, question")
             .fetch("examSections.sectionQuestions.question.attachment", "fileName")

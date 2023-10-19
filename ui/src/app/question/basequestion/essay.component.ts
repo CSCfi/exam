@@ -42,8 +42,8 @@ import { QuestionDraft } from '../question.service';
                             {{ 'sitnet_characters' | translate }}
                         </span>
                     </div>
-                    <div *ngIf="wc.invalid" class="warning-text-small margin-10">
-                        <i class="bi-exclamation-circle reddish"></i>
+                    <div *ngIf="wc.invalid" class="warning-text-small margin-10 edit-warning-container">
+                        <i class="bi-exclamation-circle reddish me-2"></i>
                         {{ 'sitnet_essay_length_recommendation_bounds' | translate }}
                     </div>
                 </div>

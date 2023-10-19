@@ -8,7 +8,7 @@ import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -22,12 +22,32 @@ import models.questions.Question;
 import models.sections.ExamSection;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
+import org.junit.Before;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
 
 public class QuestionControllerTest extends IntegrationTestCase {
+
+    private Question question = null;
+
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        Question question = DB
+            .find(Question.class)
+            .findList()
+            .stream()
+            .filter(q -> q.getQuestion().contains("Kumpi vai kampi"))
+            .filter(q -> q.getType() == Question.Type.WeightedMultipleChoiceQuestion)
+            .findFirst()
+            .get();
+        assertThat(question.getOptions().size()).isEqualTo(3);
+        question.getQuestionOwners().add(DB.find(User.class, userId));
+        question.update();
+        this.question = question;
+    }
 
     @Test
     @RunAsTeacher
@@ -36,7 +56,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
         long examId = 1L;
         long sectionId = 1L;
 
-        ExamSection section = Ebean.find(ExamSection.class, sectionId);
+        ExamSection section = DB.find(ExamSection.class, sectionId);
         assert section != null;
         int sectionQuestionCount = section.getSectionQuestions().size();
 
@@ -81,16 +101,14 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assertThat(deserialized.getSectionQuestions().size()).isEqualTo(sectionQuestionCount + 1);
 
         // Check that section now has a reference to the original question
-        assertThat(Ebean.find(ExamSectionQuestion.class).where().eq("question.id", question.getId()).findOne())
+        assertThat(DB.find(ExamSectionQuestion.class).where().eq("question.id", question.getId()).findOne())
             .isNotNull();
     }
 
     @Test
     @RunAsTeacher
     public void testAddingOptionToWeightedMultipleChoiceQuestion() throws Exception {
-        Question question = getWeightedMultipleChoiceQuestion();
-
-        assertExamSectionQuestion(question, 3, 4d, new Double[] { 2d, 2d, -2d }, -2d);
+        assertExamSectionQuestion(this.question, 3, 4d, new Double[] { 2d, 2d, -2d }, -2d);
 
         // Add new option to question
         question = addNewOption(question, 0.75, new Double[] { 1d, 1d, -1d, 0.75d }, -1d);
@@ -101,8 +119,6 @@ public class QuestionControllerTest extends IntegrationTestCase {
     @Test
     @RunAsTeacher
     public void testAddingNullScoreOptionToWeightedMultipleChoiceQuestion() throws Exception {
-        Question question = getWeightedMultipleChoiceQuestion();
-
         assertExamSectionQuestion(question, 3, 4d, new Double[] { 2d, 2d, -2d }, -2d);
 
         // Add new option to question
@@ -114,8 +130,6 @@ public class QuestionControllerTest extends IntegrationTestCase {
     @Test
     @RunAsTeacher
     public void testAddingNegativeOptionToWeightedMultipleChoiceQuestion() throws Exception {
-        Question question = getWeightedMultipleChoiceQuestion();
-
         assertExamSectionQuestion(question, 3, 4d, new Double[] { 2d, 2d, -2d }, -2d);
 
         // Add new option to question
@@ -127,7 +141,6 @@ public class QuestionControllerTest extends IntegrationTestCase {
     @Test
     @RunAsTeacher
     public void testDeleteOptionFromWeightedMultipleChoiceQuestion() throws Exception {
-        Question question = getWeightedMultipleChoiceQuestion();
         // Add new option to question and then delete it
         assertExamSectionQuestion(question, 3, 4d, new Double[] { 2d, 2d, -2d }, -2d);
         question = addNewOption(question, 0.75, new Double[] { 1d, 1d, -1d, 0.75d }, -1d);
@@ -135,7 +148,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
 
         deleteAddedOption(question);
 
-        question = Ebean.find(Question.class, question.getId());
+        question = DB.find(Question.class, question.getId());
         assert question != null;
         assertThat(question.getOptions().size()).isEqualTo(3);
         assertExamSectionQuestion(question, 3, 4d, new Double[] { 2d, 2d, -2d }, -2d);
@@ -144,7 +157,6 @@ public class QuestionControllerTest extends IntegrationTestCase {
     @Test
     @RunAsTeacher
     public void testDeleteNegativeOptionFromWeightedMultipleChoiceQuestion() throws Exception {
-        Question question = getWeightedMultipleChoiceQuestion();
         // Add new option to question and then delete it
         assertExamSectionQuestion(question, 3, 4d, new Double[] { 2d, 2d, -2d }, -2d);
         question = addNewOption(question, -0.5, new Double[] { 1d, 1d, -1d, -0.5d }, -1.5d);
@@ -152,7 +164,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
 
         deleteAddedOption(question);
 
-        question = Ebean.find(Question.class, question.getId());
+        question = DB.find(Question.class, question.getId());
         assert question != null;
         assertThat(question.getOptions().size()).isEqualTo(3);
         assertExamSectionQuestion(question, 3, 4d, new Double[] { 2d, 2d, -2d }, -2d);
@@ -212,7 +224,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
             .getOptions()
             .stream()
             .sorted(MultipleChoiceOption::compareTo)
-            .collect(Collectors.toList());
+            .toList();
         JsonNode json = Json
             .newObject()
             .put("id", question.getId())
@@ -249,7 +261,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.PUT, "/app/questions/" + question.getId(), json);
         assertThat(result.status()).isEqualTo(200);
 
-        Question saved = Ebean.find(Question.class, question.getId());
+        Question saved = DB.find(Question.class, question.getId());
         assertThat(saved).isNotNull();
         assertThat(saved.getOptions().size()).isEqualTo(4);
         assertThat(saved.getMinDefaultScore()).isEqualTo(minDefaultScore);
@@ -263,22 +275,6 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assertThat(defaultScores).isEqualTo(Arrays.asList(expectedDefaultScores));
 
         return saved;
-    }
-
-    @NotNull
-    private Question getWeightedMultipleChoiceQuestion() {
-        Question question = Ebean
-            .find(Question.class)
-            .findList()
-            .stream()
-            .filter(q -> q.getQuestion().contains("Kumpi vai kampi"))
-            .filter(q -> q.getType() == Question.Type.WeightedMultipleChoiceQuestion)
-            .findFirst()
-            .get();
-        assertThat(question.getOptions().size()).isEqualTo(3);
-        question.getQuestionOwners().add(Ebean.find(User.class, userId));
-        question.update();
-        return question;
     }
 
     private void assertExamSectionQuestion(
@@ -310,12 +306,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
     @Test
     @RunAsTeacher
     public void testExportQuestionToMoodle() {
-        List<Long> ids = Ebean
-            .find(Question.class)
-            .findList()
-            .stream()
-            .map(Question::getId)
-            .collect(Collectors.toList());
+        List<Long> ids = DB.find(Question.class).findList().stream().map(Question::getId).collect(Collectors.toList());
         ArrayNode an = Json.newArray();
         ids.forEach(an::add);
         JsonNode params = Json.newObject().set("params", Json.newObject().set("ids", an));
@@ -349,29 +340,26 @@ public class QuestionControllerTest extends IntegrationTestCase {
         boolean hasCorrectAnswer = saved
             .getOptions()
             .stream()
-            .anyMatch(
-                o ->
-                    o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption &&
-                    o.getOption().equals("Oikea") &&
-                    o.getDefaultScore() == 1
+            .anyMatch(o ->
+                o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption &&
+                o.getOption().equals("Oikea") &&
+                o.getDefaultScore() == 1
             );
         boolean hasIncorrectAnswer = saved
             .getOptions()
             .stream()
-            .anyMatch(
-                o ->
-                    o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.IncorrectOption &&
-                    o.getOption().equals("Väärä") &&
-                    o.getDefaultScore() == -1
+            .anyMatch(o ->
+                o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.IncorrectOption &&
+                o.getOption().equals("Väärä") &&
+                o.getDefaultScore() == -1
             );
         boolean hasSkipAnswer = saved
             .getOptions()
             .stream()
-            .anyMatch(
-                o ->
-                    o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.SkipOption &&
-                    o.getOption().equals("EOS") &&
-                    o.getDefaultScore() == 0
+            .anyMatch(o ->
+                o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.SkipOption &&
+                o.getOption().equals("EOS") &&
+                o.getDefaultScore() == 0
             );
         boolean hasRequiredOptions = (hasCorrectAnswer && hasIncorrectAnswer && hasSkipAnswer);
 
@@ -399,11 +387,10 @@ public class QuestionControllerTest extends IntegrationTestCase {
         boolean hasModifiedOption = updated
             .getOptions()
             .stream()
-            .anyMatch(
-                o ->
-                    o.getOption().equals("Oikea, muokattu") &&
-                    o.getDefaultScore() == 2 &&
-                    o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption
+            .anyMatch(o ->
+                o.getOption().equals("Oikea, muokattu") &&
+                o.getDefaultScore() == 2 &&
+                o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption
             );
 
         assertThat(hasModifiedOption).isTrue();
@@ -454,8 +441,7 @@ public class QuestionControllerTest extends IntegrationTestCase {
     Question parseQuestionFromResponse(Result res) {
         JsonNode node = Json.parse(contentAsString(res));
         Question question = deserialize(Question.class, node);
-        Question saved = Ebean.find(Question.class, question.getId());
-        return saved;
+        return DB.find(Question.class, question.getId());
     }
 
     JsonNode createClaimChoiceOptionJson(String option, Double score, boolean correct, String type) {

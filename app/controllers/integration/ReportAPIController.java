@@ -2,7 +2,7 @@ package controllers.integration;
 
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
@@ -33,7 +33,7 @@ public class ReportAPIController extends BaseController {
             ")"
         );
 
-        Query<ExamEnrolment> query = Ebean.find(ExamEnrolment.class);
+        Query<ExamEnrolment> query = DB.find(ExamEnrolment.class);
         pp.apply(query);
 
         ExpressionList<ExamEnrolment> el = query
@@ -61,7 +61,7 @@ public class ReportAPIController extends BaseController {
             .map(participation -> participation.getExam().getParent().getId())
             .collect(Collectors.toSet());
 
-        Map<Long, List<Software>> softwaresByExam = Ebean
+        Map<Long, List<Software>> softwaresByExam = DB
             .find(Exam.class)
             .fetch("softwares", "name")
             .where()
@@ -81,7 +81,7 @@ public class ReportAPIController extends BaseController {
             .forEach(participation -> {
                 Long parentId = participation.getExam().getParent().getId();
                 List<Software> softwares = softwaresByExam.get(parentId);
-                if (softwares != null || !softwares.isEmpty()) {
+                if (softwares != null && !softwares.isEmpty()) {
                     participation.getExam().setSoftwareInfo(softwares);
                 }
             });

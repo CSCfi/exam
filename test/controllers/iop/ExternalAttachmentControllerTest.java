@@ -18,14 +18,10 @@ package controllers.iop;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import akka.stream.Materializer;
-import akka.stream.javadsl.FileIO;
-import akka.stream.javadsl.Source;
-import akka.util.ByteString;
 import base.RunAsStudent;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.io.IOException;
 import java.util.Arrays;
 import javax.validation.constraints.NotNull;
@@ -34,6 +30,10 @@ import models.Exam;
 import models.json.ExternalExam;
 import models.questions.EssayAnswer;
 import models.sections.ExamSectionQuestion;
+import org.apache.pekko.stream.Materializer;
+import org.apache.pekko.stream.javadsl.FileIO;
+import org.apache.pekko.stream.javadsl.Source;
+import org.apache.pekko.util.ByteString;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Http;
@@ -112,7 +112,7 @@ public class ExternalAttachmentControllerTest extends BaseCollaborativeAttachmen
         assertThat(attachmentJson.get("externalId").asText()).isEqualTo("abcdefg123456");
         assertThat(attachmentJson.get("fileName").asText()).isEqualTo("test_image.png");
 
-        Ebean.refresh(externalExam);
+        DB.refresh(externalExam);
         final Exam e = externalExam.deserialize();
         final ExamSectionQuestion sq = getExamSectionQuestion(e, examSectionQuestion.getId());
         assertThat(sq.getEssayAnswer()).isNotNull();
@@ -141,7 +141,7 @@ public class ExternalAttachmentControllerTest extends BaseCollaborativeAttachmen
         assertThat(result.status()).isEqualTo(200);
         assertLastCall(Helpers.DELETE);
 
-        Ebean.refresh(externalExam);
+        DB.refresh(externalExam);
         final Exam e = externalExam.deserialize();
         final ExamSectionQuestion sq = getExamSectionQuestion(e, examSectionQuestion.getId());
         assertThat(sq.getEssayAnswer()).isNotNull();

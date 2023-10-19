@@ -15,8 +15,8 @@
 
 package models;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import models.base.VersionedModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -48,8 +48,7 @@ public class Language extends VersionedModel {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Language)) return false;
-        Language language = (Language) o;
+        if (!(o instanceof Language language)) return false;
         return new EqualsBuilder().append(code, language.code).build();
     }
 

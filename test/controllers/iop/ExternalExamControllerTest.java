@@ -10,7 +10,7 @@ import com.icegreen.greenmail.junit4.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import helpers.AttachmentServlet;
 import helpers.RemoteServerHelper;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServlet;
@@ -52,9 +52,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import play.Application;
 import play.Logger;
-import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
@@ -75,8 +73,6 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     private Exam exam;
     private ExamEnrolment enrolment;
     private final Reservation reservation = new Reservation();
-
-    private final Application app = new GuiceApplicationBuilder().build();
 
     @Rule
     public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
@@ -141,8 +137,8 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
 
     @Override
     protected void onBeforeLogin() {
-        User user = Ebean.find(User.class, userId == null ? 3L : userId);
-        ExamRoom room = Ebean.find(ExamRoom.class, 1L);
+        User user = DB.find(User.class, userId == null ? 3L : userId);
+        ExamRoom room = DB.find(ExamRoom.class, 1L);
         ExamMachine machine = room.getExamMachines().get(0);
         machine.setIpAddress("127.0.0.1"); // so that the IP check won't fail
         machine.update();
@@ -159,26 +155,20 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
+        DB.deleteAll(DB.find(ExamEnrolment.class).findList());
         exam =
-            Ebean
-                .find(Exam.class)
-                .fetch("examSections")
-                .fetch("examSections.sectionQuestions")
-                .where()
-                .idEq(1L)
-                .findOne();
+            DB.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findOne();
         initExamSectionQuestions(exam);
         exam.setExamActiveStartDate(DateTime.now().minusDays(1));
         exam.setExamActiveEndDate(DateTime.now().plusDays(1));
         exam.setHash(HASH);
-        User owner = Ebean.find(User.class, 2L);
+        User owner = DB.find(User.class, 2L);
         exam.getExamOwners().add(owner);
         exam.update();
-        User user = Ebean.find(User.class, 1L);
-        user.setLanguage(Ebean.find(Language.class, "en"));
+        User user = DB.find(User.class, 1L);
+        user.setLanguage(DB.find(Language.class, "en"));
         user.update();
-        ExamRoom room = Ebean.find(ExamRoom.class, 1L);
+        ExamRoom room = DB.find(ExamRoom.class, 1L);
         room.setExternalRef(ROOM_REF);
         room.getExamMachines().get(0).setIpAddress("127.0.0.1");
         room.getExamMachines().get(0).update();
@@ -206,7 +196,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     @Test
     public void testRequestEnrolment() throws Exception {
         login("student@funet.fi");
-        Reservation external = Ebean
+        Reservation external = DB
             .find(Reservation.class)
             .fetch("enrolment")
             .fetch("enrolment.externalExam")
@@ -239,7 +229,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         greenMail.purgeEmailFromAllMailboxes();
         assertThat(greenMail.waitForIncomingEmail(MAIL_TIMEOUT, 2)).isTrue();
 
-        Exam attainment = Ebean.find(Exam.class).where().eq("parent", exam).findOne();
+        Exam attainment = DB.find(Exam.class).where().eq("parent", exam).findOne();
         assertThat(attainment).isNotNull();
         // Auto-evaluation expected to occur so state should be GRADED
         assertThat(attainment.getState()).isEqualTo(Exam.State.GRADED);
@@ -277,7 +267,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         reservation.setExternalRef(RESERVATION_REF_2);
         reservation.setStartAt(DateTime.now().minusHours(3));
         reservation.setEndAt(DateTime.now().minusHours(2));
-        reservation.setUser(Ebean.find(User.class).where().eq("firstName", "Sauli").findOne());
+        reservation.setUser(DB.find(User.class).where().eq("firstName", "Sauli").findOne());
         //reservation.setMachine(room.getExamMachines().get(0));
         ExternalReservation er = new ExternalReservation();
         er.setOrgRef("org1");
@@ -298,7 +288,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         );
         assertThat(result.status()).isEqualTo(200);
 
-        Reservation r = Ebean.find(Reservation.class).where().eq("externalRef", RESERVATION_REF_2).findOne();
+        Reservation r = DB.find(Reservation.class).where().eq("externalRef", RESERVATION_REF_2).findOne();
         assertThat(r).isNotNull();
         assertThat(r.getEnrolment().isNoShow()).isTrue();
     }

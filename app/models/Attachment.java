@@ -15,8 +15,8 @@
 
 package models;
 
-import javax.persistence.Entity;
-import javax.persistence.Transient;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import models.base.OwnedModel;
 
 @Entity

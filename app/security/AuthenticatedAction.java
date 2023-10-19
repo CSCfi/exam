@@ -23,8 +23,9 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.Role;
 import models.User;
-import play.Logger;
-import play.libs.concurrent.HttpExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -34,13 +35,13 @@ import sanitizers.Attrs;
 
 public class AuthenticatedAction extends Action<Authenticated> {
 
-    private final HttpExecutionContext ec;
+    private final ClassLoaderExecutionContext ec;
     private final UserRepository userRepository;
 
-    private static final Logger.ALogger logger = Logger.of(AuthenticatedAction.class);
+    private final Logger logger = LoggerFactory.getLogger(AuthenticatedAction.class);
 
     @Inject
-    public AuthenticatedAction(HttpExecutionContext ec, UserRepository userRepository) {
+    public AuthenticatedAction(ClassLoaderExecutionContext ec, UserRepository userRepository) {
         this.ec = ec;
         this.userRepository = userRepository;
     }

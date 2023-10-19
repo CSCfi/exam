@@ -62,12 +62,12 @@
                     <!-- Question editor -->
                     <div class="row">
                         <div class="col-md-12 mart40 wide-column">
-                            <div class="review-list-title">
+                            <div class="review-list-title edit-warning-container">
                                 {{ 'sitnet_exam_basic_information_tab' | translate }}
-                                <i *ngIf="showWarning()" class="bi-exclamation-circle padl20 reddish"></i>
-                                <span class="warning-text-small ps-2" *ngIf="showWarning()">{{
-                                    'sitnet_shared_question_property_info' | translate
-                                }}</span>
+                                <i class="bi-exclamation-circle ps-4 reddish" *ngIf="showWarning()"></i>
+                                <span class="warning-text-small ps-2" *ngIf="showWarning()">
+                                    {{ 'sitnet_shared_question_property_info' | translate }}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -174,8 +174,8 @@
                                     {{ 'sitnet_characters' | translate }}
                                 </span>
                             </div>
-                            <div *ngIf="wordCount.invalid" class="warning-text-small margin-10">
-                                <i class="bi-exclamation-circle reddish"></i>
+                            <div *ngIf="wordCount.invalid" class="warning-text-small margin-10 edit-warning-container">
+                                <i class="bi-exclamation-circle reddish me-2"></i>
                                 {{ 'sitnet_essay_length_recommendation_bounds' | translate }}
                             </div>
                         </span>
@@ -183,27 +183,35 @@
 
                     <!-- Multiple choises - title -->
                     <div
-                        class="row mt-3"
+                        class="row mt-3 mb-2"
                         *ngIf="
                             question?.type === 'MultipleChoiceQuestion' ||
-                            question?.type === 'WeightedMultipleChoiceQuest=ion' ||
+                            question?.type === 'WeightedMultipleChoiceQuestion' ||
                             question?.type === 'ClaimChoiceQuestion'
                         "
                     >
-                        <div class="col-md-12 mt-2 wide-column mb-2">
-                            <div class="review-list-title">{{ 'sitnet_question_options' | translate }}</div>
+                        <div class="col-md-12 wide-column">
+                            <div class="review-list-title edit-warning-container">
+                                {{ 'sitnet_question_options' | translate }}
+
+                                <i
+                                    class="bi-exclamation-circle ps-4 reddish"
+                                    *ngIf="showWarning() && question?.type !== 'MultipleChoiceQuestion'"
+                                ></i>
+                                <span
+                                    class="warning-text-small ps-2"
+                                    *ngIf="showWarning() && question?.type !== 'MultipleChoiceQuestion'"
+                                >
+                                    {{ 'sitnet_shared_question_property_info' | translate }}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Type specific content - multiple choices table titles -->
-                    <div class="row mt-2" *ngIf="question?.type === 'WeightedMultipleChoiceQuestion'">
-                        <div class="col-md-6 mart20 marb10">
+                    <div class="row" *ngIf="question?.type === 'WeightedMultipleChoiceQuestion'">
+                        <div class="col-6">
                             <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
-                            <br />
-                            <span *ngIf="showWarning()">
-                                <i class="bi-exclamation-circle reddish"></i>
-                                <small>{{ 'sitnet_shared_question_property_info' | translate }}</small>
-                            </span>
                         </div>
                         <div class="col question-option-title">
                             {{ 'sitnet_word_points' | translate | uppercase }}
@@ -330,13 +338,6 @@
                                     <li>{{ 'sitnet_claim_choice_incorrect_points_description' | translate }}</li>
                                     <li>{{ 'sitnet_claim_choice_skip_option_description' | translate }}</li>
                                 </ul>
-                                <br />
-                                <span>
-                                    <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
-                                    <small class="ps-2" *ngIf="showWarning">{{
-                                        'sitnet_shared_question_property_info' | translate
-                                    }}</small>
-                                </span>
                             </div>
                         </div>
                         <div class="row">
@@ -547,7 +548,7 @@
                                     />
                                 </span>
                             </div>
-                            <div class="mart10" *ngIf="showWarning()">
+                            <div class="mt-1 mb-2 edit-warning-container" *ngIf="showWarning()">
                                 <i class="bi-exclamation-circle reddish"></i>
                                 <span class="warning-text-small ps-2">{{
                                     'sitnet_shared_question_property_info' | translate

@@ -19,14 +19,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ebean.annotation.DbJsonB;
 import io.ebean.text.json.EJson;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import java.io.IOException;
 import java.util.Map;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import models.Exam;
 import models.User;
 import models.base.GeneratedIdentityModel;
@@ -124,7 +123,6 @@ public class ExternalExam extends GeneratedIdentityModel {
         this.content = content;
     }
 
-    @Transient
     public Exam deserialize() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(content);
@@ -132,7 +130,6 @@ public class ExternalExam extends GeneratedIdentityModel {
         return JsonDeserializer.deserialize(Exam.class, node);
     }
 
-    @Transient
     public void serialize(Exam content) throws IOException {
         ObjectMapper om = new ObjectMapper();
         String txt = om.writeValueAsString(content);

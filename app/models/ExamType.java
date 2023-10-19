@@ -15,8 +15,7 @@
 
 package models;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 import models.base.GeneratedIdentityModel;
 
 @Entity
@@ -24,8 +23,7 @@ public class ExamType extends GeneratedIdentityModel {
 
     private String type;
 
-    @Column(columnDefinition = "boolean default false")
-    private Boolean deprecated;
+    private boolean deprecated;
 
     public ExamType(String type) {
         this.type = type;
@@ -43,7 +41,7 @@ public class ExamType extends GeneratedIdentityModel {
         this.deprecated = deprecated;
     }
 
-    public Boolean isDeprecated() {
+    public boolean isDeprecated() {
         return deprecated;
     }
 }

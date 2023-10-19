@@ -18,7 +18,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,7 +60,7 @@ public class QuestionReviewController extends BaseController {
     @Restrict({ @Group("TEACHER") })
     @Anonymous(filteredProperties = { "user", "creator", "modifier" })
     public Result getEssays(Long examId, Optional<List<Long>> ids, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, examId);
+        Exam exam = DB.find(Exam.class, examId);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (exam == null || !exam.isInspectedOrCreatedOrOwnedBy(user)) {
             return badRequest();
@@ -75,11 +75,11 @@ public class QuestionReviewController extends BaseController {
             .map(ExamSectionQuestion::getQuestion)
             .filter(question -> question.getType() == Question.Type.EssayQuestion)
             .filter(question -> questionIds.isEmpty() || questionIds.contains(question.getId()))
-            .collect(Collectors.toList());
+            .toList();
 
         // Comparator for ordering questions, have to take to account that answer's question is no longer found
         Comparator<Question> comparator = (o1, o2) -> {
-            List<Long> l = questionSequence.stream().map(GeneratedIdentityModel::getId).collect(Collectors.toList());
+            List<Long> l = questionSequence.stream().map(GeneratedIdentityModel::getId).toList();
             if (!l.contains(o1.getId())) {
                 return 1;
             }
@@ -102,7 +102,7 @@ public class QuestionReviewController extends BaseController {
             .flatMap(es -> es.getSectionQuestions().stream())
             .filter(esq -> esq.getQuestion().getType() == Question.Type.EssayQuestion)
             .filter(esq -> questionIds.isEmpty() || questionIds.contains(esq.getQuestion().getParent().getId()))
-            .collect(Collectors.toList());
+            .toList();
 
         // Get evaluation criterias from parent exam section questions
         Map<Question, String> evaluationCriteriaMap = exam
@@ -137,7 +137,7 @@ public class QuestionReviewController extends BaseController {
                 String evaluationCriteria = evaluationCriteriaMap.get(key);
                 return new QuestionEntry(e.getKey(), e.getValue(), evaluationCriteria).toJson();
             })
-            .collect(Collectors.toList());
+            .toList();
 
         String json = String.format("[%s]", String.join(", ", results));
         return writeAnonymousResult(request, ok(json).as("application/json"), exam.isAnonymous());
@@ -156,9 +156,9 @@ public class QuestionReviewController extends BaseController {
                 "examSection(name, exam(id, hash, creator(id, email, userIdentifier, firstName, lastName), " +
                 "state, examInspections(user(id)))))"
             );
-            this.question = Ebean.json().toJson(question, PathProperties.parse("(attachment(*), *)"));
-            this.answers = answers.stream().map(a -> Ebean.json().toJson(a, pp)).collect(Collectors.toList());
-            this.evaluationCriteria = Ebean.json().toJson(evaluationCriteria);
+            this.question = DB.json().toJson(question, PathProperties.parse("(attachment(*), *)"));
+            this.answers = answers.stream().map(a -> DB.json().toJson(a, pp)).toList();
+            this.evaluationCriteria = DB.json().toJson(evaluationCriteria);
         }
 
         private String toJson() {

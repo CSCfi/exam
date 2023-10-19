@@ -19,8 +19,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.persistence.*;
 import java.util.List;
-import javax.persistence.*;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamParticipation;
@@ -181,7 +181,6 @@ public class CollaborativeExam extends GeneratedIdentityModel {
         this.anonymous = anonymous;
     }
 
-    @Transient
     public Exam getExam(JsonNode node) {
         final ObjectNode objectNode = (ObjectNode) node;
         objectNode.put("id", id).put("externalRef", externalRef);

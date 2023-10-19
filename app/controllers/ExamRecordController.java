@@ -15,18 +15,16 @@
 
 package controllers;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
@@ -40,10 +38,12 @@ import models.Permission;
 import models.Role;
 import models.User;
 import models.dto.ExamScore;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.db.ebean.Transactional;
 import play.mvc.Http;
@@ -70,7 +70,7 @@ public class ExamRecordController extends BaseController {
     private final ActorSystem actor;
 
     private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-    private static final Logger.ALogger logger = Logger.of(ExamRecordController.class);
+    private final Logger logger = LoggerFactory.getLogger(ExamRecordController.class);
 
     @Inject
     public ExamRecordController(
@@ -94,7 +94,7 @@ public class ExamRecordController extends BaseController {
     @Transactional
     public Result addExamRecord(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
-        final Optional<Exam> optionalExam = Ebean
+        final Optional<Exam> optionalExam = DB
             .find(Exam.class)
             .fetch("parent")
             .fetch("parent.creator")
@@ -111,7 +111,7 @@ public class ExamRecordController extends BaseController {
             .orElseGet(() -> {
                 exam.setState(Exam.State.GRADED_LOGGED);
                 exam.update();
-                ExamParticipation participation = Ebean
+                ExamParticipation participation = DB
                     .find(ExamParticipation.class)
                     .fetch("user")
                     .where()
@@ -144,7 +144,7 @@ public class ExamRecordController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result registerExamWithoutRecord(Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
-        final Optional<Exam> optionalExam = Ebean
+        final Optional<Exam> optionalExam = DB
             .find(Exam.class)
             .fetch("languageInspection")
             .fetch("parent")
@@ -256,18 +256,18 @@ public class ExamRecordController extends BaseController {
         return Optional.empty();
     }
 
-    private static ExamRecord createRecord(Exam exam, ExamParticipation participation) {
+    private ExamRecord createRecord(Exam exam, ExamParticipation participation) {
         User student = participation.getUser();
         User teacher = exam.getGradedByUser();
         ExamRecord record = new ExamRecord();
         record.setExam(exam);
         record.setStudent(student);
         record.setTeacher(teacher);
-        record.setTimeStamp(new Date());
+        record.setTimeStamp(DateTime.now());
         return record;
     }
 
-    private static ExamScore createScore(ExamRecord record, DateTime examDate) {
+    private ExamScore createScore(ExamRecord record, DateTime examDate) {
         Exam exam = record.getExam();
         ExamScore score = new ExamScore();
         score.setAdditionalInfo(exam.getAdditionalInfo());
@@ -299,7 +299,7 @@ public class ExamRecordController extends BaseController {
         score.setIdentifier(exam.getCourse().getIdentifier());
         GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
         if (scale.getExternalRef() != null) {
-            score.setGradeScale(scale.getExternalRef().toString());
+            score.setGradeScale(scale.getExternalRef());
         } else {
             score.setGradeScale(scale.getDescription());
         }

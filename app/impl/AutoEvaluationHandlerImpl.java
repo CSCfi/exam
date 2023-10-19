@@ -15,7 +15,6 @@
 
 package impl;
 
-import akka.actor.ActorSystem;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -29,8 +28,10 @@ import models.Grade;
 import models.GradeEvaluation;
 import models.GradeScale;
 import models.User;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.concurrent.duration.Duration;
 
 public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
@@ -39,7 +40,7 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
 
     private final ActorSystem actor;
 
-    private static final Logger.ALogger logger = Logger.of(AutoEvaluationHandlerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(AutoEvaluationHandlerImpl.class);
 
     @Inject
     public AutoEvaluationHandlerImpl(EmailComposer composer, ActorSystem actor) {

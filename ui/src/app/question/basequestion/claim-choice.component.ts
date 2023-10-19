@@ -30,10 +30,10 @@ import { QuestionDraft, QuestionService } from '../question.service';
                     <li>{{ 'sitnet_claim_choice_skip_option_description' | translate }}</li>
                 </ul>
                 <br />
-                <span>
-                    <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
-                    <small *ngIf="showWarning">{{ 'sitnet_shared_question_property_info' | translate }}</small>
-                </span>
+                <div class="edit-warning-container" *ngIf="showWarning">
+                    <i class="bi-exclamation-circle reddish me-2"></i>
+                    <small>{{ 'sitnet_shared_question_property_info' | translate }}</small>
+                </div>
             </div>
             <div class="col-md-9 col-md-offset-3 margin-10 padl0 padr0 claim-choice-option-labels">
                 <div class="claim-choice-option-label">

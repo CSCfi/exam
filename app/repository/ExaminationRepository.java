@@ -1,8 +1,8 @@
 package repository;
 
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import io.ebean.ExpressionList;
 import io.ebean.Query;
 import io.ebean.Transaction;
@@ -27,36 +27,34 @@ import models.questions.ClozeTestAnswer;
 import models.questions.Question;
 import models.sections.ExamSection;
 import org.joda.time.DateTime;
-import play.Logger;
-import play.db.ebean.EbeanConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.datetime.DateTimeHandler;
 
 public class ExaminationRepository {
 
-    private final EbeanServer db;
+    private final Database db;
     private final CollaborativeExamLoader cel;
     private final DatabaseExecutionContext ec;
     private final DateTimeHandler dateTimeHandler;
 
-    private static final Logger.ALogger logger = Logger.of(ExaminationRepository.class);
+    private final Logger logger = LoggerFactory.getLogger(ExaminationRepository.class);
 
     @Inject
     public ExaminationRepository(
-        EbeanConfig ebeanConfig,
         CollaborativeExamLoader cel,
         DatabaseExecutionContext databaseExecutionContext,
         DateTimeHandler dateTimeHandler
     ) {
-        this.db = Ebean.getServer(ebeanConfig.defaultServer());
+        this.db = DB.getDefault();
         this.cel = cel;
         this.ec = databaseExecutionContext;
         this.dateTimeHandler = dateTimeHandler;
     }
 
     private Optional<Exam> doCreateExam(Exam prototype, User user, ExamEnrolment enrolment) {
-        Transaction txn = db.beginTransaction();
         Optional<Exam> result;
-        try {
+        try (Transaction tx = db.beginTransaction()) {
             boolean isCollaborative = enrolment.getCollaborativeExam() != null;
             Reservation reservation = enrolment.getReservation();
             // TODO: support for optional sections in BYOD exams
@@ -73,10 +71,8 @@ public class ExaminationRepository {
             db.save(studentExam);
             enrolment.setExam(studentExam);
             db.save(enrolment);
-            txn.commit();
+            tx.commit();
             result = Optional.of(studentExam);
-        } finally {
-            txn.end();
         }
         return result;
     }
@@ -245,7 +241,7 @@ public class ExaminationRepository {
                     .findList()
                     .stream()
                     .filter(e -> allowFuture || isInEffect(e))
-                    .collect(Collectors.toList());
+                    .toList();
 
                 if (enrolments.size() > 1) {
                     logger.error("multiple enrolments found during examination");

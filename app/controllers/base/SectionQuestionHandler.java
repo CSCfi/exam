@@ -1,7 +1,7 @@
 package controllers.base;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.Collection;
 import java.util.Optional;
 import models.User;
@@ -108,8 +108,11 @@ public interface SectionQuestionHandler {
     }
 
     default void updateOption(JsonNode node, OptionUpdateOptions defaults) {
-        Long id = SanitizingHelper.parse("id", node, Long.class).orElse(null);
-        MultipleChoiceOption option = Ebean.find(MultipleChoiceOption.class, id);
+        Optional<Long> id = SanitizingHelper.parse("id", node, Long.class);
+        if (id.isEmpty()) {
+            return;
+        }
+        MultipleChoiceOption option = DB.find(MultipleChoiceOption.class, id.get());
         if (option != null) {
             option.setOption(SanitizingHelper.parse("option", node, String.class).orElse(null));
             option.setClaimChoiceType(

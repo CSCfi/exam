@@ -15,18 +15,19 @@
 
 package system.actors;
 
-import akka.actor.AbstractActor;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import javax.inject.Inject;
 import models.Reservation;
+import org.apache.pekko.actor.AbstractActor;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.datetime.DateTimeHandler;
 
 public class ReservationReminderActor extends AbstractActor {
 
-    private static final Logger.ALogger logger = Logger.of(ReservationReminderActor.class);
+    private final Logger logger = LoggerFactory.getLogger(ReservationReminderActor.class);
 
     private final EmailComposer emailComposer;
     private final DateTimeHandler dateTimeHandler;
@@ -52,7 +53,7 @@ public class ReservationReminderActor extends AbstractActor {
                     logger.debug("Starting reservation reminder task ->");
                     DateTime now = dateTimeHandler.adjustDST(DateTime.now());
                     DateTime tomorrow = now.plusDays(1);
-                    Ebean
+                    DB
                         .find(Reservation.class)
                         .fetch("enrolment.optionalSections")
                         .fetch("enrolment.optionalSections.examMaterials")

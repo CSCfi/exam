@@ -30,7 +30,6 @@ import java.util.TreeSet;
 import java.util.concurrent.CompletionStage;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import models.Exam;
 import models.User;
@@ -262,7 +261,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                         .generate(this::newId)
                         .limit(options.size())
                         .sorted(Comparator.naturalOrder())
-                        .collect(Collectors.toList());
+                        .toList();
                     for (int i = 0; i < options.size(); i++) {
                         options.get(i).setId(generatedIds.get(i));
                     }
