@@ -8,7 +8,7 @@ import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ImmutableMap;
 import helpers.RemoteServerHelper;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -55,7 +55,7 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
         super.setUp();
         // Fake API shall return a course with code 810136P. Lets make a referenced exam active in the DB so it should
         // pop up in the search results
-        Exam exam = Ebean
+        Exam exam = DB
             .find(Exam.class)
             .where()
             .eq("course.code", "810136P")

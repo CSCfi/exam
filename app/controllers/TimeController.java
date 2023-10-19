@@ -18,7 +18,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.io.IOException;
 import javax.inject.Inject;
 import models.Exam;
@@ -45,7 +45,7 @@ public class TimeController extends BaseController {
     @Restrict({ @Group("STUDENT") })
     public Result getRemainingExamTime(String hash, Http.Request request) throws IOException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExamEnrolment enrolment = Ebean
+        ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .fetch("externalExam")
             .where()

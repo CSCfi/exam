@@ -19,12 +19,11 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import models.ExamMachine;
 import models.ExamRoom;
 import models.Reservation;
@@ -38,7 +37,7 @@ public class ExamMachineController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getExamMachines() {
-        List<ExamMachine> machines = Ebean.find(ExamMachine.class).where().eq("archived", false).findList();
+        List<ExamMachine> machines = DB.find(ExamMachine.class).where().eq("archived", false).findList();
 
         return ok(machines);
     }
@@ -46,7 +45,7 @@ public class ExamMachineController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result getExamMachine(Long id) {
         PathProperties pp = PathProperties.parse("(*, softwareInfo(*), room(name, buildingName))");
-        Query<ExamMachine> query = Ebean.find(ExamMachine.class);
+        Query<ExamMachine> query = DB.find(ExamMachine.class);
         pp.apply(query);
         ExamMachine machine = query.where().idEq(id).findOne();
         return ok(machine, pp);
@@ -54,7 +53,7 @@ public class ExamMachineController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getExamMachineReservationsFromNow(Long id) {
-        List<Reservation> reservations = Ebean
+        List<Reservation> reservations = DB
             .find(Reservation.class)
             .where()
             .eq("machine.id", id)
@@ -83,18 +82,14 @@ public class ExamMachineController extends BaseController {
                 "outOfService"
             )
             .get();
-        ExamMachine dest = Ebean.find(ExamMachine.class, id);
+        ExamMachine dest = DB.find(ExamMachine.class, id);
         if (dest == null) {
             return notFound();
         }
 
-        if (src.getIpAddress().length() > 0) {
-            List<ExamMachine> machines = Ebean.find(ExamMachine.class).findList();
-            List<String> ips = machines
-                .stream()
-                .filter(m -> !m.equals(dest))
-                .map(ExamMachine::getIpAddress)
-                .collect(Collectors.toList());
+        if (!src.getIpAddress().isEmpty()) {
+            List<ExamMachine> machines = DB.find(ExamMachine.class).findList();
+            List<String> ips = machines.stream().filter(m -> !m.equals(dest)).map(ExamMachine::getIpAddress).toList();
             if (ips.contains(src.getIpAddress())) {
                 return forbidden("sitnet_error_ip_address_exists_for_room");
             }
@@ -119,7 +114,7 @@ public class ExamMachineController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result resetMachineSoftware(Long mid) {
-        ExamMachine machine = Ebean.find(ExamMachine.class, mid);
+        ExamMachine machine = DB.find(ExamMachine.class, mid);
         if (machine == null) {
             return notFound();
         }
@@ -133,12 +128,12 @@ public class ExamMachineController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result updateMachineSoftware(Long mid, Long sid) {
-        ExamMachine machine = Ebean.find(ExamMachine.class, mid);
+        ExamMachine machine = DB.find(ExamMachine.class, mid);
         if (machine == null) {
             return notFound();
         }
         boolean isTurnedOn = false;
-        Software software = Ebean.find(Software.class, sid);
+        Software software = DB.find(Software.class, sid);
         if (machine.getSoftwareInfo().contains(software)) {
             machine.getSoftwareInfo().remove(software);
         } else {
@@ -154,7 +149,7 @@ public class ExamMachineController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result insertExamMachine(Long id, Http.Request request) {
-        ExamRoom room = Ebean.find(ExamRoom.class, id);
+        ExamRoom room = DB.find(ExamRoom.class, id);
         if (room == null) {
             return notFound();
         }
@@ -175,7 +170,7 @@ public class ExamMachineController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result getSoftwares() {
-        List<Software> softwares = Ebean
+        List<Software> softwares = DB
             .find(Software.class)
             .where()
             .or()
@@ -189,13 +184,13 @@ public class ExamMachineController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getSoftware(Long id) {
-        Software software = Ebean.find(Software.class, id);
+        Software software = DB.find(Software.class, id);
 
         return ok(software);
     }
 
     private Optional<Result> checkSoftwareName(String name) {
-        List<Software> sw = Ebean.find(Software.class).where().ieq("name", name).findList();
+        List<Software> sw = DB.find(Software.class).where().ieq("name", name).findList();
         return sw.isEmpty() ? Optional.empty() : Optional.of(badRequest("Software with that name already exists"));
     }
 
@@ -212,7 +207,7 @@ public class ExamMachineController extends BaseController {
 
     @Restrict(@Group({ "ADMIN" }))
     public Result updateSoftware(Long id, String name) {
-        Software software = Ebean.find(Software.class, id);
+        Software software = DB.find(Software.class, id);
         if (software == null) {
             return notFound();
         }
@@ -226,7 +221,7 @@ public class ExamMachineController extends BaseController {
 
     @Restrict(@Group({ "ADMIN" }))
     public Result removeSoftware(Long id) {
-        Software software = Ebean.find(Software.class, id);
+        Software software = DB.find(Software.class, id);
         if (software == null) {
             return notFound();
         }

@@ -8,7 +8,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
-import io.ebean.Ebean;
+import io.ebean.DB;
+import jakarta.persistence.PersistenceException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -24,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
-import javax.persistence.PersistenceException;
 import javax.validation.constraints.NotNull;
 import models.Attachment;
 import models.Exam;
@@ -257,7 +257,7 @@ public class IntegrationTestCase extends WithApplication {
             .stream()
             .map(ExamInspection::getUser)
             .forEach(u -> {
-                u.setLanguage(Ebean.find(Language.class, "en"));
+                u.setLanguage(DB.find(Language.class, "en"));
                 u.update();
             });
         exam
@@ -303,7 +303,7 @@ public class IntegrationTestCase extends WithApplication {
     private void addTestData() throws Exception {
         int userCount;
         try {
-            userCount = Ebean.find(User.class).findCount();
+            userCount = DB.find(User.class).findCount();
         } catch (PersistenceException e) {
             // Tables are likely not there yet, skip this.
             return;
@@ -315,38 +315,38 @@ public class IntegrationTestCase extends WithApplication {
             InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
             Map<String, List<Object>> all = yaml.load(is);
             is.close();
-            Ebean.saveAll(all.get("role"));
-            Ebean.saveAll(all.get("exam-type"));
-            Ebean.saveAll(all.get("exam-execution-type"));
-            Ebean.saveAll(all.get("languages"));
-            Ebean.saveAll(all.get("organisations"));
-            Ebean.saveAll(all.get("attachments"));
-            Ebean.saveAll(all.get("users"));
-            Ebean.saveAll(all.get("grade-scales"));
-            Ebean.saveAll(all.get("grades"));
-            Ebean.saveAll(all.get("question-essay"));
-            Ebean.saveAll(all.get("question-multiple-choice"));
-            Ebean.saveAll(all.get("question-weighted-multiple-choice"));
-            Ebean.saveAll(all.get("question-claim-choice"));
-            Ebean.saveAll(all.get("question-clozetest"));
-            Ebean.saveAll(all.get("softwares"));
-            Ebean.saveAll(all.get("courses"));
-            Ebean.saveAll(all.get("comments"));
+            DB.saveAll(all.get("role"));
+            DB.saveAll(all.get("exam-type"));
+            DB.saveAll(all.get("exam-execution-type"));
+            DB.saveAll(all.get("languages"));
+            DB.saveAll(all.get("organisations"));
+            DB.saveAll(all.get("attachments"));
+            DB.saveAll(all.get("users"));
+            DB.saveAll(all.get("grade-scales"));
+            DB.saveAll(all.get("grades"));
+            DB.saveAll(all.get("question-essay"));
+            DB.saveAll(all.get("question-multiple-choice"));
+            DB.saveAll(all.get("question-weighted-multiple-choice"));
+            DB.saveAll(all.get("question-claim-choice"));
+            DB.saveAll(all.get("question-clozetest"));
+            DB.saveAll(all.get("softwares"));
+            DB.saveAll(all.get("courses"));
+            DB.saveAll(all.get("comments"));
             for (Object o : all.get("exams")) {
                 Exam e = (Exam) o;
                 e.generateHash();
                 e.save();
             }
-            Ebean.saveAll(all.get("exam-sections"));
-            Ebean.saveAll(all.get("section-questions"));
-            Ebean.saveAll(all.get("exam-participations"));
-            Ebean.saveAll(all.get("exam-inspections"));
-            Ebean.saveAll(all.get("mail-addresses"));
-            Ebean.saveAll(all.get("calendar-events"));
-            Ebean.saveAll(all.get("exam-rooms"));
-            Ebean.saveAll(all.get("exam-machines"));
-            Ebean.saveAll(all.get("exam-room-reservations"));
-            Ebean.saveAll(all.get("exam-enrolments"));
+            DB.saveAll(all.get("exam-sections"));
+            DB.saveAll(all.get("section-questions"));
+            DB.saveAll(all.get("exam-participations"));
+            DB.saveAll(all.get("exam-inspections"));
+            DB.saveAll(all.get("mail-addresses"));
+            DB.saveAll(all.get("calendar-events"));
+            DB.saveAll(all.get("exam-rooms"));
+            DB.saveAll(all.get("exam-machines"));
+            DB.saveAll(all.get("exam-room-reservations"));
+            DB.saveAll(all.get("exam-enrolments"));
         }
     }
 
@@ -367,7 +367,7 @@ public class IntegrationTestCase extends WithApplication {
     }
 
     protected User getLoggerUser() {
-        return Ebean.find(User.class, userId);
+        return DB.find(User.class, userId);
     }
 
     @NotNull

@@ -15,9 +15,9 @@
 
 package system.actors;
 
-import akka.actor.AbstractActor;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Optional;
@@ -29,13 +29,15 @@ import models.Attachment;
 import models.json.ExternalExam;
 import models.questions.EssayAnswer;
 import models.sections.ExamSectionQuestion;
-import play.Logger;
+import org.apache.pekko.actor.AbstractActor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.ws.WSClient;
 import util.config.ConfigReader;
 
 public class ExternalExamExpirationActor extends AbstractActor {
 
-    private static final Logger.ALogger logger = Logger.of(ExternalExamExpirationActor.class);
+    private final Logger logger = LoggerFactory.getLogger(ExternalExamExpirationActor.class);
     private static final int MONTHS_UNTIL_EXPIRATION = 4;
 
     private final ConfigReader configReader;
@@ -50,7 +52,7 @@ public class ExternalExamExpirationActor extends AbstractActor {
     private Optional<URL> parseUrl(String id) {
         String url = configReader.getIopHost() + "/api/attachments/" + id;
         try {
-            return Optional.of(new URL(url));
+            return Optional.of(URI.create(url).toURL());
         } catch (MalformedURLException e) {
             return Optional.empty();
         }
@@ -68,7 +70,7 @@ public class ExternalExamExpirationActor extends AbstractActor {
                 String.class,
                 s -> {
                     logger.debug("Starting external exam expiration check ->");
-                    Set<ExternalExam> exams = Ebean
+                    Set<ExternalExam> exams = DB
                         .find(ExternalExam.class)
                         .where()
                         .isNotNull("sent")

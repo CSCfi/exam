@@ -17,11 +17,11 @@ package system;
 
 import com.google.inject.AbstractModule;
 import javax.inject.Singleton;
-import play.libs.akka.AkkaGuiceSupport;
+import play.libs.pekko.PekkoGuiceSupport;
 import system.actors.*;
 
 @Singleton
-public class App extends AbstractModule implements AkkaGuiceSupport {
+public class App extends AbstractModule implements PekkoGuiceSupport {
 
     @Override
     protected void configure() {

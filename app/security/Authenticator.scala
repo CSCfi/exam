@@ -1,6 +1,6 @@
 package security
 
-import io.ebean.Ebean
+import io.ebean.DB
 import models.User
 import play.api.mvc.{AnyContent, Request, Result, Results}
 
@@ -13,7 +13,7 @@ trait Authenticator {
     val id   = request.session.get("id")
     (role, id) match {
       case (Some(r), Some(id)) if roles.isEmpty || roles.contains(r) =>
-        Some(Ebean.find(classOf[User], id))
+        Some(DB.find(classOf[User], id))
       case _ => None
     }
   }

@@ -19,7 +19,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.List;
 import models.calendar.MaintenancePeriod;
 import org.joda.time.DateTime;
@@ -31,7 +31,7 @@ public class MaintenancePeriodController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result listMaintenancePeriods() {
-        List<MaintenancePeriod> periods = Ebean
+        List<MaintenancePeriod> periods = DB
             .find(MaintenancePeriod.class)
             .where()
             .gt("endsAt", DateTime.now())
@@ -55,7 +55,7 @@ public class MaintenancePeriodController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result updateMaintenancePeriod(Long id, Http.Request request) {
-        MaintenancePeriod period = Ebean.find(MaintenancePeriod.class, id);
+        MaintenancePeriod period = DB.find(MaintenancePeriod.class, id);
         if (period == null) {
             return notFound();
         }
@@ -72,7 +72,7 @@ public class MaintenancePeriodController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result removeMaintenancePeriod(Long id) {
-        MaintenancePeriod period = Ebean.find(MaintenancePeriod.class, id);
+        MaintenancePeriod period = DB.find(MaintenancePeriod.class, id);
         if (period == null) {
             return notFound();
         }

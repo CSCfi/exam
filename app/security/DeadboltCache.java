@@ -23,14 +23,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class DeadboltCache implements HandlerCache {
+class DeadboltCache implements HandlerCache {
 
     private final AuthorizationHandler defaultHandler;
 
     private final Map<String, DeadboltHandler> handlers = new HashMap<>();
 
     @Inject
-    public DeadboltCache(final AuthorizationHandler handler) {
+    DeadboltCache(final AuthorizationHandler handler) {
         this.defaultHandler = handler;
         handlers.put(defaultHandler.handlerName(), defaultHandler);
     }

@@ -18,7 +18,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,7 +41,8 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Result;
 
 public class StatisticsController extends BaseController {
@@ -49,11 +50,11 @@ public class StatisticsController extends BaseController {
     private static final DateTimeFormatter DTF = DateTimeFormat.forPattern("dd.MM.yyyy");
     private static final String XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
-    private static final Logger.ALogger logger = Logger.of(StatisticsController.class);
+    private final Logger logger = LoggerFactory.getLogger(StatisticsController.class);
 
     @Restrict({ @Group("ADMIN") })
     public Result getStudents() {
-        List<User> students = Ebean
+        List<User> students = DB
             .find(User.class)
             .select("id, firstName, lastName")
             .where()
@@ -64,7 +65,7 @@ public class StatisticsController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getExamNames() {
-        List<Exam> exams = Ebean
+        List<Exam> exams = DB
             .find(Exam.class)
             .select("id, name")
             .fetch("course", "id, name, code")
@@ -117,7 +118,7 @@ public class StatisticsController extends BaseController {
     }
 
     private static Result examToJson(Exam exam) {
-        String content = Ebean.json().toJson(exam);
+        String content = DB.json().toJson(exam);
         return ok(content)
             .as("application/json")
             .withHeader("Content-Disposition", "attachment; filename=\"exams.json\"");
@@ -132,26 +133,23 @@ public class StatisticsController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getExam(Long id, String reportType) throws IOException {
-        Exam exam = Ebean.find(Exam.class).where().idEq(id).isNotNull("course").findOne();
+        Exam exam = DB.find(Exam.class).where().idEq(id).isNotNull("course").findOne();
         if (exam == null) {
             return notFound();
         }
 
-        switch (reportType) {
-            case "xlsx":
-                return examToExcel(exam);
-            case "json":
-                return examToJson(exam);
-            default:
-                return badRequest("invalid type: " + reportType);
-        }
+        return switch (reportType) {
+            case "xlsx" -> examToExcel(exam);
+            case "json" -> examToJson(exam);
+            default -> badRequest("invalid type: " + reportType);
+        };
     }
 
     @Restrict({ @Group("ADMIN") })
     public Result getTeacherExamsByDate(Long uid, String from, String to) throws IOException {
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
-        List<Exam> exams = Ebean
+        List<Exam> exams = DB
             .find(Exam.class)
             .fetch("creator")
             .fetch("examType")
@@ -186,18 +184,10 @@ public class StatisticsController extends BaseController {
             int logged = 0;
             for (Exam child : parent.getChildren()) {
                 switch (child.getState()) {
-                    case REVIEW:
-                    case REVIEW_STARTED:
-                        inReview++;
-                        break;
-                    case GRADED:
-                        graded++;
-                        break;
-                    case GRADED_LOGGED:
-                        logged++;
-                        break;
-                    default:
-                        break;
+                    case REVIEW, REVIEW_STARTED -> inReview++;
+                    case GRADED -> graded++;
+                    case GRADED_LOGGED -> logged++;
+                    default -> {}
                 }
             }
             String[] data = new String[10];
@@ -227,7 +217,7 @@ public class StatisticsController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getExamEnrollments(Long id) throws IOException {
-        Exam proto = Ebean
+        Exam proto = DB
             .find(Exam.class)
             .fetch("examEnrolments")
             .fetch("examEnrolments.user")
@@ -278,7 +268,7 @@ public class StatisticsController extends BaseController {
     public Result getReviewsByDate(String from, String to) throws IOException {
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
-        List<Exam> exams = Ebean
+        List<Exam> exams = DB
             .find(Exam.class)
             .fetch("course")
             .where()
@@ -334,7 +324,7 @@ public class StatisticsController extends BaseController {
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
 
-        List<ExamEnrolment> enrolments = Ebean
+        List<ExamEnrolment> enrolments = DB
             .find(ExamEnrolment.class)
             .fetch("user")
             .fetch("exam")
@@ -391,7 +381,7 @@ public class StatisticsController extends BaseController {
                 .toArray(new String[0]);
             createRow(sheet, data, enrolments, e);
         }
-        IntStream.range(0, 17).forEach(i -> sheet.autoSizeColumn(i, true));
+        IntStream.range(0, headers.length + 1).forEach(i -> sheet.autoSizeColumn(i, true));
         return ok(encode(wb))
             .as(XLSX_MIME)
             .withHeader("Content-Disposition", "attachment; filename=\"reservations.xlsx\"");
@@ -402,7 +392,7 @@ public class StatisticsController extends BaseController {
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
 
-        List<ExamParticipation> participations = Ebean
+        List<ExamParticipation> participations = DB
             .find(ExamParticipation.class)
             .fetch("exam")
             .where()
@@ -427,7 +417,7 @@ public class StatisticsController extends BaseController {
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
 
-        User student = Ebean.find(User.class, studentId);
+        User student = DB.find(User.class, studentId);
         if (student == null) {
             return notFound("sitnet_error_not_found");
         }
@@ -443,7 +433,7 @@ public class StatisticsController extends BaseController {
         dataRow.createCell(index++).setCellValue(student.getEmail());
         dataRow.createCell(index).setCellValue(student.getLanguage().getCode());
 
-        List<ExamParticipation> participations = Ebean
+        List<ExamParticipation> participations = DB
             .find(ExamParticipation.class)
             .fetch("exam")
             .fetch("reservation")

@@ -19,11 +19,12 @@ import impl.EmailComposer;
 import java.util.Collection;
 import models.Exam;
 import models.User;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class AppUtil {
 
-    private static final Logger.ALogger logger = Logger.of(AppUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(AppUtil.class);
 
     private AppUtil() {}
 

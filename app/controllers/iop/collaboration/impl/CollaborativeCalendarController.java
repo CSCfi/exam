@@ -1,11 +1,10 @@
 package controllers.iop.collaboration.impl;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import impl.CalendarHandler;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.util.Collection;
 import java.util.Collections;
@@ -23,8 +22,10 @@ import models.Reservation;
 import models.User;
 import models.json.CollaborativeExam;
 import models.sections.ExamSection;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -48,11 +49,11 @@ public class CollaborativeCalendarController extends CollaborationController {
     @Inject
     DateTimeHandler dateTimeHandler;
 
-    private static final Logger.ALogger logger = Logger.of(CollaborativeCalendarController.class);
+    private final Logger logger = LoggerFactory.getLogger(CollaborativeCalendarController.class);
 
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> getExamInfo(Long id) {
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, id);
+        CollaborativeExam ce = DB.find(CollaborativeExam.class, id);
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
@@ -96,16 +97,16 @@ public class CollaborativeCalendarController extends CollaborationController {
         Collection<Integer> aids = request.attrs().get(Attrs.ACCESSABILITES);
         Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
 
-        ExamRoom room = Ebean.find(ExamRoom.class, roomId);
+        ExamRoom room = DB.find(ExamRoom.class, roomId);
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), room);
         final User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
 
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
+        CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
 
-        final ExamEnrolment enrolment = Ebean
+        final ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .fetch("reservation")
             .where()
@@ -136,10 +137,10 @@ public class CollaborativeCalendarController extends CollaborationController {
                 }
                 // We are good to go :)
                 // Start manual transaction.
-                Ebean.beginTransaction();
+                DB.beginTransaction();
                 try {
                     // Take pessimistic lock for user to prevent multiple reservations creating.
-                    Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
+                    DB.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
                     Reservation oldReservation = enrolment.getReservation();
                     Reservation reservation = calendarHandler.createReservation(start, end, machine.get(), user);
                     // Nuke the old reservation if any
@@ -149,11 +150,11 @@ public class CollaborativeCalendarController extends CollaborationController {
                         oldReservation.delete();
                     }
                     Result newReservation = makeNewReservation(enrolment, exam, reservation, user, sectionIds);
-                    Ebean.commitTransaction();
+                    DB.commitTransaction();
                     return newReservation;
                 } finally {
                     // End transaction to release lock.
-                    Ebean.endTransaction();
+                    DB.endTransaction();
                 }
             });
     }
@@ -170,7 +171,7 @@ public class CollaborativeCalendarController extends CollaborationController {
         enrolment.setReservationCanceled(false);
         Set<ExamSection> sections = sectionIds.isEmpty()
             ? Collections.emptySet()
-            : Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
+            : DB.find(ExamSection.class).where().idIn(sectionIds).findSet();
         enrolment.setOptionalSections(sections);
         enrolment.save();
         // Send some emails asynchronously
@@ -198,7 +199,7 @@ public class CollaborativeCalendarController extends CollaborationController {
         Http.Request request
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
+        CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
@@ -222,7 +223,7 @@ public class CollaborativeCalendarController extends CollaborationController {
 
     private ExamEnrolment getEnrolledExam(Long examId, User user) {
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        return Ebean
+        return DB
             .find(ExamEnrolment.class)
             .where()
             .eq("user", user)

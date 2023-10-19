@@ -18,11 +18,10 @@ package models;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.ebean.annotation.EnumValue;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -74,7 +73,6 @@ public class ExamFeedbackConfig extends GeneratedIdentityModel {
         this.releaseDate = releaseDate;
     }
 
-    @Transient
     public ExamFeedbackConfig copy() {
         ExamFeedbackConfig clone = new ExamFeedbackConfig();
         BeanUtils.copyProperties(this, clone, "id", "exam");
@@ -84,10 +82,9 @@ public class ExamFeedbackConfig extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof ExamFeedbackConfig)) {
+        if (!(other instanceof ExamFeedbackConfig otherConfig)) {
             return false;
         }
-        ExamFeedbackConfig otherConfig = (ExamFeedbackConfig) other;
         return new EqualsBuilder().append(id, otherConfig.id).build();
     }
 

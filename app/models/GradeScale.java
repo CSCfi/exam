@@ -16,9 +16,9 @@
 package models;
 
 import io.ebean.Model;
+import jakarta.persistence.*;
 import java.util.Optional;
 import java.util.Set;
-import javax.persistence.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 

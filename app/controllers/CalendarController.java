@@ -15,7 +15,6 @@
 
 package controllers;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
@@ -23,7 +22,8 @@ import controllers.iop.transfer.api.ExternalReservationHandler;
 import exceptions.NotFoundException;
 import impl.CalendarHandler;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
+import io.ebean.Transaction;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -39,8 +39,10 @@ import models.ExamRoom;
 import models.Reservation;
 import models.User;
 import models.sections.ExamSection;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -71,13 +73,13 @@ public class CalendarController extends BaseController {
     @Inject
     protected ExternalReservationHandler externalReservationHandler;
 
-    private static final Logger.ALogger logger = Logger.of(CalendarController.class);
+    private final Logger logger = LoggerFactory.getLogger(CalendarController.class);
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result removeReservation(long id, Http.Request request) throws NotFoundException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        final ExamEnrolment enrolment = Ebean
+        final ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("reservation.machine")
@@ -97,8 +99,8 @@ public class CalendarController extends BaseController {
         }
         enrolment.setReservation(null);
         enrolment.setReservationCanceled(true);
-        Ebean.save(enrolment);
-        Ebean.delete(Reservation.class, id);
+        DB.save(enrolment);
+        DB.delete(Reservation.class, id);
 
         // send email asynchronously
         final boolean isStudentUser = user.equals(enrolment.getUser());
@@ -166,7 +168,7 @@ public class CalendarController extends BaseController {
     public Result getCurrentEnrolment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        Optional<ExamEnrolment> enrolment = Ebean
+        Optional<ExamEnrolment> enrolment = DB
             .find(ExamEnrolment.class)
             .fetch("optionalSections")
             .where()
@@ -189,15 +191,15 @@ public class CalendarController extends BaseController {
         Collection<Integer> aids = request.attrs().get(Attrs.ACCESSABILITES);
         Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
 
-        ExamRoom room = Ebean.find(ExamRoom.class, roomId);
+        ExamRoom room = DB.find(ExamRoom.class, roomId);
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), room);
         final User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+
         // Start manual transaction.
-        Ebean.beginTransaction();
-        try {
+        try (Transaction tx = DB.beginTransaction()) {
             // Take pessimistic lock for user to prevent multiple reservations creating.
-            Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
-            Optional<ExamEnrolment> optionalEnrolment = Ebean
+            DB.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
+            Optional<ExamEnrolment> optionalEnrolment = DB
                 .find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("exam.examSections")
@@ -254,7 +256,7 @@ public class CalendarController extends BaseController {
                         .removeReservation(oldReservation, user, "")
                         .thenCompose(result -> {
                             // Refetch enrolment
-                            ExamEnrolment updatedEnrolment = Ebean
+                            ExamEnrolment updatedEnrolment = DB
                                 .find(ExamEnrolment.class)
                                 .fetch("exam.executionType")
                                 .where()
@@ -272,11 +274,8 @@ public class CalendarController extends BaseController {
                 }
             }
             final CompletionStage<Result> result = makeNewReservation(enrolment, reservation, user, sectionIds);
-            Ebean.commitTransaction();
+            tx.commit();
             return result;
-        } finally {
-            // End transaction to release lock.
-            Ebean.endTransaction();
         }
     }
 
@@ -286,19 +285,19 @@ public class CalendarController extends BaseController {
         User user,
         Collection<Long> sectionIds
     ) {
-        Ebean.save(reservation);
+        DB.save(reservation);
         enrolment.setReservation(reservation);
         enrolment.setReservationCanceled(false);
         enrolment.getOptionalSections().clear();
         enrolment.update();
         if (!sectionIds.isEmpty()) {
-            Set<ExamSection> sections = Ebean.find(ExamSection.class).where().idIn(sectionIds).findSet();
+            Set<ExamSection> sections = DB.find(ExamSection.class).where().idIn(sectionIds).findSet();
             enrolment.setOptionalSections(sections);
         }
         if (enrolment.getExam().isPrivate()) {
             enrolment.setNoShow(false);
         }
-        Ebean.save(enrolment);
+        DB.save(enrolment);
         Exam exam = enrolment.getExam();
         // Send some emails asynchronously
         system
@@ -330,7 +329,7 @@ public class CalendarController extends BaseController {
 
     protected ExamEnrolment getEnrolment(Long examId, User user) {
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        return Ebean
+        return DB
             .find(ExamEnrolment.class)
             .fetch("exam")
             .where()

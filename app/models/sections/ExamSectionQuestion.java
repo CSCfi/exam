@@ -17,7 +17,16 @@ package models.sections;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Comparator;
@@ -25,19 +34,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
 import models.api.Scorable;
 import models.api.Sortable;
 import models.base.OwnedModel;
@@ -47,14 +48,15 @@ import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import play.Logger;
 import play.mvc.Result;
 
 @Entity
 public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSectionQuestion>, Sortable, Scorable {
 
-    private static final Logger.ALogger logger = Logger.of(ExamSectionQuestion.class);
+    private final Logger logger = LoggerFactory.getLogger(ExamSectionQuestion.class);
 
     @ManyToOne
     @JoinColumn(name = "exam_section_id")
@@ -103,14 +105,6 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
 
     @Column
     private Integer expectedWordCount;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public ExamSection getExamSection() {
         return examSection;
@@ -328,10 +322,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         if (this == o) {
             return true;
         }
-        if (!(o instanceof ExamSectionQuestion)) {
+        if (!(o instanceof ExamSectionQuestion other)) {
             return false;
         }
-        ExamSectionQuestion other = (ExamSectionQuestion) o;
         return new EqualsBuilder().append(examSection, other.examSection).append(question, other.question).build();
     }
 
@@ -355,24 +348,22 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         sequenceNumber = ordinal;
     }
 
-    @Transient
     @Override
     public Optional<Result> getValidationResult(JsonNode node) {
         return question.getValidationResult(node);
     }
 
-    @Transient
     @Override
     public Double getAssessedScore() {
         switch (question.getType()) {
-            case EssayQuestion:
+            case EssayQuestion -> {
                 if (evaluationType == Question.EvaluationType.Points) {
                     return essayAnswer == null || essayAnswer.getEvaluatedScore() == null
                         ? 0
                         : essayAnswer.getEvaluatedScore();
                 }
-                break;
-            case MultipleChoiceQuestion:
+            }
+            case MultipleChoiceQuestion -> {
                 if (forcedScore != null) {
                     return forcedScore;
                 }
@@ -383,8 +374,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 if (o.isPresent()) {
                     return o.get().getOption().isCorrectOption() ? maxScore : 0.0;
                 }
-                break;
-            case WeightedMultipleChoiceQuestion:
+            }
+            case WeightedMultipleChoiceQuestion -> {
                 if (forcedScore != null) {
                     return forcedScore;
                 }
@@ -392,10 +383,11 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                     .stream()
                     .filter(esq -> esq.isAnswered() && esq.getScore() != null)
                     .map(ExamSectionQuestionOption::getScore)
-                    .reduce(0.0, (sum, x) -> sum += x);
+                    .reduce(0.0, Double::sum);
                 // ATM minimum score is zero
                 return Math.max(0.0, evaluation);
-            case ClozeTestQuestion:
+            }
+            case ClozeTestQuestion -> {
                 if (forcedScore != null) {
                     return forcedScore;
                 }
@@ -412,7 +404,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                 DecimalFormat df = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.US));
                 double value = correct * maxScore / (correct + incorrect);
                 return Double.valueOf(df.format(value));
-            case ClaimChoiceQuestion:
+            }
+            case ClaimChoiceQuestion -> {
                 if (forcedScore != null) {
                     return forcedScore;
                 }
@@ -424,59 +417,59 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                     return answeredOption.get().getScore();
                 }
                 return 0.0;
+            }
         }
         return 0.0;
     }
 
-    @Transient
     @Override
     public Double getMaxAssessedScore() {
         switch (question.getType()) {
-            case EssayQuestion:
+            case EssayQuestion -> {
                 if (evaluationType == Question.EvaluationType.Points) {
                     return maxScore == null ? 0 : maxScore;
                 }
-                break;
-            case MultipleChoiceQuestion:
-            case ClozeTestQuestion:
+            }
+            case MultipleChoiceQuestion, ClozeTestQuestion -> {
                 return maxScore == null ? 0 : maxScore;
-            case WeightedMultipleChoiceQuestion:
+            }
+            case WeightedMultipleChoiceQuestion -> {
                 return options
                     .stream()
                     .map(ExamSectionQuestionOption::getScore)
                     .filter(score -> score != null && score > 0)
-                    .reduce(0.0, (sum, x) -> sum += x);
-            case ClaimChoiceQuestion:
+                    .reduce(0.0, Double::sum);
+            }
+            case ClaimChoiceQuestion -> {
                 return options
                     .stream()
                     .map(ExamSectionQuestionOption::getScore)
-                    .filter(score -> score != null)
+                    .filter(Objects::nonNull)
                     .max(Comparator.comparing(Double::valueOf))
                     .orElse(0.0);
+            }
         }
         return 0.0;
     }
 
-    @Transient
     public Double getMinScore() {
         if (question.getType() == Question.Type.WeightedMultipleChoiceQuestion) {
             return options
                 .stream()
                 .map(ExamSectionQuestionOption::getScore)
                 .filter(score -> score != null && score < 0)
-                .reduce(0.0, (sum, x) -> sum += x);
+                .reduce(0.0, Double::sum);
         } else if (question.getType() == Question.Type.ClaimChoiceQuestion) {
             return options
                 .stream()
                 .map(ExamSectionQuestionOption::getScore)
-                .filter(score -> score != null)
+                .filter(Objects::nonNull)
                 .min(Comparator.comparing(Double::valueOf))
                 .orElse(0.0);
         }
         return 0.0;
     }
 
-    @Transient
     @Override
     public boolean isRejected() {
         return (
@@ -488,7 +481,6 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         );
     }
 
-    @Transient
     @Override
     public boolean isApproved() {
         return (
@@ -507,7 +499,6 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
      *
      * @param option New option to add.
      */
-    @Transient
     public void addOption(ExamSectionQuestionOption option, boolean preserveScores) {
         if (question.getType() == Question.Type.ClaimChoiceQuestion) return;
 
@@ -524,16 +515,16 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             List<ExamSectionQuestionOption> opts = options
                 .stream()
                 .filter(o -> o.getScore() != null && o.getScore() > 0)
-                .collect(Collectors.toList());
+                .toList();
             BigDecimal delta = calculateOptionScores(option.getScore(), opts);
-            option.setScore(new BigDecimal(option.getScore()).add(delta).doubleValue());
+            option.setScore(BigDecimal.valueOf(option.getScore()).add(delta).doubleValue());
         } else if (option.getScore() < 0) {
             List<ExamSectionQuestionOption> opts = options
                 .stream()
                 .filter(o -> o.getScore() != null && o.getScore() < 0)
-                .collect(Collectors.toList());
+                .toList();
             BigDecimal delta = calculateOptionScores(option.getScore(), opts);
-            option.setScore(new BigDecimal(option.getScore()).add(delta).doubleValue());
+            option.setScore(BigDecimal.valueOf(option.getScore()).add(delta).doubleValue());
         }
         options.add(option);
     }
@@ -542,11 +533,10 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         BigDecimal delta = calculateOptionScores(score * -1, options);
         if (!options.isEmpty()) {
             ExamSectionQuestionOption first = options.get(0);
-            first.setScore(new BigDecimal(first.getScore()).add(delta).doubleValue());
+            first.setScore(BigDecimal.valueOf(first.getScore()).add(delta).doubleValue());
         }
     }
 
-    @Transient
     public void removeOption(MultipleChoiceOption option, boolean preserveScores) {
         if (question.getType() == Question.Type.ClaimChoiceQuestion) return;
 
@@ -569,13 +559,13 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             List<ExamSectionQuestionOption> opts = options
                 .stream()
                 .filter(o -> o.getScore() != null && o.getScore() > 0)
-                .collect(Collectors.toList());
+                .toList();
             initOptionScore(score, opts);
         } else if (score < 0) {
             List<ExamSectionQuestionOption> opts = options
                 .stream()
                 .filter(o -> o.getScore() != null && o.getScore() < 0)
-                .collect(Collectors.toList());
+                .toList();
             initOptionScore(score, opts);
         }
     }
@@ -588,7 +578,8 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             o.setScore(roundToTwoDigits(o.getScore() - optionScore / opts.size()));
             sum = sum.add(BigDecimal.valueOf(o.getScore()));
         }
-        return oldSum.subtract(new BigDecimal(optionScore).add(sum));
+        BigDecimal subtracted = oldSum.subtract(BigDecimal.valueOf(optionScore).add(sum));
+        return subtracted.round(new MathContext(1));
     }
 
     private Double roundToTwoDigits(double score) {
