@@ -172,7 +172,7 @@ export class ExamQuestionComponent implements OnInit {
             .map((optionType) => this.Question.getOptionTypeTranslation(optionType));
     };
 
-    sortByString = (prop: string[]): Array<string> => prop.sort();
+    sortByString = (prop: string[]): string[] => prop.sort();
 
     hasInvalidClaimChoiceOptions = () =>
         this.examQuestion.question.type === 'ClaimChoiceQuestion' &&

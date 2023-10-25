@@ -29,10 +29,10 @@
                 <div class="col warning-text" *ngIf="examNames.length > 1">
                     {{ 'sitnet_exam_question_edit_instructions_more_than_one' | translate }}
                 </div>
-                <div class="col warning-text" *ngIf="examNames.length == 1">
+                <div class="col warning-text" *ngIf="examNames.length === 1">
                     {{ 'sitnet_exam_question_edit_instructions_for_one' | translate }}
                 </div>
-                <div class="col warning-text" *ngIf="examNames.length == 0">
+                <div class="col warning-text" *ngIf="examNames.length === 0">
                     {{ 'sitnet_exam_question_edit_instructions_for_none' | translate }}
                 </div>
                 <div class="col-12 justify-content-center">

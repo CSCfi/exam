@@ -76,7 +76,7 @@ export class QuestionBodyComponent implements OnInit {
 
     showWarning = () => this.examNames.length > 1;
 
-    sortByString = (prop: string[]): Array<string> => prop.sort();
+    sortByString = (prop: string[]): string[] => prop.sort();
 
     listQuestionOwners$ = (filter$: Observable<string>): Observable<User[]> =>
         filter$.pipe(
