@@ -52,7 +52,8 @@ import { CalendarService } from './calendar.service';
 export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewInit {
     @Output() eventSelected = new EventEmitter<EventApi>();
     @Output() moreEventsNeeded = new EventEmitter<{
-        date: Date;
+        date: string;
+        timeZone: string;
         success: (events: EventInput[]) => void;
     }>();
 
@@ -126,8 +127,8 @@ export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewIni
             this.calendar.getApi().refetchEvents();
         }
     }
-    refetch = (input: { start: Date }, success: (events: EventInput[]) => void) =>
-        this.moreEventsNeeded.emit({ date: input.start, success: success });
+    refetch = (input: { startStr: string; timeZone: string }, success: (events: EventInput[]) => void) =>
+        this.moreEventsNeeded.emit({ date: input.startStr, timeZone: input.timeZone, success: success });
 
     eventClicked(arg: EventClickArg): void {
         if (arg.event.extendedProps?.availableMachines > 0) {

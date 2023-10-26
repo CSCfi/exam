@@ -43,7 +43,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     selectedRoom?: ExamRoom;
     accessibilities: FilterableAccessibility[] = [];
     showAccessibilityMenu = false;
-    currentWeek = new Date();
+    currentWeek = DateTime.now();
     examId = 0;
 
     constructor(
@@ -80,11 +80,12 @@ export class SlotPickerComponent implements OnInit, OnChanges {
             accessibilities: this.accessibilities.filter((i) => i.filtered),
         });
 
-    refresh($event: { date: Date; success: (events: EventInput[]) => void }) {
+    refresh($event: { date: string; timeZone: string; success: (events: EventInput[]) => void }) {
         if (!this.selectedRoom) {
             return;
         }
-        this.currentWeek = DateTime.fromJSDate($event.date).startOf('week').toJSDate();
+        const start = DateTime.fromISO($event.date, { zone: $event.timeZone }).startOf('week');
+        this.currentWeek = start;
         const accessibilities = this.accessibilities.filter((i) => i.filtered).map((i) => i.id);
 
         const getColor = (slot: AvailableSlot) => {
@@ -112,7 +113,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
             $event.success(events);
         };
         const errorFn = (resp: string) => this.toast.error(resp);
-        this.query(DateTime.fromJSDate($event.date).toFormat('yyyy-MM-dd'), accessibilities).subscribe({
+        this.query(start.toFormat('yyyy-MM-dd'), accessibilities).subscribe({
             next: successFn,
             error: errorFn,
         });
