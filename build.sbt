@@ -5,7 +5,7 @@ import scala.util.Properties
 
 name := "exam"
 
-version := "6.2.1"
+version := "6.2.2"
 
 licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
