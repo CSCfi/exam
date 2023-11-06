@@ -17,7 +17,7 @@ package controllers.integration;
 
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.List;
@@ -43,7 +43,7 @@ public class ExamAPIController extends BaseController {
         DateTime dateTime = date.isPresent()
             ? ISODateTimeFormat.dateTimeParser().parseDateTime(date.get())
             : DateTime.now();
-        Query<Exam> query = Ebean.find(Exam.class);
+        Query<Exam> query = DB.find(Exam.class);
         query.apply(pp);
         List<Exam> exams = query
             .where()

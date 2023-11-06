@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import helpers.RemoteServerHelper;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -95,7 +95,7 @@ public class DataTransferControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testExportQuestion() {
         User user = getLoggerUser();
-        List<Question> questions = Ebean
+        List<Question> questions = DB
             .find(Question.class)
             .where()
             .or()
@@ -115,7 +115,7 @@ public class DataTransferControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testExportQuestionWithAttachment() throws InterruptedException, TimeoutException {
         User user = getLoggerUser();
-        Question question = Ebean
+        Question question = DB
             .find(Question.class)
             .where()
             .or()
@@ -144,12 +144,12 @@ public class DataTransferControllerTest extends IntegrationTestCase {
 
         Result result = request(Helpers.POST, "/integration/iop/import", json);
         assertThat(result.status()).isEqualTo(201);
-        assertThat(Ebean.find(Question.class).where().like("question", "% **import").findCount()).isEqualTo(22);
+        assertThat(DB.find(Question.class).where().like("question", "% **import").findCount()).isEqualTo(22);
     }
 
     @Test
     public void testImportQuestionWithTags() throws IOException {
-        User user = Ebean.find(User.class).where().eq("email", "teacher@funet.fi").findOne();
+        User user = DB.find(User.class).where().eq("email", "teacher@funet.fi").findOne();
         Tag existing = new Tag();
         existing.setCreatorWithDate(user);
         existing.setModifierWithDate(user);
@@ -162,7 +162,7 @@ public class DataTransferControllerTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/integration/iop/import", json);
         assertThat(result.status()).isEqualTo(201);
         assertThat(
-            (long) Ebean.find(Question.class).where().like("question", "% **import").findOne().getTags().size() == 2
+            (long) DB.find(Question.class).where().like("question", "% **import").findOne().getTags().size() == 2
         );
     }
 
@@ -175,7 +175,7 @@ public class DataTransferControllerTest extends IntegrationTestCase {
 
         Result result = request(Helpers.POST, "/integration/iop/import", json);
         assertThat(result.status()).isEqualTo(201);
-        Question question = Ebean.find(Question.class).where().like("question", "% **import").findOne();
+        Question question = DB.find(Question.class).where().like("question", "% **import").findOne();
         assertThat(question.getAttachment()).isNotNull();
     }
 }

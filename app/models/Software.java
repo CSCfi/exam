@@ -16,10 +16,11 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
 import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.ManyToMany;
+import java.util.Objects;
 import models.base.GeneratedIdentityModel;
 
 @Entity
@@ -62,11 +63,8 @@ public class Software extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Software software = (Software) o;
-
-        return !(name != null ? !name.equals(software.name) : software.name != null);
+        if (!(o instanceof Software software)) return false;
+        return Objects.equals(name, software.name);
     }
 
     @Override

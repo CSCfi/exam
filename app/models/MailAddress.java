@@ -15,7 +15,7 @@
 
 package models;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 import models.base.GeneratedIdentityModel;
 
 @Entity

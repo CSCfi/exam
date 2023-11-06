@@ -15,10 +15,10 @@
 
 package models;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import models.api.AttachmentContainer;
 import models.base.OwnedModel;
 
@@ -28,7 +28,6 @@ public class Comment extends OwnedModel implements AttachmentContainer {
     @Column(columnDefinition = "TEXT")
     private String comment;
 
-    @Column(columnDefinition = "BOOLEAN")
     private Boolean feedbackStatus;
 
     @OneToOne(cascade = CascadeType.ALL)

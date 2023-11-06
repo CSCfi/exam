@@ -7,7 +7,7 @@ import base.IntegrationTestCase;
 import base.RunAsAdmin;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import models.ExamRoom;
 import org.junit.Test;
 import play.libs.Json;
@@ -20,7 +20,7 @@ public class RoomControllerTest extends IntegrationTestCase {
     @RunAsAdmin
     public void testDisableRoom() throws Exception {
         // Setup
-        ExamRoom room = Ebean.find(ExamRoom.class, 1L);
+        ExamRoom room = DB.find(ExamRoom.class, 1L);
         assertThat(room.getState()).isNotEqualTo(ExamRoom.State.INACTIVE.toString());
 
         // Execute
@@ -32,7 +32,7 @@ public class RoomControllerTest extends IntegrationTestCase {
         ExamRoom deserialized = deserialize(ExamRoom.class, node);
         assertThat(deserialized.getState()).isEqualTo(ExamRoom.State.INACTIVE.toString());
 
-        room = Ebean.find(ExamRoom.class, 1L);
+        room = DB.find(ExamRoom.class, 1L);
         assertThat(room.getState()).isEqualTo(ExamRoom.State.INACTIVE.toString());
     }
 
@@ -40,7 +40,7 @@ public class RoomControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testDisabledRoomNotVisibleToStudent() throws Exception {
         // Setup
-        ExamRoom room = Ebean.find(ExamRoom.class, 1L);
+        ExamRoom room = DB.find(ExamRoom.class, 1L);
         room.setState(ExamRoom.State.INACTIVE.toString());
         room.update();
 
@@ -57,7 +57,7 @@ public class RoomControllerTest extends IntegrationTestCase {
     @RunAsAdmin
     public void testEnableRoom() throws Exception {
         // Setup
-        ExamRoom room = Ebean.find(ExamRoom.class, 1L);
+        ExamRoom room = DB.find(ExamRoom.class, 1L);
         room.setState(ExamRoom.State.INACTIVE.toString());
         room.update();
 
@@ -70,7 +70,7 @@ public class RoomControllerTest extends IntegrationTestCase {
         ExamRoom deserialized = deserialize(ExamRoom.class, node);
         assertThat(deserialized.getState()).isEqualTo(ExamRoom.State.ACTIVE.toString());
 
-        room = Ebean.find(ExamRoom.class, 1L);
+        room = DB.find(ExamRoom.class, 1L);
         assertThat(room.getState()).isEqualTo(ExamRoom.State.ACTIVE.toString());
     }
 
@@ -78,7 +78,7 @@ public class RoomControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testEnabledRoomVisibleToStudent() throws Exception {
         // Setup
-        ExamRoom room = Ebean.find(ExamRoom.class, 1L);
+        ExamRoom room = DB.find(ExamRoom.class, 1L);
         room.setState(ExamRoom.State.ACTIVE.toString());
         room.update();
 

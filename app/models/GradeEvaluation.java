@@ -16,9 +16,8 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -60,7 +59,6 @@ public class GradeEvaluation extends GeneratedIdentityModel {
         this.percentage = percentage;
     }
 
-    @Transient
     public GradeEvaluation copy() {
         GradeEvaluation clone = new GradeEvaluation();
         BeanUtils.copyProperties(this, clone, "id");
@@ -70,10 +68,9 @@ public class GradeEvaluation extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof GradeEvaluation)) {
+        if (!(other instanceof GradeEvaluation otherEvaluation)) {
             return false;
         }
-        GradeEvaluation otherEvaluation = (GradeEvaluation) other;
         return new EqualsBuilder().append(grade, otherEvaluation.grade).build();
     }
 

@@ -18,7 +18,6 @@ package sanitizers;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import play.mvc.Http;
 
 public class CommaJoinedListSanitizer extends BaseSanitizer {
@@ -27,7 +26,7 @@ public class CommaJoinedListSanitizer extends BaseSanitizer {
         String args = SanitizingHelper
             .parse("ids", body, String.class)
             .orElseThrow(() -> new SanitizingException("bad list"));
-        List<Long> ids = Arrays.stream(args.split(",")).map(Long::parseLong).collect(Collectors.toList());
+        List<Long> ids = Arrays.stream(args.split(",")).map(Long::parseLong).toList();
         if (ids.isEmpty()) {
             throw new SanitizingException("empty list");
         }

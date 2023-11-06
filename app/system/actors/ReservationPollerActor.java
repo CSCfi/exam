@@ -15,21 +15,21 @@
 
 package system.actors;
 
-import akka.actor.AbstractActor;
 import impl.NoShowHandler;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ExamEnrolment;
 import models.Reservation;
+import org.apache.pekko.actor.AbstractActor;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.datetime.DateTimeHandler;
 
 public class ReservationPollerActor extends AbstractActor {
 
-    private static final Logger.ALogger logger = Logger.of(ReservationPollerActor.class);
+    private final Logger logger = LoggerFactory.getLogger(ReservationPollerActor.class);
 
     private final NoShowHandler noShowHandler;
     private final DateTimeHandler dateTimeHandler;
@@ -59,7 +59,7 @@ public class ReservationPollerActor extends AbstractActor {
                 String.class,
                 s -> {
                     logger.debug("Starting no-show check ->");
-                    List<ExamEnrolment> enrolments = Ebean
+                    List<ExamEnrolment> enrolments = DB
                         .find(ExamEnrolment.class)
                         .fetch("exam")
                         .fetch("collaborativeExam")
@@ -72,10 +72,10 @@ public class ReservationPollerActor extends AbstractActor {
                         .findList()
                         .stream()
                         .filter(this::isPast)
-                        .collect(Collectors.toList());
+                        .toList();
                     // The following are cases where external user has made a reservation but did not log in before
                     // reservation ended. Mark those as no-shows as well.
-                    List<Reservation> reservations = Ebean
+                    List<Reservation> reservations = DB
                         .find(Reservation.class)
                         .where()
                         .isNull("enrolment")

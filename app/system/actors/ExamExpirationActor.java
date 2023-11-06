@@ -15,19 +15,20 @@
 
 package system.actors;
 
-import akka.actor.AbstractActor;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.List;
 import javax.inject.Inject;
 import models.Exam;
 import models.ExamRecord;
+import org.apache.pekko.actor.AbstractActor;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.config.ConfigReader;
 
 public class ExamExpirationActor extends AbstractActor {
 
-    private static final Logger.ALogger logger = Logger.of(ExamExpirationActor.class);
+    private final Logger logger = LoggerFactory.getLogger(ExamExpirationActor.class);
 
     @Inject
     private ConfigReader configReader;
@@ -39,7 +40,7 @@ public class ExamExpirationActor extends AbstractActor {
                 String.class,
                 s -> {
                     logger.debug("Starting exam expiration check ->");
-                    List<Exam> exams = Ebean
+                    List<Exam> exams = DB
                         .find(Exam.class)
                         .where()
                         .disjunction()
@@ -77,6 +78,6 @@ public class ExamExpirationActor extends AbstractActor {
         exam.setState(Exam.State.DELETED);
         exam.setCreator(null);
         exam.update();
-        Ebean.find(ExamRecord.class).where().eq("exam", exam).findList().forEach(ExamRecord::delete);
+        DB.find(ExamRecord.class).where().eq("exam", exam).findList().forEach(ExamRecord::delete);
     }
 }

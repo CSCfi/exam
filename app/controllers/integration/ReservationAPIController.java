@@ -17,14 +17,13 @@ package controllers.integration;
 
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Exam;
 import models.ExamRoom;
@@ -56,7 +55,7 @@ public class ReservationAPIController extends BaseController {
             "), " +
             "machine(name, ipAddress, otherIdentifier, room(name, roomCode)))"
         );
-        Query<Reservation> query = Ebean.find(Reservation.class);
+        Query<Reservation> query = DB.find(Reservation.class);
         pp.apply(query);
         ExpressionList<Reservation> el = query
             .where()
@@ -91,7 +90,7 @@ public class ReservationAPIController extends BaseController {
                 r.setEndAt(dateTimeHandler.normalize(r.getEndAt(), r));
             })
             .sorted(Comparator.comparing(Reservation::getStartAt))
-            .collect(Collectors.toList());
+            .toList();
 
         return ok(reservations, pp);
     }
@@ -99,7 +98,7 @@ public class ReservationAPIController extends BaseController {
     @SubjectNotPresent
     public Result getRooms() {
         PathProperties pp = PathProperties.parse("(*, defaultWorkingHours(*), mailAddress(*), examMachines(*))");
-        Query<ExamRoom> query = Ebean.find(ExamRoom.class);
+        Query<ExamRoom> query = DB.find(ExamRoom.class);
         pp.apply(query);
         List<ExamRoom> rooms = query.orderBy("name").findList();
         return ok(rooms, pp);
@@ -112,7 +111,7 @@ public class ReservationAPIController extends BaseController {
         }
         LocalDate searchDate = ISODateTimeFormat.dateParser().parseLocalDate(date.get());
         PathProperties pp = PathProperties.parse("(*, defaultWorkingHours(*), calendarExceptionEvents(*))");
-        Query<ExamRoom> query = Ebean.find(ExamRoom.class);
+        Query<ExamRoom> query = DB.find(ExamRoom.class);
         pp.apply(query);
         ExamRoom room = query.where().idEq(roomId).findOne();
         if (room == null) {
@@ -127,7 +126,7 @@ public class ReservationAPIController extends BaseController {
                     LocalDate end = new LocalDate(ee.getEndDate()).dayOfMonth().withMaximumValue();
                     return !start.isAfter(searchDate) && !end.isBefore(searchDate);
                 })
-                .collect(Collectors.toList())
+                .toList()
         );
         return ok(room, pp);
     }

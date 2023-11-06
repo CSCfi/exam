@@ -1,22 +1,21 @@
 package repository;
 
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.User;
-import play.db.ebean.EbeanConfig;
 
 public class UserRepository {
 
-    private final EbeanServer db;
+    private final Database db;
     private final DatabaseExecutionContext ec;
 
     @Inject
-    public UserRepository(EbeanConfig ebeanConfig, DatabaseExecutionContext databaseExecutionContext) {
-        this.db = Ebean.getServer(ebeanConfig.defaultServer());
+    public UserRepository(DatabaseExecutionContext databaseExecutionContext) {
+        this.db = DB.getDefault();
         this.ec = databaseExecutionContext;
     }
 

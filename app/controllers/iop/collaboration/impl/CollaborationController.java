@@ -6,11 +6,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import impl.ExamUpdater;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.Model;
 import io.ebean.text.PathProperties;
 import io.vavr.control.Either;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Map;
@@ -28,7 +29,8 @@ import models.Role;
 import models.User;
 import models.json.CollaborativeExam;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSResponse;
@@ -52,14 +54,14 @@ public class CollaborationController extends BaseController {
     @Inject
     protected ConfigReader configReader;
 
-    private static final Logger.ALogger logger = Logger.of(CollaborationController.class);
+    private final Logger logger = LoggerFactory.getLogger(CollaborationController.class);
 
     Optional<URL> parseUrl() {
         String url = String.format("%s/api/exams", configReader.getIopHost());
         try {
-            return Optional.of(new URL(url));
+            return Optional.of(URI.create(url).toURL());
         } catch (MalformedURLException e) {
-            logger.error("Malformed URL {}", e);
+            logger.error("Malformed URL", e);
             return Optional.empty();
         }
     }
@@ -72,9 +74,9 @@ public class CollaborationController extends BaseController {
 
             String paramStr = String.format("?filter=%s&anonymous=%s", filter, anonymous);
             String url = String.format("%s/api/exams/search%s", configReader.getIopHost(), paramStr);
-            return Optional.of(new URL(url));
+            return Optional.of(URI.create(url).toURL());
         } catch (MalformedURLException e) {
-            logger.error("Malformed URL {}", e);
+            logger.error("Malformed URL", e);
             return Optional.empty();
         }
     }
@@ -194,7 +196,7 @@ public class CollaborationController extends BaseController {
             return Either.left(internalServerError(root.get("message").asText("Connection refused")));
         }
 
-        Map<String, CollaborativeExam> locals = Ebean
+        Map<String, CollaborativeExam> locals = DB
             .find(CollaborativeExam.class)
             .findSet()
             .stream()
@@ -210,7 +212,7 @@ public class CollaborationController extends BaseController {
     }
 
     Either<CompletionStage<Result>, CollaborativeExam> findCollaborativeExam(Long id) {
-        return Ebean
+        return DB
             .find(CollaborativeExam.class)
             .where()
             .idEq(id)
@@ -220,7 +222,7 @@ public class CollaborationController extends BaseController {
     }
 
     Either<CompletionStage<Result>, CollaborativeExam> findCollaborativeExam(String ref) {
-        return Ebean
+        return DB
             .find(CollaborativeExam.class)
             .where()
             .eq("externalRef", ref)
