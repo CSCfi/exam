@@ -143,7 +143,7 @@ export class LibrarySearchComponent implements OnInit {
         }
     };
 
-    getTags = (): (Filterable<Course> | Filterable<Exam> | Filterable<Tag>)[] => {
+    getFilters = (): (Filterable<Course> | Filterable<Exam> | Filterable<Tag>)[] => {
         const courses = this.courses.filter((_) => _.filtered);
         const exams = this.exams.filter((_) => _.filtered);
         const tags = this.tags.filter((_) => _.filtered);
