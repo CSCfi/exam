@@ -55,7 +55,7 @@ import type { User } from '../../session/session.service';
             <div class="padl30 padr30">
                 <div class="row">
                     <div
-                        [style.visibility]="selections.length > 0 ? 'visible' : 'hidden'"
+                        *ngIf="selections.length > 0"
                         class="col-md-12 d-flex align-items-center justify-content-between"
                     >
                         <div class="make-inline">
