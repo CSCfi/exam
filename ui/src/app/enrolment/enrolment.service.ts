@@ -24,7 +24,6 @@ import { CollaborativeParticipation } from '../exam/collaborative/collaborative-
 import type { CollaborativeExam, Exam, ExaminationEventConfiguration, ExamParticipation } from '../exam/exam.model';
 import type { ExamRoom } from '../reservation/reservation.model';
 import type { User } from '../session/session.service';
-import { SessionService } from '../session/session.service';
 import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
 import { isObject } from '../shared/miscellaneous/helpers';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/add-enrolment-information-dialog.component';
@@ -46,7 +45,6 @@ export class EnrolmentService {
         private ngbModal: NgbModal,
         private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
-        private Session: SessionService,
     ) {}
 
     removeExaminationEvent = (enrolment: ExamEnrolment) => {

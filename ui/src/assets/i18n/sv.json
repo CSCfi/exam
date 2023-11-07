@@ -1150,5 +1150,10 @@
   "sitnet_wrong_machine_title": "Fel dator",
   "sitnet_examination_logout_title": "Utloggning",
   "sitnet_tag_questions": "Lisää kysymyksille avainsanoja SV",
-  "sitnet_actions": "Toimenpiteet SV"
+  "sitnet_actions": "Toimenpiteet SV",
+  "sitnet_go_back": "Back SV",
+  "sitnet_preview_question": "Question Preview SV",
+  "sitnet_button_preview": "Preview question SV",
+  "sitnet_no_preview_available": "No preview available SV",
+  "sitnet_used_in_exams": "Käytössä tenteissä SV"
 }

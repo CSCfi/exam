@@ -40,8 +40,11 @@ import models.Exam;
 import models.Role;
 import models.Tag;
 import models.User;
+import models.questions.ClozeTestAnswer;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
+import models.sections.ExamSectionQuestion;
+import models.sections.ExamSectionQuestionOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
@@ -464,5 +467,80 @@ public class QuestionController extends BaseController implements SectionQuestio
         String content = java.nio.file.Files.readString(filePart.getRef().path());
         xmlImporter.convert(content, request.attrs().get(Attrs.AUTHENTICATED_USER));
         return ok();
+    }
+
+    private Result processPreview(ExamSectionQuestion esq) {
+        if (esq.getQuestion().getType() == Question.Type.ClozeTestQuestion) {
+            ClozeTestAnswer answer = new ClozeTestAnswer();
+            answer.setQuestion(esq);
+            esq.setClozeTestAnswer(answer);
+        }
+
+        esq.setDerivedMaxScore();
+        if (esq.getQuestion().getType() == Question.Type.ClaimChoiceQuestion) {
+            esq.setDerivedMinScore();
+        }
+        if (esq.getQuestion().getType() == Question.Type.ClozeTestQuestion) {
+            esq.getQuestion().setQuestion(null);
+        }
+        return ok(esq);
+    }
+
+    @Authenticated
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    public Result getQuestionPreview(Long qid, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        ExpressionList<Question> el = DB
+            .find(Question.class)
+            .fetch("attachment", "fileName")
+            .fetch("options")
+            .where()
+            .idEq(qid);
+        if (user.hasRole(Role.Name.TEACHER)) {
+            el = el.eq("questionOwners", user);
+        }
+        return el
+            .findOneOrEmpty()
+            .map(question -> {
+                // Produce fake exam section question based on base question
+                List<ExamSectionQuestionOption> esqos = question
+                    .getOptions()
+                    .stream()
+                    .map(o -> {
+                        ExamSectionQuestionOption esqo = new ExamSectionQuestionOption();
+                        esqo.setId(1L);
+                        esqo.setOption(o);
+                        esqo.setScore(o.getDefaultScore());
+                        return esqo;
+                    })
+                    .toList();
+                ExamSectionQuestion esq = new ExamSectionQuestion();
+                esq.setOptions(Set.copyOf(esqos));
+                esq.setQuestion(question);
+                esq.setAnswerInstructions(question.getDefaultAnswerInstructions());
+                esq.setEvaluationCriteria(question.getDefaultEvaluationCriteria());
+                esq.setExpectedWordCount(question.getDefaultExpectedWordCount());
+                esq.setEvaluationType(question.getDefaultEvaluationType());
+                return processPreview(esq);
+            })
+            .orElse(notFound());
+    }
+
+    @Authenticated
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    public Result getExamSectionQuestionPreview(Long esqId, Http.Request request) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        ExpressionList<ExamSectionQuestion> el = DB
+            .find(ExamSectionQuestion.class)
+            .fetch("question", "id, type, question")
+            .fetch("question.attachment", "fileName")
+            .fetch("options")
+            .fetch("options.option", "id, option")
+            .where()
+            .idEq(esqId);
+        if (user.hasRole(Role.Name.TEACHER)) {
+            el = el.or().in("question.questionOwners", user).in("examSection.exam.examOwners", user).endOr();
+        }
+        return el.findOneOrEmpty().map(this::processPreview).orElse(notFound());
     }
 }

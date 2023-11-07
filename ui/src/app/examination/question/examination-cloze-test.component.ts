@@ -20,7 +20,7 @@ import { ExaminationService } from '../examination.service';
 
 @Component({
     selector: 'xm-examination-cloze-test',
-    template: `<div class="row">
+    template: `<div class="row" *ngIf="!isPreview">
             <div class="col-md-12">
                 <small class="sitnet-info-text" *ngIf="sq.autosaved">
                     {{ 'sitnet_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date : 'HH:mm' }}
@@ -28,15 +28,10 @@ import { ExaminationService } from '../examination.service';
                 <small class="sitnet-info-text" *ngIf="!sq.autosaved"> &nbsp; </small>
             </div>
         </div>
-        <div class="padl0 question-type-text">
-            <span *ngIf="sq.evaluationType === 'Selection'">
-                {{ 'sitnet_evaluation_select' | translate }}
-            </span>
-            <span *ngIf="sq.evaluationType !== 'Selection'">
-                {{ sq.derivedMaxScore }} {{ 'sitnet_unit_points' | translate }}
-            </span>
+        <div class="row">
+            <div class="col-12">{{ sq.derivedMaxScore }} {{ 'sitnet_unit_points' | translate }}</div>
         </div>
-        <div class="row top-margin-1">
+        <div class="row mt-2">
             <div class="col-md-12">
                 <button (click)="saveAnswer()" [disabled]="isPreview" class="pointer btn btn-success">
                     {{ 'sitnet_save' | translate }}

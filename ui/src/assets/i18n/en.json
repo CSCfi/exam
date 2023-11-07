@@ -1150,5 +1150,10 @@
   "sitnet_wrong_machine_title": "Wrong computer",
   "sitnet_examination_logout_title": "Examination logout",
   "sitnet_tag_questions": "Lisää kysymyksille avainsanoja EN",
-  "sitnet_actions": "Toimenpiteet EN"
+  "sitnet_actions": "Toimenpiteet EN",
+  "sitnet_go_back": "Back",
+  "sitnet_preview_question": "Question Preview",
+  "sitnet_button_preview": "Preview question",
+  "sitnet_no_preview_available": "No preview available",
+  "sitnet_used_in_exams": "Used in exams"
 }

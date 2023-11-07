@@ -196,6 +196,8 @@ DELETE        /app/questions/:id                                       controlle
 POST          /app/questions/owner/:uid                                controllers.QuestionController.addOwner(uid: Long, request: Request)
 POST          /app/questions/export                                    controllers.QuestionController.exportQuestions(request: Request)
 POST          /app/questions/import                                    controllers.QuestionController.importQuestions(request: Request)
+GET           /app/questions/:id/preview/exam                          controllers.QuestionController.getExamSectionQuestionPreview(id: Long, request: Request)
+GET           /app/questions/:id/preview/library                       controllers.QuestionController.getQuestionPreview(id: Long, request: Request)
 
 ############### Reservation interface ###############
 

@@ -50,7 +50,7 @@ type ClozeTestAnswer = { [key: string]: string };
     ],
 })
 export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
-    @Input() exam!: Examination;
+    @Input() exam?: Examination;
     @Input() question!: ExaminationQuestion;
     @Input() isPreview = false;
     @Input() isCollaborative = false;
@@ -91,12 +91,15 @@ export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
     };
 
     downloadQuestionAttachment = () => {
-        if (this.exam.external) {
-            this.Attachment.downloadExternalQuestionAttachment(this.exam, this.sq);
-        } else if (this.isCollaborative) {
-            this.Attachment.downloadCollaborativeQuestionAttachment(this.exam.id, this.sq);
-        } else {
-            this.Attachment.downloadQuestionAttachment(this.sq.question);
+        if (this.exam) {
+            if (this.exam.external) {
+                this.Attachment.downloadExternalQuestionAttachment(this.exam, this.sq);
+            } else if (this.isCollaborative) {
+                this.Attachment.downloadCollaborativeQuestionAttachment(this.exam.id, this.sq);
+            } else {
+                this.Attachment.downloadQuestionAttachment(this.sq.question);
+            }
+            console.error('Cannot retrieve attachment without exam.');
         }
     };
 

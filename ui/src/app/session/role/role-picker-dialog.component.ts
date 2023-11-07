@@ -23,32 +23,30 @@ import type { User } from '../session.service';
     standalone: true,
     imports: [TranslateModule, NgFor, NgClass, NgbDropdownModule],
     template: `
-        <div>
-            <div class="modal-header">
-                <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'sitnet_select_role' | translate }}</h4>
-            </div>
-            <div class="modal-body">
-                <div ngbDropdown>
-                    <button ngbDropdownToggle class="btn btn-light" type="button" id="dropDownMenu1">
-                        {{ 'sitnet_choose' | translate }}
+        <div class="modal-header">
+            <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'sitnet_select_role' | translate }}</h4>
+        </div>
+        <div class="modal-body">
+            <div ngbDropdown>
+                <button ngbDropdownToggle class="btn btn-light" type="button" id="dropDownMenu1">
+                    {{ 'sitnet_choose' | translate }}
+                </button>
+                <div ngbDropdownMenu aria-labelledby="dropDownMenu1">
+                    <button
+                        ngbDropdownItem
+                        *ngFor="let role of user.roles"
+                        title="{{ role.displayName || '' | translate }}"
+                        (click)="activeModal.close(role)"
+                    >
+                        {{ role.displayName || '' | translate }} <i [ngClass]="role.icon || ''"></i>
                     </button>
-                    <div ngbDropdownMenu aria-labelledby="dropDownMenu1">
-                        <button
-                            ngbDropdownItem
-                            *ngFor="let role of user.roles"
-                            title="{{ role.displayName || '' | translate }}"
-                            (click)="activeModal.close(role)"
-                        >
-                            {{ role.displayName || '' | translate }} <i [ngClass]="role.icon || ''"></i>
-                        </button>
-                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger" (click)="activeModal.dismiss('sitnet_canceled')">
-                    {{ 'sitnet_button_decline' | translate }}
-                </button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" (click)="activeModal.dismiss('sitnet_canceled')">
+                {{ 'sitnet_button_decline' | translate }}
+            </button>
         </div>
     `,
 })

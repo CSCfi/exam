@@ -65,7 +65,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                     />
                     <img
                         *ngIf="!option.option.correctOption"
-                        src="/assets/images/icon_wrong_answer.svg"
+                        src="/assets/images/icon_wrong_answer.png"
                         [attr.aria-label]="'sitnet_incorrect_answer' | translate"
                         alt=""
                     />

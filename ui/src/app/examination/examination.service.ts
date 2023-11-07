@@ -36,7 +36,7 @@ export class ExaminationService {
     getResource = (url: string) => (this.isExternal ? url.replace('/app/', '/app/iop/') : url);
 
     startExam$(hash: string, isPreview: boolean, isCollaboration: boolean, id: number): Observable<Examination> {
-        const getUrl = (h: string) => (isPreview && id ? '/app/exams/' + id + '/preview' : '/app/student/exam/' + h);
+        const getUrl = (h: string) => (isPreview && id ? `/app/exams/${id}/preview` : `/app/student/exam/${h}`);
         return this.http.get<void>('/app/session').pipe(
             switchMap(() =>
                 this.http.get<Examination>(isCollaboration ? getUrl(hash).replace('/app/', '/app/iop/') : getUrl(hash)),
