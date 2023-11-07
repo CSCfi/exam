@@ -36,7 +36,7 @@
             {{ sq.derivedMaxScore }} {{ 'sitnet_unit_points' | translate }}
         </span>
     </div>
-    <div *ngIf="exam.implementation !== 'CLIENT_AUTH' && sq.essayAnswer?.attachment?.fileName" class="col-md-9 mt-2">
+    <div *ngIf="exam?.implementation !== 'CLIENT_AUTH' && sq.essayAnswer?.attachment?.fileName" class="col-md-9 mt-2">
         <span class="float-end">
             <span class="pe-2 filename-text">{{ sq.essayAnswer?.attachment?.fileName | uppercase }}</span>
             <button class="pointer green_button" (click)="removeQuestionAnswerAttachment()">
@@ -56,7 +56,7 @@
             {{ 'sitnet_save' | translate }}
         </button>
     </div>
-    <div class="col-md-6" *ngIf="exam.implementation !== 'CLIENT_AUTH' && sq.essayAnswer">
+    <div class="col-md-6" *ngIf="exam?.implementation !== 'CLIENT_AUTH' && sq.essayAnswer">
         <div class="float-end mart10">
             <div class="filename-text" *ngIf="!sq.essayAnswer.attachment?.fileName">
                 {{ 'sitnet_no_attachment' | translate }}

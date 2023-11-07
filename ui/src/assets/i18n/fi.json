@@ -1150,5 +1150,10 @@
   "sitnet_wrong_machine_title": "Väärä tenttikone",
   "sitnet_examination_logout_title": "Tentin uloskirjautuminen",
   "sitnet_tag_questions": "Lisää kysymyksille avainsanoja",
-  "sitnet_actions": "Toimenpiteet"
+  "sitnet_actions": "Toimenpiteet",
+  "sitnet_go_back": "Takaisin",
+  "sitnet_preview_question": "Kysymyksen esikatselu",
+  "sitnet_button_preview": "Esikatsele kysymys",
+  "sitnet_no_preview_available": "Kysymyksen esikatselu ei ole saatavilla",
+  "sitnet_used_in_exams": "Käytössä tenteissä"
 }

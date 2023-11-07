@@ -654,6 +654,16 @@
         </div>
         <div class="row padl40 padr40">
             <div class="col-md-12 mart20">
+                <div class="question-cancel marl20">
+                    <button
+                        (click)="openPreview()"
+                        type="submit"
+                        class="btn btn-success float-end bigbutton"
+                        [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"
+                    >
+                        {{ 'sitnet_button_preview' | translate }}
+                    </button>
+                </div>
                 <div class="question-cancel">
                     <button
                         [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"

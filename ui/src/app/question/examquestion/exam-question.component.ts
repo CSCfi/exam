@@ -15,6 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type {
@@ -25,6 +26,7 @@ import type {
     ReverseQuestion,
 } from '../../exam/exam.model';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
+import { QuestionPreviewDialogComponent } from '../preview/question-preview-dialog.component';
 import { QuestionService } from '../question.service';
 
 // This component depicts a distributed exam question
@@ -51,6 +53,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         private toast: ToastrService,
         private Question: QuestionService,
         private Attachment: AttachmentService,
+        private modal: NgbModal,
     ) {}
 
     ngOnInit() {
@@ -68,6 +71,16 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         });
 
     cancel = () => this.cancelled.emit({ dirty: this.questionForm?.dirty || false });
+
+    openPreview = () => {
+        const modal = this.modal.open(QuestionPreviewDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'lg',
+        });
+        modal.componentInstance.question = this.examQuestion;
+        modal.componentInstance.isExamQuestion = true;
+    };
 
     showWarning = () => this.examNames && this.examNames.length > 1;
     estimateCharacters = () => (this.examQuestion.expectedWordCount || 0) * 8;

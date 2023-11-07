@@ -92,7 +92,7 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             b.text("");
             b.attr("aria-label", "cloze test answer");
             b.attr("type", isNumeric ? "number" : "text");
-            b.attr("class", "cloze-input");
+            b.attr("class", "cloze-input mt-2");
             if (isNumeric) {
                 b.attr("step", "any");
                 // Should allow for using both comma and period as decimal separator

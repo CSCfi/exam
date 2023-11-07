@@ -36,7 +36,7 @@ export class QuestionBodyComponent implements OnInit {
     @Input() currentOwners: User[] = [];
     @Input() lotteryOn = false;
     @Input() examId = 0;
-    @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() sectionQuestion?: ExamSectionQuestion;
     @Input() collaborative = false;
 
     isInPublishedExam = false;
@@ -128,7 +128,7 @@ export class QuestionBodyComponent implements OnInit {
         });
 
     downloadQuestionAttachment = () => {
-        if (this.question.attachment && this.question.attachment.externalId) {
+        if (this.question.attachment && this.question.attachment.externalId && this.sectionQuestion) {
             this.Attachment.downloadCollaborativeQuestionAttachment(this.examId, this.sectionQuestion);
             return;
         }
