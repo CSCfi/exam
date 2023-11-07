@@ -87,6 +87,8 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         this.selected.emit(selections);
     };
 
+    examSectionQuestionsLength = (question: LibraryQuestion): number => question.examSectionQuestions.length;
+
     deleteQuestion = (question: SelectableQuestion) =>
         this.Confirmation.open$(
             this.translate.instant('sitnet_confirm'),

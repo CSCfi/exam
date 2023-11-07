@@ -38,5 +38,6 @@ import { ExaminationSectionComponent } from './section/examination-section.compo
         DynamicClozeTestComponent,
     ],
     providers: [ExaminationService, ExaminationStatusService],
+    exports: [ExaminationQuestionComponent],
 })
 export class ExaminationModule {}

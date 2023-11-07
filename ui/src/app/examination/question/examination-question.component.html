@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="guide-wrapper" [ngClass]="isAnswered() ? 'active' : 'notactive'">
-            <div class="row justify-content-center">
+            <div class="row align-items-center">
                 <div class="col-auto">
                     <div *ngIf="isAnswered()" [attr.aria-label]="'sitnet_all_questions_answered' | translate">
                         <img class="mart05" src="/assets/images/icon_question_type_ready_grey.png" alt="" />
@@ -11,7 +11,7 @@
                     </div>
                 </div>
                 <!-- question text -->
-                <div class="col">
+                <div class="col mt-3">
                     <div *ngIf="sq.question.type !== 'ClozeTestQuestion'">
                         <div class="section-box-title" *ngIf="expanded" [xmMathJax]="sq.question.question"></div>
                         <div
@@ -30,6 +30,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- Expand button -->
                 <div class="col-auto">
                     <div
                         tabindex="0"
@@ -44,9 +45,9 @@
             </div>
             <!-- instruction -->
             <div class="row" *ngIf="sq.answerInstructions && expanded">
-                <div class="col-md-12">
+                <div class="col-md-12 ps-4">
                     <p class="question-text question-type-text info" role="note">
-                        <img class="marr20" src="/assets/images/icon_info.svg" alt="" />
+                        <img class="me-4" src="/assets/images/icon_info.svg" alt="" />
                         {{ 'sitnet_instructions' | translate }}:&nbsp;{{ sq.answerInstructions }}
                     </p>
                 </div>
@@ -85,7 +86,7 @@
                             <xm-examination-cloze-test
                                 *ngSwitchCase="'ClozeTestQuestion'"
                                 [sq]="sq"
-                                [examHash]="exam.hash"
+                                [examHash]="exam?.hash || ''"
                                 [isPreview]="isPreview"
                             >
                             </xm-examination-cloze-test>
@@ -93,16 +94,16 @@
                             <xm-examination-multi-choice-question
                                 *ngSwitchCase="'MultipleChoiceQuestion'"
                                 [sq]="sq"
-                                [examHash]="exam.hash"
+                                [examHash]="exam?.hash || ''"
                                 [isPreview]="isPreview"
-                                [orderOptions]="!exam.external"
+                                [orderOptions]="!exam?.external"
                             >
                             </xm-examination-multi-choice-question>
 
                             <xm-examination-multi-choice-question
                                 *ngSwitchCase="'ClaimChoiceQuestion'"
                                 [sq]="sq"
-                                [examHash]="exam.hash"
+                                [examHash]="exam?.hash || ''"
                                 [isPreview]="isPreview"
                                 [orderOptions]="true"
                             >
@@ -111,9 +112,9 @@
                             <xm-examination-weighted-multi-choice-question
                                 *ngSwitchCase="'WeightedMultipleChoiceQuestion'"
                                 [sq]="sq"
-                                [examHash]="exam.hash"
+                                [examHash]="exam?.hash || ''"
                                 [isPreview]="isPreview"
-                                [orderOptions]="!exam.external"
+                                [orderOptions]="!exam?.external"
                             >
                             </xm-examination-weighted-multi-choice-question>
                         </div>
