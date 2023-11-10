@@ -15,6 +15,7 @@
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 
@@ -27,15 +28,20 @@ type Organisation = {
 
 @Component({
     selector: 'xm-library-transfer',
-    templateUrl: './library-transfer.component.html',
+    templateUrl: './library-transfer-dialog.component.html',
 })
-export class LibraryTransferComponent implements OnInit {
+export class LibraryTransferDialogComponent implements OnInit {
     @Input() selections: number[] = [];
     organisations: Organisation[] = [];
     organisation?: Organisation;
     showOrganisationSelection = false;
 
-    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        public activeModal: NgbActiveModal,
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     ngOnInit() {
         this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {
