@@ -1,9 +1,9 @@
-<div class="row ms-3 mt-3 me-3" *ngIf="user.isAdmin">
+<div class="row ms-3 me-3" *ngIf="user.isAdmin">
     <div class="col-md-12 ms-1">
         {{ 'sitnet_choose_atleast_one' | translate }}
     </div>
 </div>
-<div class="row ms-3 me-3 align-items-center" [ngClass]="user.isAdmin ? 'mt-1' : 'mt-3'">
+<div class="row ms-3 me-3 align-items-center">
     <div class="col-md-4">
         <span class="m-1" ngbDropdown [autoClose]="'outside'">
             <button
@@ -16,7 +16,7 @@
                 {{ 'sitnet_course' | translate }}&nbsp;
                 <span class="caret"></span>
             </button>
-            <ul class="scrollable-menu max-w-1100" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
+            <ul class="scrollable-menu max-w-1100 pointer" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
                 <li ngbDropdownItem role="presentation" class="important-flex min-width-300 max-w-1100">
                     <input
                         [(ngModel)]="limitations.course"
@@ -85,7 +85,7 @@
                 class="btn btn-outline-secondary btn-sm"
                 type="button"
                 id="dropDownMenu3"
-                (click)="listTags()"
+                (click)="listTags$().subscribe()"
             >
                 {{ 'sitnet_category' | translate }}&nbsp;
                 <span class="caret"></span>
@@ -114,10 +114,51 @@
                 >
                     <div
                         role="menuitem"
-                        [ngClass]="tag.isSectionTag ? 'text-dim' : 'text'"
-                        title="{{ tag.isSectionTag ? 'sitnet_exam_section' : ('sitnet_category' | translate) }}"
+                        class="text"
+                        title="{{ 'sitnet_category' | translate }}"
+                        *ngIf="tag.usage && tag.usage > 0"
                     >
-                        {{ tag.name }}
+                        {{ tag.name }} <small class="text-muted">({{ tag.usage }})</small>
+                    </div>
+                </li>
+            </ul>
+        </span>
+
+        <span class="m-1" ngbDropdown [autoClose]="'outside'">
+            <button
+                ngbDropdownToggle
+                class="btn btn-outline-secondary btn-sm"
+                type="button"
+                id="dropDownMenu3"
+                (click)="listSections$().subscribe()"
+            >
+                {{ 'sitnet_exam_section' | translate }}&nbsp;
+                <span class="caret"></span>
+            </button>
+            <ul class="scrollable-menu max-w-1100" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
+                <li ngbDropdownItem role="presentation" class="important-flex min-width-300 max-w-1100">
+                    <input
+                        [(ngModel)]="limitations.section"
+                        (ngModelChange)="filterSections()"
+                        class="form-control"
+                        placeholder="{{ 'sitnet_search' | translate }}"
+                        aria-describedby="search-icon-3"
+                    />
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <i id="search-icon-3" class="bi-search"></i>
+                        </div>
+                    </div>
+                </li>
+                <li
+                    *ngFor="let section of filteredSections"
+                    [hidden]="section.filtered"
+                    role="presentation"
+                    (click)="applyFilter(section)"
+                    ngbDropdownItem
+                >
+                    <div role="menuitem" class="text" title="{{ 'sitnet_exam_section' | translate }}">
+                        {{ section.name }}
                     </div>
                 </li>
             </ul>

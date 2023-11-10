@@ -1148,5 +1148,7 @@
   "sitnet_waiting_room_title": "Tentin odotushuone SV",
   "sitnet_wrong_room_title": "Fel tentamensutrymme",
   "sitnet_wrong_machine_title": "Fel dator",
-  "sitnet_examination_logout_title": "Utloggning"
+  "sitnet_examination_logout_title": "Utloggning",
+  "sitnet_tag_questions": "Lisää kysymyksille avainsanoja SV",
+  "sitnet_actions": "Toimenpiteet SV"
 }
