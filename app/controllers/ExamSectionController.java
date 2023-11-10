@@ -616,4 +616,35 @@ public class ExamSectionController extends BaseController implements SectionQues
         node.put("distributed", isDistributed);
         return ok(Json.toJson(node));
     }
+
+    @Authenticated
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    public Result listSections(
+        Optional<String> filter,
+        Optional<List<Long>> courseIds,
+        Optional<List<Long>> examIds,
+        Optional<List<Long>> tagIds,
+        Http.Request request
+    ) {
+        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        ExpressionList<ExamSection> query = DB.find(ExamSection.class).where();
+        if (!user.hasRole(Role.Name.ADMIN)) {
+            query = query.where().eq("creator.id", user.getId());
+        }
+        if (filter.isPresent()) {
+            String condition = String.format("%%%s%%", filter.get());
+            query = query.ilike("name", condition);
+        }
+        if (examIds.isPresent() && !examIds.get().isEmpty()) {
+            query = query.in("exam.id", examIds.get());
+        }
+        if (courseIds.isPresent() && !courseIds.get().isEmpty()) {
+            query = query.in("exam.course.id", courseIds.get());
+        }
+        if (tagIds.isPresent() && !tagIds.get().isEmpty()) {
+            query = query.in("examSectionQuestions.question.tags.id", tagIds.get());
+        }
+        Set<ExamSection> sections = query.findSet();
+        return ok(sections, PathProperties.parse("(*, creator(id))"));
+    }
 }

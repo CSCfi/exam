@@ -1148,5 +1148,7 @@
   "sitnet_waiting_room_title": "Tentin odotushuone",
   "sitnet_wrong_room_title": "Väärä tenttitila",
   "sitnet_wrong_machine_title": "Väärä tenttikone",
-  "sitnet_examination_logout_title": "Tentin uloskirjautuminen"
+  "sitnet_examination_logout_title": "Tentin uloskirjautuminen",
+  "sitnet_tag_questions": "Lisää kysymyksille avainsanoja",
+  "sitnet_actions": "Toimenpiteet"
 }

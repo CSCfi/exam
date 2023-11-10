@@ -13,8 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import type { OnInit } from '@angular/core';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { Component, Input } from '@angular/core';
+import { NgbActiveModal, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
@@ -25,33 +25,34 @@ import { UserService } from '../../../shared/user/user.service';
 import { QuestionService } from '../../question.service';
 
 @Component({
-    selector: 'xm-library-owner-selection',
     template: `
-        <div class="make-inline">
-            <span class="padl10">
-                <i class="bi-person-circle" style="color: #266b99"></i>&nbsp;
-                <a class="infolink pointer" (click)="showOwnerSelection = !showOwnerSelection">
-                    {{ 'sitnet_add_question_owner' | translate }}</a
-                >
-            </span>
-            <div [hidden]="!showOwnerSelection">
-                <div class="input-group">
+        <div id="sitnet-dialog" role="dialog" aria-modal="true">
+            <div class="modal-header">
+                <div class="student-enroll-dialog-wrap">
+                    <h1 class="student-enroll-title">{{ 'sitnet_add_question_owner' | translate }}</h1>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="form-group input-group">
                     <input
-                        class="form-control question-add-owners"
-                        placeholder="{{ 'sitnet_add_question_owner' | translate }}"
+                        class="form-control"
                         [ngbTypeahead]="listTeachers$"
                         (selectItem)="setQuestionOwner($event)"
                         [inputFormatter]="nameFormatter"
                         [resultFormatter]="nameFormatter"
                     />
+                    <div class="input-group-append">
+                        <button class="btn btn-success" (click)="addOwnerForSelected()">
+                            {{ 'sitnet_add' | translate }}
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-2 bottom-padding-2 padl10">
-                    <input
-                        type="button"
-                        class="btn green whitetext"
-                        (click)="addOwnerForSelected()"
-                        value="{{ 'sitnet_add' | translate }}"
-                    />
+            </div>
+            <div class="modal-footer">
+                <div class="student-message-dialog-button-save">
+                    <button class="btn btn-sm btn-primary" (click)="close()" autofocus>
+                        {{ 'sitnet_close' | translate }}
+                    </button>
                 </div>
             </div>
         </div>
@@ -59,15 +60,15 @@ import { QuestionService } from '../../question.service';
     standalone: true,
     imports: [NgbTypeahead, TranslateModule],
 })
-export class LibraryOwnersComponent implements OnInit {
+export class LibraryOwnersDialogComponent implements OnInit {
     @Input() selections: number[] = [];
-    @Output() selected = new EventEmitter<{ user: User; selections: number[] }>();
 
-    showOwnerSelection = false;
     teachers: User[] = [];
+    newTeachers: number[] = [];
     selectedTeacherId?: number;
 
     constructor(
+        public activeModal: NgbActiveModal,
         private translate: TranslateService,
         private toast: ToastrService,
         private Question: QuestionService,
@@ -98,10 +99,6 @@ export class LibraryOwnersComponent implements OnInit {
 
     addOwnerForSelected = () => {
         // check that atleast one has been selected
-        if (this.selections.length === 0) {
-            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
-            return;
-        }
         if (!this.selectedTeacherId) {
             this.toast.warning(this.translate.instant('sitnet_add_question_owner'));
             return;
@@ -110,17 +107,20 @@ export class LibraryOwnersComponent implements OnInit {
         this.Question.addOwnerForQuestions$(this.selectedTeacherId, this.selections).subscribe({
             next: () => {
                 this.toast.info(this.translate.instant('sitnet_question_owner_added'));
-                this.selected.emit({
-                    user: this.teachers.find((t) => t.id === this.selectedTeacherId) as User,
-                    selections: this.selections,
-                });
+                this.newTeachers.push(this.selectedTeacherId as number);
             },
             error: () => this.toast.error(this.translate.instant('sitnet_update_failed')),
         });
     };
 
+    close = () =>
+        this.activeModal.close({
+            questions: this.selections,
+            users: this.teachers.filter((t) => this.newTeachers.includes(t.id)),
+        });
+
     private filterByName = (src: User[], q: string): User[] => {
         if (!q) return src;
-        return src.filter((u) => u.name && u.name.toLowerCase().includes(q.toLowerCase()));
+        return src.filter((u) => u.name?.toLowerCase().includes(q.toLowerCase()));
     };
 }

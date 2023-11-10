@@ -88,7 +88,7 @@ import { QuestionDraft } from '../question.service';
 export class TagPickerComponent {
     @Input() question!: Question | QuestionDraft;
     tagName = '';
-    newTag: Tag = { name: '' };
+    newTag: Tag = { name: '', questions: [] };
 
     constructor(private http: HttpClient) {}
 
@@ -107,7 +107,7 @@ export class TagPickerComponent {
             map((resp) => {
                 const { filter, tags } = resp;
                 if (filter) {
-                    tags.unshift({ name: filter });
+                    tags.unshift({ name: filter, questions: [] });
                 }
                 // filter out the ones already tagged for this question and slice
                 return tags
@@ -121,7 +121,7 @@ export class TagPickerComponent {
 
     addTag = () => {
         if (this.newTag) this.question.tags.push(this.newTag);
-        this.newTag = { name: '' };
+        this.newTag = { name: '', questions: [] };
         this.tagName = '';
     };
 
