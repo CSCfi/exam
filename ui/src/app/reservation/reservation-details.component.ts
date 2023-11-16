@@ -19,9 +19,9 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
-import { AnyReservation } from './reservation-base.component';
 import type { Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
+import { AnyReservation } from './reservations.component';
 
 type ReservationDetail = Reservation & { org: { name: string; code: string }; userAggregate: string };
 

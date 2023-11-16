@@ -16,22 +16,20 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { SharedModule } from '../shared/shared.module';
-import { AdminReservationComponent } from './admin/admin-reservations.component';
 import { ChangeMachineDialogComponent } from './admin/change-machine-dialog.component';
 import { RemoveReservationDialogComponent } from './admin/remove-reservation-dialog.component';
 import { ReservationDetailsComponent } from './reservation-details.component';
 import { ReservationService } from './reservation.service';
-import { TeacherReservationComponent } from './teacher/teacher-reservations.component';
+import { ReservationsComponent } from './reservations.component';
 
 @NgModule({
     imports: [NgbModule, SharedModule, RouterModule],
-    exports: [AdminReservationComponent],
+    exports: [ReservationsComponent],
     declarations: [
         ChangeMachineDialogComponent,
         RemoveReservationDialogComponent,
         ReservationDetailsComponent,
-        AdminReservationComponent,
-        TeacherReservationComponent,
+        ReservationsComponent,
     ],
     bootstrap: [ChangeMachineDialogComponent, RemoveReservationDialogComponent],
     providers: [ReservationService],
