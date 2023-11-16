@@ -32,7 +32,7 @@ import { LanguageInspectionsComponent } from '../../maturity/language-inspection
 import { MaturityReportingComponent } from '../../maturity/reporting/maturity-reporting.component';
 import { QuestionComponent } from '../../question/basequestion/question.component';
 import { LibraryComponent } from '../../question/library/library.component';
-import { TeacherReservationComponent } from '../../reservation/teacher/teacher-reservations.component';
+import { ReservationsComponent } from '../../reservation/reservations.component';
 import { AssessmentComponent } from '../../review/assessment/assessment.component';
 import { PrintedAssessmentComponent } from '../../review/assessment/print/printed-assessment.component';
 import { SpeedReviewComponent } from '../../review/listing/speed-review.component';
@@ -136,8 +136,8 @@ const routes: Route[] = [
             { path: 'inspections', component: LanguageInspectionsComponent },
             { path: 'inspections/reports', component: MaturityReportingComponent },
             { path: 'adminexams', component: ExamListingComponent },
-            { path: 'reservations', component: TeacherReservationComponent },
-            { path: 'reservations/:eid', component: TeacherReservationComponent },
+            { path: 'reservations', component: ReservationsComponent },
+            { path: 'reservations/:eid', component: ReservationsComponent },
             { path: 'rooms', component: FacilityComponent },
             { path: 'rooms/:id', component: RoomComponent },
             { path: 'rooms/:id/availability', component: AvailabilityComponent },

@@ -95,7 +95,7 @@ public class BaseController extends Controller {
         String fnField = prefix == null ? "firstName" : String.format("%s.firstName", prefix);
         String lnField = prefix == null ? "lastName" : String.format("%s.lastName", prefix);
         if (rawFilter.contains(" ")) {
-            // Possible that user provided us two names. Lets try out some combinations of first and last names
+            // Possible that user provided us two names. Let's try out some combinations of first and last names
             String name1 = rawFilter.split(" ")[0];
             String name2 = rawFilter.split(" ")[1];
             result =

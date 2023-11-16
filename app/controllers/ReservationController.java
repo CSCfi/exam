@@ -71,7 +71,7 @@ public class ReservationController extends BaseController {
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
-    public Result getExams(Http.Request request) {
+    public Result getExams(Http.Request request, Optional<String> filter) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         PathProperties props = PathProperties.parse("(id, name)");
         Query<Exam> q = Ebean.createQuery(Exam.class);
@@ -80,6 +80,9 @@ public class ReservationController extends BaseController {
             .where()
             .isNull("parent") // only Exam prototypes
             .eq("state", Exam.State.PUBLISHED);
+        if (filter.isPresent()) {
+            el = el.ilike("name", String.format("%%%s%%", filter.get()));
+        }
         if (user.hasRole(Role.Name.TEACHER)) {
             el =
                 el
@@ -91,7 +94,8 @@ public class ReservationController extends BaseController {
                     .eq("shared", true)
                     .endJunction();
         }
-        return ok(el.findList(), props);
+        List<Exam> exams = el.findList();
+        return ok(exams, props);
     }
 
     @Restrict({ @Group("ADMIN") })
@@ -119,15 +123,23 @@ public class ReservationController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
-    public Result getStudents() {
-        List<User> students = Ebean.find(User.class).where().eq("roles.name", "STUDENT").findList();
+    public Result getStudents(Optional<String> filter) {
+        ExpressionList<User> el = Ebean.find(User.class).where().eq("roles.name", "STUDENT");
+        if (filter.isPresent()) {
+            el = el.or().ilike("userIdentifier", String.format("%%%s%%", filter.get()));
+            el = applyUserFilter(null, el, filter.get()).endOr();
+        }
+        List<User> students = el.findList();
         return ok(Json.toJson(asJson(students)));
     }
 
     @Restrict({ @Group("ADMIN") })
-    public Result getTeachers() {
-        List<User> teachers = Ebean.find(User.class).where().eq("roles.name", "TEACHER").findList();
-
+    public Result getTeachers(Optional<String> filter) {
+        ExpressionList<User> el = Ebean.find(User.class).where().eq("roles.name", "TEACHER");
+        if (filter.isPresent()) {
+            el = applyUserFilter(null, el.or(), filter.get()).endOr();
+        }
+        List<User> teachers = el.findList();
         return ok(Json.toJson(asJson(teachers)));
     }
 
@@ -155,7 +167,7 @@ public class ReservationController extends BaseController {
         }
 
         Reservation reservation = enrolment.getReservation();
-        // Lets not send emails about historical reservations
+        // Let's not send emails about historical reservations
         if (reservation.getEndAt().isAfter(DateTime.now())) {
             User student = enrolment.getUser();
             emailComposer.composeReservationCancellationNotification(student, reservation, msg, false, enrolment);

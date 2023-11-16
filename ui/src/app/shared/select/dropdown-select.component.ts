@@ -39,18 +39,20 @@ export interface Option<V, I> {
             {{ selected?.label || placeholder | translate }}
         </button>
         <div ngbDropdownMenu class="scrollable-menu" role="menu" aria-labelledby="dd1">
-            <button class="input-group p-2" *ngIf="!noSearch">
-                <input
-                    [(ngModel)]="searchFilter"
-                    class="form-control"
-                    (input)="filterOptions()"
-                    (click)="$event.stopPropagation()"
-                    placeholder="{{ 'sitnet_search' | translate }}"
-                />
-                <div class="input-group-append">
-                    <span class="input-group-text">
-                        <i class="bi-search"></i>
-                    </span>
+            <button ngbDropdownItem *ngIf="!noSearch">
+                <div class="input-group">
+                    <input
+                        [(ngModel)]="searchFilter"
+                        class="form-control"
+                        (input)="filterOptions()"
+                        (click)="$event.stopPropagation()"
+                        placeholder="{{ 'sitnet_search' | translate }}"
+                    />
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="bi-search"></i>
+                        </span>
+                    </div>
                 </div>
             </button>
             <button ngbDropdownItem (click)="clearSelection()">

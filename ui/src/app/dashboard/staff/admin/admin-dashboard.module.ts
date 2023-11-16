@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+// TODO: maybe this module is redundant. Let's keep it anyway in case we want to lazy load admin stuff in the future
 import { NgModule } from '@angular/core';
 import { ReservationModule } from '../../../reservation/reservation.module';
 import { SharedModule } from '../../../shared/shared.module';
