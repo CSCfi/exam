@@ -1,9 +1,5 @@
 package controllers.iop.transfer.impl;
 
-import akka.stream.IOResult;
-import akka.stream.javadsl.FileIO;
-import akka.stream.javadsl.Source;
-import akka.util.ByteString;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
@@ -11,12 +7,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.List;
@@ -32,7 +29,12 @@ import models.Attachment;
 import models.Tag;
 import models.User;
 import models.questions.Question;
-import play.Logger;
+import org.apache.pekko.stream.IOResult;
+import org.apache.pekko.stream.javadsl.FileIO;
+import org.apache.pekko.stream.javadsl.Source;
+import org.apache.pekko.util.ByteString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.http.HttpErrorHandler;
 import play.libs.Files;
 import play.libs.Json;
@@ -50,7 +52,7 @@ import util.json.JsonDeserializer;
 
 public class DataTransferController extends BaseController {
 
-    private static final Logger.ALogger logger = Logger.of(DataTransferController.class);
+    private final Logger logger = LoggerFactory.getLogger(DataTransferController.class);
 
     static class DataTransferBodyParser extends BodyParser.Json {
 
@@ -79,7 +81,7 @@ public class DataTransferController extends BaseController {
 
     @SubjectNotPresent
     public Result importQuestionAttachment(Long id, Http.Request request) {
-        Question question = Ebean.find(Question.class, id);
+        Question question = DB.find(Question.class, id);
         if (question == null) {
             return notFound();
         }
@@ -133,7 +135,7 @@ public class DataTransferController extends BaseController {
                 .map(JsonNode::asLong)
                 .collect(Collectors.toSet());
             PathProperties pp = PathProperties.parse("(*, options(*), tags(name))");
-            Query<Question> query = Ebean.find(Question.class);
+            Query<Question> query = DB.find(Question.class);
             query.apply(pp);
             Set<Question> questions = query
                 .where()
@@ -147,12 +149,7 @@ public class DataTransferController extends BaseController {
             JsonNode data =
                 ((ObjectNode) body).put("path", path)
                     .put("owner", user.getEppn())
-                    .set(
-                        "questions",
-                        Json
-                            .newArray()
-                            .addAll(questions.stream().map(q -> serialize(q, pp)).collect(Collectors.toList()))
-                    );
+                    .set("questions", Json.newArray().addAll(questions.stream().map(q -> serialize(q, pp)).toList()));
 
             URL url = parseURL(body.get("orgRef").asText());
             String uploadUrl = parseUploadURL(body.get("orgRef").asText());
@@ -217,12 +214,12 @@ public class DataTransferController extends BaseController {
 
     private URL parseURL(String orgRef) throws MalformedURLException {
         String url = String.format("%s/api/organisations/%s/export", configReader.getIopHost(), orgRef);
-        return new URL(url);
+        return URI.create(url).toURL();
     }
 
     private String parseUploadURL(String orgRef) throws MalformedURLException {
         String url = String.format("%s/api/organisations/%s/export/id/attachment", configReader.getIopHost(), orgRef);
-        return new URL(url).toString();
+        return URI.create(url).toURL().toString();
     }
 
     private boolean isNewTag(Tag tag, List<Tag> existing) {
@@ -242,7 +239,7 @@ public class DataTransferController extends BaseController {
 
     private Result importQuestions(JsonNode node) {
         String eppn = node.get("owner").asText();
-        Optional<User> ou = Ebean.find(User.class).where().eq("eppn", eppn).findOneOrEmpty();
+        Optional<User> ou = DB.find(User.class).where().eq("eppn", eppn).findOneOrEmpty();
         if (ou.isEmpty()) {
             return badRequest("User not recognized");
         }
@@ -257,17 +254,11 @@ public class DataTransferController extends BaseController {
                 copy.setCreatorWithDate(user);
                 copy.setModifierWithDate(user);
                 copy.save();
-                List<Tag> userTags = Ebean.find(Tag.class).where().eq("creator", user).findList();
-                List<Tag> newTags = question
-                    .getTags()
-                    .stream()
-                    .filter(t -> isNewTag(t, userTags))
-                    .collect(Collectors.toList());
+                List<Tag> userTags = DB.find(Tag.class).where().eq("creator", user).findList();
+                List<Tag> newTags = question.getTags().stream().filter(t -> isNewTag(t, userTags)).toList();
                 newTags.forEach(t -> t.setId(null));
-                List<Tag> existingTags = userTags
-                    .stream()
-                    .filter(t -> !isNewTag(t, question.getTags()))
-                    .collect(Collectors.toList());
+                List<Tag> existingTags = userTags.stream().filter(t -> !isNewTag(t, question.getTags())).toList();
+                DB.saveAll(newTags);
                 copy.getTags().addAll(newTags);
                 copy.getTags().addAll(existingTags);
                 copy.getTags().forEach(t -> t.setCreatorWithDate(user));
@@ -275,10 +266,10 @@ public class DataTransferController extends BaseController {
                 copy.getQuestionOwners().clear();
                 copy.getQuestionOwners().add(user);
                 copy.update();
-                Ebean.saveAll(copy.getOptions());
+                DB.saveAll(copy.getOptions());
                 return new QuestionEntry(question.getId(), copy.getId());
             })
-            .collect(Collectors.toList());
+            .toList();
         ArrayNode an = Json.newArray();
         entries.forEach(entry -> an.add(Json.newObject().put("src", entry.srcId).put("dst", entry.dstId)));
         return Results.created((JsonNode) Json.newObject().set("ids", an));

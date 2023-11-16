@@ -16,12 +16,11 @@
 package models.base;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import models.User;
 import org.joda.time.DateTime;
 import util.datetime.DateTimeAdapter;
@@ -77,13 +76,11 @@ public class OwnedModel extends GeneratedIdentityModel {
         this.modifier = modifier;
     }
 
-    @Transient
     public void setCreatorWithDate(User user) {
         setCreator(user);
         setCreated(DateTime.now());
     }
 
-    @Transient
     public void setModifierWithDate(User user) {
         setModifier(user);
         setModified(DateTime.now());

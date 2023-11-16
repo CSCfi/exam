@@ -23,7 +23,7 @@ import controllers.base.ActionMethod;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalExamAPI;
 import exceptions.NotFoundException;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -53,8 +53,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
 import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Environment;
-import play.Logger;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -70,7 +71,7 @@ public class SessionController extends BaseController {
     private final EnrolmentRepository enrolmentRepository;
     private final DateTimeHandler dateTimeHandler;
 
-    private static final Logger.ALogger logger = Logger.of(SessionController.class);
+    private final Logger logger = LoggerFactory.getLogger(SessionController.class);
 
     private static final int SESSION_TIMEOUT_MINUTES = 30;
     private static final String URN_PREFIX = "urn:";
@@ -106,18 +107,11 @@ public class SessionController extends BaseController {
 
     @ActionMethod
     public CompletionStage<Result> login(Http.Request request) {
-        CompletionStage<Result> result;
-        switch (configReader.getLoginType()) {
-            case "HAKA":
-                result = hakaLogin(request);
-                break;
-            case "DEBUG":
-                result = devLogin(request);
-                break;
-            default:
-                result = wrapAsPromise(badRequest("login type not supported"));
-        }
-        return result;
+        return switch (configReader.getLoginType()) {
+            case "HAKA" -> hakaLogin(request);
+            case "DEBUG" -> devLogin(request);
+            default -> wrapAsPromise(badRequest("login type not supported"));
+        };
     }
 
     private CompletionStage<Result> hakaLogin(Http.Request request) {
@@ -128,7 +122,7 @@ public class SessionController extends BaseController {
         String eppn = id.get();
         Reservation externalReservation = getUpcomingExternalReservation(eppn);
         boolean isTemporaryVisitor = externalReservation != null;
-        User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
+        User user = DB.find(User.class).where().eq("eppn", eppn).findOne();
         boolean newUser = user == null;
         try {
             if (newUser) {
@@ -157,7 +151,7 @@ public class SessionController extends BaseController {
             return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
         }
         String pwd = DigestUtils.md5Hex(credentials.getPassword());
-        User user = Ebean
+        User user = DB
             .find(User.class)
             .where()
             .eq("eppn", credentials.getUsername() + "@funet.fi")
@@ -197,7 +191,7 @@ public class SessionController extends BaseController {
 
     private void associateWithPreEnrolments(User user) {
         // Associate pre-enrolment with a real user now that he/she is logged in
-        Ebean
+        DB
             .find(ExamEnrolment.class)
             .where()
             .isNotNull("preEnrolledUserEmail")
@@ -215,7 +209,7 @@ public class SessionController extends BaseController {
         DateTime now = dateTimeHandler.adjustDST(new DateTime());
         int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
         DateTime future = now.plusMinutes(lookAheadMinutes);
-        List<Reservation> reservations = Ebean
+        List<Reservation> reservations = DB
             .find(Reservation.class)
             .where()
             .eq("externalUserRef", eppn)
@@ -229,7 +223,7 @@ public class SessionController extends BaseController {
 
     private CompletionStage<Result> handleExternalReservation(User user, Reservation reservation)
         throws MalformedURLException {
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().eq("reservation", reservation).findOne();
+        ExamEnrolment enrolment = DB.find(ExamEnrolment.class).where().eq("reservation", reservation).findOne();
         if (enrolment != null) {
             // already imported
             return wrapAsPromise(ok());
@@ -246,11 +240,11 @@ public class SessionController extends BaseController {
         if (code != null) {
             // for example: en-US -> en
             String lcCode = code.split("-")[0].toLowerCase();
-            language = Ebean.find(Language.class, lcCode);
+            language = DB.find(Language.class, lcCode);
         }
         if (language == null) {
             // Default to English
-            language = Ebean.find(Language.class, "en");
+            language = DB.find(Language.class, "en");
         }
         return language;
     }
@@ -325,7 +319,7 @@ public class SessionController extends BaseController {
     }
 
     private Organisation findOrganisation(String attribute) {
-        return Ebean.find(Organisation.class).where().eq("code", attribute).findOne();
+        return DB.find(Organisation.class).where().eq("code", attribute).findOne();
     }
 
     private void updateUser(User user, Http.Request request) throws AddressException {
@@ -379,7 +373,7 @@ public class SessionController extends BaseController {
             payload.put("role", user.getRoles().get(0).getName());
         }
         List<Role> roles = isTemporaryVisitor
-            ? Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList()
+            ? DB.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList()
             : user.getRoles();
         if (isTemporaryVisitor) {
             payload.put("visitingStudent", "true");
@@ -401,13 +395,11 @@ public class SessionController extends BaseController {
     // prints HAKA attributes, used for debugging
     @ActionMethod
     public Result getAttributes(Http.Request request) {
-        Http.Headers attributes = request.getHeaders();
+        Http.Headers attributes = request.headers();
         ObjectNode node = Json.newObject();
-
         for (Map.Entry<String, List<String>> entry : attributes.asMap().entrySet()) {
             node.put(entry.getKey(), String.join(", ", entry.getValue()));
         }
-
         return ok(node);
     }
 
@@ -432,7 +424,7 @@ public class SessionController extends BaseController {
         Map<String, String> session = request.session().data();
         if (!session.isEmpty()) {
             Long userId = Long.parseLong(session.get("id"));
-            User user = Ebean.find(User.class, userId);
+            User user = DB.find(User.class, userId);
             if (user != null && user.getLogoutUrl() != null) {
                 ObjectNode node = Json.newObject();
                 node.put("logoutUrl", user.getLogoutUrl());
@@ -449,11 +441,11 @@ public class SessionController extends BaseController {
         if (session.get("id").isEmpty()) {
             return wrapAsPromise(unauthorized());
         }
-        User user = Ebean.find(User.class, Long.parseLong(session.get("id").get()));
+        User user = DB.find(User.class, Long.parseLong(session.get("id").get()));
         if (user == null) {
             return wrapAsPromise(notFound());
         }
-        Role role = Ebean.find(Role.class).where().eq("name", roleName).findOne();
+        Role role = DB.find(Role.class).where().eq("name", roleName).findOne();
         if (role == null) {
             return wrapAsPromise(notFound());
         }

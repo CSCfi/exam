@@ -28,8 +28,9 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Environment;
-import play.Logger;
 import play.mvc.Action;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -37,7 +38,7 @@ import play.mvc.Results;
 
 class JsonSchemaValidator extends Action<JsonValidator> {
 
-    private static final Logger.ALogger logger = Logger.of(JsonSchemaValidator.class);
+    private final Logger logger = LoggerFactory.getLogger(JsonSchemaValidator.class);
 
     private final Environment env;
 

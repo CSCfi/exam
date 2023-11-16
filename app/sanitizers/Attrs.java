@@ -50,7 +50,6 @@ public enum Attrs {
     public static final TypedKey<Exam.State> EXAM_STATE = TypedKey.create("examState");
     public static final TypedKey<String> TYPE = TypedKey.create("type");
     public static final TypedKey<Boolean> SHARED = TypedKey.create("shared");
-    public static final TypedKey<Boolean> EXPANDED = TypedKey.create("expanded");
     public static final TypedKey<Integer> TRIAL_COUNT = TypedKey.create("trialCount");
     public static final TypedKey<Boolean> LANG_INSPECTION_REQUIRED = TypedKey.create("langInspectionRequired");
     public static final TypedKey<AutoEvaluationConfig> AUTO_EVALUATION_CONFIG = TypedKey.create("autoEvaluationConfig");

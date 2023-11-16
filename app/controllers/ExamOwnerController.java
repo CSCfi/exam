@@ -20,7 +20,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import models.Exam;
 import models.Role;
 import models.User;
@@ -34,7 +34,7 @@ public class ExamOwnerController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getExamOwners(Long id) {
-        Exam exam = Ebean.find(Exam.class).fetch("examOwners").where().idEq(id).findOne();
+        Exam exam = DB.find(Exam.class).fetch("examOwners").where().idEq(id).findOne();
         if (exam == null) {
             return notFound();
         }
@@ -57,8 +57,8 @@ public class ExamOwnerController extends BaseController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result insertExamOwner(Long eid, Long uid, Http.Request request) {
-        final User owner = Ebean.find(User.class, uid);
-        final Exam exam = Ebean.find(Exam.class, eid);
+        final User owner = DB.find(User.class, uid);
+        final Exam exam = DB.find(Exam.class, eid);
         if (exam == null || owner == null) {
             return notFound();
         }
@@ -74,8 +74,8 @@ public class ExamOwnerController extends BaseController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result removeExamOwner(Long eid, Long uid, Http.Request request) {
-        final User owner = Ebean.find(User.class, uid);
-        final Exam exam = Ebean.find(Exam.class, eid);
+        final User owner = DB.find(User.class, uid);
+        final Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
             return notFound();
         }

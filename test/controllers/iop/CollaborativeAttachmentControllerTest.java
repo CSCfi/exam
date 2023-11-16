@@ -18,10 +18,6 @@ package controllers.iop;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import akka.stream.Materializer;
-import akka.stream.javadsl.FileIO;
-import akka.stream.javadsl.Source;
-import akka.util.ByteString;
 import base.RunAsStudent;
 import base.RunAsTeacher;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -36,6 +32,10 @@ import models.Exam;
 import models.json.CollaborativeExam;
 import models.questions.EssayAnswer;
 import models.sections.ExamSectionQuestion;
+import org.apache.pekko.stream.Materializer;
+import org.apache.pekko.stream.javadsl.FileIO;
+import org.apache.pekko.stream.javadsl.Source;
+import org.apache.pekko.util.ByteString;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Http;

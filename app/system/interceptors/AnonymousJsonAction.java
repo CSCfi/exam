@@ -16,13 +16,13 @@
 
 package system.interceptors;
 
-import akka.stream.Materializer;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import org.apache.pekko.stream.Materializer;
 import play.libs.typedmap.TypedKey;
 import play.mvc.Http;
 import play.mvc.Result;

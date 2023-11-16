@@ -7,21 +7,15 @@ name := "exam"
 
 version := "6.2.0"
 
-licenses += "EUPL 1.1" -> url("http://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
+licenses += "EUPL 1.1" -> url("https://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
-scalaVersion := "2.13.8"
+scalaVersion := "2.13.12"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
 lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice)
-
-// JAXB (missing in JDK 11 and above)
-libraryDependencies += "com.sun.xml.bind" % "jaxb-core"  % "3.0.2"
-libraryDependencies += "com.sun.xml.bind" % "jaxb-impl"  % "3.0.2"
-libraryDependencies += "javax.xml.bind"   % "jaxb-api"   % "2.3.1"
-libraryDependencies += "javax.activation" % "activation" % "1.1.1"
 
 libraryDependencies += "be.objectify"             %% "deadbolt-java"        % "2.8.1"
 libraryDependencies += "com.networknt"            % "json-schema-validator" % "1.0.45"
@@ -34,6 +28,7 @@ libraryDependencies += "org.apache.commons"       % "commons-email"         % "1
 libraryDependencies += "org.apache.poi"           % "poi"                   % "5.2.0"
 libraryDependencies += "org.apache.poi"           % "poi-ooxml"             % "5.2.0"
 libraryDependencies += "org.cryptonode.jncryptor" % "jncryptor"             % "1.2.0"
+libraryDependencies += "joda-time"                % "joda-time"             % "2.12.5"
 libraryDependencies += "org.jsoup"                % "jsoup"                 % "1.14.3"
 libraryDependencies += "org.postgresql"           % "postgresql"            % "42.3.3"
 libraryDependencies += "com.icegreen"             % "greenmail"             % "1.6.7" % "test"
@@ -45,20 +40,18 @@ libraryDependencies += "org.eclipse.jetty"        % "jetty-servlet"         % "1
 libraryDependencies += "org.easytesting"          % "fest-assert"           % "1.4" % "test"
 libraryDependencies += "org.yaml"                 % "snakeyaml"             % "1.30" % "test"
 
-dependencyOverrides += "org.slf4j" % "slf4j-api" % "1.7.36"
-
-javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
+javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-proc:full")
 
 routesImport += "util.scala.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 
-testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
+Test / testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v")
 
-javaOptions in Test += "-Dconfig.resource=integrationtest.conf"
+Test / javaOptions += "-Dconfig.resource=integrationtest.conf"
 
-sources in (Compile, doc) := Seq.empty
-publishArtifact in (Compile, packageDoc) := false
+Compile / doc / sources := Seq.empty
+Compile / packageDoc / publishArtifact := false
 
 lazy val frontendDirectory = baseDirectory {
   _ / "ui"
@@ -84,7 +77,7 @@ def webpackTask = Def.taskDyn[PlayRunHook] {
       Process("npm start", frontendDirectory.value).run
     }
 
-    (packageBin in Universal) := ((packageBin in Universal) dependsOn webpackBuild).value
+    Universal / packageBin := (Universal / packageBin dependsOn webpackBuild).value
 
     Def.task {
       frontendDirectory.map(WebpackServer(_)).value

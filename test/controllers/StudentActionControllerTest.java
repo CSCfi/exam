@@ -7,7 +7,7 @@ import base.IntegrationTestCase;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.TimeZone;
 import java.util.stream.StreamSupport;
 import models.Exam;
@@ -29,12 +29,12 @@ public class StudentActionControllerTest extends IntegrationTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
+        DB.deleteAll(DB.find(ExamEnrolment.class).findList());
     }
 
     @Test
     @RunAsStudent
-    public void testGetEnrolmentsForUserWithExternalReservation() throws Exception {
+    public void testGetEnrolmentsForUserWithExternalReservation() {
         createEnrolment(1L);
         ExamEnrolment enrolment = createEnrolment(2L);
         final Reservation reservation = enrolment.getReservation();
@@ -69,13 +69,13 @@ public class StudentActionControllerTest extends IntegrationTestCase {
     }
 
     private ExamEnrolment createEnrolment(long examId) {
-        Exam exam = Ebean.find(Exam.class).where().idEq(examId).findOne();
+        Exam exam = DB.find(Exam.class).where().idEq(examId).findOne();
         exam.setExamActiveEndDate(DateTime.now().plusYears(1));
         exam.setState(Exam.State.PUBLISHED);
         exam.save();
 
-        User user = Ebean.find(User.class, userId);
-        ExamRoom room = Ebean.find(ExamRoom.class, 1L);
+        User user = DB.find(User.class, userId);
+        ExamRoom room = DB.find(ExamRoom.class, 1L);
         ExamMachine machine = room.getExamMachines().get(0);
         machine.setIpAddress("127.0.0.1"); // so that the IP check won't fail
         machine.update();

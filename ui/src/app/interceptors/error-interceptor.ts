@@ -31,8 +31,10 @@ export class ErrorInterceptor implements HttpInterceptor {
                     return throwError(() => this.translate.instant('sitnet_connection_refused'));
                 } else if (typeof response.error === 'string') {
                     return throwError(() => this.translate.instant(response.error));
+                } else {
+                    // undefined error object
+                    return throwError(() => this.translate.instant('sitnet_unexpected_error'));
                 }
-                return throwError(() => response);
             }),
         );
     }

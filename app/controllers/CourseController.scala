@@ -16,17 +16,16 @@
 package controllers
 
 import impl.ExternalCourseHandler
-import io.ebean.Ebean
 import models.{Course, Role, User}
 import org.joda.time.DateTime
-
+import io.ebean.DB
 import javax.inject.Inject
 import play.api.mvc.{Action, AnyContent, InjectedController, Result}
 import security.Authenticator
 import util.config.ConfigReader
 import util.scala.JavaJsonResultProducer
 
-import scala.compat.java8.FutureConverters._
+import scala.jdk.FutureConverters._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
@@ -41,11 +40,10 @@ class CourseController @Inject()(externalApi: ExternalCourseHandler, configReade
                   user: User): Future[Result] = {
     (filterType, criteria) match {
       case (Some("code"), Some(c)) =>
-        externalApi.getCoursesByCode(user, c).toScala.map(_.asScala.toResult(OK))
+        externalApi.getCoursesByCode(user, c).asScala.map(_.asScala.toResult(OK))
       case (Some("name"), Some(x)) if x.length >= 2 =>
         Future {
-          Ebean
-            .find(classOf[Course])
+          DB.find(classOf[Course])
             .where
             .disjunction()
             .isNull("endDate")
@@ -64,16 +62,16 @@ class CourseController @Inject()(externalApi: ExternalCourseHandler, configReade
         throw new IllegalArgumentException("Too short criteria")
       case _ =>
         Future {
-          Ebean.find(classOf[Course]).where.isNotNull("name").orderBy("code").findList
+          DB.find(classOf[Course]).where.isNotNull("name").orderBy("code").findList
         }.map(_.asScala.toResult(OK))
     }
   }
 
-  def getUserCourses(user: User,
+  private def getUserCourses(user: User,
                      examIds: Option[List[Long]],
                      sectionIds: Option[List[Long]],
                      tagIds: Option[List[Long]]): Result = {
-    var query = Ebean.find(classOf[Course]).where.isNotNull("name")
+    var query = DB.find(classOf[Course]).where.isNotNull("name")
     if (!user.hasRole(Role.Name.ADMIN)) {
       query = query
         .eq("exams.examOwners", user)
@@ -106,7 +104,7 @@ class CourseController @Inject()(externalApi: ExternalCourseHandler, configReade
   def getCourse(id: Long): Action[AnyContent] = Action { request =>
     getAuthorizedUser(request, Seq("ADMIN", "TEACHER")) match {
       case Some(_) =>
-        Ebean.find(classOf[Course], id).toResult(OK)
+        DB.find(classOf[Course], id).toResult(OK)
       case _ => forbid()
     }
   }

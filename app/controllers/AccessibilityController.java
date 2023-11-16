@@ -18,7 +18,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.List;
 import models.Accessibility;
 import models.ExamRoom;
@@ -44,11 +44,11 @@ public class AccessibilityController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result removeAccessibility(Long id) {
-        Accessibility accessibility = Ebean.find(Accessibility.class, id);
+        Accessibility accessibility = DB.find(Accessibility.class, id);
         if (accessibility == null) {
             return notFound();
         }
-        Ebean
+        DB
             .find(ExamRoom.class)
             .where()
             .in("accessibilities", accessibility)
@@ -63,7 +63,7 @@ public class AccessibilityController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result getAccessibilities() {
-        List<Accessibility> accessibilities = Ebean.find(Accessibility.class).findList();
+        List<Accessibility> accessibilities = DB.find(Accessibility.class).findList();
         return ok(Json.toJson(accessibilities));
     }
 }

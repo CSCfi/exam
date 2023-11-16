@@ -1,6 +1,6 @@
 package system
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 import javax.inject.Inject
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
@@ -17,7 +17,7 @@ object ResultImplicits {
 
 class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
 
-  val Headers = Seq(
+  val Headers: Seq[(String, String)] = Seq(
     ("x-exam-start-exam", "ongoingExamHash"),
     ("x-exam-upcoming-exam", "upcomingExamHash"),
     ("x-exam-wrong-machine", "wrongMachineData"),

@@ -18,7 +18,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.util.List;
@@ -44,7 +44,7 @@ public class TagController extends BaseController {
         Http.Request request
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<Tag> query = Ebean.find(Tag.class).where();
+        ExpressionList<Tag> query = DB.find(Tag.class).where();
         if (!user.hasRole(Role.Name.ADMIN)) {
             query = query.where().eq("creator.id", user.getId());
         }

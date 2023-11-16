@@ -15,10 +15,9 @@
 
 package system.actors;
 
-import akka.actor.AbstractActor;
 import controllers.SettingsController;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -34,14 +33,16 @@ import models.GeneralSettings;
 import models.Reservation;
 import models.User;
 import models.json.ExternalExam;
+import org.apache.pekko.actor.AbstractActor;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.AppUtil;
 import util.datetime.DateTimeHandler;
 
 public class ExamAutoSaverActor extends AbstractActor {
 
-    private static final Logger.ALogger logger = Logger.of(ExamAutoSaverActor.class);
+    private final Logger logger = LoggerFactory.getLogger(ExamAutoSaverActor.class);
 
     private final EmailComposer composer;
     private final DateTimeHandler dateTimeHandler;
@@ -68,7 +69,7 @@ public class ExamAutoSaverActor extends AbstractActor {
     }
 
     private void checkLocalExams() {
-        List<ExamParticipation> participations = Ebean
+        List<ExamParticipation> participations = DB
             .find(ExamParticipation.class)
             .fetch("exam")
             .fetch("reservation")
@@ -136,7 +137,7 @@ public class ExamAutoSaverActor extends AbstractActor {
     }
 
     private void checkExternalExams() {
-        List<ExamEnrolment> enrolments = Ebean
+        List<ExamEnrolment> enrolments = DB
             .find(ExamEnrolment.class)
             .fetch("externalExam")
             .fetch("reservation")

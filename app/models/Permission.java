@@ -16,10 +16,9 @@
 package models;
 
 import io.ebean.annotation.EnumValue;
+import jakarta.persistence.Entity;
 import java.util.Objects;
 import java.util.Optional;
-import javax.persistence.Entity;
-import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 
 @Entity
@@ -33,7 +32,6 @@ public class Permission extends GeneratedIdentityModel implements be.objectify.d
     private Type type;
 
     @Override
-    @Transient
     public String getValue() {
         return type.toString();
     }
@@ -58,8 +56,7 @@ public class Permission extends GeneratedIdentityModel implements be.objectify.d
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Permission)) return false;
-        Permission permission = (Permission) o;
+        if (!(o instanceof Permission permission)) return false;
         return Objects.equals(type, permission.type);
     }
 

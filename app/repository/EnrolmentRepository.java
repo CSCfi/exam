@@ -1,7 +1,7 @@
 package repository;
 
-import io.ebean.Ebean;
-import io.ebean.EbeanServer;
+import io.ebean.DB;
+import io.ebean.Database;
 import io.ebean.ExpressionList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Exam;
 import models.ExamEnrolment;
@@ -26,11 +25,12 @@ import models.json.CollaborativeExam;
 import models.sections.ExamSection;
 import org.apache.commons.codec.binary.Base64;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Minutes;
 import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Environment;
-import play.Logger;
-import play.db.ebean.EbeanConfig;
 import play.mvc.Http;
 import play.mvc.Result;
 import util.config.ByodConfigHandler;
@@ -42,20 +42,19 @@ public class EnrolmentRepository {
     private final DatabaseExecutionContext ec;
     private final ByodConfigHandler byodConfigHandler;
     private final DateTimeHandler dateTimeHandler;
-    private final EbeanServer db;
+    private final Database db;
 
-    private static final Logger.ALogger logger = Logger.of(EnrolmentRepository.class);
+    private final Logger logger = LoggerFactory.getLogger(EnrolmentRepository.class);
 
     @Inject
     public EnrolmentRepository(
         Environment environment,
-        EbeanConfig ebeanConfig,
         DatabaseExecutionContext databaseExecutionContext,
         ByodConfigHandler byodConfigHandler,
         DateTimeHandler dateTimeHandler
     ) {
         this.environment = environment;
-        this.db = Ebean.getServer(ebeanConfig.defaultServer());
+        this.db = DB.getDefault();
         this.ec = databaseExecutionContext;
         this.byodConfigHandler = byodConfigHandler;
         this.dateTimeHandler = dateTimeHandler;
@@ -72,7 +71,7 @@ public class EnrolmentRepository {
     public CompletionStage<ExamRoom> getRoomInfoForEnrolment(String hash, User user) {
         return CompletableFuture.supplyAsync(
             () -> {
-                ExpressionList<ExamEnrolment> query = Ebean
+                ExpressionList<ExamEnrolment> query = DB
                     .find(ExamEnrolment.class)
                     .fetch("user", "id")
                     .fetch("user.language")
@@ -95,7 +94,7 @@ public class EnrolmentRepository {
 
     private List<ExamEnrolment> doGetStudentEnrolments(User user) {
         DateTime now = dateTimeHandler.adjustDST(new DateTime());
-        List<ExamEnrolment> enrolments = Ebean
+        List<ExamEnrolment> enrolments = DB
             .find(ExamEnrolment.class)
             .fetch("examinationEventConfiguration")
             .fetch("examinationEventConfiguration.examinationEvent")
@@ -130,7 +129,7 @@ public class EnrolmentRepository {
                 ee.getExaminationEventConfiguration() == null ||
                 ee.getExaminationEventConfiguration().getExaminationEvent().getStart().isAfter((DateTime.now()))
             )
-            .collect(Collectors.toList());
+            .toList();
         enrolments.forEach(ee -> {
             Exam exam = ee.getExam();
             if (exam != null && exam.getExamSections().stream().noneMatch(ExamSection::isOptional)) {
@@ -151,7 +150,7 @@ public class EnrolmentRepository {
                 CollaborativeExam ce = ee.getCollaborativeExam();
                 return ce != null && ce.getExamActiveEndDate().isAfterNow();
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private Map<String, String> doGetReservationHeaders(Http.RequestHeader request, Long userId) {
@@ -214,16 +213,21 @@ public class EnrolmentRepository {
                 if (lookedUp == null) {
                     // IP not known
                     header = "x-exam-unknown-machine";
+                    DateTimeZone zone = DateTimeZone.forID(room.getLocalTimezone());
+                    String start = ISODateTimeFormat
+                        .dateTime()
+                        .withZone(zone)
+                        .print(new DateTime(enrolment.getReservation().getStartAt()));
                     message =
-                        room.getCampus() +
-                        ":::" +
-                        room.getBuildingName() +
-                        ":::" +
-                        room.getRoomCode() +
-                        ":::" +
-                        examMachine.getName() +
-                        ":::" +
-                        ISODateTimeFormat.dateTime().print(new DateTime(enrolment.getReservation().getStartAt()));
+                        String.format(
+                            "%s:::%s:::%s:::%s:::%s:::%s",
+                            room.getCampus(),
+                            room.getBuildingName(),
+                            room.getRoomCode(),
+                            examMachine.getName(),
+                            start,
+                            zone.getID()
+                        );
                 } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                     // Right room, wrong machine
                     header = "x-exam-wrong-machine";

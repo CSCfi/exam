@@ -76,7 +76,6 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
         request =
             SanitizingHelper.sanitizeOptionalHtml("enrollInstruction", body, Attrs.ENROLMENT_INFORMATION, request);
         request = SanitizingHelper.sanitizeOptional("trialCount", body, Integer.class, Attrs.TRIAL_COUNT, request);
-        request = SanitizingHelper.sanitizeOptional("expanded", body, Boolean.class, Attrs.EXPANDED, request);
         request =
             SanitizingHelper.sanitizeOptional(
                 "subjectToLanguageInspection",

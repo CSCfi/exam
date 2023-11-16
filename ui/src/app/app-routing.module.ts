@@ -12,13 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgModule } from '@angular/core';
+import { inject, NgModule } from '@angular/core';
 import { Route, RouterModule } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { map, Observable } from 'rxjs';
 import { AppComponent } from './app.component';
-import { CalendarTitleResolverService } from './calendar/calendar-title-resolver.service';
 import { CalendarComponent } from './calendar/calendar.component';
 import { StudentDashboardComponent } from './dashboard/student/student-dashboard.component';
-import { ExamEnrolmentTitleResolverService } from './enrolment/exams/exam-enrolment-title-resolver.service';
 import { ExamEnrolmentsComponent } from './enrolment/exams/exam-enrolments.component';
 import { CollaborativeParticipationsComponent } from './enrolment/finished/collaborative-exam-participations.component';
 import { ExamParticipationsComponent } from './enrolment/finished/exam-participations.component';
@@ -30,6 +30,12 @@ import { ExaminationComponent } from './examination/examination.component';
 import { ExaminationLogoutComponent } from './examination/logout/examination-logout.component';
 import { LogoutComponent } from './session/logout/logout.component';
 
+const buildTitle = (key: string, extraPart = ''): Observable<string> => {
+    const tx = inject(TranslateService);
+    const extra = extraPart ? ` ${extraPart}` : '';
+    return tx.get(key).pipe(map(() => `${tx.instant(key)}${extra} - EXAM`));
+};
+
 const routes: Route[] = [
     {
         path: '',
@@ -40,7 +46,7 @@ const routes: Route[] = [
     {
         path: 'dashboard',
         component: StudentDashboardComponent,
-        title: 'EXAM',
+        title: () => buildTitle('sitnet_enrolments_title'),
     },
     {
         path: 'logout',
@@ -52,17 +58,17 @@ const routes: Route[] = [
         data: {
             isPreview: false,
         },
-        title: 'EXAM - examination',
+        title: () => buildTitle('sitnet_examination_title'),
     },
     {
         path: 'waitingroom/:id/:hash',
         component: WaitingRoomComponent,
-        title: 'EXAM - waiting room',
+        title: () => buildTitle('sitnet_waiting_room_title'),
     },
     {
         path: 'waitingroom',
         component: WaitingRoomComponent,
-        title: 'EXAM - waiting room',
+        title: () => buildTitle('sitnet_waiting_room_title'),
     },
     {
         path: 'wrongroom/:eid/:mid',
@@ -70,7 +76,7 @@ const routes: Route[] = [
         data: {
             cause: 'room',
         },
-        title: 'EXAM - wrong location',
+        title: () => buildTitle('sitnet_wrong_room_title'),
     },
     {
         path: 'wrongmachine/:eid/:mid',
@@ -78,37 +84,37 @@ const routes: Route[] = [
         data: {
             cause: 'machine',
         },
-        title: 'EXAM - wrong machine',
+        title: () => buildTitle('sitnet_wrong_machine_title'),
     },
     {
         path: 'exams',
         component: ExamSearchComponent,
-        title: 'EXAM - search',
+        title: () => buildTitle('sitnet_exams_title'),
     },
     {
         path: 'exams/collaborative',
         component: CollaborativeExamSearchComponent,
-        title: 'EXAM - search',
+        title: () => buildTitle('sitnet_collaborative_exams_title'),
     },
     {
         path: 'participations',
         component: ExamParticipationsComponent,
-        title: 'EXAM - participations',
+        title: () => buildTitle('sitnet_participations_title'),
     },
     {
         path: 'participations/collaborative',
         component: CollaborativeParticipationsComponent,
-        title: 'EXAM - participations',
+        title: () => buildTitle('sitnet_collaborative_participations_title'),
     },
     {
         path: 'examination/logout',
         component: ExaminationLogoutComponent,
-        title: 'EXAM - logout',
+        title: () => buildTitle('sitnet_examination_logout_title'),
     },
     {
         path: 'enrolments/:id',
         component: ExamEnrolmentsComponent,
-        title: ExamEnrolmentTitleResolverService,
+        title: (route) => buildTitle('sitnet_enrolment_title', `#${route.params.id}`),
     },
     {
         path: 'calendar/:id',
@@ -117,19 +123,19 @@ const routes: Route[] = [
             isExternal: false,
             isCollaborative: false,
         },
-        title: CalendarTitleResolverService,
+        title: (route) => buildTitle('sitnet_reservation_title', `#${route.params.id}`),
     },
     {
         path: 'calendar/:id/external',
         component: CalendarComponent,
         data: { isExternal: true },
-        title: 'EXAM - calendar',
+        title: (route) => buildTitle('sitnet_external_reservation_title', `#${route.params.id}`),
     },
     {
         path: 'calendar/:id/collaborative',
         component: CalendarComponent,
         data: { isExternal: false, isCollaborative: true },
-        title: 'EXAM - calendar',
+        title: (route) => buildTitle('sitnet_collaborative_reservation_title', `#${route.params.id}`),
     },
     /*
      { // this does not work apparently because admin code uses some of calendar dependencies

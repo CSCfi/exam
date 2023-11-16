@@ -17,6 +17,7 @@ package impl;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.function.Function;
@@ -27,7 +28,8 @@ import models.ExamEnrolment;
 import models.ExamInspection;
 import models.ExaminationEventConfiguration;
 import models.Reservation;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -43,7 +45,7 @@ public class NoShowHandlerImpl implements NoShowHandler {
 
     private final ConfigReader configReader;
 
-    private static final Logger.ALogger logger = Logger.of(NoShowHandlerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(NoShowHandlerImpl.class);
 
     @Inject
     public NoShowHandlerImpl(EmailComposer composer, WSClient wsClient, ConfigReader configReader) {
@@ -86,7 +88,9 @@ public class NoShowHandlerImpl implements NoShowHandler {
     }
 
     private URL parseUrl(String reservationRef) throws MalformedURLException {
-        return new URL(configReader.getIopHost() + String.format("/api/enrolments/%s/noshow", reservationRef));
+        return URI
+            .create(configReader.getIopHost() + String.format("/api/enrolments/%s/noshow", reservationRef))
+            .toURL();
     }
 
     private boolean isLocal(ExamEnrolment ee) {

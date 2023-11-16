@@ -1,6 +1,6 @@
 package util.xml
 
-import io.ebean.Ebean
+import io.ebean.DB
 import models.questions.{MultipleChoiceOption, Question}
 import models.{Attachment, Tag, User}
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
@@ -27,7 +27,7 @@ class MoodleXmlImporterImpl @Inject()(fileHandler: FileHandler) extends MoodleXm
     (src \\ "tag" \ "text")
       .map(_.text)
       .map(text => {
-        val userTags = Ebean
+        val userTags = DB
           .find(classOf[Tag])
           .where
           .eq("name", text)

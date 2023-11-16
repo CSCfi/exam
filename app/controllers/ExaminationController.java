@@ -15,7 +15,6 @@
 
 package controllers;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,7 +23,7 @@ import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import impl.AutoEvaluationHandler;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.io.IOException;
 import java.util.HashSet;
@@ -49,11 +48,13 @@ import models.json.CollaborativeExam;
 import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.sections.ExamSectionQuestion;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Environment;
-import play.Logger;
 import play.db.ebean.Transactional;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -75,14 +76,14 @@ public class ExaminationController extends BaseController {
     protected final EmailComposer emailComposer;
     protected final ExaminationRepository examinationRepository;
     protected final ActorSystem actor;
-    protected final HttpExecutionContext httpExecutionContext;
+    protected final ClassLoaderExecutionContext httpExecutionContext;
     private final AutoEvaluationHandler autoEvaluationHandler;
     protected final Environment environment;
     private final ExternalAttachmentLoader externalAttachmentLoader;
     private final ByodConfigHandler byodConfigHandler;
     protected final DateTimeHandler dateTimeHandler;
 
-    private static final Logger.ALogger logger = Logger.of(ExaminationController.class);
+    private final Logger logger = LoggerFactory.getLogger(ExaminationController.class);
 
     @Inject
     public ExaminationController(
@@ -91,7 +92,7 @@ public class ExaminationController extends BaseController {
         ActorSystem actor,
         AutoEvaluationHandler autoEvaluationHandler,
         Environment environment,
-        HttpExecutionContext httpExecutionContext,
+        ClassLoaderExecutionContext httpExecutionContext,
         ExternalAttachmentLoader externalAttachmentLoader,
         ByodConfigHandler byodConfigHandler,
         DateTimeHandler dateTimeHandler
@@ -289,7 +290,7 @@ public class ExaminationController extends BaseController {
             .thenApplyAsync(oe ->
                 oe.orElseGet(() -> {
                     User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                    Exam exam = Ebean
+                    Exam exam = DB
                         .find(Exam.class)
                         .fetch("examSections.sectionQuestions.question")
                         .where()
@@ -334,7 +335,7 @@ public class ExaminationController extends BaseController {
             .thenApplyAsync(oe ->
                 oe.orElseGet(() -> {
                     User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                    Exam exam = Ebean.find(Exam.class).where().eq("creator", user).eq("hash", hash).findOne();
+                    Exam exam = DB.find(Exam.class).where().eq("creator", user).eq("hash", hash).findOne();
                     if (exam == null) {
                         return notFound("sitnet_error_exam_not_found");
                     }
@@ -365,7 +366,7 @@ public class ExaminationController extends BaseController {
                 oe.orElseGet(() -> {
                     String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
                     Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
-                    ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, questionId);
+                    ExamSectionQuestion question = DB.find(ExamSectionQuestion.class, questionId);
                     if (question == null) {
                         return forbidden();
                     }
@@ -394,8 +395,8 @@ public class ExaminationController extends BaseController {
                     List<Long> optionIds = StreamSupport
                         .stream(node.spliterator(), false)
                         .map(JsonNode::asLong)
-                        .collect(Collectors.toList());
-                    ExamSectionQuestion question = Ebean.find(ExamSectionQuestion.class, qid);
+                        .toList();
+                    ExamSectionQuestion question = DB.find(ExamSectionQuestion.class, qid);
                     if (question == null) {
                         return forbidden();
                     }
@@ -417,7 +418,7 @@ public class ExaminationController extends BaseController {
         return getEnrolmentError(hash, request)
             .thenApplyAsync(oe ->
                 oe.orElseGet(() -> {
-                    ExamSectionQuestion esq = Ebean.find(ExamSectionQuestion.class, questionId);
+                    ExamSectionQuestion esq = DB.find(ExamSectionQuestion.class, questionId);
                     if (esq == null) {
                         return forbidden();
                     }
@@ -436,7 +437,7 @@ public class ExaminationController extends BaseController {
     }
 
     private Optional<ExamParticipation> findParticipation(Exam exam, User user) {
-        return Ebean
+        return DB
             .find(ExamParticipation.class)
             .where()
             .eq("exam.id", exam.getId())
@@ -525,7 +526,7 @@ public class ExaminationController extends BaseController {
 
     private CompletionStage<Optional<Result>> getEnrolmentError(String hash, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExamEnrolment enrolment = Ebean
+        ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .where()
             .eq("exam.hash", hash)

@@ -21,9 +21,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalFacilityAPI;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -35,6 +36,7 @@ import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
+import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import util.config.ConfigReader;
@@ -54,11 +56,13 @@ public class FacilityController extends BaseController implements ExternalFacili
         if (facilityRef != null) {
             url.append(String.format("/%s", facilityRef));
         }
-        return new URL(url.toString());
+        return URI.create(url.toString()).toURL();
     }
 
     private URL parseExternalUrl(String orgRef) throws MalformedURLException {
-        return new URL(configReader.getIopHost() + String.format("/api/organisations/%s/facilities", orgRef));
+        return URI
+            .create(configReader.getIopHost() + String.format("/api/organisations/%s/facilities", orgRef))
+            .toURL();
     }
 
     private String toJson(ExamRoom room) {
@@ -66,12 +70,12 @@ public class FacilityController extends BaseController implements ExternalFacili
             "(*, defaultWorkingHours(*), calendarExceptionEvents(*), mailAddress(*), " +
             "examStartingHours(*), accessibilities(*))"
         );
-        return Ebean.json().toJson(room, pp);
+        return DB.json().toJson(room, pp);
     }
 
     @Restrict({ @Group("ADMIN") })
     public CompletionStage<Result> updateFacility(Long id) throws MalformedURLException {
-        ExamRoom room = Ebean.find(ExamRoom.class, id);
+        ExamRoom room = DB.find(ExamRoom.class, id);
         if (room == null) {
             return CompletableFuture.completedFuture(Results.notFound());
         }
@@ -81,7 +85,7 @@ public class FacilityController extends BaseController implements ExternalFacili
             // Add new
             Function<WSResponse, Result> onSuccess = response -> {
                 JsonNode root = response.asJson();
-                if (response.getStatus() != 201) {
+                if (response.getStatus() != Http.Status.CREATED) {
                     return internalServerError(root.get("message").asText("Connection refused"));
                 }
                 String externalRef = root.get("id").asText();
@@ -94,7 +98,7 @@ public class FacilityController extends BaseController implements ExternalFacili
             // Remove
             Function<WSResponse, Result> onSuccess = response -> {
                 int status = response.getStatus();
-                if (status == 404 || status == 200) {
+                if (status == Http.Status.NOT_FOUND || status == Http.Status.OK) {
                     // 404 would mean that facility does not exist remotely, remove its reference here also
                     room.setExternalRef(null);
                     room.update();
@@ -113,14 +117,14 @@ public class FacilityController extends BaseController implements ExternalFacili
 
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> listFacilities(Optional<String> organisation) throws MalformedURLException {
-        if (!organisation.isPresent()) {
+        if (organisation.isEmpty()) {
             return wrapAsPromise(badRequest());
         }
         URL url = parseExternalUrl(organisation.get());
         WSRequest request = wsClient.url(url.toString());
         Function<WSResponse, Result> onSuccess = response -> {
             JsonNode root = response.asJson();
-            if (response.getStatus() != 200) {
+            if (response.getStatus() != Http.Status.OK) {
                 return internalServerError(root.get("message").asText("Connection refused"));
             }
             return ok(root);

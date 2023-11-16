@@ -17,15 +17,14 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import javax.annotation.Nonnull;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import models.iop.ExternalReservation;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -150,7 +149,6 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
         this.externalUserRef = externalUserRef;
     }
 
-    @Transient
     public Interval toInterval() {
         return new Interval(startAt, endAt);
     }
@@ -163,8 +161,7 @@ public class Reservation extends GeneratedIdentityModel implements Comparable<Re
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Reservation)) return false;
-        Reservation that = (Reservation) o;
+        if (!(o instanceof Reservation that)) return false;
         return new EqualsBuilder().append(id, that.id).isEquals();
     }
 

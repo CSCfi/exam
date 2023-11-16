@@ -23,10 +23,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.ActionMethod;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.Update;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -58,16 +59,11 @@ public class SettingsController extends BaseController {
     }
 
     public static GeneralSettings get(String name) {
-        return Ebean
-            .find(GeneralSettings.class)
-            .where()
-            .eq("name", name)
-            .findOneOrEmpty()
-            .orElse(new GeneralSettings());
+        return DB.find(GeneralSettings.class).where().eq("name", name).findOneOrEmpty().orElse(new GeneralSettings());
     }
 
     public static GeneralSettings getOrCreateSettings(String name, String value, String defaultValue) {
-        GeneralSettings gs = Ebean.find(GeneralSettings.class).where().eq("name", name).findOne();
+        GeneralSettings gs = DB.find(GeneralSettings.class).where().eq("name", name).findOne();
         if (gs == null) {
             gs = new GeneralSettings();
             gs.setName(name);
@@ -103,12 +99,12 @@ public class SettingsController extends BaseController {
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER"), @Group("STUDENT") })
     public CompletionStage<Result> getMaturityInstructions(String lang, Optional<String> hash) throws IOException {
-        Language language = Ebean.find(Language.class, lang);
+        Language language = DB.find(Language.class, lang);
         if (language == null) {
             return wrapAsPromise(badRequest("Language not supported"));
         }
         if (hash.isPresent()) {
-            ExamEnrolment enrolment = Ebean
+            ExamEnrolment enrolment = DB
                 .find(ExamEnrolment.class)
                 .where()
                 .eq("externalExam.hash", hash.get())
@@ -122,7 +118,7 @@ public class SettingsController extends BaseController {
                 .get()
                 .thenApplyAsync(response -> {
                     JsonNode root = response.asJson();
-                    if (response.getStatus() != 200) {
+                    if (response.getStatus() != Http.Status.OK) {
                         return internalServerError(root.get("message").asText("Connection refused"));
                     }
                     return ok(root);
@@ -135,7 +131,7 @@ public class SettingsController extends BaseController {
 
     @SubjectNotPresent
     public Result provideMaturityInstructions(String ref, String lang) {
-        Language language = Ebean.find(Language.class, lang);
+        Language language = DB.find(Language.class, lang);
         if (language == null) {
             badRequest("Language not supported");
         }
@@ -151,7 +147,7 @@ public class SettingsController extends BaseController {
 
         // Since the EULA has changed, force users to accept it again.
         String updStatement = "update app_user set user_agreement_accepted = :hasNot";
-        Update<User> update = Ebean.createUpdate(User.class, updStatement);
+        Update<User> update = DB.createUpdate(User.class, updStatement);
         update.set("hasNot", false);
         update.execute();
 
@@ -191,7 +187,7 @@ public class SettingsController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExamMaxDate() {
         ObjectNode node = Json.newObject();
-        node.put("maxDate", configReader.getExamMaxDate().toString());
+        node.put("maxDate", configReader.getExamMaxDate());
         return ok(Json.toJson(node));
     }
 
@@ -337,6 +333,8 @@ public class SettingsController extends BaseController {
     }
 
     private URL parseExternalUrl(String reservationRef) throws MalformedURLException {
-        return new URL(configReader.getIopHost() + String.format("/api/enrolments/%s/instructions", reservationRef));
+        return URI
+            .create(configReader.getIopHost() + String.format("/api/enrolments/%s/instructions", reservationRef))
+            .toURL();
     }
 }

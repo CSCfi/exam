@@ -16,15 +16,15 @@
 
 package util.file;
 
-import akka.stream.Attributes;
-import akka.stream.FlowShape;
-import akka.stream.Inlet;
-import akka.stream.Outlet;
-import akka.stream.stage.AbstractInHandler;
-import akka.stream.stage.AbstractOutHandler;
-import akka.stream.stage.GraphStage;
-import akka.stream.stage.GraphStageLogic;
-import akka.util.ByteString;
+import org.apache.pekko.stream.Attributes;
+import org.apache.pekko.stream.FlowShape;
+import org.apache.pekko.stream.Inlet;
+import org.apache.pekko.stream.Outlet;
+import org.apache.pekko.stream.stage.AbstractInHandler;
+import org.apache.pekko.stream.stage.AbstractOutHandler;
+import org.apache.pekko.stream.stage.GraphStage;
+import org.apache.pekko.stream.stage.GraphStageLogic;
+import org.apache.pekko.util.ByteString;
 import scala.Tuple2;
 
 public class ChunkMaker extends GraphStage<FlowShape<ByteString, ByteString>> {
@@ -33,7 +33,7 @@ public class ChunkMaker extends GraphStage<FlowShape<ByteString, ByteString>> {
 
     public Inlet<ByteString> in = Inlet.create("ChunkMaker.in");
     public Outlet<ByteString> out = Outlet.create("ChunkMaker.out");
-    private FlowShape<ByteString, ByteString> shape = FlowShape.of(in, out);
+    private final FlowShape<ByteString, ByteString> shape = FlowShape.of(in, out);
 
     public ChunkMaker(int chunkSize) {
         this.chunkSize = chunkSize;

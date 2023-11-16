@@ -18,8 +18,6 @@ package controllers;
 
 import static play.mvc.Results.ok;
 
-import akka.stream.javadsl.Source;
-import akka.util.ByteString;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -32,7 +30,11 @@ import models.Attachment;
 import models.Exam;
 import models.User;
 import models.sections.ExamSectionQuestion;
-import play.Logger;
+import org.apache.commons.io.FileUtils;
+import org.apache.pekko.stream.javadsl.Source;
+import org.apache.pekko.util.ByteString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.Files.TemporaryFile;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -69,8 +71,8 @@ public interface BaseAttachmentInterface<T> {
         return request.attrs().get(Attrs.AUTHENTICATED_USER);
     }
 
-    default Logger.ALogger logger() {
-        return Logger.of(getClass());
+    default Logger logger() {
+        return LoggerFactory.getLogger(getClass());
     }
 
     default CompletionStage<Result> serveAsBase64Stream(Attachment attachment, Source<ByteString, ?> source) {
@@ -88,7 +90,7 @@ public interface BaseAttachmentInterface<T> {
             ok()
                 .chunked(
                     source
-                        .via(new ChunkMaker(3 * 1024))
+                        .via(new ChunkMaker(3 * (int) FileUtils.ONE_KB))
                         .map(byteString -> {
                             final byte[] encoded = Base64.getEncoder().encode(byteString.toArray());
                             return ByteString.fromArray(encoded);

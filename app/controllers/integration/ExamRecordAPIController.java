@@ -17,9 +17,8 @@ package controllers.integration;
 
 import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.List;
-import java.util.stream.Collectors;
 import models.ExamRecord;
 import models.dto.ExamScore;
 import org.joda.time.DateTime;
@@ -34,14 +33,16 @@ public class ExamRecordAPIController extends BaseController {
         return ok(Json.toJson(getScores(startDate)));
     }
 
-    private static List<ExamScore> getScores(String startDate) {
+    private List<ExamScore> getScores(String startDate) {
         DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(startDate);
-        List<ExamRecord> examRecords = Ebean
+        return DB
             .find(ExamRecord.class)
             .fetch("examScore")
             .where()
-            .gt("timeStamp", start.toDate())
-            .findList();
-        return examRecords.stream().map(ExamRecord::getExamScore).collect(Collectors.toList());
+            .gt("timeStamp", start)
+            .findList()
+            .stream()
+            .map(ExamRecord::getExamScore)
+            .toList();
     }
 }

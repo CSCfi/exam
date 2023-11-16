@@ -17,18 +17,17 @@ package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.ebean.annotation.EnumValue;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -104,12 +103,10 @@ public class AutoEvaluationConfig extends GeneratedIdentityModel {
         this.gradeEvaluations = gradeEvaluations;
     }
 
-    @Transient
     public Map<Integer, GradeEvaluation> asGradeMap() {
         return gradeEvaluations.stream().collect(Collectors.toMap(ge -> ge.getGrade().getId(), Function.identity()));
     }
 
-    @Transient
     public AutoEvaluationConfig copy() {
         AutoEvaluationConfig clone = new AutoEvaluationConfig();
         BeanUtils.copyProperties(this, clone, "id", "exam", "gradeEvaluations");
@@ -122,10 +119,9 @@ public class AutoEvaluationConfig extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof AutoEvaluationConfig)) {
+        if (!(other instanceof AutoEvaluationConfig otherEvaluation)) {
             return false;
         }
-        AutoEvaluationConfig otherEvaluation = (AutoEvaluationConfig) other;
         return new EqualsBuilder().append(id, otherEvaluation.id).build();
     }
 

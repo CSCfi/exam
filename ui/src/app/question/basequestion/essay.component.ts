@@ -13,13 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input, OnInit } from '@angular/core';
+import { ControlContainer, NgForm } from '@angular/forms';
 import type { Question } from '../../exam/exam.model';
 import { QuestionDraft } from '../question.service';
 
 @Component({
     selector: 'xm-essay-editor',
+    viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     template: `
-        <form name="essayForm">
+        <div ngModelGroup="essay">
             <div class="row mt-3">
                 <div class="col-md-3 exam-basic-title">
                     {{ 'sitnet_essay_length_recommendation' | translate }}
@@ -42,13 +44,13 @@ import { QuestionDraft } from '../question.service';
                             {{ 'sitnet_characters' | translate }}
                         </span>
                     </div>
-                    <div *ngIf="wc.invalid" class="warning-text-small margin-10">
-                        <i class="bi-exclamation-circle reddish"></i>
+                    <div *ngIf="wc.invalid" class="warning-text-small margin-10 edit-warning-container">
+                        <i class="bi-exclamation-circle reddish me-2"></i>
                         {{ 'sitnet_essay_length_recommendation_bounds' | translate }}
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     `,
 })
 export class EssayEditorComponent implements OnInit {

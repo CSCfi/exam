@@ -7,8 +7,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import exceptions.NotFoundException;
 import impl.CalendarHandler;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Collection;
 import java.util.Optional;
@@ -63,11 +64,11 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
         Collection<Long> sectionIds = request.attrs().get(Attrs.SECTION_IDS);
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
 
-        CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
+        CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
         if (ce == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
-        final ExamEnrolment enrolment = Ebean
+        final ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .fetch("reservation")
             .where()
@@ -151,7 +152,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
     ) {
         if (org.isPresent() && date.isPresent()) {
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-            CollaborativeExam ce = Ebean.find(CollaborativeExam.class, examId);
+            CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
             if (ce == null) {
                 return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
             }
@@ -201,7 +202,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
 
     private ExamEnrolment getEnrolledExam(Long examId, User user) {
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        return Ebean
+        return DB
             .find(ExamEnrolment.class)
             .where()
             .eq("user", user)
@@ -214,10 +215,12 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
     }
 
     private URL parseUrl(String orgRef, String facilityRef) throws MalformedURLException {
-        return new URL(
-            configReader.getIopHost() +
-            String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
-        );
+        return URI
+            .create(
+                configReader.getIopHost() +
+                String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
+            )
+            .toURL();
     }
 
     private URL parseUrl(String orgRef, String facilityRef, String date, String start, String end, int duration) {
@@ -226,7 +229,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
             String.format("/api/organisations/%s/facilities/%s/slots", orgRef, facilityRef) +
             String.format("?date=%s&startAt=%s&endAt=%s&duration=%d", date, start, end, duration);
         try {
-            return new URL(url);
+            return URI.create(url).toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }

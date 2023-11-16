@@ -16,12 +16,12 @@
 package models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.util.Date;
 import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -238,9 +238,7 @@ public class Course extends GeneratedIdentityModel {
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (!(o instanceof Course)) return false;
-
-        Course course = (Course) o;
+        if (!(o instanceof Course course)) return false;
 
         return new EqualsBuilder().append(code, course.code).isEquals();
     }

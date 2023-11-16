@@ -55,7 +55,6 @@ import { AbortedExamsComponent } from './listing/dialogs/aborted.component';
 import { ArchiveDownloadComponent } from './listing/dialogs/archive-download.component';
 import { SpeedReviewFeedbackComponent } from './listing/dialogs/feedback.component';
 import { NoShowsComponent } from './listing/dialogs/no-shows.component';
-import { ReviewListResolverService } from './listing/review-list-resolver.service';
 import { ReviewListComponent } from './listing/review-list.component';
 import { ReviewListService } from './listing/review-list.service';
 import { SpeedReviewComponent } from './listing/speed-review.component';
@@ -134,7 +133,6 @@ import { QuestionReviewService } from './questions/question-review.service';
         MaturityService,
         QuestionReviewService,
         ExamSummaryService,
-        ReviewListResolverService,
     ],
 })
 export class ReviewModule {}

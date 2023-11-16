@@ -10,17 +10,16 @@ public interface RoomLike {
     String getRoomInstructionSV();
 
     default String getRoomInstructions(Lang lang) {
-        String instructions;
-        switch (lang.code()) {
-            case "sv":
-                instructions = getRoomInstructionSV();
-                return instructions == null ? getRoomInstruction() : instructions;
-            case "en":
-                instructions = getRoomInstructionEN();
-                return instructions == null ? getRoomInstruction() : instructions;
-            case "fi":
-            default:
-                return getRoomInstruction();
-        }
+        return switch (lang.code()) {
+            case "sv" -> {
+                String instructions = getRoomInstructionSV();
+                yield instructions == null ? getRoomInstruction() : instructions;
+            }
+            case "en" -> {
+                String instructions = getRoomInstructionEN();
+                yield instructions == null ? getRoomInstruction() : instructions;
+            }
+            default -> getRoomInstruction();
+        };
     }
 }

@@ -1,5 +1,8 @@
 package controllers;
 
+import static org.fest.assertions.Assertions.assertThat;
+import static play.test.Helpers.contentAsString;
+
 import base.IntegrationTestCase;
 import base.RunAsStudent;
 import base.RunAsTeacher;
@@ -10,7 +13,7 @@ import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit4.GreenMailRule;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import helpers.RemoteServerHelper;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.text.json.EJson;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +33,6 @@ import models.User;
 import models.json.ExternalExam;
 import net.jodah.concurrentunit.Waiter;
 import org.eclipse.jetty.server.Server;
-import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -40,7 +42,6 @@ import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
 import play.test.Helpers;
-import static play.test.Helpers.contentAsString;
 import util.json.JsonDeserializer;
 
 public class EnrolmentControllerTest extends IntegrationTestCase {
@@ -55,7 +56,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
 
     @Rule
     public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
-            .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
+        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     public static class CourseInfoServlet extends HttpServlet {
 
@@ -83,15 +84,15 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Ebean.deleteAll(Ebean.find(ExamEnrolment.class).findList());
-        exam = Ebean.find(Exam.class, 1);
-        user = Ebean.find(User.class, userId);
+        DB.deleteAll(DB.find(ExamEnrolment.class).findList());
+        exam = DB.find(Exam.class, 1);
+        user = DB.find(User.class, userId);
         enrolment = new ExamEnrolment();
         enrolment.setExam(exam);
         enrolment.setUser(user);
         reservation = new Reservation();
         reservation.setUser(user);
-        room = Ebean.find(ExamRoom.class, 1L);
+        room = DB.find(ExamRoom.class, 1L);
     }
 
     @Test
@@ -100,7 +101,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         String eppn = "student@uni.org";
         String email = "student@foo.bar";
         exam.setExecutionType(
-            Ebean.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
+            DB.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
         );
         exam.update();
 
@@ -111,12 +112,12 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         );
         assertThat(result.status()).isEqualTo(200);
 
-        User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
+        User user = DB.find(User.class).where().eq("eppn", eppn).findOne();
         assertThat(user).isNull();
 
         login(eppn, ImmutableMap.of("mail", email));
 
-        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, exam.getExamEnrolments().get(0).getId());
+        ExamEnrolment ee = DB.find(ExamEnrolment.class, exam.getExamEnrolments().get(0).getId());
         assertThat(ee.getUser().getEmail()).isEqualTo(email);
         assertThat(ee.getPreEnrolledUserEmail()).isNull();
 
@@ -128,7 +129,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     public void testPreEnrollWithEppn() throws Exception {
         String eppn = "student@uni.org";
         exam.setExecutionType(
-            Ebean.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
+            DB.find(ExamExecutionType.class).where().eq("type", ExamExecutionType.Type.PRIVATE.toString()).findOne()
         );
         exam.update();
 
@@ -139,12 +140,12 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         );
         assertThat(result.status()).isEqualTo(200);
 
-        User user = Ebean.find(User.class).where().eq("eppn", eppn).findOne();
+        User user = DB.find(User.class).where().eq("eppn", eppn).findOne();
         assertThat(user).isNull();
 
         login(eppn);
 
-        ExamEnrolment ee = Ebean.find(ExamEnrolment.class, exam.getExamEnrolments().get(0).getId());
+        ExamEnrolment ee = DB.find(ExamEnrolment.class, exam.getExamEnrolments().get(0).getId());
         assertThat(ee.getUser().getEppn()).isEqualTo(eppn);
         assertThat(ee.getPreEnrolledUserEmail()).isNull();
 
@@ -197,7 +198,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
-        ExamEnrolment enrolment = Ebean
+        ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .where()
             .eq("exam.id", exam.getId())
@@ -228,7 +229,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
             );
 
         waiter.await(5000, callCount);
-        final int count = Ebean
+        final int count = DB
             .find(ExamEnrolment.class)
             .where()
             .eq("exam.id", exam.getId())
@@ -255,7 +256,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         assertThat(contentAsString(result)).isEqualTo("sitnet_error_enrolment_exists");
 
         // Verify
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();
+        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class).findList();
         assertThat(enrolments).hasSize(1);
         enrolment = enrolments.get(0);
         assertThat(enrolment.getEnrolledOn()).isEqualTo(enrolledOn);
@@ -284,7 +285,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();
+        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class).findList();
         assertThat(enrolments).hasSize(1);
         ExamEnrolment e = enrolments.get(0);
         assertThat(e.getEnrolledOn().isAfter(enrolledOn));
@@ -315,7 +316,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         assertThat(contentAsString(result)).isEqualTo("sitnet_reservation_in_effect");
 
         // Verify
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();
+        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class).findList();
         assertThat(enrolments).hasSize(1);
         ExamEnrolment e = enrolments.get(0);
         assertThat(e.getEnrolledOn()).isEqualTo(enrolledOn);
@@ -343,7 +344,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
-        List<ExamEnrolment> enrolments = Ebean.find(ExamEnrolment.class).findList();
+        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class).findList();
         assertThat(enrolments).hasSize(2);
         ExamEnrolment e = enrolments.get(1);
         assertThat(e.getEnrolledOn().isAfter(enrolledOn));

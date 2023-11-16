@@ -18,18 +18,16 @@ package models;
 import be.objectify.deadbolt.java.models.Subject;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -92,7 +90,6 @@ public class User extends GeneratedIdentityModel implements Subject {
         this.userAgreementAccepted = userAgreementAccepted;
     }
 
-    @Column(columnDefinition = "BOOLEAN DEFAULT FALSE")
     private boolean userAgreementAccepted;
 
     private Date lastLogin;
@@ -237,7 +234,7 @@ public class User extends GeneratedIdentityModel implements Subject {
     }
 
     public boolean hasPermission(Permission.Type type) {
-        return permissions.stream().map(Permission::getType).collect(Collectors.toList()).contains(type);
+        return permissions.stream().map(Permission::getType).toList().contains(type);
     }
 
     public Role.Name getLoginRole() {
@@ -268,8 +265,7 @@ public class User extends GeneratedIdentityModel implements Subject {
     @Override
     public boolean equals(Object other) {
         if (other == this) return true;
-        if (!(other instanceof User)) return false;
-        User otherUser = (User) other;
+        if (!(other instanceof User otherUser)) return false;
         return new EqualsBuilder().append(getId(), otherUser.getId()).build();
     }
 

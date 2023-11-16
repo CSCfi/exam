@@ -22,6 +22,7 @@ export interface ExaminationSection extends ExamSection {
 }
 
 export interface NavigationPage {
+    index: number;
     id: number;
     text: string;
     type: string;
