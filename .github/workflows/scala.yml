@@ -1,0 +1,55 @@
+name: Exam
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: sitnet_test
+          POSTGRES_USER: sitnet
+          POSTGRES_PASSWORD: sitnetsitnet
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v2
+      with:
+        java-version: 21
+        distribution: temurin
+
+    - name: Set up Node 18
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18.x
+
+    - name: Build UI
+      run: |
+        cd ui
+        rm -rf node_modules
+        npm i
+        npm run check-format
+        npm run check-lint
+        npm run build
+        cd ..
+
+    - name: Run tests
+      run: |
+        sed -i 's/\/var\/log\/exam/logs/g' $GITHUB_WORKSPACE/conf/logback.xml
+        sbt test
+
+
