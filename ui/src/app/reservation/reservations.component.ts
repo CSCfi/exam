@@ -13,17 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Directive, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { addMinutes, endOfDay, parseISO, startOfDay } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin, Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { forkJoin, from, Observable, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { CollaborativeExam, Exam, ExamImpl, Implementation } from '../exam/exam.model';
 import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
-import { isNumber, isObject } from '../shared/miscellaneous/helpers';
+import { isObject } from '../shared/miscellaneous/helpers';
 import type { Option } from '../shared/select/dropdown-select.component';
 import { OrderByPipe } from '../shared/sorting/order-by.pipe';
 import type { ExamMachine, ExamRoom, Reservation } from './reservation.model';
@@ -64,12 +65,21 @@ export type AnyReservation =
     | RemoteTransferExamReservation
     | CollaborativeExamReservation;
 
-@Directive()
-export class ReservationComponentBase implements OnInit {
+@Component({
+    selector: 'xm-reservations',
+    templateUrl: './reservations.component.html',
+})
+export class ReservationsComponent implements OnInit {
+    @ViewChild('studentInput') studentInput!: ElementRef;
+    @ViewChild('examInput') examInput!: ElementRef;
+    @ViewChild('ownerInput') ownerInput!: ElementRef;
     examId = '';
-    user: User;
+    externalRef = '';
+    student?: User;
+    owner?: User;
     startDate: Date | null = new Date();
     endDate: Date | null = new Date();
+    user: User;
     examStates = [
         'REVIEW',
         'REVIEW_STARTED',
@@ -84,11 +94,8 @@ export class ReservationComponentBase implements OnInit {
     ];
     selection: Selection = {};
     stateOptions: Option<string, string>[] = [];
-    examOptions: Option<Exam | CollaborativeExam, number>[] = [];
     roomOptions: Option<ExamRoom, number>[] = [];
     machineOptions: Option<ExamMachine, number>[] = [];
-    studentOptions: Option<User, number>[] = [];
-    teacherOptions: Option<User, number>[] = [];
     rooms: ExamRoom[] = [];
     machines: ExamMachine[] = [];
     reservations: AnyReservation[] = [];
@@ -114,7 +121,6 @@ export class ReservationComponentBase implements OnInit {
 
     ngOnInit() {
         this.examId = this.route.snapshot.params.eid;
-        this.selection = this.examId ? { examId: this.examId } : {};
         this.initOptions();
         this.query();
         this.stateOptions = this.examStates.map((s) => {
@@ -252,17 +258,43 @@ export class ReservationComponentBase implements OnInit {
 
     isAdminView = () => this.user.isAdmin;
 
-    getPlaceHolder = () =>
-        this.examId ? this.examOptions.find((o) => (o.id ? o.id.toString() : o) === this.examId)?.label : '-';
+    studentSelected(event: NgbTypeaheadSelectItemEvent<User & { name: string }>) {
+        this.student = event.item;
+        this.query();
+    }
 
-    roomChanged(event: Option<ExamRoom, number> | undefined) {
-        if (event?.value === undefined) {
-            delete this.selection.roomId;
-            this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
+    clearStudent() {
+        delete this.student;
+        this.studentInput.nativeElement.value = '';
+        this.query();
+    }
+
+    ownerSelected(event: NgbTypeaheadSelectItemEvent<User & { name: string }>) {
+        this.owner = event.item;
+        this.query();
+    }
+
+    clearOwner() {
+        delete this.owner;
+        this.ownerInput.nativeElement.value = '';
+        this.query();
+    }
+
+    examSelected(event: NgbTypeaheadSelectItemEvent<Exam | CollaborativeExam>) {
+        if (event.item.externalRef) {
+            this.externalRef = event.item.externalRef;
+            this.examId = '';
         } else {
-            this.selection.roomId = event.value.id.toString();
-            this.machineOptions = this.machinesForRoom(event.value, this.machines);
+            this.examId = event.item.id.toString();
+            this.externalRef = '';
         }
+        this.query();
+    }
+
+    clearExam() {
+        this.examId = '';
+        this.externalRef = '';
+        this.examInput.nativeElement.value = '';
         this.query();
     }
 
@@ -276,11 +308,13 @@ export class ReservationComponentBase implements OnInit {
         this.query();
     }
 
-    ownerChanged(event: Option<User, number> | undefined) {
-        if (event?.value) {
-            this.selection.ownerId = event.value.id.toString();
+    roomChanged(event: Option<ExamRoom, number> | undefined) {
+        if (event?.value === undefined) {
+            delete this.selection.roomId;
+            this.machineOptions = this.machinesForRooms(this.rooms, this.machines);
         } else {
-            delete this.selection.ownerId;
+            this.selection.roomId = event.value.id.toString();
+            this.machineOptions = this.machinesForRoom(event.value, this.machines);
         }
         this.query();
     }
@@ -294,15 +328,6 @@ export class ReservationComponentBase implements OnInit {
         this.query();
     }
 
-    studentChanged(event: Option<User, number> | undefined) {
-        if (event?.value) {
-            this.selection.studentId = event.value.id.toString();
-        } else {
-            delete this.selection.studentId;
-        }
-        this.query();
-    }
-
     machineChanged(event: Option<ExamMachine, number> | undefined) {
         if (event?.value) {
             this.selection.machineId = event.value.id.toString();
@@ -312,48 +337,64 @@ export class ReservationComponentBase implements OnInit {
         this.query();
     }
 
-    examChanged(event: Option<Exam | CollaborativeExam, number> | undefined) {
-        if (event?.value) {
-            if (event.value.externalRef) {
-                this.selection.externalRef = event.value.externalRef || '';
-                delete this.selection.examId;
-            } else {
-                this.selection.examId = event.value.id.toString();
-                delete this.selection.externalRef;
+    protected searchStudents$ = (text$: Observable<string>) =>
+        text$.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            exhaustMap((term) =>
+                term.length < 2
+                    ? from([])
+                    : this.http.get<(User & { name: string })[]>('/app/reservations/students', {
+                          params: { filter: term },
+                      }),
+            ),
+            map((ss) => ss.sort((a, b) => a.firstName.localeCompare(b.firstName)).slice(0, 100)),
+        );
+
+    protected searchOwners$ = (text$: Observable<string>) =>
+        text$.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            exhaustMap((term) =>
+                term.length < 2
+                    ? from([])
+                    : this.http.get<(User & { name: string })[]>('/app/reservations/teachers', {
+                          params: { filter: term },
+                      }),
+            ),
+            map((ss) => ss.sort((a, b) => a.lastName.localeCompare(b.lastName)).slice(0, 100)),
+        );
+
+    protected searchExams$ = (text$: Observable<string>) => {
+        const listExams$ = (text: string) => {
+            const examObservables: Observable<Exam[] | CollaborativeExam[]>[] = [
+                this.http.get<Exam[]>('/app/reservations/exams', { params: { filter: text } }),
+            ];
+            if (this.isInteroperable && this.isAdminView()) {
+                examObservables.push(
+                    this.http.get<CollaborativeExam[]>('/app/iop/exams', { params: { filter: text } }),
+                );
             }
-        } else {
-            delete this.selection.examId;
-            delete this.selection.externalRef;
-        }
-        this.query();
-    }
-
-    updateQuery() {
-        this.query();
-    }
-
-    protected initExamOptions = () => {
-        const examObservables: Observable<Exam[] | CollaborativeExam[]>[] = [
-            this.http.get<Exam[]>('/app/reservations/exams'),
-        ];
-        if (this.isInteroperable && this.isAdminView()) {
-            examObservables.push(this.http.get<CollaborativeExam[]>('/app/iop/exams'));
-        }
-        forkJoin(examObservables)
-            .pipe(
-                map((exams) => exams.flat().flatMap((e) => ({ id: e.id, value: e, label: e.name }))),
-                tap((options) => (this.examOptions = this.orderPipe.transform(options, 'label'))),
-            )
-            .subscribe();
+            return forkJoin(examObservables).pipe(map((exams) => exams.flat()));
+        };
+        return text$.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            exhaustMap((term) => (term.length < 2 ? from([]) : listExams$(term))),
+            map((es) => es.sort((a, b) => (a.name as string).localeCompare(b.name as string)).slice(0, 100)),
+        );
     };
 
-    // TODO: check this out
+    protected nameFormatter = (item: { name: string }) => item.name;
+
     private createParams = (input: Selection) => {
-        const params: Selection = { ...input };
-        if (params.examId && !isNumber(parseInt(params.examId as string))) {
-            params.externalRef = params.examId as string;
-            delete params.examId;
-        }
+        const extras = {
+            ...(this.student?.id && { studentId: this.student.id.toString() }),
+            ...(this.owner?.id && { ownerId: this.owner.id.toString() }),
+            ...(this.examId && { examId: this.examId }),
+            ...(this.externalRef && { externalRef: this.externalRef }),
+        };
+        const params: Selection = { ...input, ...extras };
         if (this.startDate) {
             params.start = startOfDay(this.startDate).toISOString();
         }
@@ -373,29 +414,11 @@ export class ReservationComponentBase implements OnInit {
         isObject(reservation.enrolment?.collaborativeExam);
 
     private initOptions() {
-        this.http.get<(User & { name: string })[]>('/app/reservations/students').subscribe({
-            next: (resp) => {
-                const students: (User & { name: string })[] = this.orderPipe.transform(resp, 'lastName');
-                this.studentOptions = students.map((s) => {
-                    return { id: s.id, value: s, label: s.name };
-                });
-            },
-            error: (err) => this.toast.error(err),
-        });
         this.http.get<{ isExamVisitSupported: boolean }>('/app/settings/iop/examVisit').subscribe((resp) => {
             this.isInteroperable = resp.isExamVisitSupported;
-            this.initExamOptions();
         });
 
         if (this.isAdminView()) {
-            this.http.get<(User & { name: string })[]>('/app/reservations/teachers').subscribe({
-                next: (resp) => {
-                    const teachers = this.orderPipe.transform(resp, 'lastName');
-                    this.teacherOptions = teachers.map((t) => ({ id: t.id, value: t, label: t.name }));
-                },
-                error: (err) => this.toast.error(err),
-            });
-
             this.http.get<ExamRoom[]>('/app/reservations/examrooms').subscribe({
                 next: (resp) => {
                     this.rooms = this.orderPipe.transform(resp, 'name');
@@ -410,8 +433,6 @@ export class ReservationComponentBase implements OnInit {
         }
     }
 
-    private roomContains = (room: ExamRoom, machine: ExamMachine) => room.examMachines.some((m) => m.id === machine.id);
-
     private machinesForRoom(room: ExamRoom, machines: ExamMachine[]): Option<ExamMachine, number>[] {
         if (room.examMachines.length < 1) {
             return [];
@@ -422,7 +443,7 @@ export class ReservationComponentBase implements OnInit {
             isHeader: true,
         };
         const machineData: Option<ExamMachine, number>[] = machines
-            .filter((m) => this.roomContains(room, m))
+            .filter((m) => room.examMachines.some((rem) => m.id === rem.id))
             .map((m) => {
                 return { id: m.id, value: m, label: m.name == null ? '' : m.name };
             });
@@ -434,14 +455,9 @@ export class ReservationComponentBase implements OnInit {
         rooms.map((r) => this.machinesForRoom(r, machines)).reduce((a, b) => a.concat(b), []);
 
     private somethingSelected(params: Selection) {
-        for (const k in params) {
-            if (!Object.prototype.hasOwnProperty.call(params, k)) {
-                continue;
-            }
-            if (params[k]) {
-                return true;
-            }
-        }
+        if (this.student || this.owner) return true;
+        if (this.examId || this.externalRef) return true;
+        if (Object.keys(params).length > 0) return true;
         return this.startDate || this.endDate;
     }
 }
