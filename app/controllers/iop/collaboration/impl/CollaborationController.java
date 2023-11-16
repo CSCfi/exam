@@ -13,6 +13,8 @@ import io.vavr.control.Either;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -71,10 +73,13 @@ public class CollaborationController extends BaseController {
             if (filter == null) {
                 return Optional.empty();
             }
-
-            String paramStr = String.format("?filter=%s&anonymous=%s", filter, anonymous);
-            String url = String.format("%s/api/exams/search%s", configReader.getIopHost(), paramStr);
-            return Optional.of(URI.create(url).toURL());
+            String paramStr = String.format(
+                "filter=%s&anonymous=%s",
+                URLEncoder.encode(filter, StandardCharsets.UTF_8),
+                anonymous
+            );
+            URI uri = URI.create(String.format("%s/api/exams/search?%s", configReader.getIopHost(), paramStr));
+            return Optional.of(uri.toURL());
         } catch (MalformedURLException e) {
             logger.error("Malformed URL", e);
             return Optional.empty();

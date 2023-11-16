@@ -8,40 +8,69 @@
     </div>
 
     <div class="reservation-border">
-        <div class="p-4 row">
+        <div class="pe-4 ps-4 pt-4 row">
             <div class="col-md-2 pt-1 reservation-search-titles">
-                <strong>{{ 'sitnet_begin' | translate }}</strong>
-                <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
+                <label for="start-date-picker" class="reservation-search-titles form-label">{{
+                    'sitnet_begin' | translate
+                }}</label>
+                <xm-date-picker id="start-date-picker" (updated)="startDateChanged($event)"></xm-date-picker>
             </div>
             <div class="col-md-2 pt-1 reservation-search-titles">
-                <strong>{{ 'sitnet_end' | translate }}</strong>
-                <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
+                <label for="end-date-picker" class="reservation-search-titles form-label">{{
+                    'sitnet_end' | translate
+                }}</label>
+                <xm-date-picker id="end-date-picker" (updated)="endDateChanged($event)"></xm-date-picker>
             </div>
             <div class="col-md-2">
-                <strong class="reservation-search-titles">{{ 'sitnet_student' | translate }}</strong>
-                <xm-dropdown-select
-                    *ngIf="studentOptions"
-                    [fullWidth]="true"
-                    [options]="studentOptions"
-                    (optionSelected)="studentChanged($event)"
-                    placeholder="{{ 'sitnet_select' | translate }}"
-                >
-                </xm-dropdown-select>
+                <label for="student-search" class="reservation-search-titles form-label">{{
+                    'sitnet_student' | translate
+                }}</label>
+                <div class="input-group">
+                    <input
+                        #studentInput
+                        id="student-search"
+                        type="text"
+                        class="form-control"
+                        [ngbTypeahead]="searchStudents$"
+                        [resultFormatter]="nameFormatter"
+                        [inputFormatter]="nameFormatter"
+                        (selectItem)="studentSelected($event)"
+                        [disabled]="student"
+                        placeholder="{{ 'sitnet_select' | translate }}"
+                    />
+                    <button class="btn btn-outline-secondary" type="button" (click)="clearStudent()">
+                        {{ 'sitnet_remove' | translate }}
+                    </button>
+                </div>
             </div>
             <div class="col-md-3">
-                <strong class="reservation-search-titles">{{ 'sitnet_exam' | translate }}</strong>
-                <xm-dropdown-select
-                    *ngIf="examOptions"
-                    [fullWidth]="true"
-                    [options]="examOptions"
-                    (optionSelected)="examChanged($event)"
-                    placeholder="{{ 'sitnet_select' | translate }}"
-                >
-                </xm-dropdown-select>
+                <label for="exam-search" class="reservation-search-titles form-label">{{
+                    'sitnet_exam' | translate
+                }}</label>
+                <div class="input-group">
+                    <input
+                        #examInput
+                        id="exam-search"
+                        type="text"
+                        class="form-control"
+                        [ngbTypeahead]="searchExams$"
+                        [resultFormatter]="nameFormatter"
+                        [inputFormatter]="nameFormatter"
+                        (selectItem)="examSelected($event)"
+                        [disabled]="examId || externalRef"
+                        placeholder="{{ 'sitnet_select' | translate }}"
+                    />
+                    <button class="btn btn-outline-secondary" type="button" (click)="clearExam()">
+                        {{ 'sitnet_remove' | translate }}
+                    </button>
+                </div>
             </div>
             <div class="col-md-3">
-                <strong class="reservation-search-titles">{{ 'sitnet_exam_state' | translate }}</strong>
+                <label for="state-search" class="reservation-search-titles form-label">{{
+                    'sitnet_exam_state' | translate
+                }}</label>
                 <xm-dropdown-select
+                    id="state-search"
                     *ngIf="stateOptions"
                     [fullWidth]="true"
                     [options]="stateOptions"
