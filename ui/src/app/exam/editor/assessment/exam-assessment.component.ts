@@ -1,12 +1,16 @@
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, takeUntil } from 'rxjs';
 import { AutoEvaluationConfig, Exam, ExamFeedbackConfig, ExamType, GradeScale } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { ExamTabService } from '../exam-tabs.service';
+import { AutoEvaluationComponent } from './auto-evaluation.component';
+import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
 
 /*
  * Copyright (c) 2017 Exam Consortium
@@ -25,6 +29,8 @@ import { ExamTabService } from '../exam-tabs.service';
 @Component({
     selector: 'xm-exam-assessment',
     templateUrl: './exam-assessment.component.html',
+    standalone: true,
+    imports: [NgbPopover, NgFor, NgClass, NgIf, AutoEvaluationComponent, ExamFeedbackConfigComponent, TranslateModule],
 })
 export class ExamAssessmentComponent implements OnInit, OnDestroy {
     exam!: Exam;

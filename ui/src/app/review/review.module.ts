@@ -70,9 +70,11 @@ import { QuestionReviewsComponent } from './questions/listing/question-reviews.c
 import { QuestionReviewService } from './questions/question-review.service';
 
 @NgModule({
-    imports: [NgbModule, RouterModule, SharedModule, DragDropModule],
-    exports: [ReviewListComponent, QuestionReviewsComponent, ExamSummaryComponent],
-    declarations: [
+    imports: [
+        NgbModule,
+        RouterModule,
+        SharedModule,
+        DragDropModule,
         AssessmentComponent,
         FeedbackComponent,
         StatementComponent,
@@ -96,15 +98,10 @@ import { QuestionReviewService } from './questions/question-review.service';
         GeneralInfoComponent,
         ParticipationComponent,
         NoShowComponent,
-        InspectionCommentDialogComponent,
         InspectionCommentsComponent,
         MaturityGradingComponent,
         MaturityToolbarComponent,
-        SpeedReviewFeedbackComponent,
         SpeedReviewComponent,
-        NoShowsComponent,
-        AbortedExamsComponent,
-        ArchiveDownloadComponent,
         InProgressReviewsComponent,
         GradedReviewsComponent,
         GradedLoggedReviewsComponent,
@@ -118,6 +115,14 @@ import { QuestionReviewService } from './questions/question-review.service';
         QuestionFlowCategoryComponent,
         QuestionReviewComponent,
         QuestionReviewsComponent,
+    ],
+    exports: [ReviewListComponent, QuestionReviewsComponent, ExamSummaryComponent],
+    declarations: [
+        InspectionCommentDialogComponent,
+        SpeedReviewFeedbackComponent,
+        NoShowsComponent,
+        AbortedExamsComponent,
+        ArchiveDownloadComponent,
     ],
     bootstrap: [
         InspectionCommentDialogComponent,

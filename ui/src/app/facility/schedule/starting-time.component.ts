@@ -12,8 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import type { WorkingHour } from '../rooms/room.service';
 import { RoomService } from '../rooms/room.service';
@@ -77,6 +80,8 @@ import { RoomService } from '../rooms/room.service';
                 }}</a>
             </div>
         </div> `,
+    standalone: true,
+    imports: [FormsModule, NgFor, NgClass, TranslateModule],
 })
 export class StartingTimeComponent implements OnInit {
     @Input() roomIds: number[] = [];

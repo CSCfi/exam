@@ -13,8 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ExceptionWorkingHours } from '../../reservation/reservation.model';
 
 @Component({
@@ -51,6 +53,8 @@ import { ExceptionWorkingHours } from '../../reservation/reservation.model';
             </div>
         </div>
     </div> `,
+    standalone: true,
+    imports: [NgIf, TranslateModule],
 })
 export class ExceptionDeleteDialogComponent {
     @Input() message?: string;

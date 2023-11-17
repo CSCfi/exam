@@ -12,13 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { SessionService } from '../../session/session.service';
 import type { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
+import { ExamSearchResultComponent } from '../search/exam-search-result.component';
+import { EnrolmentDetailsComponent } from './exam-enrolment-details.component';
 
 @Component({
     selector: 'xm-exam-enrolments',
@@ -44,6 +48,8 @@ import { EnrolmentService } from '../enrolment.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [NgIf, EnrolmentDetailsComponent, NgFor, ExamSearchResultComponent, TranslateModule],
 })
 export class ExamEnrolmentsComponent implements OnInit {
     exam!: EnrolmentInfo;

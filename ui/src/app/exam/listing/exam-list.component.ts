@@ -12,15 +12,28 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { Router, RouterLink } from '@angular/router';
+import {
+    NgbModal,
+    NgbNav,
+    NgbNavItem,
+    NgbNavItemRole,
+    NgbNavLink,
+    NgbNavLinkBase,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { from, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
+import { TableSortComponent } from '../../shared/sorting/table-sort.component';
+import { TeacherListComponent } from '../../shared/user/teacher-list.component';
 import { ExaminationTypeSelectorComponent } from '../editor/common/examination-type-picker.component';
 import type { Exam, Implementation } from '../exam.model';
 import { ExamService } from '../exam.service';
@@ -30,6 +43,25 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
 @Component({
     selector: 'xm-exam-list',
     templateUrl: './exam-list.component.html',
+    standalone: true,
+    imports: [
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLinkBase,
+        NgbNavLink,
+        NgbPopover,
+        NgIf,
+        TableSortComponent,
+        NgFor,
+        CourseCodeComponent,
+        RouterLink,
+        TeacherListComponent,
+        UpperCasePipe,
+        DatePipe,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class ExamListingComponent implements OnInit, OnDestroy {
     activeId = 0;

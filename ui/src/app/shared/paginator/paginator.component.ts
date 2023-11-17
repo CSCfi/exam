@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor } from '@angular/common';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { range as _range } from 'ramda';
@@ -36,6 +37,8 @@ import { range as _range } from 'ramda';
             </li>
         </ul>
     `,
+    standalone: true,
+    imports: [NgClass, NgFor],
 })
 export class PaginatorComponent implements OnChanges {
     @Input() items: unknown[] = [];

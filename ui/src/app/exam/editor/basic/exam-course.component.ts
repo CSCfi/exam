@@ -14,10 +14,12 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
 import type { Course, Exam } from '../../exam.model';
+import { CoursePickerComponent } from '../common/course-picker.component';
 
 @Component({
     selector: 'xm-exam-course',
@@ -68,6 +70,8 @@ import type { Course, Exam } from '../../exam.model';
                 {{ displayGradeScale() }}
             </div>
         </div> `,
+    standalone: true,
+    imports: [NgbPopover, CoursePickerComponent, TranslateModule],
 })
 export class ExamCourseComponent {
     @Input() exam!: Exam;

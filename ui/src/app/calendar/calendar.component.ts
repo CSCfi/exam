@@ -12,10 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { switchMap, tap } from 'rxjs/operators';
@@ -23,11 +24,32 @@ import { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
 import { DateTimeService } from '../shared/date/date.service';
 import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
+import { HistoryBackComponent } from '../shared/history/history-back.component';
+import { CourseCodeComponent } from '../shared/miscellaneous/course-code.component';
+import { AutoFocusDirective } from '../shared/select/auto-focus.directive';
 import { CalendarService, ExamInfo, Organisation } from './calendar.service';
+import { CalendarExamInfoComponent } from './helpers/exam-info.component';
+import { OptionalSectionsComponent } from './helpers/optional-sections.component';
+import { OrganisationPickerComponent } from './helpers/organisation-picker.component';
+import { SlotPickerComponent } from './helpers/slot-picker.component';
 
 @Component({
     selector: 'xm-calendar',
     templateUrl: './calendar.component.html',
+    standalone: true,
+    imports: [
+        HistoryBackComponent,
+        AutoFocusDirective,
+        NgIf,
+        CalendarExamInfoComponent,
+        OptionalSectionsComponent,
+        OrganisationPickerComponent,
+        SlotPickerComponent,
+        NgClass,
+        CourseCodeComponent,
+        DatePipe,
+        TranslateModule,
+    ],
 })
 export class CalendarComponent implements OnInit {
     isInteroperable = false;

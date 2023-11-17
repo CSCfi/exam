@@ -14,7 +14,10 @@
  */
 import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { FileService } from 'src/app/shared/file/file.service';
+import { DatePickerComponent } from '../../../shared/date/date-picker.component';
 
 @Component({
     template: `
@@ -55,6 +58,8 @@ import { FileService } from 'src/app/shared/file/file.service';
         </div>
     `,
     selector: 'xm-answers-report',
+    standalone: true,
+    imports: [DatePickerComponent, NgbPopover, TranslateModule],
 })
 export class AnswersReportComponent {
     startDate: Date | null = null;

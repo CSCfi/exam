@@ -12,11 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
 import { QuestionDraft, QuestionService } from '../question.service';
+import { MultipleChoiceOptionEditorComponent } from './multiple-choice-option.component';
+import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple-choice-option.component';
 
 @Component({
     selector: 'xm-multiple-choice-editor',
@@ -85,6 +88,15 @@ import { QuestionDraft, QuestionService } from '../question.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [
+        NgIf,
+        NgFor,
+        MultipleChoiceOptionEditorComponent,
+        WeightedMultipleChoiceOptionEditorComponent,
+        UpperCasePipe,
+        TranslateModule,
+    ],
 })
 export class MultipleChoiceEditorComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;

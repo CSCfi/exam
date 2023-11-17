@@ -1,4 +1,7 @@
+import { NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import type { ExamInfo } from '../calendar.service';
 
 @Component({
@@ -69,6 +72,8 @@ import type { ExamInfo } from '../calendar.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [NgClass, NgIf, NgFor, FormsModule, UpperCasePipe, TranslateModule],
 })
 export class OptionalSectionsComponent {
     @Input() examInfo!: ExamInfo;

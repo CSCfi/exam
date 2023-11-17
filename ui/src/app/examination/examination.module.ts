@@ -20,8 +20,10 @@ import { ExaminationWeightedMultiChoiceComponent } from './question/examination-
 import { ExaminationSectionComponent } from './section/examination-section.component';
 
 @NgModule({
-    imports: [RouterModule, NgbPopoverModule, SharedModule],
-    declarations: [
+    imports: [
+        RouterModule,
+        NgbPopoverModule,
+        SharedModule,
         AnswerInstructionsComponent,
         ExaminationClockComponent,
         ExaminationClozeTestComponent,

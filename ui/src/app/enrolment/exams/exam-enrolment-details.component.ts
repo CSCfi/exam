@@ -12,16 +12,32 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { DateTimeService } from '../../shared/date/date.service';
+import { HistoryBackComponent } from '../../shared/history/history-back.component';
+import { MathJaxDirective } from '../../shared/math/math-jax.directive';
 import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from '../../shared/user/teacher-list.component';
 import type { EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
 @Component({
     selector: 'xm-enrolment-details',
     templateUrl: './exam-enrolment-details.component.html',
+    standalone: true,
+    imports: [
+        HistoryBackComponent,
+        NgIf,
+        CourseCodeComponent,
+        TeacherListComponent,
+        MathJaxDirective,
+        DatePipe,
+        TranslateModule,
+    ],
 })
 export class EnrolmentDetailsComponent {
     @Input() exam!: EnrolmentInfo;

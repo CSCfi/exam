@@ -14,8 +14,8 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
@@ -56,6 +56,8 @@ import { QuestionService } from '../../question.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [NgbTypeahead, TranslateModule],
 })
 export class LibraryOwnersComponent implements OnInit {
     @Input() selections: number[] = [];

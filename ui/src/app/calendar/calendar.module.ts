@@ -27,8 +27,13 @@ import { SelectedRoomComponent } from './helpers/selected-room.component';
 import { SlotPickerComponent } from './helpers/slot-picker.component';
 
 @NgModule({
-    imports: [FullCalendarModule, RouterModule, NgbPopoverModule, NgbDropdownModule, NgbCollapseModule, SharedModule],
-    declarations: [
+    imports: [
+        FullCalendarModule,
+        RouterModule,
+        NgbPopoverModule,
+        NgbDropdownModule,
+        NgbCollapseModule,
+        SharedModule,
         BookingCalendarComponent,
         CalendarComponent,
         CalendarExamInfoComponent,

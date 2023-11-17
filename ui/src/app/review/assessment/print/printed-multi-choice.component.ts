@@ -12,14 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { QuestionService } from 'src/app/question/question.service';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
+import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
 
 @Component({
     selector: 'xm-printed-multi-choice',
     templateUrl: './templates/multi-choice.component.html',
+    standalone: true,
+    imports: [MathJaxDirective, NgIf, NgFor, NgClass, NgStyle, TranslateModule],
 })
 export class PrintedMultiChoiceComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;

@@ -1,5 +1,7 @@
+import { NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import type { ExamInfo, QueryParams } from '../statistics.service';
 import { StatisticsService } from '../statistics.service';
 
@@ -47,6 +49,8 @@ import { StatisticsService } from '../statistics.service';
         </div>
     `,
     selector: 'xm-exam-statistics',
+    standalone: true,
+    imports: [NgIf, NgFor, TranslateModule],
 })
 export class ExamStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};

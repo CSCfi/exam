@@ -12,11 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, LowerCasePipe, NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam, ExamLanguage, ExamParticipation, ExamType, SelectableGrade } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
@@ -25,14 +28,32 @@ import type { QuestionAmounts } from '../../../question/question.service';
 import type { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
 import { LanguageService } from '../../../shared/language/language.service';
+import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
 import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborative-assessment.service';
 import { GradingBaseComponent } from '../common/grading-base.component';
+import { InspectionComponent } from './inspection.component';
+import { ToolbarComponent } from './toolbar.component';
 
 @Component({
     selector: 'xm-r-grading',
     templateUrl: './grading.component.html',
+    standalone: true,
+    imports: [
+        NgFor,
+        InspectionComponent,
+        NgIf,
+        NgbPopover,
+        FormsModule,
+        NgClass,
+        MathJaxDirective,
+        ToolbarComponent,
+        UpperCasePipe,
+        LowerCasePipe,
+        DatePipe,
+        TranslateModule,
+    ],
 })
 export class GradingComponent extends GradingBaseComponent implements OnInit {
     @Input() exam!: Examination;

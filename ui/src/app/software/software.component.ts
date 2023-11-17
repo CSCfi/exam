@@ -12,15 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Software } from '../exam/exam.model';
+import { OrderByPipe } from '../shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-software',
     templateUrl: './software.component.html',
+    standalone: true,
+    imports: [FormsModule, NgFor, NgIf, TranslateModule, OrderByPipe],
 })
 export class SoftwareComponent implements OnInit {
     software: (Software & { showName: boolean })[] = [];

@@ -1,8 +1,11 @@
+import { DatePipe, NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { MaintenancePeriod } from '../../exam/exam.model';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
 import type { OpeningHours } from '../calendar.service';
 import { CalendarService } from '../calendar.service';
 
@@ -64,6 +67,8 @@ import { CalendarService } from '../calendar.service';
             <div class="col-md-10 col-12">{{ getRoomAccessibility() }}</div>
         </div>
     `,
+    standalone: true,
+    imports: [NgFor, NgIf, NgClass, NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
 })
 export class SelectedRoomComponent implements OnInit, OnChanges {
     @Input() room!: ExamRoom;

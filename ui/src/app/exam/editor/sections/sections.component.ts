@@ -12,23 +12,48 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+    CdkDrag,
+    CdkDragDrop,
+    CdkDragHandle,
+    CdkDragPlaceholder,
+    CdkDragPreview,
+    CdkDropList,
+    moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import { NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, tap } from 'rxjs/operators';
 import { SessionService } from '../../../session/session.service';
+import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
 import type { Exam, ExamMaterial, ExamSection } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { ExamTabService } from '../exam-tabs.service';
+import { SectionComponent } from './section.component';
 
 @Component({
     selector: 'xm-sections',
     templateUrl: './sections.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        CdkDropList,
+        NgFor,
+        CdkDrag,
+        CdkDragPlaceholder,
+        CdkDragPreview,
+        SectionComponent,
+        CdkDragHandle,
+        NgbPopover,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class SectionsComponent implements OnInit, OnChanges {
     exam!: Exam;

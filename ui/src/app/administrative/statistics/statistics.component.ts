@@ -12,8 +12,27 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import {
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbNav,
+    NgbNavItem,
+    NgbNavItemRole,
+    NgbNavLink,
+    NgbNavLinkBase,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import { DatePickerComponent } from '../../shared/date/date-picker.component';
+import { ExamStatisticsComponent } from './categories/exam-statistics.component';
+import { ReservationStatisticsComponent } from './categories/reservation-statistics.component';
+import { ResponseStatisticsComponent } from './categories/response-statistics.component';
+import { RoomStatisticsComponent } from './categories/room-statistics.component';
 import { QueryParams, StatisticsService } from './statistics.service';
 
 interface Departments {
@@ -31,6 +50,28 @@ enum Tab {
 @Component({
     templateUrl: './statistics.component.html',
     selector: 'xm-statistics',
+    standalone: true,
+    imports: [
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLinkBase,
+        NgbNavLink,
+        DatePickerComponent,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        FormsModule,
+        NgFor,
+        NgbDropdownItem,
+        NgClass,
+        NgIf,
+        RoomStatisticsComponent,
+        ReservationStatisticsComponent,
+        ResponseStatisticsComponent,
+        ExamStatisticsComponent,
+        TranslateModule,
+    ],
 })
 export class StatisticsComponent implements OnInit {
     view: Tab = Tab.RESPONSES;

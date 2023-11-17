@@ -22,6 +22,7 @@ import { Component } from '@angular/core';
             <img class="pointer arrow_icon" src="/assets/images/icon_history.png" alt="go back" />
         </a>
     `,
+    standalone: true,
 })
 export class HistoryBackComponent {
     goBack = (event: Event) => {

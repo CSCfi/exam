@@ -12,8 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
@@ -80,6 +84,8 @@ import type { Exam } from '../../exam.model';
                 </ul>
             </div>
         </div> `,
+    standalone: true,
+    imports: [NgbPopover, FormsModule, NgFor, TranslateModule],
 })
 export class CollaborativeExamOwnerSelectorComponent {
     @Input() exam!: Exam;

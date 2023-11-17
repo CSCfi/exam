@@ -18,9 +18,8 @@ import { SharedModule } from '../shared/shared.module';
 import { SoftwareComponent } from './software.component';
 
 @NgModule({
-    imports: [NgbModule, SharedModule],
+    imports: [NgbModule, SharedModule, SoftwareComponent],
     exports: [SoftwareComponent],
-    declarations: [SoftwareComponent],
     providers: [],
 })
 export class SoftwareModule {}

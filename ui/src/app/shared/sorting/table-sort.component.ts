@@ -1,4 +1,6 @@
+import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 /*
  * Copyright (c) 2018 Exam Consortium
@@ -23,6 +25,8 @@ import { Component, Input } from '@angular/core';
             <i [ngClass]="getSortClass()"></i>
         </span>
     `,
+    standalone: true,
+    imports: [NgClass, TranslateModule],
 })
 export class TableSortComponent {
     @Input() by = '';

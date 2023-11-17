@@ -14,6 +14,9 @@
  */
 import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import { DatePickerComponent } from '../../../shared/date/date-picker.component';
 import { FileService } from '../../../shared/file/file.service';
 
 @Component({
@@ -54,6 +57,8 @@ import { FileService } from '../../../shared/file/file.service';
         </div>
     `,
     selector: 'xm-reviews-report',
+    standalone: true,
+    imports: [DatePickerComponent, NgbPopover, TranslateModule],
 })
 export class ReviewsReportComponent {
     startDate: Date | null = null;

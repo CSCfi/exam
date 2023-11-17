@@ -23,15 +23,9 @@ import { SessionExpireWarningComponent } from './session-timeout-toastr';
 import { SessionService } from './session.service';
 
 @NgModule({
-    imports: [NgbDropdownModule, SharedModule],
+    imports: [NgbDropdownModule, SharedModule, DevLoginComponent, LogoutComponent, SessionExpireWarningComponent],
     exports: [DevLoginComponent],
-    declarations: [
-        DevLoginComponent,
-        EulaDialogComponent,
-        SelectRoleDialogComponent,
-        LogoutComponent,
-        SessionExpireWarningComponent,
-    ],
+    declarations: [EulaDialogComponent, SelectRoleDialogComponent],
     bootstrap: [EulaDialogComponent, SelectRoleDialogComponent],
     providers: [SessionService],
 })

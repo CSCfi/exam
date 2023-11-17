@@ -12,11 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { from, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
@@ -27,6 +29,10 @@ import { SessionService } from '../../../../session/session.service';
 import { DateTimeService } from '../../../../shared/date/date.service';
 import { ConfirmationDialogService } from '../../../../shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from '../../../../shared/miscellaneous/common-exam.service';
+import { CourseCodeComponent } from '../../../../shared/miscellaneous/course-code.component';
+import { OrderByPipe } from '../../../../shared/sorting/order-by.pipe';
+import { TableSortComponent } from '../../../../shared/sorting/table-sort.component';
+import { TeacherListComponent } from '../../../../shared/user/teacher-list.component';
 import { DashboardExam, TeacherDashboardService } from '../teacher-dashboard.service';
 export interface ExtraData {
     text: string;
@@ -37,6 +43,20 @@ export interface ExtraData {
 @Component({
     selector: 'xm-exam-list-category',
     templateUrl: './exam-list-category.component.html',
+    standalone: true,
+    imports: [
+        FormsModule,
+        TableSortComponent,
+        NgFor,
+        NgIf,
+        RouterLink,
+        CourseCodeComponent,
+        TeacherListComponent,
+        NgbPopover,
+        DatePipe,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class ExamListCategoryComponent implements OnInit, OnDestroy {
     @Input() items: DashboardExam[] = [];

@@ -12,9 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { Exam } from 'src/app/exam/exam.model';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
@@ -25,6 +27,8 @@ import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
 @Component({
     selector: 'xm-exam-feedback',
     templateUrl: './exam-feedback.component.html',
+    standalone: true,
+    imports: [NgIf, NgClass, DatePipe, TranslateModule],
 })
 export class ExamFeedbackComponent implements OnInit {
     @Input() assessment!: ReviewedExam;

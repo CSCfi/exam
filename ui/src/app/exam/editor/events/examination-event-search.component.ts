@@ -12,19 +12,41 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { EnrolmentService } from '../../../enrolment/enrolment.service';
+import { DatePickerComponent } from '../../../shared/date/date-picker.component';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
+import { CourseCodeComponent } from '../../../shared/miscellaneous/course-code.component';
+import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
+import { TableSortComponent } from '../../../shared/sorting/table-sort.component';
 import { ExaminationEventConfiguration } from '../../exam.model';
 
 @Component({
     selector: 'xm-examination-event-search',
     templateUrl: './examination-event-search.component.html',
+    standalone: true,
+    imports: [
+        DatePickerComponent,
+        FormsModule,
+        NgbPopover,
+        NgIf,
+        TableSortComponent,
+        NgFor,
+        CourseCodeComponent,
+        RouterLink,
+        DatePipe,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class ExaminationEventSearchComponent implements OnInit {
     date = new Date();

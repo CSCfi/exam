@@ -38,8 +38,10 @@ import { QuestionService } from './question.service';
 import { TagPickerComponent } from './tags/tag-picker.component';
 
 @NgModule({
-    imports: [SharedModule, NgbModule, RouterModule],
-    declarations: [
+    imports: [
+        SharedModule,
+        NgbModule,
+        RouterModule,
         LibraryComponent,
         LibrarySearchComponent,
         LibraryResultsComponent,
@@ -47,10 +49,7 @@ import { TagPickerComponent } from './tags/tag-picker.component';
         LibraryTransferComponent,
         QuestionComponent,
         QuestionBodyComponent,
-        QuestionSelectorComponent,
-        BaseQuestionEditorComponent,
         ExamQuestionComponent,
-        ExamQuestionEditorComponent,
         LibraryOwnersComponent,
         ClaimChoiceEditorComponent,
         EssayEditorComponent,
@@ -59,6 +58,7 @@ import { TagPickerComponent } from './tags/tag-picker.component';
         WeightedMultipleChoiceOptionEditorComponent,
         TagPickerComponent,
     ],
+    declarations: [QuestionSelectorComponent, BaseQuestionEditorComponent, ExamQuestionEditorComponent],
     bootstrap: [QuestionSelectorComponent, BaseQuestionEditorComponent, ExamQuestionEditorComponent],
     providers: [LibraryService, QuestionService],
 })

@@ -12,9 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import type { ExamSectionQuestion, ExamSectionQuestionOption } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
+import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-claim-choice-answer',
@@ -47,6 +50,8 @@ import { QuestionService } from '../../../question/question.service';
             </div>
         </div>
     </div> `,
+    standalone: true,
+    imports: [NgIf, NgFor, NgClass, TranslateModule, OrderByPipe],
 })
 export class ClaimChoiceAnswerComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;

@@ -12,8 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-examination-clock',
@@ -50,6 +52,8 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
             </div>
         </div>
     </div> `,
+    standalone: true,
+    imports: [NgIf, NgClass, TranslateModule],
 })
 export class ExaminationClockComponent implements OnInit, OnDestroy {
     @Input() examHash = '';

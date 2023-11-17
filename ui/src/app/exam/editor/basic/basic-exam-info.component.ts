@@ -12,24 +12,47 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
+import { CKEditorComponent } from '../../../shared/ckeditor/ckeditor.component';
 import { FileService } from '../../../shared/file/file.service';
 import type { Exam, ExamType, GradeScale } from '../../exam.model';
 import { ExamService } from '../../exam.service';
+import { LanguageSelectorComponent } from '../common/language-picker.component';
 import { ExamTabService } from '../exam-tabs.service';
+import { ExamCourseComponent } from './exam-course.component';
+import { ExamInspectorSelectorComponent } from './exam-inspector-picker.component';
+import { ExamOwnerSelectorComponent } from './exam-owner-picker.component';
+import { SoftwareSelectorComponent } from './software-picker.component';
 
 @Component({
     selector: 'xm-basic-exam-info',
     templateUrl: './basic-exam-info.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        ExamCourseComponent,
+        NgbPopover,
+        FormsModule,
+        LanguageSelectorComponent,
+        ExamOwnerSelectorComponent,
+        NgClass,
+        ExamInspectorSelectorComponent,
+        SoftwareSelectorComponent,
+        CKEditorComponent,
+        TranslateModule,
+    ],
 })
 export class BasicExamInfoComponent implements OnInit, OnDestroy {
     exam!: Exam;

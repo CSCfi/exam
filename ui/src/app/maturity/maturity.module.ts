@@ -24,15 +24,17 @@ import { UnfinishedInspectionsComponent } from './listing/unfinished-inspections
 import { MaturityReportingComponent } from './reporting/maturity-reporting.component';
 
 @NgModule({
-    imports: [NgbModule, RouterModule, SharedModule],
-    exports: [ReviewedInspectionsComponent],
-    declarations: [
+    imports: [
+        NgbModule,
+        RouterModule,
+        SharedModule,
         LanguageInspectionsComponent,
         MaturityReportingComponent,
         ReviewedInspectionsComponent,
         UnfinishedInspectionsComponent,
-        InspectionStatementDialogComponent,
     ],
+    exports: [ReviewedInspectionsComponent],
+    declarations: [InspectionStatementDialogComponent],
     bootstrap: [InspectionStatementDialogComponent],
     providers: [LanguageInspectionService],
 })

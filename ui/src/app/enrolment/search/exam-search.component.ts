@@ -13,12 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
+import { NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { AutoFocusDirective } from '../../shared/select/auto-focus.directive';
 import type { EnrolmentInfo } from '../enrolment.model';
+import { ExamSearchResultComponent } from './exam-search-result.component';
 import { ExamSearchService } from './exam-search.service';
 
 @Component({
@@ -92,6 +97,8 @@ import { ExamSearchService } from './exam-search.service';
             ]),
         ]),
     ],
+    standalone: true,
+    imports: [NgIf, FormsModule, AutoFocusDirective, NgFor, ExamSearchResultComponent, TranslateModule],
 })
 export class ExamSearchComponent implements OnInit, OnDestroy {
     exams: EnrolmentInfo[] = [];

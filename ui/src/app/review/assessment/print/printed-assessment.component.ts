@@ -12,9 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, LowerCasePipe, NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { parseISO, roundToNearestMinutes } from 'date-fns';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import type { ClozeTestAnswer, Exam, ExamParticipation } from '../../../exam/exam.model';
@@ -24,15 +26,33 @@ import { QuestionService } from '../../../question/question.service';
 import type { Reservation } from '../../../reservation/reservation.model';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
+import { ApplyDstPipe } from '../../../shared/date/apply-dst.pipe';
 import { DateTimeService } from '../../../shared/date/date.service';
+import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
 import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
+import { CourseCodeComponent } from '../../../shared/miscellaneous/course-code.component';
+import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
 import { AssessmentService } from '../assessment.service';
+import { PrintedSectionComponent } from './printed-section.component';
 
 type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
     selector: 'xm-printed-assessment',
     templateUrl: './printed-assessment.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        CourseCodeComponent,
+        NgFor,
+        MathJaxDirective,
+        PrintedSectionComponent,
+        LowerCasePipe,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+        OrderByPipe,
+    ],
 })
 export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
     collaborative = false;

@@ -19,8 +19,7 @@ import { SharedModule } from '../../../shared/shared.module';
 import { AdminDashboardComponent } from './admin-dashboard.component';
 
 @NgModule({
-    imports: [SharedModule, ReservationModule],
+    imports: [SharedModule, ReservationModule, AdminDashboardComponent],
     exports: [AdminDashboardComponent],
-    declarations: [AdminDashboardComponent],
 })
 export class AdminDashboardModule {}

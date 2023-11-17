@@ -12,19 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
 import { CanComponentDeactivate } from '../has-unsaved-changes.quard';
 import type { QuestionDraft } from '../question.service';
 import { QuestionService } from '../question.service';
+import { QuestionBodyComponent } from './question-body.component';
 
 @Component({
     selector: 'xm-question',
     templateUrl: './question.component.html',
+    standalone: true,
+    imports: [NgIf, FormsModule, QuestionBodyComponent, TranslateModule],
 })
 export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactivate {
     @Input() newQuestion = false;

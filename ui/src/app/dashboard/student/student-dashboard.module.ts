@@ -19,9 +19,8 @@ import { StudentDashboardComponent } from './student-dashboard.component';
 import { StudentDashboardService } from './student-dashboard.service';
 
 @NgModule({
-    imports: [SharedModule, EnrolmentModule],
+    imports: [SharedModule, EnrolmentModule, StudentDashboardComponent],
     exports: [StudentDashboardComponent],
-    declarations: [StudentDashboardComponent],
     providers: [StudentDashboardService],
 })
 export class StudentDashboardModule {}

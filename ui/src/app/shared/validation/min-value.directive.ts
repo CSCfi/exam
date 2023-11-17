@@ -5,6 +5,7 @@ import { NG_VALIDATORS, Validators } from '@angular/forms';
 @Directive({
     selector: '[xmMin]',
     providers: [{ provide: NG_VALIDATORS, useExisting: MinDirective, multi: true }],
+    standalone: true,
 })
 export class MinDirective implements Validator {
     @Input() xmMin = 0;

@@ -12,7 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import type { ExaminationQuestion } from '../examination.model';
 import { ExaminationService } from '../examination.service';
 
@@ -38,6 +41,8 @@ import { ExaminationService } from '../examination.service';
 
         <div class="padl0 question-type-text">{{ sq.derivedMaxScore }} {{ 'sitnet_unit_points' | translate }}</div>
     `,
+    standalone: true,
+    imports: [NgFor, FormsModule, TranslateModule],
 })
 export class ExaminationWeightedMultiChoiceComponent implements OnInit {
     @Input() sq!: ExaminationQuestion;

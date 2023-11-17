@@ -12,8 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf } from '@angular/common';
 import type { OnChanges, OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import {
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbTimepicker,
+} from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { areIntervalsOverlapping, formatISO, setDayOfYear } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
@@ -123,6 +132,17 @@ interface RoomWithAddressVisibility extends ExamRoom {
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [
+        NgFor,
+        NgIf,
+        NgbTimepicker,
+        FormsModule,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+    ],
 })
 export class OpenHoursComponent implements OnInit, OnChanges {
     @Input() room!: ExamRoom;

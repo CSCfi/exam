@@ -12,12 +12,24 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { RouterLink } from '@angular/router';
+import {
+    NgbNav,
+    NgbNavChangeEvent,
+    NgbNavContent,
+    NgbNavItem,
+    NgbNavItemRole,
+    NgbNavLink,
+    NgbNavLinkBase,
+    NgbNavOutlet,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
-import { ExtraData } from './categories/exam-list-category.component';
+import { ExamListCategoryComponent, ExtraData } from './categories/exam-list-category.component';
 import { ExamSearchPipe } from './exam-search.pipe';
 import type { DashboardExam } from './teacher-dashboard.service';
 import { TeacherDashboardService } from './teacher-dashboard.service';
@@ -25,6 +37,20 @@ import { TeacherDashboardService } from './teacher-dashboard.service';
 @Component({
     selector: 'xm-teacher-dashboard',
     templateUrl: './teacher-dashboard.component.html',
+    standalone: true,
+    imports: [
+        RouterLink,
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLinkBase,
+        NgbNavLink,
+        NgIf,
+        NgbNavContent,
+        ExamListCategoryComponent,
+        NgbNavOutlet,
+        TranslateModule,
+    ],
 })
 export class TeacherDashboardComponent implements OnInit {
     activeTab = 1;

@@ -12,22 +12,41 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import type { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
 import { LanguageService } from '../../../shared/language/language.service';
+import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
 import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
 import { AssessmentService } from '../assessment.service';
 import { GradingBaseComponent } from '../common/grading-base.component';
+import { InspectionCommentsComponent } from './inspection-comments.component';
+import { MaturityToolbarComponent } from './toolbar.component';
 
 @Component({
     selector: 'xm-r-maturity-grading',
     templateUrl: './grading.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        NgClass,
+        InspectionCommentsComponent,
+        MathJaxDirective,
+        FormsModule,
+        NgbPopover,
+        NgFor,
+        MaturityToolbarComponent,
+        UpperCasePipe,
+        TranslateModule,
+    ],
 })
 export class MaturityGradingComponent extends GradingBaseComponent implements OnInit {
     @Input() exam!: Exam;

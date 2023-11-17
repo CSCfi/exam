@@ -12,11 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { FileService } from '../../../shared/file/file.service';
-import { Option } from '../../../shared/select/dropdown-select.component';
+import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown-select.component';
 
 @Component({
     template: `
@@ -57,6 +59,8 @@ import { Option } from '../../../shared/select/dropdown-select.component';
         </div>
     `,
     selector: 'xm-exams-report',
+    standalone: true,
+    imports: [NgIf, DropdownSelectComponent, NgbPopover, TranslateModule],
 })
 export class ExamsReportComponent {
     @Input() examNames: Option<string, number>[] = [];

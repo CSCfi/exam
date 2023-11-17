@@ -14,8 +14,12 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
 import type { OnChanges, OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 
 export interface Option<V, I> {
     value?: V;
@@ -71,6 +75,19 @@ export interface Option<V, I> {
             </button>
         </div>
     </div> `,
+    standalone: true,
+    imports: [
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgClass,
+        NgbDropdownMenu,
+        NgIf,
+        FormsModule,
+        NgbDropdownItem,
+        NgFor,
+        SlicePipe,
+        TranslateModule,
+    ],
 })
 export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
     @Input() options: Option<V, I>[] = []; // everything

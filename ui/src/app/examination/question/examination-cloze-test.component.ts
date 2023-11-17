@@ -12,7 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import type { ExaminationQuestion } from '../examination.model';
 import { ExaminationService } from '../examination.service';
 
@@ -41,6 +43,8 @@ import { ExaminationService } from '../examination.service';
                 </button>
             </div>
         </div> `,
+    standalone: true,
+    imports: [NgIf, DatePipe, TranslateModule],
 })
 export class ExaminationClozeTestComponent {
     @Input() sq!: ExaminationQuestion;

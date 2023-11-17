@@ -1,4 +1,7 @@
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import type { Organisation } from '../calendar.service';
 import { CalendarService } from '../calendar.service';
 
@@ -69,6 +72,8 @@ import { CalendarService } from '../calendar.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [NgClass, NgIf, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgFor, NgbDropdownItem, TranslateModule],
 })
 export class OrganisationPickerComponent implements OnInit {
     @Input() sequenceNumber = 0;

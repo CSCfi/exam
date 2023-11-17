@@ -20,6 +20,7 @@ type ClozeTestAnswer = { [key: string]: string };
 @Component({
     selector: 'xm-dynamic-cloze-test',
     template: ` <div #clozeContainer></div> `,
+    standalone: true,
 })
 export class DynamicClozeTestComponent implements OnInit, OnDestroy {
     @Input() answer: ClozeTestAnswer = {};

@@ -12,9 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
 import { AccessibilityService } from './accessibility.service';
@@ -55,6 +57,8 @@ import { AccessibilityService } from './accessibility.service';
             </span>
         </div>
     </div> `,
+    standalone: true,
+    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgFor, NgbDropdownItem, NgClass, TranslateModule],
 })
 export class AccessibilitySelectorComponent implements OnInit {
     @Input() room!: ExamRoom;

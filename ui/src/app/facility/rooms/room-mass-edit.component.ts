@@ -13,11 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { ExceptionListComponent } from '../schedule/exceptions.component';
 import { RoomService } from './room.service';
 
 type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
@@ -125,6 +129,8 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [FormsModule, NgbPopover, NgClass, NgFor, NgIf, ExceptionListComponent, TranslateModule],
 })
 export class MultiRoomComponent implements OnInit, OnChanges {
     @Output() selected = new EventEmitter<number[]>();

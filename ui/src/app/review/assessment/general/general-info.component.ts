@@ -12,22 +12,39 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { parseISO, roundToNearestMinutes } from 'date-fns';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import type { Exam, ExamParticipation } from '../../../exam/exam.model';
 import type { Reservation } from '../../../reservation/reservation.model';
 import type { User } from '../../../session/session.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
+import { ApplyDstPipe } from '../../../shared/date/apply-dst.pipe';
 import { DateTimeService } from '../../../shared/date/date.service';
+import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
+import { NoShowComponent } from './no-show.component';
+import { ParticipationComponent } from './participation.component';
 
 export type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
     selector: 'xm-r-general-info',
     templateUrl: './general-info.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        NgFor,
+        ParticipationComponent,
+        NoShowComponent,
+        MathJaxDirective,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+    ],
 })
 export class GeneralInfoComponent implements OnInit {
     @Input() exam!: Exam;

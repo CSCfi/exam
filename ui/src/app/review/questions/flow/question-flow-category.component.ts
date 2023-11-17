@@ -12,7 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf, SlicePipe, UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { SessionService } from '../../../session/session.service';
 import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../question-review.service';
@@ -59,6 +61,8 @@ import { QuestionReviewService } from '../question-review.service';
                 </div>
             </div>
         </div> `,
+    standalone: true,
+    imports: [NgIf, NgFor, NgClass, UpperCasePipe, SlicePipe, TranslateModule],
 })
 export class QuestionFlowCategoryComponent {
     @Input() categoryTitle = '';

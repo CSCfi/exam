@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -24,7 +25,7 @@ import {
     SimpleChanges,
     ViewChild,
 } from '@angular/core';
-import { FullCalendarComponent } from '@fullcalendar/angular';
+import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventApi, EventClickArg, EventInput } from '@fullcalendar/core';
 import enLocale from '@fullcalendar/core/locales/en-gb';
 import fiLocale from '@fullcalendar/core/locales/fi';
@@ -48,6 +49,8 @@ import { CalendarService } from './calendar.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [NgIf, FullCalendarModule],
 })
 export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewInit {
     @Output() eventSelected = new EventEmitter<EventApi>();

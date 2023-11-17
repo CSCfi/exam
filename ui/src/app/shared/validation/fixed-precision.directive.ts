@@ -16,6 +16,7 @@ import { Directive, ElementRef, EventEmitter, HostListener, Input, Output } from
 
 @Directive({
     selector: '[xmFixedPrecision]',
+    standalone: true,
 })
 export class FixedPrecisionValidatorDirective {
     @Input() ngModel: number | null | undefined;

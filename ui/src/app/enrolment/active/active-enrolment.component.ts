@@ -12,16 +12,41 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, LowerCasePipe, NgFor, NgIf, SlicePipe, UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { ExamRoom } from '../../reservation/reservation.model';
+import { ApplyDstPipe } from '../../shared/date/apply-dst.pipe';
 import { FileService } from '../../shared/file/file.service';
+import { MathJaxDirective } from '../../shared/math/math-jax.directive';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from '../../shared/user/teacher-list.component';
 import type { ExamEnrolment } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
+import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.component';
 
 @Component({
     selector: 'xm-active-enrolment',
     templateUrl: './active-enrolment.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        RouterLink,
+        ActiveEnrolmentMenuComponent,
+        CourseCodeComponent,
+        TeacherListComponent,
+        NgbCollapse,
+        NgFor,
+        MathJaxDirective,
+        UpperCasePipe,
+        LowerCasePipe,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+    ],
 })
 export class ActiveEnrolmentComponent {
     @Input() enrolment!: ExamEnrolment & { occasion?: { startAt: string; endAt: string; tz: string } };

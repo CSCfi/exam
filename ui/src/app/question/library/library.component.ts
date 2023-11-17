@@ -13,13 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { Router, RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import type { Question } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
+import { LibraryFileExportComponent } from './export/library-file-export.component';
+import { LibraryTransferComponent } from './export/library-transfer.component';
+import { LibraryOwnersComponent } from './owners/library-owners.component';
+import { LibraryResultsComponent } from './results/library-results.component';
+import { LibrarySearchComponent } from './search/library-search.component';
 
 @Component({
     selector: 'xm-library',
@@ -81,6 +86,16 @@ import type { User } from '../../session/session.service';
             </div>
         </div>
     </div> `,
+    standalone: true,
+    imports: [
+        RouterLink,
+        LibrarySearchComponent,
+        LibraryOwnersComponent,
+        LibraryTransferComponent,
+        LibraryFileExportComponent,
+        LibraryResultsComponent,
+        TranslateModule,
+    ],
 })
 export class LibraryComponent {
     questions: Question[] = [];

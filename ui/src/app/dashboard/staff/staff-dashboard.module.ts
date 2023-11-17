@@ -45,7 +45,7 @@ import { TeacherDashboardModule } from './teacher/teacher-dashboard.module';
         FacilityModule,
         RouterModule,
         StaffRoutingModule,
+        StaffDashboardComponent,
     ],
-    declarations: [StaffDashboardComponent],
 })
 export class StaffDashboardModule {}

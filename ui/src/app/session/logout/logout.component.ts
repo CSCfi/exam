@@ -19,6 +19,7 @@ import { SessionService } from '../session.service';
 @Component({
     selector: 'xm-logout',
     template: '<div></div>',
+    standalone: true,
 })
 export class LogoutComponent implements OnInit {
     constructor(private Session: SessionService) {}

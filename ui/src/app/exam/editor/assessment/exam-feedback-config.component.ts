@@ -12,8 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+    NgbCollapse,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import { DatePickerComponent } from '../../../shared/date/date-picker.component';
 import type { Exam, ExamFeedbackConfig } from '../../exam.model';
 
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
@@ -26,7 +37,21 @@ type ExamFeedbackConfigTemplate = {
 @Component({
     selector: 'xm-exam-feedback-config',
     templateUrl: './exam-feedback-config.component.html',
-    styleUrls: ['./exam-feedback-config.component.css'], // CSCEXAM-1127
+    styleUrls: ['./exam-feedback-config.component.css'],
+    standalone: true,
+    imports: [
+        NgIf,
+        NgbPopover,
+        NgbCollapse,
+        NgClass,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgFor,
+        NgbDropdownItem,
+        DatePickerComponent,
+        TranslateModule,
+    ],
 })
 export class ExamFeedbackConfigComponent implements OnInit {
     @Input() exam!: Exam;

@@ -12,10 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Software } from '../../exam/exam.model';
 import type { ExamMachine } from '../../reservation/reservation.model';
@@ -29,6 +31,8 @@ interface SoftwareWithClass extends Software {
 @Component({
     templateUrl: './machine.component.html',
     selector: 'xm-machine',
+    standalone: true,
+    imports: [NgIf, FormsModule, NgFor, NgClass, TranslateModule],
 })
 export class MachineComponent implements OnInit {
     machine!: ExamMachine;

@@ -12,22 +12,54 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { LowerCasePipe, NgClass, NgIf } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import {
+    NgbNav,
+    NgbNavContent,
+    NgbNavItem,
+    NgbNavItemRole,
+    NgbNavLink,
+    NgbNavLinkBase,
+    NgbNavOutlet,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
+import { HistoryBackComponent } from '../../../shared/history/history-back.component';
+import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
 import { AssessmentService } from '../../assessment/assessment.service';
 import type { QuestionReview, ReviewQuestion } from '../../review.model';
+import { QuestionFlowComponent } from '../flow/question-flow.component';
 import { QuestionReviewService } from '../question-review.service';
+import { EssayAnswerListComponent } from './essay-answers.component';
 
 @Component({
     selector: 'xm-question-assessment',
     templateUrl: './question-assessment.component.html',
+    standalone: true,
+    imports: [
+        HistoryBackComponent,
+        NgIf,
+        NgClass,
+        MathJaxDirective,
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLinkBase,
+        NgbNavLink,
+        NgbNavContent,
+        EssayAnswerListComponent,
+        NgbNavOutlet,
+        QuestionFlowComponent,
+        LowerCasePipe,
+        TranslateModule,
+    ],
 })
 export class QuestionAssessmentComponent implements OnInit {
     user: User;

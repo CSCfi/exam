@@ -23,9 +23,15 @@ import { TeacherDashboardComponent } from './teacher-dashboard.component';
 import { TeacherDashboardService } from './teacher-dashboard.service';
 
 @NgModule({
-    imports: [NgbModule, ReservationModule, SharedModule, RouterModule],
+    imports: [
+        NgbModule,
+        ReservationModule,
+        SharedModule,
+        RouterModule,
+        ExamListCategoryComponent,
+        TeacherDashboardComponent,
+    ],
     exports: [TeacherDashboardComponent],
-    declarations: [ExamListCategoryComponent, TeacherDashboardComponent],
     providers: [TeacherDashboardService, ExamSearchPipe],
 })
 export class TeacherDashboardModule {}

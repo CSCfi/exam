@@ -16,8 +16,12 @@ import { ReportsComponent } from './reports.component';
 import { ReportsService } from './reports.service';
 
 @NgModule({
-    imports: [SharedModule, CommonModule, TranslateModule, FacilityModule, NgbModule],
-    declarations: [
+    imports: [
+        SharedModule,
+        CommonModule,
+        TranslateModule,
+        FacilityModule,
+        NgbModule,
         AnswersReportComponent,
         EnrolmentsReportComponent,
         ExamsReportComponent,

@@ -12,21 +12,52 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgFor } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import {
+    NgbModal,
+    NgbNav,
+    NgbNavContent,
+    NgbNavItem,
+    NgbNavItemRole,
+    NgbNavLink,
+    NgbNavLinkBase,
+    NgbNavOutlet,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { from } from 'rxjs';
 import type { MaintenancePeriod } from '../exam/exam.model';
 import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
+import { OrderByPipe } from '../shared/sorting/order-by.pipe';
+import { SoftwareComponent } from '../software/software.component';
+import { AccessibilityComponent } from './accessibility/accessibility.component';
 import { RoomService } from './rooms/room.service';
+import { RoomListComponent } from './rooms/rooms.component';
 import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-dialog.component';
 
 @Component({
     templateUrl: './facility.component.html',
     selector: 'xm-facility',
+    standalone: true,
+    imports: [
+        NgFor,
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLinkBase,
+        NgbNavLink,
+        NgbNavContent,
+        RoomListComponent,
+        SoftwareComponent,
+        AccessibilityComponent,
+        NgbNavOutlet,
+        TranslateModule,
+        DatePipe,
+        OrderByPipe,
+    ],
 })
 export class FacilityComponent implements OnInit {
     user: User;

@@ -18,7 +18,14 @@ import { UsersComponent } from './users/users.component';
 import { UserManagementService } from './users/users.service';
 
 @NgModule({
-    declarations: [
+    imports: [
+        CommonModule,
+        NgbModule,
+        TranslateModule,
+        SessionModule,
+        SharedModule,
+        FormsModule,
+        ReportsModule,
         UsersComponent,
         SettingsComponent,
         ExamStatisticsComponent,
@@ -27,7 +34,6 @@ import { UserManagementService } from './users/users.service';
         RoomStatisticsComponent,
         StatisticsComponent,
     ],
-    imports: [CommonModule, NgbModule, TranslateModule, SessionModule, SharedModule, FormsModule, ReportsModule],
     providers: [UserManagementService, SettingsService, StatisticsService],
 })
 export class AdministrativeModule {}

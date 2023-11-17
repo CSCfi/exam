@@ -12,18 +12,35 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { formatISO, startOfMonth } from 'date-fns';
 import { range } from 'ramda';
 import type { Attachment } from '../../exam/exam.model';
-import type { Option } from '../../shared/select/dropdown-select.component';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
+import { DropdownSelectComponent, Option } from '../../shared/select/dropdown-select.component';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
 import { LanguageInspectionService } from '../language-inspections.service';
 import type { LanguageInspection } from '../maturity.model';
 
 @Component({
     selector: 'xm-maturity-reporting',
     templateUrl: './maturity-reporting.component.html',
+    standalone: true,
+    imports: [
+        FormsModule,
+        DropdownSelectComponent,
+        NgFor,
+        NgIf,
+        CourseCodeComponent,
+        NgClass,
+        DatePipe,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class MaturityReportingComponent implements OnInit {
     month?: number;

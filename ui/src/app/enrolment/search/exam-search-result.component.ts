@@ -12,9 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from '../../exam/exam.model';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from '../../shared/user/teacher-list.component';
 import type { CollaborativeExamInfo, EnrolmentInfo } from '../enrolment.model';
 import { EnrolmentService } from '../enrolment.service';
 
@@ -98,6 +102,8 @@ import { EnrolmentService } from '../enrolment.service';
             </div>
         </div>
     </div> `,
+    standalone: true,
+    imports: [NgClass, NgIf, RouterLink, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
 export class ExamSearchResultComponent {
     @Input() exam!: EnrolmentInfo | CollaborativeExamInfo;

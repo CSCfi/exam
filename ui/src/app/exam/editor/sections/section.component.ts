@@ -12,12 +12,28 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { CdkDragDrop } from '@angular/cdk/drag-drop';
-import { moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+    CdkDrag,
+    CdkDragDrop,
+    CdkDragPlaceholder,
+    CdkDragPreview,
+    CdkDropList,
+    moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import { NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import {
+    NgbCollapse,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbModal,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { noop } from 'rxjs';
 import { QuestionSelectorComponent } from '../../../question/picker/question-picker.component';
@@ -26,11 +42,30 @@ import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-
 import { FileService } from '../../../shared/file/file.service';
 import type { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
 import { ExamService } from '../../exam.service';
+import { SectionQuestionComponent } from './section-question.component';
 
 @Component({
     selector: 'xm-section',
     encapsulation: ViewEncapsulation.None,
     templateUrl: './section.component.html',
+    standalone: true,
+    imports: [
+        NgbPopover,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        FormsModule,
+        NgIf,
+        NgbCollapse,
+        CdkDropList,
+        NgFor,
+        CdkDrag,
+        CdkDragPlaceholder,
+        CdkDragPreview,
+        SectionQuestionComponent,
+        TranslateModule,
+    ],
 })
 export class SectionComponent {
     @Input() section!: ExamSection;

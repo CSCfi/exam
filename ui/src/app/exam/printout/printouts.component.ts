@@ -12,10 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { map } from 'rxjs/operators';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
+import { TableSortComponent } from '../../shared/sorting/table-sort.component';
+import { TeacherListComponent } from '../../shared/user/teacher-list.component';
 import type { Exam } from '../exam.model';
 
 @Component({
@@ -89,6 +96,17 @@ import type { Exam } from '../exam.model';
                 </div>
             </div>
         </div> `,
+    standalone: true,
+    imports: [
+        TableSortComponent,
+        NgFor,
+        NgIf,
+        CourseCodeComponent,
+        RouterLink,
+        TeacherListComponent,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class PrintoutListingComponent implements OnInit {
     printouts: (Exam & { examinationDatesAggregate: string })[] = [];

@@ -13,6 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import { DatePickerComponent } from '../../../shared/date/date-picker.component';
 import { FileService } from '../../../shared/file/file.service';
 
 @Component({
@@ -54,6 +57,8 @@ import { FileService } from '../../../shared/file/file.service';
         </div>
     `,
     selector: 'xm-records-report',
+    standalone: true,
+    imports: [DatePickerComponent, NgbPopover, TranslateModule],
 })
 export class RecordsReportComponent {
     startDate: Date | null = null;

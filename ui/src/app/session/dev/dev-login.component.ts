@@ -13,6 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, EventEmitter, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import type { User } from '../session.service';
 import { SessionService } from '../session.service';
 
@@ -63,6 +65,8 @@ import { SessionService } from '../session.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [FormsModule, TranslateModule],
 })
 export class DevLoginComponent {
     @Output() loggedIn = new EventEmitter<User>();

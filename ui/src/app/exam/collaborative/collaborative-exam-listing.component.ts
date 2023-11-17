@@ -12,15 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { Router, RouterLink } from '@angular/router';
+import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbNavLinkBase, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
+import { TableSortComponent } from '../../shared/sorting/table-sort.component';
 import type { CollaborativeExam } from '../exam.model';
 import { CollaborativeExamState } from '../exam.model';
 import { CollaborativeExamService } from './collaborative-exam.service';
@@ -41,6 +45,24 @@ interface ListedCollaborativeExam extends CollaborativeExam {
 @Component({
     selector: 'xm-collaborative-exam-listing',
     templateUrl: './collaborative-exam-listing.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLinkBase,
+        NgbNavLink,
+        NgbPopover,
+        TableSortComponent,
+        NgFor,
+        RouterLink,
+        NgClass,
+        UpperCasePipe,
+        DatePipe,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     exams: ListedCollaborativeExam[] = [];

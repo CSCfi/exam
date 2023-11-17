@@ -59,8 +59,14 @@ import { PrintoutComponent } from './printout/printout.component';
 import { PrintoutListingComponent } from './printout/printouts.component';
 
 @NgModule({
-    imports: [ReactiveFormsModule, NgbModule, SharedModule, ReviewModule, DragDropModule, RouterModule, QuestionModule],
-    declarations: [
+    imports: [
+        ReactiveFormsModule,
+        NgbModule,
+        SharedModule,
+        ReviewModule,
+        DragDropModule,
+        RouterModule,
+        QuestionModule,
         BasicExamInfoComponent,
         ExamAssessmentComponent,
         ExamPublicationComponent,
@@ -79,22 +85,24 @@ import { PrintoutListingComponent } from './printout/printouts.component';
         CollaborativeExamOwnerSelectorComponent,
         OrganisationSelectorComponent,
         CollaborativeExamListingComponent,
-        PublicationDialogComponent,
-        PublicationErrorDialogComponent,
-        PublicationRevocationDialogComponent,
         SoftwareSelectorComponent,
         ExamPreParticipantSelectorComponent,
-        ExamMaterialComponent,
         ExamMaterialSelectorComponent,
         SectionComponent,
         SectionQuestionComponent,
         ExamTabsComponent,
-        ExaminationEventDialogComponent,
         ExamListingComponent,
         PrintoutComponent,
         PrintoutListingComponent,
-        ExaminationTypeSelectorComponent,
         ExaminationEventSearchComponent,
+    ],
+    declarations: [
+        PublicationDialogComponent,
+        PublicationErrorDialogComponent,
+        PublicationRevocationDialogComponent,
+        ExamMaterialComponent,
+        ExaminationEventDialogComponent,
+        ExaminationTypeSelectorComponent,
     ],
     bootstrap: [
         PublicationDialogComponent,
