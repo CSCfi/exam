@@ -16,7 +16,7 @@ import { DatePipe, NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbNavLinkBase, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
@@ -51,7 +51,6 @@ interface ListedCollaborativeExam extends CollaborativeExam {
         NgbNav,
         NgbNavItem,
         NgbNavItemRole,
-        NgbNavLinkBase,
         NgbNavLink,
         NgbPopover,
         TableSortComponent,

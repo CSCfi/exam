@@ -17,10 +17,13 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import type { ExamSectionQuestion, Question } from '../../exam/exam.model';
+import { ExamQuestionComponent } from './exam-question.component';
 
 // This component is used for editing distributed exam questions.
 @Component({
     selector: 'xm-exam-question-editor',
+    standalone: true,
+    imports: [ExamQuestionComponent],
     template: `
         <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-body">

@@ -25,7 +25,6 @@ import {
     NgbNavItem,
     NgbNavItemRole,
     NgbNavLink,
-    NgbNavLinkBase,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DatePickerComponent } from '../../shared/date/date-picker.component';
@@ -55,7 +54,6 @@ enum Tab {
         NgbNav,
         NgbNavItem,
         NgbNavItemRole,
-        NgbNavLinkBase,
         NgbNavLink,
         DatePickerComponent,
         NgbDropdown,

@@ -14,12 +14,15 @@
  */
 import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 
 @Component({
     selector: 'xm-archive-download',
+    standalone: true,
+    imports: [TranslateModule, DatePickerComponent],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-details-title-wrap mart20">
             <div class="student-enroll-title">{{ 'sitnet_exam_validity' | translate }}</div>

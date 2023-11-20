@@ -16,6 +16,7 @@ import { DatePipe, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import type { User } from '../../../session/session.service';
 import { DatePickerComponent } from '../../../shared/date/date-picker.component';
@@ -88,8 +89,8 @@ export class StudentsReportComponent {
 
     getStudentReport = () => {
         if (this.student) {
-            const f = this.datePipe.transform(this.startDate || new Date(), 'dd.MM.yyyy');
-            const t = this.datePipe.transform(this.endDate || new Date(), 'dd.MM.yyyy');
+            const f = format(this.startDate || new Date(), 'dd.MM.yyyy');
+            const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
             this.files.download(`/app/statistics/student/${this.student}/${f}/${t}`, 'student_activity.xlsx');
         } else {
             this.toast.error(this.translate.instant('sitnet_choose_student'));

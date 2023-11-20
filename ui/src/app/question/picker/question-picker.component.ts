@@ -15,12 +15,16 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamSection, Question } from '../../exam/exam.model';
+import { LibraryResultsComponent } from '../library/results/library-results.component';
+import { LibrarySearchComponent } from '../library/search/library-search.component';
 
 @Component({
     selector: 'xm-question-selector',
+    standalone: true,
+    imports: [TranslateModule, LibrarySearchComponent, LibraryResultsComponent],
     template: `
         <div id="library">
             <!-- title row and add new question button -->

@@ -12,9 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { FileService } from '../../file/file.service';
 
 export interface FileResult {
@@ -33,6 +35,8 @@ export interface FileResult {
 
 @Component({
     selector: 'xm-attachment-selector',
+    standalone: true,
+    imports: [TranslateModule, NgIf],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="modal-header">
             <h2>{{ title | translate }}</h2>
@@ -40,7 +44,7 @@ export interface FileResult {
 
         <div class="modal-body">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-3">
                     <label for="file-select" class="btn btn-success btn-file" aria-hidden="true"
                         >{{ 'sitnet_choose' | translate }}
                     </label>
@@ -55,17 +59,17 @@ export interface FileResult {
                         attr.aria-label="{{ 'sitnet_choose_file' | translate }}"
                     />
                 </div>
-                <div class="col-md-9 attachment-file">
+                <div class="col-9 attachment-file">
                     {{ fileObject?.name }}
                 </div>
             </div>
-            <div class="row top-padding-2">
-                <div class="col-md-12" *ngIf="isTeacherModal">
+            <div class="row pt-2">
+                <div class="col-12" *ngIf="isTeacherModal">
                     {{ 'sitnet_check_file_accessible' | translate }}
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-12">
                     {{ 'sitnet_max_file_size' | translate }} {{ (maxFileSize || 0) / 1000000 }} MB.
                 </div>
             </div>

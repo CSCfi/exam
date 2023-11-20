@@ -16,15 +16,7 @@ import { DatePipe, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import {
-    NgbModal,
-    NgbNav,
-    NgbNavItem,
-    NgbNavItemRole,
-    NgbNavLink,
-    NgbNavLinkBase,
-    NgbPopover,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { from, Subject } from 'rxjs';
@@ -48,7 +40,6 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
         NgbNav,
         NgbNavItem,
         NgbNavItemRole,
-        NgbNavLinkBase,
         NgbNavLink,
         NgbPopover,
         NgIf,

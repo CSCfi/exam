@@ -14,15 +14,21 @@
  *
  */
 
+import { DatePipe, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { Exam, ExamSectionQuestion } from 'src/app/exam/exam.model';
 import { AnsweredQuestion, AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
 @Component({
     selector: 'xm-exam-answers-dialog',
     templateUrl: './exam-answers-dialog.component.html',
+    standalone: true,
+    imports: [NgIf, NgFor, TranslateModule, MathJaxDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
 })
 export class ExamAnswersDialogComponent implements OnInit {
     @Input() exam!: Exam;

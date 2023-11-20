@@ -14,11 +14,15 @@
  *
  */
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import type { EnrolmentInfo } from '../../enrolment.model';
 
 @Component({
     selector: 'xm-add-enrolment-information-dialog',
+    standalone: true,
+    imports: [FormsModule, TranslateModule],
     template: `
         <div class="modal-header">
             <h4 class="modal-title">{{ 'sitnet_student_enrolment_info' | translate }}</h4>

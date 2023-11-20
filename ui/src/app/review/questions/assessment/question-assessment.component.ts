@@ -21,7 +21,6 @@ import {
     NgbNavItem,
     NgbNavItemRole,
     NgbNavLink,
-    NgbNavLinkBase,
     NgbNavOutlet,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -51,7 +50,6 @@ import { EssayAnswerListComponent } from './essay-answers.component';
         NgbNav,
         NgbNavItem,
         NgbNavItemRole,
-        NgbNavLinkBase,
         NgbNavLink,
         NgbNavContent,
         EssayAnswerListComponent,

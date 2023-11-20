@@ -13,14 +13,18 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { DatePipe, NgFor } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { parseISO } from 'date-fns';
 import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.model';
 
 @Component({
     selector: 'xm-select-examination-event-dialog',
+    standalone: true,
+    imports: [TranslateModule, DatePipe, NgFor],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">

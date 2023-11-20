@@ -13,11 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { NgFor } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-publication-error-dialog',
+    standalone: true,
+    imports: [TranslateModule, NgFor],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">

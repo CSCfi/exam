@@ -12,11 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, LowerCasePipe, NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 import { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import type { Exam } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
@@ -24,6 +29,18 @@ import type { Review } from '../../review.model';
 
 @Component({
     selector: 'xm-aborted-exams',
+    standalone: true,
+    imports: [
+        TranslateModule,
+        NgIf,
+        NgFor,
+        DatePipe,
+        DiffInMinutesPipe,
+        ApplyDstPipe,
+        LowerCasePipe,
+        OrderByPipe,
+        TableSortComponent,
+    ],
     templateUrl: './aborted.component.html',
 })
 export class AbortedExamsComponent {

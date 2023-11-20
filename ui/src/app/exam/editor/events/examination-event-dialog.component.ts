@@ -13,18 +13,23 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
+import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import type { ExaminationEventConfiguration, MaintenancePeriod } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
 @Component({
     selector: 'xm-examination-event-dialog',
+    standalone: true,
+    imports: [NgClass, NgIf, NgFor, FormsModule, DatePipe, TranslateModule, DateTimePickerComponent, OrderByPipe],
     templateUrl: './examination-event-dialog.component.html',
 })
 export class ExaminationEventDialogComponent implements OnInit {
@@ -47,7 +52,6 @@ export class ExaminationEventDialogComponent implements OnInit {
         private translate: TranslateService,
         private toast: ToastrService,
         private Exam: ExamService,
-        private datePipe: DatePipe,
     ) {}
 
     ngOnInit() {

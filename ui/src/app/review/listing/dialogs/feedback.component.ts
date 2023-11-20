@@ -12,13 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import type { Exam } from '../../../exam/exam.model';
 import { AssessmentService } from '../../assessment/assessment.service';
 
 @Component({
     selector: 'xm-speed-review-feedback',
+    standalone: true,
+    imports: [FormsModule, TranslateModule, NgIf, CKEditorComponent],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-details-title-wrap mart20">
             <div class="student-enroll-title">{{ 'sitnet_give_feedback' | translate }}</div>

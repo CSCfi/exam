@@ -21,7 +21,7 @@ import { ChangeMachineDialogComponent } from './admin/change-machine-dialog.comp
 import { RemoveReservationDialogComponent } from './admin/remove-reservation-dialog.component';
 import type { ExamMachine, Reservation } from './reservation.model';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ReservationService {
     constructor(private modal: NgbModal) {}
 

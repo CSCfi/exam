@@ -1,8 +1,11 @@
 import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-confirmation-dialog',
+    standalone: true,
+    imports: [TranslateModule],
     template: `
         <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">
