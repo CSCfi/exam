@@ -13,11 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
+import { SessionService } from 'src/app/session/session.service';
 import type { Question, Tag } from '../../exam/exam.model';
 import { QuestionDraft } from '../question.service';
 
@@ -61,7 +62,7 @@ import { QuestionDraft } from '../question.service';
                 </div>
                 <div class="col">
                     <ul class="list-inline mart10">
-                        <li *ngFor="let tag of question.tags" class="list-inline-item">
+                        <li *ngFor="let tag of ownTags" class="list-inline-item">
                             {{ tag.name }}
                             <button
                                 class="reviewer-remove"
@@ -80,12 +81,17 @@ import { QuestionDraft } from '../question.service';
         </form>
     `,
 })
-export class TagPickerComponent {
+export class TagPickerComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;
     tagName = '';
     newTag: Tag = { name: '' };
+    ownTags: Tag[] = [];
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private Session: SessionService) {}
+
+    ngOnInit() {
+        this.ownTags = this.question.tags.filter((t) => t.creator?.id === this.Session.getUser().id);
+    }
 
     getTags$ = (text$: Observable<string>): Observable<Tag[]> =>
         text$.pipe(
