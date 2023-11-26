@@ -44,7 +44,7 @@ import { QuestionDraft } from '../question.service';
                             maxlength="30"
                             class="form-control col-md-8"
                             [(ngModel)]="tagName"
-                            lowerCase
+                            xmLowerCase
                             [ngbTypeahead]="getTags$"
                             (selectItem)="onTagSelect($event)"
                             [resultFormatter]="nameFormat"
