@@ -241,7 +241,7 @@ public class QuestionController extends BaseController implements SectionQuestio
                 }
                 if (tag.isEmpty()) {
                     Tag newTag = new Tag();
-                    newTag.setName(tagNode.get("name").asText());
+                    newTag.setName(tagNode.get("name").asText().toLowerCase());
                     newTag.setCreatorWithDate(user);
                     newTag.setModifier(user);
                     tag = Optional.of(newTag);

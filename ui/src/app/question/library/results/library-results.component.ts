@@ -141,7 +141,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         return user;
     };
 
-    printTags = (question: LibraryQuestion) => question.tags.map((t) => t.name.toUpperCase()).join(', ');
+    printTags = (question: LibraryQuestion) => question.tags.map((t) => t.name).join(', ');
 
     pageSelected = (event: { page: number }) => (this.currentPage = event.page);
 
