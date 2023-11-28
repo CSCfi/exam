@@ -16,23 +16,25 @@
 package controllers
 
 import impl.ExternalCourseHandler
+import io.ebean.DB
 import models.{Course, Role, User}
 import org.joda.time.DateTime
-import io.ebean.DB
-import javax.inject.Inject
 import play.api.mvc.{Action, AnyContent, InjectedController, Result}
-import security.Authenticator
+import security.scala.Auth.{AuthenticatedAction, authorized}
+import security.scala.{Auth, AuthExecutionContext}
 import util.config.ConfigReader
 import util.scala.JavaJsonResultProducer
 
-import scala.jdk.FutureConverters._
-import scala.concurrent.ExecutionContext.Implicits.global
+import javax.inject.Inject
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters._
 
-class CourseController @Inject()(externalApi: ExternalCourseHandler, configReader: ConfigReader)
+class CourseController @Inject()(externalApi: ExternalCourseHandler,
+                                 configReader: ConfigReader,
+                                 authenticated: AuthenticatedAction,
+                                 implicit val ec: AuthExecutionContext)
     extends InjectedController
-    with Authenticator
     with JavaJsonResultProducer {
 
   def listCourses(filterType: Option[String],
@@ -68,9 +70,9 @@ class CourseController @Inject()(externalApi: ExternalCourseHandler, configReade
   }
 
   private def getUserCourses(user: User,
-                     examIds: Option[List[Long]],
-                     sectionIds: Option[List[Long]],
-                     tagIds: Option[List[Long]]): Result = {
+                             examIds: Option[List[Long]],
+                             sectionIds: Option[List[Long]],
+                             tagIds: Option[List[Long]]): Result = {
     var query = DB.find(classOf[Course]).where.isNotNull("name")
     if (!user.hasRole(Role.Name.ADMIN)) {
       query = query
@@ -90,34 +92,24 @@ class CourseController @Inject()(externalApi: ExternalCourseHandler, configReade
   }
 
   // Actions ->
-
-  def getCourses(filterType: Option[String], criteria: Option[String]): Action[AnyContent] =
-    Action.async { request =>
-      getAuthorizedUser(request, Seq("ADMIN", "TEACHER")) match {
-        case Some(user) =>
-          listCourses(filterType, criteria, user)
-        case _ =>
-          Future.successful(forbid())
-      }
-    }
-
-  def getCourse(id: Long): Action[AnyContent] = Action { request =>
-    getAuthorizedUser(request, Seq("ADMIN", "TEACHER")) match {
-      case Some(_) =>
-        DB.find(classOf[Course], id).toResult(OK)
-      case _ => forbid()
+  def getCourses(filterType: Option[String], criteria: Option[String]): Action[AnyContent] = {
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      listCourses(filterType, criteria, user)
     }
   }
+
+  def getCourse(id: Long): Action[AnyContent] =
+    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
+      DB.find(classOf[Course], id).toResult(OK)
+    }
 
   def listUsersCourses(examIds: Option[List[Long]],
                        sectionIds: Option[List[Long]],
-                       tagIds: Option[List[Long]]): Action[AnyContent] = Action { request =>
-    getAuthorizedUser(request, Seq("ADMIN", "TEACHER")) match {
-      case Some(user) =>
-        getUserCourses(user, examIds, sectionIds, tagIds)
-      case _ =>
-        forbid()
+                       tagIds: Option[List[Long]]): Action[AnyContent] =
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
+      val user = request.attrs(Auth.ATTR_USER)
+      getUserCourses(user, examIds, sectionIds, tagIds)
     }
-  }
 
 }

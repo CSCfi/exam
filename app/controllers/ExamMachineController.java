@@ -169,8 +169,8 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
-    public Result getSoftwares() {
-        List<Software> softwares = DB
+    public Result listSoftware() {
+        List<Software> software = DB
             .find(Software.class)
             .where()
             .or()
@@ -179,7 +179,7 @@ public class ExamMachineController extends BaseController {
             .endOr()
             .findList();
 
-        return ok(softwares);
+        return ok(software);
     }
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })

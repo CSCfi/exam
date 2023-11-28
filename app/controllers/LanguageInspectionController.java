@@ -135,9 +135,6 @@ public class LanguageInspectionController extends BaseController {
     }
 
     private Optional<Result> checkInspection(LanguageInspection inspection) {
-        if (inspection == null) {
-            return Optional.of(notFound("Inspection not found"));
-        }
         if (inspection.getStartedAt() == null) {
             return Optional.of(forbidden("Inspection not assigned"));
         }
@@ -153,13 +150,12 @@ public class LanguageInspectionController extends BaseController {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         boolean isApproved = Boolean.parseBoolean(df.get("approved"));
         LanguageInspection inspection = DB.find(LanguageInspection.class, id);
+        if (inspection == null) {
+            return notFound("Inspection not found");
+        }
         return checkInspection(inspection)
             .orElseGet(() -> {
-                if (
-                    inspection == null ||
-                    inspection.getStatement() == null ||
-                    inspection.getStatement().getComment().isEmpty()
-                ) {
+                if (inspection.getStatement() == null || inspection.getStatement().getComment().isEmpty()) {
                     return forbidden("No statement given");
                 }
                 inspection.setFinishedAt(new Date());
@@ -196,6 +192,9 @@ public class LanguageInspectionController extends BaseController {
             return badRequest();
         }
         LanguageInspection inspection = DB.find(LanguageInspection.class, id);
+        if (inspection == null) {
+            return notFound("Inspection not found");
+        }
         return checkInspection(inspection)
             .orElseGet(() -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
