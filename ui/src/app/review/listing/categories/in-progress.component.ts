@@ -66,8 +66,8 @@ export class InProgressReviewsComponent implements OnInit {
                 backdrop: 'static',
                 keyboard: true,
             })
-            .result.then((params) =>
-                this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params),
+            .result.then((params: { $value: { start: string; end: string } }) =>
+                this.Files.download(`/app/exam/${this.exam.id}/attachments`, `${this.exam.id}.tar.gz`, params.$value),
             )
             .catch(noop);
 }

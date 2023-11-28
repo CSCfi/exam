@@ -39,8 +39,6 @@ import org.apache.pekko.stream.IOResult;
 import org.apache.pekko.stream.javadsl.FileIO;
 import org.apache.pekko.stream.javadsl.Source;
 import org.apache.pekko.util.ByteString;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.libs.Files;
 import play.mvc.Http;
 import play.mvc.Http.MultipartFormData.FilePart;
@@ -51,8 +49,6 @@ import util.config.ConfigReader;
 import util.file.FileHandler;
 
 public class AttachmentController extends BaseController implements LocalAttachmentInterface {
-
-    private final Logger logger = LoggerFactory.getLogger(AttachmentController.class);
 
     @Inject
     private ConfigReader configReader;
@@ -68,7 +64,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
         long qid = Long.parseLong(mf.getForm().get("questionId")[0]);
 
-        // first check if answer already exist
+        // first check if answer already exists
         ExamSectionQuestion question = DB
             .find(ExamSectionQuestion.class)
             .fetch("essayAnswer")

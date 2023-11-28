@@ -77,20 +77,8 @@ public class QuestionReviewController extends BaseController {
             .filter(question -> questionIds.isEmpty() || questionIds.contains(question.getId()))
             .toList();
 
-        // Comparator for ordering questions, have to take to account that answer's question is no longer found
-        Comparator<Question> comparator = (o1, o2) -> {
-            List<Long> l = questionSequence.stream().map(GeneratedIdentityModel::getId).toList();
-            if (!l.contains(o1.getId())) {
-                return 1;
-            }
-            if (!l.contains(o2.getId())) {
-                return -1;
-            }
-            return l.indexOf(o1.getId()) - l.indexOf(o2.getId());
-        };
-
-        // Ordered map of questions to answers
-        Map<Question, List<ExamSectionQuestion>> questionMap = new TreeMap<>(comparator);
+        // Ordered map for questions, have to take to account that answer's question is no longer found
+        Map<Question, List<ExamSectionQuestion>> questionMap = createMapping(questionSequence);
 
         // All the answers for questions in this exam
         List<ExamSectionQuestion> answers = exam
@@ -104,7 +92,7 @@ public class QuestionReviewController extends BaseController {
             .filter(esq -> questionIds.isEmpty() || questionIds.contains(esq.getQuestion().getParent().getId()))
             .toList();
 
-        // Get evaluation criterias from parent exam section questions
+        // Get evaluation criteria from parent exam section questions
         Map<Question, String> evaluationCriteriaMap = exam
             .getExamSections()
             .stream()
@@ -141,6 +129,22 @@ public class QuestionReviewController extends BaseController {
 
         String json = String.format("[%s]", String.join(", ", results));
         return writeAnonymousResult(request, ok(json).as("application/json"), exam.isAnonymous());
+    }
+
+    private static Map<Question, List<ExamSectionQuestion>> createMapping(List<Question> questions) {
+        Comparator<Question> comparator = (o1, o2) -> {
+            List<Long> ids = questions.stream().map(GeneratedIdentityModel::getId).toList();
+            if (!ids.contains(o1.getId())) {
+                return 1;
+            }
+            if (!ids.contains(o2.getId())) {
+                return -1;
+            }
+            return ids.indexOf(o1.getId()) - ids.indexOf(o2.getId());
+        };
+
+        // Ordered map of questions to answers
+        return new TreeMap<>(comparator);
     }
 
     // DTO
