@@ -26,13 +26,13 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './basequestion/weig
 import { BaseQuestionEditorComponent } from './examquestion/base-question-editor.component';
 import { ExamQuestionEditorComponent } from './examquestion/exam-question-editor.component';
 import { ExamQuestionComponent } from './examquestion/exam-question.component';
-import { LibraryFileExportComponent } from './library/export/library-file-export.component';
-import { LibraryTransferComponent } from './library/export/library-transfer.component';
+import { LibraryTransferDialogComponent } from './library/export/library-transfer-dialog.component';
 import { LibraryComponent } from './library/library.component';
 import { LibraryService } from './library/library.service';
-import { LibraryOwnersComponent } from './library/owners/library-owners.component';
+import { LibraryOwnersDialogComponent } from './library/owners/library-owners-dialog.component';
 import { LibraryResultsComponent } from './library/results/library-results.component';
 import { LibrarySearchComponent } from './library/search/library-search.component';
+import { LibraryTagsDialogComponent } from './library/tags/library-tags-dialog.component';
 import { QuestionSelectorComponent } from './picker/question-picker.component';
 import { QuestionService } from './question.service';
 import { TagPickerComponent } from './tags/tag-picker.component';
@@ -43,15 +43,15 @@ import { TagPickerComponent } from './tags/tag-picker.component';
         LibraryComponent,
         LibrarySearchComponent,
         LibraryResultsComponent,
-        LibraryFileExportComponent,
-        LibraryTransferComponent,
+        LibraryTransferDialogComponent,
         QuestionComponent,
         QuestionBodyComponent,
         QuestionSelectorComponent,
         BaseQuestionEditorComponent,
         ExamQuestionComponent,
         ExamQuestionEditorComponent,
-        LibraryOwnersComponent,
+        LibraryOwnersDialogComponent,
+        LibraryTagsDialogComponent,
         ClaimChoiceEditorComponent,
         EssayEditorComponent,
         MultipleChoiceEditorComponent,
@@ -59,7 +59,14 @@ import { TagPickerComponent } from './tags/tag-picker.component';
         WeightedMultipleChoiceOptionEditorComponent,
         TagPickerComponent,
     ],
-    bootstrap: [QuestionSelectorComponent, BaseQuestionEditorComponent, ExamQuestionEditorComponent],
+    bootstrap: [
+        QuestionSelectorComponent,
+        BaseQuestionEditorComponent,
+        ExamQuestionEditorComponent,
+        LibraryOwnersDialogComponent,
+        LibraryTagsDialogComponent,
+        LibraryTransferDialogComponent,
+    ],
     providers: [LibraryService, QuestionService],
 })
 export class QuestionModule {}

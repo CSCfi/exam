@@ -87,11 +87,7 @@ export class SessionService implements OnDestroy {
         this.disableSessionCheck();
     }
 
-    getUser = (): User => {
-        const user = this.webStorageService.get('EXAM_USER');
-        if (!user) console.log('Tried to fetch a logged-out user.');
-        return user;
-    };
+    getUser = (): User => this.webStorageService.get('EXAM_USER');
 
     getUserName = () => {
         const user = this.getUser();

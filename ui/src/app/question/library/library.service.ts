@@ -17,7 +17,7 @@ import { Inject, Injectable } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { Course, Exam, ReverseQuestion, Tag } from '../../exam/exam.model';
+import type { Course, Exam, ExamSection, ReverseQuestion, Tag } from '../../exam/exam.model';
 import { QuestionService } from '../question.service';
 
 export interface LibraryQuestion extends ReverseQuestion {
@@ -36,14 +36,22 @@ export class LibraryService {
         private Question: QuestionService,
     ) {}
 
-    listExams = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Exam[]> =>
-        this.http.get<Exam[]>('/app/examsearch', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
+    listExams$ = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Exam[]> =>
+        this.http.get<Exam[]>('/app/examsearch', { params: this.getQueryParams(courseIds, [], sectionIds, tagIds) });
 
-    listCourses = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Course[]> =>
-        this.http.get<Course[]>('/app/courses/user', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
+    listCourses$ = (examIds: number[], sectionIds: number[], tagIds: number[]): Observable<Course[]> =>
+        this.http.get<Course[]>('/app/courses/user', { params: this.getQueryParams([], examIds, sectionIds, tagIds) });
 
-    listTags = (courseIds: number[], sectionIds: number[], tagIds: number[]): Observable<Tag[]> =>
-        this.http.get<Course[]>('/app/tags', { params: this.getQueryParams(courseIds, sectionIds, tagIds) });
+    listSections$ = (courseIds: number[], examIds: number[], tagIds: number[]): Observable<ExamSection[]> =>
+        this.http.get<ExamSection[]>('/app/sections', { params: this.getQueryParams(courseIds, examIds, [], tagIds) });
+
+    listTags$ = (courseIds: number[], examIds: number[], sectionIds: number[]): Observable<Tag[]> =>
+        this.http.get<Tag[]>('/app/tags', { params: this.getQueryParams(courseIds, sectionIds, examIds, []) });
+
+    listAllTags$ = (): Observable<Tag[]> => this.http.get<Tag[]>('/app/tags');
+
+    addTagForQuestions$ = (tagId: number, questionIds: number[]) =>
+        this.http.post<void>('/app/tags/questions', { questionIds: questionIds, tagId: tagId });
 
     loadFilters = (category: string) => {
         const entry = this.webStorageService.get('questionFilters');
@@ -94,14 +102,14 @@ export class LibraryService {
     };
 
     search = (
-        examIds: number[],
         courseIds: number[],
-        tagIds: number[],
+        examIds: number[],
         sectionIds: number[],
+        tagIds: number[],
     ): Observable<LibraryQuestion[]> =>
         this.http
             .get<LibraryQuestion[]>('/app/questions', {
-                params: this.getQueryParams(courseIds, sectionIds, tagIds, examIds),
+                params: this.getQueryParams(courseIds, examIds, sectionIds, tagIds),
             })
             .pipe(
                 map((questions) => {
@@ -129,24 +137,24 @@ export class LibraryService {
                 }),
             );
 
-    private getQueryParams = (courseIds: number[], sectionIds: number[], tagIds: number[], examIds?: number[]) => {
+    private getQueryParams = (courseIds: number[], examIds: number[], sectionIds: number[], tagIds: number[]) => {
         let params = new HttpParams();
 
-        const returnAppendedHttpParams = (key: string, idArray: number[], paramsObj: HttpParams) => {
+        const append = (key: string, idArray: number[], paramsObj: HttpParams) => {
             return idArray.reduce((paramObj, currentId) => paramObj.append(key, currentId.toString()), paramsObj);
         };
 
         if (courseIds.length > 0) {
-            params = returnAppendedHttpParams('course', courseIds, params);
+            params = append('course', courseIds, params);
         }
         if (sectionIds.length > 0) {
-            params = returnAppendedHttpParams('section', sectionIds, params);
+            params = append('section', sectionIds, params);
         }
         if (tagIds.length > 0) {
-            params = returnAppendedHttpParams('tag', tagIds, params);
+            params = append('tag', tagIds, params);
         }
-        if (examIds && examIds.length > 0) {
-            params = returnAppendedHttpParams('exam', examIds, params);
+        if (examIds.length > 0) {
+            params = append('exam', examIds, params);
         }
 
         return params;
