@@ -65,6 +65,7 @@ export class SectionQuestionComponent {
     @Input() examId = 0;
     @Output() removed = new EventEmitter<ExamSectionQuestion>();
     @Output() updated = new EventEmitter<ExamSectionQuestion>();
+    @Output() copied = new EventEmitter<ExamSectionQuestion>();
 
     constructor(
         private http: HttpClient,
@@ -97,6 +98,12 @@ export class SectionQuestionComponent {
             this.translate.instant('sitnet_confirm'),
             this.translate.instant('sitnet_remove_question'),
         ).subscribe({ next: () => this.removed.emit(this.sectionQuestion), error: (err) => this.toast.error(err) });
+
+    copyQuestion = () =>
+        this.Confirmation.open$(
+            this.translate.instant('sitnet_confirm'),
+            this.translate.instant('sitnet_copy_question'),
+        ).subscribe({ next: () => this.copied.emit(this.sectionQuestion), error: (err) => this.toast.error(err) });
 
     determineClaimOptionType(examOption: ExamSectionQuestionOption) {
         return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
