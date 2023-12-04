@@ -180,6 +180,15 @@ export class SectionComponent {
             });
     };
 
+    copyQuestion = (sq: ExamSectionQuestion) =>
+        this.http.post<Question>(`/app/question/${sq.question.id}`, {}).subscribe({
+            next: (copy) => {
+                this.insertExamQuestion(copy, sq.sequenceNumber);
+                this.toast.info(this.translate.instant('sitnet_question_copied'));
+            },
+            error: (err) => this.toast.error(err),
+        });
+
     updateQuestion = (sq: ExamSectionQuestion) => {
         const index = this.section.sectionQuestions.findIndex((q) => q.id == sq.id);
         this.section.sectionQuestions[index] = sq;
