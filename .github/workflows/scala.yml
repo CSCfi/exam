@@ -26,13 +26,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set up JDK 21
-      uses: actions/setup-java@v2
+    - name: Set up JDK
+      uses: actions/setup-java@v3
       with:
         java-version: 21
         distribution: temurin
 
-    - name: Set up Node 18
+    - name: Set up Node
       uses: actions/setup-node@v4
       with:
         node-version: 18.x
@@ -47,7 +47,7 @@ jobs:
         npm run build
         cd ..
 
-    - name: Run tests
+    - name: Build backend and run tests
       run: |
         sed -i 's/\/var\/log\/exam/logs/g' $GITHUB_WORKSPACE/conf/logback.xml
         sbt test

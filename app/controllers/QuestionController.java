@@ -139,7 +139,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         Query<Question> query = DB.find(Question.class);
         PathProperties pp = PathProperties.parse(
             "(*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
-            "attachment(id, fileName), options(id, correctOption, defaultScore, option, claimChoiceType), tags(id, name), " +
+            "attachment(id, fileName), options(id, correctOption, defaultScore, option, claimChoiceType), tags(id, name, creator(id)), " +
             "examSectionQuestions(id, examSection(name, exam(name, state))))"
         );
         pp.apply(query);
