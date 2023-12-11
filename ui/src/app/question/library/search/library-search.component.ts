@@ -27,7 +27,7 @@ interface Filterable<T> {
     filtered: boolean;
     object: T;
     name: string;
-    isSectionTag?: boolean;
+    usage?: number;
 }
 
 @Component({
@@ -38,13 +38,15 @@ export class LibrarySearchComponent implements OnInit {
     @Output() updated: EventEmitter<LibraryQuestion[]> = new EventEmitter<LibraryQuestion[]>();
 
     filter = { owner: '', text: '' };
-    limitations = { exam: '', course: '', tag: '' };
+    limitations = { course: '', exam: '', section: '', tag: '' };
     user: User;
-    exams: Filterable<Exam>[] = [];
-    filteredExams = this.exams;
     courses: Filterable<Course>[] = [];
     filteredCourses = this.courses;
-    tags: Filterable<Tag | ExamSection>[] = [];
+    exams: Filterable<Exam>[] = [];
+    filteredExams = this.exams;
+    sections: Filterable<ExamSection>[] = [];
+    filteredSections = this.sections;
+    tags: Filterable<Tag>[] = [];
     filteredTags = this.tags;
     questions: LibraryQuestion[] = [];
 
@@ -55,8 +57,9 @@ export class LibrarySearchComponent implements OnInit {
     ngOnInit() {
         const storedData = this.Library.loadFilters('search');
         if (storedData.filters) {
-            this.exams = this.filteredExams = storedData.filters.exams || [];
             this.courses = this.filteredCourses = storedData.filters.courses || [];
+            this.exams = this.filteredExams = storedData.filters.exams || [];
+            this.sections = this.filteredSections = storedData.filters.sections || [];
             this.tags = this.filteredTags = storedData.filters.tags || [];
             this.filter.text = storedData.filters.text;
             this.filter.owner = storedData.filters.owner;
@@ -81,7 +84,7 @@ export class LibrarySearchComponent implements OnInit {
 
     listCourses = () => {
         const courses = this.courses.filter((c) => c.filtered);
-        return this.Library.listCourses(this.getCourseIds(), this.getSectionIds(), this.getTagIds())
+        return this.Library.listCourses$(this.getExamIds(), this.getSectionIds(), this.getTagIds())
             .pipe(
                 tap((resp) => {
                     this.courses = this.filteredCourses = this.union(
@@ -91,7 +94,6 @@ export class LibrarySearchComponent implements OnInit {
                             name: r.name,
                             object: r,
                             filtered: false,
-                            isSectionTag: false,
                         })),
                     );
                 }),
@@ -101,7 +103,7 @@ export class LibrarySearchComponent implements OnInit {
 
     listExams$ = (): Observable<Exam[]> => {
         const exams = this.exams.filter((e) => e.filtered);
-        return this.Library.listExams(this.getCourseIds(), this.getSectionIds(), this.getTagIds()).pipe(
+        return this.Library.listExams$(this.getCourseIds(), this.getSectionIds(), this.getTagIds()).pipe(
             tap((resp) => {
                 this.exams = this.filteredExams = this.union(
                     exams,
@@ -110,34 +112,65 @@ export class LibrarySearchComponent implements OnInit {
                         name: r.name || '',
                         object: r,
                         filtered: false,
-                        isSectionTag: false,
                     })),
                 );
             }),
         );
     };
 
-    listTags = () => {
-        const tags = this.tags.filter((_) => _.filtered && !_.isSectionTag);
-        const sections = tags.filter((_) => _.filtered && _.isSectionTag);
-        if (this.getExamIds().length === 0) {
-            this.listExams$().subscribe(() => this.doListTags(tags, sections));
-        } else {
-            return this.doListTags(tags, sections);
-        }
+    listSections$ = (): Observable<ExamSection[]> => {
+        const sections = this.sections.filter((s) => s.filtered);
+        return this.Library.listSections$(this.getCourseIds(), this.getExamIds(), this.getTagIds()).pipe(
+            tap((resp) => {
+                this.sections = this.filteredSections = this.union(
+                    sections,
+                    resp.map((r) => ({
+                        id: r.id,
+                        name: r.name || '',
+                        object: r,
+                        filtered: false,
+                    })),
+                );
+            }),
+        );
     };
 
-    getTags = (): (Filterable<Course> | Filterable<Exam> | Filterable<Tag>)[] => {
-        const courses = this.courses.filter((_) => _.filtered);
-        const exams = this.exams.filter((_) => _.filtered);
-        const tags = this.tags.filter((_) => _.filtered);
-        const res: (Filterable<Course> | Filterable<Exam> | Filterable<Tag>)[] = [];
-        return res.concat(courses).concat(exams).concat(tags);
+    listTags$ = () => {
+        const tags = this.tags.filter((t) => t.filtered);
+        return this.Library.listTags$(this.getCourseIds(), this.getExamIds(), this.getSectionIds()).pipe(
+            tap((resp) => {
+                this.tags = this.filteredTags = this.union(
+                    tags,
+                    resp.map((r) => ({
+                        id: r.id as number,
+                        name: r.name || '',
+                        object: r,
+                        filtered: false,
+                        usage: r.questions.length,
+                    })),
+                );
+            }),
+        );
     };
 
-    applyFilter = (tag: Filterable<unknown>) => {
-        tag.filtered = !tag.filtered;
+    getFilters = () => {
+        const courses = this.courses.filter((c) => c.filtered);
+        const exams = this.exams.filter((e) => e.filtered);
+        const sections = this.sections.filter((s) => s.filtered);
+        const tags = this.tags.filter((t) => t.filtered);
+        const res: (Filterable<Course> | Filterable<Exam> | Filterable<ExamSection> | Filterable<Tag>)[] = [];
+        return res.concat(courses).concat(exams).concat(sections).concat(tags);
+    };
+
+    applyFilter = (f: Filterable<unknown>) => {
+        f.filtered = !f.filtered;
         this.query().subscribe(() => this.applySearchFilter());
+    };
+
+    filterCourses = () => {
+        this.filteredCourses = this.courses.filter(
+            (c) => c.name.toLowerCase().indexOf(this.limitations.course.toLowerCase()) > -1,
+        );
     };
 
     filterExams = () => {
@@ -146,9 +179,9 @@ export class LibrarySearchComponent implements OnInit {
         );
     };
 
-    filterCourses = () => {
-        this.filteredCourses = this.courses.filter(
-            (c) => c.name.toLowerCase().indexOf(this.limitations.course.toLowerCase()) > -1,
+    filterSections = () => {
+        this.filteredSections = this.sections.filter(
+            (s) => s.name.toLowerCase().indexOf(this.limitations.section.toLowerCase()) > -1,
         );
     };
 
@@ -160,8 +193,9 @@ export class LibrarySearchComponent implements OnInit {
 
     private saveFilters = () => {
         const filters = {
-            exams: this.exams,
             courses: this.courses,
+            exams: this.exams,
+            sections: this.sections,
             tags: this.tags,
             text: this.filter.text,
             owner: this.filter.owner,
@@ -171,9 +205,8 @@ export class LibrarySearchComponent implements OnInit {
 
     private getCourseIds = () => this.courses.filter((course) => course.filtered).map((course) => course.id);
     private getExamIds = () => this.exams.filter((exam) => exam.filtered).map((exam) => exam.id);
-    private getTagIds = () => this.tags.filter((tag) => !tag.isSectionTag && tag.filtered).map((tag) => tag.id);
-    private getSectionIds = () =>
-        this.tags.filter((tag) => tag.isSectionTag && tag.filtered).map((section) => section.id);
+    private getTagIds = () => this.tags.filter((tag) => tag.filtered).map((tag) => tag.id);
+    private getSectionIds = () => this.sections.filter((section) => section.filtered).map((section) => section.id);
 
     private union<T>(filtered: Filterable<T>[], tags: Filterable<T>[]): Filterable<T>[] {
         const filteredIds = filtered.map((f) => f.id);
@@ -181,47 +214,10 @@ export class LibrarySearchComponent implements OnInit {
     }
 
     private query = (): Observable<LibraryQuestion[]> =>
-        this.Library.search(this.getExamIds(), this.getCourseIds(), this.getTagIds(), this.getSectionIds()).pipe(
+        this.Library.search(this.getCourseIds(), this.getExamIds(), this.getSectionIds(), this.getTagIds()).pipe(
             tap((questions) => {
                 this.questions = questions;
                 this.saveFilters();
             }),
         );
-
-    private doListTags = (tags: Filterable<Tag>[], sections: Filterable<Tag | ExamSection>[]) => {
-        const examIds = this.getExamIds();
-        const courseIds = this.getCourseIds();
-        const sectionIds = this.getSectionIds();
-        this.Library.listTags(
-            courseIds,
-            sectionIds,
-            tags.map((t) => t.id),
-        ).subscribe((response) => {
-            tags = this.union(
-                tags,
-                response.map((r) => ({
-                    id: r.id as number,
-                    name: r.name,
-                    object: r,
-                    filtered: false,
-                    isSectionTag: false,
-                })),
-            );
-            let examSections: Filterable<ExamSection>[] = [];
-            this.exams
-                .filter((fe) => {
-                    const examMatch = examIds.length === 0 || examIds.indexOf(fe.id) > -1;
-                    const courseMatch =
-                        courseIds.length === 0 || !fe.object.course || courseIds.indexOf(fe.object.course.id) > -1;
-                    return examMatch && courseMatch;
-                })
-                .forEach((e) => {
-                    const filteredSections: Filterable<ExamSection>[] = e.object.examSections
-                        .filter((es) => es.name)
-                        .map((es) => ({ id: es.id, name: es.name, object: es, filtered: false, isSectionTag: true }));
-                    examSections = examSections.concat(filteredSections);
-                });
-            this.tags = this.filteredTags = tags.concat(this.union(sections, examSections));
-        });
-    };
 }

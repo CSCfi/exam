@@ -45,7 +45,7 @@ import { QuestionDraft } from '../question.service';
                             maxlength="30"
                             class="form-control col-md-8"
                             [(ngModel)]="tagName"
-                            lowerCase
+                            xmLowerCase
                             [ngbTypeahead]="getTags$"
                             (selectItem)="onTagSelect($event)"
                             [resultFormatter]="nameFormat"
@@ -84,8 +84,9 @@ import { QuestionDraft } from '../question.service';
 export class TagPickerComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;
     tagName = '';
-    newTag: Tag = { name: '' };
+    newTag: Tag = { name: '', questions: [] };
     ownTags: Tag[] = [];
+
 
     constructor(private http: HttpClient, private Session: SessionService) {}
 
@@ -108,7 +109,7 @@ export class TagPickerComponent implements OnInit {
             map((resp) => {
                 const { filter, tags } = resp;
                 if (filter) {
-                    tags.unshift({ name: filter });
+                    tags.unshift({ name: filter, questions: [] });
                 }
                 // filter out the ones already tagged for this question and slice
                 return tags
@@ -122,7 +123,7 @@ export class TagPickerComponent implements OnInit {
 
     addTag = () => {
         if (this.newTag) this.question.tags.push(this.newTag);
-        this.newTag = { name: '' };
+        this.newTag = { name: '', questions: [] };
         this.tagName = '';
     };
 

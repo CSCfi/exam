@@ -90,8 +90,8 @@ public class QuestionController extends BaseController implements SectionQuestio
             return ok(Collections.emptySet());
         }
         PathProperties pp = PathProperties.parse(
-            "*, modifier(firstName, lastName) questionOwners(id, firstName, lastName, userIdentifier, email), " +
-            "attachment(id, fileName), options(defaultScore, correctOption, claimChoiceType), tags(name), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))"
+            "*, modifier(firstName, lastName), questionOwners(id, firstName, lastName, userIdentifier, email), " +
+            "attachment(id, fileName), options(defaultScore, correctOption, claimChoiceType), tags(id, name), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))"
         );
         Query<Question> query = DB.find(Question.class);
         pp.apply(query);
@@ -241,7 +241,7 @@ public class QuestionController extends BaseController implements SectionQuestio
                 }
                 if (tag.isEmpty()) {
                     Tag newTag = new Tag();
-                    newTag.setName(tagNode.get("name").asText());
+                    newTag.setName(tagNode.get("name").asText().toLowerCase());
                     newTag.setCreatorWithDate(user);
                     newTag.setModifier(user);
                     tag = Optional.of(newTag);

@@ -97,6 +97,7 @@ export interface Tag {
     id?: number;
     name: string;
     creator?: User;
+    questions: Question[];
 }
 
 export interface Question {

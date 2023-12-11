@@ -38,7 +38,7 @@ class MoodleXmlImporterImpl @Inject()(fileHandler: FileHandler) extends MoodleXm
           case h :: _ => h
           case _ =>
             val t = new Tag
-            t.setName(text)
+            t.setName(text.toLowerCase)
             t.setCreator(user)
             t
         }
