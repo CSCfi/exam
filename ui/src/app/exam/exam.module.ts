@@ -29,7 +29,6 @@ import { BasicExamInfoComponent } from './editor/basic/basic-exam-info.component
 import { ExamCourseComponent } from './editor/basic/exam-course.component';
 import { ExamInspectorSelectorComponent } from './editor/basic/exam-inspector-picker.component';
 import { ExamOwnerSelectorComponent } from './editor/basic/exam-owner-picker.component';
-import { ExamResolverService } from './editor/basic/exam-resolver.service';
 import { SoftwareSelectorComponent } from './editor/basic/software-picker.component';
 import { CoursePickerComponent } from './editor/common/course-picker.component';
 import { CoursePickerService } from './editor/common/course-picker.service';
@@ -105,6 +104,6 @@ import { PrintoutListingComponent } from './printout/printouts.component';
         ExamMaterialComponent,
         ExaminationTypeSelectorComponent,
     ],
-    providers: [ExamService, CoursePickerService, CollaborativeExamService, ExamTabService, ExamResolverService],
+    providers: [ExamService, CoursePickerService, CollaborativeExamService, ExamTabService],
 })
 export class ExamModule {}

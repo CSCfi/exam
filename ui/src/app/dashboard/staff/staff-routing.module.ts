@@ -1,15 +1,17 @@
-import { NgModule } from '@angular/core';
-import { Route, RouterModule } from '@angular/router';
+import { inject, NgModule } from '@angular/core';
+import { ActivatedRouteSnapshot, Route, RouterModule } from '@angular/router';
+import { CollaborativeExamService } from 'src/app/exam/collaborative/collaborative-exam.service';
 import { ExamAssessmentComponent } from 'src/app/exam/editor/assessment/exam-assessment.component';
 import { BasicExamInfoComponent } from 'src/app/exam/editor/basic/basic-exam-info.component';
-import { ExamResolverService } from 'src/app/exam/editor/basic/exam-resolver.service';
 import { ExamTabsComponent } from 'src/app/exam/editor/exam-tabs.component';
+import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import { ExamPublicationComponent } from 'src/app/exam/editor/publication/exam-publication.component';
 import { SectionsComponent } from 'src/app/exam/editor/sections/sections.component';
+import { ExamService } from 'src/app/exam/exam.service';
 import { PrintoutComponent } from 'src/app/exam/printout/printout.component';
-import { QuestionEditQuard } from 'src/app/question/question-edit-guard';
-import { ReviewListResolverService } from 'src/app/review/listing/review-list-resolver.service';
+import { hasUnsavedChangesGuard } from 'src/app/question/has-unsaved-changes.quard';
 import { ReviewListComponent } from 'src/app/review/listing/review-list.component';
+import { ReviewListService } from 'src/app/review/listing/review-list.service';
 import { ExamSummaryComponent } from 'src/app/review/listing/summary/exam-summary.component';
 import { QuestionReviewsComponent } from 'src/app/review/questions/listing/question-reviews.component';
 import { ReportsComponent } from '../../administrative/reports/reports.component';
@@ -32,7 +34,7 @@ import { LanguageInspectionsComponent } from '../../maturity/language-inspection
 import { MaturityReportingComponent } from '../../maturity/reporting/maturity-reporting.component';
 import { QuestionComponent } from '../../question/basequestion/question.component';
 import { LibraryComponent } from '../../question/library/library.component';
-import { TeacherReservationComponent } from '../../reservation/teacher/teacher-reservations.component';
+import { ReservationsComponent } from '../../reservation/reservations.component';
 import { AssessmentComponent } from '../../review/assessment/assessment.component';
 import { PrintedAssessmentComponent } from '../../review/assessment/print/printed-assessment.component';
 import { SpeedReviewComponent } from '../../review/listing/speed-review.component';
@@ -40,6 +42,12 @@ import { QuestionAssessmentComponent } from '../../review/questions/assessment/q
 import { AdminDashboardComponent } from './admin/admin-dashboard.component';
 import { StaffDashboardComponent } from './staff-dashboard.component';
 import { TeacherDashboardComponent } from './teacher/teacher-dashboard.component';
+
+const reviewListResolver = (route: ActivatedRouteSnapshot) => {
+    const id = route.pathFromRoot[3].params.id; // hacky yes
+    const isCollab = inject(ExamTabService).isCollaborative() || route.queryParamMap.get('collaborative') === 'true';
+    return inject(ReviewListService).getReviews$(id, isCollab);
+};
 
 const routes: Route[] = [
     {
@@ -57,20 +65,28 @@ const routes: Route[] = [
                     newQuestion: false,
                     nextState: 'questions',
                 },
-                canDeactivate: [QuestionEditQuard],
+                canDeactivate: [hasUnsavedChangesGuard],
             },
             {
                 path: 'questions/new',
                 component: QuestionComponent,
                 data: { newQuestion: true },
-                canDeactivate: [QuestionEditQuard],
+                canDeactivate: [hasUnsavedChangesGuard],
             },
 
             { path: 'exams', component: NewExamComponent },
             {
                 path: 'exams/:id',
                 component: ExamTabsComponent,
-                resolve: { exam: ExamResolverService },
+                resolve: {
+                    exam: (route: ActivatedRouteSnapshot) => {
+                        const id = Number(route.paramMap.get('id'));
+                        const isCollab = route.queryParamMap.get('collaborative') === 'true';
+                        return isCollab
+                            ? inject(CollaborativeExamService).download$(id)
+                            : inject(ExamService).downloadExam$(id);
+                    },
+                },
                 children: [
                     { path: '1', component: BasicExamInfoComponent },
                     { path: '2', component: SectionsComponent },
@@ -79,13 +95,13 @@ const routes: Route[] = [
                     {
                         path: '5',
                         component: ReviewListComponent,
-                        resolve: { reviews: ReviewListResolverService },
+                        resolve: { reviews: reviewListResolver },
                     },
                     { path: '6', component: QuestionReviewsComponent },
                     {
                         path: '7',
                         component: ExamSummaryComponent,
-                        resolve: { reviews: ReviewListResolverService },
+                        resolve: { reviews: reviewListResolver },
                     },
                 ],
             },
@@ -136,8 +152,8 @@ const routes: Route[] = [
             { path: 'inspections', component: LanguageInspectionsComponent },
             { path: 'inspections/reports', component: MaturityReportingComponent },
             { path: 'adminexams', component: ExamListingComponent },
-            { path: 'reservations', component: TeacherReservationComponent },
-            { path: 'reservations/:eid', component: TeacherReservationComponent },
+            { path: 'reservations', component: ReservationsComponent },
+            { path: 'reservations/:eid', component: ReservationsComponent },
             { path: 'rooms', component: FacilityComponent },
             { path: 'rooms/:id', component: RoomComponent },
             { path: 'rooms/:id/availability', component: AvailabilityComponent },

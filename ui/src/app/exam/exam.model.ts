@@ -96,6 +96,8 @@ export interface ReverseQuestion extends Question {
 export interface Tag {
     id?: number;
     name: string;
+    creator?: User;
+    questions: Question[];
 }
 
 export interface Question {

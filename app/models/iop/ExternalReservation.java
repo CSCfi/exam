@@ -16,9 +16,9 @@
 package models.iop;
 
 import controllers.RoomLike;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import models.MailAddress;
 import models.base.GeneratedIdentityModel;
 

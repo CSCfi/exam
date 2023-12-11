@@ -15,15 +15,17 @@
 
 package impl;
 
-import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -49,9 +51,11 @@ import models.Grade;
 import models.GradeScale;
 import models.Organisation;
 import models.User;
+import org.apache.pekko.util.ByteString;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
-import play.Logger;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
@@ -66,7 +70,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     private static final DateFormat DF = new SimpleDateFormat("yyyyMMdd");
     private static final ByteString BOM = ByteString.fromArray(new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF });
 
-    private static final Logger.ALogger logger = Logger.of(ExternalCourseHandlerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(ExternalCourseHandlerImpl.class);
 
     private static class RemoteException extends Exception {
 
@@ -99,7 +103,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private Set<Course> getLocalCourses(String code) {
-        return Ebean
+        return DB
             .find(Course.class)
             .where()
             .ilike("code", code + "%")
@@ -164,7 +168,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private void saveOrUpdate(Course external) {
-        Ebean
+        DB
             .find(Course.class)
             .where()
             .eq("code", external.getCode())
@@ -245,7 +249,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             throw new RuntimeException("sitnet.integration.courseUnitInfo.url is malformed");
         }
         url = url.replace(COURSE_CODE_PLACEHOLDER, courseCode);
-        return new URL(url);
+        return URI.create(url).toURL();
     }
 
     private URL parseUrl(User user) throws MalformedURLException {
@@ -258,16 +262,19 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         if (url == null || !url.contains(USER_ID_PLACEHOLDER)) {
             throw new MalformedURLException("sitnet.integration.enrolmentPermissionCheck.url is malformed");
         }
-        String identifier = configReader.getPermissionCheckUserIdentifier().equals("userIdentifier")
-            ? user.getUserIdentifier()
-            : user.getEppn();
+        String identifier = URLEncoder.encode(
+            configReader.getPermissionCheckUserIdentifier().equals("userIdentifier")
+                ? user.getUserIdentifier()
+                : user.getEppn(),
+            StandardCharsets.UTF_8
+        );
         url = url.replace(USER_ID_PLACEHOLDER, identifier).replace(USER_LANG_PLACEHOLDER, user.getLanguage().getCode());
-        return new URL(url);
+        return URI.create(url).toURL();
     }
 
     private Optional<GradeScale> importScale(JsonNode node) {
         String externalRef = node.get("code").asText();
-        Optional<GradeScale> ogs = Ebean.find(GradeScale.class).where().eq("externalRef", externalRef).findOneOrEmpty();
+        Optional<GradeScale> ogs = DB.find(GradeScale.class).where().eq("externalRef", externalRef).findOneOrEmpty();
         if (ogs.isPresent()) {
             return ogs;
         }
@@ -327,8 +334,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                     Optional<GradeScale.Type> gst = GradeScale.Type.get(type);
                     return gst.isPresent() && gst.get() != GradeScale.Type.OTHER;
                 })
-                .map(n -> Ebean.find(GradeScale.class).where().eq("type", n.get("type").asText()).findOne());
-            return Stream.concat(externals, locals).collect(Collectors.toList());
+                .map(n -> DB.find(GradeScale.class).where().eq("type", n.get("type").asText()).findOne());
+            return Stream.concat(externals, locals).toList();
         }
         return Collections.emptyList();
     }
@@ -377,7 +384,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             }
             String name = node.get("institutionName").asText();
             // TODO: how to identify (external) organisations. Maybe we need some "externalRef" for organisations as well?
-            Organisation organisation = Ebean.find(Organisation.class).where().ieq("name", name).findOne();
+            Organisation organisation = DB.find(Organisation.class).where().ieq("name", name).findOne();
             // TODO: should organisations preexist or not? As a safeguard, lets create these for now if not found.
             if (organisation == null) {
                 organisation = new Organisation();

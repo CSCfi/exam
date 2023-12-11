@@ -25,10 +25,10 @@ import { QuestionDraft, QuestionService } from '../question.service';
             <div class="col-md-6">
                 <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
                 <br /><span>
-                    <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
-                    <small class="ps-2" *ngIf="showWarning">{{
-                        'sitnet_shared_question_property_info' | translate
-                    }}</small>
+                    <div *ngIf="showWarning" class="edit-warning-container">
+                        <i class="bi-exclamation-circle reddish"></i>
+                        <small class="ps-2">{{ 'sitnet_shared_question_property_info' | translate }}</small>
+                    </div>
                 </span>
             </div>
             <div class="col-md-6 question-option-title">
@@ -39,8 +39,10 @@ import { QuestionDraft, QuestionService } from '../question.service';
             <div class="col-md-6">
                 <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
                 <br /><span>
-                    <i *ngIf="showWarning" class="bi-exclamation-circle reddish"></i>
-                    <small *ngIf="showWarning">{{ 'sitnet_shared_question_property_info' | translate }}</small>
+                    <div *ngIf="showWarning" class="edit-warning-container">
+                        <i class="bi-exclamation-circle reddish"></i>
+                        <small class="ps-2">{{ 'sitnet_shared_question_property_info' | translate }}</small>
+                    </div>
                 </span>
             </div>
             <div class="col-md-6">

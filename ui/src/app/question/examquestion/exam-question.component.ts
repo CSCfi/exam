@@ -13,7 +13,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { HttpClient } from '@angular/common/http';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type {
@@ -31,11 +32,12 @@ import { QuestionService } from '../question.service';
     selector: 'xm-exam-question',
     templateUrl: './exam-question.component.html',
 })
-export class ExamQuestionComponent implements OnInit {
+export class ExamQuestionComponent implements OnInit, OnDestroy {
     @Input() examQuestion!: ExamSectionQuestion;
     @Input() lotteryOn = false;
     @Output() saved = new EventEmitter<{ question: Question; examQuestion: ExamSectionQuestion }>();
-    @Output() cancelled = new EventEmitter<void>();
+    @Output() cancelled = new EventEmitter<{ dirty: boolean }>();
+    @ViewChild('questionForm', { static: false }) questionForm?: NgForm;
 
     question?: ReverseQuestion;
     examNames: string[] = [];
@@ -56,13 +58,17 @@ export class ExamQuestionComponent implements OnInit {
         this.init();
     }
 
+    ngOnDestroy() {
+        window.removeEventListener('beforeunload', this.onUnload);
+    }
+
     save = () =>
         this.saved.emit({
             question: this.question as ReverseQuestion,
             examQuestion: this.examQuestion as ExamSectionQuestion,
         });
 
-    cancel = () => this.cancelled.emit();
+    cancel = () => this.cancelled.emit({ dirty: this.questionForm?.dirty || false });
 
     showWarning = () => this.examNames && this.examNames.length > 1;
     estimateCharacters = () => (this.examQuestion.expectedWordCount || 0) * 8;
@@ -194,5 +200,11 @@ export class ExamQuestionComponent implements OnInit {
             this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
             this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
             this.validate();
+            window.addEventListener('beforeunload', this.onUnload);
         });
+
+    private onUnload = (event: BeforeUnloadEvent) => {
+        event.preventDefault();
+        return this.questionForm?.dirty ? (event.returnValue = '') : null;
+    };
 }

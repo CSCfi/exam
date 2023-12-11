@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.inject.Inject;
 import models.ExamRoom;
@@ -92,7 +91,7 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
     }
 
     private List<Interval> removeNonOverlappingIntervals(List<Interval> reserved, Interval searchInterval) {
-        return reserved.stream().filter(interval -> interval.overlaps(searchInterval)).collect(Collectors.toList());
+        return reserved.stream().filter(interval -> interval.overlaps(searchInterval)).toList();
     }
 
     private boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
@@ -268,9 +267,7 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
         List<OpeningHours> availableHours = new ArrayList<>();
         if (!extensionEvents.isEmpty()) {
             List<Interval> unifiedIntervals = mergeSlots(
-                Stream
-                    .concat(workingHours.stream().map(OpeningHours::getHours), extensionEvents.stream())
-                    .collect(Collectors.toList())
+                Stream.concat(workingHours.stream().map(OpeningHours::getHours), extensionEvents.stream()).toList()
             );
             int tzOffset;
             if (workingHours.isEmpty()) {
@@ -281,10 +278,7 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
             }
             workingHours.clear();
             workingHours.addAll(
-                unifiedIntervals
-                    .stream()
-                    .map(interval -> new OpeningHours(interval, tzOffset))
-                    .collect(Collectors.toList())
+                unifiedIntervals.stream().map(interval -> new OpeningHours(interval, tzOffset)).toList()
             );
         }
         if (!restrictionEvents.isEmpty()) {

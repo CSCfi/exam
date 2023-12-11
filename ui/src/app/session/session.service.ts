@@ -87,11 +87,7 @@ export class SessionService implements OnDestroy {
         this.disableSessionCheck();
     }
 
-    getUser = (): User => {
-        const user = this.webStorageService.get('EXAM_USER');
-        if (!user) console.log('Tried to fetch a logged-out user.');
-        return user;
-    };
+    getUser = (): User => this.webStorageService.get('EXAM_USER');
 
     getUserName = () => {
         const user = this.getUser();
@@ -290,7 +286,6 @@ export class SessionService implements OnDestroy {
         this.userChangeSubscription.next(undefined);
 
         this.toast.success(this.i18n.instant('sitnet_logout_success'));
-        window.onbeforeunload = null;
         const location = window.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
         const env = this.getEnv();

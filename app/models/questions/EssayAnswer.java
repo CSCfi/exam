@@ -15,11 +15,10 @@
 
 package models.questions;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Transient;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import models.Attachment;
 import models.api.AttachmentContainer;
 import models.base.OwnedModel;
@@ -62,7 +61,6 @@ public class EssayAnswer extends OwnedModel implements AttachmentContainer {
         this.evaluatedScore = evaluatedScore;
     }
 
-    @Transient
     public EssayAnswer copy() {
         EssayAnswer essayAnswer = new EssayAnswer();
         essayAnswer.setAnswer(answer);

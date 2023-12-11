@@ -199,7 +199,6 @@ export class ExaminationService {
     logout = (msg: string, hash: string, quitLinkEnabled: boolean, canFail: boolean) => {
         const ok = () => {
             this.toast.info(this.translate.instant(msg), '', { timeOut: 5000 });
-            window.onbeforeunload = null;
             this.router.navigate(['/examination/logout'], {
                 queryParams: { reason: 'finished', quitLinkEnabled: quitLinkEnabled },
             });

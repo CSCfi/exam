@@ -22,7 +22,7 @@ import static play.test.Helpers.contentAsString;
 import base.IntegrationTestCase;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.List;
 import java.util.Optional;
 import models.Exam;
@@ -44,23 +44,21 @@ public class ExamAPIControllerTest extends IntegrationTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        final List<ExamExecutionType> types = Ebean.find(ExamExecutionType.class).findList();
+        final List<ExamExecutionType> types = DB.find(ExamExecutionType.class).findList();
         publicType = findType(types, ExamExecutionType.Type.PUBLIC).orElse(null);
         privateType = findType(types, ExamExecutionType.Type.PRIVATE).orElse(null);
 
         final LocalDateTime startDate = LocalDateTime.now().plusDays(1);
         final LocalDateTime endDate = LocalDateTime.now().plusDays(10);
-        exams = Ebean.find(Exam.class).findList();
+        exams = DB.find(Exam.class).findList();
         // Set all exams to start on future
-        exams.forEach(
-            e -> {
-                e.setState(Exam.State.PUBLISHED);
-                e.setExamActiveStartDate(startDate.toDateTime());
-                e.setExamActiveEndDate(endDate.toDateTime());
-                e.setExecutionType(publicType);
-                e.save();
-            }
-        );
+        exams.forEach(e -> {
+            e.setState(Exam.State.PUBLISHED);
+            e.setExamActiveStartDate(startDate.toDateTime());
+            e.setExamActiveEndDate(endDate.toDateTime());
+            e.setExecutionType(publicType);
+            e.save();
+        });
     }
 
     @Test
@@ -96,8 +94,8 @@ public class ExamAPIControllerTest extends IntegrationTestCase {
         assertThat(records).hasSize(exams.size() - 3);
         records
             .elements()
-            .forEachRemaining(
-                n -> assertThat(n.get("id").asLong()).isNotIn(second.getId(), third.getId(), fourth.getId())
+            .forEachRemaining(n ->
+                assertThat(n.get("id").asLong()).isNotIn(second.getId(), third.getId(), fourth.getId())
             );
 
         String filter = DateTime.now().minusDays(3).toString("yyyy-MM-dd");

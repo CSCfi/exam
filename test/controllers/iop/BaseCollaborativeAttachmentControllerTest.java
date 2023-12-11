@@ -18,13 +18,11 @@ package controllers.iop;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import akka.actor.ActorSystem;
-import akka.stream.Materializer;
 import base.IntegrationTestCase;
 import helpers.AttachmentServlet;
 import helpers.ExamServlet;
 import helpers.RemoteServerHelper;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import jakarta.servlet.MultipartConfigElement;
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +37,8 @@ import models.questions.Question;
 import models.sections.ExamSectionQuestion;
 import net.jodah.concurrentunit.Waiter;
 import org.apache.commons.io.FileUtils;
+import org.apache.pekko.actor.ActorSystem;
+import org.apache.pekko.stream.Materializer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -91,9 +91,9 @@ public abstract class BaseCollaborativeAttachmentControllerTest<T> extends Integ
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        exam = Ebean.find(Exam.class, 1L);
+        exam = DB.find(Exam.class, 1L);
         assert exam != null;
-        exam.setExecutionType(Ebean.find(ExamExecutionType.class, 1L));
+        exam.setExecutionType(DB.find(ExamExecutionType.class, 1L));
         exam.setExternal(true);
         final Attachment examAttachment = createAttachment("test_image.png", testImage.getAbsolutePath(), "image/png");
         examAttachment.setExternalId("ab123fcdgkk");

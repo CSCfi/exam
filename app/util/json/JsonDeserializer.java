@@ -26,11 +26,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class JsonDeserializer {
 
-    private static final Logger.ALogger logger = Logger.of(JsonDeserializer.class);
+    private static final Logger logger = LoggerFactory.getLogger(JsonDeserializer.class);
 
     private JsonDeserializer() {}
 

@@ -23,7 +23,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvException;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import java.io.File;
 import java.io.FileReader;
@@ -47,17 +47,18 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CsvBuilderImpl implements CsvBuilder {
 
-    private static final Logger.ALogger logger = Logger.of(CsvBuilderImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(CsvBuilderImpl.class);
 
     @Override
     public File build(Long startDate, Long endDate) throws IOException {
         Date start = new Date(startDate);
         Date end = new Date(endDate);
-        List<ExamRecord> examRecords = Ebean
+        List<ExamRecord> examRecords = DB
             .find(ExamRecord.class)
             .fetch("examScore")
             .where()
@@ -76,7 +77,7 @@ public class CsvBuilderImpl implements CsvBuilder {
 
     @Override
     public File build(Long examId, Collection<Long> childIds) throws IOException {
-        List<ExamRecord> examRecords = Ebean
+        List<ExamRecord> examRecords = DB
             .find(ExamRecord.class)
             .fetch("examScore")
             .where()
@@ -157,7 +158,7 @@ public class CsvBuilderImpl implements CsvBuilder {
                 logger.warn("Invalid input, unable to grade");
                 continue;
             }
-            ExpressionList<Exam> el = Ebean
+            ExpressionList<Exam> el = DB
                 .find(Exam.class)
                 .where()
                 .idEq(examId)
@@ -176,12 +177,7 @@ public class CsvBuilderImpl implements CsvBuilder {
             }
             String gradeName = records[1];
             GradeScale scale = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
-            List<Grade> grades = Ebean
-                .find(Grade.class)
-                .where()
-                .eq("name", gradeName)
-                .eq("gradeScale", scale)
-                .findList();
+            List<Grade> grades = DB.find(Grade.class).where().eq("name", gradeName).eq("gradeScale", scale).findList();
             if (grades.isEmpty()) {
                 logger.warn("No grade found with name {}", gradeName);
             } else if (grades.size() > 1) {

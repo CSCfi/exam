@@ -20,12 +20,14 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.User;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
@@ -38,7 +40,7 @@ public class CollaborativeStudentActionController extends CollaborationControlle
 
     private final WSClient wsClient;
 
-    private static final Logger.ALogger logger = Logger.of(CollaborativeStudentActionController.class);
+    private final Logger logger = LoggerFactory.getLogger(CollaborativeStudentActionController.class);
 
     @Inject
     public CollaborativeStudentActionController(WSClient wsClient) {
@@ -69,9 +71,9 @@ public class CollaborativeStudentActionController extends CollaborationControlle
     Optional<URL> parseUrl() {
         String url = String.format("%s/api/assessments/user?eppn=", configReader.getIopHost());
         try {
-            return Optional.of(new URL(url));
+            return Optional.of(URI.create(url).toURL());
         } catch (MalformedURLException e) {
-            logger.error("Malformed URL {}", e);
+            logger.error("Malformed URL", e);
             return Optional.empty();
         }
     }

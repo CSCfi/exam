@@ -121,6 +121,7 @@ DELETE        /app/exams/:eid/sections/:sid/questions/:qid             controlle
 PUT           /app/exams/:eid/sections/:sid/reorder                    controllers.ExamSectionController.reorderSectionQuestions(eid: Long, sid: Long, request: Request)
 PUT           /app/exams/:eid/reorder                                  controllers.ExamSectionController.reorderSections(eid: Long, request: Request)
 GET           /app/exams/question/:id/distribution                     controllers.ExamSectionController.getQuestionDistribution(id: Long)
+GET           /app/sections                                            controllers.ExamSectionController.listSections(filter: java.util.Optional[String], courseIds: java.util.Optional[LongList], examIds: java.util.Optional[LongList], tagIds: java.util.Optional[LongList], request: Request)
 
 ############### Section material interface ###############
 GET           /app/materials                                           controllers.ExamMaterialController.listMaterials(request: Request)
@@ -151,8 +152,8 @@ GET           /app/examparticipations/:eid                             controlle
 GET           /app/usernoshows/:eid                                    controllers.ReviewController.listNoShowsForExamAndUser(eid: Long, request: Request)
 POST          /app/email/inspection/:eid                               controllers.ReviewController.sendInspectionMessage(eid: Long, request: Request)
 POST          /app/review/:id/inspection                               controllers.ReviewController.addInspectionComment(id: Long, request: Request)
-POST          /app/gradeimport                                         controllers.ReviewController.importGrades(request: Request)
-GET           /app/exam/:eid/attachments                               controllers.ReviewController.getArchivedAttachments(eid: Long, start: java.util.Optional[String], end: java.util.Optional[String])
+POST          /app/gradeimport                                         controllers.ReviewDocumentsController.importGrades
+GET           /app/exam/:eid/attachments                               controllers.ReviewDocumentsController.getArchivedAttachments(eid: Long, start: Option[String], end: Option[String])
 
 ############### Language inspection interface ###############
 GET           /app/inspections                                         controllers.LanguageInspectionController.listInspections(month: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
@@ -221,10 +222,10 @@ GET           /app/accessibility                                       controlle
 
 GET           /app/draft/rooms                                         controllers.RoomController.createExamRoomDraft
 
-GET           /app/reservations/students                               controllers.ReservationController.getStudents
-GET           /app/reservations/teachers                               controllers.ReservationController.getTeachers
+GET           /app/reservations/students                               controllers.ReservationController.getStudents(filter: java.util.Optional[String])
+GET           /app/reservations/teachers                               controllers.ReservationController.getTeachers(filter: java.util.Optional[String])
 GET           /app/reservations/examrooms                              controllers.ReservationController.getExamRooms
-GET           /app/reservations/exams                                  controllers.ReservationController.getExams(request: Request)
+GET           /app/reservations/exams                                  controllers.ReservationController.getExams(request: Request, filter: java.util.Optional[String])
 GET           /app/reservations                                        controllers.ReservationController.getReservations(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], roomId: java.util.Optional[java.lang.Long], machineId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[String], end: java.util.Optional[String], externalRef: java.util.Optional[String], request: Request)
 GET           /app/events                                              controllers.ReservationController.getExaminationEvents(state: java.util.Optional[String], ownerId: java.util.Optional[java.lang.Long], studentId: java.util.Optional[java.lang.Long], examId: java.util.Optional[java.lang.Long], start: java.util.Optional[String], end: java.util.Optional[String], request: Request)
 DELETE        /app/reservations/:id                                    controllers.ReservationController.removeReservation(id: Long, request: Request)
@@ -243,7 +244,7 @@ DELETE        /app/machines/:id                                        controlle
 POST          /app/machine/:mid/software/:sid                          controllers.ExamMachineController.updateMachineSoftware(mid: Long, sid: Long)
 PUT           /app/software_machine/:mid                               controllers.ExamMachineController.resetMachineSoftware(mid: Long)
 
-GET           /app/softwares                                           controllers.ExamMachineController.getSoftwares
+GET           /app/softwares                                           controllers.ExamMachineController.listSoftware
 GET           /app/softwares/:id                                       controllers.ExamMachineController.getSoftware(id: Long)
 DELETE        /app/softwares/:id                                       controllers.ExamMachineController.removeSoftware(id: Long)
 POST          /app/softwares/:name                                     controllers.ExamMachineController.addSoftware(name: String, request: Request)
@@ -406,7 +407,8 @@ GET           /app/availability/:roomId/:date                          controlle
 GET           /app/languages                                           controllers.LanguageController.getSupportedLanguages
 
 ################# Tag interface ##################
-GET           /app/tags                                                controllers.TagController.listTags(filter: java.util.Optional[String], examIds: java.util.Optional[LongList], courseIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], request: Request)
+GET           /app/tags                                                controllers.TagController.listTags(filter: java.util.Optional[String], courseIds: java.util.Optional[LongList], examIds: java.util.Optional[LongList], sectionIds: java.util.Optional[LongList], request: Request)
+POST          /app/tags/questions                                      controllers.TagController.addTagToQuestions(request: Request)
 
 ################# General Settings interface ##################
 

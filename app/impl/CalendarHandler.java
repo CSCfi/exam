@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.ImplementedBy;
 import exceptions.NotFoundException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -26,7 +25,6 @@ import play.mvc.Result;
 @ImplementedBy(CalendarHandlerImpl.class)
 public interface CalendarHandler {
     Result getSlots(User user, Exam exam, Long roomId, String day, Collection<Integer> aids);
-    List<ExamMachine> getEligibleMachines(ExamRoom room, Collection<Integer> access, Exam exam);
     Set<TimeSlot> handleReservations(
         Map<Interval, Optional<Integer>> examSlots,
         Collection<Reservation> reservations,
@@ -106,8 +104,7 @@ public interface CalendarHandler {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof TimeSlot)) return false;
-            TimeSlot timeSlot = (TimeSlot) o;
+            if (!(o instanceof TimeSlot timeSlot)) return false;
             return new EqualsBuilder().append(start, timeSlot.start).append(end, timeSlot.end).build();
         }
 

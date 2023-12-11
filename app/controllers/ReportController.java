@@ -20,7 +20,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result listDepartments() {
-        List<Course> courses = Ebean.find(Course.class).where().isNotNull("department").findList();
+        List<Course> courses = DB.find(Course.class).where().isNotNull("department").findList();
         Set<String> departments = courses.stream().map(Course::getDepartment).collect(Collectors.toSet());
         ObjectNode node = Json.newObject();
         ArrayNode arrayNode = node.putArray("departments");
@@ -96,7 +96,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getExamParticipations(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        List<ExamEnrolment> enrolments = Ebean
+        List<ExamEnrolment> enrolments = DB
             .find(ExamEnrolment.class)
             .fetch("exam", "id, created")
             .fetch("externalExam", "id, started")
@@ -110,7 +110,7 @@ public class ReportController extends BaseController {
             .findList()
             .stream()
             .filter(ee -> applyEnrolmentFilter(ee, dept, start, end))
-            .collect(Collectors.toList());
+            .toList();
         Map<String, List<ExamEnrolment>> roomMap = new HashMap<>();
         for (ExamEnrolment enrolment : enrolments) {
             ExamRoom room = enrolment.getReservation().getMachine().getRoom();
@@ -121,7 +121,7 @@ public class ReportController extends BaseController {
             roomMap.get(key).add(enrolment);
         }
         // Fill in the rooms that have no associated participations
-        List<ExamRoom> rooms = Ebean.find(ExamRoom.class).where().eq("outOfService", false).findList();
+        List<ExamRoom> rooms = DB.find(ExamRoom.class).where().eq("outOfService", false).findList();
         for (ExamRoom room : rooms) {
             String key = String.format("%d___%s", room.getId(), room.getName());
             if (!roomMap.containsKey(key)) {
@@ -133,7 +133,7 @@ public class ReportController extends BaseController {
     }
 
     // DTO for minimizing output from this API
-    private class ExamInfo {
+    private static class ExamInfo {
 
         String name;
         Integer participations;
@@ -153,7 +153,7 @@ public class ReportController extends BaseController {
     }
 
     private boolean applyExamFilter(Exam e, Optional<String> start, Optional<String> end) {
-        Boolean result = e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && e.getExamParticipation() != null;
+        boolean result = e.getState().ordinal() > Exam.State.PUBLISHED.ordinal() && e.getExamParticipation() != null;
         DateTime created = e.getCreated();
         if (start.isPresent()) {
             DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
@@ -173,7 +173,7 @@ public class ReportController extends BaseController {
         Optional<String> end
     ) {
         DateTime created = ee.getExam() != null ? ee.getExam().getCreated() : ee.getExternalExam().getStarted();
-        Boolean result = true;
+        boolean result = true;
         if (dept.isPresent()) {
             if (ee.getExternalExam() != null) {
                 return false;
@@ -195,7 +195,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getPublishedExams(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Exam> query = Ebean
+        ExpressionList<Exam> query = DB
             .find(Exam.class)
             .fetch("course", "code")
             .where()
@@ -220,7 +220,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getReservations(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Reservation> query = Ebean.find(Reservation.class).where();
+        ExpressionList<Reservation> query = DB.find(Reservation.class).where();
         query =
             applyFilters(
                 query,
@@ -235,14 +235,11 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getResponses(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Exam> query = Ebean.find(Exam.class).where().isNotNull("parent").isNotNull("course");
+        ExpressionList<Exam> query = DB.find(Exam.class).where().isNotNull("parent").isNotNull("course");
         query = applyFilters(query, "course", "created", dept.orElse(null), start.orElse(null), end.orElse(null));
         Set<Exam> exams = query.findSet();
         List<ExamInfo> infos = new ArrayList<>();
-        for (Exam exam : exams
-            .stream()
-            .filter(e -> e.getState().ordinal() > Exam.State.PUBLISHED.ordinal())
-            .collect(Collectors.toList())) {
+        for (Exam exam : exams.stream().filter(e -> e.getState().ordinal() > Exam.State.PUBLISHED.ordinal()).toList()) {
             ExamInfo info = new ExamInfo();
             info.state = exam.getState().toString();
             infos.add(info);
@@ -257,7 +254,7 @@ public class ReportController extends BaseController {
         ByteArrayOutputStream bos;
         try {
             bos = excelBuilder.buildScoreExcel(examId, childIds);
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             return internalServerError("sitnet_error_creating_csv_file");
         }
         return ok(Base64.getEncoder().encodeToString(bos.toByteArray()))

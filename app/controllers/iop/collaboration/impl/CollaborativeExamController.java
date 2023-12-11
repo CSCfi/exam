@@ -15,12 +15,11 @@
 
 package controllers.iop.collaboration.impl;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import impl.EmailComposer;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +39,7 @@ import models.Language;
 import models.User;
 import models.json.CollaborativeExam;
 import models.sections.ExamSection;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import play.libs.Json;
 import play.libs.ws.WSRequest;
@@ -66,7 +66,7 @@ public class CollaborativeExamController extends CollaborationController {
     private EmailComposer composer;
 
     private Exam prepareDraft(User user) {
-        ExamExecutionType examExecutionType = Ebean
+        ExamExecutionType examExecutionType = DB
             .find(ExamExecutionType.class)
             .where()
             .eq("type", ExamExecutionType.Type.PUBLIC.toString())
@@ -87,17 +87,16 @@ public class CollaborativeExamController extends CollaborationController {
         examSection.setSequenceNumber(0);
 
         exam.getExamSections().add(examSection);
-        exam.getExamLanguages().add(Ebean.find(Language.class, "fi"));
-        exam.setExamType(Ebean.find(ExamType.class, 2)); // Final
+        exam.getExamLanguages().add(DB.find(Language.class, "fi"));
+        exam.setExamType(DB.find(ExamType.class, 2)); // Final
 
         DateTime start = DateTime.now().withTimeAtStartOfDay();
         exam.setExamActiveStartDate(start);
         exam.setExamActiveEndDate(start.plusDays(1));
         exam.setDuration(configReader.getExamDurations().get(0)); // check
-        exam.setGradeScale(Ebean.find(GradeScale.class).findList().get(0)); // check
+        exam.setGradeScale(DB.find(GradeScale.class).findList().get(0)); // check
 
         exam.setTrialCount(1);
-        exam.setExpanded(true);
         exam.setAnonymous(true);
 
         return exam;
@@ -124,7 +123,7 @@ public class CollaborativeExamController extends CollaborationController {
                         .map(e -> e.getKey().getExam(e.getValue()))
                         .filter(e -> isAuthorizedToView(e, user, homeOrg))
                         .map(this::serialize)
-                        .collect(Collectors.toList());
+                        .toList();
 
                     return ok(Json.newArray().addAll(exams));
                 })
@@ -155,7 +154,7 @@ public class CollaborativeExamController extends CollaborationController {
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result listGradeScales() {
-        Set<GradeScale> grades = Ebean.find(GradeScale.class).fetch("grades").where().isNull("externalRef").findSet();
+        Set<GradeScale> grades = DB.find(GradeScale.class).fetch("grades").where().isNull("externalRef").findSet();
         return ok(grades);
     }
 

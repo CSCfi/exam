@@ -16,12 +16,10 @@
 
 package controllers.iop.collaboration.impl;
 
-import akka.stream.javadsl.Source;
-import akka.util.ByteString;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.iop.collaboration.api.CollaborativeAttachmentInterface;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import java.net.URL;
 import java.util.Optional;
@@ -33,6 +31,8 @@ import javax.inject.Inject;
 import models.Exam;
 import models.User;
 import models.json.CollaborativeExam;
+import org.apache.pekko.stream.javadsl.Source;
+import org.apache.pekko.util.ByteString;
 import play.libs.Files;
 import play.libs.Json;
 import play.libs.ws.WSClient;
@@ -55,7 +55,7 @@ public class CollaborativeAttachmentController
 
     @Override
     public Optional<CollaborativeExam> getExternalExam(Long eid, Http.Request request) {
-        final ExpressionList<CollaborativeExam> query = Ebean.find(CollaborativeExam.class).where().eq("id", eid);
+        final ExpressionList<CollaborativeExam> query = DB.find(CollaborativeExam.class).where().eq("id", eid);
         return query.findOneOrEmpty();
     }
 

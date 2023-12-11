@@ -16,12 +16,13 @@
 package system;
 
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 
 class AuditLogger {
 
-    private static final Logger.ALogger logger = Logger.of(AuditLogger.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuditLogger.class);
 
     public static void log(Http.Request request) {
         String method = request.method();

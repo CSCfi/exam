@@ -15,14 +15,14 @@
 
 package controllers;
 
-import akka.actor.ActorSystem;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import impl.EmailComposer;
 import impl.ExternalCourseHandler;
-import io.ebean.Ebean;
+import io.ebean.DB;
+import io.ebean.Transaction;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
@@ -42,9 +42,11 @@ import models.ExaminationEventConfiguration;
 import models.Reservation;
 import models.Role;
 import models.User;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
-import play.Logger;
-import play.libs.concurrent.HttpExecutionContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -62,7 +64,7 @@ import validators.JsonValidator;
 public class EnrolmentController extends BaseController {
 
     private final boolean permCheckActive;
-    private static final Logger.ALogger logger = Logger.of(EnrolmentController.class);
+    private final Logger logger = LoggerFactory.getLogger(EnrolmentController.class);
 
     protected final EmailComposer emailComposer;
 
@@ -72,7 +74,7 @@ public class EnrolmentController extends BaseController {
 
     private final EnrolmentRepository enrolmentRepository;
 
-    private final HttpExecutionContext httpExecutionContext;
+    private final ClassLoaderExecutionContext httpExecutionContext;
 
     private final ActorSystem actor;
 
@@ -84,7 +86,7 @@ public class EnrolmentController extends BaseController {
         ExternalCourseHandler externalCourseHandler,
         ExternalReservationHandler externalReservationHandler,
         EnrolmentRepository enrolmentRepository,
-        HttpExecutionContext httpExecutionContext,
+        ClassLoaderExecutionContext httpExecutionContext,
         ActorSystem actor,
         ConfigReader configReader,
         DateTimeHandler dateTimeHandler
@@ -101,7 +103,7 @@ public class EnrolmentController extends BaseController {
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result listEnrolledExams(String code) {
-        List<Exam> exams = Ebean
+        List<Exam> exams = DB
             .find(Exam.class)
             .fetch("creator", "firstName, lastName")
             .fetch("examLanguages")
@@ -120,7 +122,7 @@ public class EnrolmentController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result enrolmentsByReservation(Long id) {
-        List<ExamEnrolment> enrolments = Ebean
+        List<ExamEnrolment> enrolments = DB
             .find(ExamEnrolment.class)
             .fetch("user", "firstName, lastName, email")
             .fetch("exam")
@@ -135,7 +137,7 @@ public class EnrolmentController extends BaseController {
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result getEnrolledExamInfo(String code, Long id) {
-        Exam exam = Ebean
+        Exam exam = DB
             .find(Exam.class)
             .fetch("course")
             .fetch("course.organisation")
@@ -178,14 +180,14 @@ public class EnrolmentController extends BaseController {
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result checkIfEnrolled(Long id, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, id);
+        Exam exam = DB.find(Exam.class, id);
         if (exam == null) {
             return badRequest();
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (isAllowedToParticipate(exam, user)) {
             DateTime now = dateTimeHandler.adjustDST(new DateTime());
-            List<ExamEnrolment> enrolments = Ebean
+            List<ExamEnrolment> enrolments = DB
                 .find(ExamEnrolment.class)
                 .where()
                 .eq("user", user)
@@ -224,9 +226,9 @@ public class EnrolmentController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamEnrolment enrolment;
         if (user.hasRole(Role.Name.STUDENT)) {
-            enrolment = Ebean.find(ExamEnrolment.class).fetch("exam").where().idEq(id).eq("user", user).findOne();
+            enrolment = DB.find(ExamEnrolment.class).fetch("exam").where().idEq(id).eq("user", user).findOne();
         } else {
-            enrolment = Ebean.find(ExamEnrolment.class).fetch("exam").where().idEq(id).findOne();
+            enrolment = DB.find(ExamEnrolment.class).fetch("exam").where().idEq(id).findOne();
         }
         if (enrolment == null) {
             return notFound("enrolment not found");
@@ -249,7 +251,7 @@ public class EnrolmentController extends BaseController {
     public Result updateEnrolment(Long id, Http.Request request) {
         String info = request.attrs().getOptional(Attrs.ENROLMENT_INFORMATION).orElse(null);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class).where().idEq(id).eq("user", user).findOne();
+        ExamEnrolment enrolment = DB.find(ExamEnrolment.class).where().idEq(id).eq("user", user).findOne();
         if (enrolment == null) {
             return notFound("enrolment not found");
         }
@@ -259,7 +261,7 @@ public class EnrolmentController extends BaseController {
     }
 
     private Optional<Exam> getExam(Long eid, ExamExecutionType.Type type) {
-        return Ebean
+        return DB
             .find(Exam.class)
             .where()
             .eq("id", eid)
@@ -273,10 +275,9 @@ public class EnrolmentController extends BaseController {
 
     private CompletionStage<Result> doCreateEnrolment(Long eid, ExamExecutionType.Type type, User user) {
         // Begin manual transaction
-        Ebean.beginTransaction();
-        try {
+        try (Transaction tx = DB.beginTransaction()) {
             // Take pessimistic lock for user to prevent multiple enrolments creating.
-            Ebean.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
+            DB.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
             Optional<Exam> possibleExam = getExam(eid, type);
             if (possibleExam.isEmpty()) {
                 return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
@@ -284,7 +285,7 @@ public class EnrolmentController extends BaseController {
             Exam exam = possibleExam.get();
 
             // Find existing enrolments for exam and user
-            List<ExamEnrolment> enrolments = Ebean
+            List<ExamEnrolment> enrolments = DB
                 .find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("examinationEventConfiguration")
@@ -301,7 +302,7 @@ public class EnrolmentController extends BaseController {
                     (ee.getUser() != null && ee.getUser().equals(user)) ||
                     (ee.getPreEnrolledUserEmail() != null && ee.getPreEnrolledUserEmail().equals(user.getEmail()))
                 )
-                .collect(Collectors.toList());
+                .toList();
 
             // already enrolled (regular examination)
             if (
@@ -354,7 +355,7 @@ public class EnrolmentController extends BaseController {
                     ee.getReservation() != null &&
                     ee.getReservation().toInterval().isAfter(dateTimeHandler.adjustDST(DateTime.now()))
                 )
-                .collect(Collectors.toList());
+                .toList();
             if (enrolmentsWithFutureReservations.size() > 1) {
                 logger.error(
                     "Several enrolments with future reservations found for user {} and exam {}",
@@ -381,7 +382,7 @@ public class EnrolmentController extends BaseController {
                     e.getExaminationEventConfiguration() != null &&
                     e.getExaminationEventConfiguration().getExaminationEvent().toInterval(e.getExam()).isAfterNow()
                 )
-                .collect(Collectors.toList());
+                .toList();
             if (enrolmentsWithFutureExaminationEvents.size() > 1) {
                 logger.error(
                     "Several enrolments with future examination events found for user {} and exam {}",
@@ -412,11 +413,8 @@ public class EnrolmentController extends BaseController {
                 }
             }
             ExamEnrolment newEnrolment = makeEnrolment(exam, user);
-            Ebean.commitTransaction();
+            tx.commit();
             return wrapAsPromise(ok(newEnrolment));
-        } finally {
-            // End transaction to release lock.
-            Ebean.endTransaction();
         }
     }
 
@@ -451,7 +449,7 @@ public class EnrolmentController extends BaseController {
     public CompletionStage<Result> createStudentEnrolment(Long eid, Http.Request request) {
         Optional<Long> uid = request.attrs().getOptional(Attrs.USER_ID);
         Optional<String> email = request.attrs().getOptional(Attrs.EMAIL);
-        Exam exam = Ebean.find(Exam.class, eid);
+        Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
             return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
         }
@@ -459,12 +457,12 @@ public class EnrolmentController extends BaseController {
 
         User user;
         if (uid.isPresent()) {
-            user = Ebean.find(User.class, uid.get());
+            user = DB.find(User.class, uid.get());
             if (user == null) {
                 return wrapAsPromise(badRequest("user not found"));
             }
         } else if (email.isPresent()) {
-            List<User> users = Ebean
+            List<User> users = DB
                 .find(User.class)
                 .where()
                 .or()
@@ -475,7 +473,7 @@ public class EnrolmentController extends BaseController {
             if (users.isEmpty()) {
                 // Pre-enrolment
                 // Check that we will not create duplicate enrolments for same email address
-                List<ExamEnrolment> enrolments = Ebean
+                List<ExamEnrolment> enrolments = DB
                     .find(ExamEnrolment.class)
                     .where()
                     .eq("exam.id", eid)
@@ -525,7 +523,7 @@ public class EnrolmentController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result removeStudentEnrolment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExamEnrolment enrolment = Ebean
+        ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
             .where()
             .idEq(id)
@@ -563,7 +561,7 @@ public class EnrolmentController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result addExaminationEventConfig(Long enrolmentId, Long configId, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Optional<ExamEnrolment> oee = Ebean
+        Optional<ExamEnrolment> oee = DB
             .find(ExamEnrolment.class)
             .where()
             .idEq(enrolmentId)
@@ -574,7 +572,7 @@ public class EnrolmentController extends BaseController {
             return notFound("enrolment not found");
         }
         ExamEnrolment enrolment = oee.get();
-        Optional<ExaminationEventConfiguration> optionalConfig = Ebean
+        Optional<ExaminationEventConfiguration> optionalConfig = DB
             .find(ExaminationEventConfiguration.class)
             .fetch("examEnrolments")
             .where()
@@ -609,7 +607,7 @@ public class EnrolmentController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result removeExaminationEventConfig(Long enrolmentId, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Optional<ExamEnrolment> oee = Ebean
+        Optional<ExamEnrolment> oee = DB
             .find(ExamEnrolment.class)
             .where()
             .idEq(enrolmentId)
@@ -639,7 +637,7 @@ public class EnrolmentController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result removeExaminationEvent(Long configId) {
-        ExaminationEventConfiguration config = Ebean.find(ExaminationEventConfiguration.class, configId);
+        ExaminationEventConfiguration config = DB.find(ExaminationEventConfiguration.class, configId);
         if (config == null) {
             return badRequest();
         }
@@ -648,7 +646,7 @@ public class EnrolmentController extends BaseController {
         }
         ExaminationEvent event = config.getExaminationEvent();
         Exam exam = config.getExam();
-        Set<ExamEnrolment> enrolments = Ebean
+        Set<ExamEnrolment> enrolments = DB
             .find(ExamEnrolment.class)
             .fetch("user")
             .where()
@@ -683,7 +681,7 @@ public class EnrolmentController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result permitRetrial(Long id) {
-        ExamEnrolment enrolment = Ebean.find(ExamEnrolment.class, id);
+        ExamEnrolment enrolment = DB.find(ExamEnrolment.class, id);
         if (enrolment == null) {
             return notFound("sitnet_not_found");
         }

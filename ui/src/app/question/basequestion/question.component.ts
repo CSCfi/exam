@@ -12,16 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { Observable, of } from 'rxjs';
 import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { QuestionEditQuard } from '../question-edit-guard';
+import { CanComponentDeactivate } from '../has-unsaved-changes.quard';
 import type { QuestionDraft } from '../question.service';
 import { QuestionService } from '../question.service';
 
@@ -29,7 +26,7 @@ import { QuestionService } from '../question.service';
     selector: 'xm-question',
     templateUrl: './question.component.html',
 })
-export class QuestionComponent implements OnInit, QuestionEditQuard {
+export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactivate {
     @Input() newQuestion = false;
     @Input() questionId = 0;
     @Input() questionDraft!: Question;
@@ -52,9 +49,7 @@ export class QuestionComponent implements OnInit, QuestionEditQuard {
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private translate: TranslateService,
         private toast: ToastrService,
-        private dialogs: ConfirmationDialogService,
         private Question: QuestionService,
     ) {}
 
@@ -75,20 +70,22 @@ export class QuestionComponent implements OnInit, QuestionEditQuard {
                 next: (question: ReverseQuestion) => {
                     this.question = question;
                     this.currentOwners = [...this.question.questionOwners];
+                    window.addEventListener('beforeunload', this.onUnload);
                 },
                 error: (err) => this.toast.error(err),
             });
         }
     }
 
-    canDeactivate(): Observable<boolean> {
+    ngOnDestroy() {
+        window.removeEventListener('beforeunload', this.onUnload);
+    }
+
+    canDeactivate(): boolean {
         if (!this.cancelClicked || !this.questionForm?.dirty) {
-            return of(true);
+            return true;
         }
-        return this.dialogs.open$(
-            this.translate.instant('sitnet_confirm_exit'),
-            this.translate.instant('sitnet_unsaved_question_data'),
-        );
+        return false;
     }
 
     hasNoCorrectOption = () =>
@@ -127,5 +124,10 @@ export class QuestionComponent implements OnInit, QuestionEditQuard {
         } else if (this.cancelled) {
             this.cancelled.emit();
         }
+    };
+
+    private onUnload = (event: BeforeUnloadEvent) => {
+        event.preventDefault();
+        return this.questionForm?.dirty ? (event.returnValue = '') : null;
     };
 }

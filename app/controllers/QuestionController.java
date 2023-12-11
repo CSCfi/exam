@@ -21,11 +21,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import controllers.base.BaseController;
 import controllers.base.SectionQuestionHandler;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.Model;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
+import jakarta.persistence.PersistenceException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -35,14 +36,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
-import javax.persistence.PersistenceException;
 import models.Exam;
 import models.Role;
 import models.Tag;
 import models.User;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.libs.Files;
 import play.mvc.BodyParser;
@@ -65,7 +66,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     @Inject
     private MoodleXmlImporter xmlImporter;
 
-    private static final Logger.ALogger logger = Logger.of(QuestionController.class);
+    private final Logger logger = LoggerFactory.getLogger(QuestionController.class);
 
     private enum QuestionState {
         NEW,
@@ -89,10 +90,10 @@ public class QuestionController extends BaseController implements SectionQuestio
             return ok(Collections.emptySet());
         }
         PathProperties pp = PathProperties.parse(
-            "*, modifier(firstName, lastName) questionOwners(id, firstName, lastName, userIdentifier, email), " +
-            "attachment(id, fileName), options(defaultScore, correctOption, claimChoiceType), tags(name), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))"
+            "*, modifier(firstName, lastName), questionOwners(id, firstName, lastName, userIdentifier, email), " +
+            "attachment(id, fileName), options(defaultScore, correctOption, claimChoiceType), tags(id, name), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))"
         );
-        Query<Question> query = Ebean.find(Question.class);
+        Query<Question> query = DB.find(Question.class);
         pp.apply(query);
         ExpressionList<Question> el = query
             .where()
@@ -135,10 +136,10 @@ public class QuestionController extends BaseController implements SectionQuestio
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getQuestion(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Query<Question> query = Ebean.find(Question.class);
+        Query<Question> query = DB.find(Question.class);
         PathProperties pp = PathProperties.parse(
             "(*, questionOwners(id, firstName, lastName, userIdentifier, email), " +
-            "attachment(id, fileName), options(id, correctOption, defaultScore, option, claimChoiceType), tags(id, name), " +
+            "attachment(id, fileName), options(id, correctOption, defaultScore, option, claimChoiceType), tags(id, name, creator(id)), " +
             "examSectionQuestions(id, examSection(name, exam(name, state))))"
         );
         pp.apply(query);
@@ -157,7 +158,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result copyQuestion(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<Question> query = Ebean.find(Question.class).fetch("questionOwners").where().idEq(id);
+        ExpressionList<Question> query = DB.find(Question.class).fetch("questionOwners").where().idEq(id);
         if (user.hasRole(Role.Name.TEACHER)) {
             query = query.disjunction().eq("shared", true).eq("questionOwners", user).endJunction();
         }
@@ -176,7 +177,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         copy.getQuestionOwners().clear();
         copy.getQuestionOwners().add(user);
         copy.update();
-        Ebean.saveAll(copy.getOptions());
+        DB.saveAll(copy.getOptions());
         return ok(copy);
     }
 
@@ -214,7 +215,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         question.getQuestionOwners().clear();
         if (node.has("questionOwners")) {
             for (JsonNode ownerNode : node.get("questionOwners")) {
-                User owner = Ebean.find(User.class, ownerNode.get("id").asLong());
+                User owner = DB.find(User.class, ownerNode.get("id").asLong());
                 if (owner != null) {
                     question.getQuestionOwners().add(owner);
                 }
@@ -226,9 +227,9 @@ public class QuestionController extends BaseController implements SectionQuestio
                 // See if we have an identical tag already and use it if that's the case
                 Optional<Tag> tag = Optional.empty();
                 if (tagNode.has("id")) {
-                    tag = Ebean.find(Tag.class).where().idEq(tagNode.get("id").asLong()).findOneOrEmpty();
+                    tag = DB.find(Tag.class).where().idEq(tagNode.get("id").asLong()).findOneOrEmpty();
                 } else {
-                    List<Tag> tags = Ebean
+                    List<Tag> tags = DB
                         .find(Tag.class)
                         .where()
                         .eq("name", tagNode.get("name").asText())
@@ -240,7 +241,7 @@ public class QuestionController extends BaseController implements SectionQuestio
                 }
                 if (tag.isEmpty()) {
                     Tag newTag = new Tag();
-                    newTag.setName(tagNode.get("name").asText());
+                    newTag.setName(tagNode.get("name").asText().toLowerCase());
                     newTag.setCreatorWithDate(user);
                     newTag.setModifier(user);
                     tag = Optional.of(newTag);
@@ -277,7 +278,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result updateQuestion(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<Question> query = Ebean.find(Question.class).where().idEq(id);
+        ExpressionList<Question> query = DB.find(Question.class).where().idEq(id);
         if (user.hasRole(Role.Name.TEACHER)) {
             query =
                 query
@@ -308,7 +309,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result deleteQuestion(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<Question> expr = Ebean.find(Question.class).where().idEq(id);
+        ExpressionList<Question> expr = DB.find(Question.class).where().idEq(id);
         if (user.hasRole(Role.Name.TEACHER)) {
             expr = expr.disjunction().eq("shared", true).eq("questionOwners", user).endJunction();
         }
@@ -393,7 +394,7 @@ public class QuestionController extends BaseController implements SectionQuestio
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result addOwner(Long uid, Http.Request request) {
-        User newOwner = Ebean
+        User newOwner = DB
             .find(User.class)
             .select("id, firstName, lastName, userIdentifier")
             .where()
@@ -408,9 +409,9 @@ public class QuestionController extends BaseController implements SectionQuestio
         if (questionIds == null || questionIds.isEmpty()) {
             return badRequest();
         }
-        List<Long> ids = Stream.of(questionIds.split(",")).map(Long::parseLong).collect(Collectors.toList());
+        List<Long> ids = Stream.of(questionIds.split(",")).map(Long::parseLong).toList();
         User modifier = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<Question> expr = Ebean.find(Question.class).where().idIn(ids);
+        ExpressionList<Question> expr = DB.find(Question.class).where().idIn(ids);
         if (modifier.hasRole(Role.Name.TEACHER)) {
             expr = expr.disjunction().eq("shared", true).eq("questionOwners", modifier).endJunction();
         }
@@ -436,7 +437,7 @@ public class QuestionController extends BaseController implements SectionQuestio
             .stream(node.spliterator(), false)
             .map(JsonNode::asLong)
             .collect(Collectors.toSet());
-        List<Question> questions = Ebean
+        List<Question> questions = DB
             .find(Question.class)
             .where()
             .idIn(ids)
@@ -445,7 +446,7 @@ public class QuestionController extends BaseController implements SectionQuestio
             .filter(q ->
                 q.getType() != Question.Type.ClaimChoiceQuestion && q.getType() != Question.Type.ClozeTestQuestion
             )
-            .collect(Collectors.toList());
+            .toList();
         String document = xmlExporter.convert(CollectionConverters.asScala(questions).toSeq());
         return ok(document)
             .withHeader("Content-Disposition", "attachment; filename=\"moodle-quiz.xml\"")

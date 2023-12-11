@@ -16,10 +16,11 @@
 package system;
 
 import exceptions.MalformedDataException;
+import jakarta.persistence.OptimisticLockException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import javax.persistence.OptimisticLockException;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.http.HttpErrorHandler;
 import play.libs.Json;
 import play.mvc.Http;
@@ -28,29 +29,24 @@ import play.mvc.Results;
 
 public class SystemErrorHandler implements HttpErrorHandler {
 
-    private static final Logger.ALogger logger = Logger.of(SystemErrorHandler.class);
+    private final Logger logger = LoggerFactory.getLogger(SystemErrorHandler.class);
 
     @Override
     public CompletionStage<Result> onClientError(Http.RequestHeader request, int statusCode, String message) {
         logger.warn("onClientError: {} {}, status: {}, msg: {}", request.method(), request.uri(), statusCode, message);
-        Result result;
-        switch (statusCode) {
-            case Http.Status.BAD_REQUEST:
-                result = Results.badRequest(Json.toJson(new ApiError(message)));
-                break;
-            case Http.Status.NOT_FOUND:
-                result = Results.notFound(Json.toJson(new ApiError(message)));
-                break;
-            case Http.Status.UNAUTHORIZED:
-            case Http.Status.FORBIDDEN:
-                result = Results.unauthorized(Json.toJson(new ApiError(message)));
-                break;
-            case Http.Status.REQUEST_ENTITY_TOO_LARGE:
-                result = Results.status(statusCode, Json.toJson(new ApiError(message)));
-                break;
-            default:
-                result = Results.internalServerError(Json.toJson(new ApiError(message)));
-        }
+        Result result =
+            switch (statusCode) {
+                case Http.Status.BAD_REQUEST -> Results.badRequest(Json.toJson(new ApiError(message)));
+                case Http.Status.NOT_FOUND -> Results.notFound(Json.toJson(new ApiError(message)));
+                case Http.Status.UNAUTHORIZED, Http.Status.FORBIDDEN -> Results.unauthorized(
+                    Json.toJson(new ApiError(message))
+                );
+                case Http.Status.REQUEST_ENTITY_TOO_LARGE -> Results.status(
+                    statusCode,
+                    Json.toJson(new ApiError(message))
+                );
+                default -> Results.internalServerError(Json.toJson(new ApiError(message)));
+            };
         return CompletableFuture.completedFuture(result);
     }
 
@@ -59,18 +55,13 @@ public class SystemErrorHandler implements HttpErrorHandler {
         logger.error("onServerError: {} {}", request.method(), request.uri(), exception);
         Throwable cause = exception.getCause();
         String errorMessage = cause == null ? exception.getMessage() : cause.getMessage();
-        Result result = Results.internalServerError(Json.toJson(new ApiError(errorMessage)));
-        if (cause != null) {
-            if (cause instanceof MalformedDataException) {
-                result = Results.badRequest(Json.toJson(errorMessage));
-            }
-            if (cause instanceof IllegalArgumentException) {
-                result = Results.badRequest(Json.toJson(new ApiError(errorMessage)));
-            }
-            if (cause instanceof OptimisticLockException) {
-                result = Results.badRequest("sitnet_error_data_has_changed");
-            }
-        }
+        Result result =
+            switch (cause) {
+                case MalformedDataException __ -> Results.badRequest(Json.toJson(errorMessage));
+                case IllegalArgumentException __ -> Results.badRequest(Json.toJson(new ApiError(errorMessage)));
+                case OptimisticLockException __ -> Results.badRequest("sitnet_error_data_has_changed");
+                case null, default -> Results.internalServerError(Json.toJson(new ApiError(errorMessage)));
+            };
         return CompletableFuture.completedFuture(result);
     }
 }

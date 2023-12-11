@@ -18,7 +18,7 @@ package controllers;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.util.Optional;
@@ -34,7 +34,8 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.With;
@@ -46,7 +47,7 @@ import util.config.ConfigReader;
 
 public class ExaminationEventController extends BaseController {
 
-    private static final Logger.ALogger logger = Logger.of(ExaminationEventController.class);
+    private final Logger logger = LoggerFactory.getLogger(ExaminationEventController.class);
 
     @Inject
     ByodConfigHandler byodConfigHandler;
@@ -58,7 +59,7 @@ public class ExaminationEventController extends BaseController {
     @With(ExaminationDateSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result insertExaminationDate(Long eid, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, eid);
+        Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
             return notFound("exam not found");
         }
@@ -72,7 +73,7 @@ public class ExaminationEventController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result removeExaminationDate(Long id, Long edid) {
-        ExaminationDate ed = Ebean.find(ExaminationDate.class, edid);
+        ExaminationDate ed = DB.find(ExaminationDate.class, edid);
         if (ed == null) {
             return notFound("examination date not found");
         }
@@ -90,7 +91,7 @@ public class ExaminationEventController extends BaseController {
     }
 
     private int getParticipantUpperBound(DateTime start, DateTime end, Long id) {
-        ExpressionList<ExaminationEvent> el = Ebean.find(ExaminationEvent.class).where().le("start", end);
+        ExpressionList<ExaminationEvent> el = DB.find(ExaminationEvent.class).where().le("start", end);
         if (id != null) {
             el = el.ne("id", id);
         }
@@ -103,7 +104,7 @@ public class ExaminationEventController extends BaseController {
     }
 
     private boolean isWithinMaintenancePeriod(Interval interval) {
-        return Ebean
+        return DB
             .find(MaintenancePeriod.class)
             .findSet()
             .stream()
@@ -114,7 +115,7 @@ public class ExaminationEventController extends BaseController {
     @With(ExaminationEventSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result insertExaminationEvent(Long eid, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, eid);
+        Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
             return notFound("exam not found");
         }
@@ -158,8 +159,8 @@ public class ExaminationEventController extends BaseController {
     @With(ExaminationEventSanitizer.class)
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result updateExaminationEvent(Long eid, Long eecid, Http.Request request) {
-        Exam exam = Ebean.find(Exam.class, eid);
-        Optional<ExaminationEventConfiguration> oeec = Ebean
+        Exam exam = DB.find(Exam.class, eid);
+        Optional<ExaminationEventConfiguration> oeec = DB
             .find(ExaminationEventConfiguration.class)
             .where()
             .idEq(eecid)
@@ -169,7 +170,7 @@ public class ExaminationEventController extends BaseController {
             return notFound("event not found");
         }
         ExaminationEventConfiguration eec = oeec.get();
-        boolean hasEnrolments = eec.getExamEnrolments().size() > 0;
+        boolean hasEnrolments = !eec.getExamEnrolments().isEmpty();
         ExaminationEvent ee = eec.getExaminationEvent();
         String password = request.attrs().get(Attrs.SETTINGS_PASSWORD);
         if (eec.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH && password == null) {
@@ -218,13 +219,13 @@ public class ExaminationEventController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result removeExaminationEvent(Long eid, Long eeid) {
-        Optional<ExaminationEventConfiguration> oeec = Ebean
+        Optional<ExaminationEventConfiguration> oeec = DB
             .find(ExaminationEventConfiguration.class)
             .where()
             .idEq(eeid)
             .eq("exam.id", eid)
             .findOneOrEmpty();
-        Exam exam = Ebean.find(Exam.class, eid);
+        Exam exam = DB.find(Exam.class, eid);
         if (oeec.isEmpty() || exam == null) {
             return notFound("event not found");
         }
@@ -234,7 +235,7 @@ public class ExaminationEventController extends BaseController {
         }
         eec.delete();
         // Check if we can delete the event altogether (in case no configs are using it)
-        Set<ExaminationEventConfiguration> configs = Ebean
+        Set<ExaminationEventConfiguration> configs = DB
             .find(ExaminationEventConfiguration.class)
             .where()
             .eq("examinationEvent", eec.getExaminationEvent())
@@ -272,7 +273,7 @@ public class ExaminationEventController extends BaseController {
         PathProperties pp = PathProperties.parse(
             "(*, exam(*, course(*), examOwners(*)), examinationEvent(*), examEnrolments(*))"
         );
-        ExpressionList<ExaminationEventConfiguration> query = Ebean
+        ExpressionList<ExaminationEventConfiguration> query = DB
             .find(ExaminationEventConfiguration.class)
             .apply(pp)
             .where();

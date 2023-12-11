@@ -1155,5 +1155,7 @@
   "sitnet_waiting_room_title": "Waiting room",
   "sitnet_wrong_room_title": "Wrong room",
   "sitnet_wrong_machine_title": "Wrong computer",
-  "sitnet_examination_logout_title": "Examination logout"
+  "sitnet_examination_logout_title": "Examination logout",
+  "sitnet_tag_questions": "Lisää kysymyksille avainsanoja EN",
+  "sitnet_actions": "Toimenpiteet EN"
 }

@@ -16,9 +16,9 @@
 package models.sections;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import models.base.GeneratedIdentityModel;
 import models.questions.MultipleChoiceOption;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -89,10 +89,9 @@ public class ExamSectionQuestionOption extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof ExamSectionQuestionOption)) {
+        if (!(other instanceof ExamSectionQuestionOption otherOption)) {
             return false;
         }
-        ExamSectionQuestionOption otherOption = (ExamSectionQuestionOption) other;
         return new EqualsBuilder().append(option, otherOption.option).build();
     }
 

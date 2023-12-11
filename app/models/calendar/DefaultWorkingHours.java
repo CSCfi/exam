@@ -17,11 +17,10 @@ package models.calendar;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import models.ExamRoom;
 import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
@@ -88,7 +87,6 @@ public class DefaultWorkingHours extends GeneratedIdentityModel {
         this.timezoneOffset = timezoneOffset;
     }
 
-    @Transient
     public boolean overlaps(DefaultWorkingHours other) {
         return weekday.equals(other.weekday) && toInterval().overlaps(other.toInterval());
     }

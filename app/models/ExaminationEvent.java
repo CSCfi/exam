@@ -15,11 +15,10 @@
 
 package models;
 
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import models.base.GeneratedIdentityModel;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -71,7 +70,6 @@ public class ExaminationEvent extends GeneratedIdentityModel {
         this.examinationEventConfiguration = examinationEventConfiguration;
     }
 
-    @Transient
     public Interval toInterval(Exam exam) {
         return new Interval(start, start.plusMinutes(exam.getDuration()));
     }
@@ -79,10 +77,9 @@ public class ExaminationEvent extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof ExaminationEvent)) {
+        if (!(other instanceof ExaminationEvent otherException)) {
             return false;
         }
-        ExaminationEvent otherException = (ExaminationEvent) other;
         return new EqualsBuilder().append(id, otherException.id).build();
     }
 

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 import exceptions.MalformedDataException;
 import impl.NoShowHandler;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.io.IOException;
@@ -31,15 +31,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collectors;
 import models.Exam;
 import models.ExamEnrolment;
 import models.Role;
 import models.User;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.Form;
 import play.data.FormFactory;
-import play.libs.concurrent.HttpExecutionContext;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.libs.typedmap.TypedKey;
 import play.mvc.Controller;
 import play.mvc.Http;
@@ -49,16 +49,16 @@ import system.interceptors.AnonymousJsonAction;
 
 public class BaseController extends Controller {
 
-    private static final Logger.ALogger logger = Logger.of(BaseController.class);
+    private final Logger logger = LoggerFactory.getLogger(BaseController.class);
 
     @Inject
     protected FormFactory formFactory;
 
     @Inject
-    protected HttpExecutionContext ec;
+    protected ClassLoaderExecutionContext ec;
 
     @Inject
-    private NoShowHandler noShowHandler;
+    protected NoShowHandler noShowHandler;
 
     protected <T> T bindForm(final Class<T> clazz, Http.Request request) {
         final Form<T> form = formFactory.form(clazz);
@@ -69,22 +69,22 @@ public class BaseController extends Controller {
     }
 
     protected Result ok(Object object) {
-        String body = Ebean.json().toJson(object);
+        String body = DB.json().toJson(object);
         return ok(body).as("application/json");
     }
 
     protected Result ok(Object object, PathProperties props) {
-        String body = Ebean.json().toJson(object, props);
+        String body = DB.json().toJson(object, props);
         return ok(body).as("application/json");
     }
 
     protected Result created(Object object) {
-        String body = Ebean.json().toJson(object);
+        String body = DB.json().toJson(object);
         return created(body).as("application/json");
     }
 
     protected Result created(Object object, PathProperties props) {
-        String body = Ebean.json().toJson(object, props);
+        String body = DB.json().toJson(object, props);
         return created(body).as("application/json");
     }
 
@@ -95,7 +95,7 @@ public class BaseController extends Controller {
         String fnField = prefix == null ? "firstName" : String.format("%s.firstName", prefix);
         String lnField = prefix == null ? "lastName" : String.format("%s.lastName", prefix);
         if (rawFilter.contains(" ")) {
-            // Possible that user provided us two names. Lets try out some combinations of first and last names
+            // Possible that user provided us two names. Let's try out some combinations of first and last names
             String name1 = rawFilter.split(" ")[0];
             String name2 = rawFilter.split(" ")[1];
             result =
@@ -117,7 +117,7 @@ public class BaseController extends Controller {
     }
 
     private void handleNoShow(User user, Long examId) {
-        List<ExamEnrolment> enrolments = Ebean
+        List<ExamEnrolment> enrolments = DB
             .find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("exam")
@@ -151,7 +151,7 @@ public class BaseController extends Controller {
         if (trialCount == null) {
             return true;
         }
-        List<ExamEnrolment> trials = Ebean
+        List<ExamEnrolment> trials = DB
             .find(ExamEnrolment.class)
             .fetch("exam")
             .where()
@@ -163,7 +163,7 @@ public class BaseController extends Controller {
             .findList()
             .stream()
             .sorted(Comparator.comparing(ExamEnrolment::getId).reversed())
-            .collect(Collectors.toList());
+            .toList();
 
         if (trials.size() >= trialCount) {
             return trials.stream().limit(trialCount).anyMatch(ExamEnrolment::isProcessed);
@@ -215,7 +215,7 @@ public class BaseController extends Controller {
     protected JsonNode serialize(Object o, PathProperties pp) {
         ObjectMapper mapper = new ObjectMapper();
         try {
-            String json = Ebean.json().toJson(o, pp);
+            String json = DB.json().toJson(o, pp);
             return mapper.readTree(json);
         } catch (IOException e) {
             logger.error("unable to serialize");

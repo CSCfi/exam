@@ -15,9 +15,9 @@
 
 package system.interceptors;
 
-import akka.stream.Materializer;
 import com.google.inject.Inject;
 import java.util.concurrent.CompletionStage;
+import org.apache.pekko.stream.Materializer;
 import play.mvc.Http;
 import play.mvc.Result;
 

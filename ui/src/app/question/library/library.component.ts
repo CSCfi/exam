@@ -14,12 +14,17 @@
  */
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { from, tap } from 'rxjs';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
-import type { Question } from '../../exam/exam.model';
+import type { Question, Tag } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
+import { LibraryTransferDialogComponent } from './export/library-transfer-dialog.component';
+import { LibraryOwnersDialogComponent } from './owners/library-owners-dialog.component';
+import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component';
 
 @Component({
     selector: 'xm-library',
@@ -51,23 +56,74 @@ import type { User } from '../../session/session.service';
         </div>
 
         <div class="reservation-border">
+            <div class="row ms-4 mt-2">
+                <div class="col-12">
+                    <strong>{{ 'sitnet_search' | translate }}:</strong>
+                </div>
+            </div>
             <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
-            <div class="padl30 padr30">
-                <div class="row">
-                    <div
-                        [style.visibility]="selections.length > 0 ? 'visible' : 'hidden'"
-                        class="col-md-12 d-flex align-items-center justify-content-between"
-                    >
-                        <div class="make-inline">
-                            {{ selections.length }} {{ 'sitnet_questions_selected' | translate }}
-                        </div>
-                        <xm-library-owner-selection
-                            [selections]="selections"
-                            (selected)="ownerSelected($event)"
-                        ></xm-library-owner-selection>
-                        <xm-library-transfer [selections]="selections"></xm-library-transfer>
-                        <xm-library-file-export [selections]="selections"></xm-library-file-export>
-                    </div>
+            <div class="row ms-4 mb-1">
+                <div class="col-12">
+                    <strong>{{ 'sitnet_actions' | translate }}:</strong>
+                </div>
+            </div>
+            <div class="row ms-4">
+                <div class="col-12">
+                    <span ngbDropdown [autoClose]="'outside'">
+                        <button
+                            class="btn btn-outline-secondary btn-sm"
+                            type="button"
+                            id="dropDownMenu1"
+                            ngbDropdownToggle
+                        >
+                            {{ 'sitnet_choose' | translate }}&nbsp;
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="pointer" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
+                            <li
+                                ngbDropdownItem
+                                role="presentation"
+                                ngbDropdownItem
+                                [disabled]="selections.length === 0"
+                                (click)="openOwnerSelection()"
+                            >
+                                <a role="menuitem">{{ 'sitnet_add_question_owner' | translate }}</a>
+                            </li>
+                            <li
+                                ngbDropdownItem
+                                role="presentation"
+                                ngbDropdownItem
+                                [disabled]="selections.length === 0"
+                                (click)="openTagSelection()"
+                            >
+                                <a role="menuitem">{{ 'sitnet_tag_questions' | translate }}</a>
+                            </li>
+                            <li
+                                ngbDropdownItem
+                                role="presentation"
+                                ngbDropdownItem
+                                [disabled]="selections.length === 0"
+                                (click)="openFileTransfer()"
+                            >
+                                <a role="menuitem">{{ 'sitnet_transfer_questions' | translate }}</a>
+                            </li>
+                            <li
+                                ngbDropdownItem
+                                role="presentation"
+                                ngbDropdownItem
+                                [disabled]="selections.length === 0"
+                                (click)="export()"
+                            >
+                                <a role="menuitem">{{ 'sitnet_export_questions' | translate }}</a>
+                            </li>
+                        </ul>
+                    </span>
+                    <small class="ms-2 text-muted" *ngIf="selections.length === 0">{{
+                        'sitnet_choose_atleast_one' | translate
+                    }}</small>
+                    <small class="ms-2" *ngIf="selections.length > 0">
+                        {{ selections.length }} {{ 'sitnet_questions_selected' | translate }}
+                    </small>
                 </div>
             </div>
 
@@ -89,6 +145,7 @@ export class LibraryComponent {
     constructor(
         private router: Router,
         private translate: TranslateService,
+        private modal: NgbModal,
         private toast: ToastrService,
         private Attachment: AttachmentService,
         private Files: FileService,
@@ -107,11 +164,6 @@ export class LibraryComponent {
         this.router.navigate(['/staff/questions', copy.id, 'edit']);
     }
 
-    ownerSelected(event: { user: User; selections: number[] }) {
-        const questions = this.questions.filter((q) => event.selections.indexOf(q.id) > -1);
-        questions.forEach((q) => q.questionOwners.push(event.user));
-    }
-
     import() {
         this.Attachment.selectFile(false, {}, 'sitnet_import_questions_detail')
             .then((result) => {
@@ -121,6 +173,68 @@ export class LibraryComponent {
                 this.toast.success(`${this.translate.instant('sitnet_questions_imported_successfully')}`);
             })
             .catch((err) => this.toast.error(err));
+    }
+
+    export() {
+        if (this.selections.length === 0) {
+            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
+        } else {
+            this.Files.download(
+                '/app/questions/export',
+                'moodle-export.xml',
+                { ids: this.selections.map((s) => s.toString()) },
+                true,
+            );
+        }
+    }
+
+    openOwnerSelection() {
+        const modalRef = this.modal.open(LibraryOwnersDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'lg',
+        });
+        modalRef.componentInstance.selections = this.selections;
+        from(modalRef.result)
+            .pipe(
+                tap((result: { questions: number[]; users: User[] }) => {
+                    const questions = this.questions.filter((q) => result.questions.includes(q.id));
+                    questions.forEach((q) => q.questionOwners.push(...result.users));
+                }),
+            )
+            .subscribe();
+    }
+
+    openTagSelection() {
+        const modalRef = this.modal.open(LibraryTagsDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'lg',
+        });
+        modalRef.componentInstance.selections = this.selections;
+        from(modalRef.result)
+            .pipe(
+                tap((result: { questions: number[]; tags: Tag[] }) => {
+                    const questions = this.questions.filter((q) => result.questions.includes(q.id));
+                    questions.forEach((q) => result.tags.forEach((t) => this.addTagIfNotExists(q, t)));
+                }),
+            )
+            .subscribe();
+    }
+
+    openFileTransfer() {
+        const modalRef = this.modal.open(LibraryTransferDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'lg',
+        });
+        modalRef.componentInstance.selections = this.selections;
+    }
+
+    private addTagIfNotExists(q: Question, t: Tag) {
+        if (!q.tags.map((qt) => qt.id).includes(t.id)) {
+            q.tags.push(t);
+        }
     }
 
     private reload = () =>

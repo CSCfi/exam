@@ -3,8 +3,7 @@ package impl;
 import static play.mvc.Results.badRequest;
 import static play.mvc.Results.forbidden;
 
-import akka.actor.ActorSystem;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -32,8 +31,10 @@ import models.User;
 import models.questions.ClozeTestAnswer;
 import models.questions.Question;
 import models.sections.ExamSection;
+import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
-import play.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
@@ -51,7 +52,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
     @Inject
     private ConfigReader configReader;
 
-    private static final Logger.ALogger logger = Logger.of(ExamUpdaterImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(ExamUpdaterImpl.class);
 
     @Override
     public Optional<Result> updateTemporalFieldsAndValidate(Exam exam, User user, Http.Request request) {
@@ -160,7 +161,6 @@ public class ExamUpdaterImpl implements ExamUpdater {
         Optional<String> examType = request.attrs().getOptional(Attrs.TYPE);
         Optional<String> organisations = request.attrs().getOptional(Attrs.ORGANISATIONS);
         Integer trialCount = request.attrs().getOptional(Attrs.TRIAL_COUNT).orElse(null);
-        Boolean expanded = request.attrs().getOptional(Attrs.EXPANDED).orElse(false);
         Boolean requiresLanguageInspection = request.attrs().getOptional(Attrs.LANG_INSPECTION_REQUIRED).orElse(null);
         String internalRef = request.attrs().getOptional(Attrs.REFERENCE).orElse(null);
         Boolean anonymous = request.attrs().getOptional(Attrs.ANONYMOUS).orElse(false);
@@ -187,14 +187,13 @@ public class ExamUpdaterImpl implements ExamUpdater {
             }
         }
         examType.ifPresent(type -> {
-            ExamType eType = Ebean.find(ExamType.class).where().eq("type", type).findOne();
+            ExamType eType = DB.find(ExamType.class).where().eq("type", type).findOne();
 
             if (eType != null) {
                 exam.setExamType(eType);
             }
         });
         exam.setTrialCount(trialCount);
-        exam.setExpanded(expanded);
         exam.setSubjectToLanguageInspection(requiresLanguageInspection);
         exam.setInternalRef(internalRef);
         if (impl == Exam.Implementation.WHATEVER && configReader.isHomeExaminationSupported()) {
@@ -299,7 +298,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         if (!isPermittedToUpdate(exam, user)) {
             return Optional.of(forbidden("sitnet_error_access_forbidden"));
         }
-        Language language = Ebean.find(Language.class, code);
+        Language language = DB.find(Language.class, code);
         if (exam.getExamLanguages().contains(language)) {
             exam.getExamLanguages().remove(language);
         } else {
@@ -335,7 +334,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         GradeScale gs = exam.getGradeScale() == null ? exam.getCourse().getGradeScale() : exam.getGradeScale();
         // Handle proposed entries, persist new ones where necessary
         for (GradeEvaluation src : newConfig.getGradeEvaluations()) {
-            Grade grade = Ebean.find(Grade.class, src.getGrade().getId());
+            Grade grade = DB.find(Grade.class, src.getGrade().getId());
             if (grade != null && gs.getGrades().contains(grade)) {
                 GradeEvaluation ge = gradeMap.get(grade.getId());
                 if (ge == null) {
@@ -407,7 +406,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
         // Allow updating grading if allowed in settings or if course does not restrict the setting
         boolean canOverrideGrading = configReader.isCourseGradeScaleOverridable();
         if (canOverrideGrading || exam.getCourse() == null || exam.getCourse().getGradeScale() == null) {
-            GradeScale scale = Ebean.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
+            GradeScale scale = DB.find(GradeScale.class).fetch("grades").where().idEq(grading).findOne();
             if (scale != null) {
                 exam.setGradeScale(scale);
             } else {

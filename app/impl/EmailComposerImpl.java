@@ -21,7 +21,7 @@ import biweekly.ICalendar;
 import biweekly.component.VEvent;
 import biweekly.property.Summary;
 import com.google.common.collect.Sets;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import io.vavr.Tuple2;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -61,8 +61,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.Environment;
-import play.Logger;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
 import util.config.ByodConfigHandler;
@@ -78,7 +79,7 @@ class EmailComposerImpl implements EmailComposer {
     private static final DateTimeFormatter TF = DateTimeFormat.forPattern("HH:mm");
     private static final int MINUTES_IN_HOUR = 60;
 
-    private static final Logger.ALogger logger = Logger.of(EmailComposerImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(EmailComposerImpl.class);
 
     private final String hostName;
     private final DateTimeZone timeZone;
@@ -543,7 +544,7 @@ class EmailComposerImpl implements EmailComposer {
         String address,
         String... placeInfo
     ) {
-        List<String> info = Stream.of(placeInfo).filter(s -> s != null && !s.isEmpty()).collect(Collectors.toList());
+        List<String> info = Stream.of(placeInfo).filter(s -> s != null && !s.isEmpty()).toList();
         ICalendar iCal = new ICalendar();
         iCal.setVersion(ICalVersion.V2_0);
         VEvent event = new VEvent();
@@ -574,7 +575,7 @@ class EmailComposerImpl implements EmailComposer {
 
         Map<String, String> values = new HashMap<>();
 
-        List<Exam> exams = Ebean
+        List<Exam> exams = DB
             .find(Exam.class)
             .where()
             .eq("parent.id", exam.getId())
@@ -1051,13 +1052,13 @@ class EmailComposerImpl implements EmailComposer {
                 return false;
             })
             .sorted()
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private String createEnrolmentBlock(User teacher, Lang lang) {
         String enrolmentTemplatePath = getTemplatesRoot() + "weeklySummary/enrollmentInfo.html";
         String enrolmentTemplate = fileHandler.read(enrolmentTemplatePath);
-        List<Exam> exams = Ebean
+        List<Exam> exams = DB
             .find(Exam.class)
             .fetch("course")
             .fetch("examEnrolments")
@@ -1111,7 +1112,7 @@ class EmailComposerImpl implements EmailComposer {
 
     // return exams in review state where teacher is either owner or inspector
     private static List<ExamParticipation> getReviews(User teacher) {
-        return Ebean
+        return DB
             .find(ExamParticipation.class)
             .fetch("exam.course")
             .where()

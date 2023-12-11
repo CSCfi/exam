@@ -17,6 +17,7 @@ package system
 
 import javax.inject.Inject
 import play.api.http.HttpFilters
+import play.api.mvc.EssentialFilter
 import play.filters.cors.CORSFilter
 import play.filters.csp.CSPFilter
 import play.filters.csrf.CSRFFilter
@@ -31,6 +32,6 @@ class AppFilters @Inject()(securityHeadersFilter: SecurityHeadersFilter,
                            systemFilter: SystemFilter)
     extends HttpFilters {
 
-  override def filters =
+  override def filters: Seq[EssentialFilter] =
     Seq(securityHeadersFilter, csrfFilter, gzipFilter, corsFilter, cspFilter, systemFilter)
 }

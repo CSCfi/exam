@@ -16,7 +16,7 @@
 package util.config;
 
 import com.typesafe.config.Config;
-import io.ebean.Ebean;
+import io.ebean.DB;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +32,7 @@ import org.joda.time.Period;
 
 public class ConfigReaderImpl implements ConfigReader {
 
-    private Config config;
+    private final Config config;
 
     @Inject
     public ConfigReaderImpl(Config config) {
@@ -65,7 +65,7 @@ public class ConfigReaderImpl implements ConfigReader {
     @Override
     public List<Integer> getExamDurations() {
         String[] durations = config.getString("sitnet.exam.durations").split(",");
-        return Arrays.stream(durations).map(Integer::parseInt).collect(Collectors.toList());
+        return Arrays.stream(durations).map(Integer::parseInt).toList();
     }
 
     @Override
@@ -80,9 +80,9 @@ public class ConfigReaderImpl implements ConfigReader {
 
     @Override
     public Map<Role, List<String>> getRoleMapping() {
-        Role student = Ebean.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne();
-        Role teacher = Ebean.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findOne();
-        Role admin = Ebean.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findOne();
+        Role student = DB.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findOne();
+        Role teacher = DB.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findOne();
+        Role admin = DB.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findOne();
         Map<Role, List<String>> roles = new HashMap<>();
         roles.put(student, config.getStringList("sitnet.roles.student"));
         roles.put(teacher, config.getStringList("sitnet.roles.teacher"));
@@ -152,26 +152,22 @@ public class ConfigReaderImpl implements ConfigReader {
 
     @Override
     public boolean isMaturitySupported() {
-        return (
-            Ebean
-                .find(ExamExecutionType.class)
-                .where()
-                .eq("type", ExamExecutionType.Type.MATURITY.toString())
-                .findCount() ==
-            1
-        );
+        return DB
+            .find(ExamExecutionType.class)
+            .where()
+            .eq("type", ExamExecutionType.Type.MATURITY.toString())
+            .findOneOrEmpty()
+            .isPresent();
     }
 
     @Override
     public boolean isPrintoutSupported() {
-        return (
-            Ebean
-                .find(ExamExecutionType.class)
-                .where()
-                .eq("type", ExamExecutionType.Type.PRINTOUT.toString())
-                .findCount() ==
-            1
-        );
+        return DB
+            .find(ExamExecutionType.class)
+            .where()
+            .eq("type", ExamExecutionType.Type.PRINTOUT.toString())
+            .findOneOrEmpty()
+            .isPresent();
     }
 
     @Override
