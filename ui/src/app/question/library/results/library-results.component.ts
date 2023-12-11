@@ -167,7 +167,10 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
         return user;
     };
 
-    printTags = (question: LibraryQuestion) => question.tags.map((t) => t.name).join(', ');
+    printTags = (question: LibraryQuestion) => {
+        const ownTags = question.tags.filter((t) => t.creator?.id === this.user.id);
+        return ownTags.map((t) => t.name).join(', ');
+    };
 
     pageSelected = (event: { page: number }) => (this.currentPage = event.page);
 

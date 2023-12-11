@@ -14,13 +14,14 @@
  */
 import { NgFor } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
+import { SessionService } from 'src/app/session/session.service';
 import type { Question, Tag } from '../../exam/exam.model';
 import { QuestionDraft } from '../question.service';
 
@@ -64,7 +65,7 @@ import { QuestionDraft } from '../question.service';
                 </div>
                 <div class="col">
                     <ul class="list-inline mart10">
-                        <li *ngFor="let tag of question.tags" class="list-inline-item">
+                        <li *ngFor="let tag of ownTags" class="list-inline-item">
                             {{ tag.name }}
                             <button
                                 class="reviewer-remove"
@@ -85,12 +86,17 @@ import { QuestionDraft } from '../question.service';
     standalone: true,
     imports: [FormsModule, NgbPopover, NgbTypeahead, NgFor, TranslateModule],
 })
-export class TagPickerComponent {
+export class TagPickerComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;
     tagName = '';
     newTag: Tag = { name: '', questions: [] };
+    ownTags: Tag[] = [];
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private Session: SessionService) {}
+
+    ngOnInit() {
+        this.ownTags = this.question.tags.filter((t) => t.creator?.id === this.Session.getUser().id);
+    }
 
     getTags$ = (text$: Observable<string>): Observable<Tag[]> =>
         text$.pipe(
