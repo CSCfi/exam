@@ -87,7 +87,6 @@ export class TagPickerComponent implements OnInit {
     newTag: Tag = { name: '', questions: [] };
     ownTags: Tag[] = [];
 
-
     constructor(private http: HttpClient, private Session: SessionService) {}
 
     ngOnInit() {
@@ -122,7 +121,10 @@ export class TagPickerComponent implements OnInit {
     nameFormat = (tag: Tag) => tag.name;
 
     addTag = () => {
-        if (this.newTag) this.question.tags.push(this.newTag);
+        if (this.newTag) {
+            this.question.tags.push(this.newTag);
+            this.ownTags.push(this.newTag);
+        }
         this.newTag = { name: '', questions: [] };
         this.tagName = '';
     };
