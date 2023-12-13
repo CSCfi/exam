@@ -21,7 +21,7 @@
             <maxHistory>180</maxHistory>
         </rollingPolicy>
         <encoder class="PatternLayoutEncoder">
-            <pattern>%date{yyyy-MM-dd HH:mm:ss ZZZZ} (%-5level) %logger{15} - %message%n%xException{10}</pattern>
+            <pattern>%date{yyyy-MM-dd HH:mm:ss ZZZZ} [%-5level] %logger{15} - %message%n%xException{10}</pattern>
         </encoder>
     </appender>
 
