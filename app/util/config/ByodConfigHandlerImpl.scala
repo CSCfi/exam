@@ -3,7 +3,7 @@ package util.config
 import org.apache.commons.codec.digest.DigestUtils
 import org.cryptonode.jncryptor.AES256JNCryptor
 import play.Environment
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json._
 import play.mvc.{Http, Result, Results}
 
@@ -14,8 +14,8 @@ import java.util.Optional
 import java.util.zip.GZIPOutputStream
 import javax.inject.Inject
 import javax.xml.parsers.SAXParserFactory
-import scala.jdk.OptionConverters._
 import scala.io.Source
+import scala.jdk.OptionConverters._
 import scala.xml.{Node, XML}
 
 object ByodConfigHandlerImpl {
@@ -29,10 +29,10 @@ object ByodConfigHandlerImpl {
   private val IgnoredKeys              = Seq("originatorVersion")
 }
 class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environment)
-    extends ByodConfigHandler {
+    extends ByodConfigHandler
+    with Logging {
 
   import ByodConfigHandlerImpl._
-  private val logger        = Logger(this.getClass).logger
   private val crypto        = new AES256JNCryptor
   private val encryptionKey = configReader.getSettingsPasswordEncryptionKey
 
@@ -130,10 +130,7 @@ class ByodConfigHandlerImpl @Inject()(configReader: ConfigReader, env: Environme
           case sha if sha == digest => None.toJava
           case sha =>
             logger.warn(
-              "Config key mismatch for URL {} and exam config key {}. Digest received: {}",
-              absoluteUrl,
-              configKey,
-              sha)
+              s"Config key mismatch for URL $absoluteUrl and exam config key $configKey. Digest received: $sha")
             Some(Results.unauthorized("Wrong configuration key digest")).toJava
         }
     }

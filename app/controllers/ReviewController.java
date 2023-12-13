@@ -25,29 +25,14 @@ import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
 import io.ebean.Query;
 import io.ebean.text.PathProperties;
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPOutputStream;
 import javax.inject.Inject;
-import models.Attachment;
 import models.Comment;
 import models.Exam;
 import models.ExamEnrolment;
@@ -66,23 +51,14 @@ import models.base.GeneratedIdentityModel;
 import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.Question;
-import models.sections.ExamSection;
 import models.sections.ExamSectionQuestion;
-import org.apache.commons.compress.archivers.ArchiveOutputStream;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
 import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.i18n.Lang;
 import play.i18n.MessagesApi;
-import play.libs.Files.TemporaryFile;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -608,176 +584,6 @@ public class ReviewController extends BaseController {
                 return ok(Json.newObject().put("status", "nothing"));
             }
         }
-    }
-
-    private static boolean isEligibleForArchiving(Exam exam, DateTime start, DateTime end) {
-        return (
-            exam.hasState(Exam.State.ABORTED, Exam.State.REVIEW, Exam.State.REVIEW_STARTED) &&
-            !(start != null && exam.getCreated().isBefore(start)) &&
-            !(end != null && exam.getCreated().isAfter(end))
-        );
-    }
-
-    private static void createSummaryFile(
-        ArchiveOutputStream aos,
-        DateTime start,
-        DateTime end,
-        Exam exam,
-        Map<Long, String> questions
-    ) throws IOException {
-        File file = File.createTempFile("summary", ".txt");
-        FileOutputStream fos = new FileOutputStream(file);
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
-
-        if (start != null || end != null) {
-            DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy");
-            writer.write(
-                String.format("period: %s-%s", start == null ? "" : dtf.print(start), end == null ? "" : dtf.print(end))
-            );
-            writer.newLine();
-        }
-        writer.write(String.format("exam id: %d", exam.getId()));
-        writer.newLine();
-        writer.write(String.format("exam name: %s", exam.getName()));
-        writer.newLine();
-        writer.newLine();
-        writer.write("questions");
-        writer.newLine();
-        for (Map.Entry<Long, String> entry : questions.entrySet()) {
-            writer.write(String.format("%d: %s", entry.getKey(), Jsoup.parse(entry.getValue()).text()));
-            writer.newLine();
-        }
-        writer.close();
-        TarArchiveEntry entry = new TarArchiveEntry("summary.txt");
-        entry.setSize(file.length());
-        aos.putArchiveEntry(entry);
-        IOUtils.copy(new FileInputStream(file), aos);
-        aos.closeArchiveEntry();
-    }
-
-    private void createArchive(Exam prototype, ArchiveOutputStream aos, DateTime start, DateTime end)
-        throws IOException {
-        List<Exam> children = prototype
-            .getChildren()
-            .stream()
-            .filter(e -> isEligibleForArchiving(e, start, end))
-            .toList();
-        Map<Long, String> questions = new LinkedHashMap<>();
-        for (Exam exam : children) {
-            String uid = String.format(
-                "%s-%d",
-                exam.getCreator().getUserIdentifier() == null
-                    ? exam.getCreator().getId().toString()
-                    : exam.getCreator().getUserIdentifier(),
-                exam.getId()
-            );
-            for (ExamSection es : exam.getExamSections()) {
-                List<ExamSectionQuestion> essays = es
-                    .getSectionQuestions()
-                    .stream()
-                    .filter(esq -> esq.getQuestion().getType() == Question.Type.EssayQuestion)
-                    .toList();
-                for (ExamSectionQuestion esq : essays) {
-                    Long questionId = esq.getQuestion().getParent() == null
-                        ? esq.getQuestion().getId()
-                        : esq.getQuestion().getParent().getId();
-                    questions.put(questionId, esq.getQuestion().getQuestion());
-                    String questionIdText = esq.getQuestion().getParent() == null
-                        ? questionId + "#original_question_removed"
-                        : Long.toString(esq.getQuestion().getParent().getId());
-                    EssayAnswer answer = esq.getEssayAnswer();
-                    Attachment attachment;
-                    File file = null;
-                    if (answer != null && (attachment = answer.getAttachment()) != null) {
-                        // attached answer
-                        String fileName = attachment.getFileName();
-                        file = new File(attachment.getFilePath());
-                        if (file.exists()) {
-                            String entryName = String.format(
-                                "%d/%s/%s/%s",
-                                prototype.getId(),
-                                questionIdText,
-                                uid,
-                                fileName
-                            );
-                            TarArchiveEntry entry = new TarArchiveEntry(entryName);
-                            entry.setSize(file.length());
-                            aos.putArchiveEntry(entry);
-                            IOUtils.copy(new FileInputStream(file), aos);
-                        } else {
-                            logger.warn("Attachment {} is not connected to a file on disk!", attachment.getId());
-                        }
-                    }
-                    if (file == null || !file.exists()) {
-                        // no attached answer, create empty directory
-                        String entryName = String.format("%d/%d/%s/", prototype.getId(), questionId, uid);
-                        TarArchiveEntry entry = new TarArchiveEntry(entryName);
-                        aos.putArchiveEntry(entry);
-                    }
-                    aos.closeArchiveEntry();
-                }
-            }
-        }
-        createSummaryFile(aos, start, end, prototype, questions);
-    }
-
-    @Authenticated
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
-    public Result importGrades(Http.Request request) {
-        Http.MultipartFormData<TemporaryFile> body = request.body().asMultipartFormData();
-        Http.MultipartFormData.FilePart<TemporaryFile> filePart = body.getFile("file");
-        if (filePart == null) {
-            return notFound();
-        }
-        File file = filePart.getRef().path().toFile();
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        boolean isAdmin = user.hasRole(Role.Name.ADMIN);
-        try {
-            csvBuilder.parseGrades(file, user, isAdmin ? Role.Name.ADMIN : Role.Name.TEACHER);
-        } catch (Exception e) {
-            logger.error("Failed to parse CSV file. Stack trace follows", e);
-            return internalServerError("sitnet_internal_error");
-        }
-        return ok();
-    }
-
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
-    public Result getArchivedAttachments(Long eid, Optional<String> start, Optional<String> end) throws IOException {
-        Exam prototype = DB.find(Exam.class, eid);
-        if (prototype == null) {
-            return notFound();
-        }
-        DateTime startDate = null;
-        DateTime endDate = null;
-        try {
-            DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
-            if (start.isPresent()) {
-                startDate = new DateTime(df.parse(start.get())).withTimeAtStartOfDay();
-            }
-            if (end.isPresent()) {
-                endDate = new DateTime(df.parse(end.get())).withTimeAtStartOfDay().plusDays(1);
-            }
-        } catch (ParseException e) {
-            return badRequest();
-        }
-        File tarball = File.createTempFile(eid.toString(), ".tar.gz");
-        try (
-            TarArchiveOutputStream aos = new TarArchiveOutputStream(
-                new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(tarball)))
-            )
-        ) {
-            aos.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
-            createArchive(prototype, aos, startDate, endDate);
-            if (aos.getBytesWritten() == 0) {
-                return notFound("sitnet_no_attachments_to_archive");
-            }
-        } catch (IOException e) {
-            logger.error("Failed in creating a tarball", e);
-        }
-        String contentDisposition = fileHandler.getContentDisposition(tarball);
-        byte[] data = fileHandler.read(tarball);
-        String body = Base64.getEncoder().encodeToString(data);
-        return ok(body).withHeader("Content-Disposition", contentDisposition);
     }
 
     private boolean isRejectedInLanguageInspection(Exam exam, User user, Exam.State newState) {
