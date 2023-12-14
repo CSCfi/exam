@@ -59,6 +59,18 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
             <div class="row ms-4 mt-2">
                 <div class="col-12">
                     <strong>{{ 'sitnet_search' | translate }}:</strong>
+                    <span
+                        ngbPopover="{{ 'sitnet_library_search_instructions' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        class="ms-2"
+                    >
+                        <img
+                            src="/assets/images/icon_tooltip.svg"
+                            alt=""
+                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                        />
+                    </span>
                 </div>
             </div>
             <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>

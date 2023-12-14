@@ -1,10 +1,5 @@
-<div class="row ms-3 me-3" *ngIf="user.isAdmin">
-    <div class="col-md-12 ms-1">
-        {{ 'sitnet_choose_atleast_one' | translate }}
-    </div>
-</div>
 <div class="row ms-3 me-3 align-items-center">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <span class="m-1" ngbDropdown [autoClose]="'outside'">
             <button
                 class="btn btn-outline-secondary btn-sm"
@@ -22,7 +17,7 @@
                         [(ngModel)]="limitations.course"
                         (ngModelChange)="filterCourses()"
                         class="form-control"
-                        placeholder="{{ 'sitnet_search' | translate }}"
+                        placeholder="{{ 'sitnet_search_course_hint' | translate }}"
                         aria-describedby="search-icon-1"
                     />
                     <div class="input-group-append">
@@ -38,7 +33,7 @@
                     (click)="applyFilter(course)"
                     ngbDropdownItem
                 >
-                    <a role="menuitem">{{ course.name }}</a>
+                    <a role="menuitem">{{ formatCourse(course) }} {{ course.name }}</a>
                 </li>
             </ul>
         </span>
@@ -58,7 +53,7 @@
                         [(ngModel)]="limitations.exam"
                         (ngModelChange)="filterExams()"
                         class="form-control"
-                        placeholder="{{ 'sitnet_search' | translate }}"
+                        placeholder="{{ 'sitnet_search_exam_hint' | translate }}"
                         aria-describedby="search-icon-2"
                     />
                     <div class="input-group-append">
@@ -74,7 +69,10 @@
                     (click)="applyFilter(exam)"
                     ngbDropdownItem
                 >
-                    <a role="menuitem">{{ exam.name }}</a>
+                    <a role="menuitem"
+                        >{{ formatCourse(exam) }} {{ exam.name }}
+                        <small *ngIf="exam.period" class="text-muted">({{ exam.period }})</small></a
+                    >
                 </li>
             </ul>
         </span>
@@ -163,8 +161,9 @@
                 </li>
             </ul>
         </span>
+        <span class="ms-2 text-muted" *ngIf="user.isAdmin">{{ 'sitnet_choose_atleast_one' | translate }}</span>
     </div>
-    <div class="col-md-8">
+    <div class="col-md-6">
         <div class="row">
             <div [ngClass]="user.isAdmin ? 'col-md-6' : 'col-md-12'">
                 <form>
