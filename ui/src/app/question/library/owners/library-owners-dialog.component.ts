@@ -57,6 +57,7 @@ import { QuestionService } from '../../question.service';
             </div>
         </div>
     `,
+    selector: 'xm-library-owners-dialog',
     standalone: true,
     imports: [NgbTypeahead, TranslateModule],
 })

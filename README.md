@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.com/CSCfi/exam.svg?branch=master)](https://app.travis-ci.com/github/CSCfi/exam)
+[![Build Status](https://api.travis-ci.com/CSCfi/exam.svg?branch=dev)](https://app.travis-ci.com/github/CSCfi/exam)
 
 EXAM Quickstart for developers
 =====================================
@@ -7,12 +7,12 @@ EXAM Quickstart for developers
 
 2.  Create PostgreSQL database
 
-        $ createuser -SPRD sitnet
-        $ createdb sitnet --owner=sitnet
+        $ createuser -SPRD exam
+        $ createdb exam --owner=exam
 
     For tests
 
-        $ createdb sitnet_test --owner=sitnet
+        $ createdb exam_test --owner=exam
 
     Requires that you have pg_hba.conf set up to accept local connections etc.  
     Note that you can configure database related parameters (and others) in the dev config file (/conf/dev.conf)
