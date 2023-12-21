@@ -15,7 +15,7 @@
 import { NgIf } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { from, tap } from 'rxjs';
@@ -63,6 +63,18 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
             <div class="row ms-4 mt-2">
                 <div class="col-12">
                     <strong>{{ 'sitnet_search' | translate }}:</strong>
+                    <span
+                        ngbPopover="{{ 'sitnet_library_search_instructions' | translate }}"
+                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        class="ms-2"
+                    >
+                        <img
+                            src="/assets/images/icon_tooltip.svg"
+                            alt=""
+                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                        />
+                    </span>
                 </div>
             </div>
             <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
@@ -146,6 +158,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
         NgIf,
         RouterLink,
         NgbDropdownModule,
+        NgbPopoverModule,
         LibrarySearchComponent,
         LibraryOwnersDialogComponent,
         LibraryTransferDialogComponent,

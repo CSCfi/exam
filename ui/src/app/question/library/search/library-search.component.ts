@@ -18,8 +18,10 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import type { Course, Exam, ExamSection, Tag } from '../../../exam/exam.model';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
@@ -31,7 +33,9 @@ interface Filterable<T> {
     filtered: boolean;
     object: T;
     name: string;
+    code?: string;
     usage?: number;
+    period?: string;
 }
 
 @Component({
@@ -66,7 +70,11 @@ export class LibrarySearchComponent implements OnInit {
     filteredTags = this.tags;
     questions: LibraryQuestion[] = [];
 
-    constructor(private Library: LibraryService, private Session: SessionService) {
+    constructor(
+        private Library: LibraryService,
+        private Session: SessionService,
+        private CourseCode: CourseCodeService,
+    ) {
         this.user = this.Session.getUser();
     }
 
@@ -79,7 +87,7 @@ export class LibrarySearchComponent implements OnInit {
             this.tags = this.filteredTags = storedData.filters.tags || [];
             this.filter.text = storedData.filters.text;
             this.filter.owner = storedData.filters.owner;
-            this.query().subscribe((questions) => {
+            this.query$().subscribe((questions) => {
                 if (this.filter.text || this.filter.owner) {
                     this.applySearchFilter();
                 } else {
@@ -87,7 +95,7 @@ export class LibrarySearchComponent implements OnInit {
                 }
             });
         } else {
-            this.query().subscribe((resp) => this.updated.emit(resp));
+            this.query$().subscribe((resp) => this.updated.emit(resp));
         }
     }
 
@@ -108,6 +116,7 @@ export class LibrarySearchComponent implements OnInit {
                         resp.map((r) => ({
                             id: r.id,
                             name: r.name,
+                            code: r.code,
                             object: r,
                             filtered: false,
                         })),
@@ -128,6 +137,8 @@ export class LibrarySearchComponent implements OnInit {
                         name: r.name || '',
                         object: r,
                         filtered: false,
+                        code: r.course?.code,
+                        period: this.formatPeriod(r.examActiveStartDate, r.examActiveEndDate),
                     })),
                 );
             }),
@@ -180,32 +191,39 @@ export class LibrarySearchComponent implements OnInit {
 
     applyFilter = (f: Filterable<unknown>) => {
         f.filtered = !f.filtered;
-        this.query().subscribe(() => this.applySearchFilter());
+        this.query$().subscribe(() => this.applySearchFilter());
     };
 
     filterCourses = () => {
         this.filteredCourses = this.courses.filter(
-            (c) => c.name.toLowerCase().indexOf(this.limitations.course.toLowerCase()) > -1,
+            (c) =>
+                c.name.toLowerCase().includes(this.limitations.course.toLowerCase()) ||
+                (c.code && c.code.toLowerCase().includes(this.limitations.course.toLowerCase())),
         );
     };
 
     filterExams = () => {
         this.filteredExams = this.exams.filter(
-            (e) => e.name.toLowerCase().indexOf(this.limitations.exam.toLowerCase()) > -1,
+            (e) =>
+                e.name.toLowerCase().includes(this.limitations.exam.toLowerCase()) ||
+                (e.code && e.code.toLowerCase().includes(this.limitations.exam.toLowerCase())),
         );
     };
 
     filterSections = () => {
-        this.filteredSections = this.sections.filter(
-            (s) => s.name.toLowerCase().indexOf(this.limitations.section.toLowerCase()) > -1,
+        this.filteredSections = this.sections.filter((s) =>
+            s.name.toLowerCase().includes(this.limitations.section.toLowerCase()),
         );
     };
 
     filterTags = () => {
-        this.filteredTags = this.tags.filter(
-            (t) => t.name.toLowerCase().indexOf(this.limitations.tag.toLowerCase()) > -1,
-        );
+        this.filteredTags = this.tags.filter((t) => t.name.toLowerCase().includes(this.limitations.tag.toLowerCase()));
     };
+
+    formatCourse = (f: Filterable<Course | Exam>) => (f.code ? this.CourseCode.formatCode(f.code) : '');
+
+    formatPeriod = (s: string | null, e: string | null) =>
+        s && e ? `${DateTime.fromISO(s).toFormat('dd.LL.yyyy')}-${DateTime.fromISO(e).toFormat('dd.LL.yyyy')}` : '';
 
     private saveFilters = () => {
         const filters = {
@@ -229,7 +247,7 @@ export class LibrarySearchComponent implements OnInit {
         return filtered.concat(tags.filter((t) => filteredIds.indexOf(t.id) === -1));
     }
 
-    private query = (): Observable<LibraryQuestion[]> =>
+    private query$ = (): Observable<LibraryQuestion[]> =>
         this.Library.search(this.getCourseIds(), this.getExamIds(), this.getSectionIds(), this.getTagIds()).pipe(
             tap((questions) => {
                 this.questions = questions;

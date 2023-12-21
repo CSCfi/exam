@@ -160,7 +160,9 @@ public class ExamController extends BaseController {
         List<Long> courses = courseIds.orElse(Collections.emptyList());
         List<Long> sections = sectionIds.orElse(Collections.emptyList());
         List<Long> tags = tagIds.orElse(Collections.emptyList());
-        PathProperties pp = PathProperties.parse("(id, name, course(id, code), examSections(id, name))");
+        PathProperties pp = PathProperties.parse(
+            "(id, name, examActiveStartDate, examActiveEndDate, course(id, code), examSections(id, name))"
+        );
         Query<Exam> query = DB.find(Exam.class);
         pp.apply(query);
         ExpressionList<Exam> el = query.where().isNotNull("name").isNotNull("course").isNull("parent");
