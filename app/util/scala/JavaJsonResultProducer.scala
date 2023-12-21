@@ -21,14 +21,11 @@ import play.libs.{Json => JavaJson}
 
 import scala.jdk.CollectionConverters._
 
-trait JavaJsonResultProducer {
+trait JavaJsonResultProducer:
   self: InjectedController =>
 
-  implicit class JavaModelToResult[T <: Model](model: T) {
+  implicit class JavaModelToResult[T <: Model](model: T):
     def toResult(status: Int): Result = Status(status)(JavaJson.toJson(model).toString)
-  }
-  implicit class JavaModelsToResult[T <: Model](model: Iterable[T]) {
-    def toResult(status: Int): Result = Status(status)(JavaJson.toJson(model.asJava).toString)
-  }
 
-}
+  implicit class JavaModelsToResult[T <: Model](model: Iterable[T]):
+    def toResult(status: Int): Result = Status(status)(JavaJson.toJson(model.asJava).toString)

@@ -9,7 +9,7 @@ version := "6.2.0"
 
 licenses += "EUPL 1.1" -> url("https://joinup.ec.europa.eu/software/page/eupl/licence-eupl")
 
-scalaVersion := "2.13.12"
+scalaVersion := "3.3.1"
 
 scalacOptions ++= Seq("-deprecation", "-feature")
 
@@ -17,7 +17,7 @@ lazy val root = (project in file(".")).enablePlugins(PlayJava, PlayEbean)
 
 libraryDependencies ++= Seq(javaJdbc, ws, evolutions, filters, guice)
 
-libraryDependencies += "be.objectify"             %% "deadbolt-java"        % "2.8.1"
+libraryDependencies += "be.objectify"             %% "deadbolt-java"        % "3.0.0"
 libraryDependencies += "com.networknt"            % "json-schema-validator" % "1.0.82"
 libraryDependencies += "com.google.code.gson"     % "gson"                  % "2.10.1"
 libraryDependencies += "com.opencsv"              % "opencsv"               % "5.7.1"
