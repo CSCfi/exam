@@ -40,11 +40,11 @@ export class ActiveEnrolmentMenuComponent {
 
     removeEnrolment = () => {
         if (this.enrolment.reservation) {
-            this.toast.error(this.translate.instant('sitnet_cancel_reservation_first'));
+            this.toast.error(this.translate.instant('i18n_cancel_reservation_first'));
         } else {
             this.Confirmation.open$(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_are_you_sure'),
+                this.translate.instant('i18n_confirm'),
+                this.translate.instant('i18n_are_you_sure'),
             ).subscribe({
                 next: () =>
                     this.Enrolment.removeEnrolment$(this.enrolment).subscribe(() =>

@@ -23,10 +23,10 @@ import type { Exam } from '../../exam.model';
     selector: 'xm-collaborative-exam-owner-selector',
     template: `<div class="row mt-2">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_owners' | translate }}
+                {{ 'i18n_exam_owners' | translate }}
                 <sup
-                    ngbPopover="{{ 'sitnet_exam_owner_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_owner_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -41,7 +41,7 @@ import type { Exam } from '../../exam.model';
                     <input
                         type="email"
                         name="email"
-                        placeholder="{{ 'sitnet_write_exam_owner_email' | translate }}"
+                        placeholder="{{ 'i18n_write_exam_owner_email' | translate }}"
                         class="form-control wdth-30 make-inline"
                         [(ngModel)]="newOwner.email"
                         email
@@ -51,7 +51,7 @@ import type { Exam } from '../../exam.model';
                         (click)="addOwner()"
                         class="btn btn-primary green"
                     >
-                        {{ 'sitnet_add' | translate }}
+                        {{ 'i18n_add' | translate }}
                     </button>
                 </form>
             </div>
@@ -67,7 +67,7 @@ import type { Exam } from '../../exam.model';
                             class="reviewer-remove"
                             [disabled]="!user.isAdmin"
                             (click)="removeOwner(owner.id)"
-                            title="{{ 'sitnet_remove' | translate }}"
+                            title="{{ 'i18n_remove' | translate }}"
                         >
                             <img
                                 [hidden]="exam.state === 'PUBLISHED'"

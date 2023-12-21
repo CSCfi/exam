@@ -49,11 +49,11 @@ export class CollaborativeExamService {
     getExamStateTranslation = (exam: CollaborativeExam): string | null => {
         switch (exam.state) {
             case CollaborativeExamState.DRAFT:
-                return 'sitnet_draft';
+                return 'i18n_draft';
             case CollaborativeExamState.PRE_PUBLISHED:
-                return 'sitnet_pre_published';
+                return 'i18n_pre_published';
             case CollaborativeExamState.PUBLISHED:
-                return 'sitnet_published';
+                return 'i18n_published';
             default:
                 return null;
         }

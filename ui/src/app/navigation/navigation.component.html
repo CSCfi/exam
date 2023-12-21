@@ -1,6 +1,6 @@
 <nav aria-label="side navigation" *ngIf="user" id="vmenu" class="hidden-print">
     <a class="skip-main" id="skip-button-main" [href]="getSkipLinkPath('#mainView')">{{
-        'sitnet_skip_to_content' | translate
+        'i18n_skip_to_content' | translate
     }}</a>
     <div class="nav-container">
         <div class="nav-header">
@@ -8,7 +8,7 @@
                 <div class="hidden-mobile">
                     <img
                         src="/assets/images/exam-logo-new.svg"
-                        alt="{{ 'sitnet_exam_logo' | translate }}"
+                        alt="{{ 'i18n_exam_logo' | translate }}"
                         onerror="this.onerror = null;
                             this.src = '/assets/images/exam-logo-new.png'"
                     />
@@ -16,14 +16,14 @@
                 <div class="visible-mobile">
                     <img
                         src="/assets/images/exam-logo-mobile.svg"
-                        alt="{{ 'sitnet_exam_logo' | translate }}"
+                        alt="{{ 'i18n_exam_logo' | translate }}"
                         onerror="this.onerror = null;
                             this.src = '/assets/images/exam-logo-mobile.png'"
                     />
                     <button class="mobile-menu" (click)="openMenu()" [hidden]="!user" [attr.aria-open]="mobileMenuOpen">
                         <img
                             src="/assets/images/icon_menu_mobile.svg"
-                            alt="{{ 'sitnet_mobile_menu' | translate }}"
+                            alt="{{ 'i18n_mobile_menu' | translate }}"
                             onerror="this.onerror = null;
                                 this.src = '/assets/images/icon_menu_mobile.png'"
                         />
@@ -46,7 +46,7 @@
                     </a>
 
                     <a class="skip" id="skip-button" *ngIf="isActive(link)" [href]="getSkipLinkPath('#mainView')">{{
-                        'sitnet_skip_to_content' | translate
+                        'i18n_skip_to_content' | translate
                     }}</a>
                     <ul class="submenu" [ngbCollapse]="link.submenu.hidden && link.submenu.items.length > 0">
                         <li *ngFor="let subitem of link.submenu.items" [hidden]="!subitem.visible">
@@ -66,7 +66,7 @@
                                 id="skip-button-sub"
                                 *ngIf="isActive(link)"
                                 [href]="getSkipLinkPath('#mainView')"
-                                >{{ 'sitnet_skip_to_content' | translate }}</a
+                                >{{ 'i18n_skip_to_content' | translate }}</a
                             >
                         </li>
                     </ul>
@@ -109,7 +109,7 @@
                         <div class="user-data">
                             {{ user.firstName }}&nbsp;{{ user.lastName }}
                             <br />
-                            <span [hidden]="!user.isStudent">{{ 'sitnet_student' | translate }} </span>
+                            <span [hidden]="!user.isStudent">{{ 'i18n_student' | translate }} </span>
                         </div>
                     </div>
                 </li>
@@ -130,7 +130,7 @@
                     <div class="user-data">
                         {{ user.firstName }}&nbsp;{{ user.lastName }}
                         <br />
-                        <span [hidden]="!user.isStudent">{{ 'sitnet_student' | translate }} </span>
+                        <span [hidden]="!user.isStudent">{{ 'i18n_student' | translate }} </span>
                     </div>
                 </div>
             </div>

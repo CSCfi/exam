@@ -1,12 +1,12 @@
 <div class="row ms-2 me-2">
     <div class="mt-3 mb-3">
-        <span class="review-list-subtitle">{{ 'sitnet_teachers' | translate }}:</span>
+        <span class="review-list-subtitle">{{ 'i18n_teachers' | translate }}:</span>
         <span class="review-list-subtitle" *ngFor="let owner of exam.examOwners; let isLast = last">
             {{ owner.firstName }} {{ owner.lastName }}<span *ngIf="!isLast">,&nbsp;</span>
         </span>
-        <span class="review-list-subtitle marl20">{{ 'sitnet_exam_validity' | translate }}:</span>
+        <span class="review-list-subtitle marl20">{{ 'i18n_exam_validity' | translate }}:</span>
         <span class="review-list-subtitle">
-            {{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }} - {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}
+            {{ exam.periodStart | date : 'dd.MM.yyyy' }} - {{ exam.periodEnd | date : 'dd.MM.yyyy' }}
         </span>
     </div>
 
@@ -14,12 +14,12 @@
         <span class="review-list-bluetitle">
             <!-- aborted-->
             <a class="pointer" (click)="openAborted()">
-                {{ 'sitnet_aborted_exams' | translate }} ({{ abortedExamsToBeFreed() }})</a
+                {{ 'i18n_aborted_exams' | translate }} ({{ abortedExamsToBeFreed() }})</a
             >
             <sup
                 class="padl05"
-                ngbPopover="{{ 'sitnet_aborted_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                ngbPopover="{{ 'i18n_aborted_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
             >
                 <img
@@ -30,12 +30,12 @@
             </sup>
             <!-- no-shows -->
             <a style="margin-left: 100px" class="pointer" (click)="openNoShows()"
-                >{{ 'sitnet_no_shows' | translate }} ({{ noShows.length }})</a
+                >{{ 'i18n_no_shows' | translate }} ({{ noShows.length }})</a
             >
             <sup
                 class="padl05"
-                ngbPopover="{{ 'sitnet_no_shows_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                ngbPopover="{{ 'i18n_no_shows_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
             >
                 <img

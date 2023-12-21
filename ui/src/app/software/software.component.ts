@@ -36,14 +36,14 @@ export class SoftwareComponent implements OnInit {
 
     updateSoftware = (software: Software) =>
         this.http.put(`/app/softwares/${software.id}/${software.name}`, {}).subscribe({
-            next: () => this.toast.info(this.translate.instant('sitnet_software_updated')),
+            next: () => this.toast.info(this.translate.instant('i18n_software_updated')),
             error: (err) => this.toast.error(err),
         });
 
     addSoftware = () =>
         this.http.post<Software>(`/app/softwares/${this.newSoftware.name}`, {}).subscribe({
             next: (resp) => {
-                this.toast.info(this.translate.instant('sitnet_software_added'));
+                this.toast.info(this.translate.instant('i18n_software_added'));
                 this.software.push({ ...resp, showName: false });
                 this.newSoftware.name = '';
             },
@@ -53,7 +53,7 @@ export class SoftwareComponent implements OnInit {
     removeSoftware = (software: Software & { showName: boolean }) =>
         this.http.delete(`/app/softwares/${software.id}`).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_software_removed'));
+                this.toast.info(this.translate.instant('i18n_software_removed'));
                 this.software.splice(this.software.indexOf(software), 1);
             },
             error: (err) => this.toast.error(err),

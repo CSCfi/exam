@@ -27,26 +27,26 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
     template: `
         <div id="sitnet-header" class="header">
             <div class="header-wrapper">
-                <span class="header-text">{{ 'sitnet_edit_all_rooms' | translate }}</span>
+                <span class="header-text">{{ 'i18n_edit_all_rooms' | translate }}</span>
             </div>
         </div>
         <div id="dashboard">
             <div class="row ms-4 mt-4">
                 <div class="col-md-12">
                     <div class="row">
-                        <h3 class="col-auto header-text">{{ 'sitnet_exception_datetimes' | translate }}</h3>
+                        <h3 class="col-auto header-text">{{ 'i18n_exception_datetimes' | translate }}</h3>
                         <div class="col-12">
                             <button
                                 (click)="addMultiRoomException(true)"
                                 class="btn btn-sm btn-outline-dark marr20 marb10"
                             >
-                                {{ 'sitnet_add_out_of_service_time' | translate }}
+                                {{ 'i18n_add_out_of_service_time' | translate }}
                             </button>
                             <button
                                 (click)="addMultiRoomException(false)"
                                 class="btn btn-sm btn-outline-success marb10"
                             >
-                                {{ 'sitnet_add_extra_working_hour' | translate }}
+                                {{ 'i18n_add_extra_working_hour' | translate }}
                             </button>
                         </div>
                     </div>
@@ -61,16 +61,16 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                                     [(ngModel)]="allSelected"
                                     (change)="selectAll()"
                                     triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'sitnet_check_uncheck_all' | translate }}"
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    ngbPopover="{{ 'i18n_check_uncheck_all' | translate }}"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                                 />
                                 <label class="form-check-label marl5" for="flexCheckIndeterminate">
-                                    <strong>{{ 'sitnet_select_all_rooms' | translate }}</strong>
+                                    <strong>{{ 'i18n_select_all_rooms' | translate }}</strong>
                                 </label>
                             </div>
                             <div>
                                 <label class="form-check-label marl5 " for="flexCheckIndeterminate">
-                                    <strong>{{ 'sitnet_show_all' | translate }}</strong>
+                                    <strong>{{ 'i18n_show_all' | translate }}</strong>
                                 </label>
                                 <i
                                     class="user-select-none marl5"
@@ -92,7 +92,7 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                                         [(ngModel)]="room.selected"
                                     />
                                     <label class="form-check-label" for="room"
-                                        ><strong>{{ room.name || 'sitnet_no_name' | translate }}</strong></label
+                                        ><strong>{{ room.name || 'i18n_no_name' | translate }}</strong></label
                                     >
                                     <i
                                         class="user-select-none marl5"
@@ -117,10 +117,10 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
             </div>
             <div class="col-12">
                 <button (click)="addMultiRoomException(true)" class="btn btn-sm btn-outline-dark marr20 marb10">
-                    {{ 'sitnet_add_out_of_service_time' | translate }}
+                    {{ 'i18n_add_out_of_service_time' | translate }}
                 </button>
                 <button (click)="addMultiRoomException(false)" class="btn btn-sm btn-outline-success marb10">
-                    {{ 'sitnet_add_extra_working_hour' | translate }}
+                    {{ 'i18n_add_extra_working_hour' | translate }}
                 </button>
             </div>
         </div>
@@ -172,7 +172,7 @@ export class MultiRoomComponent implements OnInit, OnChanges {
             }
         });
         if (allExceptions.length === 0) {
-            this.toast.error(this.translate.instant('sitnet_select_room_error'));
+            this.toast.error(this.translate.instant('i18n_select_room_error'));
             return;
         }
         outOfService

@@ -240,7 +240,7 @@ export class CalendarService {
             ...event,
             start: startDate.toFormat('dd.MM.yyyy HH:mm'),
             end: endDate.toFormat('dd.MM.yyyy HH:mm'),
-            description: event.outOfService ? 'sitnet_closed' : 'sitnet_open',
+            description: event.outOfService ? 'i18n_closed' : 'i18n_open',
         };
     }
 }

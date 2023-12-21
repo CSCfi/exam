@@ -159,8 +159,8 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         exam =
             DB.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findOne();
         initExamSectionQuestions(exam);
-        exam.setExamActiveStartDate(DateTime.now().minusDays(1));
-        exam.setExamActiveEndDate(DateTime.now().plusDays(1));
+        exam.setPeriodStart(DateTime.now().minusDays(1));
+        exam.setPeriodEnd(DateTime.now().plusDays(1));
         exam.setHash(HASH);
         User owner = DB.find(User.class, 2L);
         exam.getExamOwners().add(owner);

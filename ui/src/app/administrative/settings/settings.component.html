@@ -1,13 +1,13 @@
 <div id="sitnet-header" class="header">
     <div class="col-md-12 header-wrapper">
-        <span class="header-text">{{ 'sitnet_settings' | translate }}</span>
+        <span class="header-text">{{ 'i18n_settings' | translate }}</span>
     </div>
 </div>
 
 <div id="dashboard">
     <div class="top-row" *ngIf="config">
         <div class="col-md-12 form-group">
-            <label for="editor">{{ 'sitnet_user_agreement' | translate }}</label>
+            <label for="editor">{{ 'i18n_user_agreement' | translate }}</label>
             <xm-ckeditor
                 id="editor"
                 #ck="ngModel"
@@ -22,14 +22,14 @@
     <div class="bottom-row mart10">
         <div class="col-md-12">
             <button (click)="updateAgreement()" class="btn btn-success">
-                {{ 'sitnet_button_save' | translate }}
+                {{ 'i18n_button_save' | translate }}
             </button>
         </div>
     </div>
 
     <div class="top-row" *ngIf="config">
         <div class="col-md-2 form-group max-w-350">
-            <label for="deadline">{{ 'sitnet_review_deadline' | translate }} ({{ 'sitnet_days' | translate }})</label>
+            <label for="deadline">{{ 'i18n_review_deadline' | translate }} ({{ 'i18n_days' | translate }})</label>
             <input
                 id="deadline"
                 name="deadline"
@@ -38,16 +38,16 @@
                 lang="en"
                 [min]="1"
                 [(ngModel)]="config.reviewDeadline"
-                ngbPopover="{{ 'sitnet_info_deadline' | translate }}"
+                ngbPopover="{{ 'i18n_info_deadline' | translate }}"
                 triggers="mouseenter:mouseleave"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
             />
         </div>
     </div>
     <div class="bottom-row mart10">
         <div class="col-md-12">
             <button (click)="updateDeadline()" class="btn btn-success">
-                {{ 'sitnet_button_save' | translate }}
+                {{ 'i18n_button_save' | translate }}
             </button>
         </div>
     </div>
@@ -55,7 +55,7 @@
     <div class="top-row" *ngIf="config">
         <div class="col-md-2 form-group max-w-350">
             <label for="reservationWindow"
-                >{{ 'sitnet_reservation_window' | translate }} ({{ 'sitnet_days' | translate }})</label
+                >{{ 'i18n_reservation_window' | translate }} ({{ 'i18n_days' | translate }})</label
             >
             <input
                 id="reservationWindow"
@@ -65,8 +65,8 @@
                 lang="en"
                 [min]="1"
                 [(ngModel)]="config.reservationWindowSize"
-                ngbPopover="{{ 'sitnet_info_reservation_window' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                ngbPopover="{{ 'i18n_info_reservation_window' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
             />
         </div>
@@ -74,32 +74,32 @@
     <div class="bottom-row mart10">
         <div class="col-md-12">
             <button (click)="updateReservationWindow()" class="btn btn-success">
-                {{ 'sitnet_button_save' | translate }}
+                {{ 'i18n_button_save' | translate }}
             </button>
         </div>
     </div>
 
     <div class="row mt-4 ms-2">
         <div class="col-md-6">
-            <strong>{{ 'sitnet_exam_instance_settings' | translate }}</strong>
+            <strong>{{ 'i18n_exam_instance_settings' | translate }}</strong>
             <ul *ngIf="config">
                 <li>
-                    <strong>{{ 'sitnet_interoperable' | translate }}:</strong>&nbsp;
+                    <strong>{{ 'i18n_interoperable' | translate }}:</strong>&nbsp;
                     <span *ngIf="config.isExamVisitSupported">{{ 'DIALOGS_YES' | translate }}</span>
                     <span *ngIf="!config.isExamVisitSupported">{{ 'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
-                    <strong>{{ 'sitnet_exam_collaboration_supported' | translate }}:</strong>&nbsp;
+                    <strong>{{ 'i18n_exam_collaboration_supported' | translate }}:</strong>&nbsp;
                     <span *ngIf="config.isExamCollaborationSupported">{{ 'DIALOGS_YES' | translate }}</span>
                     <span *ngIf="!config.isExamCollaborationSupported">{{ 'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
-                    <strong>{{ 'sitnet_anonymous_review' | translate }}:</strong>&nbsp;
+                    <strong>{{ 'i18n_anonymous_review' | translate }}:</strong>&nbsp;
                     <span *ngIf="config.anonymousReviewEnabled">{{ 'DIALOGS_YES' | translate }}</span>
                     <span *ngIf="!config.anonymousReviewEnabled">{{ 'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
-                    <strong>{{ 'sitnet_course_integration_support' | translate }}:</strong>&nbsp;
+                    <strong>{{ 'i18n_course_integration_support' | translate }}:</strong>&nbsp;
                     <span *ngIf="config.hasCourseSearchIntegration">{{ 'DIALOGS_YES' | translate }}</span>
                     <span *ngIf="!config.hasCourseSearchIntegration">{{ 'DIALOGS_NO' | translate }}</span>
                 </li>
@@ -109,26 +109,26 @@
                     </li>
                 </ul>
                 <li>
-                    <strong>{{ 'sitnet_enrolment_check_integration_support' | translate }}:</strong>&nbsp;
+                    <strong>{{ 'i18n_enrolment_check_integration_support' | translate }}:</strong>&nbsp;
                     <span *ngIf="config.hasEnrolmentCheckIntegration">{{ 'DIALOGS_YES' | translate }}</span>
                     <span *ngIf="!config.hasEnrolmentCheckIntegration">{{ 'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
-                    <strong>{{ 'sitnet_supports_maturity' | translate }}:</strong>&nbsp;
+                    <strong>{{ 'i18n_supports_maturity' | translate }}:</strong>&nbsp;
                     <span *ngIf="config.supportsMaturity">{{ 'DIALOGS_YES' | translate }}</span>
                     <span *ngIf="!config.supportsMaturity">{{ 'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
-                    <strong>{{ 'sitnet_supports_printouts' | translate }}:</strong>&nbsp;
+                    <strong>{{ 'i18n_supports_printouts' | translate }}:</strong>&nbsp;
                     <span *ngIf="config.supportsPrintouts">{{ 'DIALOGS_YES' | translate }}</span>
                     <span *ngIf="!config.supportsPrintouts">{{ 'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
-                    <strong>{{ 'sitnet_role_mapping' | translate }}</strong>
+                    <strong>{{ 'i18n_role_mapping' | translate }}</strong>
                 </li>
                 <ul>
                     <li>
-                        <strong>{{ 'sitnet_student' | translate }}:</strong>&nbsp;
+                        <strong>{{ 'i18n_student' | translate }}:</strong>&nbsp;
                         {{
                             config.roles.STUDENT.join(
                                 ',
@@ -137,7 +137,7 @@
                         }}
                     </li>
                     <li>
-                        <strong>{{ 'sitnet_teacher' | translate }}:</strong>&nbsp;
+                        <strong>{{ 'i18n_teacher' | translate }}:</strong>&nbsp;
                         {{
                             config.roles.TEACHER.join(
                                 ',
@@ -146,11 +146,11 @@
                         }}
                     </li>
                     <li>
-                        <strong>{{ 'sitnet_admin' | translate }}:</strong>&nbsp; {{ config.roles.ADMIN.join(', ') }}
+                        <strong>{{ 'i18n_admin' | translate }}:</strong>&nbsp; {{ config.roles.ADMIN.join(', ') }}
                     </li>
                 </ul>
                 <li>
-                    <strong>{{ 'sitnet_exam_durations' | translate }}:</strong>&nbsp;{{
+                    <strong>{{ 'i18n_exam_durations' | translate }}:</strong>&nbsp;{{
                         config.examDurations.join(
                             ',
                     '
@@ -158,29 +158,27 @@
                     }}
                 </li>
                 <li>
-                    <strong>{{ 'sitnet_grade_scale_overridable' | translate }}:</strong>&nbsp;
+                    <strong>{{ 'i18n_grade_scale_overridable' | translate }}:</strong>&nbsp;
                     <span *ngIf="!config.isGradeScaleOverridable">{{ 'DIALOGS_YES' | translate }}</span>
                     <span *ngIf="config.isGradeScaleOverridable">{{ 'DIALOGS_NO' | translate }}</span>
                 </li>
                 <li>
-                    <strong>{{ 'sitnet_attachment_max_size' | translate }}:</strong>&nbsp;{{
+                    <strong>{{ 'i18n_attachment_max_size' | translate }}:</strong>&nbsp;{{
                         config.maxFileSize / 1000000
                     }}
                     MB
                 </li>
                 <li>
-                    <strong>{{ 'sitnet_exam_expiration_period' | translate }}:</strong>&nbsp;{{
-                        config.expirationPeriod
-                    }}
+                    <strong>{{ 'i18n_exam_expiration_period' | translate }}:</strong>&nbsp;{{ config.expirationPeriod }}
                 </li>
 
                 <li>
-                    <strong>{{ 'sitnet_default_timezone' | translate }}:</strong>&nbsp;{{ config.defaultTimeZone }}
+                    <strong>{{ 'i18n_default_timezone' | translate }}:</strong>&nbsp;{{ config.defaultTimeZone }}
                 </li>
             </ul>
         </div>
         <div class="col-md-6">
-            <strong>{{ 'sitnet_show_http_headers' | translate }}</strong>
+            <strong>{{ 'i18n_show_http_headers' | translate }}</strong>
             <ul>
                 <li *ngFor="let item of attributes | keyvalue">
                     <strong>{{ item.key }}:</strong>&nbsp;{{ item.value }}

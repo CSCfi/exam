@@ -10,14 +10,14 @@
                             [(ngModel)]="allSelected"
                             (change)="selectAll()"
                             triggers="mouseenter:mouseleave"
-                            ngbPopover="{{ 'sitnet_check_uncheck_all' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            ngbPopover="{{ 'i18n_check_uncheck_all' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
                         />
                     </th>
                     <th>
                         <xm-table-sort
                             by="id"
-                            text="sitnet_question"
+                            text="i18n_question"
                             [predicate]="questionsPredicate"
                             [reverse]="reverse"
                             (click)="setPredicate('id')"
@@ -27,7 +27,7 @@
                     <th>
                         <xm-table-sort
                             by="modified"
-                            text="sitnet_modified"
+                            text="i18n_modified"
                             [predicate]="questionsPredicate"
                             [reverse]="reverse"
                             (click)="setPredicate('modified')"
@@ -37,7 +37,7 @@
                     <th>
                         <xm-table-sort
                             by="displayedMaxScore"
-                            text="sitnet_max_score"
+                            text="i18n_max_score"
                             [predicate]="questionsPredicate"
                             [reverse]="reverse"
                             (click)="setPredicate('displayedMaxScore')"
@@ -47,7 +47,7 @@
                     <th>
                         <xm-table-sort
                             by="typeOrd"
-                            text="sitnet_question_type"
+                            text="i18n_question_type"
                             [predicate]="questionsPredicate"
                             [reverse]="reverse"
                             (click)="setPredicate('typeOrd')"
@@ -57,28 +57,28 @@
                     <th>
                         <xm-table-sort
                             by="attachment.fileName"
-                            text="sitnet_attachment"
+                            text="i18n_attachment"
                             [predicate]="questionsPredicate"
                             [reverse]="reverse"
                             (click)="setPredicate('attachment.fileName')"
                         >
                         </xm-table-sort>
                     </th>
-                    <th>{{ 'sitnet_categories' | translate }}</th>
+                    <th>{{ 'i18n_categories' | translate }}</th>
                     <th>
                         <xm-table-sort
                             *ngIf="user.isAdmin"
                             by="ownerAggregate"
-                            text="sitnet_owner"
+                            text="i18n_owner"
                             [predicate]="questionsPredicate"
                             [reverse]="reverse"
                             (click)="setPredicate('ownerAggregate')"
                         >
                         </xm-table-sort>
                     </th>
-                    <th>{{ 'sitnet_remove' | translate }}</th>
-                    <th>{{ 'sitnet_copy' | translate }}</th>
-                    <th>{{ 'sitnet_used_in_exams' | translate }}</th>
+                    <th>{{ 'i18n_remove' | translate }}</th>
+                    <th>{{ 'i18n_copy' | translate }}</th>
+                    <th>{{ 'i18n_used_in_exams' | translate }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -101,7 +101,7 @@
                     <td class="question-table-name">
                         <span *ngIf="question.question" [xmMathJax]="question.question | slice : 0 : 360"> </span>
                         <span *ngIf="!question.question" class="text-danger">
-                            {{ 'sitnet_no_name' | translate }}
+                            {{ 'i18n_no_name' | translate }}
                         </span>
                         <div>
                             <span>
@@ -116,8 +116,8 @@
                                 <i
                                     *ngIf="question.questionOwners.length > 1"
                                     class="bi-people ps-2 text-primary"
-                                    ngbPopover="{{ 'sitnet_question_owners' | translate }}: {{ printOwners(question) }}"
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    ngbPopover="{{ 'i18n_question_owners' | translate }}: {{ printOwners(question) }}"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
                                 ></i>
                             </span>
@@ -133,17 +133,17 @@
                     <td>{{ showDisplayedScoreOrTranslate(question.displayedMaxScore) }}</td>
                     <td>
                         <span *ngIf="question.type === 'MultipleChoiceQuestion'">{{
-                            'sitnet_question_mc' | translate
+                            'i18n_question_mc' | translate
                         }}</span>
-                        <span *ngIf="question.type === 'EssayQuestion'">{{ 'sitnet_essay' | translate }}</span>
+                        <span *ngIf="question.type === 'EssayQuestion'">{{ 'i18n_essay' | translate }}</span>
                         <span *ngIf="question.type === 'WeightedMultipleChoiceQuestion'"
-                            >{{ 'sitnet_question_weighted_mc' | translate }}
+                            >{{ 'i18n_question_weighted_mc' | translate }}
                         </span>
                         <span *ngIf="question.type === 'ClozeTestQuestion'"
-                            >{{ 'sitnet_toolbar_cloze_test_question' | translate }}
+                            >{{ 'i18n_toolbar_cloze_test_question' | translate }}
                         </span>
                         <span *ngIf="question.type === 'ClaimChoiceQuestion'">
-                            {{ 'sitnet_toolbar_claim_choice_question' | translate }}
+                            {{ 'i18n_toolbar_claim_choice_question' | translate }}
                         </span>
                     </td>
                     <td class="question-table-name">
@@ -165,9 +165,9 @@
                         <a *ngIf="question.allowedToRemove" (click)="deleteQuestion(question)" class="pointer">
                             <i
                                 class="bi-trash"
-                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
                                 triggers="mouseenter:mouseleave"
-                                ngbPopover="{{ 'sitnet_exam_remove' | translate }}"
+                                ngbPopover="{{ 'i18n_exam_remove' | translate }}"
                             ></i>
                         </a>
                     </td>
@@ -175,9 +175,9 @@
                         <a (click)="copyQuestion(question)">
                             <i
                                 class="bi-files"
-                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
                                 triggers="mouseenter:mouseleave"
-                                ngbPopover="{{ 'sitnet_copy' | translate }}"
+                                ngbPopover="{{ 'i18n_copy' | translate }}"
                             ></i>
                         </a>
                     </td>
@@ -191,7 +191,7 @@
                     <td *ngIf="user.isAdmin"></td>
                 </tr>
                 <tr *ngIf="questions.length === 0">
-                    <td colspan="11">{{ 'sitnet_exam_library_no_results' | translate }}</td>
+                    <td colspan="11">{{ 'i18n_exam_library_no_results' | translate }}</td>
                     <td *ngIf="user.isAdmin"></td>
                 </tr>
             </tbody>

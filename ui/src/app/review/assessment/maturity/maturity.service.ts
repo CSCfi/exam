@@ -73,13 +73,13 @@ export class MaturityService {
 
     resolveHint = (exam: Exam) => {
         if (!this.isGraded(exam) && this.isMissingStatement(exam)) {
-            return `${this.translate.instant('sitnet_not_reviewed')}, ${this.translate.instant(
-                'sitnet_missing_content_statement',
+            return `${this.translate.instant('i18n_not_reviewed')}, ${this.translate.instant(
+                'i18n_missing_content_statement',
             )}`;
         } else if (this.isGraded(exam) && this.isMissingStatement(exam)) {
-            return this.translate.instant('sitnet_missing_content_statement');
+            return this.translate.instant('i18n_missing_content_statement');
         } else if (!this.isMissingStatement(exam) && !this.isGraded(exam)) {
-            return this.translate.instant('sitnet_not_reviewed');
+            return this.translate.instant('i18n_not_reviewed');
         }
         return '';
     };
@@ -88,7 +88,7 @@ export class MaturityService {
     MATURITY_STATES: States = {
         [StateName.NOT_REVIEWED]: {
             id: 1,
-            text: 'sitnet_not_reviewed',
+            text: 'i18n_not_reviewed',
             name: StateName.NOT_REVIEWED,
             canProceed: false,
             warn: false,
@@ -97,49 +97,49 @@ export class MaturityService {
         },
         [StateName.REJECT_STRAIGHTAWAY]: {
             id: 2,
-            text: 'sitnet_reject_maturity',
+            text: 'i18n_reject_maturity',
             name: StateName.REJECT_STRAIGHTAWAY,
             canProceed: true,
             warn: true,
         },
         [StateName.LANGUAGE_INSPECT]: {
             id: 3,
-            text: 'sitnet_send_for_language_inspection',
+            text: 'i18n_send_for_language_inspection',
             name: StateName.LANGUAGE_INSPECT,
             canProceed: true,
             warn: false,
         },
         [StateName.AWAIT_INSPECTION]: {
             id: 4,
-            text: 'sitnet_await_inspection',
+            text: 'i18n_await_inspection',
             name: StateName.AWAIT_INSPECTION,
             canProceed: false,
             warn: false,
         },
         [StateName.REJECT_LANGUAGE]: {
             id: 5,
-            text: 'sitnet_reject_maturity',
+            text: 'i18n_reject_maturity',
             name: StateName.REJECT_LANGUAGE,
             canProceed: true,
             warn: true,
             validate: this.canFinalizeInspection,
             showHint: this.isMissingStatement,
-            hint: () => 'sitnet_missing_statement',
+            hint: () => 'i18n_missing_statement',
         },
         [StateName.APPROVE_LANGUAGE]: {
             id: 6,
-            text: 'sitnet_approve_maturity',
+            text: 'i18n_approve_maturity',
             name: StateName.APPROVE_LANGUAGE,
             canProceed: true,
             warn: false,
             validate: this.canFinalizeInspection,
             showHint: this.isMissingStatement,
-            hint: () => 'sitnet_missing_statement',
+            hint: () => 'i18n_missing_statement',
             alternateState: StateName.REJECT_LANGUAGE,
         },
         [StateName.MISSING_STATEMENT]: {
             id: 9,
-            text: 'sitnet_missing_statement',
+            text: 'i18n_missing_statement',
             name: StateName.MISSING_STATEMENT,
             canProceed: false,
             warn: false,
@@ -184,7 +184,7 @@ export class MaturityService {
         switch (state) {
             case StateName.REJECT_STRAIGHTAWAY:
                 this.Assessment.rejectMaturity$(exam).subscribe(() => {
-                    this.toast.info(this.translate.instant('sitnet_maturity_rejected'));
+                    this.toast.info(this.translate.instant('i18n_maturity_rejected'));
                     const state = this.Assessment.getExitState(exam);
                     this.router.navigate(state.fragments, state.params);
                 });
@@ -229,8 +229,8 @@ export class MaturityService {
 
     private sendForLanguageInspection = (exam: Exam) =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_maturity_approval'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_confirm_maturity_approval'),
         )
             .pipe(
                 switchMap(() => this.Assessment.saveFeedback$(exam)),
@@ -242,15 +242,15 @@ export class MaturityService {
                 }),
             )
             .subscribe(() => {
-                this.toast.info(this.translate.instant('sitnet_sent_for_language_inspection'));
+                this.toast.info(this.translate.instant('i18n_sent_for_language_inspection'));
                 const state = this.Assessment.getExitState(exam);
                 this.router.navigate(state.fragments, state.params);
             });
 
     private finalizeLanguageInspection = (exam: Exam, reject: boolean) => {
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_language_inspection_approval'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_confirm_language_inspection_approval'),
         )
             .pipe(
                 switchMap(() => this.saveInspectionStatement$(exam)),
@@ -271,10 +271,10 @@ export class MaturityService {
             )
             .subscribe(() => {
                 if (reject) {
-                    this.toast.info(this.translate.instant('sitnet_maturity_rejected'));
+                    this.toast.info(this.translate.instant('i18n_maturity_rejected'));
                     this.router.navigate(['/staff/inspections']);
                 } else {
-                    this.toast.info(this.translate.instant('sitnet_review_recorded'));
+                    this.toast.info(this.translate.instant('i18n_review_recorded'));
                     this.router.navigate(['/staff/inspections']);
                 }
             });

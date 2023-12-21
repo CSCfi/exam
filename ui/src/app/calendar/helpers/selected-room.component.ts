@@ -20,7 +20,7 @@ import { CalendarService } from '../calendar.service';
         </div>
         <div class="row mt-2">
             <div class="col-md-2 col-12">
-                <div>{{ 'sitnet_room_default_working_hours' | translate }}</div>
+                <div>{{ 'i18n_room_default_working_hours' | translate }}</div>
                 <div>
                     <small class="text-muted">({{ room.localTimezone }})</small>
                 </div>
@@ -33,7 +33,7 @@ import { CalendarService } from '../calendar.service';
             </div>
         </div>
         <div class="row mt-2" *ngIf="maintenancePeriods.length > 0">
-            <div class="col-md-2 col-12">{{ 'sitnet_maintenance_periods' | translate }}:</div>
+            <div class="col-md-2 col-12">{{ 'i18n_maintenance_periods' | translate }}:</div>
             <div class="col-md-10 col-12">
                 <div *ngFor="let period of maintenancePeriods | orderBy : 'startsAt'">
                     {{ period.startsAt | date : 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date : 'dd.MM.yyyy HH:mm' }}
@@ -42,25 +42,25 @@ import { CalendarService } from '../calendar.service';
             </div>
         </div>
         <div class="row mt-2" *ngIf="exceptionHours.length > 0">
-            <div class="col-md-2 col-12">{{ 'sitnet_exception_datetimes' | translate }}:</div>
+            <div class="col-md-2 col-12">{{ 'i18n_exception_datetimes' | translate }}:</div>
             <div class="col-md-10 col-12">
                 <div
                     *ngFor="let eh of exceptionHours"
                     [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'"
                     triggers="mouseenter:mouseleave"
                     ngbPopover="{{ eh.description | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                 >
                     {{ eh.start }} - {{ eh.end }}
                 </div>
             </div>
         </div>
         <div class="row mt-2" *ngIf="getRoomInstructions()">
-            <div class="col-md-2 col-12">{{ 'sitnet_instructions' | translate }}:</div>
+            <div class="col-md-2 col-12">{{ 'i18n_instructions' | translate }}:</div>
             <div class="col-md-10 col-12">{{ getRoomInstructions() }}</div>
         </div>
         <div class="row mt-2" *ngIf="getRoomAccessibility()">
-            <div class="col-md-2 col-12">{{ 'sitnet_room_accessibility' | translate }}:</div>
+            <div class="col-md-2 col-12">{{ 'i18n_room_accessibility' | translate }}:</div>
             <div class="col-md-10 col-12">{{ getRoomAccessibility() }}</div>
         </div>
     `,

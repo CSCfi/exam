@@ -1,13 +1,13 @@
 <div id="room">
     <div class="row">
         <div class="col-md-12">
-            <h2 class="room-name-title">{{ 'sitnet_room_accessibility_info' | translate }}</h2>
+            <h2 class="room-name-title">{{ 'i18n_room_accessibility_info' | translate }}</h2>
         </div>
     </div>
     <div class="row ms-3">
         <div class="col-md-12">
             <form role="form">
-                <label for="new-accessibility-name" class="form-label">{{ 'sitnet_name' | translate }}</label>
+                <label for="new-accessibility-name" class="form-label">{{ 'i18n_name' | translate }}</label>
                 <input
                     type="text"
                     id="new-accessibility-name"
@@ -16,7 +16,7 @@
                     [(ngModel)]="newItem.name"
                 />
                 <button type="button" [disabled]="!newItem.name" (click)="add()" class="btn btn-primary mt-2">
-                    {{ 'sitnet_create_new' | translate }}
+                    {{ 'i18n_create_new' | translate }}
                 </button>
             </form>
         </div>
@@ -26,9 +26,9 @@
             <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th scope="col">{{ 'sitnet_name' | translate }}</th>
-                        <th scope="col">{{ 'sitnet_edit' | translate }}</th>
-                        <th scope="col">{{ 'sitnet_remove' | translate }}</th>
+                        <th scope="col">{{ 'i18n_name' | translate }}</th>
+                        <th scope="col">{{ 'i18n_edit' | translate }}</th>
+                        <th scope="col">{{ 'i18n_remove' | translate }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -52,7 +52,7 @@
                                             (click)="
                                                 accessibility.showName = !accessibility.showName; update(accessibility)
                                             "
-                                            >{{ 'sitnet_add' | translate }}</span
+                                            >{{ 'i18n_add' | translate }}</span
                                         >
                                     </div>
                                 </form>

@@ -67,7 +67,7 @@ export class ExaminationService {
         if (!answerObj) {
             throw new Error('no answer object in question');
         }
-        esq.questionStatus = this.translate.instant('sitnet_answer_saved');
+        esq.questionStatus = this.translate.instant('i18n_answer_saved');
         const url = this.getResource(
             type === 'EssayQuestion'
                 ? '/app/student/exam/' + hash + '/question/' + esq.id
@@ -84,7 +84,7 @@ export class ExaminationService {
                     esq.autosaved = new Date();
                 } else {
                     if (!canFail) {
-                        this.toast.info(this.translate.instant('sitnet_answer_saved'));
+                        this.toast.info(this.translate.instant('i18n_answer_saved'));
                     }
                 }
                 answerObj.objectVersion = a.objectVersion;
@@ -147,11 +147,11 @@ export class ExaminationService {
     setQuestionColors = (sectionQuestion: ExaminationQuestion) => {
         if (this.isAnswered(sectionQuestion)) {
             sectionQuestion.answered = true;
-            sectionQuestion.questionStatus = this.translate.instant('sitnet_question_answered');
+            sectionQuestion.questionStatus = this.translate.instant('i18n_question_answered');
             sectionQuestion.selectedAnsweredState = 'question-answered-header';
         } else {
             sectionQuestion.answered = false;
-            sectionQuestion.questionStatus = this.translate.instant('sitnet_question_unanswered');
+            sectionQuestion.questionStatus = this.translate.instant('i18n_question_unanswered');
             sectionQuestion.selectedAnsweredState = 'question-unanswered-header';
         }
     };
@@ -167,7 +167,7 @@ export class ExaminationService {
             const url = this.getResource('/app/student/exam/' + hash + '/question/' + sq.id + '/option');
             this.http.post(url, { oids: ids }).subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_answer_saved'));
+                    this.toast.info(this.translate.instant('i18n_answer_saved'));
                     sq.options.forEach((o) => (o.answered = ids.indexOf(o.id as number) > -1));
                     this.setQuestionColors(sq);
                 },

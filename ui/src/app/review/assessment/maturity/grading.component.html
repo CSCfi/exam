@@ -1,13 +1,13 @@
 <!-- language inspection - verdict -->
 <div class="detail-row marb20 mart20" *ngIf="hasGoneThroughLanguageInspection()">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_language_inspections' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_language_inspections' | translate }}:</div>
     <div class="col-md-10 general-info-content">
         <span [ngClass]="exam.languageInspection.approved ? 'text-success' : 'text-danger'">
             <span *ngIf="exam.languageInspection.approved">
-                {{ 'sitnet_approved' | translate | uppercase }}
+                {{ 'i18n_approved' | translate | uppercase }}
             </span>
             <span *ngIf="!exam.languageInspection.approved">
-                {{ 'sitnet_rejected' | translate | uppercase }}
+                {{ 'i18n_rejected' | translate | uppercase }}
             </span>
         </span>
     </div>
@@ -18,7 +18,7 @@
 
 <!-- language inspection - inspector -->
 <div class="detail-row mart20" *ngIf="hasGoneThroughLanguageInspection()">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_language_inspector' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_language_inspector' | translate }}:</div>
     <div class="col-md-10 general-info-content" *ngIf="exam.languageInspection">
         {{ exam.languageInspection.modifier.firstName }} {{ exam.languageInspection.modifier.lastName }}
     </div>
@@ -26,7 +26,7 @@
 
 <!-- language inspection - statement -->
 <div class="detail-row mart20" *ngIf="hasGoneThroughLanguageInspection()">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_inspector_statement' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_inspector_statement' | translate }}:</div>
     <div class="col-md-10 general-info-content">
         <div [xmMathJax]="exam.languageInspection.statement.comment"></div>
     </div>
@@ -36,7 +36,7 @@
     class="detail-row mart20"
     *ngIf="hasGoneThroughLanguageInspection() && exam.languageInspection?.statement?.attachment"
 >
-    <div class="col-md-2 general-info-title">{{ 'sitnet_statement_attachment' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_statement_attachment' | translate }}:</div>
     <div class="col-md-10 general-info-content">
         <a class="pointer" (click)="downloadStatementAttachment()">
             {{ exam.languageInspection?.statement?.attachment?.fileName }}
@@ -46,7 +46,7 @@
 
 <!-- inspection creator -->
 <div class="detail-row mart20" *ngIf="isReadOnly() || isUnderLanguageInspection()">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_inspector_name' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_inspector_name' | translate }}:</div>
     <div class="col-md-10 general-info-content" *ngIf="exam.languageInspection">
         {{ exam.languageInspection.creator.firstName }} {{ exam.languageInspection.creator.lastName }}
     </div>
@@ -54,7 +54,7 @@
 
 <!-- exam feedback -->
 <div class="detail-row mart20" *ngIf="isReadOnly() || isUnderLanguageInspection()">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_teachers_comment' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_teachers_comment' | translate }}:</div>
     <div class="col-md-10 general-info-content">
         <div [xmMathJax]="exam.examFeedback.comment"></div>
     </div>
@@ -64,10 +64,10 @@
     <!-- extra info for registry -->
     <div class="detail-row mart20">
         <div class="col-md-2 general-info-title">
-            {{ 'sitnet_additional_info_for_registry' | translate }}:
+            {{ 'i18n_additional_info_for_registry' | translate }}:
             <sup
-                ngbPopover="{{ 'sitnet_additional_info_for_registry_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                ngbPopover="{{ 'i18n_additional_info_for_registry_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
                 ><img
                     src="/assets/images/icon_tooltip.svg"
@@ -90,11 +90,11 @@
     <div class="row padr15 marl15 mart30">
         <!-- This stuff could form a component of its own -->
         <div class="col-md-3 grading-title">
-            {{ 'sitnet_exam_review_maturity_evaluation' | translate | uppercase }}
+            {{ 'i18n_exam_review_maturity_evaluation' | translate | uppercase }}
         </div>
-        <div class="col-md-3 grading-title">{{ 'sitnet_exam_choose_credit_type' | translate | uppercase }}</div>
-        <div class="col-md-3 grading-title">{{ 'sitnet_exam_record_language' | translate | uppercase }}</div>
-        <div class="col-md-3 grading-title">{{ 'sitnet_exam_credit' | translate | uppercase }} (op):</div>
+        <div class="col-md-3 grading-title">{{ 'i18n_exam_choose_credit_type' | translate | uppercase }}</div>
+        <div class="col-md-3 grading-title">{{ 'i18n_exam_record_language' | translate | uppercase }}</div>
+        <div class="col-md-3 grading-title">{{ 'i18n_exam_credit' | translate | uppercase }} (op):</div>
     </div>
 
     <div class="row padr15 marl15">
@@ -109,7 +109,7 @@
                 required
             >
                 <option *ngFor="let grade of grades" [ngValue]="grade">{{ grade.name }}</option>
-                <option value="" [selected]="!exam.grade">{{ 'sitnet_choose' | translate }}</option>
+                <option value="" [selected]="!exam.grade">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>
         <div class="col-md-3 general-info-title">
@@ -123,7 +123,7 @@
                 required
             >
                 <option *ngFor="let type of creditTypes" [ngValue]="type">{{ type.name }}</option>
-                <option value="">{{ 'sitnet_choose' | translate }}</option>
+                <option value="">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>
         <div class="col-md-3 general-info-title">
@@ -137,7 +137,7 @@
                 required
             >
                 <option *ngFor="let lang of languages" [ngValue]="lang">{{ lang.name }}</option>
-                <option value="">{{ 'sitnet_choose' | translate }}</option>
+                <option value="">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>
         <div class="col-md-3 general-info-title">

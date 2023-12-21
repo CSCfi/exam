@@ -96,10 +96,10 @@ export class ClozeTestComponent implements OnInit {
                   this.ref,
                   this.participation._rev as string,
               ).subscribe((resp) => {
-                  this.toast.info(this.translate.instant('sitnet_graded'));
+                  this.toast.info(this.translate.instant('i18n_graded'));
                   this.scored.emit(resp.rev);
               })
             : this.Assessment.saveForcedScore(this.sectionQuestion).subscribe(() =>
-                  this.toast.info(this.translate.instant('sitnet_graded')),
+                  this.toast.info(this.translate.instant('i18n_graded')),
               );
 }

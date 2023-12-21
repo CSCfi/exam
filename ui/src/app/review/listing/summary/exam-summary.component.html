@@ -1,18 +1,18 @@
 <div class="row ms-2 me-2">
     <div class="mart40" *ngIf="!collaborative">
         <div class="review-list-title">
-            {{ 'sitnet_exam_basic_information' | translate }}
+            {{ 'i18n_exam_basic_information' | translate }}
         </div>
     </div>
 
     <div>
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_name' | translate }}
+                {{ 'i18n_exam_name' | translate }}
                 <sup
                     class="padl05"
-                    ngbPopover="{{ 'sitnet_exam_name_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_name_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -26,11 +26,11 @@
         </div>
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_course_name' | translate }}
+                {{ 'i18n_course_name' | translate }}
                 <sup
                     class="padl05"
-                    ngbPopover="{{ 'sitnet_course_name_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_course_name_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -44,11 +44,11 @@
         </div>
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_validity' | translate }}
+                {{ 'i18n_exam_validity' | translate }}
                 <sup
                     class="padl05"
-                    ngbPopover="{{ 'sitnet_exam_validity_period_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_validity_period_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -59,18 +59,18 @@
                 </sup>
             </div>
             <div class="col-md-6">
-                {{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }} -
-                {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}
+                {{ exam.periodStart | date : 'dd.MM.yyyy' }} -
+                {{ exam.periodEnd | date : 'dd.MM.yyyy' }}
             </div>
         </div>
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_amount_questions' | translate }}
+                {{ 'i18n_exam_amount_questions' | translate }}
                 <sup
                     class="padl05"
-                    ngbPopover="{{ 'sitnet_exam_amount_questions_description' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_amount_questions_description' | translate }}"
                     triggers="mouseenter:mouseleave"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                 >
                     <img
                         src="/assets/images/icon_tooltip.svg"
@@ -85,12 +85,12 @@
         </div>
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_amount_reservations' | translate }} /
-                {{ 'sitnet_exam_amount_participations' | translate }}
+                {{ 'i18n_exam_amount_reservations' | translate }} /
+                {{ 'i18n_exam_amount_participations' | translate }}
                 <sup
                     class="padl05"
-                    ngbPopover="{{ 'sitnet_exam_amount_reservations_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_amount_reservations_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -108,11 +108,11 @@
         </div>
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_average_time' | translate }}
+                {{ 'i18n_exam_average_time' | translate }}
                 <sup
                     class="padl05"
-                    ngbPopover="{{ 'sitnet_exam_average_time_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_average_time_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -126,11 +126,11 @@
         </div>
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_aborted_exams' | translate }}
+                {{ 'i18n_aborted_exams' | translate }}
                 <sup
                     class="padl05"
-                    ngbPopover="{{ 'sitnet_aborted_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_aborted_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -148,11 +148,11 @@
         </div>
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_no_shows' | translate }}
+                {{ 'i18n_no_shows' | translate }}
                 <sup
                     class="padl05"
-                    ngbPopover="{{ 'sitnet_no_shows_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_no_shows_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -171,17 +171,17 @@
 
         <div class="row mart40">
             <div class="col-md-12 review-list-title">
-                {{ 'sitnet_feedback_summary' | translate }}
+                {{ 'i18n_feedback_summary' | translate }}
             </div>
         </div>
 
         <div class="row margin-20">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_feedback_messages_read' | translate }}
+                {{ 'i18n_feedback_messages_read' | translate }}
                 <sup
                     class="padl05"
-                    ngbPopover="{{ 'sitnet_feedback_summary_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_feedback_summary_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -200,11 +200,11 @@
 
         <div class="row mart40">
             <div class="col-md-12 review-list-title">
-                {{ 'sitnet_exam_grade_distribution' | translate }}
+                {{ 'i18n_exam_grade_distribution' | translate }}
                 <sup
                     class="padl05"
-                    ngbPopover="{{ 'sitnet_exam_grade_distribution_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_grade_distribution_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -224,11 +224,11 @@
 
         <div class="row mart40">
             <div class="col-md-12 review-list-title">
-                {{ 'sitnet_section_averages' | translate }}
+                {{ 'i18n_section_averages' | translate }}
                 <sup
                     class="padl05"
-                    ngbPopover="{{ 'sitnet_section_averages_tooltip' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_section_averages_tooltip' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -253,7 +253,7 @@
 
         <div class="row mart40">
             <div class="col-md-12 review-list-title">
-                {{ 'sitnet_exam_grade_time' | translate }}
+                {{ 'i18n_exam_grade_time' | translate }}
             </div>
         </div>
         <div class="row mart40">
@@ -264,7 +264,7 @@
 
         <div class="row mart40">
             <div class="col-md-12 review-list-title">
-                {{ 'sitnet_examination_time_distribution' | translate }}
+                {{ 'i18n_examination_time_distribution' | translate }}
             </div>
         </div>
         <div class="row mart40">
@@ -275,7 +275,7 @@
 
         <div class="row mart40">
             <div class="col-md-12 review-list-title">
-                {{ 'sitnet_question_score_statistics' | translate }}
+                {{ 'i18n_question_score_statistics' | translate }}
             </div>
         </div>
         <div class="row mart40">
@@ -286,7 +286,7 @@
 
         <div class="row mart40">
             <div class="col-md-12 review-list-title">
-                {{ 'sitnet_question_approval_statistics' | translate }}
+                {{ 'i18n_question_approval_statistics' | translate }}
             </div>
         </div>
         <div class="row mart40">
@@ -297,14 +297,14 @@
 
         <div class="row mart40">
             <div class="col-md-12 review-list-title">
-                {{ 'sitnet_exam_question_scores_report' | translate }}
+                {{ 'i18n_exam_question_scores_report' | translate }}
             </div>
         </div>
 
         <div class="row" *ngIf="reviews.length > 0">
             <div class="col-md-12 margin-20">
                 <a class="pointer" (click)="printQuestionScoresReport()">
-                    {{ 'sitnet_exam_print_question_scores_report' | translate }}
+                    {{ 'i18n_exam_print_question_scores_report' | translate }}
                 </a>
             </div>
         </div>

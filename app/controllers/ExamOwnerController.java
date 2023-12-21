@@ -64,7 +64,7 @@ public class ExamOwnerController extends BaseController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
         exam.getExamOwners().add(owner);
         exam.update();
@@ -81,7 +81,7 @@ public class ExamOwnerController extends BaseController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
         if (owner != null) {
             exam.getExamOwners().remove(owner);

@@ -3,18 +3,14 @@
     <div class="col-md-12">
         <div class="row marr30 padt40">
             <div class="col-md-12">
-                <div class="review-list-title">{{ 'sitnet_publish_timetable' | translate }}</div>
+                <div class="review-list-title">{{ 'i18n_publish_timetable' | translate }}</div>
             </div>
         </div>
         <div class="row mt-2" [hidden]="exam.executionType.type !== 'PRINTOUT'">
             <!-- examination dates -->
-            <div class="col-md-3 exam-basic-title padl0">{{ 'sitnet_examination_dates' | translate }}</div>
+            <div class="col-md-3 exam-basic-title padl0">{{ 'i18n_examination_dates' | translate }}</div>
             <div class="col-md-4">
-                <xm-date-picker
-                    [extra]="true"
-                    extraText="sitnet_add"
-                    (extraActionHappened)="addExaminationDate($event)"
-                >
+                <xm-date-picker [extra]="true" extraText="i18n_add" (extraActionHappened)="addExaminationDate($event)">
                 </xm-date-picker>
             </div>
         </div>
@@ -26,7 +22,7 @@
                         <button
                             class="reviewer-remove"
                             (click)="removeExaminationDate(ed)"
-                            title="{{ 'sitnet_remove' | translate }}"
+                            title="{{ 'i18n_remove' | translate }}"
                         >
                             <img
                                 src="/assets/images/icon_remove.svg"
@@ -44,19 +40,19 @@
                     <!-- Start & End time datepickers -->
                     <div class="row">
                         <div class="col-md-3 offset-md-3">
-                            <div class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate | uppercase }}</div>
+                            <div class="exam-basic-selecttitle">{{ 'i18n_begin' | translate | uppercase }}</div>
                         </div>
                         <div class="col-md-3">
-                            <div class="exam-basic-selecttitle">{{ 'sitnet_end' | translate | uppercase }}</div>
+                            <div class="exam-basic-selecttitle">{{ 'i18n_end' | translate | uppercase }}</div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-3">
                             <div class="exam-basic-title">
-                                {{ 'sitnet_exam_validity' | translate }}
+                                {{ 'i18n_exam_validity' | translate }}
                                 <sup
-                                    ngbPopover="{{ 'sitnet_exam_validity_description' | translate }}"
-                                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                    ngbPopover="{{ 'i18n_exam_validity_description' | translate }}"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
                                 >
                                     <img
@@ -68,20 +64,17 @@
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <xm-date-picker
-                                [initialDate]="exam.examActiveStartDate"
-                                (updated)="startDateChanged($event)"
-                            >
+                            <xm-date-picker [initialDate]="exam.periodStart" (updated)="startDateChanged($event)">
                             </xm-date-picker>
                         </div>
                         <div class="col-md-3">
-                            <xm-date-picker [initialDate]="exam.examActiveEndDate" (updated)="endDateChanged($event)">
+                            <xm-date-picker [initialDate]="exam.periodEnd" (updated)="endDateChanged($event)">
                             </xm-date-picker>
                         </div>
                         <div class="col-md-3" [hidden]="!exam.hasEnrolmentsInEffect">
                             <span class="text-info" role="note">
                                 <img class="arrow_icon" alt="" src="/assets/images/icon_info.png" />
-                                {{ 'sitnet_restricting_validity_change_disallowed' | translate }}
+                                {{ 'i18n_restricting_validity_change_disallowed' | translate }}
                             </span>
                         </div>
                     </div>
@@ -92,11 +85,11 @@
         <!-- Examination events -->
         <div class="row mt-2" *ngIf="exam.implementation !== 'AQUARIUM'">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_examination_events' | translate }}
+                {{ 'i18n_examination_events' | translate }}
                 <sup
                     triggers="mouseenter:mouseleave"
-                    ngbPopover="{{ 'sitnet_examination_events_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_examination_events_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                 >
                     <img
                         src="/assets/images/icon_tooltip.svg"
@@ -107,7 +100,7 @@
             </div>
             <div class="col-md-3">
                 <button type="button" (click)="addExaminationEvent()" class="btn btn-primary green">
-                    {{ 'sitnet_add_examination_event' | translate }}
+                    {{ 'i18n_add_examination_event' | translate }}
                 </button>
             </div>
             <div class="col-md-6 justify-content-center">
@@ -117,7 +110,7 @@
                         class="list-inline-item marb20"
                     >
                         <span
-                            title="{{ 'sitnet_edit' | translate }}"
+                            title="{{ 'i18n_edit' | translate }}"
                             (click)="modifyExaminationEvent(config)"
                             class="pointer examination-event-list-item rounded-start"
                         >
@@ -129,17 +122,14 @@
                             (click)="removeExaminationEvent(config)"
                             class="text text-danger pointer"
                         >
-                            <i
-                                title="{{ 'sitnet_remove' | translate }}"
-                                class="bi-x rounded-end background-gray pad6"
-                            ></i
+                            <i title="{{ 'i18n_remove' | translate }}" class="bi-x rounded-end background-gray pad6"></i
                         ></span>
 
                         <span
                             *ngIf="config.examEnrolments.length > 0"
                             class="rounded-end text text-muted background-gray pad6"
                         >
-                            <i title="{{ 'sitnet_event_enrolments_exist' | translate }}" class="bi-x"></i>
+                            <i title="{{ 'i18n_event_enrolments_exist' | translate }}" class="bi-x"></i>
                         </span>
                     </li>
                 </ul>
@@ -149,10 +139,10 @@
         <!-- Exam length -->
         <div class="row mt-2">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_duration' | translate }} ({{ 'sitnet_minutes' | translate }}):
+                {{ 'i18n_exam_duration' | translate }} ({{ 'i18n_minutes' | translate }}):
                 <sup
-                    ngbPopover="{{ 'sitnet_exam_duration_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_duration_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -175,7 +165,7 @@
                 </span>
                 <span *ngIf="exam.implementation === 'WHATEVER' || exam.implementation === 'CLIENT_AUTH'">
                     <button class="btn btn-primary green marl30" (click)="toggleCustomTimeField()">
-                        {{ 'sitnet_custom' | translate }} {{ ('sitnet_exam_time' | translate).toLowerCase() }}
+                        {{ 'i18n_custom' | translate }} {{ ('i18n_exam_time' | translate).toLowerCase() }}
                         <img
                             *ngIf="this.showCustomTimeField"
                             class="rotate90"
@@ -197,7 +187,7 @@
                                     [min]="0"
                                     (change)="setHourValue($event)"
                                 />
-                                <label for="hourValue">{{ 'sitnet_hours' | translate }}</label>
+                                <label for="hourValue">{{ 'i18n_hours' | translate }}</label>
                             </div>
                             <div class="mart10">
                                 <input
@@ -210,30 +200,30 @@
                                     [min]="0"
                                     (change)="setMinuteValue($event)"
                                 />
-                                <label for="minuteValue">{{ 'sitnet_minutes' | translate }}</label>
+                                <label for="minuteValue">{{ 'i18n_minutes' | translate }}</label>
                             </div>
                             <button
                                 class="btn btn-primary green mart10"
                                 (click)="setExamDuration(hourValue, minuteValue)"
                             >
-                                {{ 'sitnet_save_custom_time' | translate }}
+                                {{ 'i18n_save_custom_time' | translate }}
                             </button>
                         </div>
                         <div>
-                            {{ 'sitnet_between' | translate }}: {{ toHoursAndMinutes(minDuration) }} -
+                            {{ 'i18n_between' | translate }}: {{ toHoursAndMinutes(minDuration) }} -
                             {{ toHoursAndMinutes(maxDuration) }}
                         </div>
                     </div>
                 </span>
                 <div class="marl50 mart10">
-                    {{ 'sitnet_saved' | translate }} {{ ('sitnet_exam_duration' | translate).toLowerCase() }}:
+                    {{ 'i18n_saved' | translate }} {{ ('i18n_exam_duration' | translate).toLowerCase() }}:
                     {{ toHoursAndMinutes(exam.duration) }}
                 </div>
             </div>
         </div>
         <div class="row mt-2 marr30" [hidden]="exam.executionType.type === 'PRINTOUT'">
             <div class="col-md-12 margin-20">
-                <div class="review-list-title">{{ 'sitnet_other_publication_settings' | translate }}</div>
+                <div class="review-list-title">{{ 'i18n_other_publication_settings' | translate }}</div>
             </div>
         </div>
         <div
@@ -241,10 +231,10 @@
             [hidden]="exam.executionType.type === 'MATURITY' || exam.executionType.type === 'PRINTOUT'"
         >
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_publish_max_count' | translate }}
+                {{ 'i18n_publish_max_count' | translate }}
                 <sup
-                    ngbPopover="{{ 'sitnet_exam_trial_count_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_trial_count_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -277,22 +267,22 @@
                     1
                 </button>
                 <span *ngIf="exam.executionType.type === 'PRIVATE'" class="text-muted">
-                    ({{ 'sitnet_private_exam_trial_count_description' | translate }})</span
+                    ({{ 'i18n_private_exam_trial_count_description' | translate }})</span
                 >
             </div>
         </div>
 
         <div class="row mt-2" *ngIf="!collaborative" [hidden]="exam.executionType.type === 'PUBLIC'">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_add_participants_title' | translate }}
+                {{ 'i18n_exam_add_participants_title' | translate }}
             </div>
             <div class="col-md-9 participant-selector-toggle">
                 <label>
                     <input type="radio" [(ngModel)]="visibleParticipantSelector" value="participant" />
-                    {{ 'sitnet_exam_participant_selector_label' | translate }}
+                    {{ 'i18n_exam_participant_selector_label' | translate }}
                     <sup
-                        ngbPopover="{{ 'sitnet_exam_participants_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_exam_participants_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                         ><img
                             src="/assets/images/icon_tooltip.svg"
@@ -302,10 +292,10 @@
                 </label>
                 <label>
                     <input type="radio" [(ngModel)]="visibleParticipantSelector" value="pre-participant" />
-                    {{ 'sitnet_exam_pre_participant_selector_label' | translate }}
+                    {{ 'i18n_exam_pre_participant_selector_label' | translate }}
                     <sup
-                        ngbPopover="{{ 'sitnet_exam_pre_participants_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_exam_pre_participants_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                         ><img
                             src="/assets/images/icon_tooltip.svg"
@@ -345,10 +335,10 @@
         <div class="row marr30" *ngIf="exam.executionType.type === 'PUBLIC' && !collaborative">
             <div class="col-md-12 mart40">
                 <div class="review-list-title">
-                    {{ 'sitnet_enrolment_url' | translate }}
+                    {{ 'i18n_enrolment_url' | translate }}
                     <sup
-                        ngbPopover="{{ 'sitnet_enrolment_url_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_enrolment_url_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
                         <img
@@ -373,19 +363,19 @@
             <div class="col-md-12 marb20">
                 <span class="float-end">
                     <div class="review-attachment-button exam-questions-buttons">
-                        <a class="pointer preview" (click)="previewExam(4)"> {{ 'sitnet_preview' | translate }}</a>
+                        <a class="pointer preview" (click)="previewExam(4)"> {{ 'i18n_preview' | translate }}</a>
                     </div>
                     <div class="review-attachment-button exam-questions-buttons marl10">
-                        <a class="pointer" (click)="updateExam()"> {{ 'sitnet_save' | translate }}</a>
+                        <a class="pointer" (click)="updateExam()"> {{ 'i18n_save' | translate }}</a>
                     </div>
                     <div
                         [hidden]="exam.state === 'PUBLISHED'"
                         class="review-attachment-button exam-questions-buttons marl10"
                     >
                         <a class="pointer" (click)="saveAndPublishExam()">
-                            <span *ngIf="!isDraftCollaborativeExam()">{{ 'sitnet_save_and_publish' | translate }}</span>
+                            <span *ngIf="!isDraftCollaborativeExam()">{{ 'i18n_save_and_publish' | translate }}</span>
                             <span *ngIf="isDraftCollaborativeExam()">{{
-                                'sitnet_save_and_pre_publish' | translate
+                                'i18n_save_and_pre_publish' | translate
                             }}</span></a
                         >
                     </div>
@@ -394,7 +384,7 @@
                         class="review-attachment-button exam-questions-buttons marl10"
                     >
                         <a class="pointer warning" (click)="unpublishExam()">
-                            {{ 'sitnet_unpublish_exam' | translate }}
+                            {{ 'i18n_unpublish_exam' | translate }}
                         </a>
                     </div>
                 </span>
@@ -404,7 +394,7 @@
             <div class="col-md-12 marb20 padt20 grey-top">
                 <div class="review-attachment-button exam-questions-buttons">
                     <a class="pointer preview" (click)="previousTab()">
-                        &#171; {{ 'sitnet_exam_assessment_settings' | translate }}</a
+                        &#171; {{ 'i18n_exam_assessment_settings' | translate }}</a
                     >
                 </div>
             </div>

@@ -28,12 +28,12 @@ export class ErrorInterceptor implements HttpInterceptor {
             catchError((response: HttpErrorResponse) => {
                 if (response.status === 0 || response.status === 504) {
                     // connection failure
-                    return throwError(() => this.translate.instant('sitnet_connection_refused'));
+                    return throwError(() => this.translate.instant('i18n_connection_refused'));
                 } else if (typeof response.error === 'string') {
                     return throwError(() => this.translate.instant(response.error));
                 } else {
                     // undefined error object
-                    return throwError(() => this.translate.instant('sitnet_unexpected_error'));
+                    return throwError(() => this.translate.instant('i18n_unexpected_error'));
                 }
             }),
         );

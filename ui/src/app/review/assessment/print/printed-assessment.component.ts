@@ -132,7 +132,7 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
         return this.exam.examInspections.length + owners.length;
     };
 
-    translateState = (participation: PreviousParticipation) => 'sitnet_exam_status_' + participation.exam.state;
+    translateState = (participation: PreviousParticipation) => 'i18n_exam_status_' + participation.exam.state;
 
     private handleParticipations = (data: ExamParticipation[]) => {
         if (this.collaborative) {

@@ -33,7 +33,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                     [queryParams]="getExitState().params"
                     [hidden]="(!isReadOnly() && isOwnerOrAdmin()) || (!isReadOnly() && !isGraded())"
                 >
-                    {{ 'sitnet_close' | translate }}
+                    {{ 'i18n_close' | translate }}
                 </a>
             </div>
 
@@ -44,7 +44,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                     [disabled]="!isOwnerOrAdmin() || !valid"
                     (click)="rejectMaturity()"
                 >
-                    {{ 'sitnet_reject_maturity' | translate }}
+                    {{ 'i18n_reject_maturity' | translate }}
                 </button>
             </div>
 
@@ -53,18 +53,18 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                     class="pointer"
                     [disabled]="isReadOnly()"
                     (click)="saveAssessment()"
-                    ngbPopover="{{ 'sitnet_save_changes_popover_info' | translate }}"
+                    ngbPopover="{{ 'i18n_save_changes_popover_info' | translate }}"
                     triggers="mouseenter:mouseleave"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                 >
-                    {{ 'sitnet_save_changes' | translate }}
+                    {{ 'i18n_save_changes' | translate }}
                 </button>
             </div>
             <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10 mart40">
                 <span
                     class="disabled-button-popover-wrapper"
-                    ngbPopover="{{ 'sitnet_send_result_to_registry_popover_info' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_send_result_to_registry_popover_info' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <button
@@ -73,7 +73,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                         [disabled]="!isOwnerOrAdmin() || !valid"
                         (click)="createExamRecord()"
                     >
-                        {{ 'sitnet_send_result_to_registry' | translate }}
+                        {{ 'i18n_send_result_to_registry' | translate }}
                     </button>
                 </span>
             </div>
@@ -126,7 +126,7 @@ export class ToolbarComponent implements OnInit {
         } else {
             this.Assessment.doesPreviouslyLockedAssessmentsExist$(this.exam).subscribe((setting) => {
                 this.Assessment.createExamRecord$(this.exam, true, setting.status === 'everything').subscribe(() => {
-                    this.toast.info(this.translate.instant('sitnet_review_recorded'));
+                    this.toast.info(this.translate.instant('i18n_review_recorded'));
                     const state = this.getExitState();
                     this.router.navigate(state.fragments, { queryParams: state.params });
                 });
@@ -136,7 +136,7 @@ export class ToolbarComponent implements OnInit {
 
     rejectMaturity = () =>
         this.Assessment.rejectMaturity$(this.exam).subscribe(() => {
-            this.toast.info(this.translate.instant('sitnet_maturity_rejected'));
+            this.toast.info(this.translate.instant('i18n_maturity_rejected'));
             const state = this.getExitState();
             this.router.navigate(state.fragments, { queryParams: state.params });
         });

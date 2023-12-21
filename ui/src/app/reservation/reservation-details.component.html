@@ -4,7 +4,7 @@
             <th class="reservation-search">
                 <xm-table-sort
                     by="userAggregate"
-                    text="sitnet_student"
+                    text="i18n_student"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('userAggregate')"
@@ -14,7 +14,7 @@
             <th class="reservation-search">
                 <xm-table-sort
                     by="enrolment.exam.name"
-                    text="sitnet_exam"
+                    text="i18n_exam"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('enrolment.exam.name')"
@@ -24,7 +24,7 @@
             <th class="reservation-search">
                 <xm-table-sort
                     by="enrolment.exam.course.code"
-                    text="sitnet_examcode"
+                    text="i18n_examcode"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('enrolment.exam.course.code')"
@@ -34,7 +34,7 @@
             <th class="reservation-search">
                 <xm-table-sort
                     by="enrolment.teacherAggregate"
-                    text="sitnet_teachers"
+                    text="i18n_teachers"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('enrolment.teacherAggregate')"
@@ -44,7 +44,7 @@
             <th class="reservation-search">
                 <xm-table-sort
                     by="startAt"
-                    text="sitnet_date_time"
+                    text="i18n_date_time"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('startAt')"
@@ -54,7 +54,7 @@
             <th class="reservation-search">
                 <xm-table-sort
                     by="machine.room.name"
-                    text="sitnet_examination_location_and_machine"
+                    text="i18n_examination_location_and_machine"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('machine.room.name')"
@@ -64,16 +64,16 @@
             <th class="reservation-search">
                 <xm-table-sort
                     by="stateOrd"
-                    text="sitnet_exam_state"
+                    text="i18n_exam_state"
                     [predicate]="predicate"
                     [reverse]="reverse"
                     (click)="setPredicate('stateOrd')"
                 >
                 </xm-table-sort>
             </th>
-            <th class="reservation-search" *ngIf="isAdminView">{{ 'sitnet_remove_reservation' | translate }}</th>
+            <th class="reservation-search" *ngIf="isAdminView">{{ 'i18n_remove_reservation' | translate }}</th>
             <th class="reservation-search" *ngIf="isAdminView">
-                {{ 'sitnet_change_reservation_machine' | translate }}
+                {{ 'i18n_change_reservation_machine' | translate }}
             </th>
         </tr>
     </thead>
@@ -128,14 +128,14 @@
                 </td>
             </ng-template>
             <td class="reservation-search text-primary" *ngIf="r.enrolment.exam.external">
-                {{ 'sitnet_exam_status_external' | translate }}
+                {{ 'i18n_exam_status_external' | translate }}
             </td>
 
             <td class="reservation-search" *ngIf="!r.enrolment.exam.external">
                 <xm-course-code *ngIf="r.enrolment.exam.course" [course]="r.enrolment.exam.course"></xm-course-code>
             </td>
             <td class="reservation-search text-primary" *ngIf="r.enrolment.exam.external">
-                {{ 'sitnet_exam_status_external' | translate }}
+                {{ 'i18n_exam_status_external' | translate }}
             </td>
 
             <td *ngIf="r.enrolment.exam.parent" class="width15">
@@ -149,7 +149,7 @@
                 <xm-teacher-list *ngIf="r.enrolment.exam" [exam]="r.enrolment.exam"></xm-teacher-list>
             </td>
             <td class="reservation-search text-primary" *ngIf="r.enrolment.exam.external" class="width15">
-                {{ 'sitnet_exam_status_external' | translate }}
+                {{ 'i18n_exam_status_external' | translate }}
             </td>
             <td
                 class="reservation-search"
@@ -177,7 +177,7 @@
                 >
             </td>
             <td class="reservation-search" [ngClass]="getStateClass(r)">
-                {{ 'sitnet_exam_status_' + printExamState(r) | lowercase | translate }}
+                {{ 'i18n_exam_status_' + printExamState(r) | lowercase | translate }}
             </td>
 
             <td class="reservation-search" *ngIf="isAdminView">
@@ -191,7 +191,7 @@
                     (click)="removeReservation(r)"
                     class="btn btn-sm btn-primary float-start"
                 >
-                    {{ 'sitnet_remove_reservation' | translate }}
+                    {{ 'i18n_remove_reservation' | translate }}
                 </button>
                 <button
                     *ngIf="
@@ -205,8 +205,8 @@
                 >
                     {{
                         !r.enrolment.exam.trialCount || r.enrolment.retrialPermitted
-                            ? ('sitnet_retrial_permitted' | translate)
-                            : ('sitnet_permit_retrial' | translate)
+                            ? ('i18n_retrial_permitted' | translate)
+                            : ('i18n_permit_retrial' | translate)
                     }}
                 </button>
             </td>
@@ -221,7 +221,7 @@
                     (click)="changeReservationMachine(r)"
                     class="btn btn-sm btn-primary float-start"
                 >
-                    {{ 'sitnet_change_reservation_machine' | translate }}
+                    {{ 'i18n_change_reservation_machine' | translate }}
                 </button>
             </td>
         </tr>

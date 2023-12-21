@@ -11,7 +11,7 @@ import type { ExamInfo } from '../calendar.service';
             <div class="col-md-12">
                 <div class="row">
                     <span class="col-md-12">
-                        <h2 class="calendar-phase-title">1. {{ 'sitnet_calendar_phase_1' | translate }}</h2>
+                        <h2 class="calendar-phase-title">1. {{ 'i18n_calendar_phase_1' | translate }}</h2>
                         <span class="calendar-phase-icon float-end">
                             <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
                         </span>
@@ -21,14 +21,14 @@ import type { ExamInfo } from '../calendar.service';
                     <div class="col-md-12">
                         <div class="calendar-titles">
                             <span class="calendar-course-title">{{ examInfo.name }}</span>
-                            <span *ngIf="examInfo.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
+                            <span *ngIf="examInfo.anonymous">({{ 'i18n_anonymous_review' | translate }})</span>
                         </div>
                     </div>
                 </div>
                 <div class="row mart10">
                     <div class="col-md-12">
                         <div class="row">
-                            <div class="col-6 col-sm-6 col-md-4 col-lg-4">{{ 'sitnet_course_name' | translate }}:</div>
+                            <div class="col-6 col-sm-6 col-md-4 col-lg-4">{{ 'i18n_course_name' | translate }}:</div>
                             <div class="col-6 col-sm-6 col-md-4 col-lg-4">
                                 <div *ngIf="!collaborative">
                                     <xm-course-code [course]="examInfo.course"></xm-course-code>
@@ -38,15 +38,15 @@ import type { ExamInfo } from '../calendar.service';
                             <div class="clearfix visible-xs"></div>
                             <div class="clearfix visible-sm"></div>
                             <div class=" mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
-                                {{ 'sitnet_exam_validity' | translate }}:
+                                {{ 'i18n_exam_validity' | translate }}:
                             </div>
                             <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
-                                {{ examInfo.examActiveStartDate | date : 'dd.MM.yyyy' }} -
-                                {{ examInfo.examActiveEndDate | date : 'dd.MM.yyyy' }}
+                                {{ examInfo.periodStart | date : 'dd.MM.yyyy' }} -
+                                {{ examInfo.periodEnd | date : 'dd.MM.yyyy' }}
                             </div>
                             <div class="clearfix visible-md"></div>
                             <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-6">
-                                {{ 'sitnet_exam_duration' | translate }}:
+                                {{ 'i18n_exam_duration' | translate }}:
                             </div>
                             <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
                                 {{ printExamDuration(examInfo) }}
@@ -57,7 +57,7 @@ import type { ExamInfo } from '../calendar.service';
                 <div class="row mart10">
                     <div class="col-md-12">
                         <span class="student-exam-row-infolink" [hidden]="examInfo.executionType?.type === 'MATURITY'">
-                            {{ 'sitnet_calendar_instructions' | translate }}:
+                            {{ 'i18n_calendar_instructions' | translate }}:
                             <span [xmMathJax]="examInfo.enrollInstruction"></span>
                         </span>
                     </div>
@@ -93,12 +93,12 @@ export class CalendarExamInfoComponent implements OnInit {
 
     getReservationWindowDescription(): string {
         const text = this.translate
-            .instant('sitnet_description_reservation_window')
+            .instant('i18n_description_reservation_window')
             .replace('{}', this.reservationWindowSize.toString());
         return `${text} (${DateTime.fromJSDate(this.reservationWindowEndDate).toFormat('dd.MM.yyyy')})`;
     }
 
     showReservationWindowInfo = (): boolean =>
         !!this.reservationWindowEndDate &&
-        DateTime.fromISO(this.examInfo.examActiveEndDate as string).toJSDate() > this.reservationWindowEndDate;
+        DateTime.fromISO(this.examInfo.periodEnd as string).toJSDate() > this.reservationWindowEndDate;
 }

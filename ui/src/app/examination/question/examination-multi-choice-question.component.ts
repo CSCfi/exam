@@ -39,13 +39,13 @@ import { ExaminationService } from '../examination.service';
             </fieldset>
         </div>
         <div *ngIf="sq.question.type !== 'ClaimChoiceQuestion'" class="padl0 question-type-text">
-            {{ sq.derivedMaxScore }} {{ 'sitnet_unit_points' | translate }}
+            {{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}
         </div>
         <div
             *ngIf="sq.question.type === 'ClaimChoiceQuestion' && sq.derivedMinScore !== null"
             class="padl0 question-type-text"
         >
-            {{ 'sitnet_max_points' | translate }} {{ sq.derivedMaxScore }} {{ 'sitnet_min_points' | translate }}
+            {{ 'i18n_max_points' | translate }} {{ sq.derivedMaxScore }} {{ 'i18n_min_points' | translate }}
             {{ sq.derivedMinScore }}
         </div>
     `,

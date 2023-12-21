@@ -1,13 +1,13 @@
 <div id="printout">
     <div *ngIf="exam.attachment" class="toolbar text text-danger">
-        <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_print_attachment_reminder' | translate }}
+        <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_print_attachment_reminder' | translate }}
     </div>
 
     <span class="toolbar">
-        <button class="btn btn-cancel" (click)="exitPreview()">{{ 'sitnet_exit_preview' | translate }}</button>&nbsp;
-        <button class="btn btn-primary" (click)="print()">{{ 'sitnet_print' | translate }}</button>&nbsp;
+        <button class="btn btn-cancel" (click)="exitPreview()">{{ 'i18n_exit_preview' | translate }}</button>&nbsp;
+        <button class="btn btn-primary" (click)="print()">{{ 'i18n_print' | translate }}</button>&nbsp;
         <button class="btn btn-primary" *ngIf="exam.attachment" (click)="printAttachment()">
-            {{ 'sitnet_print_attachment' | translate }}
+            {{ 'i18n_print_attachment' | translate }}
         </button>
     </span>
 

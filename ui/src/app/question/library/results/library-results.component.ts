@@ -91,21 +91,21 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
 
     deleteQuestion = (question: SelectableQuestion) =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_question_from_library_only'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_remove_question_from_library_only'),
         ).subscribe({
             next: () =>
                 this.http.delete(`/app/questions/${question.id}`).subscribe({
                     next: () => this.questions.splice(this.questions.indexOf(question), 1),
-                    error: () => this.toast.info(this.translate.instant('sitnet_question_removed')),
+                    error: () => this.toast.info(this.translate.instant('i18n_question_removed')),
                 }),
             error: (err) => this.toast.error(err),
         });
 
     copyQuestion = (question: SelectableQuestion) =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_copy_question'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_copy_question'),
         ).subscribe({
             next: () =>
                 this.http.post<SelectableQuestion>(`/app/question/${question.id}`, {}).subscribe({
@@ -177,15 +177,15 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     getQuestionTypeText = (question: LibraryQuestion) => {
         switch (question.type) {
             case 'EssayQuestion':
-                return 'sitnet_essay';
+                return 'i18n_essay';
             case 'MultipleChoiceQuestion':
-                return 'sitnet_question_mc';
+                return 'i18n_question_mc';
             case 'WeightedMultipleChoiceQuestion':
-                return 'sitnet_question_weighted_mc';
+                return 'i18n_question_weighted_mc';
             case 'ClozeTestQuestion':
-                return 'sitnet_toolbar_cloze_test_question';
+                return 'i18n_toolbar_cloze_test_question';
             case 'ClaimChoiceQuestion':
-                return 'sitnet_toolbar_claim_choice_question';
+                return 'i18n_toolbar_claim_choice_question';
         }
         return '';
     };

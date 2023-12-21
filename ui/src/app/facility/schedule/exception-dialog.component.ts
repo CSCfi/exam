@@ -83,7 +83,7 @@ export class ExceptionDialogComponent {
                   new Date(this.startDate.getFullYear(), this.startDate.getMonth() + 1, this.startDate.getDate()) >
                       new Date(this.endDate.getFullYear(), this.endDate.getMonth() + 1, this.endDate.getDate())
         ) {
-            this.toast.error(this.translate.instant('sitnet_endtime_before_starttime'));
+            this.toast.error(this.translate.instant('i18n_endtime_before_starttime'));
             return;
         }
         switch (this.repeats.toString()) {
@@ -140,11 +140,11 @@ export class ExceptionDialogComponent {
         );
         const result = this.parseExceptionDays(monthlyExceptions);
         const message =
-            this.translate.instant('sitnet_of_month') +
+            this.translate.instant('i18n_of_month') +
             ' ' +
             (this.isNumericNotWeekday
-                ? this.dayOfMonth + '. ' + this.translate.instant('sitnet_day')
-                : this.translate.instant('sitnet_' + this.selectedOrdinal.ordinal.toLowerCase()) +
+                ? this.dayOfMonth + '. ' + this.translate.instant('i18n_day')
+                : this.translate.instant('i18n_' + this.selectedOrdinal.ordinal.toLowerCase()) +
                   ' ' +
                   this.weekdayOfMonth.day) +
             '.';
@@ -157,13 +157,13 @@ export class ExceptionDialogComponent {
             .filter((date) => this.monthOfYear.number === date.getMonth() + 1);
         const result = this.parseExceptionDays(yearlyExceptions);
         const message =
-            this.translate.instant('sitnet_year').toLowerCase() +
+            this.translate.instant('i18n_year').toLowerCase() +
             ' ' +
             this.monthOfYear.month +
             ' ' +
             (this.isNumericNotWeekday
-                ? this.dayOfMonth + '. ' + this.translate.instant('sitnet_day')
-                : this.translate.instant('sitnet_' + this.selectedOrdinal.ordinal.toLowerCase()).toLowerCase() +
+                ? this.dayOfMonth + '. ' + this.translate.instant('i18n_day')
+                : this.translate.instant('i18n_' + this.selectedOrdinal.ordinal.toLowerCase()).toLowerCase() +
                   ' ' +
                   this.weekdayOfMonth.day) +
             '.';
@@ -186,13 +186,13 @@ export class ExceptionDialogComponent {
         );
         if (overlapExceptions.length > 0) {
             const message =
-                this.translate.instant('sitnet_room_closed_overlap') +
+                this.translate.instant('i18n_room_closed_overlap') +
                 ': ' +
                 overlapExceptions
                     .map(
                         (e) =>
                             e.ownerRoom ||
-                            this.translate.instant('sitnet_this_room') +
+                            this.translate.instant('i18n_this_room') +
                                 ': ' +
                                 formatDate(e.startDate, this.dateFormat, this.translate.currentLang) +
                                 '-' +
@@ -211,18 +211,18 @@ export class ExceptionDialogComponent {
         }
         this.dialogs
             .open$(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_confirm_adding_x') +
+                this.translate.instant('i18n_confirm'),
+                this.translate.instant('i18n_confirm_adding_x') +
                     ' ' +
                     result.length +
                     ' ' +
-                    this.translate.instant('sitnet_x_exceptions') +
+                    this.translate.instant('i18n_x_exceptions') +
                     ' ' +
-                    this.translate.instant('sitnet_and_repeats_every_x') +
+                    this.translate.instant('i18n_and_repeats_every_x') +
                     ' ' +
                     repetitionMessage +
                     ' ' +
-                    this.translate.instant('sitnet_exception_happens_at') +
+                    this.translate.instant('i18n_exception_happens_at') +
                     ' ' +
                     this.startTime.hour +
                     ':' +

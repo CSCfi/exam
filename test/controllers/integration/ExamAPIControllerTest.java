@@ -54,8 +54,8 @@ public class ExamAPIControllerTest extends IntegrationTestCase {
         // Set all exams to start on future
         exams.forEach(e -> {
             e.setState(Exam.State.PUBLISHED);
-            e.setExamActiveStartDate(startDate.toDateTime());
-            e.setExamActiveEndDate(endDate.toDateTime());
+            e.setPeriodStart(startDate.toDateTime());
+            e.setPeriodEnd(endDate.toDateTime());
             e.setExecutionType(publicType);
             e.save();
         });
@@ -65,13 +65,13 @@ public class ExamAPIControllerTest extends IntegrationTestCase {
     public void testGetActiveExams() {
         // Pick first exam and set it already started but not yet ended (included)
         final Exam first = exams.get(0);
-        first.setExamActiveStartDate(LocalDateTime.now().minusDays(1).toDateTime());
+        first.setPeriodStart(LocalDateTime.now().minusDays(1).toDateTime());
         first.save();
 
         // Set second exam already ended (excluded)
         final Exam second = exams.get(1);
-        second.setExamActiveStartDate(LocalDateTime.now().minusDays(2).toDateTime());
-        second.setExamActiveEndDate(LocalDateTime.now().minusDays(1).toDateTime());
+        second.setPeriodStart(LocalDateTime.now().minusDays(2).toDateTime());
+        second.setPeriodEnd(LocalDateTime.now().minusDays(1).toDateTime());
         second.save();
 
         // Set third exam as private (excluded)

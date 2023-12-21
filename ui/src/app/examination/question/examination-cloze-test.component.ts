@@ -21,18 +21,18 @@ import { ExaminationService } from '../examination.service';
     template: `<div class="row" *ngIf="!isPreview">
             <div class="col-md-12">
                 <small class="sitnet-info-text" *ngIf="sq.autosaved">
-                    {{ 'sitnet_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date : 'HH:mm' }}
+                    {{ 'i18n_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date : 'HH:mm' }}
                 </small>
                 <small class="sitnet-info-text" *ngIf="!sq.autosaved"> &nbsp; </small>
             </div>
         </div>
         <div class="row">
-            <div class="col-12">{{ sq.derivedMaxScore }} {{ 'sitnet_unit_points' | translate }}</div>
+            <div class="col-12">{{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
         </div>
         <div class="row mt-2">
             <div class="col-md-12">
                 <button (click)="saveAnswer()" [disabled]="isPreview" class="pointer btn btn-success">
-                    {{ 'sitnet_save' | translate }}
+                    {{ 'i18n_save' | translate }}
                 </button>
             </div>
         </div> `,

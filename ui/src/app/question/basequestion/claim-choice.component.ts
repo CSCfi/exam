@@ -24,26 +24,26 @@ import { QuestionDraft, QuestionService } from '../question.service';
     template: `
         <div ngModelGroup="claimChoice" name="claimChoice">
             <div class="col-md-9 col-md-offset-3">
-                <p>{{ 'sitnet_claim_choice_question_instruction' | translate }}</p>
-                <p>{{ 'sitnet_claim_choice_options_description' | translate }}</p>
+                <p>{{ 'i18n_claim_choice_question_instruction' | translate }}</p>
+                <p>{{ 'i18n_claim_choice_options_description' | translate }}</p>
                 <ul>
-                    <li>{{ 'sitnet_claim_choice_correct_points_description' | translate }}</li>
-                    <li>{{ 'sitnet_claim_choice_incorrect_points_description' | translate }}</li>
-                    <li>{{ 'sitnet_claim_choice_skip_option_description' | translate }}</li>
+                    <li>{{ 'i18n_claim_choice_correct_points_description' | translate }}</li>
+                    <li>{{ 'i18n_claim_choice_incorrect_points_description' | translate }}</li>
+                    <li>{{ 'i18n_claim_choice_skip_option_description' | translate }}</li>
                 </ul>
                 <br />
                 <div class="edit-warning-container" *ngIf="showWarning">
                     <i class="bi-exclamation-circle reddish me-2"></i>
-                    <small>{{ 'sitnet_shared_question_property_info' | translate }}</small>
+                    <small>{{ 'i18n_shared_question_property_info' | translate }}</small>
                 </div>
             </div>
             <div class="col-md-9 col-md-offset-3 margin-10 padl0 padr0 claim-choice-option-labels">
                 <div class="claim-choice-option-label">
-                    <span class="question-option-title">{{ 'sitnet_question_options' | translate | uppercase }}</span>
+                    <span class="question-option-title">{{ 'i18n_question_options' | translate | uppercase }}</span>
                 </div>
                 <div class="claim-choice-option-label points">
                     <span class="question-option-title">
-                        {{ 'sitnet_word_points' | translate | uppercase }}
+                        {{ 'i18n_word_points' | translate | uppercase }}
                     </span>
                 </div>
             </div>
@@ -85,7 +85,7 @@ import { QuestionDraft, QuestionService } from '../question.service';
                 <div class="claim-choice-warning" *ngIf="missingOptions.length > 0">
                     <i class="bi-exclamation-triangle" style="color:#E8172F;"></i>
                     <span style="color:#E8172F;">
-                        {{ 'sitnet_claim_choice_missing_options_warning' | translate }}
+                        {{ 'i18n_claim_choice_missing_options_warning' | translate }}
                         <span>{{ displayMissingOptions() }}</span>
                     </span>
                 </div>
@@ -103,19 +103,19 @@ export class ClaimChoiceEditorComponent implements OnInit {
 
     defaultOptions = {
         correct: {
-            option: this.translate.instant('sitnet_claim_choice_default_correct'),
+            option: this.translate.instant('i18n_claim_choice_default_correct'),
             defaultScore: 1,
             correctOption: true,
             claimChoiceType: 'CorrectOption',
         },
         wrong: {
-            option: this.translate.instant('sitnet_claim_choice_default_incorrect'),
+            option: this.translate.instant('i18n_claim_choice_default_incorrect'),
             defaultScore: -1,
             correctOption: false,
             claimChoiceType: 'IncorrectOption',
         },
         skip: {
-            option: this.translate.instant('sitnet_question_claim_skip'),
+            option: this.translate.instant('i18n_question_claim_skip'),
             defaultScore: 0,
             correctOption: false,
             claimChoiceType: 'SkipOption',

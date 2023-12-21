@@ -94,7 +94,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         }
         PathProperties pp = PathProperties.parse(
             "*, modifier(firstName, lastName), questionOwners(id, firstName, lastName, userIdentifier, email), " +
-            "attachment(id, fileName), options(defaultScore, correctOption, claimChoiceType), tags(id, name, creator(id)), examSectionQuestions(examSection(exam(state, examActiveEndDate, course(code)))))"
+            "attachment(id, fileName), options(defaultScore, correctOption, claimChoiceType), tags(id, name, creator(id)), examSectionQuestions(examSection(exam(state, periodEnd, course(code)))))"
         );
         Query<Question> query = DB.find(Question.class);
         pp.apply(query);
@@ -153,7 +153,7 @@ public class QuestionController extends BaseController implements SectionQuestio
             Collections.sort(q.getOptions());
             return ok(q, pp);
         } else {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
     }
 
@@ -167,7 +167,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         }
         Question question = query.findOne();
         if (question == null) {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
         Collections.sort(question.getOptions());
         Question copy = question.copy();
@@ -293,7 +293,7 @@ public class QuestionController extends BaseController implements SectionQuestio
         }
         Question question = query.findOne();
         if (question == null) {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
         Question updatedQuestion = parseFromBody(request, user, question);
         JsonNode body = request.body().asJson();
@@ -328,7 +328,7 @@ public class QuestionController extends BaseController implements SectionQuestio
                 .stream()
                 .anyMatch(esq -> {
                     Exam exam = esq.getExamSection().getExam();
-                    return (exam.getState() == Exam.State.PUBLISHED && exam.getExamActiveEndDate().isAfterNow());
+                    return (exam.getState() == Exam.State.PUBLISHED && exam.getPeriodEnd().isAfterNow());
                 })
         ) {
             return forbidden();

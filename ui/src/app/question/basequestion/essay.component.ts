@@ -24,7 +24,7 @@ import { QuestionDraft } from '../question.service';
         <div ngModelGroup="essay">
             <div class="row mt-3">
                 <div class="col-md-3 exam-basic-title">
-                    {{ 'sitnet_essay_length_recommendation' | translate }}
+                    {{ 'i18n_essay_length_recommendation' | translate }}
                 </div>
                 <div class="col-md-6">
                     <div class="input-group">
@@ -39,14 +39,14 @@ import { QuestionDraft } from '../question.service';
                             [min]="1"
                             [max]="1000000"
                         />
-                        <span class="input-group-text" title="{{ 'sitnet_average_word_length_finnish' | translate }}">
-                            {{ 'sitnet_approximately' | translate }} {{ estimateCharacters() }}
-                            {{ 'sitnet_characters' | translate }}
+                        <span class="input-group-text" title="{{ 'i18n_average_word_length_finnish' | translate }}">
+                            {{ 'i18n_approximately' | translate }} {{ estimateCharacters() }}
+                            {{ 'i18n_characters' | translate }}
                         </span>
                     </div>
                     <div *ngIf="wc.invalid" class="warning-text-small margin-10 edit-warning-container">
                         <i class="bi-exclamation-circle reddish me-2"></i>
-                        {{ 'sitnet_essay_length_recommendation_bounds' | translate }}
+                        {{ 'i18n_essay_length_recommendation_bounds' | translate }}
                     </div>
                 </div>
             </div>

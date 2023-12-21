@@ -298,7 +298,7 @@ public class ExaminationController extends BaseController {
                         .eq("hash", hash)
                         .findOne();
                     if (exam == null) {
-                        return notFound("sitnet_error_exam_not_found");
+                        return notFound("i18n_error_exam_not_found");
                     }
                     Optional<ExamParticipation> oep = findParticipation(exam, user);
                     Http.Session session = request.session().removing("ongoingExamHash");
@@ -337,7 +337,7 @@ public class ExaminationController extends BaseController {
                     User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
                     Exam exam = DB.find(Exam.class).where().eq("creator", user).eq("hash", hash).findOne();
                     if (exam == null) {
-                        return notFound("sitnet_error_exam_not_found");
+                        return notFound("i18n_error_exam_not_found");
                     }
                     Optional<ExamParticipation> oep = findParticipation(exam, user);
                     Http.Session session = request.session().removing("ongoingExamHash");
@@ -464,7 +464,7 @@ public class ExaminationController extends BaseController {
         // If this is null, it means someone is either trying to access an exam by wrong hash
         // or the reservation is not in effect right now.
         if (enrolment == null) {
-            return CompletableFuture.completedFuture(Optional.of(forbidden("sitnet_reservation_not_found")));
+            return CompletableFuture.completedFuture(Optional.of(forbidden("i18n_reservation_not_found")));
         }
         Exam exam = enrolment.getExam();
         boolean isByod = exam != null && exam.getImplementation() == Exam.Implementation.CLIENT_AUTH;
@@ -476,9 +476,9 @@ public class ExaminationController extends BaseController {
         } else if (isUnchecked) {
             return CompletableFuture.completedFuture(Optional.empty());
         } else if (enrolment.getReservation() == null) {
-            return CompletableFuture.completedFuture(Optional.of(forbidden("sitnet_reservation_not_found")));
+            return CompletableFuture.completedFuture(Optional.of(forbidden("i18n_reservation_not_found")));
         } else if (enrolment.getReservation().getMachine() == null) {
-            return CompletableFuture.completedFuture(Optional.of(forbidden("sitnet_reservation_machine_not_found")));
+            return CompletableFuture.completedFuture(Optional.of(forbidden("i18n_reservation_machine_not_found")));
         } else if (
             !environment.isDev() &&
             !enrolment.getReservation().getMachine().getIpAddress().equals(request.remoteAddress())
@@ -492,11 +492,11 @@ public class ExaminationController extends BaseController {
                         }
                         ExamRoom room = or.get();
                         String message =
-                            "sitnet_wrong_exam_machine " +
+                            "i18n_wrong_exam_machine " +
                             room.getName() +
                             ", " +
                             room.getMailAddress().toString() +
-                            ", sitnet_exam_machine " +
+                            ", i18n_exam_machine " +
                             enrolment.getReservation().getMachine().getName();
                         return Optional.of(forbidden(message));
                     },

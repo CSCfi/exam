@@ -72,8 +72,8 @@ export class ExaminationToolbarComponent implements OnInit {
 
     turnExam = () =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_turn_exam'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_confirm_turn_exam'),
         ).subscribe({
             next: () =>
                 // Save all textual answers regardless of empty or not
@@ -85,7 +85,7 @@ export class ExaminationToolbarComponent implements OnInit {
                         }),
                         finalize(() =>
                             this.Examination.logout(
-                                'sitnet_exam_returned',
+                                'i18n_exam_returned',
                                 this.exam.hash,
                                 this.exam.implementation === 'CLIENT_AUTH',
                                 false,
@@ -98,13 +98,13 @@ export class ExaminationToolbarComponent implements OnInit {
 
     abortExam = () =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_abort_exam'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_confirm_abort_exam'),
         ).subscribe({
             next: () =>
                 this.Examination.abort$(this.exam.hash).subscribe({
                     next: () => {
-                        this.toast.info(this.translate.instant('sitnet_exam_aborted'), undefined, { timeOut: 5000 });
+                        this.toast.info(this.translate.instant('i18n_exam_aborted'), undefined, { timeOut: 5000 });
                         this.router.navigate(['/examination/logout'], {
                             queryParams: {
                                 reason: 'aborted',
@@ -156,7 +156,7 @@ export class ExaminationToolbarComponent implements OnInit {
     showMaturityInstructions = () => this.Enrolment.showMaturityInstructions({ exam: this.exam }, this.exam.external);
 
     sectionSelectedText = () => {
-        return this.translate.instant('sitnet_this_section_is_selected');
+        return this.translate.instant('i18n_this_section_is_selected');
     };
 
     getSkipLinkPath = (skipTarget: string) => {

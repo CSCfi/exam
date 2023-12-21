@@ -112,7 +112,7 @@ export class FileService {
 
     private isFileTooBig(file: File): boolean {
         if (file.size > this.maxFileSize) {
-            this.toast.error(this.translate.instant('sitnet_file_too_large'));
+            this.toast.error(this.translate.instant('i18n_file_too_large'));
             return true;
         }
         return false;
@@ -121,7 +121,7 @@ export class FileService {
     private doUpload(url: string, file: File, params: Record<string, string>): Promise<Attachment | EssayAnswer> {
         return new Promise<Attachment | EssayAnswer>((resolve, reject) => {
             if (this.isFileTooBig(file)) {
-                reject({ data: 'sitnet_file_too_large' });
+                reject({ data: 'i18n_file_too_large' });
             } else {
                 const fd = new FormData();
                 fd.append('file', file);

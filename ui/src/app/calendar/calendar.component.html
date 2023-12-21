@@ -2,7 +2,7 @@
     <div class="col-md-12 mt-2">
         <div class="student-details-title-wrap">
             <xm-history-back xmAutoFocus></xm-history-back>
-            <h1 class="student-exam-details-title">{{ 'sitnet_calendar' | translate }}</h1>
+            <h1 class="student-exam-details-title">{{ 'i18n_calendar' | translate }}</h1>
         </div>
     </div>
 
@@ -55,7 +55,7 @@
                     <div class="row">
                         <span class="col-md-12 marb10">
                             <h2 class="calendar-phase-title">
-                                {{ getSequenceNumber('confirmation') }}. {{ 'sitnet_calendar_phase_3' | translate }}
+                                {{ getSequenceNumber('confirmation') }}. {{ 'i18n_calendar_phase_3' | translate }}
                             </h2>
                             <span class="calendar-phase-icon float-end" [hidden]="!reservation">
                                 <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
@@ -73,7 +73,7 @@
                         <div class="col-md-12">
                             <div class="row">
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                    {{ 'sitnet_course_name' | translate }}:
+                                    {{ 'i18n_course_name' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
                                     <div *ngIf="examInfo.course">
@@ -82,11 +82,11 @@
                                     </div>
                                 </div>
                                 <div class="mt-2 col-12 col-sm-6 col-md-6 col-lg-6">
-                                    {{ 'sitnet_exam_validity' | translate }}:
+                                    {{ 'i18n_exam_validity' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                    {{ examInfo.examActiveStartDate | date : 'dd.MM.yyyy' }} -
-                                    {{ examInfo.examActiveEndDate | date : 'dd.MM.yyyy' }}
+                                    {{ examInfo.periodStart | date : 'dd.MM.yyyy' }} -
+                                    {{ examInfo.periodEnd | date : 'dd.MM.yyyy' }}
                                 </div>
                             </div>
                         </div>
@@ -95,13 +95,13 @@
                         <div class="col-md-12">
                             <div class="row">
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-                                    {{ 'sitnet_examination_location' | translate }}:
+                                    {{ 'i18n_examination_location' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-3">
                                     {{ reservation?.room?.name }}
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-2">
-                                    {{ 'sitnet_reservation' | translate }}:
+                                    {{ 'i18n_reservation' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-4">
                                     {{ reservation?.time }}
@@ -113,7 +113,7 @@
                         <div class="col-md-12">
                             <div class="row">
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-3">
-                                    {{ 'sitnet_exam_duration' | translate }}:
+                                    {{ 'i18n_exam_duration' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-3">
                                     {{ printExamDuration(examInfo) }}
@@ -133,7 +133,7 @@
                         style="width: 100%; line-height: 1.5; border-radius: 3px"
                         (click)="confirmReservation()"
                     >
-                        {{ 'sitnet_student_confirm_reservation' | translate }}
+                        {{ 'i18n_student_confirm_reservation' | translate }}
                     </button>
                 </div>
             </div>
@@ -144,7 +144,7 @@
                         style="width: 100%; line-height: 1.5; border-radius: 3px"
                         (click)="cancel()"
                     >
-                        {{ 'sitnet_button_cancel' | translate }}
+                        {{ 'i18n_button_cancel' | translate }}
                     </button>
                 </div>
             </div>

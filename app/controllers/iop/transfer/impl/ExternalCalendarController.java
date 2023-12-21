@@ -138,7 +138,7 @@ public class ExternalCalendarController extends CalendarController {
             Collections.emptyList()
         );
         if (machine.isEmpty()) {
-            return forbidden("sitnet_no_machines_available");
+            return forbidden("i18n_no_machines_available");
         }
         // We are good to go :)
         Reservation reservation = new Reservation();
@@ -169,7 +169,7 @@ public class ExternalCalendarController extends CalendarController {
         // TODO: might need additional checks
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return forbidden("sitnet_reservation_in_effect");
+            return forbidden("i18n_reservation_in_effect");
         }
         if (reservation.getEnrolment() != null) {
             reservation.getEnrolment().delete(); // cascades to reservation
@@ -198,7 +198,7 @@ public class ExternalCalendarController extends CalendarController {
         Reservation reservation = enrolment.getReservation();
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return forbidden("sitnet_reservation_in_effect");
+            return forbidden("i18n_reservation_in_effect");
         }
         enrolment.setReservation(null);
         enrolment.update();
@@ -303,7 +303,7 @@ public class ExternalCalendarController extends CalendarController {
             .endOr()
             .findOneOrEmpty();
         if (oe.isEmpty()) {
-            return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
+            return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
         }
         ExamEnrolment enrolment = oe.get();
         Optional<Result> error = checkEnrolment(enrolment, user, sectionIds);
@@ -377,7 +377,7 @@ public class ExternalCalendarController extends CalendarController {
         Reservation reservation = or.get();
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return CompletableFuture.completedFuture(forbidden("sitnet_reservation_in_effect"));
+            return CompletableFuture.completedFuture(forbidden("i18n_reservation_in_effect"));
         }
         String roomRef = reservation.getMachine().getRoom().getExternalRef();
         URL url = parseUrl(configReader.getHomeOrganisationRef(), roomRef, reservation.getExternalRef());
@@ -412,7 +412,7 @@ public class ExternalCalendarController extends CalendarController {
             ExamEnrolment ee = getEnrolment(examId, user);
             // For now do not allow making an external reservation for collaborative exam
             if (ee == null || ee.getCollaborativeExam() != null) {
-                return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
+                return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
             }
             Exam exam = ee.getExam();
 
@@ -423,8 +423,8 @@ public class ExternalCalendarController extends CalendarController {
                 return wrapAsPromise(notFound());
             }
             // Ready to shoot
-            String start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveStartDate()));
-            String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveEndDate()));
+            String start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodStart()));
+            String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodEnd()));
             Integer duration = exam.getDuration();
             URL url = parseUrl(org.get(), roomRef, date.get(), start, end, duration);
             WSRequest wsRequest = wsClient.url(url.toString().split("\\?")[0]).setQueryString(url.getQuery());

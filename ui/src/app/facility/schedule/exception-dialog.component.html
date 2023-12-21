@@ -1,16 +1,16 @@
 <div id="sitnet-dialog" role="dialog" aria-modal="true">
     <div class="modal-header">
-        <h4><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{ 'sitnet_exception_time' | translate }}</h4>
+        <h4><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{ 'i18n_exception_time' | translate }}</h4>
     </div>
 
     <div class="modal-body">
         <div class="row">
             <div class="col">
                 <div *ngIf="!outOfService" class="text-success">
-                    {{ 'sitnet_making_room_available' | translate }}
+                    {{ 'i18n_making_room_available' | translate }}
                 </div>
                 <div *ngIf="outOfService" class="text-danger">
-                    {{ 'sitnet_making_room_out_of_service' | translate }}
+                    {{ 'i18n_making_room_out_of_service' | translate }}
                 </div>
                 <div class="form-check mart30">
                     <label>
@@ -21,12 +21,12 @@
                             (change)="wholeDay = !wholeDay"
                             autofocus
                         />
-                        {{ 'sitnet_whole_day' | translate }}
+                        {{ 'i18n_whole_day' | translate }}
                     </label>
                 </div>
             </div>
         </div>
-        <div class="sitnet-info-text">{{ 'sitnet_repeating_info' | translate }}</div>
+        <div class="sitnet-info-text">{{ 'i18n_repeating_info' | translate }}</div>
         <div>
             <span class="dropdown" ngbDropdown>
                 <button
@@ -36,7 +36,7 @@
                     id="dropDownMenu1"
                     aria-expanded="true"
                 >
-                    {{ 'sitnet_' + repeats.toLowerCase() | translate }}&nbsp;<span class="caret"></span>
+                    {{ 'i18n_' + repeats.toLowerCase() | translate }}&nbsp;<span class="caret"></span>
                 </button>
                 <div
                     ngbDropdownMenu
@@ -52,8 +52,8 @@
                         (click)="updateRepeatOption(ro)"
                         (keydown.enter)="updateRepeatOption(ro)"
                     >
-                        <a role="menuitem" title="{{ 'sitnet_' + ro.toLowerCase() | translate }}">{{
-                            'sitnet_' + ro.toLowerCase() | translate
+                        <a role="menuitem" title="{{ 'i18n_' + ro.toLowerCase() | translate }}">{{
+                            'i18n_' + ro.toLowerCase() | translate
                         }}</a>
                     </button>
                 </div>
@@ -61,10 +61,10 @@
         </div>
         <div class="row align-items-center">
             <div class="col" *ngIf="repeats.toString() === 'ONCE'">
-                <div class="mart20 marb20">{{ 'sitnet_repeats_once' | translate }}</div>
+                <div class="mart20 marb20">{{ 'i18n_repeats_once' | translate }}</div>
                 <div class="row mart20">
                     <div class="col">
-                        <label for="startDate">{{ 'sitnet_begin' | translate }}:</label>
+                        <label for="startDate">{{ 'i18n_begin' | translate }}:</label>
                         <xm-date-time-picker
                             id="startDate"
                             [initialTime]="startDate"
@@ -76,7 +76,7 @@
                         </xm-date-time-picker>
                     </div>
                     <div class="col">
-                        <label for="endDate">{{ 'sitnet_end' | translate }}:</label>
+                        <label for="endDate">{{ 'i18n_end' | translate }}:</label>
                         <xm-date-time-picker
                             id="endDate"
                             [initialTime]="endDate"
@@ -90,11 +90,11 @@
                 </div>
             </div>
             <div class="col" *ngIf="repeats.toString() === 'DAILY_WEEKLY'">
-                <div class="mart20 marb20">{{ 'sitnet_repeats_weekly_or_every_day' | translate }}</div>
+                <div class="mart20 marb20">{{ 'i18n_repeats_weekly_or_every_day' | translate }}</div>
                 <div class="row">
                     <div class="col">
-                        <div>{{ 'sitnet_clock' | translate }}:</div>
-                        <label for="startDate">{{ 'sitnet_begin' | translate }}:</label>
+                        <div>{{ 'i18n_clock' | translate }}:</div>
+                        <label for="startDate">{{ 'i18n_begin' | translate }}:</label>
                         <ngb-timepicker
                             name="timepicker"
                             [disabled]="wholeDay"
@@ -104,7 +104,7 @@
                             [ngClass]="wholeDay ? 'disable-gray-out' : ''"
                             (ngModelChange)="onStartTimeChange()"
                         ></ngb-timepicker>
-                        <label for="endDate">{{ 'sitnet_end' | translate }}:</label>
+                        <label for="endDate">{{ 'i18n_end' | translate }}:</label>
                         <ngb-timepicker
                             name="timepicker"
                             [disabled]="wholeDay"
@@ -121,7 +121,7 @@
                                 (click)="selectWholeWeek()"
                                 class="btn-primary border-none radius-3 pad5 marb10 marl5"
                             >
-                                {{ 'sitnet_select_week' | translate }}
+                                {{ 'i18n_select_week' | translate }}
                             </button>
                         </div>
                         <div class="marb20">
@@ -134,23 +134,23 @@
                                 {{ day.day.slice(0, 2) }}
                             </button>
                         </div>
-                        <div>{{ 'sitnet_period' | translate }}:</div>
-                        <label for="startDate">{{ 'sitnet_beginning' | translate }}:</label>
+                        <div>{{ 'i18n_period' | translate }}:</div>
+                        <label for="startDate">{{ 'i18n_beginning' | translate }}:</label>
                         <xm-date-picker
                             [initialDate]="startDate"
                             (updated)="onStartDateChange($event)"
                         ></xm-date-picker>
-                        <label for="endDate">{{ 'sitnet_until' | translate }}:</label>
+                        <label for="endDate">{{ 'i18n_until' | translate }}:</label>
                         <xm-date-picker [initialDate]="endDate" (updated)="onEndDateChange($event)"></xm-date-picker>
                     </div>
                 </div>
             </div>
             <div class="col" *ngIf="repeats.toString() === 'MONTHLY'">
-                <div class="mart20 marb20">{{ 'sitnet_repeats_monthly' | translate }}</div>
+                <div class="mart20 marb20">{{ 'i18n_repeats_monthly' | translate }}</div>
                 <div class="row">
                     <div class="col">
-                        <div>{{ 'sitnet_clock' | translate }}:</div>
-                        <label for="startDate">{{ 'sitnet_begin' | translate }}:</label>
+                        <div>{{ 'i18n_clock' | translate }}:</div>
+                        <label for="startDate">{{ 'i18n_begin' | translate }}:</label>
                         <ngb-timepicker
                             name="timepicker"
                             [disabled]="wholeDay"
@@ -160,7 +160,7 @@
                             [ngClass]="wholeDay ? 'disable-gray-out' : ''"
                             (ngModelChange)="onStartTimeChange()"
                         ></ngb-timepicker>
-                        <label for="endDate">{{ 'sitnet_end' | translate }}:</label>
+                        <label for="endDate">{{ 'i18n_end' | translate }}:</label>
                         <ngb-timepicker
                             name="timepicker"
                             [disabled]="wholeDay"
@@ -189,7 +189,7 @@
                                 [(ngModel)]="dayOfMonth"
                                 (click)="isNumericNotWeekday = true"
                             />
-                            {{ 'sitnet_day' | translate }}
+                            {{ 'i18n_day' | translate }}
                         </div>
                         <div class="form-check">
                             <input
@@ -201,7 +201,7 @@
                                 [(ngModel)]="isNumericNotWeekday"
                                 [value]="false"
                             />
-                            {{ 'sitnet_of_month' | translate }}
+                            {{ 'i18n_of_month' | translate }}
                             <span class="dropdown" ngbDropdown>
                                 <button
                                     ngbDropdownToggle
@@ -211,7 +211,7 @@
                                     aria-expanded="true"
                                     (click)="isNumericNotWeekday = false"
                                 >
-                                    {{ 'sitnet_' + selectedOrdinal.ordinal.toLowerCase() | translate }}&nbsp;<span
+                                    {{ 'i18n_' + selectedOrdinal.ordinal.toLowerCase() | translate }}&nbsp;<span
                                         class="caret"
                                     ></span>
                                 </button>
@@ -231,8 +231,8 @@
                                     >
                                         <a
                                             role="menuitem"
-                                            title="{{ 'sitnet_' + ord.ordinal.toLowerCase() | translate }}"
-                                            >{{ 'sitnet_' + ord.ordinal.toLowerCase() | translate }}</a
+                                            title="{{ 'i18n_' + ord.ordinal.toLowerCase() | translate }}"
+                                            >{{ 'i18n_' + ord.ordinal.toLowerCase() | translate }}</a
                                         >
                                     </button>
                                 </div>
@@ -267,23 +267,23 @@
                                 </div>
                             </span>
                         </div>
-                        <div>{{ 'sitnet_period' | translate }}:</div>
-                        <label for="startDate">{{ 'sitnet_beginning' | translate }}:</label>
+                        <div>{{ 'i18n_period' | translate }}:</div>
+                        <label for="startDate">{{ 'i18n_beginning' | translate }}:</label>
                         <xm-date-picker
                             [initialDate]="startDate"
                             (updated)="onStartDateChange($event)"
                         ></xm-date-picker>
-                        <label for="endDate">{{ 'sitnet_until' | translate }}:</label>
+                        <label for="endDate">{{ 'i18n_until' | translate }}:</label>
                         <xm-date-picker [initialDate]="endDate" (updated)="onEndDateChange($event)"></xm-date-picker>
                     </div>
                 </div>
             </div>
             <div class="col" *ngIf="repeats.toString() === 'YEARLY'">
-                <div class="mart20 marb20">{{ 'sitnet_repeats_yearly' | translate }}</div>
+                <div class="mart20 marb20">{{ 'i18n_repeats_yearly' | translate }}</div>
                 <div class="row">
                     <div class="col">
-                        <div>{{ 'sitnet_clock' | translate }}:</div>
-                        <label for="startDate">{{ 'sitnet_begin' | translate }}:</label>
+                        <div>{{ 'i18n_clock' | translate }}:</div>
+                        <label for="startDate">{{ 'i18n_begin' | translate }}:</label>
                         <ngb-timepicker
                             name="timepicker"
                             [disabled]="wholeDay"
@@ -293,7 +293,7 @@
                             [ngClass]="wholeDay ? 'disable-gray-out' : ''"
                             (ngModelChange)="onStartTimeChange()"
                         ></ngb-timepicker>
-                        <label for="endDate">{{ 'sitnet_end' | translate }}:</label>
+                        <label for="endDate">{{ 'i18n_end' | translate }}:</label>
                         <ngb-timepicker
                             name="timepicker"
                             [disabled]="wholeDay"
@@ -322,8 +322,8 @@
                                 [(ngModel)]="dayOfMonth"
                                 (click)="isNumericNotWeekday = true"
                             />
-                            {{ 'sitnet_day' | translate }}
-                            {{ 'sitnet_of_every' | translate }}
+                            {{ 'i18n_day' | translate }}
+                            {{ 'i18n_of_every' | translate }}
                             <span class="dropdown" ngbDropdown>
                                 <button
                                     ngbDropdownToggle
@@ -373,7 +373,7 @@
                                     aria-expanded="true"
                                     (click)="isNumericNotWeekday = false"
                                 >
-                                    {{ 'sitnet_' + selectedOrdinal.ordinal.toLowerCase() | translate }}&nbsp;<span
+                                    {{ 'i18n_' + selectedOrdinal.ordinal.toLowerCase() | translate }}&nbsp;<span
                                         class="caret"
                                     ></span>
                                 </button>
@@ -393,8 +393,8 @@
                                     >
                                         <a
                                             role="menuitem"
-                                            title="{{ 'sitnet_' + ord.ordinal.toLowerCase() | translate }}"
-                                            >{{ 'sitnet_' + ord.ordinal.toLowerCase() | translate }}</a
+                                            title="{{ 'i18n_' + ord.ordinal.toLowerCase() | translate }}"
+                                            >{{ 'i18n_' + ord.ordinal.toLowerCase() | translate }}</a
                                         >
                                     </button>
                                 </div>
@@ -428,7 +428,7 @@
                                     </button>
                                 </div>
                             </span>
-                            {{ 'sitnet_of_every' | translate }}
+                            {{ 'i18n_of_every' | translate }}
                             <span class="dropdown" ngbDropdown>
                                 <button
                                     ngbDropdownToggle
@@ -459,13 +459,13 @@
                                 </div>
                             </span>
                         </div>
-                        <div>{{ 'sitnet_period' | translate }}:</div>
-                        <label for="startDate">{{ 'sitnet_beginning' | translate }}:</label>
+                        <div>{{ 'i18n_period' | translate }}:</div>
+                        <label for="startDate">{{ 'i18n_beginning' | translate }}:</label>
                         <xm-date-picker
                             [initialDate]="startDate"
                             (updated)="onStartDateChange($event)"
                         ></xm-date-picker>
-                        <label for="endDate">{{ 'sitnet_until' | translate }}:</label>
+                        <label for="endDate">{{ 'i18n_until' | translate }}:</label>
                         <xm-date-picker [initialDate]="endDate" (updated)="onEndDateChange($event)"></xm-date-picker>
                     </div>
                 </div>
@@ -474,10 +474,10 @@
     </div>
     <div class="modal-footer">
         <button class="btn btn-danger float-end" (click)="cancel()">
-            {{ 'sitnet_button_cancel' | translate }}
+            {{ 'i18n_button_cancel' | translate }}
         </button>
         <button class="btn btn-primary" (click)="ok()">
-            {{ 'sitnet_button_save' | translate }}
+            {{ 'i18n_button_save' | translate }}
         </button>
     </div>
 </div>

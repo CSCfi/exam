@@ -123,7 +123,7 @@ export class ReviewListService {
     getSelectedReviews = (items: Review[]) => {
         const objects = items.filter((i) => i.selected);
         if (objects.length === 0) {
-            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
+            this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
         }
         return objects;
     };
@@ -180,7 +180,7 @@ export class ReviewListService {
                 return this.http.post<ExamParticipation>(resource, examToRecord);
             }
         } else {
-            this.toast.error(this.translate.instant('sitnet_failed_to_record_review'));
+            this.toast.error(this.translate.instant('i18n_failed_to_record_review'));
             return of();
         }
     };

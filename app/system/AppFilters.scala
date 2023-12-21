@@ -24,14 +24,14 @@ import play.filters.csrf.CSRFFilter
 import play.filters.gzip.GzipFilter
 import play.filters.headers.SecurityHeadersFilter
 
-class AppFilters @Inject()(securityHeadersFilter: SecurityHeadersFilter,
-                           csrfFilter: CSRFFilter,
-                           gzipFilter: GzipFilter,
-                           corsFilter: CORSFilter,
-                           cspFilter: CSPFilter,
-                           systemFilter: SystemFilter)
-    extends HttpFilters {
+class AppFilters @Inject() (
+    securityHeadersFilter: SecurityHeadersFilter,
+    csrfFilter: CSRFFilter,
+    gzipFilter: GzipFilter,
+    corsFilter: CORSFilter,
+    cspFilter: CSPFilter,
+    systemFilter: SystemFilter
+) extends HttpFilters:
 
   override def filters: Seq[EssentialFilter] =
     Seq(securityHeadersFilter, csrfFilter, gzipFilter, corsFilter, cspFilter, systemFilter)
-}
