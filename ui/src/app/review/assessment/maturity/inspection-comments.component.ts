@@ -24,7 +24,7 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
 @Component({
     selector: 'xm-r-inspection-comments',
     template: `<div class="detail-row marb20 mart20">
-            <div class="col-md-12 general-info-title">{{ 'sitnet_inspector_comments' | translate }}:</div>
+            <div class="col-md-12 general-info-title">{{ 'i18n_inspector_comments' | translate }}:</div>
         </div>
 
         <div *ngFor="let comment of exam.inspectionComments" class="col-md-12 padl0 marb20">
@@ -43,17 +43,17 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
             <span class="col-md-12">
                 <div class="review-attachment-button exam-questions-buttons me-2">
                     <button class="btn btn-link" *ngIf="addingVisible" (click)="addInspectionComment()">
-                        {{ 'sitnet_inspection_comment_title' | translate }}
+                        {{ 'i18n_inspection_comment_title' | translate }}
                     </button>
                 </div>
                 <sup
-                    ngbPopover="{{ 'sitnet_inspection_comment_info' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_inspection_comment_info' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
                         src="/assets/images/icon_tooltip.svg"
-                        alt="{{ 'sitnet_inspection_comment_info' | translate }}"
+                        alt="{{ 'i18n_inspection_comment_info' | translate }}"
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
                     />
                 </sup>

@@ -255,7 +255,7 @@ public class ReportController extends BaseController {
         try {
             bos = excelBuilder.buildScoreExcel(examId, childIds);
         } catch (IOException | RuntimeException e) {
-            return internalServerError("sitnet_error_creating_csv_file");
+            return internalServerError("i18n_error_creating_csv_file");
         }
         return ok(Base64.getEncoder().encodeToString(bos.toByteArray()))
             .withHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"")

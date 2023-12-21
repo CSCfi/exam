@@ -126,7 +126,7 @@ public class StudentActionsController extends CollaborationController {
             .endJunction()
             .findOne();
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         return ok(exam);
     }
@@ -150,7 +150,7 @@ public class StudentActionsController extends CollaborationController {
             .endJunction()
             .findOne();
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         exam.setMaxScore();
         exam.setApprovedAnswerCount();
@@ -182,7 +182,7 @@ public class StudentActionsController extends CollaborationController {
             .findOne();
 
         if (exam == null || exam.getExamParticipation() == null || exam.getExamParticipation().getUser() == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
 
         User student = exam.getExamParticipation().getUser();
@@ -190,7 +190,7 @@ public class StudentActionsController extends CollaborationController {
         try {
             bos = excelBuilder.buildStudentReport(exam, student, messagesApi);
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_excel_file");
+            return internalServerError("i18n_error_creating_excel_file");
         }
         return ok(Base64.getEncoder().encodeToString(bos.toByteArray()))
             .withHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"")
@@ -378,7 +378,7 @@ public class StudentActionsController extends CollaborationController {
             .eq("examEnrolments.user", request.attrs().get(Attrs.AUTHENTICATED_USER))
             .findOne();
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
 
         return ok(exam);
@@ -405,7 +405,7 @@ public class StudentActionsController extends CollaborationController {
     private Result listExams(String filter, Collection<String> courseCodes) {
         ExpressionList<Exam> query = DB
             .find(Exam.class)
-            .select("id, name, duration, examActiveStartDate, examActiveEndDate, enrollInstruction, implementation")
+            .select("id, name, duration, periodStart, periodEnd, enrollInstruction, implementation")
             .fetch("course", "code, name")
             .fetch("examOwners", "firstName, lastName")
             .fetch("examInspections.user", "firstName, lastName")
@@ -415,7 +415,7 @@ public class StudentActionsController extends CollaborationController {
             .where()
             .eq("state", Exam.State.PUBLISHED)
             .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
-            .gt("examActiveEndDate", DateTime.now().toDate());
+            .gt("periodEnd", DateTime.now().toDate());
         if (!courseCodes.isEmpty()) {
             query.in("course.code", courseCodes);
         }

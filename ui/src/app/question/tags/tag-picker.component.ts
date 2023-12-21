@@ -28,11 +28,11 @@ import { QuestionDraft } from '../question.service';
         <form>
             <div class="row mt-3 align-items-center">
                 <label class="col-md-3 col-form-label" for="newTag"
-                    >{{ 'sitnet_tag_question' | translate
+                    >{{ 'i18n_tag_question' | translate
                     }}<sup
                         class="ms-1"
-                        ngbPopover="{{ 'sitnet_question_tag_question_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_question_tag_question_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                         ><img src="/assets/images/icon_tooltip.svg" alt="" /></sup
                 ></label>
@@ -56,7 +56,7 @@ import { QuestionDraft } from '../question.service';
                             (click)="addTag()"
                             [disabled]="!newTag || newTag.name.length < 2"
                         >
-                            {{ 'sitnet_add' | translate }}
+                            {{ 'i18n_add' | translate }}
                         </button>
                     </div>
                 </div>
@@ -66,11 +66,11 @@ import { QuestionDraft } from '../question.service';
                             {{ tag.name }}
                             <button
                                 class="reviewer-remove"
-                                ngbPopover="{{ 'sitnet_remove' | translate }}"
-                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                ngbPopover="{{ 'i18n_remove' | translate }}"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
                                 triggers="mouseenter:mouseleave"
                                 (click)="removeTag(tag)"
-                                title="{{ 'sitnet_remove' | translate }}"
+                                title="{{ 'i18n_remove' | translate }}"
                             >
                                 <img src="/assets/images/icon_remove.svg" alt="" />
                             </button>

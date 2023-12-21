@@ -223,8 +223,8 @@ export interface CollaborativeExam {
     examOwners: User[];
     executionType: ExamExecutionType;
     enrollInstruction: string;
-    examActiveStartDate: string | number;
-    examActiveEndDate: string | number;
+    periodStart: string | number;
+    periodEnd: string | number;
     externalRef?: string;
 }
 
@@ -277,8 +277,8 @@ export interface ExamImpl {
     attachment?: Attachment;
     hasEnrolmentsInEffect: boolean;
     name: string | null;
-    examActiveStartDate: string | null;
-    examActiveEndDate: string | null;
+    periodStart: string | null;
+    periodEnd: string | null;
     duration: number;
     course?: Course;
     external: boolean;

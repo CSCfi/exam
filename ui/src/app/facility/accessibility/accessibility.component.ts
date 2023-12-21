@@ -47,18 +47,18 @@ export class AccessibilityComponent implements OnInit {
     add = () =>
         this.accessibilityService.addAccessibility(this.newItem).subscribe((resp) => {
             this.accessibilities.push({ ...resp, showName: false });
-            this.toast.info(this.translate.instant('sitnet_accessibility_added'));
+            this.toast.info(this.translate.instant('i18n_accessibility_added'));
             this.initItem();
         });
 
     update = (accessibility: Accessibility) =>
         this.accessibilityService.updateAccessibility(accessibility).subscribe(() => {
-            this.toast.info(this.translate.instant('sitnet_accessibility_updated'));
+            this.toast.info(this.translate.instant('i18n_accessibility_updated'));
         });
 
     remove = (accessibility: Accessibility & { showName: boolean }) =>
         this.accessibilityService.removeAccessibility(accessibility.id).subscribe(() => {
             this.accessibilities.splice(this.accessibilities.indexOf(accessibility), 1);
-            this.toast.info(this.translate.instant('sitnet_accessibility_removed'));
+            this.toast.info(this.translate.instant('i18n_accessibility_removed'));
         });
 }

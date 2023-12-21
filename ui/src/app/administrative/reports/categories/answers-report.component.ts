@@ -20,19 +20,19 @@ import { FileService } from 'src/app/shared/file/file.service';
     template: `
         <div class="top-row">
             <h4 class="col-md-12">
-                {{ 'sitnet_get_all_exam_answers' | translate }}
+                {{ 'i18n_get_all_exam_answers' | translate }}
             </h4>
         </div>
         <div class="bottom-row d-flex justify-content-between">
             <!-- Start & End time datepickers -->
             <div class="col-lg-5 mb-2">
-                <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
+                <label for="startAt">{{ 'i18n_start_time' | translate }}</label>
                 <div id="startAt">
                     <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
             <div class="col-lg-5 mb-2">
-                <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
+                <label for="endAt">{{ 'i18n_end_time' | translate }}</label>
                 <div id="endAt">
                     <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
@@ -45,8 +45,8 @@ import { FileService } from 'src/app/shared/file/file.service';
                         class="print-btn"
                         download
                         triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_download' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_download' | translate }}"
                     >
                         <i class="bi-file-earmark-excel font-6"></i>
                     </a>

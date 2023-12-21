@@ -7,12 +7,12 @@ import { StatisticsService } from '../statistics.service';
     template: `
         <div class="detail-row">
             <div class="col-md-12">
-                <button class="btn btn-primary" (click)="listExams()">{{ 'sitnet_search' | translate }}</button>
+                <button class="btn btn-primary" (click)="listExams()">{{ 'i18n_search' | translate }}</button>
             </div>
         </div>
         <div class="top-row">
             <div class="col-md-12">
-                <h3>{{ 'sitnet_most_popular_exams' | translate }}</h3>
+                <h3>{{ 'i18n_most_popular_exams' | translate }}</h3>
             </div>
         </div>
         <div class="detail-row">
@@ -20,9 +20,9 @@ import { StatisticsService } from '../statistics.service';
                 <table class="table table-striped table-sm">
                     <thead>
                         <tr>
-                            <th>{{ 'sitnet_rank' | translate }}</th>
-                            <th>{{ 'sitnet_exam' | translate }}</th>
-                            <th>{{ 'sitnet_amount_exams' | translate }}</th>
+                            <th>{{ 'i18n_rank' | translate }}</th>
+                            <th>{{ 'i18n_exam' | translate }}</th>
+                            <th>{{ 'i18n_amount_exams' | translate }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -35,7 +35,7 @@ import { StatisticsService } from '../statistics.service';
                     <tfoot>
                         <tr>
                             <td colspan="2">
-                                <b>{{ 'sitnet_total' | translate }}</b>
+                                <b>{{ 'i18n_total' | translate }}</b>
                             </td>
                             <td>
                                 <b *ngIf="exams">{{ totalExams() }}</b>

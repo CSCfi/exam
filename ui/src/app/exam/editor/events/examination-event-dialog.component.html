@@ -2,22 +2,22 @@
     <div class="student-message-dialog-wrapper-padding">
         <div class="student-enroll-dialog-wrap">
             <h1 class="student-enroll-title">
-                <span *ngIf="!config">{{ 'sitnet_add_examination_event' | translate }}</span>
-                <span *ngIf="config">{{ 'sitnet_update_examination_event' | translate }}</span>
+                <span *ngIf="!config">{{ 'i18n_add_examination_event' | translate }}</span>
+                <span *ngIf="config">{{ 'i18n_update_examination_event' | translate }}</span>
             </h1>
         </div>
         <form class="modal-body" #eventForm="ngForm" name="eventForm">
             <div *ngIf="hasEnrolments" class="alert alert-warning form-text">
-                {{ 'sitnet_enrolments_exist_for_examination_event' | translate }}
+                {{ 'i18n_enrolments_exist_for_examination_event' | translate }}
             </div>
             <div *ngIf="maintenancePeriods.length > 0" class="alert alert-warning form-text mb-2">
-                {{ 'sitnet_maintenance_periods' | translate }}
+                {{ 'i18n_maintenance_periods' | translate }}
                 <div *ngFor="let period of maintenancePeriods | orderBy : 'startsAt'">
                     {{ period.startsAt | date : 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date : 'dd.MM.yyyy HH:mm' }}
                     {{ period.description }}
                 </div>
             </div>
-            <label for="dtpicker">{{ 'sitnet_begin' | translate }}:</label>
+            <label for="dtpicker">{{ 'i18n_begin' | translate }}:</label>
             <xm-date-time-picker
                 id="dtpicker"
                 [disabled]="hasEnrolments"
@@ -30,7 +30,7 @@
             >
             </xm-date-time-picker>
             <div class="form-group">
-                <label for="description">{{ 'sitnet_instructions' | translate }}:</label>
+                <label for="description">{{ 'i18n_instructions' | translate }}:</label>
                 <textarea
                     id="description"
                     name="description"
@@ -40,7 +40,7 @@
                 ></textarea>
             </div>
             <div class="form-group">
-                <label for="capacity">{{ 'sitnet_event_capacity' | translate }}:</label>
+                <label for="capacity">{{ 'i18n_event_capacity' | translate }}:</label>
                 <input
                     id="capacity"
                     name="capacity"
@@ -53,7 +53,7 @@
                 />
             </div>
             <div *ngIf="requiresPassword" class="form-group">
-                <label for="password">{{ 'sitnet_settings_password' | translate }}:</label>
+                <label for="password">{{ 'i18n_settings_password' | translate }}:</label>
                 <div id="password" class="input-group wdth-30">
                     <input
                         type="{{ pwdInputType }}"
@@ -74,12 +74,12 @@
         <div class="modal-footer">
             <div class="student-message-dialog-button-save">
                 <button [disabled]="eventForm.invalid || (maxDateValidator && maxDateValidator < start)" (click)="ok()">
-                    {{ 'sitnet_button_accept' | translate }}
+                    {{ 'i18n_button_accept' | translate }}
                 </button>
             </div>
             <div class="student-message-dialog-button-cancel">
                 <button class="btn btn-sm btn-danger float-start" (click)="cancel()">
-                    {{ 'sitnet_button_decline' | translate }}
+                    {{ 'i18n_button_decline' | translate }}
                 </button>
             </div>
         </div>

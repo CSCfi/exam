@@ -29,7 +29,7 @@ export class SettingsComponent implements OnInit {
         this.Settings.updateReservationWindow$(this.config).subscribe({ next: this.onSuccess, error: this.onError });
 
     private onSuccess = () =>
-        this.toast.info(this.translate.instant('sitnet_settings') + ' ' + this.translate.instant('sitnet_updated'));
+        this.toast.info(this.translate.instant('i18n_settings') + ' ' + this.translate.instant('i18n_updated'));
 
     private onError = (error: string) => this.toast.error(error);
 }

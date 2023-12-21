@@ -5,11 +5,11 @@
                 <a (click)="goToAssessment()">
                     <img class="pointer arrow_icon" src="/assets/images/icon_history.png" alt="go back" />
                 </a>
-                <div class="student-exam-details-title">{{ 'sitnet_exam_review' | translate }}</div>
+                <div class="student-exam-details-title">{{ 'i18n_exam_review' | translate }}</div>
             </div>
 
             <div class="review-attachment-button print-button">
-                <a (click)="print()" class="pointer"> {{ 'sitnet_print' | translate }}&nbsp;&nbsp; </a>
+                <a (click)="print()" class="pointer"> {{ 'i18n_print' | translate }}&nbsp;&nbsp; </a>
             </div>
         </div>
     </div>
@@ -66,7 +66,7 @@
         <div class="review-border">
             <div class="padt50 padl30 padr30">
                 <h4 class="d-flex justify-content-between">
-                    {{ 'sitnet_grading_info' | translate }}
+                    {{ 'i18n_grading_info' | translate }}
                     <a (click)="hideGradeInfo = !hideGradeInfo">
                         <img
                             *ngIf="hideGradeInfo"

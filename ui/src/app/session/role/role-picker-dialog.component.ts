@@ -21,12 +21,12 @@ import type { User } from '../session.service';
     selector: 'xm-role-selector-dialog',
     template: `
         <div class="modal-header">
-            <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'sitnet_select_role' | translate }}</h4>
+            <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'i18n_select_role' | translate }}</h4>
         </div>
         <div class="modal-body">
             <div ngbDropdown>
                 <button ngbDropdownToggle class="btn btn-light" type="button" id="dropDownMenu1">
-                    {{ 'sitnet_choose' | translate }}
+                    {{ 'i18n_choose' | translate }}
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropDownMenu1">
                     <button
@@ -41,8 +41,8 @@ import type { User } from '../session.service';
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-danger" (click)="activeModal.dismiss('sitnet_canceled')">
-                {{ 'sitnet_button_decline' | translate }}
+            <button class="btn btn-danger" (click)="activeModal.dismiss('i18n_canceled')">
+                {{ 'i18n_button_decline' | translate }}
             </button>
         </div>
     `,

@@ -1,10 +1,10 @@
 <div class="main-row">
     <div class="col-md-12">
         <div class="review-list-title">
-            {{ 'sitnet_processed_language_inspections' | translate }}
+            {{ 'i18n_processed_language_inspections' | translate }}
             <small class="smaller padl20">
                 <a [routerLink]="['/staff/inspections/reports']">{{
-                    'sitnet_language_inspection_report_link' | translate
+                    'i18n_language_inspection_report_link' | translate
                 }}</a>
             </small>
             <a *ngIf="inspections.length > 0" (click)="hideItems = !hideItems" class="pointer marl10">
@@ -37,9 +37,9 @@
                             [(ngModel)]="filterText"
                             (ngModelChange)="filterTextChanged()"
                             class="form-control hgt40"
-                            placeholder="{{ 'sitnet_search' | translate }}"
-                            ngbPopover="{{ 'sitnet_maturity_search_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            placeholder="{{ 'i18n_search' | translate }}"
+                            ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
                             triggers="mouseenter:mouseleave"
                         />
 
@@ -50,7 +50,7 @@
                 </div>
 
                 <div class="col-md-2">
-                    <span class="exam-basic-selecttitle">{{ 'sitnet_begin' | translate }}</span>
+                    <span class="exam-basic-selecttitle">{{ 'i18n_begin' | translate }}</span>
                     <xm-date-picker
                         [optional]="true"
                         [initiallyEmpty]="true"
@@ -58,7 +58,7 @@
                     ></xm-date-picker>
                 </div>
                 <div class="col-md-2">
-                    <span class="exam-basic-selecttitle">{{ 'sitnet_end' | translate }}</span>
+                    <span class="exam-basic-selecttitle">{{ 'i18n_end' | translate }}</span>
                     <xm-date-picker
                         [optional]="true"
                         [initiallyEmpty]="true"
@@ -76,7 +76,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="exam.course.code"
-                            text="sitnet_code"
+                            text="i18n_code"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('exam.course.code')"
@@ -86,7 +86,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="answerLanguage"
-                            text="sitnet_language"
+                            text="i18n_language"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('answerLanguage')"
@@ -96,7 +96,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="exam.name"
-                            text="sitnet_exam_name"
+                            text="i18n_exam_name"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('exam.name')"
@@ -106,7 +106,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="ownerAggregate"
-                            text="sitnet_teachers"
+                            text="i18n_teachers"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('ownerAggregate')"
@@ -116,7 +116,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="created"
-                            text="sitnet_arrived"
+                            text="i18n_arrived"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('created')"
@@ -126,7 +126,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="studentNameAggregate"
-                            text="sitnet_student"
+                            text="i18n_student"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('studentNameAggregate')"
@@ -136,7 +136,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="exam.created"
-                            text="sitnet_finished"
+                            text="i18n_finished"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('exam.created')"
@@ -146,7 +146,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="inspectorNameAggregate"
-                            text="sitnet_language_inspector"
+                            text="i18n_language_inspector"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('inspectorNameAggregate')"
@@ -156,7 +156,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="finishedAt"
-                            text="sitnet_inspection_finished"
+                            text="i18n_inspection_finished"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('finishedAt')"
@@ -166,14 +166,14 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="approved"
-                            text="sitnet_language_inspections"
+                            text="i18n_language_inspections"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('approved')"
                         >
                         </xm-table-sort>
                     </th>
-                    <th class="with-top">{{ 'sitnet_feedback' | translate }}</th>
+                    <th class="with-top">{{ 'i18n_feedback' | translate }}</th>
                 </tr>
             </thead>
 
@@ -238,16 +238,16 @@
                     <!-- 10 -->
                     <td>
                         <span *ngIf="inspection.approved" class="approved">
-                            {{ 'sitnet_approved' | translate }}
+                            {{ 'i18n_approved' | translate }}
                         </span>
                         <span *ngIf="!inspection.approved" class="rejected">
-                            {{ 'sitnet_rejected' | translate }}
+                            {{ 'i18n_rejected' | translate }}
                         </span>
                     </td>
                     <!-- 11 -->
                     <td>
                         <a class="pointer smaller" (click)="showStatement(inspection.statement)">{{
-                            'sitnet_view' | translate
+                            'i18n_view' | translate
                         }}</a>
                     </td>
                 </tr>
@@ -257,7 +257,7 @@
                 </tr>
                 <tr *ngIf="filteredInspections.length === 0">
                     <td class="table-column-bold" colspan="11">
-                        {{ 'sitnet_processed_language_inspections_no_results' | translate }}
+                        {{ 'i18n_processed_language_inspections_no_results' | translate }}
                     </td>
                 </tr>
             </tbody>

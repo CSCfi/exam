@@ -1,13 +1,13 @@
 <div class="top-padding-2 lightBorderBox">
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question' | translate }}:</div>
+        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             <span [xmMathJax]="sectionQuestion.question.question"></span>
         </div>
     </div>
     <!-- question attachment -->
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:</div>
+        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question_attachment' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             <span [hidden]="sectionQuestion.question.attachment">N/A</span>
             <span *ngIf="sectionQuestion.question.attachment">
@@ -19,7 +19,7 @@
     <!-- question evaluation criteria -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow" *ngIf="sectionQuestion.evaluationCriteria">
-            {{ 'sitnet_exam_evaluation_criteria' | translate }}:
+            {{ 'i18n_exam_evaluation_criteria' | translate }}:
         </div>
         <div class="sub-content-row col-md-9" *ngIf="sectionQuestion.evaluationCriteria">
             <div [innerHtml]="sectionQuestion.evaluationCriteria"></div>
@@ -29,7 +29,7 @@
     <!-- question instructions -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow" *ngIf="sectionQuestion.answerInstructions">
-            {{ 'sitnet_instructions' | translate }}:
+            {{ 'i18n_instructions' | translate }}:
         </div>
         <div class="sub-content-row col-md-9" *ngIf="sectionQuestion.answerInstructions">
             <div [innerHtml]="sectionQuestion.answerInstructions"></div>
@@ -38,14 +38,14 @@
     </div>
     <!-- answer -->
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
+        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_exam_answer' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             <span [xmMathJax]="sectionQuestion.essayAnswer?.answer"></span>&nbsp;
         </div>
     </div>
     <!-- answer attachment -->
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_answer_attachment' | translate }}:</div>
+        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_answer_attachment' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             <div [hidden]="sectionQuestion.essayAnswer?.attachment">N/A</div>
             <div *ngIf="sectionQuestion.essayAnswer?.attachment">
@@ -55,24 +55,24 @@
     </div>
     <!-- answer length & recommended length-->
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_answer_length' | translate }}:</div>
+        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_answer_length' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            {{ getWordCount() }} {{ 'sitnet_words' | translate }}, {{ 'sitnet_approximately' | translate }}
-            {{ getCharacterCount() }} {{ 'sitnet_characters' | translate }}
+            {{ getWordCount() }} {{ 'i18n_words' | translate }}, {{ 'i18n_approximately' | translate }}
+            {{ getCharacterCount() }} {{ 'i18n_characters' | translate }}
         </div>
     </div>
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_essay_length_recommendation' | translate }}:</div>
+        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_essay_length_recommendation' | translate }}:</div>
         <div class="sub-content-row col-md-9">
-            {{ sectionQuestion.expectedWordCount }}&nbsp; ({{ 'sitnet_approximately' | translate }}
-            {{ sectionQuestion.expectedWordCount || 0 * 8 }} {{ 'sitnet_characters' | translate }})
+            {{ sectionQuestion.expectedWordCount }}&nbsp; ({{ 'i18n_approximately' | translate }}
+            {{ sectionQuestion.expectedWordCount || 0 * 8 }} {{ 'i18n_characters' | translate }})
         </div>
     </div>
     <!-- grade -->
     <div class="row">
         <div class="sub-header-row col-md-3 newRow">
-            <span *ngIf="sectionQuestion.evaluationType === 'Points'">{{ 'sitnet_word_points' | translate }}:</span>
-            <span [hidden]="sectionQuestion.evaluationType === 'Points'">{{ 'sitnet_comments' | translate }}:</span>
+            <span *ngIf="sectionQuestion.evaluationType === 'Points'">{{ 'i18n_word_points' | translate }}:</span>
+            <span [hidden]="sectionQuestion.evaluationType === 'Points'">{{ 'i18n_comments' | translate }}:</span>
         </div>
         <div class="sub-content-row col-md-9">
             <span *ngIf="sectionQuestion.evaluationType === 'Points'">
@@ -80,10 +80,10 @@
             </span>
             <span *ngIf="sectionQuestion.evaluationType === 'Selection'">
                 <div *ngIf="sectionQuestion.essayAnswer?.evaluatedScore === 1">
-                    {{ 'sitnet_approved' | translate }}
+                    {{ 'i18n_approved' | translate }}
                 </div>
                 <div *ngIf="sectionQuestion.essayAnswer?.evaluatedScore === 0">
-                    {{ 'sitnet_rejected' | translate }}
+                    {{ 'i18n_rejected' | translate }}
                 </div>
             </span>
         </div>

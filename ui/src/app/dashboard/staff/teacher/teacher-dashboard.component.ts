@@ -49,19 +49,19 @@ export class TeacherDashboardComponent implements OnInit {
     ) {
         this.activeExtraData = [
             {
-                text: 'sitnet_participation_unreviewed',
+                text: 'i18n_participation_unreviewed',
                 property: 'unassessedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
             },
             {
-                text: 'sitnet_participation_unfinished',
+                text: 'i18n_participation_unfinished',
                 property: 'unfinishedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
             },
             {
-                text: 'sitnet_dashboard_title_waiting_reservation',
+                text: 'i18n_dashboard_title_waiting_reservation',
                 property: 'reservationCount',
                 link: ['/staff/reservations', '__'],
                 checkOwnership: false,
@@ -69,13 +69,13 @@ export class TeacherDashboardComponent implements OnInit {
         ];
         this.finishedExtraData = [
             {
-                text: 'sitnet_participation_unreviewed',
+                text: 'i18n_participation_unreviewed',
                 property: 'unassessedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
             },
             {
-                text: 'sitnet_participation_unfinished',
+                text: 'i18n_participation_unfinished',
                 property: 'unfinishedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: false,
@@ -83,7 +83,7 @@ export class TeacherDashboardComponent implements OnInit {
         ];
         this.archivedExtraData = [
             {
-                text: 'sitnet_participations_assessed',
+                text: 'i18n_participations_assessed',
                 property: 'assessedCount',
                 link: ['/staff/exams', '__', '5'],
                 checkOwnership: true,

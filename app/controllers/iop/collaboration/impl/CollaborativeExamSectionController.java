@@ -63,7 +63,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                 exam.getExamSections().add(section);
                                 return uploadExam(ce, exam, user, section, null);
                             }
-                            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+                            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
                         }
                         return wrapAsPromise(notFound());
                     });
@@ -95,7 +95,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                 );
                                 return uploadExam(ce, exam, user, resultProvider.apply(exam).orElse(null), pp);
                             }
-                            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+                            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
                         }
                         return wrapAsPromise(notFound());
                     });
@@ -125,7 +125,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 }
                 return Optional.empty();
             } else {
-                return Optional.of(notFound("sitnet_error_not_found"));
+                return Optional.of(notFound("i18n_error_not_found"));
             }
         };
 
@@ -155,7 +155,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 es.setDescription(form.getDescription());
                 return Optional.empty();
             } else {
-                return Optional.of(notFound("sitnet_error_not_found"));
+                return Optional.of(notFound("i18n_error_not_found"));
             }
         };
 
@@ -225,7 +225,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 }
                 return Optional.empty();
             } else {
-                return Optional.of(notFound("sitnet_error_not_found"));
+                return Optional.of(notFound("i18n_error_not_found"));
             }
         };
         return update(request, examId, updater, e -> Optional.empty());
@@ -275,7 +275,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 updateSequences(es.getSectionQuestions(), sequence);
                 esq.setSequenceNumber(sequence);
                 if (es.getSectionQuestions().contains(esq) || es.hasQuestion(question)) {
-                    return Optional.of(badRequest("sitnet_question_already_in_section"));
+                    return Optional.of(badRequest("i18n_question_already_in_section"));
                 }
                 if (question.getType().equals(Question.Type.EssayQuestion)) {
                     // disable auto evaluation for this exam
@@ -294,7 +294,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 es.getSectionQuestions().add(esq);
                 return Optional.empty();
             } else {
-                return Optional.of(notFound("sitnet_error_not_found"));
+                return Optional.of(notFound("i18n_error_not_found"));
             }
         };
         return update(
@@ -345,10 +345,10 @@ public class CollaborativeExamSectionController extends CollaborationController 
                     }
                     return Optional.empty();
                 } else {
-                    return Optional.of(notFound("sitnet_error_not_found"));
+                    return Optional.of(notFound("i18n_error_not_found"));
                 }
             } else {
-                return Optional.of(notFound("sitnet_error_not_found"));
+                return Optional.of(notFound("i18n_error_not_found"));
             }
         };
         return update(
@@ -373,7 +373,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 es.getSectionQuestions().clear();
                 return Optional.empty();
             } else {
-                return Optional.of(notFound("sitnet_error_not_found"));
+                return Optional.of(notFound("i18n_error_not_found"));
             }
         };
         return update(
@@ -428,13 +428,13 @@ public class CollaborativeExamSectionController extends CollaborationController 
                                         );
                                         return uploadExam(ce, exam, user, esq, pp);
                                     } else {
-                                        return wrapAsPromise(notFound("sitnet_error_not_found"));
+                                        return wrapAsPromise(notFound("i18n_error_not_found"));
                                     }
                                 } else {
-                                    return wrapAsPromise(notFound("sitnet_error_not_found"));
+                                    return wrapAsPromise(notFound("i18n_error_not_found"));
                                 }
                             }
-                            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+                            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
                         }
                         return wrapAsPromise(notFound());
                     });

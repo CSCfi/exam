@@ -30,18 +30,18 @@ import type { Exam } from '../../exam.model';
                     {{ getConfirmationText() }}
                 </p>
                 <p *ngIf="exam.examFeedbackConfig">
-                    {{ 'sitnet_exam_feedback_config_confirmation' | translate }}
+                    {{ 'i18n_exam_feedback_config_confirmation' | translate }}
                 </p>
             </div>
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
                     <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                        {{ 'sitnet_button_ok' | translate }}
+                        {{ 'i18n_button_ok' | translate }}
                     </button>
                 </div>
                 <div class="student-message-dialog-button-cancel">
                     <button class="btn btn-sm btn-danger" (click)="activeModal.dismiss()">
-                        {{ 'sitnet_button_cancel' | translate }}
+                        {{ 'i18n_button_cancel' | translate }}
                     </button>
                 </div>
             </div>
@@ -56,16 +56,14 @@ export class PublicationDialogComponent {
 
     getConfirmationText = () => {
         let confirmation = this.prePublication
-            ? this.translate.instant('sitnet_pre_publish_exam_confirm')
-            : this.translate.instant('sitnet_publish_exam_confirm');
+            ? this.translate.instant('i18n_pre_publish_exam_confirm')
+            : this.translate.instant('i18n_publish_exam_confirm');
         if (this.exam.executionType.type !== 'PRINTOUT' && !this.prePublication) {
-            confirmation += ' ' + this.translate.instant('sitnet_publish_exam_confirm_enroll');
+            confirmation += ' ' + this.translate.instant('i18n_publish_exam_confirm_enroll');
         }
         return confirmation;
     };
 
     getTitle = () =>
-        this.prePublication
-            ? 'sitnet_pre_publish_exam_confirm_dialog_title'
-            : 'sitnet_publish_exam_confirm_dialog_title';
+        this.prePublication ? 'i18n_pre_publish_exam_confirm_dialog_title' : 'i18n_publish_exam_confirm_dialog_title';
 }

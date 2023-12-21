@@ -5,7 +5,7 @@
                 [(ngModel)]="filterText"
                 type="text"
                 class="form-control search"
-                placeholder="{{ 'sitnet_exam_search_description' | translate }}"
+                placeholder="{{ 'i18n_exam_search_description' | translate }}"
                 (ngModelChange)="search($event)"
             />
             <div class="input-group-text p-0 search">
@@ -24,14 +24,14 @@
                             [reverse]="sorting.reverse"
                             [predicate]="sorting.predicate"
                             by="name"
-                            text="sitnet_exam_name"
+                            text="i18n_exam_name"
                             (click)="setPredicate('name')"
                         ></xm-table-sort>
                     </th>
                     <th class="with-top">
                         <xm-table-sort
                             by="course.code"
-                            text="sitnet_course_code"
+                            text="i18n_course_code"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('course.code')"
@@ -40,7 +40,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="executionType.type"
-                            text="sitnet_exam_type"
+                            text="i18n_exam_type"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('executionType.type')"
@@ -48,11 +48,11 @@
                     </th>
                     <th class="with-top">
                         <xm-table-sort
-                            by="examActiveEndDate"
-                            text="sitnet_exam_validity"
+                            by="periodEnd"
+                            text="i18n_exam_validity"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
-                            (click)="setPredicate('examActiveEndDate')"
+                            (click)="setPredicate('periodEnd')"
                         ></xm-table-sort>
                     </th>
 
@@ -68,7 +68,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="ownerAggregate"
-                            text="sitnet_teachers"
+                            text="i18n_teachers"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('ownerAggregate')"
@@ -96,9 +96,9 @@
                             *ngIf="isOwner(exam)"
                             [routerLink]="['/staff/exams', exam.id, '1']"
                             [state]="{ collaborative: false }"
-                            >{{ 'sitnet_no_name' | translate }}</a
+                            >{{ 'i18n_no_name' | translate }}</a
                         >
-                        <span class="text-danger" *ngIf="!isOwner(exam)">{{ 'sitnet_no_name' | translate }}</span>
+                        <span class="text-danger" *ngIf="!isOwner(exam)">{{ 'i18n_no_name' | translate }}</span>
                     </td>
                     <td>
                         <xm-course-code class="exam-code" *ngIf="exam.course" [course]="exam.course"></xm-course-code>
@@ -107,9 +107,9 @@
                         <span class="exam-type">{{ getExecutionTypeTranslation(exam) }}</span>
                     </td>
                     <td class="table-column-open-until">
-                        <span *ngIf="exam.examActiveStartDate && exam.examActiveEndDate">
-                            {{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }} -
-                            {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}
+                        <span *ngIf="exam.periodStart && exam.periodEnd">
+                            {{ exam.periodStart | date : 'dd.MM.yyyy' }} -
+                            {{ exam.periodEnd | date : 'dd.MM.yyyy' }}
                         </span>
                     </td>
 
@@ -140,8 +140,8 @@
                         <a *ngIf="isOwner(exam)" (click)="deleteExam(exam)" class="pointer">
                             <i
                                 class="bi-trash text-dark"
-                                ngbPopover="{{ 'sitnet_exam_remove' | translate }}"
-                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                ngbPopover="{{ 'i18n_exam_remove' | translate }}"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
                                 triggers="mouseenter:mouseleave"
                             ></i>
                         </a>
@@ -150,8 +150,8 @@
                         <a class="pointer" (click)="copyExam(exam)">
                             <i
                                 class="bi-files text-dark"
-                                ngbPopover="{{ 'sitnet_copy' | translate }}"
-                                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                ngbPopover="{{ 'i18n_copy' | translate }}"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
                                 triggers="mouseenter:mouseleave"
                             ></i>
                         </a>
@@ -159,7 +159,7 @@
                 </tr>
                 <tr *ngIf="items?.length === 0">
                     <td [attr.colspan]="7 + extraData.length">
-                        {{ 'sitnet_exam_no_result' | translate }}
+                        {{ 'i18n_exam_no_result' | translate }}
                     </td>
                 </tr>
             </tbody>

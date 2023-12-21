@@ -181,12 +181,14 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     // Exam valid/enrollable from
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
-    private DateTime examActiveStartDate;
+    @Column(name = "exam_active_start_date")
+    private DateTime periodStart;
 
     // Exam valid/enrollable until
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
-    private DateTime examActiveEndDate;
+    @Column(name = "exam_active_end_date")
+    private DateTime periodEnd;
 
     // Exam duration (minutes)
     private Integer duration;
@@ -713,20 +715,20 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return createCopy(user, false, true, Collections.emptySet());
     }
 
-    public DateTime getExamActiveStartDate() {
-        return examActiveStartDate;
+    public DateTime getPeriodStart() {
+        return periodStart;
     }
 
-    public void setExamActiveStartDate(DateTime examActiveStartDate) {
-        this.examActiveStartDate = examActiveStartDate;
+    public void setPeriodStart(DateTime periodStart) {
+        this.periodStart = periodStart;
     }
 
-    public DateTime getExamActiveEndDate() {
-        return examActiveEndDate;
+    public DateTime getPeriodEnd() {
+        return periodEnd;
     }
 
-    public void setExamActiveEndDate(DateTime examActiveEndDate) {
-        this.examActiveEndDate = examActiveEndDate;
+    public void setPeriodEnd(DateTime periodEnd) {
+        this.periodEnd = periodEnd;
     }
 
     public void setAttachment(Attachment attachment) {

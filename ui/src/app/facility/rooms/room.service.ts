@@ -84,12 +84,12 @@ export class RoomService {
 
     disableRoom = (room: ExamRoom) =>
         this.dialogs
-            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_confirm_room_inactivation'))
+            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_confirm_room_inactivation'))
             .subscribe({
                 next: () =>
                     this.inactivateRoom$(room.id).subscribe({
                         next: () => {
-                            this.toast.info(this.translate.instant('sitnet_room_inactivated'));
+                            this.toast.info(this.translate.instant('i18n_room_inactivated'));
                             room.state = 'INACTIVE';
                         },
                         error: (err) => this.toast.error(err),
@@ -100,7 +100,7 @@ export class RoomService {
     enableRoom = (room: ExamRoom) =>
         this.activateRoom$(room.id).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_room_activated'));
+                this.toast.info(this.translate.instant('i18n_room_activated'));
                 room.state = 'ACTIVE';
             },
             error: (err) => this.toast.error(err),
@@ -110,7 +110,7 @@ export class RoomService {
         new Promise<ExceptionWorkingHours[]>((resolve, reject) => {
             this.updateExceptions$(ids, exceptions).subscribe({
                 next: (data: ExceptionWorkingHours[]) => {
-                    this.toast.info(this.translate.instant('sitnet_exception_time_added'));
+                    this.toast.info(this.translate.instant('i18n_exception_time_added'));
                     resolve(data);
                 },
                 error: (error) => {
@@ -142,7 +142,7 @@ export class RoomService {
         new Promise<void>((resolve, reject) => {
             this.removeException$(roomId, exceptionId).subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_exception_time_removed'));
+                    this.toast.info(this.translate.instant('i18n_exception_time_removed'));
                     resolve();
                 },
                 error: (error) => {
@@ -164,7 +164,7 @@ export class RoomService {
 
             this.updateExamStartingHours$(data).subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_exam_starting_hours_updated'));
+                    this.toast.info(this.translate.instant('i18n_exam_starting_hours_updated'));
                     resolve();
                 },
                 error: (error) => {

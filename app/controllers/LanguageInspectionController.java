@@ -100,7 +100,7 @@ public class LanguageInspectionController extends BaseController {
         Long examId = Long.parseLong(df.get("examId"));
         Exam exam = DB.find(Exam.class, examId);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         if (exam.getLanguageInspection() != null) {
             return forbidden("already sent for inspection");

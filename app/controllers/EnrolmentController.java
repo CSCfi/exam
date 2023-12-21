@@ -114,7 +114,7 @@ public class EnrolmentController extends BaseController {
             .eq("course.code", code)
             .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
             .eq("state", Exam.State.PUBLISHED)
-            .ge("examActiveEndDate", new Date())
+            .ge("periodEnd", new Date())
             .findList();
 
         return ok(exams);
@@ -159,7 +159,7 @@ public class EnrolmentController extends BaseController {
             .findOne();
 
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         return ok(exam);
     }
@@ -192,7 +192,7 @@ public class EnrolmentController extends BaseController {
                 .where()
                 .eq("user", user)
                 .eq("exam.id", id)
-                .gt("exam.examActiveEndDate", now.toDate())
+                .gt("exam.periodEnd", now.toDate())
                 .disjunction()
                 .eq("exam.state", Exam.State.PUBLISHED)
                 .eq("exam.state", Exam.State.STUDENT_STARTED)
@@ -203,7 +203,7 @@ public class EnrolmentController extends BaseController {
                 .collect(Collectors.toList());
             return ok(enrolments);
         }
-        return unauthorized("sitnet_no_trials_left");
+        return unauthorized("i18n_no_trials_left");
     }
 
     private boolean isActive(ExamEnrolment enrolment) {
@@ -238,7 +238,7 @@ public class EnrolmentController extends BaseController {
             return forbidden();
         }
         if (enrolment.getReservation() != null || enrolment.getExaminationEventConfiguration() != null) {
-            return forbidden("sitnet_cancel_reservation_first");
+            return forbidden("i18n_cancel_reservation_first");
         }
         enrolment.delete();
         return ok();
@@ -280,7 +280,7 @@ public class EnrolmentController extends BaseController {
             DB.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
             Optional<Exam> possibleExam = getExam(eid, type);
             if (possibleExam.isEmpty()) {
-                return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+                return wrapAsPromise(notFound("i18n_error_exam_not_found"));
             }
             Exam exam = possibleExam.get();
 
@@ -312,7 +312,7 @@ public class EnrolmentController extends BaseController {
                         e.getExam().getImplementation() == Exam.Implementation.AQUARIUM && e.getReservation() == null
                     )
             ) {
-                return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));
+                return wrapAsPromise(forbidden("i18n_error_enrolment_exists"));
             }
             // already enrolled (BYOD examination)
             if (
@@ -323,7 +323,7 @@ public class EnrolmentController extends BaseController {
                         e.getExaminationEventConfiguration() == null
                     )
             ) {
-                return wrapAsPromise(forbidden("sitnet_error_enrolment_exists"));
+                return wrapAsPromise(forbidden("i18n_error_enrolment_exists"));
             }
             // reservation in effect
             if (
@@ -332,7 +332,7 @@ public class EnrolmentController extends BaseController {
                     .map(ExamEnrolment::getReservation)
                     .anyMatch(r -> r != null && r.toInterval().contains(dateTimeHandler.adjustDST(DateTime.now(), r)))
             ) {
-                return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
+                return wrapAsPromise(forbidden("i18n_reservation_in_effect"));
             }
             // examination event in effect
             if (
@@ -347,7 +347,7 @@ public class EnrolmentController extends BaseController {
                             .contains(dateTimeHandler.adjustDST(DateTime.now()))
                     )
             ) {
-                return wrapAsPromise(forbidden("sitnet_reservation_in_effect"));
+                return wrapAsPromise(forbidden("i18n_reservation_in_effect"));
             }
             List<ExamEnrolment> enrolmentsWithFutureReservations = enrolments
                 .stream()
@@ -409,7 +409,7 @@ public class EnrolmentController extends BaseController {
                     enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
                 ) {
                     // External reservation, assessment not returned yet. We must wait for it to arrive first
-                    return wrapAsPromise(forbidden("sitnet_enrolment_assessment_not_received"));
+                    return wrapAsPromise(forbidden("i18n_enrolment_assessment_not_received"));
                 }
             }
             ExamEnrolment newEnrolment = makeEnrolment(exam, user);
@@ -423,7 +423,7 @@ public class EnrolmentController extends BaseController {
             return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
         } else {
             logger.warn("Attempt to enroll for a course without permission from {}", user.toString());
-            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
         }
     }
 
@@ -451,7 +451,7 @@ public class EnrolmentController extends BaseController {
         Optional<String> email = request.attrs().getOptional(Attrs.EMAIL);
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
         ExamExecutionType.Type executionType = ExamExecutionType.Type.valueOf(exam.getExecutionType().getType());
 
@@ -539,7 +539,7 @@ public class EnrolmentController extends BaseController {
             .endJunction()
             .findOne();
         if (enrolment == null) {
-            return forbidden("sitnet_not_possible_to_remove_participant");
+            return forbidden("i18n_not_possible_to_remove_participant");
         }
         enrolment.delete();
         return ok();
@@ -586,7 +586,7 @@ public class EnrolmentController extends BaseController {
         ExaminationEventConfiguration config = optionalConfig.get();
         ExaminationEvent event = config.getExaminationEvent();
         if (config.getExamEnrolments().size() + 1 > event.getCapacity()) {
-            return forbidden("sitnet_error_max_enrolments_reached");
+            return forbidden("i18n_error_max_enrolments_reached");
         }
         enrolment.setExaminationEventConfiguration(config);
         enrolment.update();
@@ -683,7 +683,7 @@ public class EnrolmentController extends BaseController {
     public Result permitRetrial(Long id) {
         ExamEnrolment enrolment = DB.find(ExamEnrolment.class, id);
         if (enrolment == null) {
-            return notFound("sitnet_not_found");
+            return notFound("i18n_not_found");
         }
         enrolment.setRetrialPermitted(true);
         enrolment.update();

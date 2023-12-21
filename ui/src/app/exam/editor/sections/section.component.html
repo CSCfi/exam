@@ -2,10 +2,10 @@
     <div class="row">
         <div class="col-md-12">
             <div class="review-list-title pb-4">
-                {{ 'sitnet_section_title' | translate }} {{ index }}
+                {{ 'i18n_section_title' | translate }} {{ index }}
                 <sup
-                    ngbPopover="{{ 'sitnet_exam_section_order_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_section_order_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                     class="me-4"
                 >
@@ -18,14 +18,14 @@
                 <!-- settings -->
                 <div class="float-end exam-section-settings" ngbDropdown>
                     <button class="btn btn-outline-dark" ngbDropdownToggle>
-                        {{ 'sitnet_edit' | translate }}
+                        {{ 'i18n_edit' | translate }}
                     </button>
                     <div ngbDropdownMenu>
                         <button ngbDropdownItem (click)="clearAllQuestions()">
-                            {{ 'sitnet_exam_clear' | translate }}
+                            {{ 'i18n_exam_clear' | translate }}
                         </button>
                         <button ngbDropdownItem (click)="removeSection()">
-                            {{ 'sitnet_exam_remove' | translate }}
+                            {{ 'i18n_exam_remove' | translate }}
                         </button>
                     </div>
                 </div>
@@ -38,10 +38,10 @@
         <div class="col-md-12">
             <form>
                 <label for="sectionName_{{ section.id }}" class="form-label">
-                    {{ 'sitnet_section_name' | translate }}
+                    {{ 'i18n_section_name' | translate }}
                     <sup
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_exam_section_name_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_exam_section_name_description' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
                         <img
@@ -62,10 +62,10 @@
                 />
 
                 <label for="sectionDescription_{{ section.id }}" class="form-label">
-                    {{ 'sitnet_section_description' | translate }}
+                    {{ 'i18n_section_description' | translate }}
                     <sup
-                        ngbPopover="{{ 'sitnet_exam_section_description_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_exam_section_description_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
                         <img
@@ -102,10 +102,10 @@
                         (change)="renameSection()"
                     />
                     <label for="sectionOptionality_{{ section.id }}" class="form-check-label">
-                        {{ 'sitnet_optional_section' | translate }}
+                        {{ 'i18n_optional_section' | translate }}
                         <sup
-                            ngbPopover="{{ 'sitnet_optional_section_description' | translate }}"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            ngbPopover="{{ 'i18n_optional_section_description' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
                             triggers="mouseenter:mouseleave"
                         >
                             <img src="/assets/images/icon_tooltip.svg" alt="" />
@@ -123,11 +123,11 @@
                         (change)="toggleLottery()"
                     />
                     <label for="sectionRandomized_{{ section.id }}" class="form-check-label">
-                        {{ 'sitnet_randomize_questions' | translate }}
+                        {{ 'i18n_randomize_questions' | translate }}
                     </label>
                     <sup
-                        ngbPopover="{{ 'sitnet_exam_section_randomize_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_exam_section_randomize_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                         class="marl5"
                     >
@@ -138,13 +138,13 @@
                         />
                     </sup>
                     <span class="text text-danger ms-2" *ngIf="!questionPointsMatch()">{{
-                        'sitnet_error_lottery_points_not_match' | translate
+                        'i18n_error_lottery_points_not_match' | translate
                     }}</span>
                 </div>
                 <div class="row" *ngIf="section.lotteryOn">
                     <div class="col-auto">
                         <label class="col-form-label" for="sectionLotteryCount_{{ section.id }}">
-                            {{ 'sitnet_lottery_questions' | translate }} [1...{{
+                            {{ 'i18n_lottery_questions' | translate }} [1...{{
                                 section.sectionQuestions.length
                             }}]</label
                         >
@@ -169,15 +169,15 @@
 
     <div class="row mt-4" *ngIf="getSectionTotalScore() > 0">
         <div class="col-md-12 exam-basic-title">
-            <strong>{{ 'sitnet_section_max_score' | translate }}: {{ getSectionTotalScore() }}</strong>
+            <strong>{{ 'i18n_section_max_score' | translate }}: {{ getSectionTotalScore() }}</strong>
         </div>
     </div>
     <div class="row mt-3" *ngIf="getAmountOfSelectionEvaluatedQuestions() > 0">
         <div class="col-md-3 exam-basic-title">
-            {{ 'sitnet_evaluation_select' | translate }}
+            {{ 'i18n_evaluation_select' | translate }}
             <sup
-                ngbPopover="{{ 'sitnet_evaluation_select_amount_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                ngbPopover="{{ 'i18n_evaluation_select_amount_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
             >
                 <img
@@ -195,11 +195,11 @@
     <div class="row mt-4 mb-4">
         <div class="col-md-12">
             <div class="review-list-title">
-                {{ 'sitnet_exam_questions' | translate }}
+                {{ 'i18n_exam_questions' | translate }}
                 <a
                     class="pointer"
-                    ngbPopover="{{ 'sitnet_show' | translate }} / {{ 'sitnet_hide' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_show' | translate }} / {{ 'i18n_hide' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                     (click)="section.expanded = !section.expanded; expandSection()"
                 >
@@ -243,13 +243,13 @@
 
             <div *ngIf="!collaborative" class="review-attachment-button exam-questions-buttons mt-3">
                 <a class="pointer" (click)="openLibrary()">
-                    <i class="bi-plus"></i>&nbsp;{{ 'sitnet_add_from_library' | translate }}
+                    <i class="bi-plus"></i>&nbsp;{{ 'i18n_add_from_library' | translate }}
                 </a>
             </div>
 
             <div class="review-attachment-button exam-questions-buttons ms-3 mt-3">
                 <a class="pointer" (click)="addNewQuestion()">
-                    <i class="bi-plus"></i>&nbsp;{{ 'sitnet_exam_new_question' | translate }}
+                    <i class="bi-plus"></i>&nbsp;{{ 'i18n_exam_new_question' | translate }}
                 </a>
             </div>
         </div>

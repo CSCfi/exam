@@ -118,7 +118,7 @@ public interface BaseAttachmentInterface<T> {
         }
         Optional<String> contentLength = request.header("Content-Length");
         if (contentLength.isEmpty() || Long.parseLong(contentLength.get()) > getConfigReader().getMaxFileSize()) {
-            throw new IllegalArgumentException("sitnet_file_too_large");
+            throw new IllegalArgumentException("i18n_file_too_large");
         }
         return new MultipartForm(filePart, body.asFormUrlEncoded());
     }

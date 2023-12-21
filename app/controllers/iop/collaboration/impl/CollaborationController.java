@@ -223,7 +223,7 @@ public class CollaborationController extends BaseController {
             .idEq(id)
             .findOneOrEmpty()
             .<Either<CompletionStage<Result>, CollaborativeExam>>map(Either::right)
-            .orElse(Either.left(wrapAsPromise(notFound("sitnet_error_exam_not_found"))));
+            .orElse(Either.left(wrapAsPromise(notFound("i18n_error_exam_not_found"))));
     }
 
     Either<CompletionStage<Result>, CollaborativeExam> findCollaborativeExam(String ref) {
@@ -233,6 +233,6 @@ public class CollaborationController extends BaseController {
             .eq("externalRef", ref)
             .findOneOrEmpty()
             .<Either<CompletionStage<Result>, CollaborativeExam>>map(Either::right)
-            .orElse(Either.left(wrapAsPromise(notFound("sitnet_error_exam_not_found"))));
+            .orElse(Either.left(wrapAsPromise(notFound("i18n_error_exam_not_found"))));
     }
 }

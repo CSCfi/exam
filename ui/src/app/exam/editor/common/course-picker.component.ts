@@ -62,7 +62,7 @@ export class CoursePickerComponent implements OnInit {
     };
 
     private showError = (term: string) =>
-        this.toast.error(`${this.translate.instant('sitnet_course_not_found')} ( ${term}  )`);
+        this.toast.error(`${this.translate.instant('i18n_course_not_found')} ( ${term}  )`);
 
     private getCourses$ = (category: 'name' | 'code', text$: Observable<string>): Observable<Course[]> =>
         text$.pipe(

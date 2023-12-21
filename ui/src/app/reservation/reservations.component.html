@@ -3,10 +3,10 @@
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
                 <div *ngIf="isAdminView()" class="student-enroll-title">
-                    {{ 'sitnet_reservations_administration' | translate }}
+                    {{ 'i18n_reservations_administration' | translate }}
                 </div>
                 <div *ngIf="!isAdminView()" class="student-enroll-title">
-                    {{ 'sitnet_reservations_new' | translate }}
+                    {{ 'i18n_reservations_new' | translate }}
                 </div>
             </div>
         </div>
@@ -16,19 +16,19 @@
         <div class="ps-4 pe-4 pt-4 pb-2 row">
             <div class="col-md-2 pt-1 reservation-search-titles">
                 <label for="start-date-picker" class="reservation-search-titles form-label">{{
-                    'sitnet_begin' | translate
+                    'i18n_begin' | translate
                 }}</label>
                 <xm-date-picker id="start-date-picker" (updated)="startDateChanged($event)"></xm-date-picker>
             </div>
             <div class="col-md-2 pt-1 reservation-search-titles">
                 <label for="end-date-picker" class="reservation-search-titles form-label">{{
-                    'sitnet_end' | translate
+                    'i18n_end' | translate
                 }}</label>
                 <xm-date-picker id="end-date-picker" (updated)="endDateChanged($event)"></xm-date-picker>
             </div>
             <div class="col-md-2">
                 <label for="student-search" class="reservation-search-titles form-label">{{
-                    'sitnet_student' | translate
+                    'i18n_student' | translate
                 }}</label>
                 <div class="input-group">
                     <input
@@ -41,16 +41,16 @@
                         [inputFormatter]="nameFormatter"
                         (selectItem)="studentSelected($event)"
                         [disabled]="student"
-                        placeholder="{{ 'sitnet_search' | translate }}"
+                        placeholder="{{ 'i18n_search' | translate }}"
                     />
                     <button class="btn btn-outline-secondary" type="reset" (click)="clearStudent()">
-                        {{ 'sitnet_remove' | translate }}
+                        {{ 'i18n_remove' | translate }}
                     </button>
                 </div>
             </div>
             <div class="col-md-3">
                 <label for="exam-search" class="reservation-search-titles form-label">{{
-                    'sitnet_exam' | translate
+                    'i18n_exam' | translate
                 }}</label>
                 <div class="input-group">
                     <input
@@ -63,23 +63,23 @@
                         [inputFormatter]="nameFormatter"
                         (selectItem)="examSelected($event)"
                         [disabled]="examId || externalRef"
-                        placeholder="{{ 'sitnet_search' | translate }}"
+                        placeholder="{{ 'i18n_search' | translate }}"
                     />
                     <button class="btn btn-outline-secondary" type="reset" (click)="clearExam()">
-                        {{ 'sitnet_remove' | translate }}
+                        {{ 'i18n_remove' | translate }}
                     </button>
                 </div>
             </div>
             <div class="col-md-3">
                 <label for="state-search" class="reservation-search-titles form-label">{{
-                    'sitnet_exam_state' | translate
+                    'i18n_exam_state' | translate
                 }}</label>
                 <xm-dropdown-select
                     id="state-search"
                     [options]="stateOptions"
                     [fullWidth]="true"
                     (optionSelected)="stateChanged($event)"
-                    placeholder="{{ 'sitnet_select' | translate }}"
+                    placeholder="{{ 'i18n_select' | translate }}"
                 >
                 </xm-dropdown-select>
             </div>
@@ -88,7 +88,7 @@
         <div *ngIf="isAdminView()" class="row ps-4 pe-4 align-items-center">
             <div class="col-md-3">
                 <label for="owner-search" class="reservation-search-titles form-label">{{
-                    'sitnet_exam_owners' | translate
+                    'i18n_exam_owners' | translate
                 }}</label>
                 <div class="input-group">
                     <input
@@ -101,16 +101,16 @@
                         [inputFormatter]="nameFormatter"
                         (selectItem)="ownerSelected($event)"
                         [disabled]="owner"
-                        placeholder="{{ 'sitnet_search' | translate }}"
+                        placeholder="{{ 'i18n_search' | translate }}"
                     />
                     <button class="btn btn-outline-secondary" type="reset" (click)="clearOwner()">
-                        {{ 'sitnet_remove' | translate }}
+                        {{ 'i18n_remove' | translate }}
                     </button>
                 </div>
             </div>
             <div class="col-md-3">
                 <label for="room-search" class="reservation-search-titles form-label">{{
-                    'sitnet_room' | translate
+                    'i18n_room' | translate
                 }}</label>
                 <xm-dropdown-select
                     id="room-search"
@@ -119,13 +119,13 @@
                     (optionSelected)="roomChanged($event)"
                     [limitTo]="0"
                     [fullWidth]="true"
-                    placeholder="{{ 'sitnet_select' | translate }}"
+                    placeholder="{{ 'i18n_select' | translate }}"
                 >
                 </xm-dropdown-select>
             </div>
             <div class="col-md-3">
                 <label for="machine-search" class="reservation-search-titles form-label">{{
-                    'sitnet_exam_machine' | translate
+                    'i18n_exam_machine' | translate
                 }}</label>
                 <xm-dropdown-select
                     id="machine-search"
@@ -134,7 +134,7 @@
                     (optionSelected)="machineChanged($event)"
                     [limitTo]="0"
                     [fullWidth]="true"
-                    placeholder="{{ 'sitnet_select' | translate }}"
+                    placeholder="{{ 'i18n_select' | translate }}"
                 >
                 </xm-dropdown-select>
             </div>
@@ -143,7 +143,7 @@
                     <label>
                         <input type="checkbox" value="" [(ngModel)]="externalReservationsOnly" (change)="query()" />
                         <strong class="reservation-search-titles">
-                            {{ 'sitnet_external_reservations_only' | translate }}
+                            {{ 'i18n_external_reservations_only' | translate }}
                         </strong>
                     </label>
                 </div>
@@ -151,7 +151,7 @@
                     <label>
                         <input type="checkbox" value="" [(ngModel)]="byodExamsOnly" (change)="query()" />
                         <strong class="reservation-search-titles">
-                            {{ 'sitnet_byod_only' | translate }}
+                            {{ 'i18n_byod_only' | translate }}
                         </strong>
                     </label>
                 </div>

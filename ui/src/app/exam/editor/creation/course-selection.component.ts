@@ -47,7 +47,7 @@ export class CourseSelectionComponent implements OnInit {
 
     updateExamName = () =>
         this.Exam.updateExam$(this.exam).subscribe({
-            next: () => this.toast.info(this.translate.instant('sitnet_exam_saved')),
+            next: () => this.toast.info(this.translate.instant('i18n_exam_saved')),
             error: (error) => {
                 if (error.data) {
                     const msg = error.data.message || error.data;
@@ -58,13 +58,13 @@ export class CourseSelectionComponent implements OnInit {
 
     onCourseSelected = (course: Course) =>
         this.http.put(`/app/exams/${this.exam.id}/course/${course.id}`, {}).subscribe(() => {
-            this.toast.success(this.translate.instant('sitnet_exam_associated_with_course'));
+            this.toast.success(this.translate.instant('i18n_exam_associated_with_course'));
             this.exam.course = course;
         });
 
     cancelNewExam = () =>
         this.http.delete(`/app/exams/${this.exam.id}`).subscribe(() => {
-            this.toast.success(this.translate.instant('sitnet_exam_removed'));
+            this.toast.success(this.translate.instant('i18n_exam_removed'));
             this.router.navigate(['/staff', this.Session.getUser()?.isAdmin ? 'admin' : 'teacher']);
         });
 

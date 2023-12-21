@@ -9,19 +9,19 @@
                 <h2 class="student-enrolment-exam">
                     <span *ngIf="!participation.exam.anonymous">#{{ participation.exam.id }}</span>
                     {{ participation.exam.name }}
-                    <span *ngIf="participation.exam.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
+                    <span *ngIf="participation.exam.anonymous">({{ 'i18n_anonymous_review' | translate }})</span>
                 </h2>
             </div>
         </div>
         <div *ngIf="!collaborative" class="row">
             <div class="col-12">
                 <div class="row">
-                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
+                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_course_name' | translate }}:</div>
                     <div *ngIf="participation.exam.course" class="col-6 col-sm-6 col-md-3 col-lg-3">
                         <xm-course-code [course]="participation.exam.course"></xm-course-code>
                         {{ participation.exam.course?.name }}
                     </div>
-                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_teachers' | translate }}:</div>
+                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_teachers' | translate }}:</div>
                     <div class="col-6 col-sm-6 col-md-5 col-lg-5">
                         <div>
                             <xm-teacher-list [exam]="participation.exam" [useParent]="true"></xm-teacher-list>
@@ -33,7 +33,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="row">
-                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_endtime' | translate }}:</div>
+                    <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_exam_endtime' | translate }}:</div>
                     <div class="col-6 col-sm-6 col-md-3 col-lg-3">
                         {{ participation.ended | applyDst | date : 'dd.MM.yyyy' }}
                     </div>
@@ -53,8 +53,8 @@
                             (ngEnter)="showEvaluation = !showEvaluation; setCommentRead(reviewedExam)"
                             [attr.aria-expanded]="showEvaluation"
                         >
-                            <span [hidden]="showEvaluation">{{ 'sitnet_comments_open' | translate }}</span>
-                            <span [hidden]="!showEvaluation">{{ 'sitnet_comments_hide' | translate }}</span>
+                            <span [hidden]="showEvaluation">{{ 'i18n_comments_open' | translate }}</span>
+                            <span [hidden]="!showEvaluation">{{ 'i18n_comments_hide' | translate }}</span>
                             <i [hidden]="showEvaluation" class="bi bi-chevron-right ms-2" alt="hide evaluation"></i>
                             <i [hidden]="!showEvaluation" class="bi bi-chevron-down ms-2" alt="show evaluation"></i>
                         </button>
@@ -78,12 +78,12 @@
         <div class="row mt-2">
             <div class="col-12" *ngIf="participation.noShow">
                 <div class="row">
-                    <div class="col-12 text-danger">{{ 'sitnet_no_show' | translate }}</div>
+                    <div class="col-12 text-danger">{{ 'i18n_no_show' | translate }}</div>
                 </div>
             </div>
             <div class="col-12" *ngIf="!participation.noShow && !reviewedExam">
                 <div class="row">
-                    <div class="col-12 text-muted">{{ 'sitnet_no_comments' | translate }}</div>
+                    <div class="col-12 text-muted">{{ 'i18n_no_comments' | translate }}</div>
                 </div>
             </div>
         </div>

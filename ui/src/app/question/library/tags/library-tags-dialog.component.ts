@@ -28,7 +28,7 @@ import { LibraryService } from '../library.service';
         <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">
                 <div class="student-enroll-dialog-wrap">
-                    <h1 class="student-enroll-title">{{ 'sitnet_add_question_tag' | translate }}</h1>
+                    <h1 class="student-enroll-title">{{ 'i18n_add_question_tag' | translate }}</h1>
                 </div>
             </div>
             <div class="modal-body">
@@ -42,7 +42,7 @@ import { LibraryService } from '../library.service';
                     />
                     <div class="input-group-append">
                         <button class="btn btn-success" (click)="addTagForSelected()">
-                            {{ 'sitnet_add' | translate }}
+                            {{ 'i18n_add' | translate }}
                         </button>
                     </div>
                 </div>
@@ -50,7 +50,7 @@ import { LibraryService } from '../library.service';
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
                     <button class="btn btn-sm btn-primary" (click)="close()" autofocus>
-                        {{ 'sitnet_close' | translate }}
+                        {{ 'i18n_close' | translate }}
                     </button>
                 </div>
             </div>
@@ -96,16 +96,16 @@ export class LibraryTagsDialogComponent implements OnInit {
     addTagForSelected = () => {
         // check that atleast one has been selected
         if (!this.selectedTagId) {
-            this.toast.warning(this.translate.instant('sitnet_add_question_tag'));
+            this.toast.warning(this.translate.instant('i18n_add_question_tag'));
             return;
         }
 
         this.Library.addTagForQuestions$(this.selectedTagId, this.selections).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_tag_added'));
+                this.toast.info(this.translate.instant('i18n_tag_added'));
                 this.newTags.push(this.selectedTagId as number);
             },
-            error: () => this.toast.error(this.translate.instant('sitnet_update_failed')),
+            error: () => this.toast.error(this.translate.instant('i18n_update_failed')),
         });
     };
 

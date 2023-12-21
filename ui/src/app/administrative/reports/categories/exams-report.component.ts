@@ -22,20 +22,20 @@ import { Option } from '../../../shared/select/dropdown-select.component';
     template: `
         <div class="top-row">
             <h4 class="col-md-12">
-                {{ 'sitnet_get_all_info_from_exam' | translate }}
-                <span *ngIf="fileType === 'xlsx'">{{ 'sitnet_excel_file' | translate }}</span>
-                <span *ngIf="fileType === 'json'">{{ 'sitnet_json_file' | translate }}</span>
+                {{ 'i18n_get_all_info_from_exam' | translate }}
+                <span *ngIf="fileType === 'xlsx'">{{ 'i18n_excel_file' | translate }}</span>
+                <span *ngIf="fileType === 'json'">{{ 'i18n_json_file' | translate }}</span>
             </h4>
         </div>
         <div class="bottom-row d-flex justify-content-between">
             <div class="col-lg-10 mb-4">
-                <label for="exam">{{ 'sitnet_select_exam' | translate }}</label>
+                <label for="exam">{{ 'i18n_select_exam' | translate }}</label>
                 <xm-dropdown-select
                     id="exam"
                     *ngIf="examNames"
                     [options]="examNames"
                     (optionSelected)="examSelected($event)"
-                    placeholder="{{ 'sitnet_select' | translate }}"
+                    placeholder="{{ 'i18n_select' | translate }}"
                 ></xm-dropdown-select>
             </div>
             <div class="col-lg-2 mb-2">
@@ -46,8 +46,8 @@ import { Option } from '../../../shared/select/dropdown-select.component';
                         class="print-btn"
                         download
                         triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_download' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_download' | translate }}"
                     >
                         <i *ngIf="fileType === 'xlsx'" class="bi-file-earmark-excel font-6"></i>
                         <i *ngIf="fileType === 'json'" class="bi-file-earmark-code font-6"></i>
@@ -74,7 +74,7 @@ export class ExamsReportComponent {
             const fileName = `exams.${this.fileType}`;
             this.files.download(url, fileName);
         } else {
-            this.toast.error(this.translate.instant('sitnet_choose_exam'));
+            this.toast.error(this.translate.instant('i18n_choose_exam'));
         }
     };
 }

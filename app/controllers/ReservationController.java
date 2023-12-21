@@ -86,7 +86,7 @@ public class ReservationController extends BaseController {
         if (user.hasRole(Role.Name.TEACHER)) {
             el =
                 el
-                    .gt("examActiveEndDate", new Date())
+                    .gt("periodEnd", new Date())
                     .disjunction()
                     .eq("creator", user)
                     .eq("examOwners", user)
@@ -162,7 +162,7 @@ public class ReservationController extends BaseController {
 
         if (participation != null) {
             return wrapAsPromise(
-                forbidden(String.format("sitnet_unable_to_remove_reservation (id=%d).", participation.getId()))
+                forbidden(String.format("i18n_unable_to_remove_reservation (id=%d).", participation.getId()))
             );
         }
 

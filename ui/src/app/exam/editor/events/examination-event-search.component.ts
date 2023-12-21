@@ -82,13 +82,13 @@ export class ExaminationEventSearchComponent implements OnInit {
 
     removeEvent = (configuration: ExaminationEventConfiguration) => {
         this.ConfirmationDialog.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_byod_exam'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_remove_byod_exam'),
         ).subscribe({
             next: () => {
                 this.Enrolment.removeAllEventEnrolmentConfigs$(configuration).subscribe({
                     next: () => {
-                        this.toast.info(this.translate.instant('sitnet_removed'));
+                        this.toast.info(this.translate.instant('i18n_removed'));
                         this.events.splice(this.events.indexOf(configuration), 1);
                     },
                     error: (err) => this.toast.error(err),

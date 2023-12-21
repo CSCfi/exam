@@ -95,7 +95,7 @@ public class CalendarController extends BaseController {
         final Reservation reservation = enrolment.getReservation();
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation);
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return forbidden("sitnet_reservation_in_effect");
+            return forbidden("i18n_reservation_in_effect");
         }
         enrolment.setReservation(null);
         enrolment.setReservationCanceled(true);
@@ -134,13 +134,13 @@ public class CalendarController extends BaseController {
             enrolment.getExam().getState() == Exam.State.STUDENT_STARTED ||
             (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now()))
         ) {
-            return Optional.of(forbidden("sitnet_reservation_in_effect"));
+            return Optional.of(forbidden("i18n_reservation_in_effect"));
         }
         // No previous reservation or it's in the future
         // If no previous reservation, check if allowed to participate. This check is skipped if user already
         // has a reservation to this exam so that change of reservation is always possible.
         if (oldReservation == null && !isAllowedToParticipate(enrolment.getExam(), user)) {
-            return Optional.of(forbidden("sitnet_no_trials_left"));
+            return Optional.of(forbidden("i18n_no_trials_left"));
         }
         // Check that at least one section will end up in the exam
         Set<ExamSection> sections = enrolment.getExam().getExamSections();
@@ -157,7 +157,7 @@ public class CalendarController extends BaseController {
             enrolment.getExam().getState().equals(Exam.State.PUBLISHED)
         ) {
             // External reservation, assessment not returned yet. We must wait for it to arrive first
-            return Optional.of(forbidden("sitnet_enrolment_assessment_not_received"));
+            return Optional.of(forbidden("i18n_enrolment_assessment_not_received"));
         }
 
         return Optional.empty();
@@ -214,7 +214,7 @@ public class CalendarController extends BaseController {
                 .endJunction()
                 .findOneOrEmpty();
             if (optionalEnrolment.isEmpty()) {
-                return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
+                return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
             }
             ExamEnrolment enrolment = optionalEnrolment.get();
             Optional<Result> badEnrolment = checkEnrolment(enrolment, user, sectionIds);
@@ -230,7 +230,7 @@ public class CalendarController extends BaseController {
                 aids
             );
             if (machine.isEmpty()) {
-                return wrapAsPromise(forbidden("sitnet_no_machines_available"));
+                return wrapAsPromise(forbidden("i18n_no_machines_available"));
             }
 
             // Check that the proposed reservation is (still) doable
@@ -241,7 +241,7 @@ public class CalendarController extends BaseController {
             proposedReservation.setUser(user);
             proposedReservation.setEnrolment(enrolment);
             if (!calendarHandler.isDoable(proposedReservation, aids)) {
-                return wrapAsPromise(forbidden("sitnet_no_machines_available"));
+                return wrapAsPromise(forbidden("i18n_no_machines_available"));
             }
 
             // We are good to go :)
@@ -321,7 +321,7 @@ public class CalendarController extends BaseController {
         ExamEnrolment ee = getEnrolment(examId, user);
         // Sanity check so that we avoid accidentally getting reservations for SEB exams
         if (ee == null || ee.getExam().getImplementation() != Exam.Implementation.AQUARIUM) {
-            return forbidden("sitnet_error_enrolment_not_found");
+            return forbidden("i18n_error_enrolment_not_found");
         }
         List<Integer> accessibilityIds = aids.orElse(Collections.emptyList());
         return calendarHandler.getSlots(user, ee.getExam(), roomId, day, accessibilityIds);

@@ -103,7 +103,7 @@ public class ExamRecordController extends BaseController {
             .idEq(Long.parseLong(df.get("id")))
             .findOneOrEmpty();
         if (optionalExam.isEmpty()) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Exam exam = optionalExam.get();
@@ -153,7 +153,7 @@ public class ExamRecordController extends BaseController {
             .idEq(Long.parseLong(df.get("id")))
             .findOneOrEmpty();
         if (optionalExam.isEmpty()) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         Exam exam = optionalExam.get();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -173,7 +173,7 @@ public class ExamRecordController extends BaseController {
         try {
             file = csvBuilder.build(startDate, endDate);
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_csv_file");
+            return internalServerError("i18n_error_creating_csv_file");
         }
         String contentDisposition = fileHandler.getContentDisposition(file);
         String content = fileHandler.encodeAndDelete(file);
@@ -188,7 +188,7 @@ public class ExamRecordController extends BaseController {
         try {
             file = csvBuilder.build(examId, childIds);
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_csv_file");
+            return internalServerError("i18n_error_creating_csv_file");
         }
         String contentDisposition = fileHandler.getContentDisposition(file);
         String content = fileHandler.encodeAndDelete(file);
@@ -203,7 +203,7 @@ public class ExamRecordController extends BaseController {
         try {
             bos = excelBuilder.build(examId, childIds);
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_csv_file");
+            return internalServerError("i18n_error_creating_csv_file");
         }
         return ok(Base64.getEncoder().encodeToString(bos.toByteArray()))
             .withHeader("Content-Disposition", "attachment; filename=\"exam_records.xlsx\"")
@@ -251,7 +251,7 @@ public class ExamRecordController extends BaseController {
             exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
             exam.getExamRecord() != null
         ) {
-            return Optional.of(forbidden("sitnet_error_exam_already_graded_logged"));
+            return Optional.of(forbidden("i18n_error_exam_already_graded_logged"));
         }
         return Optional.empty();
     }

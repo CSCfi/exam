@@ -61,8 +61,8 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
             .eq("course.code", "810136P")
             .eq("state", Exam.State.PUBLISHED)
             .findOne();
-        exam.setExamActiveStartDate(DateTime.now().minusDays(1));
-        exam.setExamActiveEndDate(DateTime.now().plusDays(1));
+        exam.setPeriodStart(DateTime.now().minusDays(1));
+        exam.setPeriodEnd(DateTime.now().plusDays(1));
         exam.save();
     }
 

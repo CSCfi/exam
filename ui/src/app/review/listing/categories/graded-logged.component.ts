@@ -84,7 +84,7 @@ export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
         }
         const ok = () => {
             this.archived.emit(selection);
-            this.toast.info(this.translate.instant('sitnet_exams_archived'));
+            this.toast.info(this.translate.instant('i18n_exams_archived'));
         };
         const ids = selection.map((r) => r.examParticipation.exam.id);
         this.http.put('/app/reviews/archive', { ids: ids.join() }).subscribe(ok);
@@ -106,7 +106,7 @@ export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
 
         this.Files.download(
             url + this.exam.id,
-            `${this.translate.instant('sitnet_grading_info')}_${format(new Date(), 'dd-MM-yyyy')}.${fileType}`,
+            `${this.translate.instant('i18n_grading_info')}_${format(new Date(), 'dd-MM-yyyy')}.${fileType}`,
             { childIds: ids.map((i) => i.toString()) },
             true,
         );

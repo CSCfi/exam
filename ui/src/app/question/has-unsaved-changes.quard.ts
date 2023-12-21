@@ -16,8 +16,8 @@ export const hasUnsavedChangesGuard: CanDeactivateFn<CanComponentDeactivate> = (
     } else {
         const translate = inject(TranslateService);
         return inject(ConfirmationDialogService).open$(
-            translate.instant('sitnet_confirm_exit'),
-            translate.instant('sitnet_unsaved_question_data'),
+            translate.instant('i18n_confirm_exit'),
+            translate.instant('i18n_unsaved_question_data'),
         );
     }
 };

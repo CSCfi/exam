@@ -45,11 +45,11 @@ export class ExamFeedbackConfigComponent implements OnInit {
             releaseTypes: [
                 {
                     name: 'ONCE_LOCKED',
-                    translation: 'sitnet_release_type_once_locked',
+                    translation: 'i18n_release_type_once_locked',
                     filtered: true,
                 },
                 // CSCEXAM-1127
-                //{ name: 'GIVEN_DATE', translation: 'sitnet_feedback_config_release_type_date' },
+                //{ name: 'GIVEN_DATE', translation: 'i18n_feedback_config_release_type_date' },
             ],
         };
         this.examFeedbackConfigDisplay = { visible: false };

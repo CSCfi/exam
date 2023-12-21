@@ -152,8 +152,8 @@ export class SessionService implements OnDestroy {
                 if (resp === 'alarm') {
                     this.toast
                         .warning(
-                            this.i18n.instant('sitnet_continue_session'),
-                            this.i18n.instant('sitnet_session_will_expire_soon'),
+                            this.i18n.instant('i18n_continue_session'),
+                            this.i18n.instant('i18n_session_will_expire_soon'),
                             {
                                 timeOut: 30000,
                                 toastComponent: this.customSessionExpireWarning,
@@ -164,7 +164,7 @@ export class SessionService implements OnDestroy {
                             this.http.put<void>('/app/session', {}).subscribe({
                                 next: () => {
                                     this.toast.clear();
-                                    this.toast.info(this.i18n.instant('sitnet_session_extended'), '', {
+                                    this.toast.info(this.i18n.instant('i18n_session_extended'), '', {
                                         timeOut: 2000,
                                     });
                                 },
@@ -198,7 +198,7 @@ export class SessionService implements OnDestroy {
                     this.restartSessionCheck();
                     this.userChangeSubscription.next(u);
                     if (u) {
-                        this.toast.success(this.i18n.instant('sitnet_welcome'), `${u.firstName} ${u.lastName}`, {
+                        this.toast.success(this.i18n.instant('i18n_welcome'), `${u.firstName} ${u.lastName}`, {
                             timeOut: 2000,
                         });
                     }
@@ -254,15 +254,15 @@ export class SessionService implements OnDestroy {
         user.roles.forEach((role) => {
             switch (role.name) {
                 case 'ADMIN':
-                    role.displayName = 'sitnet_admin';
+                    role.displayName = 'i18n_admin';
                     role.icon = 'bi-gear';
                     break;
                 case 'TEACHER':
-                    role.displayName = 'sitnet_teacher';
+                    role.displayName = 'i18n_teacher';
                     role.icon = 'bi-person-fill';
                     break;
                 case 'STUDENT':
-                    role.displayName = 'sitnet_student';
+                    role.displayName = 'i18n_student';
                     role.icon = 'bi-person';
                     break;
             }
@@ -285,7 +285,7 @@ export class SessionService implements OnDestroy {
     private onLogoutSuccess(data: { logoutUrl: string }): void {
         this.userChangeSubscription.next(undefined);
 
-        this.toast.success(this.i18n.instant('sitnet_logout_success'));
+        this.toast.success(this.i18n.instant('i18n_logout_success'));
         const location = window.location;
         const localLogout = `${location.protocol}//${location.host}/Shibboleth.sso/Logout`;
         const env = this.getEnv();

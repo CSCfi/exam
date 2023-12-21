@@ -2,7 +2,7 @@
     <div class="col-md-12">
         <div class="row">
             <span class="col-md-11 col-9">
-                <h2 class="calendar-phase-title">{{ sequenceNumber }}. {{ 'sitnet_calendar_phase_2' | translate }}</h2>
+                <h2 class="calendar-phase-title">{{ sequenceNumber }}. {{ 'i18n_calendar_phase_2' | translate }}</h2>
             </span>
             <span class="col-md-1 col-3">
                 <span class="calendar-phase-icon float-end" *ngIf="selectedRoom">
@@ -22,7 +22,7 @@
                             (keydown.enter)="showAccessibilityMenu = !showAccessibilityMenu"
                             [attr.aria-expanded]="showAccessibilityMenu"
                         >
-                            {{ 'sitnet_calendar_room_accessibility_info' | translate }}
+                            {{ 'i18n_calendar_room_accessibility_info' | translate }}
                             <img
                                 class="arrow_icon"
                                 *ngIf="!showAccessibilityMenu"
@@ -37,13 +37,13 @@
                             />
                         </button>
                         <span *ngIf="disabled" class="text text-muted">
-                            {{ 'sitnet_calendar_room_accessibility_info' | translate }}
+                            {{ 'i18n_calendar_room_accessibility_info' | translate }}
                         </span>
                         <div [ngbCollapse]="!showAccessibilityMenu">
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="calendar-accs-title">
-                                        {{ 'sitnet_exam_room_accessibility' | translate }}
+                                        {{ 'i18n_exam_room_accessibility' | translate }}
                                     </div>
                                 </div>
                             </div>
@@ -77,7 +77,7 @@
                     aria-expanded="true"
                     [disabled]="(isExternal && !organisation) || disabled"
                 >
-                    {{ isExternal ? ('sitnet_external_room' | translate) : ('sitnet_room' | translate) }}
+                    {{ isExternal ? ('i18n_external_room' | translate) : ('i18n_room' | translate) }}
                     <span class="caret"></span>
                 </button>
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1" class="scrollable-menu">
@@ -100,7 +100,7 @@
                     (click)="makeExternalReservation()"
                     *ngIf="isInteroperable && !isExternal"
                 >
-                    {{ 'sitnet_external_reservation' | translate }}&nbsp;
+                    {{ 'i18n_external_reservation' | translate }}&nbsp;
                 </button>
             </div>
         </div>

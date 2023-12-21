@@ -1,11 +1,11 @@
 <div class="essay-answer-wrapper">
     <div class="detail-row p-0" *ngIf="answer.question.question !== answer.question.parent?.question">
         <span class="col-md-12 alert alert-warning essay-answer-warning" role="alert">
-            <i class="bi-exclamation-triangle"></i>&nbsp;{{ 'sitnet_question_differs' | translate }}
+            <i class="bi-exclamation-triangle"></i>&nbsp;{{ 'i18n_question_differs' | translate }}
         </span>
     </div>
     <div class="main-row">
-        <strong>{{ 'sitnet_assessee_information' | translate | uppercase }}</strong>
+        <strong>{{ 'i18n_assessee_information' | translate | uppercase }}</strong>
     </div>
     <div class="main-row pt-0 px-3 w-100 d-flex justify-content-between essay-answer-item">
         <div>
@@ -42,7 +42,7 @@
     </div>
     <div *ngIf="answer.expanded">
         <div class="main-row">
-            <strong>{{ 'sitnet_exam_answer' | translate | uppercase }}</strong>
+            <strong>{{ 'i18n_exam_answer' | translate | uppercase }}</strong>
         </div>
         <div class="main-row p-0">
             <div class="col-md-12 essay-answer-item" [xmMathJax]="answer.essayAnswer.answer || ''"></div>
@@ -51,7 +51,7 @@
         <div class="detail-row p-0" *ngIf="answer.essayAnswer.attachment">
             <div class="detail-row">
                 <div class="col-md-12">
-                    <strong>{{ 'sitnet_answer_attachment' | translate | uppercase }}</strong>
+                    <strong>{{ 'i18n_answer_attachment' | translate | uppercase }}</strong>
                 </div>
             </div>
             <div>
@@ -68,23 +68,23 @@
         <div class="detail-row px-0 d-flex justify-content-between essay-answer-item">
             <div>
                 <div class="main-row">
-                    <strong>{{ 'sitnet_answer_length' | translate | uppercase }}</strong>
+                    <strong>{{ 'i18n_answer_length' | translate | uppercase }}</strong>
                 </div>
                 <div class="detail-row">
-                    {{ getWordCount() }} {{ 'sitnet_words' | translate }}, {{ 'sitnet_approximately' | translate }}
-                    {{ getCharacterCount() }} {{ 'sitnet_characters' | translate }}
+                    {{ getWordCount() }} {{ 'i18n_words' | translate }}, {{ 'i18n_approximately' | translate }}
+                    {{ getCharacterCount() }} {{ 'i18n_characters' | translate }}
                 </div>
                 <div class="detail-row" *ngIf="(answer.expectedWordCount || 0) > 0">
-                    {{ 'sitnet_essay_length_recommendation' | translate }}: {{ answer.expectedWordCount }} ({{
-                        'sitnet_approximately' | translate
+                    {{ 'i18n_essay_length_recommendation' | translate }}: {{ answer.expectedWordCount }} ({{
+                        'i18n_approximately' | translate
                     }}
-                    {{ (answer.expectedWordCount || 0) * 8 }} {{ 'sitnet_characters' | translate }})
+                    {{ (answer.expectedWordCount || 0) * 8 }} {{ 'i18n_characters' | translate }})
                 </div>
             </div>
             <div>
                 <div class="main-row">
                     <strong
-                        >{{ 'sitnet_word_points' | translate | uppercase }} &nbsp;<small
+                        >{{ 'i18n_word_points' | translate | uppercase }} &nbsp;<small
                             >[{{ 0 }}-{{ displayMaxScore() }}]</small
                         >
                     </strong>
@@ -105,7 +105,7 @@
                                 [max]="answer.maxScore"
                             />
                             <small *ngIf="essayPoints.invalid" class="alert-danger">
-                                <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}
+                                <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_error_score_input' | translate }}
                             </small>
                         </form>
                     </div>
@@ -116,10 +116,10 @@
                             [disabled]="!editable"
                         >
                             <option [ngValue]="1">
-                                {{ 'sitnet_approved' | translate }}
+                                {{ 'i18n_approved' | translate }}
                             </option>
                             <option [ngValue]="0">
-                                {{ 'sitnet_rejected' | translate }}
+                                {{ 'i18n_rejected' | translate }}
                             </option>
                         </select>
                     </div>

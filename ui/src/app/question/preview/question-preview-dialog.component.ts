@@ -22,7 +22,7 @@ import { ExaminationQuestion } from '../../examination/examination.model';
 @Component({
     template: `
         <div class="modal-header" aria-modal="true">
-            <h4 class="modal-title">{{ 'sitnet_preview_question' | translate }}</h4>
+            <h4 class="modal-title">{{ 'i18n_preview_question' | translate }}</h4>
         </div>
         <div class="modal-body" *ngIf="preview">
             <xm-examination-question
@@ -34,7 +34,7 @@ import { ExaminationQuestion } from '../../examination/examination.model';
         <div class="modal-footer">
             <div class="student-message-dialog-button-cancel">
                 <button class="btn btn-success" (click)="activeModal.dismiss()">
-                    {{ 'sitnet_close' | translate }}
+                    {{ 'i18n_close' | translate }}
                 </button>
             </div>
         </div>

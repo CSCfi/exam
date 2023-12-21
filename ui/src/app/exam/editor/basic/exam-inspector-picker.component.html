@@ -2,10 +2,10 @@
     <div class="col-md-12 margin-20">
         <div class="row">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_instructor' | translate }}
+                {{ 'i18n_exam_instructor' | translate }}
                 <sup
-                    ngbPopover="{{ 'sitnet_exam_instructor_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_instructor_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                     ><img
                         src="/assets/images/icon_tooltip.svg"
@@ -22,11 +22,11 @@
                     (selectItem)="setInspector($event)"
                     [inputFormatter]="nameFormatter"
                     [resultFormatter]="nameFormatter"
-                    placeholder="{{ 'sitnet_name' | translate }}"
+                    placeholder="{{ 'i18n_name' | translate }}"
                 />
                 <label class="ms-2">
                     <input type="checkbox" [(ngModel)]="newInspector.sendMessage" [disabled]="!newInspector.id" />
-                    <span class="ps-1">{{ 'sitnet_write_message' | translate }}</span>
+                    <span class="ps-1">{{ 'i18n_write_message' | translate }}</span>
                 </label>
             </div>
         </div>
@@ -38,14 +38,14 @@
             <div class="col-md-9 offset-md-3">
                 <textarea
                     class="form-control wdth-30 make-inline mart10"
-                    placeholder="{{ 'sitnet_message' | translate }}"
+                    placeholder="{{ 'i18n_message' | translate }}"
                     [(ngModel)]="newInspector.comment"
                     [disabled]="!newInspector.sendMessage"
                 >
                 </textarea>
                 <span class="ms-2"
                     ><button (click)="addInspector()" class="btn btn-primary green vbottom marb5">
-                        {{ 'sitnet_add' | translate }}
+                        {{ 'i18n_add' | translate }}
                     </button>
                 </span>
             </div>
@@ -62,7 +62,7 @@
                         <button
                             class="reviewer-remove"
                             (click)="removeInspector(inspection.id)"
-                            title="{{ 'sitnet_remove' | translate }}"
+                            title="{{ 'i18n_remove' | translate }}"
                         >
                             <img
                                 src="/assets/images/icon_remove.svg"

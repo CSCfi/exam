@@ -11,7 +11,7 @@
                 />
             </div>
             <div class="col-md-11 warning-text">
-                {{ 'sitnet_upcoming_reservations_exist' | translate }}
+                {{ 'i18n_upcoming_reservations_exist' | translate }}
             </div>
         </div>
     </div>
@@ -46,8 +46,8 @@
                     <i
                         cdkDragHandle
                         class="bi bi-arrows-move"
-                        ngbPopover="{{ 'sitnet_move_section' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_move_section' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     ></i>
                 </xm-section>
@@ -58,7 +58,7 @@
 
 <div class="row mt-4">
     <div class="col-md-3 exam-basic-title">
-        <h4>{{ 'sitnet_total_score' | translate }}:</h4>
+        <h4>{{ 'i18n_total_score' | translate }}:</h4>
     </div>
     <div class="col-md-9">
         <h4>{{ calculateExamMaxScore() }}</h4>
@@ -70,7 +70,7 @@
     <div class="col-md-2 marb20">
         <div class="review-attachment-button exam-questions-buttons">
             <a class="pointer" (click)="addNewSection()">
-                <i class="bi-plus"></i>&nbsp;{{ 'sitnet_section_add' | translate }}
+                <i class="bi-plus"></i>&nbsp;{{ 'i18n_section_add' | translate }}
             </a>
         </div>
     </div>
@@ -79,21 +79,21 @@
             <div class="col-auto p-1">
                 <div class="review-attachment-button exam-questions-buttons">
                     <a class="pointer preview" (click)="previewExam(2)">
-                        {{ 'sitnet_preview' | translate }}
+                        {{ 'i18n_preview' | translate }}
                     </a>
                 </div>
             </div>
             <div class="col-auto p-1">
                 <div class="review-attachment-button exam-questions-buttons marl10">
                     <a class="pointer" (click)="updateExam(false)">
-                        {{ 'sitnet_save' | translate }}
+                        {{ 'i18n_save' | translate }}
                     </a>
                 </div>
             </div>
             <div class="col-auto p-1">
                 <div *ngIf="showDelete()" class="review-attachment-button exam-questions-buttons marl10">
                     <a class="pointer warning" (click)="removeExam()">
-                        {{ 'sitnet_exam_remove' | translate }}
+                        {{ 'i18n_exam_remove' | translate }}
                     </a>
                 </div>
             </div>
@@ -104,15 +104,13 @@
     <div class="col-md-2 grey-top marb20 padt20">
         <div class="review-attachment-button exam-questions-buttons">
             <a class="pointer preview" (click)="previousTab()">
-                &#171; {{ 'sitnet_exam_basic_information_tab' | translate }}</a
+                &#171; {{ 'i18n_exam_basic_information_tab' | translate }}</a
             >
         </div>
     </div>
     <div class="col grey-top marb20 padt20">
         <div class="review-attachment-button exam-questions-buttons float-end">
-            <a class="pointer preview" (click)="nextTab()">
-                {{ 'sitnet_exam_assessment_settings' | translate }} &#187;</a
-            >
+            <a class="pointer preview" (click)="nextTab()"> {{ 'i18n_exam_assessment_settings' | translate }} &#187;</a>
         </div>
     </div>
 </div>

@@ -363,21 +363,21 @@ public class Question extends OwnedModel implements AttachmentContainer {
                     if (nodeExists(node, "options")) {
                         ArrayNode an = (ArrayNode) node.get("options");
                         if (an.size() < 2) {
-                            reason = "sitnet_minimum_of_two_options_required";
+                            reason = "i18n_minimum_of_two_options_required";
                         } else if (
                             StreamSupport
                                 .stream(an.spliterator(), false)
                                 .noneMatch(n -> n.get("correctOption").asBoolean())
                         ) {
-                            reason = "sitnet_correct_option_required";
+                            reason = "i18n_correct_option_required";
                         }
                     } else {
-                        reason = "sitnet_minimum_of_two_options_required";
+                        reason = "i18n_minimum_of_two_options_required";
                     }
                 }
                 case WeightedMultipleChoiceQuestion -> {
                     if (!nodeExists(node, "options") || node.get("options").size() < 2) {
-                        reason = "sitnet_minimum_of_two_options_required";
+                        reason = "i18n_minimum_of_two_options_required";
                     } else {
                         ArrayNode options = (ArrayNode) node.get("options");
                         if (
@@ -385,7 +385,7 @@ public class Question extends OwnedModel implements AttachmentContainer {
                                 .stream(options.spliterator(), false)
                                 .noneMatch(n -> n.get("defaultScore").asDouble() > 0)
                         ) {
-                            reason = "sitnet_correct_option_required";
+                            reason = "i18n_correct_option_required";
                         }
                     }
                 }
@@ -398,13 +398,13 @@ public class Question extends OwnedModel implements AttachmentContainer {
                 }
                 case ClaimChoiceQuestion -> {
                     if (!nodeExists(node, "options") || node.get("options").size() != 3) {
-                        reason = "sitnet_three_answers_required_in_claim_question";
+                        reason = "i18n_three_answers_required_in_claim_question";
                     } else {
                         ArrayNode options = (ArrayNode) node.get("options");
                         boolean hasValidOptions = getClaimChoiceOptionsValidationResult(options);
 
                         if (!hasValidOptions) {
-                            reason = "sitnet_incorrect_claim_question_options";
+                            reason = "i18n_incorrect_claim_question_options";
                         }
                     }
                 }

@@ -110,7 +110,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
             const url = '/app/reports/questionreport/' + this.exam.id;
             this.Files.download(
                 url,
-                this.translate.instant('sitnet_grading_info') + '_' + format(new Date(), 'dd-MM-yyyy') + '.xlsx',
+                this.translate.instant('i18n_grading_info') + '_' + format(new Date(), 'dd-MM-yyyy') + '.xlsx',
                 { childIds: ids.map((i) => i.toString()) },
                 true,
             );
@@ -160,21 +160,21 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
         if (this.gradeTimeChart.options?.scales) {
             const scales = this.gradeTimeChart.options.scales;
             if (scales.x?.title) {
-                scales.x.title.text = this.translate.instant('sitnet_word_points').toLowerCase();
+                scales.x.title.text = this.translate.instant('i18n_word_points').toLowerCase();
             }
             if (scales.y?.title) {
-                scales.y.title.text = this.translate.instant('sitnet_word_minutes').toLowerCase();
+                scales.y.title.text = this.translate.instant('i18n_word_minutes').toLowerCase();
             }
         }
         this.gradeTimeChart.update();
         if (this.examinationDateDistribution.options?.scales) {
             const scales = this.examinationDateDistribution.options.scales;
             if (scales.x?.title) {
-                scales.x.title.text = this.translate.instant('sitnet_days_since_period_beginning').toLowerCase();
+                scales.x.title.text = this.translate.instant('i18n_days_since_period_beginning').toLowerCase();
             }
         }
         if (this.examinationDateDistribution.data?.datasets) {
-            this.examinationDateDistribution.data.datasets[0].label = this.translate.instant('sitnet_amount_exams');
+            this.examinationDateDistribution.data.datasets[0].label = this.translate.instant('i18n_amount_exams');
         }
         this.examinationDateDistribution.update();
     }

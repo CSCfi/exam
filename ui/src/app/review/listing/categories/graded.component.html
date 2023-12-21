@@ -1,6 +1,6 @@
 <div>
     <div class="review-list-title">
-        {{ 'sitnet_exam_reviewed' | translate }}
+        {{ 'i18n_exam_reviewed' | translate }}
         <a (click)="view.toggle = !view.toggle" class="pointer">
             <img
                 *ngIf="!view.toggle"
@@ -17,8 +17,8 @@
         </a>
         <sup
             class="padl05"
-            ngbPopover="{{ 'sitnet_graded_description' | translate }}"
-            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+            ngbPopover="{{ 'i18n_graded_description' | translate }}"
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
             triggers="mouseenter:mouseleave"
         >
             <img
@@ -33,7 +33,7 @@
 <div *ngIf="view.items.length === 0">
     <div class="review-no-results">
         <i class="bi-exclamation-circle grayish"></i>
-        {{ 'sitnet_exam_no_logged' | translate }}
+        {{ 'i18n_exam_no_logged' | translate }}
     </div>
 </div>
 
@@ -44,14 +44,14 @@
                 (input)="applyFreeSearchFilter()"
                 [(ngModel)]="view.filter"
                 class="form-control"
-                placeholder="{{ 'sitnet_search' | translate }}"
+                placeholder="{{ 'i18n_search' | translate }}"
             />
             <i class="input-group-text bi-search"></i>
         </div>
 
         <div class="review-attachment-button my-2" *ngIf="view.toggle && view.filtered.length > 0">
             <a class="pointer" (click)="sendSelectedToRegistry()">
-                {{ 'sitnet_send_results_to_registry' | translate }}
+                {{ 'i18n_send_results_to_registry' | translate }}
             </a>
         </div>
     </div>
@@ -67,12 +67,12 @@
                         <ul ngbDropdownMenu role="menu">
                             <li ngbDropdownItem role="presentation" [ngClass]="selections.page ? 'active' : ''">
                                 <a role="menuitem" class="unstyled-link pointer" (click)="selectPage('selectionBox')">
-                                    {{ 'sitnet_choose_visible' | translate }}
+                                    {{ 'i18n_choose_visible' | translate }}
                                 </a>
                             </li>
                             <li ngbDropdownItem role="presentation" [ngClass]="selections.all ? 'active' : ''">
                                 <a role="menuitem" class="unstyled-link pointer" (click)="selectAll()">
-                                    {{ 'sitnet_choose_all' | translate }}
+                                    {{ 'i18n_choose_all' | translate }}
                                 </a>
                             </li>
                         </ul>
@@ -81,7 +81,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="displayName"
-                            text="sitnet_student"
+                            text="i18n_student"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('displayName')"
@@ -90,7 +90,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="examParticipation.user.email"
-                            text="sitnet_email"
+                            text="i18n_email"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.user.email')"
@@ -99,7 +99,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="duration"
-                            text="sitnet_exam_duration"
+                            text="i18n_exam_duration"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('duration')"
@@ -108,7 +108,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="examParticipation.started"
-                            text="sitnet_exam_time"
+                            text="i18n_exam_time"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.started')"
@@ -117,7 +117,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="examParticipation.deadline"
-                            text="sitnet_review_deadline"
+                            text="i18n_review_deadline"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.deadline')"
@@ -126,7 +126,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="examParticipation.exan.totalScore"
-                            text="sitnet_total_score"
+                            text="i18n_total_score"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.exam.totalScore')"
@@ -135,7 +135,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="displayedGrade"
-                            text="sitnet_grade"
+                            text="i18n_grade"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('displayedGrade')"
@@ -144,7 +144,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="displayedCredit"
-                            text="sitnet_exam_credit"
+                            text="i18n_exam_credit"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('displayedCredit')"
@@ -153,7 +153,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="displayedGradingTime"
-                            text="sitnet_graded"
+                            text="i18n_graded"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('displayedGradingTime')"
@@ -216,7 +216,7 @@
                     <td class="table-column-10">{{ review.duration + ' min' }}</td>
                     <td class="table-column-10">
                         {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }}
+                        {{ 'i18n_clock_short' | translate }}
                         {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
                         {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }}
                     </td>
@@ -234,9 +234,9 @@
                                 review.examParticipation.exam.approvedAnswerCount > 0
                             "
                         >
-                            <br />{{ 'sitnet_approved' | translate }}:
+                            <br />{{ 'i18n_approved' | translate }}:
                             {{ review.examParticipation.exam.approvedAnswerCount }} <br />{{
-                                'sitnet_rejected' | translate
+                                'i18n_rejected' | translate
                             }}: {{ review.examParticipation.exam.rejectedAnswerCount }}
                         </span>
                     </td>
@@ -249,8 +249,8 @@
                     </td>
                 </tr>
                 <tr *ngIf="view.filtered.length === 0">
-                    <td *ngIf="showId()" colspan="11">{{ 'sitnet_review_no_result' | translate }}</td>
-                    <td *ngIf="!showId()" colspan="10">{{ 'sitnet_review_no_result' | translate }}</td>
+                    <td *ngIf="showId()" colspan="11">{{ 'i18n_review_no_result' | translate }}</td>
+                    <td *ngIf="!showId()" colspan="10">{{ 'i18n_review_no_result' | translate }}</td>
                 </tr>
                 <!--Fill if page not full-->
                 <tr *ngFor="let r of [] | pageFill : view.filtered.length : view.page : view.pageSize">

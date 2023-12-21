@@ -131,9 +131,9 @@ export class ExamPublicationComponent implements OnInit {
     };
 
     startDateChanged = (event: { date: Date | null }) =>
-        (this.exam.examActiveStartDate = event.date ? event.date.toISOString() : null);
+        (this.exam.periodStart = event.date ? event.date.toISOString() : null);
     endDateChanged = (event: { date: Date | null }) =>
-        (this.exam.examActiveEndDate = event.date ? event.date.toISOString() : null);
+        (this.exam.periodEnd = event.date ? event.date.toISOString() : null);
 
     autoEvaluationConfigChanged = (event: { config: AutoEvaluationConfig }) => {
         this.exam.autoEvaluationConfig = event.config;
@@ -171,8 +171,8 @@ export class ExamPublicationComponent implements OnInit {
         const hours = minutes / 60;
         const fullHours = Math.floor(hours);
         const spareMinutes = Math.round((hours - fullHours) * 60);
-        const hourString = fullHours + ' ' + this.translate.instant('sitnet_hours');
-        const minuteString = spareMinutes + ' ' + this.translate.instant('sitnet_minutes');
+        const hourString = fullHours + ' ' + this.translate.instant('i18n_hours');
+        const minuteString = spareMinutes + ' ' + this.translate.instant('i18n_minutes');
         return (fullHours > 0 ? hourString : '') + ' ' + (spareMinutes > 0 ? minuteString : '') + ' (' + minutes + ')';
     };
     checkDuration = (duration: number) => (this.exam.duration === duration ? 'btn-primary' : '');
@@ -226,8 +226,8 @@ export class ExamPublicationComponent implements OnInit {
                     this.updateExam$(true, state).subscribe({
                         next: () => {
                             const text = this.isDraftCollaborativeExam()
-                                ? 'sitnet_exam_saved_and_pre_published'
-                                : 'sitnet_exam_saved_and_published';
+                                ? 'i18n_exam_saved_and_pre_published'
+                                : 'i18n_exam_saved_and_published';
                             this.toast.success(this.translate.instant(text));
                             this.router.navigate(['/staff', this.user.isAdmin ? 'admin' : 'teacher']);
                         },
@@ -254,14 +254,14 @@ export class ExamPublicationComponent implements OnInit {
                         state: this.collaborative ? 'PRE_PUBLISHED' : 'DRAFT',
                     }).subscribe({
                         next: () => {
-                            this.toast.success(this.translate.instant('sitnet_exam_unpublished'));
+                            this.toast.success(this.translate.instant('i18n_exam_unpublished'));
                             this.exam.state = 'DRAFT';
                         },
                         error: (err) => this.toast.error(err),
                     }),
                 );
         } else {
-            this.toast.warning(this.translate.instant('sitnet_unpublish_not_possible'));
+            this.toast.warning(this.translate.instant('i18n_unpublish_not_possible'));
         }
     };
 
@@ -308,8 +308,8 @@ export class ExamPublicationComponent implements OnInit {
             return;
         }
         this.Confirmation.open$(
-            this.translate.instant('sitnet_remove_examination_event'),
-            this.translate.instant('sitnet_are_you_sure'),
+            this.translate.instant('i18n_remove_examination_event'),
+            this.translate.instant('i18n_are_you_sure'),
         ).subscribe({
             next: () =>
                 this.Exam.removeExaminationEvent$(this.exam.id, configuration).subscribe({
@@ -332,7 +332,7 @@ export class ExamPublicationComponent implements OnInit {
         return this.Exam.updateExam$(this.exam, overrides, this.collaborative).pipe(
             tap(() => {
                 if (!silent) {
-                    this.toast.info(this.translate.instant('sitnet_exam_saved'));
+                    this.toast.info(this.translate.instant('i18n_exam_saved'));
                 }
             }),
             catchError((err) => {
@@ -363,37 +363,37 @@ export class ExamPublicationComponent implements OnInit {
         const errors: string[] = [];
 
         if (!this.exam.name || this.exam.name.length < 2) {
-            errors.push('sitnet_exam_name_missing_or_too_short');
+            errors.push('i18n_exam_name_missing_or_too_short');
         }
 
         if (this.exam.examLanguages.length === 0) {
-            errors.push('sitnet_error_exam_empty_exam_language');
+            errors.push('i18n_error_exam_empty_exam_language');
         }
 
         const isPrintout = this.exam.executionType.type === 'PRINTOUT';
-        if (!isPrintout && !this.exam.examActiveStartDate) {
-            errors.push('sitnet_exam_start_date_missing');
+        if (!isPrintout && !this.exam.periodStart) {
+            errors.push('i18n_exam_start_date_missing');
         }
 
-        if (!isPrintout && !this.exam.examActiveEndDate) {
-            errors.push('sitnet_exam_end_date_missing');
+        if (!isPrintout && !this.exam.periodEnd) {
+            errors.push('i18n_exam_end_date_missing');
         }
         if (isPrintout && this.exam.examinationDates.length === 0) {
-            errors.push('sitnet_examination_date_missing');
+            errors.push('i18n_examination_date_missing');
         }
         if (!this.exam.duration) {
-            errors.push('sitnet_exam_duration_missing');
+            errors.push('i18n_exam_duration_missing');
         }
 
         if (!this.exam.gradeScale) {
-            errors.push('sitnet_exam_grade_scale_missing');
+            errors.push('i18n_exam_grade_scale_missing');
         }
 
         if (!this.exam.examType) {
-            errors.push('sitnet_exam_credit_type_missing');
+            errors.push('i18n_exam_credit_type_missing');
         }
         if (this.exam.examOwners.length == 0) {
-            errors.push('sitnet_exam_owner_missing');
+            errors.push('i18n_exam_owner_missing');
         }
 
         return errors;
@@ -403,28 +403,28 @@ export class ExamPublicationComponent implements OnInit {
         const errors: string[] = this.errorsPreventingPrePublication();
 
         if (!this.exam.course && !this.collaborative) {
-            errors.push('sitnet_course_missing');
+            errors.push('i18n_course_missing');
         }
 
         if (this.countQuestions() === 0) {
-            errors.push('sitnet_exam_has_no_questions');
+            errors.push('i18n_exam_has_no_questions');
         }
 
         const allSectionsNamed = this.exam.examSections.every((section) => section.name?.length > 0);
         if (!allSectionsNamed) {
-            errors.push('sitnet_exam_contains_unnamed_sections');
+            errors.push('i18n_exam_contains_unnamed_sections');
         }
 
         if (['PRIVATE', 'MATURITY'].indexOf(this.exam.executionType.type) > -1 && this.exam.examEnrolments.length < 1) {
-            errors.push('sitnet_no_participants');
+            errors.push('i18n_no_participants');
         }
 
         if (this.exam.executionType.type === 'MATURITY' && !isBoolean(this.exam.subjectToLanguageInspection)) {
-            errors.push('sitnet_language_inspection_setting_not_chosen');
+            errors.push('i18n_language_inspection_setting_not_chosen');
         }
 
         if (this.hasDuplicatePercentages()) {
-            errors.push('sitnet_autoevaluation_percentages_not_unique');
+            errors.push('i18n_autoevaluation_percentages_not_unique');
         }
         if (this.exam.autoEvaluationConfig) {
             if (
@@ -455,7 +455,7 @@ export class ExamPublicationComponent implements OnInit {
             }
         }
         if (this.exam.implementation !== 'AQUARIUM' && this.exam.examinationEventConfigurations.length === 0) {
-            errors.push('sitnet_missing_examination_event_configurations');
+            errors.push('i18n_missing_examination_event_configurations');
         }
         return errors.map((e) => this.translate.instant(e));
     }

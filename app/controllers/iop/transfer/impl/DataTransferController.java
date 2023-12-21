@@ -91,13 +91,13 @@ public class DataTransferController extends BaseController {
             throw new IllegalArgumentException("file not found");
         }
         if (filePart.getFileSize() > configReader.getMaxFileSize()) {
-            throw new IllegalArgumentException("sitnet_file_too_large");
+            throw new IllegalArgumentException("i18n_file_too_large");
         }
         String newFilePath;
         try {
             newFilePath = copyFile(filePart.getRef(), "question", Long.toString(id));
         } catch (IOException e) {
-            return internalServerError("sitnet_error_creating_attachment");
+            return internalServerError("i18n_error_creating_attachment");
         }
         // Remove existing one if found
         fileHandler.removePrevious(question);

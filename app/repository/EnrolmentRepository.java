@@ -141,14 +141,14 @@ public class EnrolmentRepository {
             .stream()
             .filter(ee -> {
                 Exam exam = ee.getExam();
-                if (exam != null && exam.getExamActiveEndDate() != null) {
+                if (exam != null && exam.getPeriodEnd() != null) {
                     return (
-                        exam.getExamActiveEndDate().isAfterNow() &&
+                        exam.getPeriodEnd().isAfterNow() &&
                         exam.hasState(Exam.State.PUBLISHED, Exam.State.STUDENT_STARTED)
                     );
                 }
                 CollaborativeExam ce = ee.getCollaborativeExam();
-                return ce != null && ce.getExamActiveEndDate().isAfterNow();
+                return ce != null && ce.getPeriodEnd().isAfterNow();
             })
             .toList();
     }

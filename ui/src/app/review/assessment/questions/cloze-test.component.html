@@ -11,13 +11,13 @@
                 <div class="review-points me-2">
                     <!-- grade -->
                     <div>
-                        <strong>{{ 'sitnet_multiplechoice_question_correct' | translate }}:</strong>
+                        <strong>{{ 'i18n_multiplechoice_question_correct' | translate }}:</strong>
                         {{ sectionQuestion.clozeTestAnswer?.score?.correctAnswers }} /
                         {{
                             (sectionQuestion.clozeTestAnswer?.score?.correctAnswers || 0) +
                                 (sectionQuestion.clozeTestAnswer?.score?.incorrectAnswers || 0)
                         }}
-                        &nbsp;<strong>{{ 'sitnet_word_points' | translate }}: </strong>
+                        &nbsp;<strong>{{ 'i18n_word_points' | translate }}: </strong>
                         <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                             {{ displayAchievedScore() }}
                         </span>
@@ -33,7 +33,7 @@
 
             <!-- question attachment -->
             <div class="padl0 mart20 marb20 notice-text" *ngIf="reviewExpanded && sectionQuestion.question.attachment">
-                {{ 'sitnet_question_attachment' | translate }}:
+                {{ 'i18n_question_attachment' | translate }}:
                 <a class="pointer" (click)="downloadQuestionAttachment()">
                     {{ sectionQuestion.question.attachment?.fileName }}</a
                 >
@@ -46,7 +46,7 @@
                 role="note"
             >
                 <img src="/assets/images/icon_info.svg" alt="" />
-                <span class="padl10">{{ 'sitnet_instructions' | translate }}:</span>
+                <span class="padl10">{{ 'i18n_instructions' | translate }}:</span>
                 <span [innerHtml]="sectionQuestion.answerInstructions"></span>
             </div>
 
@@ -57,13 +57,13 @@
 
             <div *ngIf="reviewExpanded" class="marb10">
                 <div class="points-title">
-                    <span>{{ 'sitnet_exam_answer' | translate | uppercase }}</span>
+                    <span>{{ 'i18n_exam_answer' | translate | uppercase }}</span>
                 </div>
                 <div [innerHtml]="sectionQuestion.clozeTestAnswer?.question"></div>
                 <div *ngIf="participation.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
                     <div class="points-title">
                         <span class="text text-danger"
-                            >{{ 'sitnet_set_forced_score' | translate | uppercase }}&nbsp;
+                            >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
                             <small>[0 &hellip; {{ sectionQuestion.maxScore.toFixed(2) }}]</small></span
                         >
                     </div>
@@ -82,7 +82,7 @@
                             [max]="sectionQuestion.maxScore"
                         />
                         <small *ngIf="forcedPoints.invalid" class="alert-danger">
-                            <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}
+                            <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_error_score_input' | translate }}
                         </small>
                     </form>
                 </div>

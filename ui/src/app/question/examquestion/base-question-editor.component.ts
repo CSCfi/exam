@@ -61,8 +61,8 @@ export class BaseQuestionEditorComponent {
     onSave = (event: Question | QuestionDraft) => this.modal.close(event);
     cancel = () => {
         return this.Dialogs.open$(
-            this.translate.instant('sitnet_confirm_exit'),
-            this.translate.instant('sitnet_unsaved_question_data'),
+            this.translate.instant('i18n_confirm_exit'),
+            this.translate.instant('i18n_unsaved_question_data'),
         ).subscribe(() => this.modal.dismiss());
     };
 }

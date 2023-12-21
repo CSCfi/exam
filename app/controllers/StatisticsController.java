@@ -89,8 +89,8 @@ public class StatisticsController extends BaseController {
         values.put("Course unit type", forceNotNull(exam.getCourse().getCourseUnitType()));
         values.put("Course level", forceNotNull(exam.getCourse().getLevel()));
         values.put("Created", ISODateTimeFormat.date().print(new DateTime(exam.getCreated())));
-        values.put("Begins", ISODateTimeFormat.date().print(new DateTime(exam.getExamActiveStartDate())));
-        values.put("Ends", ISODateTimeFormat.date().print(new DateTime(exam.getExamActiveEndDate())));
+        values.put("Begins", ISODateTimeFormat.date().print(new DateTime(exam.getPeriodStart())));
+        values.put("Ends", ISODateTimeFormat.date().print(new DateTime(exam.getPeriodEnd())));
         values.put("Duration", exam.getDuration() == null ? "N/A" : exam.getDuration().toString());
         values.put("Grade scale", exam.getGradeScale() == null ? "N/A" : exam.getGradeScale().getDescription());
         values.put("State", exam.getState().toString());
@@ -198,8 +198,8 @@ public class StatisticsController extends BaseController {
             data[4] =
                 String.format(
                     "%s - %s",
-                    ISODateTimeFormat.date().print(new DateTime(parent.getExamActiveStartDate())),
-                    ISODateTimeFormat.date().print(new DateTime(parent.getExamActiveEndDate()))
+                    ISODateTimeFormat.date().print(new DateTime(parent.getPeriodStart())),
+                    ISODateTimeFormat.date().print(new DateTime(parent.getPeriodEnd()))
                 );
             data[5] = parent.getCourse().getCredits() == null ? "" : Double.toString(parent.getCourse().getCredits());
             data[6] = parent.getExamType().getType();
@@ -228,7 +228,7 @@ public class StatisticsController extends BaseController {
             .isNull("parent")
             .findOne();
         if (proto == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("enrolments");
@@ -419,7 +419,7 @@ public class StatisticsController extends BaseController {
 
         User student = DB.find(User.class, studentId);
         if (student == null) {
-            return notFound("sitnet_error_not_found");
+            return notFound("i18n_error_not_found");
         }
         Workbook wb = new XSSFWorkbook();
         Sheet studentSheet = wb.createSheet("student");

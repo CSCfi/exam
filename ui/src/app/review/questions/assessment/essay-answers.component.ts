@@ -30,7 +30,7 @@ import { QuestionReviewService } from '../question-review.service';
             </div>
             <div *ngIf="answers.length === 0" class="col-md-12">
                 <div class="mt-4 p-5 bg-primary text-white rounded">
-                    <p class="lead">{{ 'sitnet_no_answers_to_assess' | translate }}</p>
+                    <p class="lead">{{ 'i18n_no_answers_to_assess' | translate }}</p>
                 </div>
             </div>
             <div *ngIf="answers.length > 0" class="col-md-12 mart20 marb30">

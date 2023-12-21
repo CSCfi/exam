@@ -35,7 +35,7 @@ export interface LanguageInspectionData extends LanguageInspection {
         <div class="top-row">
             <div class="col-md-12">
                 <div class="student-enroll-title-wrap">
-                    <div class="student-enroll-title marl20">{{ 'sitnet_language_inspections' | translate }}</div>
+                    <div class="student-enroll-title marl20">{{ 'i18n_language_inspections' | translate }}</div>
                 </div>
             </div>
         </div>
