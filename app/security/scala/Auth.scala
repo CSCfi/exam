@@ -9,17 +9,19 @@ import play.api.mvc._
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-object Auth {
+object Auth:
   val ATTR_USER: TypedKey[User] = TypedKey[User]("authenticatedUser")
-  case class AuthenticatedAction @Inject()(override val parser: BodyParsers.Default)(
-      implicit ec: AuthExecutionContext)
-      extends ActionBuilderImpl(parser) {
-    override def invokeBlock[A](request: Request[A],
-                                block: Request[A] => Future[Result]): Future[Result] = {
+  case class AuthenticatedAction @Inject() (override val parser: BodyParsers.Default)(implicit
+      ec: AuthExecutionContext
+  ) extends ActionBuilderImpl(parser):
+    override def invokeBlock[A](
+        request: Request[A],
+        block: Request[A] => Future[Result]
+    ): Future[Result] =
       val failure =
         Future.successful(Unauthorized(s"Blocked unauthorized access to ${request.path}"))
       val attrs = request.session.data
-      if (attrs.contains("id") && attrs.contains("role")) {
+      if attrs.contains("id") && attrs.contains("role") then
         Future {
           Option(DB.find(classOf[User], attrs("id").toLong))
         }(executionContext).flatMap {
@@ -28,20 +30,15 @@ object Auth {
             block(request.addAttr(ATTR_USER, user))
           case None => failure
         }(executionContext)
-      } else failure
-    }
-  }
+      else failure
 
   def authorized(roles: Seq[Role.Name])(implicit ec: ExecutionContext): ActionFilter[Request] =
     new ActionFilter[Request] {
       override def executionContext: ExecutionContext = ec
 
       override def filter[A](input: Request[A]): Future[Option[Result]] = Future.successful {
-        input.session.get("role").map(Role.Name.valueOf) match {
+        input.session.get("role").map(Role.Name.valueOf) match
           case Some(role) if roles.contains(role) => None
           case _                                  => Some(Unauthorized)
-        }
       }
     }
-
-}
