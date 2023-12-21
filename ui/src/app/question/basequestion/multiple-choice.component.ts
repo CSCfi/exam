@@ -26,31 +26,31 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
     template: `
         <div class="row mt-2" *ngIf="question.type === 'WeightedMultipleChoiceQuestion'">
             <div class="col-md-6">
-                <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
+                <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
                 <br /><span>
                     <div *ngIf="showWarning" class="edit-warning-container">
                         <i class="bi-exclamation-circle reddish"></i>
-                        <small class="ps-2">{{ 'sitnet_shared_question_property_info' | translate }}</small>
+                        <small class="ps-2">{{ 'i18n_shared_question_property_info' | translate }}</small>
                     </div>
                 </span>
             </div>
             <div class="col-md-6 question-option-title">
-                {{ 'sitnet_word_points' | translate | uppercase }}
+                {{ 'i18n_word_points' | translate | uppercase }}
             </div>
         </div>
         <div class="row mt-2" *ngIf="question.type === 'MultipleChoiceQuestion'">
             <div class="col-md-6">
-                <span class="question-option-title">{{ 'sitnet_option' | translate }}</span>
+                <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
                 <br /><span>
                     <div *ngIf="showWarning" class="edit-warning-container">
                         <i class="bi-exclamation-circle reddish"></i>
-                        <small class="ps-2">{{ 'sitnet_shared_question_property_info' | translate }}</small>
+                        <small class="ps-2">{{ 'i18n_shared_question_property_info' | translate }}</small>
                     </div>
                 </span>
             </div>
             <div class="col-md-6">
                 <div class="question-option-title make-inline">
-                    {{ 'sitnet_multiplechoice_question_correct' | translate | uppercase }}
+                    {{ 'i18n_multiplechoice_question_correct' | translate | uppercase }}
                 </div>
             </div>
         </div>
@@ -75,7 +75,7 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
         </div>
         <div *ngIf="question.type === 'WeightedMultipleChoiceQuestion'" class="row mt-3">
             <div class="col-md-12 question-option-title">
-                {{ 'sitnet_max_score' | translate | uppercase }}:
+                {{ 'i18n_max_score' | translate | uppercase }}:
                 {{ calculateDefaultMaxPoints() }}
             </div>
         </div>
@@ -83,7 +83,7 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
             <div class="col-md-12">
                 <a (click)="addNewOption()" class="attachment-link pointer">
                     <i class="bi-plus"></i>
-                    {{ 'sitnet_question_add_new_option' | translate }}
+                    {{ 'i18n_question_add_new_option' | translate }}
                 </a>
             </div>
         </div>
@@ -113,7 +113,7 @@ export class MultipleChoiceEditorComponent implements OnInit {
     }
     addNewOption = () => {
         if (this.lotteryOn) {
-            this.toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('i18n_action_disabled_lottery_on'));
             return;
         }
         const option: MultipleChoiceOption = {

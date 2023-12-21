@@ -24,7 +24,7 @@ import { ExceptionWorkingHours } from '../../reservation/reservation.model';
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ 'sitnet_remove_exception_confirmation' | translate }}</div>
+                <div class="student-enroll-title">{{ 'i18n_remove_exception_confirmation' | translate }}</div>
             </div>
             <div class="modal-body">
                 <div class="flex">
@@ -32,22 +32,22 @@ import { ExceptionWorkingHours } from '../../reservation/reservation.model';
                         {{ message }}
                     </div>
                     <div class="text-danger" *ngIf="exception?.outOfService">
-                        {{ 'sitnet_room_out_of_service' | translate }}
+                        {{ 'i18n_room_out_of_service' | translate }}
                     </div>
                     <div class="text-info" *ngIf="!exception?.outOfService">
-                        {{ 'sitnet_room_in_service' | translate }}
+                        {{ 'i18n_room_in_service' | translate }}
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save float-end">
                     <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                        {{ 'sitnet_confirm' | translate }}
+                        {{ 'i18n_confirm' | translate }}
                     </button>
                 </div>
                 <div class="student-message-dialog-button-cancel">
                     <button class="btn btn-sm btn-danger" (click)="activeModal.dismiss()">
-                        {{ 'sitnet_button_cancel' | translate }}
+                        {{ 'i18n_button_cancel' | translate }}
                     </button>
                 </div>
             </div>

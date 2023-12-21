@@ -113,7 +113,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
         final Reservation reservation = enrolment.getReservation();
         DateTime now = dateTimeHandler.adjustDST(DateTime.now(), reservation.getExternalReservation());
         if (reservation.toInterval().isBefore(now) || reservation.toInterval().contains(now)) {
-            return CompletableFuture.completedFuture(Results.forbidden("sitnet_reservation_in_effect"));
+            return CompletableFuture.completedFuture(Results.forbidden("i18n_reservation_in_effect"));
         }
         // good to go
         ExternalReservation external = reservation.getExternalReservation();

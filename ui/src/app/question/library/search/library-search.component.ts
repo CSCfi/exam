@@ -138,7 +138,7 @@ export class LibrarySearchComponent implements OnInit {
                         object: r,
                         filtered: false,
                         code: r.course?.code,
-                        period: this.formatPeriod(r.examActiveStartDate, r.examActiveEndDate),
+                        period: this.formatPeriod(r.periodStart, r.periodEnd),
                     })),
                 );
             }),

@@ -1,22 +1,22 @@
 <div id="dashboard">
     <div class="row" id="room" *ngFor="let room of rooms" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
         <div class="col-12">
-            <h2 class="room-name-title">{{ room.name || 'sitnet_no_name' | translate }}</h2>
+            <h2 class="room-name-title">{{ room.name || 'i18n_no_name' | translate }}</h2>
             <a
                 [hidden]="room.state === 'INACTIVE'"
                 (click)="disableRoom(room)"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
-                ngbPopover="{{ 'sitnet_inactivate_room' | translate }}"
+                ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
             >
                 <i class="bi-trash ms-2 text-danger pointer"></i>
             </a>
             <a
                 [hidden]="room.state !== 'INACTIVE'"
                 (click)="enableRoom(room)"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
-                ngbPopover="{{ 'sitnet_activate_room' | translate }}"
+                ngbPopover="{{ 'i18n_activate_room' | translate }}"
             >
                 <i class="bi-plus text-success pointer"></i>
             </a>
@@ -24,12 +24,12 @@
             <div class="toggleMessage col-md">
                 <div class="d-flex justify-content-between">
                     <div>
-                        {{ 'sitnet_exam_basic_information_tab' | translate }}
+                        {{ 'i18n_exam_basic_information_tab' | translate }}
                         <a
                             [routerLink]="['/staff/rooms', room.id]"
-                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
                             triggers="mouseenter:mouseleave"
-                            ngbPopover="{{ 'sitnet_edit' | translate }}"
+                            ngbPopover="{{ 'i18n_edit' | translate }}"
                         >
                             <i class="bi-pencil"></i>
                         </a>
@@ -53,14 +53,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="sitnet-info-text">
-                                {{ 'sitnet_room_code' | translate }}:
+                                {{ 'i18n_room_code' | translate }}:
                                 <span class="room-info-span-text">{{ room.roomCode }}</span>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="sitnet-info-text">
-                                {{ 'sitnet_room_accessibility_info' | translate }}:
+                                {{ 'i18n_room_accessibility_info' | translate }}:
                                 <span
                                     class="room-info-span-text"
                                     *ngFor="let info of room.accessibilities; let last = last"
@@ -75,14 +75,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="sitnet-info-text">
-                                {{ 'sitnet_room_building_name' | translate }}:
+                                {{ 'i18n_room_building_name' | translate }}:
                                 <span class="room-info-span-text">{{ room.buildingName }}</span>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="sitnet-info-text">
-                                {{ 'sitnet_room_guidance' | translate }}:
+                                {{ 'i18n_room_guidance' | translate }}:
                                 <span class="room-info-span-text">{{ room.roomInstruction }}</span>
                             </div>
                         </div>
@@ -92,14 +92,14 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="sitnet-info-text">
-                                {{ 'sitnet_room_campus' | translate }}:
+                                {{ 'i18n_room_campus' | translate }}:
                                 <span class="room-info-span-text">{{ room.campus }}</span>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="sitnet-info-text">
-                                {{ 'sitnet_room_contact_person' | translate }}:
+                                {{ 'i18n_room_contact_person' | translate }}:
                                 <span class="room-info-span-text">{{ room.contactPerson }}</span>
                             </div>
                         </div>
@@ -109,7 +109,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="sitnet-info-text">
-                                {{ 'sitnet_exam_room_address' | translate }}:
+                                {{ 'i18n_exam_room_address' | translate }}:
                                 <span class="room-info-span-text"
                                     >{{ room.mailAddress.street }}, {{ room.mailAddress.zip }},
                                     {{ room.mailAddress.city }}
@@ -123,7 +123,7 @@
             <div class="toggleMessage col-md border-top-none">
                 <div class="d-flex justify-content-between">
                     <div>
-                        {{ 'sitnet_openinghours_exception_datetimes' | translate }}
+                        {{ 'i18n_openinghours_exception_datetimes' | translate }}
                     </div>
                     <div class="d-flex justify-content-end">
                         <span class="marr10 d-" [hidden]="room.availabilityVisible">
@@ -159,10 +159,10 @@
                                 class="text-danger marr10 bi-exclamation-triangle-fill"
                                 *ngIf="exception?.outOfService"
                             >
-                                {{ 'sitnet_room_out_of_service' | translate }}
+                                {{ 'i18n_room_out_of_service' | translate }}
                             </div>
                             <div class="text-success marr10" *ngIf="!exception?.outOfService">
-                                {{ 'sitnet_room_in_service' | translate }}
+                                {{ 'i18n_room_in_service' | translate }}
                             </div>
                             <div class="justify-self-right">
                                 {{ formatDate(exception) }}

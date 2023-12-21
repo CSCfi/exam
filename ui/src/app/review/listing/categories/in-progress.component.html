@@ -1,5 +1,5 @@
 <div class="review-list-title">
-    {{ 'sitnet_exam_in_review' | translate }}
+    {{ 'i18n_exam_in_review' | translate }}
     <a (click)="view.toggle = !view.toggle" class="pointer">
         <img
             *ngIf="!view.toggle"
@@ -16,8 +16,8 @@
     </a>
     <sup
         class="padl05"
-        ngbPopover="{{ 'sitnet_review_started_description' | translate }}"
-        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+        ngbPopover="{{ 'i18n_review_started_description' | translate }}"
+        popoverTitle="{{ 'i18n_instructions' | translate }}"
         triggers="mouseenter:mouseleave"
     >
         <img
@@ -31,7 +31,7 @@
 <div *ngIf="view.items.length === 0">
     <div class="review-no-results">
         <i class="bi-exclamation-circle grayish"></i>
-        {{ 'sitnet_exam_no_started' | translate }}
+        {{ 'i18n_exam_no_started' | translate }}
     </div>
 </div>
 
@@ -42,7 +42,7 @@
                 (input)="applyFreeSearchFilter()"
                 [(ngModel)]="view.filter"
                 class="form-control"
-                placeholder="{{ 'sitnet_search' | translate }}"
+                placeholder="{{ 'i18n_search' | translate }}"
             />
             <i class="input-group-text bi-search"></i>
         </div>
@@ -52,18 +52,18 @@
                 class="review-attachment-button me-2"
             >
                 <a class="pointer" [routerLink]="['/staff/assessments', exam.id, 'speedreview']">
-                    {{ 'sitnet_speed_review' | translate }} ({{ view.filtered.length }})
+                    {{ 'i18n_speed_review' | translate }} ({{ view.filtered.length }})
                 </a>
             </div>
             <div *ngIf="!collaborative" class="review-attachment-button">
                 <a
-                    ngbPopover="{{ 'sitnet_exam_review_attachment_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_review_attachment_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                     class="pointer"
                     (click)="getAnswerAttachments()"
                 >
-                    {{ 'sitnet_load_answer_attachments' | translate }}
+                    {{ 'i18n_load_answer_attachments' | translate }}
                     <img
                         src="/assets/images/icon_attachment.svg"
                         alt=""
@@ -81,7 +81,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="displayName"
-                            text="sitnet_student"
+                            text="i18n_student"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('displayName')"
@@ -90,7 +90,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="examParticipation.user.email"
-                            text="sitnet_email"
+                            text="i18n_email"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.user.email')"
@@ -99,7 +99,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="duration"
-                            text="sitnet_exam_duration"
+                            text="i18n_exam_duration"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('duration')"
@@ -108,7 +108,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="examParticipation.started"
-                            text="sitnet_exam_time"
+                            text="i18n_exam_time"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.started')"
@@ -117,14 +117,14 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="examParticipation.deadline"
-                            text="sitnet_review_deadline"
+                            text="i18n_review_deadline"
                             [predicate]="view.predicate"
                             [reverse]="view.reverse"
                             (click)="setPredicate('examParticipation.deadline')"
                         ></xm-table-sort>
                     </th>
-                    <th class="with-space with-top">{{ 'sitnet_inspection_status' | translate }}</th>
-                    <th class="with-space with-top">{{ 'sitnet_exam_state' | translate }}</th>
+                    <th class="with-space with-top">{{ 'i18n_inspection_status' | translate }}</th>
+                    <th class="with-space with-top">{{ 'i18n_exam_state' | translate }}</th>
                 </tr>
             </thead>
 
@@ -174,13 +174,13 @@
                     </td>
                     <td *ngIf="review.examParticipation.exam.implementation === 'AQUARIUM'" class="table-column-10">
                         {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }}
+                        {{ 'i18n_clock_short' | translate }}
                         {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
                         {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }}
                     </td>
                     <td *ngIf="review.examParticipation.exam.implementation !== 'AQUARIUM'" class="table-column-10">
                         {{ review.examParticipation.started | date : 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }} {{ review.examParticipation.started | date : 'HH:mm' }} -
+                        {{ 'i18n_clock_short' | translate }} {{ review.examParticipation.started | date : 'HH:mm' }} -
                         {{ review.examParticipation.ended | date : 'HH:mm' }}
                     </td>
                     <td class="table-column-10">
@@ -199,12 +199,12 @@
                         </div>
                     </td>
                     <td class="table-column-15">
-                        {{ 'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
+                        {{ 'i18n_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
                     </td>
                 </tr>
                 <tr *ngIf="view.filtered.length === 0">
-                    <td *ngIf="showId()" colspan="8">{{ 'sitnet_review_no_result' | translate }}</td>
-                    <td *ngIf="!showId()" colspan="7">{{ 'sitnet_review_no_result' | translate }}</td>
+                    <td *ngIf="showId()" colspan="8">{{ 'i18n_review_no_result' | translate }}</td>
+                    <td *ngIf="!showId()" colspan="7">{{ 'i18n_review_no_result' | translate }}</td>
                 </tr>
                 <!--Fill if page not full-->
                 <tr *ngFor="let r of [] | pageFill : view.filtered.length : view.page : view.pageSize">

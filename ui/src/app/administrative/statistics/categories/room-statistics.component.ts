@@ -24,7 +24,7 @@ import { StatisticsService } from '../statistics.service';
         <div class="detail-row">
             <div class="col-md-12">
                 <button class="btn btn-primary" (click)="listParticipations()">
-                    {{ 'sitnet_search' | translate }}
+                    {{ 'i18n_search' | translate }}
                 </button>
             </div>
         </div>
@@ -32,10 +32,10 @@ import { StatisticsService } from '../statistics.service';
             <div class="col-md-12" style="overflow: auto">
                 <table class="table table-sm table-bordered table-striped">
                     <thead>
-                        <th class="warning">{{ 'sitnet_year' | translate }}</th>
-                        <th class="warning">{{ 'sitnet_month' | translate }}</th>
+                        <th class="warning">{{ 'i18n_year' | translate }}</th>
+                        <th class="warning">{{ 'i18n_month' | translate }}</th>
                         <th *ngFor="let room of rooms">{{ room.split('___')[1] }}</th>
-                        <th class="success">{{ 'sitnet_total' | translate }}</th>
+                        <th class="success">{{ 'i18n_total' | translate }}</th>
                     </thead>
                     <tbody>
                         <tr *ngFor="let month of months">
@@ -48,7 +48,7 @@ import { StatisticsService } from '../statistics.service';
                     <tfoot>
                         <tr class="success">
                             <td colspan="2">
-                                <b>{{ 'sitnet_total' | translate }}</b>
+                                <b>{{ 'i18n_total' | translate }}</b>
                             </td>
                             <td *ngFor="let room of rooms">{{ totalParticipations(undefined, room) }}</td>
                             <td>

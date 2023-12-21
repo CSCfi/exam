@@ -63,7 +63,7 @@ export class AssessmentService {
         return this.http.put<Feedback>(`/app/review/${exam.id}/comment`, data).pipe(
             tap((comment) => {
                 if (!silent) {
-                    this.toast.info(this.translate.instant('sitnet_comment_updated'));
+                    this.toast.info(this.translate.instant('i18n_comment_updated'));
                 }
                 Object.assign(exam.examFeedback, { id: comment.id });
             }),
@@ -87,7 +87,7 @@ export class AssessmentService {
         const valid = this.Exam.hasCustomCredit(exam);
         if (!valid) {
             if (!silent) {
-                this.toast.error(this.translate.instant('sitnet_not_a_valid_custom_credit'));
+                this.toast.error(this.translate.instant('i18n_not_a_valid_custom_credit'));
             }
             // Reset to default
             exam.customCredit = exam.course ? exam.course.credits : 0;
@@ -99,11 +99,11 @@ export class AssessmentService {
     // proved to be a bit too much of a hassle. Lets live with this.
     getRecordReviewConfirmationDialogContent = (feedback: string, showFeedbackConfigWarning: boolean) => {
         const feedbackContent = feedback
-            ? `<h4>${this.translate.instant('sitnet_teachers_comment')}</h4> ${feedback}`
+            ? `<h4>${this.translate.instant('i18n_teachers_comment')}</h4> ${feedback}`
             : '';
-        const content = `${feedbackContent}<p>${this.translate.instant('sitnet_confirm_record_review')}</p>`;
+        const content = `${feedbackContent}<p>${this.translate.instant('i18n_confirm_record_review')}</p>`;
         if (showFeedbackConfigWarning) {
-            return `${content}<p>${this.translate.instant('sitnet_exam_feedback_config_warning')}</p>`;
+            return `${content}<p>${this.translate.instant('i18n_exam_feedback_config_warning')}</p>`;
         }
         return content;
     };
@@ -135,7 +135,7 @@ export class AssessmentService {
         } else {
             let dialogNote, res: string;
             if (exam.gradeless) {
-                dialogNote = this.translate.instant('sitnet_confirm_archiving_without_grade');
+                dialogNote = this.translate.instant('i18n_confirm_archiving_without_grade');
                 res = '/app/exam/register';
             } else {
                 dialogNote = this.getRecordReviewConfirmationDialogContent(
@@ -146,7 +146,7 @@ export class AssessmentService {
             }
             const payload = this.getPayload(exam, 'GRADED');
             if (needsConfirmation) {
-                return this.Confirmation.open$(this.translate.instant('sitnet_confirm'), dialogNote).pipe(
+                return this.Confirmation.open$(this.translate.instant('i18n_confirm'), dialogNote).pipe(
                     switchMap(() => this.register$(exam, res, payload)),
                 );
             } else {
@@ -166,7 +166,7 @@ export class AssessmentService {
 
     saveEssayScore$ = (question: ExamSectionQuestion): Observable<void> => {
         if (!question.essayAnswer || isNaN(question.essayAnswer?.evaluatedScore as number)) {
-            return throwError(() => new Error(this.translate.instant('sitnet_error_score_input')));
+            return throwError(() => new Error(this.translate.instant('i18n_error_score_input')));
         }
         const url = `/app/review/examquestion/${question.id}/score`;
         return this.http.put<void>(url, { evaluatedScore: question.essayAnswer.evaluatedScore });
@@ -179,7 +179,7 @@ export class AssessmentService {
         rev: string,
     ): Observable<{ rev: string }> => {
         if (!question.essayAnswer || isNaN(question.essayAnswer?.evaluatedScore as number)) {
-            return throwError(() => new Error(this.translate.instant('sitnet_error_score_input')));
+            return throwError(() => new Error(this.translate.instant('i18n_error_score_input')));
         }
         const url = `/app/iop/reviews/${examId}/${examRef}/question/${question.id}`;
         return this.http.put<{ rev: string }>(url, { evaluatedScore: question.essayAnswer.evaluatedScore, rev: rev });
@@ -189,7 +189,7 @@ export class AssessmentService {
         if (exam.state === 'GRADED_LOGGED' || exam.state === 'ARCHIVED') {
             return this.http
                 .put<void>(`/app/review/${exam.id}/info`, { assessmentInfo: exam.assessmentInfo })
-                .pipe(tap(() => this.toast.info(this.translate.instant('sitnet_saved'))));
+                .pipe(tap(() => this.toast.info(this.translate.instant('i18n_saved'))));
         }
         return of();
     };
@@ -199,7 +199,7 @@ export class AssessmentService {
             if (exam.state !== 'GRADED') {
                 // Just save feedback and leave
                 this.saveFeedback$(exam).subscribe(() => {
-                    this.toast.info(this.translate.instant('sitnet_saved'));
+                    this.toast.info(this.translate.instant('i18n_saved'));
                     const state = this.getExitState(exam);
                     this.router.navigate(state.fragments, { queryParams: state.params });
                 });
@@ -219,8 +219,8 @@ export class AssessmentService {
                     this.sendAssessment(newState, payload, messages, exam);
                 } else {
                     this.Confirmation.open$(
-                        this.translate.instant('sitnet_confirm'),
-                        this.translate.instant('sitnet_confirm_grade_review'),
+                        this.translate.instant('i18n_confirm'),
+                        this.translate.instant('i18n_confirm_grade_review'),
                     ).subscribe(() => this.sendAssessment(newState, payload, messages, exam));
                 }
             }
@@ -243,8 +243,8 @@ export class AssessmentService {
 
         if (askConfirmation) {
             return this.Confirmation.open$(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_confirm_maturity_disapproval'),
+                this.translate.instant('i18n_confirm'),
+                this.translate.instant('i18n_confirm_maturity_disapproval'),
             ).pipe(switchMap(() => reject));
         } else {
             return reject;
@@ -270,9 +270,9 @@ export class AssessmentService {
                 tap(() => {
                     if (newState === 'REVIEW_STARTED') {
                         messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
-                        window.setTimeout(() => this.toast.info(this.translate.instant('sitnet_review_saved')), 1000);
+                        window.setTimeout(() => this.toast.info(this.translate.instant('i18n_review_saved')), 1000);
                     } else {
-                        this.toast.info(this.translate.instant('sitnet_review_graded'));
+                        this.toast.info(this.translate.instant('i18n_review_graded'));
                         const state = this.getExitState(exam);
                         this.router.navigate(state.fragments, { queryParams: state.params });
                     }
@@ -285,13 +285,13 @@ export class AssessmentService {
     getErrors = (exam: Exam) => {
         const messages: string[] = [];
         if (!exam.grade?.id && !exam.gradeless) {
-            messages.push('sitnet_participation_unreviewed');
+            messages.push('i18n_participation_unreviewed');
         }
         if (!exam.creditType?.type) {
-            messages.push('sitnet_exam_choose_credit_type');
+            messages.push('i18n_exam_choose_credit_type');
         }
         if (!exam.answerLanguage) {
-            messages.push('sitnet_exam_choose_response_language');
+            messages.push('i18n_exam_choose_response_language');
         }
         return messages;
     };
@@ -304,7 +304,7 @@ export class AssessmentService {
             switchMap(() => this.http.put(`/app/review/${exam.id}`, payload)),
             tap(() => {
                 if (exam.state !== 'GRADED') {
-                    this.toast.info(this.translate.instant('sitnet_review_graded'));
+                    this.toast.info(this.translate.instant('i18n_review_graded'));
                 }
             }),
             switchMap(() => this.sendToRegistry$(payload, res)),

@@ -130,7 +130,7 @@ export class QuestionAssessmentComponent implements OnInit {
         return new Promise<void>((resolve) => {
             answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
             this.Assessment.saveEssayScore$(answer).subscribe(() => {
-                this.toast.info(this.translate.instant('sitnet_graded'));
+                this.toast.info(this.translate.instant('i18n_graded'));
                 if (this.assessedAnswers.indexOf(answer) === -1) {
                     this.unassessedAnswers.splice(this.unassessedAnswers.indexOf(answer), 1);
                     this.assessedAnswers.push(answer);

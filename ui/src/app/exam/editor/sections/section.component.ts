@@ -100,7 +100,7 @@ export class SectionComponent {
 
     clearAllQuestions = () =>
         this.dialogs
-            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_remove_all_questions'))
+            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_remove_all_questions'))
             .subscribe({
                 next: () => {
                     this.http
@@ -109,7 +109,7 @@ export class SectionComponent {
                             next: () => {
                                 this.section.sectionQuestions.splice(0, this.section.sectionQuestions.length);
                                 this.section.lotteryOn = false;
-                                this.toast.info(this.translate.instant('sitnet_all_questions_removed'));
+                                this.toast.info(this.translate.instant('i18n_all_questions_removed'));
                             },
                             error: (err) => this.toast.error(err),
                         });
@@ -119,7 +119,7 @@ export class SectionComponent {
 
     removeSection = () =>
         this.dialogs
-            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_remove_section'))
+            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_remove_section'))
             .subscribe({ next: () => this.removed.emit(this.section), error: (err) => this.toast.error(err) });
 
     renameSection = () => this.updateSection(false);
@@ -136,7 +136,7 @@ export class SectionComponent {
             return;
         }
         if (!this.questionPointsMatch()) {
-            this.toast.error(this.translate.instant('sitnet_error_lottery_points_not_match'));
+            this.toast.error(this.translate.instant('i18n_error_lottery_points_not_match'));
             this.section.lotteryOn = false;
             return;
         }
@@ -150,7 +150,7 @@ export class SectionComponent {
                     if (!this.section.lotteryOn) {
                         this.section.lotteryItemCount = 0;
                     }
-                    this.toast.info(this.translate.instant('sitnet_section_updated'));
+                    this.toast.info(this.translate.instant('i18n_section_updated'));
                 },
                 error: (err) => this.toast.error(err),
             });
@@ -158,10 +158,10 @@ export class SectionComponent {
 
     updateLotteryCount = () => {
         if (!this.section.lotteryItemCount) {
-            this.toast.warning(this.translate.instant('sitnet_warn_lottery_count'));
+            this.toast.warning(this.translate.instant('i18n_warn_lottery_count'));
             this.section.lotteryItemCount = 1;
         } else if (this.section.lotteryItemCount > this.section.sectionQuestions.length) {
-            this.toast.warning(this.translate.instant('sitnet_warn_lottery_count'));
+            this.toast.warning(this.translate.instant('i18n_warn_lottery_count'));
             this.section.lotteryItemCount = this.section.sectionQuestions.length;
         } else {
             this.updateSection(false);
@@ -177,7 +177,7 @@ export class SectionComponent {
                     to: to,
                 })
                 .subscribe(() => {
-                    this.toast.info(this.translate.instant('sitnet_questions_reordered'));
+                    this.toast.info(this.translate.instant('i18n_questions_reordered'));
                     moveItemInArray(this.section.sectionQuestions, from, to);
                     this.updateIndices();
                 });
@@ -186,7 +186,7 @@ export class SectionComponent {
 
     addNewQuestion = () => {
         if (this.section.lotteryOn) {
-            this.toast.error(this.translate.instant('sitnet_error_drop_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('i18n_error_drop_disabled_lottery_on'));
             return;
         }
         this.openBaseQuestionEditor();
@@ -200,7 +200,7 @@ export class SectionComponent {
             .subscribe({
                 next: (resp) => {
                     this.section.sectionQuestions.splice(this.section.sectionQuestions.indexOf(sq), 1);
-                    this.toast.info(this.translate.instant('sitnet_question_removed'));
+                    this.toast.info(this.translate.instant('i18n_question_removed'));
                     this.updateSection(true);
                     if (this.section.sectionQuestions.length < 2 && this.section.lotteryOn) {
                         // turn off lottery
@@ -219,7 +219,7 @@ export class SectionComponent {
         this.http.post<Question>(`/app/question/${sq.question.id}`, {}).subscribe({
             next: (copy) => {
                 this.insertExamQuestion(copy, sq.sequenceNumber);
-                this.toast.info(this.translate.instant('sitnet_question_copied'));
+                this.toast.info(this.translate.instant('i18n_question_copied'));
             },
             error: (err) => this.toast.error(err),
         });
@@ -231,7 +231,7 @@ export class SectionComponent {
 
     openLibrary = () => {
         if (this.section.lotteryOn) {
-            this.toast.error(this.translate.instant('sitnet_error_drop_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('i18n_error_drop_disabled_lottery_on'));
             return;
         }
         const modal = this.modal.open(QuestionSelectorComponent, {
@@ -266,7 +266,7 @@ export class SectionComponent {
             .subscribe({
                 next: () => {
                     if (!silent) {
-                        this.toast.info(this.translate.instant('sitnet_section_updated'));
+                        this.toast.info(this.translate.instant('i18n_section_updated'));
                     }
                 },
                 error: () => (this.section.optional = !this.section.optional),

@@ -25,19 +25,19 @@ import { QuestionFlowCategoryComponent } from './question-flow-category.componen
     selector: 'xm-question-flow',
     template: `<div class="top-row">
             <div class="col-md-12 marb30">
-                <div class="question-flow-title">{{ 'sitnet_question_flow' | translate }}</div>
+                <div class="question-flow-title">{{ 'i18n_question_flow' | translate }}</div>
             </div>
         </div>
         <xm-question-flow-category
             *ngIf="unfinished"
-            categoryTitle="sitnet_in_progress"
+            categoryTitle="i18n_in_progress"
             [reviews]="unfinished"
             (selected)="questionSelected($event)"
         >
         </xm-question-flow-category>
         <xm-question-flow-category
             *ngIf="finished"
-            categoryTitle="sitnet_all_finished"
+            categoryTitle="i18n_all_finished"
             [reviews]="finished"
             [allDone]="true"
             (selected)="questionSelected($event)"

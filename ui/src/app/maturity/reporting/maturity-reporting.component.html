@@ -3,12 +3,12 @@
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
                 <span class="student-enroll-title marl20">{{
-                    'sitnet_monthly_language_inspection_report' | translate
+                    'i18n_monthly_language_inspection_report' | translate
                 }}</span>
                 <span class="print-only compact-header-text">{{ month | date : 'MM/yyyy' }}</span>
             </div>
             <div class="review-attachment-button print-button float-end marr20 no-print">
-                <a (click)="printReport()" class="pointer"> {{ 'sitnet_print' | translate }}&nbsp;&nbsp; </a>
+                <a (click)="printReport()" class="pointer"> {{ 'i18n_print' | translate }}&nbsp;&nbsp; </a>
             </div>
         </div>
     </div>
@@ -22,22 +22,22 @@
                             <xm-dropdown-select
                                 id="month"
                                 class="input-group me-2"
-                                placeholder="{{ 'sitnet_month' | translate }}"
+                                placeholder="{{ 'i18n_month' | translate }}"
                                 [options]="months"
                                 [noSearch]="true"
                                 (optionSelected)="monthChanged($event)"
-                                placeholder="{{ 'sitnet_select' | translate }}"
+                                placeholder="{{ 'i18n_select' | translate }}"
                             ></xm-dropdown-select>
                         </div>
                         <div class="col">
                             <xm-dropdown-select
                                 id="year"
                                 class="input-group"
-                                placeholder="{{ 'sitnet_year' | translate }}"
+                                placeholder="{{ 'i18n_year' | translate }}"
                                 [noSearch]="true"
                                 [options]="years"
                                 (optionSelected)="yearChanged($event)"
-                                placeholder="{{ 'sitnet_select' | translate }}"
+                                placeholder="{{ 'i18n_select' | translate }}"
                             ></xm-dropdown-select>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
 
         <div class="detail-row">
             <div class="col-md-12">
-                <h4>{{ 'sitnet_processed_language_inspections' | translate }}</h4>
+                <h4>{{ 'i18n_processed_language_inspections' | translate }}</h4>
             </div>
         </div>
 
@@ -56,16 +56,16 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>{{ 'sitnet_course_code' | translate }}</th>
-                            <th>{{ 'sitnet_exam_name' | translate }}</th>
-                            <th>{{ 'sitnet_teachers' | translate }}</th>
-                            <th>{{ 'sitnet_arrived' | translate }}</th>
-                            <th>{{ 'sitnet_student' | translate }}</th>
-                            <th>{{ 'sitnet_finished' | translate }}</th>
-                            <th>{{ 'sitnet_language_inspector' | translate }}</th>
-                            <th>{{ 'sitnet_inspection_finished' | translate }}</th>
-                            <th>{{ 'sitnet_language_inspections' | translate }}</th>
-                            <th class="no-print">{{ 'sitnet_feedback' | translate }}</th>
+                            <th>{{ 'i18n_course_code' | translate }}</th>
+                            <th>{{ 'i18n_exam_name' | translate }}</th>
+                            <th>{{ 'i18n_teachers' | translate }}</th>
+                            <th>{{ 'i18n_arrived' | translate }}</th>
+                            <th>{{ 'i18n_student' | translate }}</th>
+                            <th>{{ 'i18n_finished' | translate }}</th>
+                            <th>{{ 'i18n_language_inspector' | translate }}</th>
+                            <th>{{ 'i18n_inspection_finished' | translate }}</th>
+                            <th>{{ 'i18n_language_inspections' | translate }}</th>
+                            <th class="no-print">{{ 'i18n_feedback' | translate }}</th>
                         </tr>
                     </thead>
 
@@ -110,12 +110,12 @@
                             <td>{{ inspection.finishedAt | date : 'dd.MM.yyyy' }}</td>
                             <td [ngClass]="inspection.approved ? 'text-success' : 'text-danger'">
                                 <strong>{{
-                                    (inspection.approved ? 'sitnet_approved' : 'sitnet_rejected') | translate
+                                    (inspection.approved ? 'i18n_approved' : 'i18n_rejected') | translate
                                 }}</strong>
                             </td>
                             <td class="no-print">
                                 <a class="pointer" (click)="showStatement(inspection.statement)">{{
-                                    'sitnet_view' | translate
+                                    'i18n_view' | translate
                                 }}</a>
                             </td>
                         </tr>

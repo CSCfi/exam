@@ -26,16 +26,14 @@ import { CommonExamService } from '../../../shared/miscellaneous/common-exam.ser
         <div class="col-md-2 general-info-title">{{ participation.started | date : 'dd.MM.yyyy' }}</div>
         <div class="col-md-4 general-info-content">
             <span [ngStyle]="participation.exam.state === 'ABORTED' ? { color: '#F35D6C' } : { color: '#3CA34F' }">
-                {{ 'sitnet_exam_status_' + participation.exam.state | lowercase | translate }}
+                {{ 'i18n_exam_status_' + participation.exam.state | lowercase | translate }}
             </span>
         </div>
         <div class="col-md-2 generail-info-title" [hidden]="hideGrade()">
-            {{ 'sitnet_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span style="color: #3ca34f">{{
-                translateGrade()
-            }}</span>
+            {{ 'i18n_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span style="color: #3ca34f">{{ translateGrade() }}</span>
         </div>
         <div class="col-md-4 general-info-link-bold" *ngIf="!hideAnswerLink()">
-            <a class="pointer" (click)="viewAnswers()">{{ 'sitnet_view_answers' | translate }}</a>
+            <a class="pointer" (click)="viewAnswers()">{{ 'i18n_view_answers' | translate }}</a>
         </div>
     `,
     standalone: true,

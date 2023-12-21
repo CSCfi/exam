@@ -26,22 +26,22 @@ import { ExaminationQuestionComponent } from '../question/examination-question.c
             <div class="col-md-12 studentexam-header">
                 <h2
                     aria-live="polite"
-                    attr.aria-label="{{ 'sitnet_exam_section' | translate }} {{ index ? index + '. ' : '' }}{{
+                    attr.aria-label="{{ 'i18n_exam_section' | translate }} {{ index ? index + '. ' : '' }}{{
                         section.name
                     }}"
                     id="examination-section"
                 >
                     <span class="exam-title">{{ index ? index + '. ' : '' }}{{ section.name }}</span>
                     <span *ngIf="isPreview && section.lotteryOn" class="sitnet-text-medium">
-                        <small class="ms-3">({{ 'sitnet_lottery_questions' | translate }})</small>
+                        <small class="ms-3">({{ 'i18n_lottery_questions' | translate }})</small>
                     </span>
                 </h2>
                 <div class="section-score-details">
                     <div class="section-score-label" *ngIf="getSectionMaxScore() > 0">
-                        {{ 'sitnet_section_max_score' | translate }}: &nbsp; {{ getSectionMaxScore() }}
+                        {{ 'i18n_section_max_score' | translate }}: &nbsp; {{ getSectionMaxScore() }}
                     </div>
                     <div class="section-score-label" *ngIf="getAmountOfSelectionEvaluatedQuestions() > 0">
-                        {{ 'sitnet_word_passed_max' | translate }}: &nbsp;
+                        {{ 'i18n_word_passed_max' | translate }}: &nbsp;
                         {{ getAmountOfSelectionEvaluatedQuestions() }}
                     </div>
                 </div>

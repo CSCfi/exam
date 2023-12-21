@@ -91,11 +91,11 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
         if (code && name) {
             this.examInfo.title = `${this.CourseCode.formatCode(code)} ${name}`;
         } else if (code) {
-            this.examInfo.title = `${this.CourseCode.formatCode(code)} ${this.translate.instant('sitnet_no_name')}`;
+            this.examInfo.title = `${this.CourseCode.formatCode(code)} ${this.translate.instant('i18n_no_name')}`;
         } else if (name) {
             this.examInfo.title = name;
         } else {
-            this.examInfo.title = this.translate.instant('sitnet_no_name');
+            this.examInfo.title = this.translate.instant('i18n_no_name');
         }
     };
 

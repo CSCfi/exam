@@ -27,28 +27,28 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
     template: `
         <div class="top-row">
             <h4 class="col-md-12">
-                {{ 'sitnet_get_all_student_activities' | translate }}
+                {{ 'i18n_get_all_student_activities' | translate }}
             </h4>
         </div>
         <div class="bottom-row d-flex justify-content-between">
             <div class="col-lg-4 mb-2">
-                <label for="student">{{ 'sitnet_student' | translate }}</label>
+                <label for="student">{{ 'i18n_student' | translate }}</label>
                 <xm-dropdown-select
                     id="student"
                     *ngIf="students"
                     [options]="students"
                     (optionSelected)="studentSelected($event)"
-                    placeholder="{{ 'sitnet_select' | translate }}"
+                    placeholder="{{ 'i18n_select' | translate }}"
                 ></xm-dropdown-select>
             </div>
             <div class="col-lg-3 mb-2">
-                <label for="startAt">{{ 'sitnet_start_time' | translate }}</label>
+                <label for="startAt">{{ 'i18n_start_time' | translate }}</label>
                 <div id="startAt">
                     <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
             <div class="col-lg-3 mb-2">
-                <label for="endAt">{{ 'sitnet_end_time' | translate }}</label>
+                <label for="endAt">{{ 'i18n_end_time' | translate }}</label>
                 <div id="endAt">
                     <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
@@ -61,8 +61,8 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
                         class="print-btn"
                         download
                         triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_download' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_download' | translate }}"
                     >
                         <i class="bi-file-earmark-excel font-6"></i>
                     </a>
@@ -93,7 +93,7 @@ export class StudentsReportComponent {
             const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
             this.files.download(`/app/statistics/student/${this.student}/${f}/${t}`, 'student_activity.xlsx');
         } else {
-            this.toast.error(this.translate.instant('sitnet_choose_student'));
+            this.toast.error(this.translate.instant('i18n_choose_student'));
         }
     };
 

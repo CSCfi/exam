@@ -1,7 +1,7 @@
 <div id="sitnet-dialog" role="dialog" aria-modal="true">
     <div class="student-message-dialog-wrapper-padding">
         <div class="student-enroll-dialog-wrap">
-            <h1 class="student-enroll-title">{{ 'sitnet_modify_materials' | translate }}</h1>
+            <h1 class="student-enroll-title">{{ 'i18n_modify_materials' | translate }}</h1>
         </div>
         <div class="modal-body">
             <div class="row">
@@ -12,7 +12,7 @@
                             (change)="filterMaterials()"
                             type="text"
                             class="form-control"
-                            placeholder="{{ 'sitnet_search_by_name' | translate }}"
+                            placeholder="{{ 'i18n_search_by_name' | translate }}"
                             autofocus
                         />
                         <div class="input-group-append">
@@ -26,8 +26,8 @@
                     <table class="table table-striped table-bordered">
                         <thead>
                             <tr>
-                                <th>{{ 'sitnet_name' | translate }}</th>
-                                <th>{{ 'sitnet_author' | translate }}</th>
+                                <th>{{ 'i18n_name' | translate }}</th>
+                                <th>{{ 'i18n_author' | translate }}</th>
                                 <th>ISBN</th>
                                 <th></th>
                             </tr>
@@ -41,8 +41,8 @@
                                     <i
                                         (click)="removeMaterial(material)"
                                         class="pointer bi-trash"
-                                        ngbPopover="{{ 'sitnet_exam_remove' | translate }}"
-                                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                                        ngbPopover="{{ 'i18n_exam_remove' | translate }}"
+                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                                         triggers="mouseenter:mouseleave"
                                     >
                                     </i>
@@ -55,14 +55,14 @@
 
             <div class="row">
                 <h1 class="col-md-12">
-                    {{ 'sitnet_create_new' | translate }}
+                    {{ 'i18n_create_new' | translate }}
                 </h1>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <form novalidate>
                         <div class="form-group">
-                            <label for="name">{{ 'sitnet_name' | translate }}</label>
+                            <label for="name">{{ 'i18n_name' | translate }}</label>
                             <input
                                 id="name"
                                 class="form-control"
@@ -72,7 +72,7 @@
                             />
                         </div>
                         <div class="form-group">
-                            <label for="author">{{ 'sitnet_author' | translate }}</label>
+                            <label for="author">{{ 'i18n_author' | translate }}</label>
                             <input
                                 id="author"
                                 class="form-control"
@@ -90,7 +90,7 @@
                             />
                         </div>
                         <button type="submit" class="btn btn-primary" (click)="createMaterial()">
-                            {{ 'sitnet_create_new' | translate }}
+                            {{ 'i18n_create_new' | translate }}
                         </button>
                     </form>
                 </div>
@@ -99,7 +99,7 @@
         <div class="student-message-dialog-footer">
             <div class="student-message-dialog-button-save">
                 <button class="btn btn-sm btn-primary" (click)="ok()">
-                    {{ 'sitnet_close' | translate }}
+                    {{ 'i18n_close' | translate }}
                 </button>
             </div>
         </div>

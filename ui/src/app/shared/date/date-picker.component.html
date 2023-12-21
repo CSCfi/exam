@@ -36,9 +36,9 @@
 <ng-template #footerTemplate>
     <hr class="my-0" />
     <button class="btn btn-primary btn-sm m-2 float-start" (click)="date = today; dateChange(); d.close()">
-        {{ 'sitnet_today' | translate }}
+        {{ 'i18n_today' | translate }}
     </button>
     <button class="btn btn-secondary btn-sm m-2 float-end" (click)="date = null; dateCleared(); d.close()">
-        {{ 'sitnet_clear' | translate }}
+        {{ 'i18n_clear' | translate }}
     </button>
 </ng-template>

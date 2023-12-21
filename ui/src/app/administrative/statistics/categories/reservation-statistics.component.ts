@@ -23,19 +23,19 @@ import { StatisticsService } from '../statistics.service';
         <div class="bottom-row">
             <div class="col-md-12">
                 <button class="btn btn-primary" (click)="listReservations()">
-                    {{ 'sitnet_search' | translate }}
+                    {{ 'i18n_search' | translate }}
                 </button>
             </div>
         </div>
         <div class="top-row">
             <div class="col-md-2">
-                <strong>{{ 'sitnet_total_reservations' | translate }}:</strong>
+                <strong>{{ 'i18n_total_reservations' | translate }}:</strong>
             </div>
             <div class="col-md-10">{{ reservations.length }}</div>
         </div>
         <div class="main-row">
             <div class="col-md-2">
-                <strong>{{ 'sitnet_total_no_shows' | translate }}:</strong>
+                <strong>{{ 'i18n_total_no_shows' | translate }}:</strong>
             </div>
             <div class="col-md-10">{{ noShows.length }}</div>
         </div>

@@ -29,7 +29,7 @@ import type { Exam } from '../exam.model';
     selector: 'xm-printout-listing',
     template: `<div id="sitnet-header" class="header">
             <div class="col-md-12 header-wrapper">
-                <span class="header-text">{{ 'sitnet_printout_exams' | translate }}</span>
+                <span class="header-text">{{ 'i18n_printout_exams' | translate }}</span>
             </div>
         </div>
         <div id="dashboard">
@@ -43,7 +43,7 @@ import type { Exam } from '../exam.model';
                                         [reverse]="reverse"
                                         [predicate]="predicate"
                                         by="examinationDatesAggregate"
-                                        text="sitnet_examination_dates"
+                                        text="i18n_examination_dates"
                                         (click)="setPredicate('examinationDatesAggregate')"
                                     ></xm-table-sort>
                                 </th>
@@ -52,7 +52,7 @@ import type { Exam } from '../exam.model';
                                         [reverse]="reverse"
                                         [predicate]="predicate"
                                         by="course.code"
-                                        text="sitnet_examcode"
+                                        text="i18n_examcode"
                                         (click)="setPredicate('course.code')"
                                     ></xm-table-sort>
                                 </th>
@@ -61,7 +61,7 @@ import type { Exam } from '../exam.model';
                                         [reverse]="reverse"
                                         [predicate]="predicate"
                                         by="name"
-                                        text="sitnet_exam_name"
+                                        text="i18n_exam_name"
                                         (click)="setPredicate('name')"
                                     ></xm-table-sort>
                                 </th>
@@ -70,7 +70,7 @@ import type { Exam } from '../exam.model';
                                         [reverse]="reverse"
                                         [predicate]="predicate"
                                         by="ownerAggregate"
-                                        text="sitnet_teachers"
+                                        text="i18n_teachers"
                                         (click)="setPredicate('ownerAggregate')"
                                     ></xm-table-sort>
                                 </th>

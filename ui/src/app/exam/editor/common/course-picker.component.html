@@ -2,7 +2,7 @@
     <div class="row align-items-center">
         <div class="col-md-6">
             <label for="courseCode" class="exam-basic-selecttitle form-label" style="display: block">{{
-                'sitnet_course_code' | translate
+                'i18n_course_code' | translate
             }}</label>
             <div class="input-group">
                 <input
@@ -24,8 +24,8 @@
                     <i
                         *ngIf="!loader.code.isOn"
                         class="bi-question-circle"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_course_unique_code' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_course_unique_code' | translate }}"
                         triggers="mouseenter:mouseleave"
                     ></i>
                     <div class="spinner-border spinner-border-sm" role="status" [hidden]="!loader.code.isOn">
@@ -36,7 +36,7 @@
         </div>
         <div class="col-md-6">
             <label for="courseName" class="exam-basic-selecttitle form-label" style="display: block">{{
-                'sitnet_course_name' | translate
+                'i18n_course_name' | translate
             }}</label>
             <div class="input-group">
                 <input
@@ -58,8 +58,8 @@
                     <i
                         *ngIf="!loader.name.isOn"
                         class="bi-question-circle"
-                        ngbPopover="{{ 'sitnet_course_name' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_course_name' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     ></i>
                     <div class="spinner-border spinner-border-sm" role="status" [hidden]="!loader.name.isOn">

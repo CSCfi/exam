@@ -45,7 +45,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                     <span class="exam-question-option-text" [innerHtml]="option.option.option"></span>
                 </div>
                 <div class="make-inline float-end answer-score-text">
-                    <span> {{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
+                    <span> {{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
                 </div>
             </div>
         </div>

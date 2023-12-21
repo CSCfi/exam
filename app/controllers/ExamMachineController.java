@@ -91,7 +91,7 @@ public class ExamMachineController extends BaseController {
             List<ExamMachine> machines = DB.find(ExamMachine.class).findList();
             List<String> ips = machines.stream().filter(m -> !m.equals(dest)).map(ExamMachine::getIpAddress).toList();
             if (ips.contains(src.getIpAddress())) {
-                return forbidden("sitnet_error_ip_address_exists_for_room");
+                return forbidden("i18n_error_ip_address_exists_for_room");
             }
         }
 

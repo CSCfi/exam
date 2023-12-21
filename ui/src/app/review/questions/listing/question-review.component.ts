@@ -37,7 +37,7 @@ import { QuestionReviewService } from '../question-review.service';
 
                 <span class="vcenter marl10">
                     {{ getAssessedAnswerCount() }} / {{ review.answers.length }}
-                    {{ 'sitnet_graded' | translate | lowercase }}
+                    {{ 'i18n_graded' | translate | lowercase }}
                 </span>
             </div>
             <span class="float-end dropdown pointer-hand single-question-icon" uib-dropdown>
@@ -54,10 +54,10 @@ import { QuestionReviewService } from '../question-review.service';
         </div>
         <!-- question points -->
         <div class="review-points-exam" *ngIf="review.question.defaultEvaluationType === 'Points'">
-            {{ review.question.defaultMaxScore }} {{ 'sitnet_unit_points' | translate }}
+            {{ review.question.defaultMaxScore }} {{ 'i18n_unit_points' | translate }}
         </div>
         <div class="review-points-exam" *ngIf="review.question.defaultEvaluationType === 'Selection'">
-            {{ 'sitnet_evaluation_select' | translate }}
+            {{ 'i18n_evaluation_select' | translate }}
         </div>
 
         <!-- Question -->

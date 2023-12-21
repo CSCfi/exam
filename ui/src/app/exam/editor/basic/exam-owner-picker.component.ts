@@ -85,7 +85,7 @@ export class ExamOwnerSelectorComponent implements OnInit {
                 error: (err) => this.toast.error(err),
             });
         } else {
-            this.toast.error(this.translate.instant('sitnet_teacher_not_found'));
+            this.toast.error(this.translate.instant('i18n_teacher_not_found'));
         }
     };
 

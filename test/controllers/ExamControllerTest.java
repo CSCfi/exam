@@ -49,12 +49,12 @@ public class ExamControllerTest extends IntegrationTestCase {
         });
         Set<Long> ids = new HashSet<>();
         for (Exam e : activeExams) {
-            e.setExamActiveStartDate(DateTime.now());
-            e.setExamActiveEndDate(DateTime.now().plusWeeks(1));
+            e.setPeriodStart(DateTime.now());
+            e.setPeriodEnd(DateTime.now().plusWeeks(1));
             e.update();
             ids.add(e.getId());
         }
-        String[] expectedPaths = { "id", "name", "course.code", "examActiveStartDate", "examActiveEndDate" };
+        String[] expectedPaths = { "id", "name", "course.code", "periodStart", "periodEnd" };
 
         // Execute
         Result result = get("/app/reviewerexams");
@@ -67,8 +67,8 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertPathsExist(node, jsonPaths(expectedPaths, exams.size()));
         for (JsonNode n : exams) {
             Exam e = deserialize(Exam.class, n);
-            assertThat(e.getExamActiveEndDate().isAfterNow());
-            assertThat(e.getExamActiveStartDate().isBeforeNow());
+            assertThat(e.getPeriodEnd().isAfterNow());
+            assertThat(e.getPeriodStart().isBeforeNow());
             assertThat(ids.contains(e.getId()));
         }
     }
@@ -149,8 +149,8 @@ public class ExamControllerTest extends IntegrationTestCase {
         assertThat(expected.getCustomCredit()).isEqualTo(returned.getCustomCredit());
         assertThat(expected.getDuration()).isEqualTo(returned.getDuration());
         assertThat(expected.getEnrollInstruction()).isEqualTo(returned.getEnrollInstruction());
-        assertThat(expected.getExamActiveEndDate()).isEqualTo(returned.getExamActiveEndDate());
-        assertThat(expected.getExamActiveStartDate()).isEqualTo(returned.getExamActiveStartDate());
+        assertThat(expected.getPeriodEnd()).isEqualTo(returned.getPeriodEnd());
+        assertThat(expected.getPeriodStart()).isEqualTo(returned.getPeriodStart());
     }
 
     @Test
@@ -220,8 +220,8 @@ public class ExamControllerTest extends IntegrationTestCase {
             "instruction",
             "enrollInstruction",
             "shared",
-            "examActiveStartDate",
-            "examActiveEndDate",
+            "periodStart",
+            "periodEnd",
             "duration",
             "gradeScale",
             "gradeScale.description",

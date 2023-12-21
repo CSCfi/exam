@@ -35,7 +35,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
             <div class="row align-items-center">
                 <div
                     class="col-1"
-                    ngbPopover="{{ (hideEditor ? 'sitnet_show' : 'sitnet_hide') | translate }}"
+                    ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <i
@@ -68,15 +68,15 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                         exam.examFeedback?.attachment?.fileName
                     }}</a>
                     <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
-                        <i class="bi-x" title="{{ 'sitnet_remove_attachment' | translate }}"></i>
+                        <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
                     </span>
                 </div>
                 <div class="d-flex justify-content-between mt-2">
                     <button class="btn btn-outline-secondary" (click)="saveFeedback()">
-                        {{ 'sitnet_save' | translate }}
+                        {{ 'i18n_save' | translate }}
                     </button>
                     <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
-                        {{ 'sitnet_attach_file' | translate }}
+                        {{ 'i18n_attach_file' | translate }}
                     </button>
                 </div>
             </div>
@@ -107,8 +107,7 @@ export class FeedbackComponent implements OnInit {
     ngOnInit() {
         this.id = this.route.snapshot.params.id;
         this.ref = this.route.snapshot.params.ref;
-        this.title =
-            this.exam.executionType.type === 'MATURITY' ? 'sitnet_give_content_statement' : 'sitnet_give_feedback';
+        this.title = this.exam.executionType.type === 'MATURITY' ? 'i18n_give_content_statement' : 'i18n_give_feedback';
     }
 
     toggleFeedbackVisibility = () => (this.hideEditor = !this.hideEditor);

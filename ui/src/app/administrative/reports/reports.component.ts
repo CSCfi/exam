@@ -37,7 +37,7 @@ import { ReportsService, UserRole } from './reports.service';
         <div>
             <div id="sitnet-header" class="header">
                 <div class="col-md-12 header-wrapper">
-                    <span class="header-text">{{ 'sitnet_reports' | translate }}</span>
+                    <span class="header-text">{{ 'i18n_reports' | translate }}</span>
                 </div>
             </div>
 

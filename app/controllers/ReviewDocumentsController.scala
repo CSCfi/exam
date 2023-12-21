@@ -47,7 +47,7 @@ class ReviewDocumentsController @Inject()(cc: ControllerComponents,
             catch {
               case e: Exception =>
                 logger.error("Failed to parse CSV file. Stack trace follows", e)
-                InternalServerError("sitnet_internal_error")
+                InternalServerError("i18n_internal_error")
             }
             Ok
           case None => NotFound

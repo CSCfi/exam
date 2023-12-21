@@ -26,10 +26,10 @@ import { CoursePickerComponent } from '../common/course-picker.component';
     template: `<div class="row align-items-center">
             <div class="col-md-3 mt-2">
                 <div class="exam-basic-title">
-                    {{ 'sitnet_course' | translate }}
+                    {{ 'i18n_course' | translate }}
                     <sup
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_select_exam_course_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_select_exam_course_description' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
                         <img
@@ -48,7 +48,7 @@ import { CoursePickerComponent } from '../common/course-picker.component';
         <!-- Course scope and organization name elements -> 3 rows -->
         <div class="row margin-20">
             <div class="col-md-3 col-md-offset-3">
-                {{ 'sitnet_course_scope' | translate }}
+                {{ 'i18n_course_scope' | translate }}
             </div>
             <div class="col-md-6">
                 {{ exam.course?.credits }}
@@ -56,7 +56,7 @@ import { CoursePickerComponent } from '../common/course-picker.component';
         </div>
         <div class="row margin-20">
             <div class="col-md-3 col-md-offset-3">
-                {{ 'sitnet_faculty_name' | translate }}
+                {{ 'i18n_faculty_name' | translate }}
             </div>
             <div class="col-md-6">
                 {{ exam.course?.organisation?.name }}
@@ -64,7 +64,7 @@ import { CoursePickerComponent } from '../common/course-picker.component';
         </div>
         <div class="row margin-20" [hidden]="!exam.course?.gradeScale">
             <div class="col-md-3 col-md-offset-3">
-                {{ 'sitnet_grade_scale' | translate }}
+                {{ 'i18n_grade_scale' | translate }}
             </div>
             <div class="col-md-6">
                 {{ displayGradeScale() }}
@@ -91,7 +91,7 @@ export class ExamCourseComponent {
 
     setCourse = (course: Course) =>
         this.http.put(`/app/exams/${this.exam.id}/course/${course.id}`, {}).subscribe(() => {
-            this.toast.success(this.translate.instant('sitnet_exam_associated_with_course'));
+            this.toast.success(this.translate.instant('i18n_exam_associated_with_course'));
             this.exam.course = course;
             this.updated.emit(course);
         });

@@ -35,7 +35,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                     <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                 </div>
                 <div class="make-inline float-end">
-                    <span class="text-success"> {{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
+                    <span class="text-success"> {{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
                 </div>
             </div>
             <div *ngIf="option.score < 0" class="exam-answered-wrong">
@@ -46,7 +46,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                     <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                 </div>
                 <div class="make-inline float-end">
-                    <span class="text-danger"> {{ option.score }} {{ 'sitnet_unit_points' | translate }}</span>
+                    <span class="text-danger"> {{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
                 </div>
             </div>
         </div>
@@ -63,7 +63,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                 </div>
                 <div class="make-inline float-end">
                     <span [ngClass]="option.score >= 0 ? 'text-success' : 'text-danger'">
-                        {{ option.score }} {{ 'sitnet_unit_points' | translate }}</span
+                        {{ option.score }} {{ 'i18n_unit_points' | translate }}</span
                     >
                 </div>
             </div>

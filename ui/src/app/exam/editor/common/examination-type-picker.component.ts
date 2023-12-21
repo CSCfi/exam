@@ -14,14 +14,14 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
     template: `
         <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">
-                <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'sitnet_choose' | translate }}</h4>
+                <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'i18n_choose' | translate }}</h4>
             </div>
             <div class="modal-body">
                 <div ngbAccordion #acc="ngbAccordion">
                     <div ngbAccordionItem="executionType">
                         <h2 ngbAccordionHeader>
                             <button ngbAccordionButton>
-                                {{ 'sitnet_choose_execution_type' | translate }}
+                                {{ 'i18n_choose_execution_type' | translate }}
                             </button>
                         </h2>
                         <div ngbAccordionCollapse>
@@ -55,7 +55,7 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
                     >
                         <h2 ngbAccordionHeader>
                             <button ngbAccordionButton>
-                                {{ 'sitnet_examination_type' | translate }}
+                                {{ 'i18n_examination_type' | translate }}
                             </button>
                         </h2>
                         <div ngbAccordionCollapse>
@@ -74,7 +74,7 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
             </div>
             <div class="modal-footer">
                 <button class="btn btn-sm btn-danger" (click)="cancel()">
-                    {{ 'sitnet_button_cancel' | translate }}
+                    {{ 'i18n_button_cancel' | translate }}
                 </button>
             </div>
         </div>
@@ -104,12 +104,12 @@ export class ExaminationTypeSelectorComponent implements OnInit {
                     this.executionTypes = types.map((t) => {
                         const implementations = [];
                         if (t.type !== 'PRINTOUT' && (resp.sebExaminationSupported || resp.homeExaminationSupported)) {
-                            implementations.push({ type: 'AQUARIUM', name: 'sitnet_examination_type_aquarium' });
+                            implementations.push({ type: 'AQUARIUM', name: 'i18n_examination_type_aquarium' });
                             if (resp.sebExaminationSupported) {
-                                implementations.push({ type: 'CLIENT_AUTH', name: 'sitnet_examination_type_seb' });
+                                implementations.push({ type: 'CLIENT_AUTH', name: 'i18n_examination_type_seb' });
                             }
                             if (resp.homeExaminationSupported) {
-                                implementations.push({ type: 'WHATEVER', name: 'sitnet_examination_type_home_exam' });
+                                implementations.push({ type: 'WHATEVER', name: 'i18n_examination_type_home_exam' });
                             }
                         }
                         return { ...t, examinationTypes: implementations };

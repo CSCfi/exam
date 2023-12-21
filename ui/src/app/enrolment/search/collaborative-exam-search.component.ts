@@ -29,12 +29,12 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
     selector: 'xm-collaborative-exam-search',
     template: `<div id="dashboard">
         <div class="student-details-title-wrap padtop padleft">
-            <div class="student-exam-search-title">{{ 'sitnet_collaborative_exams' | translate }}</div>
+            <div class="student-exam-search-title">{{ 'i18n_collaborative_exams' | translate }}</div>
         </div>
         <div class="student-details-title-wrap padleft">
             <span class="form-group">
                 <img class="nopad" src="/assets/images/icon_info.png" alt="" /> &nbsp;
-                <span>{{ 'sitnet_collaborative_exam_search_description' | translate }}</span>
+                <span>{{ 'i18n_collaborative_exam_search_description' | translate }}</span>
             </span>
         </div>
 
@@ -46,7 +46,7 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
                     (ngModelChange)="search($event)"
                     type="text"
                     class="form-control search"
-                    placeholder="{{ 'sitnet_search' | translate }}"
+                    placeholder="{{ 'i18n_search' | translate }}"
                 />
                 <div class="input-group-append search">
                     <img class="nopad" src="/assets/images/icon_search.png" alt="search-icon" width="49" height="40" />
@@ -55,15 +55,15 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
         </div>
 
         <div *ngIf="exams.length > 0 && filter.text.length > 2" class="student-details-title-wrap padleft">
-            {{ 'sitnet_student_exam_search_result' | translate }} {{ exams.length }}
-            {{ 'sitnet_student_exam_search_result_continues' | translate }}
+            {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
+            {{ 'i18n_student_exam_search_result_continues' | translate }}
             <b>"{{ filter.text }}"</b>
         </div>
         <div class="student-details-title-wrap padleft">
             <div class="col" [hidden]="!loader.loading">
                 <button class="btn btn-success" type="button" disabled>
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    {{ 'sitnet_searching' | translate }}...
+                    {{ 'i18n_searching' | translate }}...
                 </button>
             </div>
         </div>

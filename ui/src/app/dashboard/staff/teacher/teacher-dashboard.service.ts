@@ -70,7 +70,7 @@ export class TeacherDashboardService {
                     }
                     const periodOk =
                         r.executionType.type !== 'PRINTOUT' &&
-                        new Date() <= new Date(r.examActiveEndDate as string) &&
+                        new Date() <= new Date(r.periodEnd as string) &&
                         this.participationsInFuture(r);
                     const examinationDatesOk =
                         r.executionType.type === 'PRINTOUT' && this.hasUpcomingExaminationDates(r);
@@ -95,7 +95,7 @@ export class TeacherDashboardService {
                     }
                     const periodOk =
                         r.executionType.type !== 'PRINTOUT' &&
-                        (new Date() > new Date(r.examActiveEndDate as string) || !this.participationsInFuture(r));
+                        (new Date() > new Date(r.periodEnd as string) || !this.participationsInFuture(r));
                     const examinationDatesOk =
                         r.executionType.type === 'PRINTOUT' && !this.hasUpcomingExaminationDates(r);
                     return periodOk || examinationDatesOk;
@@ -157,7 +157,7 @@ export class TeacherDashboardService {
     // Produce a fake period for information purposes by selecting first and last examination dates.
     private createFakeActivityPeriod(exam: Exam) {
         const dates = exam.examinationDates.map((es) => new Date(es.date).getTime());
-        exam.examActiveStartDate = new Date(dates.length > 0 ? Math.min(...dates) : new Date()).toISOString();
-        exam.examActiveEndDate = new Date(dates.length > 0 ? Math.max(...dates) : new Date()).toISOString();
+        exam.periodStart = new Date(dates.length > 0 ? Math.min(...dates) : new Date()).toISOString();
+        exam.periodEnd = new Date(dates.length > 0 ? Math.max(...dates) : new Date()).toISOString();
     }
 }

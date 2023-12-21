@@ -29,15 +29,15 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
                 <h1 class="student-enroll-title">
-                    <i class="bi-calendar-event"></i>&nbsp;&nbsp;{{ 'sitnet_pick_examination_event' | translate }}
+                    <i class="bi-calendar-event"></i>&nbsp;&nbsp;{{ 'i18n_pick_examination_event' | translate }}
                 </h1>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12">
                         <h3>
-                            {{ 'sitnet_exam_duration' | translate }}: {{ exam.duration }}
-                            {{ 'sitnet_minutes' | translate }}
+                            {{ 'i18n_exam_duration' | translate }}: {{ exam.duration }}
+                            {{ 'i18n_minutes' | translate }}
                         </h3>
                     </div>
                 </div>
@@ -55,7 +55,7 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
                     <div class="row">
                         <div class="col-md-12 mart10">
                             <button class="btn btn-sm btn-success" (click)="selectEvent(config)" autofocus>
-                                {{ 'sitnet_select' | translate }}
+                                {{ 'i18n_select' | translate }}
                             </button>
                         </div>
                     </div>
@@ -64,7 +64,7 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
             <div class="modal-footer">
                 <div class="col-md-12">
                     <button class="btn btn-sm btn-danger float-end" (click)="cancel()">
-                        {{ 'sitnet_button_decline' | translate }}
+                        {{ 'i18n_button_decline' | translate }}
                     </button>
                 </div>
             </div>

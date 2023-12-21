@@ -13,7 +13,7 @@ import { CalendarService } from '../calendar.service';
                 <div class="row">
                     <span class="col-md-11 col-9">
                         <h2 class="calendar-phase-title">
-                            {{ sequenceNumber }}. {{ 'sitnet_choose_institution' | translate }}
+                            {{ sequenceNumber }}. {{ 'i18n_choose_institution' | translate }}
                         </h2>
                     </span>
                     <span class="col-md-1 col-3">
@@ -36,7 +36,7 @@ import { CalendarService } from '../calendar.service';
                                         aria-haspopup="true"
                                         aria-expanded="true"
                                     >
-                                        {{ 'sitnet_faculty_name' | translate }}&nbsp;
+                                        {{ 'i18n_faculty_name' | translate }}&nbsp;
                                     </button>
                                     <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu21">
                                         <li
@@ -54,7 +54,7 @@ import { CalendarService } from '../calendar.service';
                             <div class="col">
                                 <div class="col-12 ps-0">
                                     <button class="btn btn-outline-dark" (click)="makeInternalReservation()">
-                                        {{ 'sitnet_internal_reservation' | translate }}&nbsp;
+                                        {{ 'i18n_internal_reservation' | translate }}&nbsp;
                                     </button>
                                 </div>
                             </div>

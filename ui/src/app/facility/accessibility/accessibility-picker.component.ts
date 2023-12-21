@@ -24,7 +24,7 @@ import { AccessibilityService } from './accessibility.service';
 @Component({
     selector: 'xm-accessibility-picker',
     template: `<div class="col-md-12">
-        <div class="sitnet-info-text">{{ 'sitnet_room_accessibility_info' | translate }}</div>
+        <div class="sitnet-info-text">{{ 'i18n_room_accessibility_info' | translate }}</div>
         <div>
             <span class="dropdown" ngbDropdown>
                 <button
@@ -78,7 +78,7 @@ export class AccessibilitySelectorComponent implements OnInit {
 
     selectedAccessibilities = () => {
         return this.room.accessibilities.length === 0
-            ? this.translate.instant('sitnet_select')
+            ? this.translate.instant('i18n_select')
             : this.room.accessibilities
                   .map((ac) => {
                       return ac.name;
@@ -100,7 +100,7 @@ export class AccessibilitySelectorComponent implements OnInit {
         const ids = this.room.accessibilities.map((item) => item.id).join(', ');
 
         this.accessibilityService.updateRoomAccessibilities(this.room.id, { ids: ids }).subscribe(() => {
-            this.toast.info(this.translate.instant('sitnet_room_updated'));
+            this.toast.info(this.translate.instant('i18n_room_updated'));
         });
     };
 

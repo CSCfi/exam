@@ -24,10 +24,10 @@ import { TranslateModule } from '@ngx-translate/core';
             <div class="header-wrapper col-12">
                 <div class="row align-items-center p-2">
                     <div class="col-5" *ngIf="showRemainingTime">
-                        <span class="sitnet-white">{{ 'sitnet_exam_time_left' | translate }}: </span>
+                        <span class="sitnet-white">{{ 'i18n_exam_time_left' | translate }}: </span>
                     </div>
                     <div *ngIf="!showRemainingTime" class="col-5 clock-hide text-muted">
-                        {{ 'sitnet_clock_hidden' | translate }}
+                        {{ 'i18n_clock_hidden' | translate }}
                     </div>
                     <div class="col-5">
                         <span
@@ -43,7 +43,7 @@ import { TranslateModule } from '@ngx-translate/core';
                         <button (click)="showRemainingTime = !showRemainingTime" class="border-none background-none">
                             <img
                                 src="/assets/images/icon_clock.svg"
-                                alt="{{ 'sitnet_show_hide_clock' | translate }}"
+                                alt="{{ 'i18n_show_hide_clock' | translate }}"
                                 onerror="this.onerror=null;this.src='/assets/images/icon_clock.png';"
                             />
                         </button>

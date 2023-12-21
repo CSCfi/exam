@@ -32,8 +32,8 @@ import { MaturityService } from '../maturity/maturity.service';
             <div class="row">
                 <div
                     class="col-md-1"
-                    ngbPopover="{{ (hideEditor ? 'sitnet_show' : 'sitnet_hide') | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <i
@@ -49,7 +49,7 @@ import { MaturityService } from '../maturity/maturity.service';
                 </div>
                 <div class="col-md-11">
                     <div class="vcenter">
-                        {{ 'sitnet_give_statement' | translate }}
+                        {{ 'i18n_give_statement' | translate }}
                     </div>
                 </div>
             </div>
@@ -67,7 +67,7 @@ import { MaturityService } from '../maturity/maturity.service';
                 <div class="d-flex justify-content-between">
                     <div>
                         <button class="btn btn-outline-secondary" (click)="saveInspectionStatement()">
-                            {{ 'sitnet_save' | translate }}
+                            {{ 'i18n_save' | translate }}
                         </button>
                     </div>
                     <div>
@@ -76,11 +76,11 @@ import { MaturityService } from '../maturity/maturity.service';
                                 exam.languageInspection?.statement?.attachment?.fileName
                             }}</a>
                             <span class="sitnet-red pointer" (click)="removeStatementAttachment()">
-                                <i class="bi-x" title="{{ 'sitnet_remove_attachment' | translate }}"></i>
+                                <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
                             </span>
                         </span>
                         <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
-                            {{ 'sitnet_attach_file' | translate }}
+                            {{ 'i18n_attach_file' | translate }}
                         </button>
                     </div>
                 </div>

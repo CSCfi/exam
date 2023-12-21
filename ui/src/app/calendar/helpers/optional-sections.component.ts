@@ -10,7 +10,7 @@ import type { ExamInfo } from '../calendar.service';
         <div class="student-enrolment-wrapper details-view">
             <div class="row mb-3" [ngClass]="sectionSelectionOk() ? '' : 'notactive'">
                 <span class="col-md-12">
-                    <h2 class="calendar-phase-title">2. {{ 'sitnet_exam_materials' | translate }}</h2>
+                    <h2 class="calendar-phase-title">2. {{ 'i18n_exam_materials' | translate }}</h2>
                     <span class="calendar-phase-icon float-end" *ngIf="sectionSelectionOk()">
                         <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
                     </span>
@@ -21,11 +21,11 @@ import type { ExamInfo } from '../calendar.service';
                     <div class="col-md-12">
                         <div class="row">
                             <div class="col-md-6">
-                                <strong>{{ 'sitnet_exam_section' | translate }}:</strong> {{ section.name }}
+                                <strong>{{ 'i18n_exam_section' | translate }}:</strong> {{ section.name }}
                             </div>
                             <div class="col-md-6">
                                 <div *ngIf="section.optional" class="text text-success">
-                                    {{ 'sitnet_optional_section' | translate | uppercase }}
+                                    {{ 'i18n_optional_section' | translate | uppercase }}
                                 </div>
                             </div>
                         </div>
@@ -48,7 +48,7 @@ import type { ExamInfo } from '../calendar.service';
                                         (ngModelChange)="checkSectionSelections()"
                                     />
                                     <label class="form-check-label" for="check1">
-                                        {{ 'sitnet_select_optional_section' | translate }}
+                                        {{ 'i18n_select_optional_section' | translate }}
                                     </label>
                                 </div>
                             </div>
@@ -57,14 +57,14 @@ import type { ExamInfo } from '../calendar.service';
                 </div>
                 <div class="row" *ngIf="section.examMaterials.length > 0">
                     <div class="col-md-12">
-                        <strong>{{ 'sitnet_exam_materials' | translate }}</strong>
+                        <strong>{{ 'i18n_exam_materials' | translate }}</strong>
                     </div>
                 </div>
                 <div *ngFor="let material of section.examMaterials" class="row">
                     <span class="col-md-12">
-                        {{ 'sitnet_name' | translate | uppercase }}: {{ material.name }}
+                        {{ 'i18n_name' | translate | uppercase }}: {{ material.name }}
                         <span *ngIf="material.author">
-                            {{ 'sitnet_author' | translate | uppercase }}: {{ material.author }}
+                            {{ 'i18n_author' | translate | uppercase }}: {{ material.author }}
                         </span>
                         <span *ngIf="material.isbn"> ISBN: {{ material.isbn }} </span>
                     </span>

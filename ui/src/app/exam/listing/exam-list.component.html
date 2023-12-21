@@ -1,6 +1,6 @@
 <div id="sitnet-header" class="header">
     <div class="col-md-12 header-wrapper">
-        <span class="header-text">{{ 'sitnet_exams' | translate }}</span>
+        <span class="header-text">{{ 'i18n_exams' | translate }}</span>
     </div>
 </div>
 
@@ -9,7 +9,7 @@
     <div class="top-row">
         <div class="col-md-12">
             <button class="btn btn-primary float-end" (click)="newExam()">
-                {{ 'sitnet_toolbar_new_exam' | translate }}
+                {{ 'i18n_toolbar_new_exam' | translate }}
             </button>
         </div>
     </div>
@@ -20,7 +20,7 @@
             <ul ngbNav #nav="ngbNav" [(activeId)]="activeId" class="nav-tabs">
                 <li role="presentation" [ngbNavItem]="0">
                     <a ngbNavLink>
-                        {{ 'sitnet_published_exams' | translate }}
+                        {{ 'i18n_published_exams' | translate }}
                         <span class="badge bg-secondary">{{
                             filterByStateAndExpiration('PUBLISHED', false).length
                         }}</span>
@@ -28,7 +28,7 @@
                 </li>
                 <li role="presentation" [ngbNavItem]="1">
                     <a ngbNavLink>
-                        {{ 'sitnet_expired_exams' | translate }}
+                        {{ 'i18n_expired_exams' | translate }}
                         <span class="badge bg-secondary">{{
                             filterByStateAndExpiration('PUBLISHED', true).length
                         }}</span>
@@ -36,13 +36,13 @@
                 </li>
                 <li role="presentation" [ngbNavItem]="2">
                     <a ngbNavLink>
-                        {{ 'sitnet_saved_exams' | translate }}
+                        {{ 'i18n_saved_exams' | translate }}
                         <span class="badge bg-secondary">{{ filterByState('SAVED').length }}</span>
                     </a>
                 </li>
                 <li role="presentation" [ngbNavItem]="3">
                     <a ngbNavLink>
-                        {{ 'sitnet_draft_exams' | translate }}
+                        {{ 'i18n_draft_exams' | translate }}
                         <span class="badge bg-secondary">{{ filterByState('DRAFT').length }}</span>
                     </a>
                 </li>
@@ -57,9 +57,9 @@
                     (keyup)="search($event)"
                     type="text"
                     class="form-control"
-                    placeholder="{{ 'sitnet_search' | translate }}"
-                    ngbPopover="{{ 'sitnet_exam_search_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    placeholder="{{ 'i18n_search' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_search_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 />
 
@@ -74,7 +74,7 @@
         <div class="col-md-12">
             <button class="btn btn-success" type="button" disabled>
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                {{ 'sitnet_searching' | translate }}...
+                {{ 'i18n_searching' | translate }}...
             </button>
         </div>
     </div>
@@ -90,7 +90,7 @@
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
                                     by="course.code"
-                                    text="sitnet_examcode"
+                                    text="i18n_examcode"
                                     (click)="setPredicate('course.code')"
                                 ></xm-table-sort>
                             </th>
@@ -99,7 +99,7 @@
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
                                     by="name"
-                                    text="sitnet_exam_name"
+                                    text="i18n_exam_name"
                                     (click)="setPredicate('name')"
                                 ></xm-table-sort>
                             </th>
@@ -108,7 +108,7 @@
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
                                     by="executionType.id"
-                                    text="sitnet_exam_credit_type"
+                                    text="i18n_exam_credit_type"
                                     (click)="setPredicate('executionType.id')"
                                 ></xm-table-sort>
                             </th>
@@ -117,7 +117,7 @@
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
                                     by="ownerAggregate"
-                                    text="sitnet_teachers"
+                                    text="i18n_teachers"
                                     (click)="setPredicate('ownerAggregate')"
                                 ></xm-table-sort>
                             </th>
@@ -125,22 +125,22 @@
                                 <xm-table-sort
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
-                                    by="examActiveStartDate"
-                                    text="sitnet_start_time"
-                                    (click)="setPredicate('examActiveStartDate')"
+                                    by="periodStart"
+                                    text="i18n_start_time"
+                                    (click)="setPredicate('periodStart')"
                                 ></xm-table-sort>
                             </th>
                             <th>
                                 <xm-table-sort
                                     [reverse]="reverse"
                                     [predicate]="examsPredicate"
-                                    by="examActiveEndDate"
-                                    text="sitnet_end_time"
-                                    (click)="setPredicate('examActiveEndDate')"
+                                    by="periodEnd"
+                                    text="i18n_end_time"
+                                    (click)="setPredicate('periodEnd')"
                                 ></xm-table-sort>
                             </th>
-                            <th>{{ 'sitnet_copy' | translate }}</th>
-                            <th>{{ 'sitnet_exam_remove' | translate }}</th>
+                            <th>{{ 'i18n_copy' | translate }}</th>
+                            <th>{{ 'i18n_exam_remove' | translate }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -164,7 +164,7 @@
                                     *ngIf="!exam.name"
                                     class="exams-info-title bold-button text-danger"
                                     [routerLink]="['/staff/exams', exam.id, '1']"
-                                    >{{ 'sitnet_no_name' | translate }}
+                                    >{{ 'i18n_no_name' | translate }}
                                 </a>
                             </td>
                             <td>
@@ -174,13 +174,13 @@
                                 <xm-teacher-list [exam]="exam"></xm-teacher-list>
                             </td>
                             <td>
-                                <span *ngIf="exam.examActiveStartDate">
-                                    {{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }}
+                                <span *ngIf="exam.periodStart">
+                                    {{ exam.periodStart | date : 'dd.MM.yyyy' }}
                                 </span>
                             </td>
                             <td>
-                                <span *ngIf="exam.examActiveEndDate">
-                                    {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}
+                                <span *ngIf="exam.periodEnd">
+                                    {{ exam.periodEnd | date : 'dd.MM.yyyy' }}
                                 </span>
                             </td>
                             <td class="text-center">
@@ -201,19 +201,18 @@
         </div>
         <div class="detail-row" *ngIf="views[activeId].view === 'PUBLISHED' && !views[activeId].showExpired">
             <div class="col-md-12">
-                <strong>{{ 'sitnet_published_exams' | translate }}: </strong>
+                <strong>{{ 'i18n_published_exams' | translate }}: </strong>
                 <em class="sitnet-text-medium"
-                    >{{ 'sitnet_published_exams_info_main' | translate }}
-                    {{ 'sitnet_published_exams_info_other' | translate }}</em
+                    >{{ 'i18n_published_exams_info_main' | translate }}
+                    {{ 'i18n_published_exams_info_other' | translate }}</em
                 >
             </div>
         </div>
         <div class="bottom-row" *ngIf="views[activeId].view === 'SAVED'">
             <div class="col-md-12">
-                <strong>{{ 'sitnet_saved_exams' | translate }}: </strong>
+                <strong>{{ 'i18n_saved_exams' | translate }}: </strong>
                 <em class="sitnet-text-medium"
-                    >{{ 'sitnet_saved_exams_info_main' | translate }}
-                    {{ 'sitnet_saved_exams_info_other' | translate }}</em
+                    >{{ 'i18n_saved_exams_info_main' | translate }} {{ 'i18n_saved_exams_info_other' | translate }}</em
                 >
             </div>
         </div>

@@ -17,12 +17,12 @@ import { TranslateModule } from '@ngx-translate/core';
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
                     <button class="btn btn-sm btn-primary" (click)="activeModal.close(true)" autofocus>
-                        {{ 'sitnet_button_accept' | translate }}
+                        {{ 'i18n_button_accept' | translate }}
                     </button>
                 </div>
                 <div class="student-message-dialog-button-cancel">
                     <button class="btn btn-sm btn-danger float-start" (click)="activeModal.dismiss(false)">
-                        {{ 'sitnet_button_decline' | translate }}
+                        {{ 'i18n_button_decline' | translate }}
                     </button>
                 </div>
             </div>

@@ -92,7 +92,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
                     question.getEssayAnswer().getId().toString()
                 );
         } catch (IOException e) {
-            return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
+            return wrapAsPromise(internalServerError("i18n_error_creating_attachment"));
         }
         // Remove existing one if found
         EssayAnswer answer = question.getEssayAnswer();
@@ -139,7 +139,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         try {
             newFilePath = copyFile(filePart.getRef(), "question", Long.toString(qid));
         } catch (IOException e) {
-            return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
+            return wrapAsPromise(internalServerError("i18n_error_creating_attachment"));
         }
         return replaceAndFinish(question, filePart, newFilePath);
     }
@@ -191,7 +191,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
             return wrapAsPromise(notFound());
         }
         if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
-            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
         }
 
         fileHandler.removePrevious(exam);
@@ -203,7 +203,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     public CompletionStage<Result> deleteFeedbackAttachment(Long id, Http.Request request) {
         Exam exam = DB.find(Exam.class, id);
         if (exam == null) {
-            return wrapAsPromise(notFound("sitnet_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_exam_not_found"));
         }
         Comment comment = exam.getExamFeedback();
         fileHandler.removePrevious(comment);
@@ -216,7 +216,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     public CompletionStage<Result> deleteStatementAttachment(Long id, Http.Request request) {
         LanguageInspection inspection = DB.find(LanguageInspection.class).where().eq("exam.id", id).findOne();
         if (inspection == null || inspection.getStatement() == null) {
-            return wrapAsPromise(notFound("sitnet_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_exam_not_found"));
         }
         Comment comment = inspection.getStatement();
         fileHandler.removePrevious(comment);
@@ -235,14 +235,14 @@ public class AttachmentController extends BaseController implements LocalAttachm
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
-            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
         }
         String newFilePath;
         FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
         try {
             newFilePath = copyFile(filePart.getRef(), "exam", Long.toString(eid));
         } catch (IOException e) {
-            return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
+            return wrapAsPromise(internalServerError("i18n_error_creating_attachment"));
         }
         return replaceAndFinish(exam, filePart, newFilePath);
     }
@@ -267,7 +267,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         try {
             newFilePath = copyFile(filePart.getRef(), "exam", id.toString(), "feedback");
         } catch (IOException e) {
-            return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
+            return wrapAsPromise(internalServerError("i18n_error_creating_attachment"));
         }
         Comment comment = exam.getExamFeedback();
         return replaceAndFinish(comment, filePart, newFilePath);
@@ -293,7 +293,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         try {
             newFilePath = copyFile(filePart.getRef(), "exam", id.toString(), "inspectionstatement");
         } catch (IOException e) {
-            return wrapAsPromise(internalServerError("sitnet_error_creating_attachment"));
+            return wrapAsPromise(internalServerError("i18n_error_creating_attachment"));
         }
         Comment comment = inspection.getStatement();
         return replaceAndFinish(comment, filePart, newFilePath);
@@ -392,7 +392,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     private CompletionStage<Result> serveAttachment(Attachment attachment) {
         File file = new File(attachment.getFilePath());
         if (!file.exists()) {
-            return wrapAsPromise(internalServerError("sitnet_file_not_found_but_referred_in_database"));
+            return wrapAsPromise(internalServerError("i18n_file_not_found_but_referred_in_database"));
         }
         final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.toPath());
         return serveAsBase64Stream(attachment, source);

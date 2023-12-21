@@ -208,7 +208,7 @@ export class OpenHoursComponent implements OnInit, OnChanges {
 
     updateHours(wh: DefaultWorkingHoursWithEditing) {
         if (this.overlaps(wh)) {
-            this.toast.error(this.translate.instant(this.translate.instant('sitnet_time_overlaps_error')));
+            this.toast.error(this.translate.instant(this.translate.instant('i18n_time_overlaps_error')));
             return;
         }
         const start = formatISO(
@@ -218,7 +218,7 @@ export class OpenHoursComponent implements OnInit, OnChanges {
             setDayOfYear(new Date().setHours(wh.pickEndingTime.hour, wh.pickEndingTime.minute, 0, 0), 1),
         );
         if (new Date(start) > new Date(end)) {
-            this.toast.error(this.translate.instant(this.translate.instant('sitnet_starting_cannot_be_after_ending')));
+            this.toast.error(this.translate.instant(this.translate.instant('i18n_starting_cannot_be_after_ending')));
             return;
         }
         const id = wh.id;
@@ -234,7 +234,7 @@ export class OpenHoursComponent implements OnInit, OnChanges {
                     };
                     this.newTime = { ...this.NEW_TIME };
                 }
-                this.toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
+                this.toast.info(this.translate.instant('i18n_default_opening_hours_updated'));
             });
         wh.displayStartingTime = wh.pickStartingTime;
         wh.displayEndingTime = wh.pickEndingTime;
@@ -245,7 +245,7 @@ export class OpenHoursComponent implements OnInit, OnChanges {
         return this.roomService.removeWorkingHours$(wh.id, this.room.id).subscribe(() => {
             const index = this.extendedRoom.extendedDwh.indexOf(wh);
             this.extendedRoom.extendedDwh.splice(index, 1);
-            this.toast.info(this.translate.instant('sitnet_default_opening_hours_updated'));
+            this.toast.info(this.translate.instant('i18n_default_opening_hours_updated'));
         });
     }
 

@@ -26,7 +26,7 @@ import { TranslateModule } from '@ngx-translate/core';
         <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">
                 <div class="student-enroll-dialog-wrap">
-                    <h1 class="student-enroll-title">{{ 'sitnet_accept_useragreement' | translate }}</h1>
+                    <h1 class="student-enroll-title">{{ 'i18n_accept_useragreement' | translate }}</h1>
                 </div>
             </div>
             <div class="modal-body">
@@ -35,12 +35,12 @@ import { TranslateModule } from '@ngx-translate/core';
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
                     <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                        {{ 'sitnet_button_accept' | translate }}
+                        {{ 'i18n_button_accept' | translate }}
                     </button>
                 </div>
                 <div class="student-message-dialog-button-cancel">
                     <button class="btn btn-sm btn-danger float-start" (click)="activeModal.dismiss()">
-                        {{ 'sitnet_button_decline' | translate }}
+                        {{ 'i18n_button_decline' | translate }}
                     </button>
                 </div>
             </div>

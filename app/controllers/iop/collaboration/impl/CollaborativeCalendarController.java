@@ -55,13 +55,13 @@ public class CollaborativeCalendarController extends CollaborationController {
     public CompletionStage<Result> getExamInfo(Long id) {
         CollaborativeExam ce = DB.find(CollaborativeExam.class, id);
         if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
 
         return downloadExam(ce)
             .thenApplyAsync(result -> {
                 if (result.isEmpty()) {
-                    return notFound("sitnet_error_exam_not_found");
+                    return notFound("i18n_error_exam_not_found");
                 }
                 Exam exam = result.get();
                 return ok(exam, PathProperties.parse("(*, examSections(*, examMaterials(*)), examLanguages(*))"));
@@ -75,13 +75,13 @@ public class CollaborativeCalendarController extends CollaborationController {
             exam.getState() == Exam.State.STUDENT_STARTED ||
             (oldReservation != null && oldReservation.toInterval().isBefore(DateTime.now()))
         ) {
-            return Optional.of(forbidden("sitnet_reservation_in_effect"));
+            return Optional.of(forbidden("i18n_reservation_in_effect"));
         }
         // No previous reservation or it's in the future
         // If no previous reservation, check if allowed to participate. This check is skipped if user already
         // has a reservation to this exam so that change of reservation is always possible.
         if (oldReservation == null && !isAllowedToParticipate(exam, user)) {
-            return Optional.of(forbidden("sitnet_no_trials_left"));
+            return Optional.of(forbidden("i18n_no_trials_left"));
         }
         return Optional.empty();
     }
@@ -103,7 +103,7 @@ public class CollaborativeCalendarController extends CollaborationController {
 
         CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
         if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
 
         final ExamEnrolment enrolment = DB
@@ -118,13 +118,13 @@ public class CollaborativeCalendarController extends CollaborationController {
             .endJunction()
             .findOne();
         if (enrolment == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
 
         return downloadExam(ce)
             .thenApplyAsync(result -> {
                 if (result.isEmpty()) {
-                    return notFound("sitnet_error_exam_not_found");
+                    return notFound("i18n_error_exam_not_found");
                 }
                 Exam exam = result.get();
                 Optional<Result> badEnrolment = checkEnrolment(enrolment, exam, user);
@@ -133,7 +133,7 @@ public class CollaborativeCalendarController extends CollaborationController {
                 }
                 Optional<ExamMachine> machine = calendarHandler.getRandomMachine(room, exam, start, end, aids);
                 if (machine.isEmpty()) {
-                    return forbidden("sitnet_no_machines_available");
+                    return forbidden("i18n_no_machines_available");
                 }
                 // We are good to go :)
                 // Start manual transaction.
@@ -201,20 +201,20 @@ public class CollaborativeCalendarController extends CollaborationController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
         if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
         ExamEnrolment enrolment = getEnrolledExam(examId, user);
         if (enrolment == null) {
-            return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
+            return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
         }
         return downloadExam(ce)
             .thenApplyAsync(result -> {
                 if (result.isEmpty()) {
-                    return notFound("sitnet_error_exam_not_found");
+                    return notFound("i18n_error_exam_not_found");
                 }
                 Exam exam = result.get();
                 if (!exam.hasState(Exam.State.PUBLISHED)) {
-                    return notFound("sitnet_error_exam_not_found");
+                    return notFound("i18n_error_exam_not_found");
                 }
                 List<Integer> accessibilityIds = aids.orElse(Collections.emptyList());
                 return calendarHandler.getSlots(user, exam, roomId, day, accessibilityIds);

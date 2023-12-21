@@ -32,7 +32,7 @@ import { ExamSearchService } from './exam-search.service';
         <div class="top-row ms-2 me-2">
             <div class="col-md-12">
                 <div class="student-title-wrap">
-                    <h1 class="student-enroll-title">{{ 'sitnet_exams' | translate }}</h1>
+                    <h1 class="student-enroll-title">{{ 'i18n_exams' | translate }}</h1>
                 </div>
             </div>
         </div>
@@ -41,9 +41,9 @@ import { ExamSearchService } from './exam-search.service';
                 <img class="nopad" src="/assets/images/icon_info.png" class="pe-1" alt="" />
                 &nbsp;
                 <span *ngIf="permissionCheck.active === false">
-                    {{ 'sitnet_exam_search_description' | translate }}
+                    {{ 'i18n_exam_search_description' | translate }}
                 </span>
-                <span *ngIf="permissionCheck.active === true">{{ 'sitnet_search_restricted' | translate }}</span>
+                <span *ngIf="permissionCheck.active === true">{{ 'i18n_search_restricted' | translate }}</span>
             </span>
         </div>
         <div class="detail-row ms-2 me-2 mt-2" *ngIf="permissionCheck.active === false">
@@ -55,8 +55,8 @@ import { ExamSearchService } from './exam-search.service';
                         [(ngModel)]="filter.text"
                         type="text"
                         class="form-control search"
-                        [attr.aria-label]="'sitnet_search' | translate"
-                        placeholder="{{ 'sitnet_search' | translate }}"
+                        [attr.aria-label]="'i18n_search' | translate"
+                        placeholder="{{ 'i18n_search' | translate }}"
                     />
                     <div class="input-group-append search" aria-hidden="true">
                         <img
@@ -73,8 +73,8 @@ import { ExamSearchService } from './exam-search.service';
 
         <div class="row mt-2 me-2 ms-2" *ngIf="exams.length > 0">
             <div class="col-md-12">
-                {{ 'sitnet_student_exam_search_result' | translate }} {{ exams.length }}
-                {{ 'sitnet_student_exam_search_result_continues' | translate }}
+                {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
+                {{ 'i18n_student_exam_search_result_continues' | translate }}
                 <b>"{{ filter.text }}"</b>
             </div>
         </div>

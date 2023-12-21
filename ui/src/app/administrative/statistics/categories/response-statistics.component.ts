@@ -23,24 +23,24 @@ import { StatisticsService } from '../statistics.service';
     template: `
         <div class="bottom-row">
             <div class="col-md-12">
-                <button class="btn btn-primary" (click)="listResponses()">{{ 'sitnet_search' | translate }}</button>
+                <button class="btn btn-primary" (click)="listResponses()">{{ 'i18n_search' | translate }}</button>
             </div>
         </div>
         <div class="top-row">
             <div class="col-md-2">
-                <strong>{{ 'sitnet_assessed_exams' | translate }}:</strong>
+                <strong>{{ 'i18n_assessed_exams' | translate }}:</strong>
             </div>
             <div class="col-md-10">{{ assessedExams.length }}</div>
         </div>
         <div class="top-row">
             <div class="col-md-2">
-                <strong>{{ 'sitnet_unassessed_exams' | translate }}:</strong>
+                <strong>{{ 'i18n_unassessed_exams' | translate }}:</strong>
             </div>
             <div class="col-md-10">{{ unassessedExams.length }}</div>
         </div>
         <div class="top-row">
             <div class="col-md-2">
-                <strong>{{ 'sitnet_aborted_exams' | translate }}:</strong>
+                <strong>{{ 'i18n_aborted_exams' | translate }}:</strong>
             </div>
             <div class="col-md-10">{{ abortedExams.length }}</div>
         </div>

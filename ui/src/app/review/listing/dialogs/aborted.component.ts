@@ -63,7 +63,7 @@ export class AbortedExamsComponent {
     permitRetrial = (enrolment: ExamEnrolment) => {
         this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe(() => {
             enrolment.retrialPermitted = true;
-            this.toast.info(this.translate.instant('sitnet_retrial_permitted'));
+            this.toast.info(this.translate.instant('i18n_retrial_permitted'));
         });
     };
 

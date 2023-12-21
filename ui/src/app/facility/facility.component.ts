@@ -79,7 +79,7 @@ export class FacilityComponent implements OnInit {
     createExamRoom = () => {
         this.room.getDraft$().subscribe({
             next: (room) => {
-                this.toast.info(this.translate.instant('sitnet_room_draft_created'));
+                this.toast.info(this.translate.instant('i18n_room_draft_created'));
                 this.router.navigate(['/staff/rooms', room.id]);
             },
             error: (err) => this.toast.error(err),
@@ -96,7 +96,7 @@ export class FacilityComponent implements OnInit {
             next: (res: MaintenancePeriod) => {
                 this.room.createMaintenancePeriod$(res).subscribe({
                     next: (mp) => {
-                        this.toast.info(this.translate.instant('sitnet_maintenance_period_created'));
+                        this.toast.info(this.translate.instant('i18n_maintenance_period_created'));
                         this.maintenancePeriods.push(mp);
                     },
                     error: (err) => this.toast.error(err),
@@ -117,7 +117,7 @@ export class FacilityComponent implements OnInit {
             next: (res: MaintenancePeriod) => {
                 this.room.updateMaintenancePeriod$(res).subscribe({
                     next: () => {
-                        this.toast.info(this.translate.instant('sitnet_maintenance_period_updated'));
+                        this.toast.info(this.translate.instant('i18n_maintenance_period_updated'));
                         const index = this.maintenancePeriods.indexOf(period);
                         this.maintenancePeriods.splice(index, 1, res);
                     },
@@ -131,7 +131,7 @@ export class FacilityComponent implements OnInit {
     removePeriod = (period: MaintenancePeriod) => {
         this.room.removeMaintenancePeriod$(period).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_maintenance_period_removed'));
+                this.toast.info(this.translate.instant('i18n_maintenance_period_removed'));
                 this.maintenancePeriods.splice(this.maintenancePeriods.indexOf(period), 1);
             },
             error: (err) => this.toast.error(err),

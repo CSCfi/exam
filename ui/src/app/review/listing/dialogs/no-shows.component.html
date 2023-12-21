@@ -2,14 +2,14 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title">{{ 'sitnet_no_shows' | translate }}</div>
+                <div class="student-enroll-title">{{ 'i18n_no_shows' | translate }}</div>
             </div>
         </div>
     </div>
 
     <div class="row mart40 padl30" *ngIf="noShows.length === 0">
         <div class="review-no-results">
-            <i class="bi-exclamation-circle padl20 grayish"></i> {{ 'sitnet_exam_no_shows' | translate }}
+            <i class="bi-exclamation-circle padl20 grayish"></i> {{ 'i18n_exam_no_shows' | translate }}
         </div>
     </div>
 
@@ -22,7 +22,7 @@
                             [reverse]="reverse"
                             [predicate]="noShowPredicate"
                             by="displayName"
-                            text="sitnet_student"
+                            text="i18n_student"
                             (click)="setPredicate('displayName')"
                         ></xm-table-sort>
                     </th>
@@ -31,7 +31,7 @@
                             [reverse]="reverse"
                             [predicate]="noShowPredicate"
                             by="user.email"
-                            text="sitnet_email"
+                            text="i18n_email"
                             (click)="setPredicate('user.email')"
                         ></xm-table-sort>
                     </th>
@@ -41,11 +41,11 @@
                             [reverse]="reverse"
                             [predicate]="noShowPredicate"
                             by="reservation.startAt"
-                            text="sitnet_reservation"
+                            text="i18n_reservation"
                             (click)="setPredicate('reservation.startAt')"
                         ></xm-table-sort>
                     </th>
-                    <th>{{ 'sitnet_exam_state' | translate }}</th>
+                    <th>{{ 'i18n_exam_state' | translate }}</th>
                 </tr>
             </thead>
 
@@ -60,7 +60,7 @@
                     </td>
                     <td class="table-column-25" *ngIf="noShow.reservation">
                         {{ noShow.reservation.startAt | applyDst | date : 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }}
+                        {{ 'i18n_clock_short' | translate }}
                         {{ noShow.reservation.startAt | applyDst | date : 'HH:mm' }} -
                         {{ noShow.reservation.endAt | applyDst | date : 'HH:mm' }}
                     </td>
@@ -70,7 +70,7 @@
                     ></td>
                     <td class="table-column-25" *ngIf="noShow.examinationEventConfiguration">
                         {{ noShow.examinationEventConfiguration.examinationEvent.start | date : 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }}
+                        {{ 'i18n_clock_short' | translate }}
                         {{ noShow.examinationEventConfiguration.examinationEvent.start | date : 'HH:mm' }} -
                         {{
                             noShow.examinationEventConfiguration.examinationEvent.start + noShow.exam.duration
@@ -79,7 +79,7 @@
                         }}
                     </td>
                     <td class="table-column-15" class="sitnet-text-aborted">
-                        {{ 'sitnet_exam_status_no_show' | translate }}
+                        {{ 'i18n_exam_status_no_show' | translate }}
                     </td>
                 </tr>
             </tbody>
@@ -90,7 +90,7 @@
     <div class="flex justify-content-end">
         <div class="review-attachment-button marb10 marr10">
             <a class="pointer preview" (click)="cancel()">
-                {{ 'sitnet_button_ok' | translate }}
+                {{ 'i18n_button_ok' | translate }}
             </a>
         </div>
     </div>

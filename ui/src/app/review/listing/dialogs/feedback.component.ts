@@ -27,7 +27,7 @@ import { AssessmentService } from '../../assessment/assessment.service';
     imports: [FormsModule, TranslateModule, NgIf, CKEditorComponent],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-details-title-wrap mart20">
-            <div class="student-enroll-title">{{ 'sitnet_give_feedback' | translate }}</div>
+            <div class="student-enroll-title">{{ 'i18n_give_feedback' | translate }}</div>
         </div>
         <div class="modal-body marl20">
             <div class="row">
@@ -43,10 +43,10 @@ import { AssessmentService } from '../../assessment/assessment.service';
         </div>
         <div class="modal-footer d-flex justify-content-between">
             <button class="btn btn btn-success float-start" (click)="ok()">
-                {{ 'sitnet_save' | translate }}
+                {{ 'i18n_save' | translate }}
             </button>
             <button class="btn btn-primary float-end" (click)="cancel()">
-                {{ 'sitnet_button_cancel' | translate }}
+                {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
     </div> `,

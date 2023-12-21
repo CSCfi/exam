@@ -29,11 +29,11 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
     template: `
         <div class="row" *ngIf="!hideTitle">
             <div class="col-md-12 header-text">
-                <strong>{{ 'sitnet_exception_datetimes' | translate }}:</strong>
+                <strong>{{ 'i18n_exception_datetimes' | translate }}:</strong>
             </div>
         </div>
         <div class="row" *ngIf="!hideInfo">
-            <div class="col-md-12 header-text">{{ 'sitnet_exception_datetimes_info' | translate }}</div>
+            <div class="col-md-12 header-text">{{ 'i18n_exception_datetimes_info' | translate }}</div>
         </div>
 
         <div
@@ -45,20 +45,20 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
                 {{ formatDate(exception) }}
             </div>
             <div class="col">
-                {{ !exception.outOfService ? ('sitnet_room_in_service' | translate) : '' }}
-                {{ exception.outOfService ? ('sitnet_room_out_of_service' | translate) : '' }}
+                {{ !exception.outOfService ? ('i18n_room_in_service' | translate) : '' }}
+                {{ exception.outOfService ? ('i18n_room_out_of_service' | translate) : '' }}
             </div>
             <div class="col-3">
-                <a class="pointer" (click)="deleteException(exception)">{{ 'sitnet_exam_remove' | translate }}</a>
+                <a class="pointer" (click)="deleteException(exception)">{{ 'i18n_exam_remove' | translate }}</a>
             </div>
         </div>
         <div class="row mt-2" *ngIf="!hideButton">
             <div class="col-12">
                 <button (click)="addExceptionClosed()" class="btn btn-sm btn-outline-dark marr20 marb10">
-                    {{ 'sitnet_add_out_of_service_time' | translate }}
+                    {{ 'i18n_add_out_of_service_time' | translate }}
                 </button>
                 <button (click)="addExceptionOpen()" class="btn btn-sm btn-outline-success marb10">
-                    {{ 'sitnet_add_extra_working_hour' | translate }}
+                    {{ 'i18n_add_extra_working_hour' | translate }}
                 </button>
             </div>
         </div>

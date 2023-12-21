@@ -29,7 +29,7 @@ import { QuestionService } from '../../question.service';
         <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">
                 <div class="student-enroll-dialog-wrap">
-                    <h1 class="student-enroll-title">{{ 'sitnet_add_question_owner' | translate }}</h1>
+                    <h1 class="student-enroll-title">{{ 'i18n_add_question_owner' | translate }}</h1>
                 </div>
             </div>
             <div class="modal-body">
@@ -43,7 +43,7 @@ import { QuestionService } from '../../question.service';
                     />
                     <div class="input-group-append">
                         <button class="btn btn-success" (click)="addOwnerForSelected()">
-                            {{ 'sitnet_add' | translate }}
+                            {{ 'i18n_add' | translate }}
                         </button>
                     </div>
                 </div>
@@ -51,7 +51,7 @@ import { QuestionService } from '../../question.service';
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
                     <button class="btn btn-sm btn-primary" (click)="close()" autofocus>
-                        {{ 'sitnet_close' | translate }}
+                        {{ 'i18n_close' | translate }}
                     </button>
                 </div>
             </div>
@@ -100,16 +100,16 @@ export class LibraryOwnersDialogComponent implements OnInit {
     addOwnerForSelected = () => {
         // check that atleast one has been selected
         if (!this.selectedTeacherId) {
-            this.toast.warning(this.translate.instant('sitnet_add_question_owner'));
+            this.toast.warning(this.translate.instant('i18n_add_question_owner'));
             return;
         }
 
         this.Question.addOwnerForQuestions$(this.selectedTeacherId, this.selections).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_question_owner_added'));
+                this.toast.info(this.translate.instant('i18n_question_owner_added'));
                 this.newTeachers.push(this.selectedTeacherId as number);
             },
-            error: () => this.toast.error(this.translate.instant('sitnet_update_failed')),
+            error: () => this.toast.error(this.translate.instant('i18n_update_failed')),
         });
     };
 

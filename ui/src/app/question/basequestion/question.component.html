@@ -10,10 +10,10 @@
                 />
                 <div class="student-enroll-title-wrap">
                     <div *ngIf="!newQuestion" class="student-enroll-title">
-                        {{ 'sitnet_questions_edit' | translate }}
+                        {{ 'i18n_questions_edit' | translate }}
                     </div>
                     <div *ngIf="newQuestion" class="student-enroll-title">
-                        {{ 'sitnet_toolbar_new_question' | translate }}
+                        {{ 'i18n_toolbar_new_question' | translate }}
                     </div>
                 </div>
             </div>
@@ -48,7 +48,7 @@
                             questionForm.invalid
                         "
                     >
-                        {{ 'sitnet_button_preview' | translate }}
+                        {{ 'i18n_button_preview' | translate }}
                     </button>
                 </div>
                 <div class="question-cancel">
@@ -64,12 +64,12 @@
                         type="submit"
                         class="btn btn-success bigbutton"
                     >
-                        {{ 'sitnet_save' | translate }}
+                        {{ 'i18n_save' | translate }}
                     </button>
                 </div>
                 <div class="question-cancel marr20">
                     <button (click)="cancel()" type="submit" class="btn btn-cancel float-end bigbutton">
-                        {{ 'sitnet_button_cancel' | translate }}
+                        {{ 'i18n_button_cancel' | translate }}
                     </button>
                 </div>
             </div>

@@ -50,17 +50,17 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         return (
             exam.getState() == Exam.State.PUBLISHED &&
             exam.getExecutionType().getType().equals(ExamExecutionType.Type.PUBLIC.toString()) &&
-            exam.getExamActiveEndDate().isAfterNow()
+            exam.getPeriodEnd().isAfterNow()
         );
     }
 
     private Either<Result, Exam> checkExam(Exam exam, User user) {
         String homeOrg = configReader.getHomeOrganisationRef();
         if (exam == null || !isEnrollable(exam, homeOrg)) {
-            return Either.left(notFound("sitnet_error_exam_not_found"));
+            return Either.left(notFound("i18n_error_exam_not_found"));
         }
         if (!isAllowedToParticipate(exam, user)) {
-            return Either.left(forbidden("sitnet_no_trials_left"));
+            return Either.left(forbidden("i18n_no_trials_left"));
         }
         return Either.right(exam);
     }
@@ -69,7 +69,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
     public CompletionStage<Result> searchExams(Optional<String> filter) {
         Optional<URL> url = filter.orElse("").isEmpty() ? parseUrl() : parseUrlWithSearchParam(filter.get(), false);
         if (url.isEmpty()) {
-            return wrapAsPromise(internalServerError("sitnet_internal_error"));
+            return wrapAsPromise(internalServerError("i18n_internal_error"));
         }
 
         WSRequest request = wsClient.url(url.get().toString());
@@ -88,7 +88,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                         exams,
                         PathProperties.parse(
                             "(examOwners(firstName, lastName), examInspections(user(firstName, lastName))" +
-                            "examLanguages(code, name), id, name, examActiveStartDate, examActiveEndDate, " +
+                            "examLanguages(code, name), id, name, periodStart, periodEnd, " +
                             "enrollInstruction, implementation, examinationEventConfigurations)"
                         )
                     );
@@ -102,7 +102,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
     public CompletionStage<Result> checkIfEnrolled(Long id, Http.Request request) {
         CollaborativeExam ce = DB.find(CollaborativeExam.class, id);
         if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return downloadExam(ce)
@@ -177,7 +177,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                 .findList();
             // already enrolled
             if (enrolments.stream().anyMatch(e -> e.getReservation() == null)) {
-                return forbidden("sitnet_error_enrolment_exists");
+                return forbidden("i18n_error_enrolment_exists");
             }
             // reservation in effect
             if (
@@ -186,7 +186,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
                     .map(ExamEnrolment::getReservation)
                     .anyMatch(r -> r.toInterval().contains(dateTimeHandler.adjustDST(DateTime.now(), r)))
             ) {
-                return forbidden("sitnet_reservation_in_effect");
+                return forbidden("i18n_reservation_in_effect");
             }
             return handleFutureReservations(enrolments, user, ce)
                 .orElseGet(() -> {
@@ -202,18 +202,18 @@ public class CollaborativeEnrolmentController extends CollaborationController {
     public CompletionStage<Result> createEnrolment(Long id, Http.Request request) {
         CollaborativeExam ce = DB.find(CollaborativeExam.class, id);
         if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return downloadExam(ce)
             .thenApplyAsync(result -> {
                 if (result.isEmpty()) {
-                    return notFound("sitnet_error_exam_not_found");
+                    return notFound("i18n_error_exam_not_found");
                 }
                 Exam exam = result.get();
                 String homeOrg = configReader.getHomeOrganisationRef();
                 if (!isEnrollable(exam, homeOrg)) {
-                    return notFound("sitnet_error_exam_not_found");
+                    return notFound("i18n_error_exam_not_found");
                 }
                 if (isAllowedToParticipate(exam, user)) {
                     return doCreateEnrolment(ce, user);

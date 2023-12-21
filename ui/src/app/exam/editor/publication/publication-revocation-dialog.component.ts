@@ -24,22 +24,22 @@ import { TranslateModule } from '@ngx-translate/core';
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ 'sitnet_unpublish_exam_confirm_dialog_title' | translate }}</div>
+                <div class="student-enroll-title">{{ 'i18n_unpublish_exam_confirm_dialog_title' | translate }}</div>
             </div>
             <div class="modal-body">
                 <p>
-                    {{ 'sitnet_unpublish_exam_confirm' | translate }}
+                    {{ 'i18n_unpublish_exam_confirm' | translate }}
                 </p>
             </div>
             <div class="student-message-dialog-footer">
                 <div class="student-message-dialog-button-save marl10">
                     <button class="btn btn-sm btn-primary nowdt" (click)="activeModal.close()" autofocus>
-                        {{ 'sitnet_unpublish_exam' | translate }}
+                        {{ 'i18n_unpublish_exam' | translate }}
                     </button>
                 </div>
                 <div class="student-message-dialog-button-cancel">
                     <button class="btn btn-sm btn-danger float-start" (click)="activeModal.dismiss()">
-                        {{ 'sitnet_close' | translate }}
+                        {{ 'i18n_close' | translate }}
                     </button>
                 </div>
             </div>

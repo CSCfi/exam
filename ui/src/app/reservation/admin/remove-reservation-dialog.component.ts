@@ -26,17 +26,17 @@ import type { Reservation } from '../reservation.model';
     imports: [FormsModule, TranslateModule],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="terms-dialog-header">
-            <h4><i class="bi-trash"></i>&nbsp;&nbsp;{{ 'sitnet_remove_reservation' | translate }}</h4>
+            <h4><i class="bi-trash"></i>&nbsp;&nbsp;{{ 'i18n_remove_reservation' | translate }}</h4>
         </div>
         <div class="modal-body">
-            <strong>{{ 'sitnet_message' | translate }}</strong>
+            <strong>{{ 'i18n_message' | translate }}</strong>
             <textarea class="form-control" [(ngModel)]="message.text" rows="3" autofocus> </textarea>
         </div>
         <div class="modal-footer">
             <button class="btn btn-sm btn-danger" (click)="cancel()">
-                {{ 'sitnet_button_cancel' | translate }}
+                {{ 'i18n_button_cancel' | translate }}
             </button>
-            <button class="btn btn-sm btn-primary" (click)="ok()">{{ 'sitnet_send' | translate }}</button>
+            <button class="btn btn-sm btn-primary" (click)="ok()">{{ 'i18n_send' | translate }}</button>
         </div>
     </div> `,
 })

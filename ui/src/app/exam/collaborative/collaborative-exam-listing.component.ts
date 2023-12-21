@@ -83,7 +83,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     ) {
         this.view = ListingView.PUBLISHED;
         this.user = this.Session.getUser();
-        this.examsPredicate = 'examActiveEndDate';
+        this.examsPredicate = 'periodEnd';
         this.reverse = true;
         this.loader = { loading: false };
         this.filterChanged
@@ -100,7 +100,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
             .subscribe();
         this.examCreated.pipe(exhaustMap(() => this.CollaborativeExam.createExam$())).subscribe({
             next: (exam: CollaborativeExam) => {
-                toast.info(this.translate.instant('sitnet_exam_created'));
+                toast.info(this.translate.instant('i18n_exam_created'));
                 this.router.navigate(['/staff/exams', exam.id, '1'], { queryParams: { collaborative: true } });
             },
             error: (err) => this.toast.error(err),
@@ -135,7 +135,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     determineListingView(exam: CollaborativeExam) {
         if (
             (exam.state === CollaborativeExamState.PUBLISHED || exam.state === CollaborativeExamState.PRE_PUBLISHED) &&
-            Date.now() > new Date(exam.examActiveEndDate).getTime()
+            Date.now() > new Date(exam.periodEnd).getTime()
         ) {
             return ListingView.EXPIRED;
         }
@@ -172,7 +172,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     }
 
     getExamAnonymousStatus(exam: CollaborativeExam) {
-        return exam.anonymous ? 'sitnet_anonymous_enabled' : 'sitnet_anonymous_disabled';
+        return exam.anonymous ? 'i18n_anonymous_enabled' : 'i18n_anonymous_disabled';
     }
 
     search = (event: KeyboardEvent) => {

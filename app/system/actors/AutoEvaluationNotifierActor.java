@@ -82,9 +82,7 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
                 case GIVEN_AMOUNT_DAYS -> Optional.of(
                     adjustReleaseDate(new DateTime(exam.getGradedTime()).plusDays(config.getAmountDays()))
                 );
-                case AFTER_EXAM_PERIOD -> Optional.of(
-                    adjustReleaseDate(new DateTime(exam.getExamActiveEndDate()).plusDays(1))
-                );
+                case AFTER_EXAM_PERIOD -> Optional.of(adjustReleaseDate(new DateTime(exam.getPeriodEnd()).plusDays(1)));
                 // Not handled at least by this actor
                 default -> Optional.empty();
             };

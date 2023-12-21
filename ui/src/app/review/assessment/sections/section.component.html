@@ -5,18 +5,18 @@
                 {{ index }}. &nbsp; &nbsp;{{ section.name }}
                 <span class="score-details">
                     <span *ngIf="getSectionMaxScore() > 0">
-                        {{ 'sitnet_word_points' | translate }}:&nbsp;
+                        {{ 'i18n_word_points' | translate }}:&nbsp;
                         <span style="color: #2c2c2c">{{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}</span>
                     </span>
                     &nbsp;
                     <span *ngIf="(selectionEssays?.totalSelectionEssays || 0) > 0">
-                        {{ 'sitnet_section_accepted_and_rejected' | translate }}&nbsp;
+                        {{ 'i18n_section_accepted_and_rejected' | translate }}&nbsp;
                         <span style="color: #2c2c2c"
                             >{{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }}</span
                         >
                     </span>
                     <span *ngIf="(selectionEssays?.totalSelectionEssays || 0) > 0">
-                        {{ 'sitnet_total' | translate }}: {{ selectionEssays?.totalSelectionEssays }}
+                        {{ 'i18n_total' | translate }}: {{ selectionEssays?.totalSelectionEssays }}
                     </span>
                 </span>
             </h4>
@@ -87,11 +87,11 @@
         <div class="detail-row ms-2 me-2 d-flex justify-content-end">
             <div class="review-list-footer">
                 <div *ngIf="getSectionMaxScore() > 0">
-                    {{ 'sitnet_word_points' | translate }}:
+                    {{ 'i18n_word_points' | translate }}:
                     <span> {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }} </span>
                 </div>
                 <div *ngIf="(selectionEssays?.totalSelectionEssays || 0) > 0">
-                    {{ 'sitnet_section_accepted_and_rejected' | translate }}
+                    {{ 'i18n_section_accepted_and_rejected' | translate }}
                     <span> {{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }} </span>
                 </div>
             </div>

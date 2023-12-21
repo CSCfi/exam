@@ -25,7 +25,7 @@ import { RoomService } from '../rooms/room.service';
     selector: 'xm-starting-time',
     template: `<div class="row">
             <div class="col-md-12 header-text">
-                <strong>{{ 'sitnet_exam_starting_hours' | translate }}:</strong>
+                <strong>{{ 'i18n_exam_starting_hours' | translate }}:</strong>
             </div>
         </div>
         <div class="row">
@@ -33,7 +33,7 @@ import { RoomService } from '../rooms/room.service';
                 <form>
                     <div class="row">
                         <label class="col-6 col-form-label" for="hourOffset"
-                            >{{ 'sitnet_minutes_on_the_hour' | translate }}:</label
+                            >{{ 'i18n_minutes_on_the_hour' | translate }}:</label
                         >
                         <div class="col-2">
                             <input
@@ -71,12 +71,12 @@ import { RoomService } from '../rooms/room.service';
                     (click)="updateStartingHours()"
                     [disabled]="!anyStartingHoursSelected()"
                 >
-                    {{ 'sitnet_save' | translate }}
+                    {{ 'i18n_save' | translate }}
                 </button>
             </div>
             <div class="col-6">
                 <a class="pointer float-end" (click)="toggleAllExamStartingHours()">{{
-                    'sitnet_add_remove_all' | translate
+                    'i18n_add_remove_all' | translate
                 }}</a>
             </div>
         </div> `,

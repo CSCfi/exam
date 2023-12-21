@@ -31,7 +31,7 @@ import type { Exam, ExamParticipation } from '../../exam.model';
                     <input
                         type="email"
                         name="email"
-                        placeholder="{{ 'sitnet_write_pre_participant_email' | translate }}"
+                        placeholder="{{ 'i18n_write_pre_participant_email' | translate }}"
                         class="form-control wdth-30 make-inline"
                         [(ngModel)]="newPreParticipant.email"
                         email
@@ -41,7 +41,7 @@ import type { Exam, ExamParticipation } from '../../exam.model';
                         (click)="addPreParticipant()"
                         class="btn btn-primary green"
                     >
-                        {{ 'sitnet_add' | translate }}
+                        {{ 'i18n_add' | translate }}
                     </button>
                 </form>
             </div>
@@ -57,7 +57,7 @@ import type { Exam, ExamParticipation } from '../../exam.model';
                             class="reviewer-remove"
                             [disabled]="exam.state === 'PUBLISHED'"
                             (click)="removeParticipant(enrolment.id)"
-                            title="{{ 'sitnet_remove' | translate }}"
+                            title="{{ 'i18n_remove' | translate }}"
                         >
                             <img
                                 [hidden]="exam.state === 'PUBLISHED'"
@@ -116,7 +116,7 @@ export class ExamPreParticipantSelectorComponent implements OnInit {
         this.http.delete(`/app/enrolments/student/${id}`).subscribe({
             next: () => {
                 this.exam.examEnrolments = this.exam.examEnrolments.filter((ee) => ee.id !== id);
-                this.toast.info(this.translate.instant('sitnet_participant_removed'));
+                this.toast.info(this.translate.instant('i18n_participant_removed'));
             },
             error: (err) => this.toast.error(err),
         });

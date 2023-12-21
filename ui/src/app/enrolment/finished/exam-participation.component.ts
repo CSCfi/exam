@@ -126,7 +126,7 @@ export class ExamParticipationComponent implements OnInit, OnDestroy {
         }
         if (exam.languageInspection) {
             exam.grade.displayName = this.translate.instant(
-                exam.languageInspection.approved ? 'sitnet_approved' : 'sitnet_rejected',
+                exam.languageInspection.approved ? 'i18n_approved' : 'i18n_rejected',
             );
             exam.contentGrade = this.Exam.getExamGradeDisplayName(exam.grade.name);
             exam.gradedTime = exam.languageInspection.finishedAt;

@@ -50,7 +50,7 @@ export interface Option<V, I> {
                         class="form-control"
                         (input)="filterOptions()"
                         (click)="$event.stopPropagation()"
-                        placeholder="{{ 'sitnet_search' | translate }}"
+                        placeholder="{{ 'i18n_search' | translate }}"
                     />
                     <div class="input-group-append">
                         <span class="input-group-text">

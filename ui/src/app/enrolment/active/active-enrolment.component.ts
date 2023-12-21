@@ -85,7 +85,7 @@ export class ActiveEnrolmentComponent {
     downloadSebFile = () =>
         this.Files.download(
             `/app/student/enrolments/${this.enrolment.id}/configFile`,
-            (this.enrolment.exam.name || this.translate.instant('sitnet_no_name')).replace(' ', '-') + '.seb',
+            (this.enrolment.exam.name || this.translate.instant('i18n_no_name')).replace(' ', '-') + '.seb',
         );
 
     private getRoomInstructions = (lang: string, room: Partial<ExamRoom>) => {

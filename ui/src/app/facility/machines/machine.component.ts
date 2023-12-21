@@ -71,13 +71,13 @@ export class MachineComponent implements OnInit {
 
     removeMachine = (machine: ExamMachine) =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_machine'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_remove_machine'),
         ).subscribe({
             next: () =>
                 this.machines.removeMachine(machine.id).subscribe({
                     next: () => {
-                        this.toast.info(this.translate.instant('sitnet_machine_removed'));
+                        this.toast.info(this.translate.instant('i18n_machine_removed'));
                         this.router.navigate(['staff/rooms']);
                     },
                     error: (err) => this.toast.error(err),
@@ -94,7 +94,7 @@ export class MachineComponent implements OnInit {
 
     updateMachine = (cb?: () => void) =>
         this.machines.updateMachine(this.machine).subscribe({
-            next: () => this.toast.info(this.translate.instant('sitnet_machine_updated')),
+            next: () => this.toast.info(this.translate.instant('i18n_machine_updated')),
             error: (err) => this.toast.error(this.translate.instant(err)),
             complete: () => {
                 if (cb) cb();

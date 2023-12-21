@@ -23,13 +23,13 @@ import { ExaminationStatusService } from '../examination-status.service';
     selector: 'xm-examination-logout',
     template: `
         <div class="mt-4 p-5 bg-success text-white rounded">
-            <h1>{{ 'sitnet_end_of_exam' | translate }}</h1>
+            <h1>{{ 'i18n_end_of_exam' | translate }}</h1>
             <h2>
                 {{ reasonPhrase | translate }}
             </h2>
             <h3>
                 <u>
-                    <a *ngIf="quitLink" [href]="quitLink">{{ 'sitnet_quit_seb' | translate }}</a>
+                    <a *ngIf="quitLink" [href]="quitLink">{{ 'i18n_quit_seb' | translate }}</a>
                 </u>
             </h3>
         </div>
@@ -51,9 +51,7 @@ export class ExaminationLogoutComponent implements OnInit {
 
     ngOnInit() {
         this.reasonPhrase =
-            this.route.snapshot.queryParamMap.get('reason') === 'aborted'
-                ? 'sitnet_exam_aborted'
-                : 'sitnet_exam_returned';
+            this.route.snapshot.queryParamMap.get('reason') === 'aborted' ? 'i18n_exam_aborted' : 'i18n_exam_returned';
         this.quitLinkEnabled = this.route.snapshot.queryParamMap.get('quitLinkEnabled') === 'true';
 
         if (this.quitLinkEnabled) {

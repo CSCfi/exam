@@ -55,8 +55,8 @@ export class CalendarComponent implements OnInit {
     isInteroperable = false;
     confirming = false;
     examInfo: ExamInfo = {
-        examActiveStartDate: null,
-        examActiveEndDate: null,
+        periodStart: null,
+        periodEnd: null,
         name: '',
         duration: 0,
         anonymous: false,
@@ -111,13 +111,12 @@ export class CalendarComponent implements OnInit {
                 tap((resp) => {
                     this.reservationWindowSize = resp.value;
                     this.reservationWindowEndDate = DateTime.now().plus({ day: resp.value }).toJSDate();
-                    this.minDate = [new Date(), new Date(this.examInfo.examActiveStartDate as string)].reduce((a, b) =>
+                    this.minDate = [new Date(), new Date(this.examInfo.periodStart as string)].reduce((a, b) =>
                         a > b ? a : b,
                     );
-                    this.maxDate = [
-                        this.reservationWindowEndDate,
-                        new Date(this.examInfo.examActiveEndDate as string),
-                    ].reduce((a, b) => (a < b ? a : b));
+                    this.maxDate = [this.reservationWindowEndDate, new Date(this.examInfo.periodEnd as string)].reduce(
+                        (a, b) => (a < b ? a : b),
+                    );
                 }),
                 switchMap(() => this.Calendar.getExamVisitSupportStatus$()),
                 tap((resp) => (this.isInteroperable = resp.isExamVisitSupported)),
@@ -163,8 +162,8 @@ export class CalendarComponent implements OnInit {
 
     makeExternalReservation() {
         this.Dialog.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_external_reservation'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_confirm_external_reservation'),
         ).subscribe({
             next: () =>
                 this.router.navigate(['/calendar', this.examId, 'external'], {
@@ -218,7 +217,7 @@ export class CalendarComponent implements OnInit {
         }
         const selectedSectionIds = this.examInfo.examSections.filter((es) => es.selected).map((es) => es.id);
         if (!this.sectionSelectionOk()) {
-            this.toast.error(this.translate.instant('sitnet_select_at_least_one_section'));
+            this.toast.error(this.translate.instant('i18n_select_at_least_one_section'));
             return;
         }
         this.confirming = true;

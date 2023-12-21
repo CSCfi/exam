@@ -119,7 +119,7 @@ export class ExamAssessmentComponent implements OnInit, OnDestroy {
         }
         this.Exam.updateExam$(this.exam, config, this.collaborative).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_exam_saved'));
+                this.toast.info(this.translate.instant('i18n_exam_saved'));
                 const code = this.exam.course ? this.exam.course.code : null;
                 this.Tabs.notifyExamUpdate({
                     name: this.exam.name,

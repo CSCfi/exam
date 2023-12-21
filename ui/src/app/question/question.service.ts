@@ -259,7 +259,7 @@ export class QuestionService {
         return new Promise<Question>((resolve, reject) => {
             this.http.post<Question>(this.questionsApi(), body).subscribe({
                 next: (response) => {
-                    this.toast.info(this.translate.instant('sitnet_question_added'));
+                    this.toast.info(this.translate.instant('i18n_question_added'));
                     if (question.attachment && question.attachment.file && question.attachment.modified) {
                         this.Files.upload(
                             '/app/attachment/question',
@@ -281,7 +281,7 @@ export class QuestionService {
         const body = this.getQuestionData(question);
         return new Promise<Question>((resolve) => {
             this.http.put<Question>(this.questionsApi(question.id), body).subscribe((response) => {
-                this.toast.info(this.translate.instant('sitnet_question_saved'));
+                this.toast.info(this.translate.instant('i18n_question_saved'));
                 if (question.attachment && question.attachment.file && question.attachment.modified) {
                     this.Files.upload(
                         '/app/attachment/question',
@@ -385,11 +385,11 @@ export class QuestionService {
     getOptionTypeTranslation = (type: string) => {
         switch (type) {
             case 'CorrectOption':
-                return 'sitnet_question_claim_correct';
+                return 'i18n_question_claim_correct';
             case 'IncorrectOption':
-                return 'sitnet_question_claim_incorrect';
+                return 'i18n_question_claim_incorrect';
             case 'SkipOption':
-                return 'sitnet_question_claim_skip';
+                return 'i18n_question_claim_skip';
             default:
                 return '';
         }
@@ -411,9 +411,9 @@ export class QuestionService {
     returnOptionDescriptionTranslation = (optionType: string) => {
         switch (optionType) {
             case 'CorrectOption':
-                return this.translate.instant('sitnet_claim_choice_correct_option_description');
+                return this.translate.instant('i18n_claim_choice_correct_option_description');
             case 'IncorrectOption':
-                return this.translate.instant('sitnet_claim_choice_incorrect_option_description');
+                return this.translate.instant('i18n_claim_choice_incorrect_option_description');
             default:
                 return '';
         }

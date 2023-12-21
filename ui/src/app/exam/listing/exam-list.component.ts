@@ -62,7 +62,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
         { view: 'SAVED', showExpired: false },
         { view: 'DRAFT', showExpired: false },
     ];
-    examsPredicate = 'examActiveEndDate';
+    examsPredicate = 'periodEnd';
     reverse = true;
     loader = { loading: false };
     exams: ExamListExam[] = [];
@@ -95,7 +95,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                     exams.forEach((e) => {
                         e.ownerAggregate = e.examOwners.map((o) => `${o.firstName} ${o.lastName}`).join();
                         if (e.state === 'PUBLISHED') {
-                            e.expired = e.examActiveEndDate != null && new Date() > new Date(e.examActiveEndDate);
+                            e.expired = e.periodEnd != null && new Date() > new Date(e.periodEnd);
                         } else {
                             e.expired = false;
                         }
@@ -129,7 +129,7 @@ export class ExamListingComponent implements OnInit, OnDestroy {
             )
             .subscribe({
                 next: (resp) => {
-                    this.toast.success(this.translate.instant('sitnet_exam_copied'));
+                    this.toast.success(this.translate.instant('i18n_exam_copied'));
                     this.router.navigate(['/staff/exams', resp.id, '1']);
                 },
                 error: (err) => this.toast.error(err),
@@ -137,13 +137,13 @@ export class ExamListingComponent implements OnInit, OnDestroy {
 
     deleteExam = (exam: ExamListExam) =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_exam'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_remove_exam'),
         ).subscribe({
             next: () => {
                 this.http.delete(`/app/exams/${exam.id}`).subscribe({
                     next: () => {
-                        this.toast.success(this.translate.instant('sitnet_exam_removed'));
+                        this.toast.success(this.translate.instant('i18n_exam_removed'));
                         this.exams.splice(this.exams.indexOf(exam), 1);
                     },
                     error: (err) => this.toast.error(err),

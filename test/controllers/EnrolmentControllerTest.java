@@ -253,7 +253,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
             Json.newObject().put("code", exam.getCourse().getCode())
         );
         assertThat(result.status()).isEqualTo(403);
-        assertThat(contentAsString(result)).isEqualTo("sitnet_error_enrolment_exists");
+        assertThat(contentAsString(result)).isEqualTo("i18n_error_enrolment_exists");
 
         // Verify
         List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class).findList();
@@ -313,7 +313,7 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
             Json.newObject().put("code", exam.getCourse().getCode())
         );
         assertThat(result.status()).isEqualTo(403); // Not found
-        assertThat(contentAsString(result)).isEqualTo("sitnet_reservation_in_effect");
+        assertThat(contentAsString(result)).isEqualTo("i18n_reservation_in_effect");
 
         // Verify
         List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class).findList();

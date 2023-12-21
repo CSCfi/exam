@@ -1,7 +1,7 @@
 <div class="main-row">
     <div class="col-md-12">
         <div class="review-list-title">
-            {{ 'sitnet_ongoing_language_inspections' | translate }}
+            {{ 'i18n_ongoing_language_inspections' | translate }}
             <span>{{ getInspectionAmounts() }}</span>
             <a *ngIf="inspections.length > 0" (click)="hideItems = !hideItems" class="pointer marl10">
                 <img
@@ -25,7 +25,7 @@
     <div class="col-md-12">
         <div class="review-no-results">
             <i class="bi-exclamation-circle padl20 grayish"></i>
-            {{ 'sitnet_ongoing_language_inspections_no_results' | translate }}
+            {{ 'i18n_ongoing_language_inspections_no_results' | translate }}
         </div>
     </div>
 </div>
@@ -37,9 +37,9 @@
                 [(ngModel)]="filterText"
                 (ngModelChange)="filterTextChanged()"
                 class="form-control search"
-                placeholder="{{ 'sitnet_search' | translate }}"
-                ngbPopover="{{ 'sitnet_maturity_search_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                placeholder="{{ 'i18n_search' | translate }}"
+                ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
             />
             <div class="input-group-append search">
                 <img class="nopad" src="/assets/images/icon_search.png" width="49" height="40" />
@@ -55,7 +55,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="exam.course.code"
-                            text="sitnet_code"
+                            text="i18n_code"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('exam.course.code')"
@@ -65,7 +65,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="answerLanguage"
-                            text="sitnet_language"
+                            text="i18n_language"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('answerLanguage')"
@@ -75,7 +75,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="exam.name"
-                            text="sitnet_exam_name"
+                            text="i18n_exam_name"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('exam.name')"
@@ -85,7 +85,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="ownerAggregate"
-                            text="sitnet_teachers"
+                            text="i18n_teachers"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('ownerAggregate')"
@@ -95,7 +95,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="created"
-                            text="sitnet_arrived"
+                            text="i18n_arrived"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('created')"
@@ -105,7 +105,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="studentNameAggregate"
-                            text="sitnet_student"
+                            text="i18n_student"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('studentNameAggregate')"
@@ -115,7 +115,7 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="exam.created"
-                            text="sitnet_finished"
+                            text="i18n_finished"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('exam.created')"
@@ -125,14 +125,14 @@
                     <th class="with-top">
                         <xm-table-sort
                             by="inspectorNameAggregate"
-                            text="sitnet_language_inspector"
+                            text="i18n_language_inspector"
                             [predicate]="sorting.predicate"
                             [reverse]="sorting.reverse"
                             (click)="setPredicate('inspectorNameAggregate')"
                         >
                         </xm-table-sort>
                     </th>
-                    <th class="with-top">{{ 'sitnet_language_inspections' | translate }}</th>
+                    <th class="with-top">{{ 'i18n_language_inspections' | translate }}</th>
                 </tr>
             </thead>
 
@@ -181,24 +181,24 @@
                         </span>
                     </td>
                     <td *ngIf="!inspection.modifier">
-                        <span class="text-danger">{{ 'sitnet_undefined' | translate }}</span>
+                        <span class="text-danger">{{ 'i18n_undefined' | translate }}</span>
                     </td>
                     <td *ngIf="inspection.modifier">
                         <a class="pointer" [routerLink]="['/staff/assessments', inspection.exam.id]">{{
-                            'sitnet_view' | translate
+                            'i18n_view' | translate
                         }}</a>
                     </td>
                     <td *ngIf="!inspection.modifier && !user.isAdmin">
                         <a class="pointer" (click)="assignInspection(inspection)"
-                            >{{ 'sitnet_assign_to_me' | translate }}
+                            >{{ 'i18n_assign_to_me' | translate }}
                         </a>
                     </td>
                     <td *ngIf="!inspection.modifier && user.isAdmin">
-                        <span class="text-muted">{{ 'sitnet_assign_to_me' | translate }}</span>
+                        <span class="text-muted">{{ 'i18n_assign_to_me' | translate }}</span>
                     </td>
                 </tr>
                 <tr *ngIf="filteredInspections.length === 0">
-                    <td colspan="9">{{ 'sitnet_review_no_result' | translate }}</td>
+                    <td colspan="9">{{ 'i18n_review_no_result' | translate }}</td>
                 </tr>
             </tbody>
         </table>

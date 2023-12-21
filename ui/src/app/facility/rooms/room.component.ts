@@ -113,7 +113,7 @@ export class RoomComponent implements OnInit {
     updateRoom = () => {
         this.roomService.updateRoom(this.room).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_room_updated'));
+                this.toast.info(this.translate.instant('i18n_room_updated'));
             },
             error: (err) => this.toast.error(err),
         });
@@ -121,11 +121,11 @@ export class RoomComponent implements OnInit {
 
     saveRoom = () => {
         if (!this.roomService.isAnyExamMachines(this.room))
-            this.toast.error(this.translate.instant('sitnet_dont_forget_to_add_machines') + ' ' + this.room.name);
+            this.toast.error(this.translate.instant('i18n_dont_forget_to_add_machines') + ' ' + this.room.name);
 
         this.roomService.updateRoom(this.room).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_room_saved'));
+                this.toast.info(this.translate.instant('i18n_room_saved'));
                 this.router.navigate(['/staff/rooms']);
             },
             error: (err) => this.toast.error(err),

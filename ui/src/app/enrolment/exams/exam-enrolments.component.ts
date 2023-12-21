@@ -30,14 +30,14 @@ import { EnrolmentDetailsComponent } from './exam-enrolment-details.component';
         <div id="dashboard">
             <div class="row mt-2 ms-2 me-2" *ngIf="exam?.noTrialsLeft">
                 <div class="col-md-12 alert-danger">
-                    <h1>{{ 'sitnet_no_trials_left' | translate }}</h1>
+                    <h1>{{ 'i18n_no_trials_left' | translate }}</h1>
                 </div>
             </div>
             <xm-enrolment-details *ngIf="exam" [exam]="exam"></xm-enrolment-details>
             <div *ngIf="exams.length > 0">
                 <div class="row mt-2 ms-4 me-4">
                     <div class="col-md-12 mt-2 ms-4 me-4">
-                        <h3>{{ 'sitnet_student_exams' | translate }}</h3>
+                        <h3>{{ 'i18n_student_exams' | translate }}</h3>
                     </div>
                 </div>
                 <div class="row mt-2 ms-4 me-4 " *ngFor="let exam of exams">

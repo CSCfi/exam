@@ -24,18 +24,18 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
     template: `
         <div class="top-row">
             <h4 class="col-md-12">
-                {{ 'sitnet_get_all_enrolments_reservations_and_cancelations' | translate }}
+                {{ 'i18n_get_all_enrolments_reservations_and_cancelations' | translate }}
             </h4>
         </div>
         <div class="bottom-row d-flex justify-content-between">
             <div class="col-lg-10 mb-4">
-                <label for="enrolment">{{ 'sitnet_select_exam' | translate }}</label>
+                <label for="enrolment">{{ 'i18n_select_exam' | translate }}</label>
                 <xm-dropdown-select
                     id="enrolment"
                     *ngIf="examNames"
                     [options]="examNames"
                     (optionSelected)="enrolmentSelected($event)"
-                    placeholder="{{ 'sitnet_select' | translate }}"
+                    placeholder="{{ 'i18n_select' | translate }}"
                 ></xm-dropdown-select>
             </div>
             <div class="col-lg-2 mb-2">
@@ -46,8 +46,8 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
                         class="print-btn"
                         download
                         triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_download' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_download' | translate }}"
                     >
                         <i class="bi-file-earmark-excel font-6"></i>
                     </a>
@@ -69,7 +69,7 @@ export class EnrolmentsReportComponent {
         if (this.enrolment) {
             this.files.download(`/app/statistics/examenrollments/${this.enrolment}`, 'exam_enrolments.xlsx');
         } else {
-            this.toast.error(this.translate.instant('sitnet_choose_exam'));
+            this.toast.error(this.translate.instant('i18n_choose_exam'));
         }
     };
 

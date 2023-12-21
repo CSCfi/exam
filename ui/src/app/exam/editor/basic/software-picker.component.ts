@@ -33,10 +33,10 @@ import type { Exam, Software } from '../../exam.model';
         <div class="col-md-12 margin-20">
             <div class="row">
                 <div class="col-md-3 exam-basic-title">
-                    {{ 'sitnet_machine_softwares' | translate }}
+                    {{ 'i18n_machine_softwares' | translate }}
                     <sup
-                        ngbPopover="{{ 'sitnet_exam_software_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_exam_software_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
                         <img
@@ -100,7 +100,7 @@ export class SoftwareSelectorComponent implements OnInit {
 
     selectedSoftware = () =>
         this.exam.softwares.length === 0
-            ? this.translate.instant('sitnet_select')
+            ? this.translate.instant('i18n_select')
             : this.exam.softwares.map((s) => s.name).join(', ');
 
     isSelected = (sw: Software) => this.exam.softwares.some((es) => es.id === sw.id);
@@ -114,7 +114,7 @@ export class SoftwareSelectorComponent implements OnInit {
                 } else {
                     this.exam.softwares.push(sw);
                 }
-                this.toast.info(this.translate.instant('sitnet_exam_software_updated'));
+                this.toast.info(this.translate.instant('i18n_exam_software_updated'));
             },
             error: (err) => this.toast.error(err),
         });

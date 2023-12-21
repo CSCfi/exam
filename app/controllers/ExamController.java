@@ -214,7 +214,7 @@ public class ExamController extends BaseController {
     public Result deleteExam(Long id, Http.Request request) {
         Exam exam = DB.find(Exam.class, id);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (user.hasRole(Role.Name.ADMIN) || exam.isOwnedOrCreatedBy(user)) {
@@ -224,9 +224,9 @@ public class ExamController extends BaseController {
                 exam.update();
                 return ok();
             }
-            return forbidden("sitnet_exam_removal_not_possible");
+            return forbidden("i18n_exam_removal_not_possible");
         }
-        return forbidden("sitnet_error_access_forbidden");
+        return forbidden("i18n_error_access_forbidden");
     }
 
     private static Exam doGetExam(Long id) {
@@ -247,7 +247,7 @@ public class ExamController extends BaseController {
     public Result getExam(Long id, Http.Request request) {
         Exam exam = doGetExam(id);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         // decipher the settings passwords if any
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH) {
@@ -266,7 +266,7 @@ public class ExamController extends BaseController {
             exam.getExamSections().forEach(s -> s.setSectionQuestions(new TreeSet<>(s.getSectionQuestions())));
             return writeAnonymousResult(request, ok(exam), exam.isAnonymous());
         }
-        return forbidden("sitnet_error_access_forbidden");
+        return forbidden("i18n_error_access_forbidden");
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
@@ -312,13 +312,13 @@ public class ExamController extends BaseController {
             .idEq(id)
             .findOne();
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         if (exam.isShared() || exam.isInspectedOrCreatedOrOwnedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             examUpdater.preparePreview(exam);
             return ok(exam);
         }
-        return forbidden("sitnet_error_access_forbidden");
+        return forbidden("i18n_error_access_forbidden");
     }
 
     private Result handleExamUpdate(Exam exam, User user, Http.Request request) {
@@ -362,7 +362,7 @@ public class ExamController extends BaseController {
                         .orElseGet(() -> handleExamUpdate(exam, user, request))
                 );
         } else {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
     }
 
@@ -383,11 +383,11 @@ public class ExamController extends BaseController {
     public Result updateExamSoftware(Long eid, Long sid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!examUpdater.isPermittedToUpdate(exam, user)) {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
         Software software = DB.find(Software.class, sid);
         if (exam.getSoftwareInfo().contains(software)) {
@@ -395,7 +395,7 @@ public class ExamController extends BaseController {
         } else {
             exam.getSoftwareInfo().add(software);
             if (!softwareRequirementDoable(exam)) {
-                return badRequest("sitnet_no_required_softwares");
+                return badRequest("i18n_no_required_softwares");
             }
         }
         exam.update();
@@ -413,7 +413,7 @@ public class ExamController extends BaseController {
     public Result updateExamLanguage(Long eid, String code, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return examUpdater
@@ -447,13 +447,13 @@ public class ExamController extends BaseController {
             .idEq(id)
             .findOne();
         if (prototype == null) {
-            return notFound("sitnet_exam_not_found");
+            return notFound("i18n_exam_not_found");
         }
         String type = formFactory.form().bindFromRequest(request).get("type");
         String examinationType = formFactory.form().bindFromRequest(request).get("examinationType");
         ExamExecutionType executionType = DB.find(ExamExecutionType.class).where().eq("type", type).findOne();
         if (executionType == null) {
-            return notFound("sitnet_execution_type_not_found");
+            return notFound("i18n_execution_type_not_found");
         }
         // No sense in copying the AE config if grade scale is fixed to course (that will initially be NULL for a copy)
         if (prototype.getAutoEvaluationConfig() != null && !configReader.isCourseGradeScaleOverridable()) {
@@ -470,8 +470,8 @@ public class ExamController extends BaseController {
         copy.setExamFeedbackConfig(null);
         copy.setSubjectToLanguageInspection(null);
         DateTime now = DateTime.now().withTimeAtStartOfDay();
-        copy.setExamActiveStartDate(now);
-        copy.setExamActiveEndDate(now.plusDays(1));
+        copy.setPeriodStart(now);
+        copy.setPeriodEnd(now.plusDays(1));
         // Force anonymous review if globally enabled
         if (configReader.isAnonymousReviewEnabled()) {
             copy.setAnonymous(true);
@@ -519,8 +519,8 @@ public class ExamController extends BaseController {
 
         DateTime start = DateTime.now().withTimeAtStartOfDay();
         if (!exam.isPrintout()) {
-            exam.setExamActiveStartDate(start);
-            exam.setExamActiveEndDate(start.plusDays(1));
+            exam.setPeriodStart(start);
+            exam.setPeriodEnd(start.plusDays(1));
         }
         exam.setDuration(configReader.getExamDurations().get(0));
         if (configReader.isCourseGradeScaleOverridable()) {
@@ -544,31 +544,31 @@ public class ExamController extends BaseController {
     public Result updateCourse(Long eid, Long cid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!examUpdater.isAllowedToUpdate(exam, user)) {
-            return forbidden("sitnet_error_future_reservations_exist");
+            return forbidden("i18n_error_future_reservations_exist");
         }
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             Course course = DB.find(Course.class, cid);
             if (course == null) {
-                return notFound("sitnet_error_not_found");
+                return notFound("i18n_error_not_found");
             }
             if (course.getStartDate() != null) {
                 DateTime validity = configReader.getCourseValidityDate(new DateTime(course.getStartDate()));
                 if (validity.isAfterNow()) {
-                    return forbidden("sitnet_error_course_not_active");
+                    return forbidden("i18n_error_course_not_active");
                 }
             }
             if (course.getEndDate() != null && course.getEndDate().before(new Date())) {
-                return forbidden("sitnet_error_course_not_active");
+                return forbidden("i18n_error_course_not_active");
             }
             exam.setCourse(course);
             exam.save();
             return ok();
         } else {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
     }
 

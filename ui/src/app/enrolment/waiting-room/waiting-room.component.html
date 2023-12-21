@@ -1,15 +1,15 @@
 <div class="top-row">
     <div class="student-enroll-title-wrap waitingroom">
-        <h1 [hidden]="!isUpcoming" class="student-enroll-title">{{ 'sitnet_exam_is_about_to_begin' | translate }}</h1>
+        <h1 [hidden]="!isUpcoming" class="student-enroll-title">{{ 'i18n_exam_is_about_to_begin' | translate }}</h1>
         <h1 [hidden]="isUpcoming" class="student-enroll-title">
-            {{ 'sitnet_you_dont_have_exams_today' | translate }}
+            {{ 'i18n_you_dont_have_exams_today' | translate }}
         </h1>
     </div>
 </div>
 <div class="waitingroom-info">
     <div [hidden]="!isUpcoming">
         <img class="arrow_icon" alt="" role="note" src="/assets/images/icon_info.png" />
-        {{ 'sitnet_redirect_to_exam_notice' | translate }}
+        {{ 'i18n_redirect_to_exam_notice' | translate }}
     </div>
 </div>
 
@@ -37,21 +37,21 @@
                 <!-- exam title n stuff -->
                 <div class="student-enrolment-exam">
                     {{ enrolment?.exam?.name }}
-                    <span *ngIf="enrolment?.exam?.anonymous">({{ 'sitnet_anonymous_review' | translate }})</span>
+                    <span *ngIf="enrolment?.exam?.anonymous">({{ 'i18n_anonymous_review' | translate }})</span>
                     <br />
-                    <span class="exam-ready">{{ 'sitnet_state_ready' | translate }}</span>
+                    <span class="exam-ready">{{ 'i18n_state_ready' | translate }}</span>
                 </div>
             </div>
         </div>
         <div class="row mart10">
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_course_name' | translate }}:</div>
+            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_course_name' | translate }}:</div>
             <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3" *ngIf="enrolment && enrolment.exam.course">
                 <xm-course-code [course]="enrolment.exam.course"></xm-course-code>
                 {{ enrolment?.exam?.course?.name }}
             </div>
             <div class="clearfix visible-xs"></div>
             <div class="clearfix visible-sm"></div>
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_teachers' | translate }}:</div>
+            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_teachers' | translate }}:</div>
             <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
                 <div>
                     <xm-teacher-list *ngIf="enrolment" [exam]="enrolment.exam"></xm-teacher-list>
@@ -59,7 +59,7 @@
             </div>
         </div>
         <div class="row" *ngIf="enrolment?.reservation">
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_room' | translate }}:</div>
+            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_exam_room' | translate }}:</div>
             <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
                 {{ enrolment.reservation.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
                 {{ enrolment.reservation.machine.room.name }}
@@ -67,7 +67,7 @@
             </div>
             <div class="clearfix visible-xs"></div>
             <div class="clearfix visible-sm"></div>
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_reservation' | translate }}:</div>
+            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_reservation' | translate }}:</div>
             <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
                 {{ enrolment.reservation.startAt | applyDst | date : 'dd.MM.yyyy' }}
                 {{ enrolment.reservation.occasion.startAt }}
@@ -75,22 +75,22 @@
             </div>
         </div>
         <div class="row" *ngIf="enrolment?.examinationEventConfiguration">
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_examination_event' | translate }}:</div>
+            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_examination_event' | translate }}:</div>
             <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
                 {{ enrolment.examinationEventConfiguration?.examinationEvent?.description }}
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_begin' | translate }}:</div>
+            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_begin' | translate }}:</div>
             <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
                 {{ enrolment.examinationEventConfiguration?.examinationEvent?.start | date : 'dd.MM.yyyy HH:mm' }}
             </div>
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'sitnet_exam_duration' | translate }}:</div>
+            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_exam_duration' | translate }}:</div>
             <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                {{ enrolment.exam.duration }} {{ 'sitnet_minutes' | translate }}
+                {{ enrolment.exam.duration }} {{ 'i18n_minutes' | translate }}
             </div>
         </div>
         <div class="row" *ngIf="roomInstructions">
             <div class="col-md-12 student-exam-row-infolink">
-                <strong>{{ 'sitnet_room_guidance' | translate }}: </strong>
+                <strong>{{ 'i18n_room_guidance' | translate }}: </strong>
             </div>
         </div>
         <div class="row" *ngIf="roomInstructions">
@@ -99,7 +99,7 @@
 
         <div class="row" *ngIf="enrolment?.exam?.enrollInstruction">
             <div class="col-md-12 student-exam-row-infolink">
-                <strong>{{ 'sitnet_view_instructions' | translate }}:</strong>
+                <strong>{{ 'i18n_view_instructions' | translate }}:</strong>
             </div>
         </div>
         <div class="row" *ngIf="enrolment?.exam?.enrollInstruction">

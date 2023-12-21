@@ -845,8 +845,8 @@ class EmailComposerImpl implements EmailComposer {
                 "email.template.participant.notification.exam.period",
                 String.format(
                     "%s - %s",
-                    DF.print(new DateTime(exam.getExamActiveStartDate())),
-                    DF.print(new DateTime(exam.getExamActiveEndDate()))
+                    DF.print(new DateTime(exam.getPeriodStart())),
+                    DF.print(new DateTime(exam.getPeriodEnd()))
                 )
             )
             : messaging.get(
@@ -1012,8 +1012,8 @@ class EmailComposerImpl implements EmailComposer {
             "email.template.participant.notification.exam.period",
             String.format(
                 "%s - %s",
-                DF.print(new DateTime(exam.getExamActiveStartDate())),
-                DF.print(new DateTime(exam.getExamActiveEndDate()))
+                DF.print(new DateTime(exam.getPeriodStart())),
+                DF.print(new DateTime(exam.getPeriodEnd()))
             )
         );
         String examDuration = String.format(
@@ -1071,7 +1071,7 @@ class EmailComposerImpl implements EmailComposer {
             .endJunction()
             .isNotNull("course")
             .eq("state", Exam.State.PUBLISHED)
-            .gt("examActiveEndDate", new Date())
+            .gt("periodEnd", new Date())
             .findList();
 
         return exams

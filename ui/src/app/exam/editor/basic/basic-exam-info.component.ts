@@ -110,7 +110,7 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
     updateExam = (resetAutoEvaluationConfig: boolean) => {
         this.Exam.updateExam$(this.exam, {}, this.collaborative).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('sitnet_exam_saved'));
+                this.toast.info(this.translate.instant('i18n_exam_saved'));
                 const code = this.exam.course ? this.exam.course.code : null;
                 this.ExamTabs.notifyExamUpdate({
                     name: this.exam.name,
@@ -138,11 +138,11 @@ export class BasicExamInfoComponent implements OnInit, OnDestroy {
     getExaminationTypeName = () => {
         switch (this.exam.implementation) {
             case 'AQUARIUM':
-                return 'sitnet_examination_type_aquarium';
+                return 'i18n_examination_type_aquarium';
             case 'CLIENT_AUTH':
-                return 'sitnet_examination_type_seb';
+                return 'i18n_examination_type_seb';
             case 'WHATEVER':
-                return 'sitnet_examination_type_home_exam';
+                return 'i18n_examination_type_home_exam';
         }
     };
 

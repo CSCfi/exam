@@ -80,7 +80,7 @@ export class ReservationDetailsComponent implements OnChanges {
         this.Reservation.cancelReservation(reservation)
             .then(() => {
                 this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
-                this.toast.info(this.translate.instant('sitnet_reservation_removed'));
+                this.toast.info(this.translate.instant('i18n_reservation_removed'));
             })
             .catch((err) => this.toast.error(err));
     }
@@ -89,7 +89,7 @@ export class ReservationDetailsComponent implements OnChanges {
         this.http.put(`/app/enrolments/${enrolment.id}/retrial`, {}).subscribe({
             next: () => {
                 enrolment.retrialPermitted = true;
-                this.toast.info(this.translate.instant('sitnet_retrial_permitted'));
+                this.toast.info(this.translate.instant('i18n_retrial_permitted'));
             },
             error: (err) => this.toast.error(err),
         });

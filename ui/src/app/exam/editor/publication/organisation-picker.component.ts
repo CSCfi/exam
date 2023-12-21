@@ -38,10 +38,10 @@ type Organisation = {
     selector: 'xm-exam-organisation-selector',
     template: `<div class="row mt-2">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_organisations' | translate }}
+                {{ 'i18n_exam_organisations' | translate }}
                 <sup
-                    ngbPopover="{{ 'sitnet_exam_organisations_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_exam_organisations_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -61,7 +61,7 @@ type Organisation = {
                     aria-haspopup="true"
                     aria-expanded="true"
                 >
-                    {{ 'sitnet_faculty_name' | translate }}&nbsp;
+                    {{ 'i18n_faculty_name' | translate }}&nbsp;
                 </button>
                 <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu21">
                     <li *ngFor="let org of organisations" role="presentation">

@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h2 ngbAutofocus tabindex="-1" id="modal-heading-id">{{ 'sitnet_questions_with_your_answers' | translate }}</h2>
+    <h2 ngbAutofocus tabindex="-1" id="modal-heading-id">{{ 'i18n_questions_with_your_answers' | translate }}</h2>
 </div>
 <div class="modal-body ms-2 me-2">
     <h2 class="row mt-3">
@@ -15,7 +15,7 @@
     </h3>
     <div class="row">
         <div class="col-md-4">
-            <strong>{{ 'sitnet_exam_time' | translate }}:</strong>
+            <strong>{{ 'i18n_exam_time' | translate }}:</strong>
         </div>
         <div class="col-md-8">
             {{ participationTime | date : 'dd.MM.yyyy' }}
@@ -23,7 +23,7 @@
     </div>
     <div class="row">
         <div class="col-md-4">
-            <strong>{{ 'sitnet_exam_duration' | translate }}:</strong>
+            <strong>{{ 'i18n_exam_duration' | translate }}:</strong>
         </div>
         <div class="col-md-8">
             {{ participationDuration | date : 'HH:mm:ss' : 'UTC' }}
@@ -31,7 +31,7 @@
     </div>
     <div class="row" *ngIf="exam.instruction">
         <div class="col-md-12">
-            <strong>{{ 'sitnet_exam_instruction' | translate }}:</strong>
+            <strong>{{ 'i18n_exam_instruction' | translate }}:</strong>
         </div>
     </div>
     <div class="row" *ngIf="exam.instruction">
@@ -42,13 +42,13 @@
         <div id="dashboard">
             <h4 class="row">
                 <div class="col-md-12">
-                    <strong>{{ 'sitnet_exam_section' | translate }}: {{ section.name }}</strong>
+                    <strong>{{ 'i18n_exam_section' | translate }}: {{ section.name }}</strong>
                 </div>
             </h4>
             <div class="row mt-3 student-enrolment-wrapper" *ngFor="let esq of section.sectionQuestions">
                 <div class="row">
                     <div class="col-md-4">
-                        <strong>{{ 'sitnet_question' | translate }}:</strong>
+                        <strong>{{ 'i18n_question' | translate }}:</strong>
                     </div>
                     <div
                         class="col-md-8"
@@ -66,13 +66,13 @@
                 <div *ngIf="esq.question.type === 'EssayQuestion'">
                     <div class="row">
                         <div class="col-md-4">
-                            <strong>{{ 'sitnet_exam_answer' | translate }}:</strong>
+                            <strong>{{ 'i18n_exam_answer' | translate }}:</strong>
                         </div>
                         <div class="col-md-8" [xmMathJax]="esq.essayAnswer?.answer"></div>
                     </div>
                     <div class="row" *ngIf="esq.essayAnswer?.attachment">
                         <div class="col-md-4">
-                            <strong>{{ 'sitnet_answer_attachment' | translate }}:</strong>
+                            <strong>{{ 'i18n_answer_attachment' | translate }}:</strong>
                         </div>
                         <div class="col-md-8">
                             <a
@@ -87,38 +87,38 @@
                     </div>
                     <div class="row">
                         <div class="col-md-4">
-                            <strong>{{ 'sitnet_answer_length' | translate }}:</strong>
+                            <strong>{{ 'i18n_answer_length' | translate }}:</strong>
                         </div>
                         <div class="col-md-8">
-                            {{ countWords(esq) }} {{ 'sitnet_words' | translate }},
-                            {{ 'sitnet_approximately' | translate }} {{ countCharacters(esq) }}
-                            {{ 'sitnet_characters' | translate }}
+                            {{ countWords(esq) }} {{ 'i18n_words' | translate }},
+                            {{ 'i18n_approximately' | translate }} {{ countCharacters(esq) }}
+                            {{ 'i18n_characters' | translate }}
                         </div>
                     </div>
                     <div class="row" *ngIf="esq.expectedWordCount">
                         <div class="col-md-4">
-                            <strong>{{ 'sitnet_essay_length_recommendation' | translate }}:</strong>
+                            <strong>{{ 'i18n_essay_length_recommendation' | translate }}:</strong>
                         </div>
                         <div class="col-md-8">
-                            {{ esq.expectedWordCount }} ({{ 'sitnet_approximately' | translate }}
+                            {{ esq.expectedWordCount }} ({{ 'i18n_approximately' | translate }}
                             {{ (esq.expectedWordCount || 0) * 8 }}
-                            {{ 'sitnet_characters' | translate }})
+                            {{ 'i18n_characters' | translate }})
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-4">
-                            <strong>{{ 'sitnet_comments' | translate }}:</strong>
+                            <strong>{{ 'i18n_comments' | translate }}:</strong>
                         </div>
                         <div class="col-md-8" *ngIf="esq.evaluationType === 'Points'">
-                            <strong>{{ 'sitnet_word_points' | translate }}: &nbsp;</strong>
+                            <strong>{{ 'i18n_word_points' | translate }}: &nbsp;</strong>
                             {{ esq.essayAnswer?.evaluatedScore }} / {{ esq.maxScore }}
                         </div>
                         <div class="col-md-8" *ngIf="esq.evaluationType === 'Selection'">
                             <div *ngIf="esq.essayAnswer?.evaluatedScore === 1">
-                                {{ 'sitnet_approved' | translate | uppercase }}
+                                {{ 'i18n_approved' | translate | uppercase }}
                             </div>
                             <div *ngIf="esq.essayAnswer?.evaluatedScore !== 1">
-                                {{ 'sitnet_rejected' | translate | uppercase }}
+                                {{ 'i18n_rejected' | translate | uppercase }}
                             </div>
                         </div>
                     </div>
@@ -129,7 +129,7 @@
                 <div *ngIf="isMultiChoice(esq)">
                     <div class="row mt-1">
                         <div class="col-md-4">
-                            <strong>{{ 'sitnet_exam_answer' | translate }}:</strong>
+                            <strong>{{ 'i18n_exam_answer' | translate }}:</strong>
                         </div>
                         <div class="col-md-8">
                             <div class="row" *ngFor="let option of getAnsweredOptions(esq)">
@@ -139,7 +139,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-4">
-                            <strong>{{ 'sitnet_comments' | translate }}: </strong>
+                            <strong>{{ 'i18n_comments' | translate }}: </strong>
                         </div>
                         <div class="col-md-8">{{ esq.derivedAssessedScore }} / {{ esq.derivedMaxScore }}</div>
                     </div>
@@ -148,7 +148,7 @@
                 <div *ngIf="esq.question.type === 'ClozeTestQuestion'">
                     <div class="row">
                         <div class="col-md-4">
-                            <strong>{{ 'sitnet_comments' | translate }}:</strong>
+                            <strong>{{ 'i18n_comments' | translate }}:</strong>
                         </div>
                         <div class="col-md-8">{{ esq.derivedAssessedScore }} / {{ esq.derivedMaxScore }}</div>
                     </div>
@@ -157,11 +157,11 @@
         </div>
     </div>
     <div class="row mt-3">
-        <h3 class="col-md-12">{{ 'sitnet_exam_review_settings' | translate }}</h3>
+        <h3 class="col-md-12">{{ 'i18n_exam_review_settings' | translate }}</h3>
     </div>
     <div class="row">
         <div class="col-md-4">
-            <strong>{{ 'sitnet_exam_grade' | translate }}: </strong>
+            <strong>{{ 'i18n_exam_grade' | translate }}: </strong>
         </div>
         <div class="col-md-8" *ngIf="exam.grade">
             {{ getGradeName(exam.grade.name) }}
@@ -169,26 +169,26 @@
     </div>
     <div class="row">
         <div class="col-md-4">
-            <strong>{{ 'sitnet_total_score' | translate }}: </strong>
+            <strong>{{ 'i18n_total_score' | translate }}: </strong>
         </div>
         <div class="col-md-8">{{ exam.totalScore }} / {{ exam.maxScore }}</div>
     </div>
     <div class="row" *ngIf="exam.examFeedback?.comment">
         <div class="col-md-4">
-            <strong>{{ 'sitnet_teachers_comment' | translate }}: </strong>
+            <strong>{{ 'i18n_teachers_comment' | translate }}: </strong>
         </div>
         <div class="col-md-8" [xmMathJax]="exam.examFeedback.comment"></div>
     </div>
     <div class="row" *ngIf="exam.course?.credits">
         <div class="col-md-4">
-            <strong>{{ 'sitnet_exam_credit' | translate }} (op):</strong>
+            <strong>{{ 'i18n_exam_credit' | translate }} (op):</strong>
         </div>
         <div class="col-md-8">{{ exam.course?.credits }}</div>
     </div>
     <div class="modal-footer mt-4">
         <div class="student-message-dialog-button-save">
             <button class="btn btn-sm btn-primary" (click)="activeModal.close()">
-                {{ 'sitnet_button_ok' | translate }}
+                {{ 'i18n_button_ok' | translate }}
             </button>
         </div>
     </div>

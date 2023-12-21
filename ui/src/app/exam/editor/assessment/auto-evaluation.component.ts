@@ -78,13 +78,13 @@ export class AutoEvaluationComponent implements OnInit, OnChanges {
             releaseTypes: [
                 {
                     name: 'IMMEDIATE',
-                    translation: 'sitnet_release_type_immediate',
+                    translation: 'i18n_release_type_immediate',
                     filtered: true,
                 },
-                { name: 'GIVEN_DATE', translation: 'sitnet_release_type_given_date' },
-                { name: 'GIVEN_AMOUNT_DAYS', translation: 'sitnet_release_type_given_days' },
-                { name: 'AFTER_EXAM_PERIOD', translation: 'sitnet_release_type_period' },
-                { name: 'NEVER', translation: 'sitnet_release_type_never' },
+                { name: 'GIVEN_DATE', translation: 'i18n_release_type_given_date' },
+                { name: 'GIVEN_AMOUNT_DAYS', translation: 'i18n_release_type_given_days' },
+                { name: 'AFTER_EXAM_PERIOD', translation: 'i18n_release_type_period' },
+                { name: 'NEVER', translation: 'i18n_release_type_never' },
             ],
         };
         this.autoevaluationDisplay = { visible: false };

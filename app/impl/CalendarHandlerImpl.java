@@ -113,7 +113,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
                     new Interval(normalizeMaintenanceTime(p.getStartsAt()), normalizeMaintenanceTime(p.getEndsAt()))
                 )
                 .toList();
-            LocalDate endOfSearch = getEndSearchDate(searchDate, new LocalDate(exam.getExamActiveEndDate()));
+            LocalDate endOfSearch = getEndSearchDate(searchDate, new LocalDate(exam.getPeriodEnd()));
             while (!searchDate.isAfter(endOfSearch)) {
                 Set<TimeSlot> timeSlots = getExamSlots(user, room, exam, searchDate, reservations, machines, periods);
                 if (!timeSlots.isEmpty()) {
@@ -174,14 +174,14 @@ public class CalendarHandlerImpl implements CalendarHandler {
         DateTimeZone dtz = room != null
             ? DateTimeZone.forID(room.getLocalTimezone())
             : configReader.getDefaultTimeZone();
-        int startOffset = dtz.getOffset((exam.getExamActiveStartDate()));
+        int startOffset = dtz.getOffset((exam.getPeriodStart()));
         int offset = dtz.getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
 
-        LocalDate examEndDate = new DateTime(exam.getExamActiveEndDate()).plusMillis(offset).toLocalDate();
+        LocalDate examEndDate = new DateTime(exam.getPeriodEnd()).plusMillis(offset).toLocalDate();
         LocalDate searchEndDate = reservationWindowDate.isBefore(examEndDate) ? reservationWindowDate : examEndDate;
-        LocalDate examStartDate = new DateTime(exam.getExamActiveStartDate()).plusMillis(startOffset).toLocalDate();
+        LocalDate examStartDate = new DateTime(exam.getPeriodStart()).plusMillis(startOffset).toLocalDate();
         LocalDate searchDate = day.equals("") ? now : ISODateTimeFormat.dateTimeParser().parseLocalDate(day);
         searchDate = searchDate.withDayOfWeek(1);
         if (searchDate.isBefore(now)) {

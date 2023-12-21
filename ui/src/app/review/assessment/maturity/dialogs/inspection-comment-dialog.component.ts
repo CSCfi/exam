@@ -25,12 +25,12 @@ import { TranslateModule } from '@ngx-translate/core';
         <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="student-message-dialog-wrapper-padding">
                 <div class="student-enroll-dialog-wrap">
-                    <div class="student-enroll-title">{{ 'sitnet_inspection_comment_title' | translate }}</div>
+                    <div class="student-enroll-title">{{ 'i18n_inspection_comment_title' | translate }}</div>
                 </div>
                 <div>
                     <form role="form" id="infoForm" name="infoForm" novalidate>
                         <label for="infoForm" class="student-enroll-dialog-subtitle">{{
-                            'sitnet_inspection_comment_description' | translate
+                            'i18n_inspection_comment_description' | translate
                         }}</label>
                         <textarea
                             rows="10"
@@ -45,12 +45,12 @@ import { TranslateModule } from '@ngx-translate/core';
                 <div class="modal-footer">
                     <div class="student-message-dialog-button-save">
                         <button class="btn btn-sm btn-primary" [disabled]="!data.comment" (click)="ok()">
-                            {{ 'sitnet_add' | translate }}
+                            {{ 'i18n_add' | translate }}
                         </button>
                     </div>
                     <div class="student-message-dialog-button-cancel">
                         <button class="btn btn-sm btn-danger float-start" (click)="cancel()">
-                            {{ 'sitnet_button_cancel' | translate }}
+                            {{ 'i18n_button_cancel' | translate }}
                         </button>
                     </div>
                 </div>

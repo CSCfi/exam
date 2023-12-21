@@ -81,11 +81,11 @@ export class QuestionBodyComponent implements OnInit {
 
     ngOnInit() {
         this.questionTypes = [
-            { type: 'essay', name: 'sitnet_toolbar_essay_question' },
-            { type: 'cloze', name: 'sitnet_toolbar_cloze_test_question' },
-            { type: 'multichoice', name: 'sitnet_toolbar_multiplechoice_question' },
-            { type: 'weighted', name: 'sitnet_toolbar_weighted_multiplechoice_question' },
-            { type: 'claim', name: 'sitnet_toolbar_claim_choice_question' },
+            { type: 'essay', name: 'i18n_toolbar_essay_question' },
+            { type: 'cloze', name: 'i18n_toolbar_cloze_test_question' },
+            { type: 'multichoice', name: 'i18n_toolbar_multiplechoice_question' },
+            { type: 'weighted', name: 'i18n_toolbar_weighted_multiplechoice_question' },
+            { type: 'claim', name: 'i18n_toolbar_claim_choice_question' },
         ];
 
         this.init();

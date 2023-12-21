@@ -32,8 +32,8 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
     @Override
     protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
         Http.Request request = req;
-        Optional<Long> start = SanitizingHelper.parse("examActiveStartDate", body, Long.class);
-        Optional<Long> end = SanitizingHelper.parse("examActiveEndDate", body, Long.class);
+        Optional<Long> start = SanitizingHelper.parse("periodStart", body, Long.class);
+        Optional<Long> end = SanitizingHelper.parse("periodEnd", body, Long.class);
         Optional<Integer> duration = SanitizingHelper.parse("duration", body, Integer.class);
         Optional<Exam.State> state = SanitizingHelper.parseEnum("state", body, Exam.State.class);
         Optional<String> examName = SanitizingHelper.parse("name", body, String.class);

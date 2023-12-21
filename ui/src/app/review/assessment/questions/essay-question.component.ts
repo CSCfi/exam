@@ -115,12 +115,12 @@ export class EssayQuestionComponent implements OnInit {
                 this.ref,
                 this.participation._rev as string,
             ).subscribe((resp) => {
-                this.toast.info(this.translate.instant('sitnet_graded'));
+                this.toast.info(this.translate.instant('i18n_graded'));
                 this.scored.emit(resp.rev);
             });
         } else {
             return this.Assessment.saveEssayScore$(this.sectionQuestion as ExaminationQuestion).subscribe(() => {
-                this.toast.info(this.translate.instant('sitnet_graded')), this.scored.emit();
+                this.toast.info(this.translate.instant('i18n_graded')), this.scored.emit();
             });
         }
     };

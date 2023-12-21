@@ -66,7 +66,7 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
 
         CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
         if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
         final ExamEnrolment enrolment = DB
             .find(ExamEnrolment.class)
@@ -80,12 +80,12 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
             .endJunction()
             .findOne();
         if (enrolment == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
         return downloadExam(ce)
             .thenComposeAsync(result -> {
                 if (result.isEmpty()) {
-                    return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+                    return wrapAsPromise(notFound("i18n_error_exam_not_found"));
                 }
                 Exam exam = result.get();
                 Optional<Result> badEnrolment = checkEnrolment(enrolment, exam, user);
@@ -154,20 +154,20 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
             User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
             CollaborativeExam ce = DB.find(CollaborativeExam.class, examId);
             if (ce == null) {
-                return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+                return wrapAsPromise(notFound("i18n_error_exam_not_found"));
             }
             ExamEnrolment enrolment = getEnrolledExam(examId, user);
             if (enrolment == null) {
-                return wrapAsPromise(forbidden("sitnet_error_enrolment_not_found"));
+                return wrapAsPromise(forbidden("i18n_error_enrolment_not_found"));
             }
             return downloadExam(ce)
                 .thenComposeAsync(result -> {
                     if (result.isEmpty()) {
-                        return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+                        return wrapAsPromise(notFound("i18n_error_exam_not_found"));
                     }
                     Exam exam = result.get();
                     if (!exam.hasState(Exam.State.PUBLISHED)) {
-                        return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+                        return wrapAsPromise(notFound("i18n_error_exam_not_found"));
                     }
                     // Also sanity check the provided search date
                     try {
@@ -176,8 +176,8 @@ public class CollaborativeExternalCalendarController extends CollaborativeCalend
                         return wrapAsPromise(notFound());
                     }
                     // Ready to shoot
-                    String start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveStartDate()));
-                    String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getExamActiveEndDate()));
+                    String start = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodStart()));
+                    String end = ISODateTimeFormat.dateTime().print(new DateTime(exam.getPeriodEnd()));
                     Integer duration = exam.getDuration();
                     URL url = parseUrl(org.get(), roomRef, date.get(), start, end, duration);
                     WSRequest wsRequest = wsClient.url(url.toString().split("\\?")[0]).setQueryString(url.getQuery());

@@ -130,14 +130,14 @@ export class MultiChoiceQuestionComponent implements OnInit {
                 this.participation._rev,
             ).subscribe({
                 next: (resp) => {
-                    this.toast.info(this.translate.instant('sitnet_graded'));
+                    this.toast.info(this.translate.instant('i18n_graded'));
                     this.scored.emit(resp.rev);
                 },
                 error: (err) => this.toast.error(err.data),
             });
         } else {
             this.Assessment.saveForcedScore(this.sectionQuestion).subscribe({
-                next: () => this.toast.info(this.translate.instant('sitnet_graded')),
+                next: () => this.toast.info(this.translate.instant('i18n_graded')),
                 error: (err) => this.toast.error(err.data),
             });
         }

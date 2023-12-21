@@ -55,7 +55,7 @@ import { QuestionDraft, QuestionService } from '../question.service';
                 </div>
 
                 <div *ngIf="allowRemoval" (click)="removeOption()" class="col-md-1 question-option-trash">
-                    <i class="bi-trash" title="{{ 'sitnet_remove' | translate }}"></i>
+                    <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
                 </div>
             </div>
         </div>
@@ -78,7 +78,7 @@ export class MultipleChoiceOptionEditorComponent {
         if (hasCorrectAnswer) {
             this.question.options.splice(this.question.options.indexOf(this.option), 1);
         } else {
-            this.toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
+            this.toast.error(this.translate.instant('i18n_action_disabled_minimum_options'));
         }
     };
 }

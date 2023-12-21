@@ -17,6 +17,7 @@ import com.icegreen.greenmail.util.ServerSetupTest;
 import helpers.AttachmentServlet;
 import helpers.RemoteServerHelper;
 import io.ebean.DB;
+import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.mail.internet.MimeMessage;
 import models.AutoEvaluationConfig;
 import models.Exam;
 import models.ExamEnrolment;
@@ -190,8 +190,8 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         exam =
             DB.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findOne();
         initExamSectionQuestions(exam);
-        exam.setExamActiveStartDate(DateTime.now().minusDays(1));
-        exam.setExamActiveEndDate(DateTime.now().plusDays(1));
+        exam.setPeriodStart(DateTime.now().minusDays(1));
+        exam.setPeriodEnd(DateTime.now().plusDays(1));
         exam.update();
 
         Long id = other == null ? userId : other.getId();

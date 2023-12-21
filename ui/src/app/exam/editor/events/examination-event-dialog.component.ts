@@ -74,23 +74,23 @@ export class ExaminationEventDialogComponent implements OnInit {
     onStartDateChange = (event: { date: Date }) => {
         if (this.maxDateValidator && this.maxDateValidator < event.date) {
             this.toast.error(
-                this.translate.instant('sitnet_date_too_far_in_future') +
+                this.translate.instant('i18n_date_too_far_in_future') +
                     ' ' +
                     DateTime.fromJSDate(this.maxDateValidator || new Date()).toFormat('dd.MM.yyyy HH:mm'),
             );
         }
         if (this.now > event.date) {
-            this.toast.error(this.translate.instant('sitnet_select_time_in_future'));
+            this.toast.error(this.translate.instant('i18n_select_time_in_future'));
         }
         this.start = event.date;
     };
 
     ok() {
         if (!this.start) {
-            this.toast.error(this.translate.instant('sitnet_no_examination_start_date_picked'));
+            this.toast.error(this.translate.instant('i18n_no_examination_start_date_picked'));
         }
         if (this.maxDateValidator && this.maxDateValidator < this.start) {
-            this.toast.error(this.translate.instant('sitnet_invalid_start_date_picked'));
+            this.toast.error(this.translate.instant('i18n_invalid_start_date_picked'));
             return;
         }
         const config = {

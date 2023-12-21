@@ -46,7 +46,7 @@ const routes: Route[] = [
     {
         path: 'dashboard',
         component: StudentDashboardComponent,
-        title: () => buildTitle('sitnet_enrolments_title'),
+        title: () => buildTitle('i18n_enrolments_title'),
     },
     {
         path: 'logout',
@@ -58,17 +58,17 @@ const routes: Route[] = [
         data: {
             isPreview: false,
         },
-        title: () => buildTitle('sitnet_examination_title'),
+        title: () => buildTitle('i18n_examination_title'),
     },
     {
         path: 'waitingroom/:id/:hash',
         component: WaitingRoomComponent,
-        title: () => buildTitle('sitnet_waiting_room_title'),
+        title: () => buildTitle('i18n_waiting_room_title'),
     },
     {
         path: 'waitingroom',
         component: WaitingRoomComponent,
-        title: () => buildTitle('sitnet_waiting_room_title'),
+        title: () => buildTitle('i18n_waiting_room_title'),
     },
     {
         path: 'wrongroom/:eid/:mid',
@@ -76,7 +76,7 @@ const routes: Route[] = [
         data: {
             cause: 'room',
         },
-        title: () => buildTitle('sitnet_wrong_room_title'),
+        title: () => buildTitle('i18n_wrong_room_title'),
     },
     {
         path: 'wrongmachine/:eid/:mid',
@@ -84,37 +84,37 @@ const routes: Route[] = [
         data: {
             cause: 'machine',
         },
-        title: () => buildTitle('sitnet_wrong_machine_title'),
+        title: () => buildTitle('i18n_wrong_machine_title'),
     },
     {
         path: 'exams',
         component: ExamSearchComponent,
-        title: () => buildTitle('sitnet_exams_title'),
+        title: () => buildTitle('i18n_exams_title'),
     },
     {
         path: 'exams/collaborative',
         component: CollaborativeExamSearchComponent,
-        title: () => buildTitle('sitnet_collaborative_exams_title'),
+        title: () => buildTitle('i18n_collaborative_exams_title'),
     },
     {
         path: 'participations',
         component: ExamParticipationsComponent,
-        title: () => buildTitle('sitnet_participations_title'),
+        title: () => buildTitle('i18n_participations_title'),
     },
     {
         path: 'participations/collaborative',
         component: CollaborativeParticipationsComponent,
-        title: () => buildTitle('sitnet_collaborative_participations_title'),
+        title: () => buildTitle('i18n_collaborative_participations_title'),
     },
     {
         path: 'examination/logout',
         component: ExaminationLogoutComponent,
-        title: () => buildTitle('sitnet_examination_logout_title'),
+        title: () => buildTitle('i18n_examination_logout_title'),
     },
     {
         path: 'enrolments/:id',
         component: ExamEnrolmentsComponent,
-        title: (route) => buildTitle('sitnet_enrolment_title', `#${route.params.id}`),
+        title: (route) => buildTitle('i18n_enrolment_title', `#${route.params.id}`),
     },
     {
         path: 'calendar/:id',
@@ -123,19 +123,19 @@ const routes: Route[] = [
             isExternal: false,
             isCollaborative: false,
         },
-        title: (route) => buildTitle('sitnet_reservation_title', `#${route.params.id}`),
+        title: (route) => buildTitle('i18n_reservation_title', `#${route.params.id}`),
     },
     {
         path: 'calendar/:id/external',
         component: CalendarComponent,
         data: { isExternal: true },
-        title: (route) => buildTitle('sitnet_external_reservation_title', `#${route.params.id}`),
+        title: (route) => buildTitle('i18n_external_reservation_title', `#${route.params.id}`),
     },
     {
         path: 'calendar/:id/collaborative',
         component: CalendarComponent,
         data: { isExternal: false, isCollaborative: true },
-        title: (route) => buildTitle('sitnet_collaborative_reservation_title', `#${route.params.id}`),
+        title: (route) => buildTitle('i18n_collaborative_reservation_title', `#${route.params.id}`),
     },
     /*
      { // this does not work apparently because admin code uses some of calendar dependencies

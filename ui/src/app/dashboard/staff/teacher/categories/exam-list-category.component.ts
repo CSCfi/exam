@@ -137,7 +137,7 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
             )
             .subscribe({
                 next: (resp) => {
-                    this.toast.success(this.translate.instant('sitnet_exam_copied'));
+                    this.toast.success(this.translate.instant('i18n_exam_copied'));
                     this.router.navigate(['/staff/exams', resp.id, '1']);
                 },
             });
@@ -145,13 +145,13 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
     deleteExam = (exam: DashboardExam) => {
         if (this.isAllowedToUnpublishOrRemove(exam)) {
             this.Dialog.open$(
-                this.translate.instant('sitnet_confirm'),
-                this.translate.instant('sitnet_remove_exam'),
+                this.translate.instant('i18n_confirm'),
+                this.translate.instant('i18n_remove_exam'),
             ).subscribe({
                 next: () =>
                     this.Dashboard.deleteExam$(exam.id).subscribe({
                         next: () => {
-                            this.toast.success(this.translate.instant('sitnet_exam_removed'));
+                            this.toast.success(this.translate.instant('i18n_exam_removed'));
                             this.items.splice(this.items.indexOf(exam), 1);
                         },
                         error: (err) => this.toast.error(err),
@@ -159,7 +159,7 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
                 error: (err) => this.toast.error(err),
             });
         } else {
-            this.toast.warning(this.translate.instant('sitnet_exam_removal_not_possible'));
+            this.toast.warning(this.translate.instant('i18n_exam_removal_not_possible'));
         }
     };
 

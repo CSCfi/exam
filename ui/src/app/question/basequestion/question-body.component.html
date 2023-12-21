@@ -3,7 +3,7 @@
 <!--div class="row">
     <div class="checkbox">
         <label><input type="checkbox" [(ngModel)]="newQuestion.shared">
-            <strong class="sitnet-info-text">{{ 'sitnet_public_question' | translate }}</strong></label>
+            <strong class="sitnet-info-text">{{ 'i18n_public_question' | translate }}</strong></label>
     </div>
 </div-->
 <style>
@@ -26,7 +26,7 @@
                 />
             </div>
             <div class="col warning-text">
-                {{ 'sitnet_exam_question_edit_instructions' | translate }}
+                {{ 'i18n_exam_question_edit_instructions' | translate }}
                 <ul class="list-inline margin-10">
                     <li class="list-inline-item">
                         <span *ngFor="let name of examNames" class="exists-text">
@@ -42,17 +42,17 @@
     <div class="row mt-3" *ngIf="!showWarning()">
         <div class="col-md-12">
             <div class="review-list-title">
-                {{ 'sitnet_exam_basic_information_tab' | translate }}
+                {{ 'i18n_exam_basic_information_tab' | translate }}
             </div>
         </div>
     </div>
     <div class="row mt-3" *ngIf="showWarning()">
         <div class="col-md-12">
             <div class="review-list-title edit-warning-container">
-                {{ 'sitnet_exam_basic_information_tab' | translate }}
+                {{ 'i18n_exam_basic_information_tab' | translate }}
                 <i class="bi-exclamation-circle ps-4 reddish"></i>
                 <span class="warning-text-small ps-2">
-                    {{ 'sitnet_shared_question_property_info' | translate }}
+                    {{ 'i18n_shared_question_property_info' | translate }}
                 </span>
             </div>
         </div>
@@ -60,16 +60,16 @@
 
     <div class="row mt-3">
         <div class="col-md-3 exam-basic-title" *ngIf="question.id">
-            {{ 'sitnet_question_id' | translate }}
+            {{ 'i18n_question_id' | translate }}
         </div>
         <div class="col-md-9 padr0" *ngIf="question.id">#{{ question.id }}</div>
     </div>
     <div class="row mt-3">
         <div class="col-md-3 exam-basic-title">
-            {{ 'sitnet_new_question_type' | translate }}
+            {{ 'i18n_new_question_type' | translate }}
             <sup
-                ngbPopover="{{ 'sitnet_question_type_description' | translate }}"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                ngbPopover="{{ 'i18n_question_type_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
             >
                 <img
@@ -91,29 +91,29 @@
                 <option *ngFor="let type of questionTypes" value="{{ type.type }}">{{ type.name | translate }}</option>
             </select>
             <span *ngIf="question.type === 'EssayQuestion'">
-                {{ 'sitnet_toolbar_essay_question' | translate }}
+                {{ 'i18n_toolbar_essay_question' | translate }}
             </span>
             <span *ngIf="question.type === 'ClozeTestQuestion'">
-                {{ 'sitnet_toolbar_cloze_test_question' | translate }}
+                {{ 'i18n_toolbar_cloze_test_question' | translate }}
             </span>
             <span *ngIf="question.type === 'MultipleChoiceQuestion'">
-                {{ 'sitnet_toolbar_multiplechoice_question' | translate }}
+                {{ 'i18n_toolbar_multiplechoice_question' | translate }}
             </span>
             <span *ngIf="question.type === 'WeightedMultipleChoiceQuestion'">
-                {{ 'sitnet_toolbar_weighted_multiplechoice_question' | translate }}
+                {{ 'i18n_toolbar_weighted_multiplechoice_question' | translate }}
             </span>
             <span *ngIf="question.type === 'ClaimChoiceQuestion'">
-                {{ 'sitnet_toolbar_claim_choice_question' | translate }}
+                {{ 'i18n_toolbar_claim_choice_question' | translate }}
             </span>
         </div>
     </div>
     <div *ngIf="question.type">
         <div class="row mt-3">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_question_text' | translate }}
+                {{ 'i18n_question_text' | translate }}
                 <sup
-                    ngbPopover="{{ 'sitnet_question_text_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_question_text_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -141,7 +141,7 @@
         <div class="row mt-2">
             <!-- Evaluation -->
             <div class="col-md-12" *ngIf="question.type === 'EssayQuestion'">
-                <div class="review-list-title">{{ 'sitnet_comments' | translate }}</div>
+                <div class="review-list-title">{{ 'i18n_comments' | translate }}</div>
             </div>
             <!-- Multiple choices -->
             <div
@@ -152,7 +152,7 @@
                     question.type === 'ClaimChoiceQuestion'
                 "
             >
-                <div class="review-list-title">{{ 'sitnet_question_options' | translate }}</div>
+                <div class="review-list-title">{{ 'i18n_question_options' | translate }}</div>
             </div>
         </div>
 
@@ -186,7 +186,7 @@
         <!-- Evaluation type - not allowed if question is in use in other published exam. -->
         <div class="row mt-3" *ngIf="question.type === 'EssayQuestion'">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_evaluation_type' | translate }}
+                {{ 'i18n_evaluation_type' | translate }}
             </div>
             <div class="col-md-9">
                 <select
@@ -197,8 +197,8 @@
                     (change)="updateEvaluationType()"
                     required="question.type == 'EssayQuestion'"
                 >
-                    <option value="Points">{{ 'sitnet_word_points' | translate }}</option>
-                    <option value="Selection">{{ 'sitnet_evaluation_select' | translate }}</option>
+                    <option value="Points">{{ 'i18n_word_points' | translate }}</option>
+                    <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
                 </select>
             </div>
         </div>
@@ -213,7 +213,7 @@
             "
         >
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_max_score' | translate }}
+                {{ 'i18n_max_score' | translate }}
             </div>
             <div class="col-md-9">
                 <input
@@ -234,17 +234,17 @@
         <!-- Additional info -->
         <div class="row mt-3">
             <div class="col-md-12">
-                <div class="review-list-title">{{ 'sitnet_additional_info' | translate }}</div>
+                <div class="review-list-title">{{ 'i18n_additional_info' | translate }}</div>
             </div>
         </div>
 
         <!-- Exam owners -->
         <div class="row mt-3 align-items-center">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_question_owners' | translate }}
+                {{ 'i18n_question_owners' | translate }}
                 <sup
-                    ngbPopover="{{ 'sitnet_question_owners_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_question_owners_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -272,7 +272,7 @@
                         [disabled]="!newOwner?.name"
                         class="btn btn-primary green input-group-text"
                     >
-                        {{ 'sitnet_add' | translate }}
+                        {{ 'i18n_add' | translate }}
                     </button>
                 </div>
             </div>
@@ -284,7 +284,7 @@
                             class="reviewer-remove"
                             [disabled]="removeOwnerDisabled(user)"
                             (click)="removeOwner(user)"
-                            title="{{ 'sitnet_remove' | translate }}"
+                            title="{{ 'i18n_remove' | translate }}"
                         >
                             <img
                                 src="/assets/images/icon_remove.svg"
@@ -305,10 +305,10 @@
         <!-- Attachment -->
         <div class="row mt-3 align-items-center">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_question_attachment' | translate }}
+                {{ 'i18n_question_attachment' | translate }}
                 <sup
-                    ngbPopover="{{ 'sitnet_attachment_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_attachment_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -320,7 +320,7 @@
             </div>
             <div class="col-md-9" id="attachment">
                 <div class="review-attachment-button wdt120 make-inline">
-                    <a class="pointer" (click)="selectFile()">{{ 'sitnet_attach_file' | translate }}</a>
+                    <a class="pointer" (click)="selectFile()">{{ 'i18n_attach_file' | translate }}</a>
                 </div>
                 <div *ngIf="question.attachment && !question.attachment?.removed" class="make-inline padl10">
                     <!-- Uploaded -->
@@ -339,14 +339,14 @@
                     <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
                         <img
                             src="/assets/images/icon_remove.svg"
-                            alt="{{ 'sitnet_remove_attachment' | translate }}"
+                            alt="{{ 'i18n_remove_attachment' | translate }}"
                             onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
                         />
                     </span>
                 </div>
                 <div class="mart10 edit-warning-container" *ngIf="showWarning()">
                     <i class="bi-exclamation-circle reddish me-2"></i>
-                    <span class="warning-text-small">{{ 'sitnet_shared_question_property_info' | translate }}</span>
+                    <span class="warning-text-small">{{ 'i18n_shared_question_property_info' | translate }}</span>
                 </div>
             </div>
         </div>
@@ -354,10 +354,10 @@
         <!-- Instructions -->
         <div class="row mt-3">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_question_instruction' | translate }}
+                {{ 'i18n_question_instruction' | translate }}
                 <sup
-                    ngbPopover="{{ 'sitnet_question_instruction_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_question_instruction_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -374,7 +374,7 @@
                     class="form-control"
                     rows="3"
                     [(ngModel)]="question.defaultAnswerInstructions"
-                    placeholder="{{ 'sitnet_question_instruction' | translate }}"
+                    placeholder="{{ 'i18n_question_instruction' | translate }}"
                 >
                 </textarea>
             </div>
@@ -383,10 +383,10 @@
         <!-- Evaluation criteria -->
         <div class="row mt-3" *ngIf="question.type === 'EssayQuestion'">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_exam_evaluation_criteria' | translate }}
+                {{ 'i18n_exam_evaluation_criteria' | translate }}
                 <sup
-                    ngbPopover="{{ 'sitnet_question_evaluation_criteria_description' | translate }}"
-                    popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
                     <img
@@ -403,7 +403,7 @@
                     class="form-control"
                     rows="3"
                     [(ngModel)]="question.defaultEvaluationCriteria"
-                    placeholder="{{ 'sitnet_exam_evaluation_criteria' | translate }}"
+                    placeholder="{{ 'i18n_exam_evaluation_criteria' | translate }}"
                 >
                 </textarea>
             </div>
@@ -415,7 +415,7 @@
         <!-- Categories -->
         <div class="row mt-3" *ngIf="sectionNames.length > 0">
             <div class="col-md-3 exam-basic-title">
-                {{ 'sitnet_added_to_sections' | translate }}
+                {{ 'i18n_added_to_sections' | translate }}
             </div>
             <div class="col-md-9 padr0">
                 <ul class="list-inline mart10">

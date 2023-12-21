@@ -1,7 +1,7 @@
 <div id="sitnet-dialog" role="dialog" aria-modal="true" id="library">
     <div class="modal-header">
         <div class="student-enroll-dialog-wrap">
-            <h1 class="student-enroll-title">{{ 'sitnet_transfer_questions' | translate }}</h1>
+            <h1 class="student-enroll-title">{{ 'i18n_transfer_questions' | translate }}</h1>
         </div>
     </div>
     <div class="modal-body">
@@ -11,7 +11,7 @@
                 <div class="col-12">
                     <div ngbDropdown #orgPicker="ngbDropdown">
                         <button ngbDropdownToggle class="btn btn-outline-dark" type="button" id="dropDownToggle">
-                            {{ 'sitnet_faculty_name' | translate }}&nbsp;
+                            {{ 'i18n_faculty_name' | translate }}&nbsp;
                             <span class="caret"></span>
                         </button>
                         <ul ngbDropdownMenu aria-labelledby="dropDownMenu">
@@ -30,7 +30,7 @@
             <div class="row align-items-center">
                 <div class="col-12 mt-2">
                     <button class="btn green whitetext" [disabled]="!organisation" (click)="transfer()">
-                        {{ 'sitnet_copy' | translate }}
+                        {{ 'i18n_copy' | translate }}
                     </button>
                     <span *ngIf="organisation" class="padl10 vertm">({{ organisation.code }})</span>
                 </div>
@@ -40,7 +40,7 @@
     <div class="modal-footer">
         <div class="student-message-dialog-button-save">
             <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                {{ 'sitnet_close' | translate }}
+                {{ 'i18n_close' | translate }}
             </button>
         </div>
     </div>

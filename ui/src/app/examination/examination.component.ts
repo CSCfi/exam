@@ -98,7 +98,7 @@ export class ExaminationComponent implements OnInit, OnDestroy {
                     if (err) console.log(err);
                     return of(err);
                 }),
-                finalize(() => this.logout('sitnet_exam_time_is_up', true)),
+                finalize(() => this.logout('i18n_exam_time_is_up', true)),
             )
             .subscribe();
 

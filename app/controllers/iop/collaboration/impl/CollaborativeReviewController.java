@@ -276,7 +276,7 @@ public class CollaborativeReviewController extends CollaborationController {
                                 try {
                                     file = csvBuilder.build(root);
                                 } catch (IOException e) {
-                                    return internalServerError("sitnet_error_creating_csv_file");
+                                    return internalServerError("i18n_error_creating_csv_file");
                                 }
                                 String contentDisposition = fileHandler.getContentDisposition(file);
                                 return ok(fileHandler.encodeAndDelete(file))
@@ -409,7 +409,7 @@ public class CollaborativeReviewController extends CollaborationController {
     public CompletionStage<Result> forceUpdateAnswerScore(Long id, String ref, Long qid, Http.Request request) {
         CollaborativeExam ce = DB.find(CollaborativeExam.class, id);
         if (ce == null) {
-            return wrapAsPromise(notFound("sitnet_error_exam_not_found"));
+            return wrapAsPromise(notFound("i18n_error_exam_not_found"));
         }
         Optional<URL> url = parseUrl(ce.getExternalRef(), ref);
         if (url.isEmpty()) {
@@ -631,7 +631,7 @@ public class CollaborativeReviewController extends CollaborationController {
             exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED) ||
             exam.getExamRecord() != null
         ) {
-            return Optional.of(wrapAsPromise(forbidden("sitnet_error_exam_already_graded_logged")));
+            return Optional.of(wrapAsPromise(forbidden("i18n_error_exam_already_graded_logged")));
         }
         return Optional.empty();
     }

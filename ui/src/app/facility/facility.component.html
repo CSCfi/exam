@@ -1,20 +1,20 @@
 <div id="dashboard">
     <span class="row mt-4 ms-3 align-items-center">
         <span class="col-md">
-            <span class="student-enroll-title">{{ 'sitnet_exam_rooms_administration' | translate }}</span>
+            <span class="student-enroll-title">{{ 'i18n_exam_rooms_administration' | translate }}</span>
             <a (click)="createExamRoom()" class="font-6 marl20 pointer">
                 <i class="bi-plus-square"></i>
             </a>
         </span>
         <span class="col-md-6">
             <a class="header-top-link float-end me-4 bi-building btn btn-success" (click)="editMultipleRooms()">
-                {{ 'sitnet_edit_all_rooms' | translate }}
+                {{ 'i18n_edit_all_rooms' | translate }}
             </a>
         </span>
     </span>
     <div class="top-row ms-1">
         <div class="col-md-12">
-            <strong>{{ 'sitnet_maintenance_periods' | translate }}</strong>
+            <strong>{{ 'i18n_maintenance_periods' | translate }}</strong>
             <a (click)="createPeriod()" class="ms-2"><i class="pointer bi-plus-square"></i></a>
         </div>
     </div>
@@ -31,7 +31,7 @@
         <ul ngbNav #nav="ngbNav" class="nav-tabs">
             <li ngbNavItem>
                 <a ngbNavLink>
-                    {{ getHeadingTranslation('sitnet_exam_all_rooms') }}
+                    {{ getHeadingTranslation('i18n_exam_all_rooms') }}
                 </a>
                 <ng-template ngbNavContent>
                     <xm-rooms></xm-rooms>
@@ -39,7 +39,7 @@
             </li>
             <li ngbNavItem>
                 <a ngbNavLink>
-                    {{ getHeadingTranslation('sitnet_exam_machine_softwares') }}
+                    {{ getHeadingTranslation('i18n_exam_machine_softwares') }}
                 </a>
                 <ng-template ngbNavContent>
                     <xm-software></xm-software>
@@ -47,7 +47,7 @@
             </li>
             <li ngbNavItem>
                 <a ngbNavLink>
-                    {{ getHeadingTranslation('sitnet_room_accessibility_info') }}
+                    {{ getHeadingTranslation('i18n_room_accessibility_info') }}
                 </a>
                 <ng-template ngbNavContent>
                     <xm-accessibility></xm-accessibility>

@@ -45,18 +45,18 @@ import { EnrolmentService } from '../enrolment.service';
         </div>
         <div class="row mt-1">
             <span *ngIf="exam.alreadyEnrolled && !exam.reservationMade" class="mt-1 student-exam-needs-reservation">
-                {{ 'sitnet_state_needs_reservation_title' | translate }}
+                {{ 'i18n_state_needs_reservation_title' | translate }}
             </span>
         </div>
         <div class="row mt-3">
             <div class="col-md">
-                <span [hidden]="collaborative">{{ 'sitnet_course_name' | translate }}:</span>
+                <span [hidden]="collaborative">{{ 'i18n_course_name' | translate }}:</span>
                 <div *ngIf="!collaborative && exam.course">
                     <xm-course-code [course]="exam.course"></xm-course-code> {{ exam.course.name }}
                 </div>
             </div>
             <div class="col">
-                <span [hidden]="collaborative">{{ 'sitnet_teachers' | translate }}: </span>
+                <span [hidden]="collaborative">{{ 'i18n_teachers' | translate }}: </span>
                 <span [hidden]="collaborative">
                     <xm-teacher-list [exam]="exam"></xm-teacher-list>
                 </span>
@@ -64,16 +64,16 @@ import { EnrolmentService } from '../enrolment.service';
         </div>
         <div class="row mt-3">
             <div class="col">
-                <span>{{ 'sitnet_exam_validity' | translate }}: </span>
+                <span>{{ 'i18n_exam_validity' | translate }}: </span>
                 <span
-                    >{{ exam.examActiveStartDate | date : 'dd.MM.yyyy' }} &ndash;
-                    {{ exam.examActiveEndDate | date : 'dd.MM.yyyy' }}</span
+                    >{{ exam.periodStart | date : 'dd.MM.yyyy' }} &ndash;
+                    {{ exam.periodEnd | date : 'dd.MM.yyyy' }}</span
                 >
             </div>
         </div>
         <div class="row mt-3">
             <div class="col">
-                <span>{{ 'sitnet_exam_language' | translate }}: </span>
+                <span>{{ 'i18n_exam_language' | translate }}: </span>
                 <span>{{ exam.languages.join(', ') }}</span>
             </div>
         </div>
@@ -85,19 +85,19 @@ import { EnrolmentService } from '../enrolment.service';
                     *ngIf="!exam.alreadyEnrolled"
                     [disabled]="enrolling"
                 >
-                    {{ 'sitnet_enroll_to_exam' | translate }}
+                    {{ 'i18n_enroll_to_exam' | translate }}
                 </button>
                 <button
                     class="btn btn-success text-nowrap important-clear-focus"
                     (click)="makeReservation()"
                     *ngIf="exam.alreadyEnrolled && !exam.reservationMade"
                 >
-                    {{ 'sitnet_student_new_reservation' | translate }}
+                    {{ 'i18n_student_new_reservation' | translate }}
                 </button>
                 <span
                     class="student-exam-all-required text-nowrap"
                     *ngIf="exam.alreadyEnrolled && exam.reservationMade"
-                    >{{ 'sitnet_enrolled_to_exam' | translate }}</span
+                    >{{ 'i18n_enrolled_to_exam' | translate }}</span
                 >
             </div>
         </div>
