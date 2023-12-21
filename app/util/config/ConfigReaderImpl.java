@@ -41,41 +41,41 @@ public class ConfigReaderImpl implements ConfigReader {
 
     @Override
     public DateTimeZone getDefaultTimeZone() {
-        String id = config.getString("sitnet.application.timezone");
+        String id = config.getString("exam.application.timezone");
         return DateTimeZone.forID(id);
     }
 
     @Override
     public String getHostName() {
-        return config.getString("sitnet.application.hostname");
+        return config.getString("exam.application.hostname");
     }
 
     @Override
     public Integer getMaxFileSize() {
-        return config.getInt("sitnet.attachment.maxsize");
+        return config.getInt("exam.attachment.maxsize");
     }
 
     @Override
     public String getExamMaxDate() {
         DateTime newDate = new DateTime(0);
-        Period period = Period.parse(config.getString("sitnet.exam.maxDate"));
+        Period period = Period.parse(config.getString("exam.exam.maxDate"));
         return newDate.plus(period).toString();
     }
 
     @Override
     public List<Integer> getExamDurations() {
-        String[] durations = config.getString("sitnet.exam.durations").split(",");
+        String[] durations = config.getString("exam.exam.durations").split(",");
         return Arrays.stream(durations).map(Integer::parseInt).toList();
     }
 
     @Override
     public Integer getExamMaxDuration() {
-        return config.getInt("sitnet.exam.maxDuration");
+        return config.getInt("exam.exam.maxDuration");
     }
 
     @Override
     public Integer getExamMinDuration() {
-        return config.getInt("sitnet.exam.minDuration");
+        return config.getInt("exam.exam.minDuration");
     }
 
     @Override
@@ -84,70 +84,70 @@ public class ConfigReaderImpl implements ConfigReader {
         Role teacher = DB.find(Role.class).where().eq("name", Role.Name.TEACHER.toString()).findOne();
         Role admin = DB.find(Role.class).where().eq("name", Role.Name.ADMIN.toString()).findOne();
         Map<Role, List<String>> roles = new HashMap<>();
-        roles.put(student, config.getStringList("sitnet.roles.student"));
-        roles.put(teacher, config.getStringList("sitnet.roles.teacher"));
-        roles.put(admin, config.getStringList("sitnet.roles.admin"));
+        roles.put(student, config.getStringList("exam.roles.student"));
+        roles.put(teacher, config.getStringList("exam.roles.teacher"));
+        roles.put(admin, config.getStringList("exam.roles.admin"));
         return roles;
     }
 
     @Override
     public boolean isCourseGradeScaleOverridable() {
-        return config.getBoolean("sitnet.course.gradescale.overridable");
+        return config.getBoolean("exam.course.gradescale.overridable");
     }
 
     @Override
     public boolean isEnrolmentPermissionCheckActive() {
-        return config.getBoolean("sitnet.integration.enrolmentPermissionCheck.active");
+        return config.getBoolean("exam.integration.enrolmentPermissionCheck.active");
     }
 
     @Override
     public boolean isVisitingExaminationSupported() {
-        return config.getBoolean("sitnet.integration.iop.visit.active");
+        return config.getBoolean("exam.integration.iop.visit.active");
     }
 
     @Override
     public boolean isCollaborationExaminationSupported() {
-        return config.getBoolean("sitnet.integration.iop.collaboration.active");
+        return config.getBoolean("exam.integration.iop.collaboration.active");
     }
 
     @Override
     public boolean isHomeExaminationSupported() {
-        return config.getBoolean("sitnet.byod.home.active");
+        return config.getBoolean("exam.byod.home.active");
     }
 
     @Override
     public boolean isSebExaminationSupported() {
-        return config.getBoolean("sitnet.byod.seb.active");
+        return config.getBoolean("exam.byod.seb.active");
     }
 
     @Override
     public boolean isCourseSearchActive() {
-        return config.getBoolean("sitnet.integration.courseUnitInfo.active");
+        return config.getBoolean("exam.integration.courseUnitInfo.active");
     }
 
     @Override
     public Map<String, String> getCourseIntegrationUrls() {
-        Config urls = config.getConfig("sitnet.integration.courseUnitInfo.url");
+        Config urls = config.getConfig("exam.integration.courseUnitInfo.url");
         return urls.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().render()));
     }
 
     @Override
     public DateTime getExamExpirationDate(DateTime timeOfSubmission) {
-        String expiresAfter = config.getString("sitnet.exam.expiration.period");
+        String expiresAfter = config.getString("exam.exam.expiration.period");
         Period period = Period.parse(expiresAfter);
         return timeOfSubmission.plus(period);
     }
 
     @Override
     public DateTime getCourseValidityDate(DateTime startDate) {
-        String window = config.getString("sitnet.integration.courseUnitInfo.window");
+        String window = config.getString("exam.integration.courseUnitInfo.window");
         Period period = Period.parse(window);
         return startDate.minus(period);
     }
 
     @Override
     public String getExamExpirationPeriod() {
-        return config.getString("sitnet.exam.expiration.period");
+        return config.getString("exam.exam.expiration.period");
     }
 
     @Override
@@ -177,104 +177,104 @@ public class ConfigReaderImpl implements ConfigReader {
 
     @Override
     public boolean isAnonymousReviewEnabled() {
-        return config.getBoolean("sitnet.exam.anonymousReview");
+        return config.getBoolean("exam.exam.anonymousReview");
     }
 
     @Override
     public String getQuitExaminationLink() {
-        return config.getString("sitnet.exam.seb.quitLink");
+        return config.getString("exam.exam.seb.quitLink");
     }
 
     @Override
     public String getExaminationAdminPassword() {
-        return config.getBoolean("sitnet.exam.seb.adminPwd.randomize")
+        return config.getBoolean("exam.exam.seb.adminPwd.randomize")
             ? UUID.randomUUID().toString()
-            : config.getString("sitnet.exam.seb.adminPwd.value");
+            : config.getString("exam.exam.seb.adminPwd.value");
     }
 
     @Override
     public String getSettingsPasswordEncryptionKey() {
-        return config.getString("sitnet.exam.seb.settingsPwd.encryption.key");
+        return config.getString("exam.exam.seb.settingsPwd.encryption.key");
     }
 
     @Override
     public String getQuitPassword() {
-        return config.getString("sitnet.exam.seb.quitPwd");
+        return config.getString("exam.exam.seb.quitPwd");
     }
 
     @Override
     public String getHomeOrganisationRef() {
-        return config.getString("sitnet.integration.iop.organisationRef");
+        return config.getString("exam.integration.iop.organisationRef");
     }
 
     @Override
     public Integer getMaxByodExaminationParticipantCount() {
-        return config.getInt("sitnet.byod.maxConcurrentParticipants");
+        return config.getInt("exam.byod.maxConcurrentParticipants");
     }
 
     @Override
     public String getCourseCodePrefix() {
-        return config.getString("sitnet.course.code.prefix");
+        return config.getString("exam.course.code.prefix");
     }
 
     @Override
     public String getIopHost() {
-        return config.getString("sitnet.integration.iop.host");
+        return config.getString("exam.integration.iop.host");
     }
 
     @Override
     public boolean isApiKeyUsed() {
-        return config.getBoolean("sitnet.integration.apiKey.enabled");
+        return config.getBoolean("exam.integration.apiKey.enabled");
     }
 
     @Override
     public String getApiKeyName() {
-        return config.getString("sitnet.integration.apiKey.name");
+        return config.getString("exam.integration.apiKey.name");
     }
 
     @Override
     public String getApiKeyValue() {
-        return config.getString("sitnet.integration.apiKey.value");
+        return config.getString("exam.integration.apiKey.value");
     }
 
     @Override
     public String getPermissionCheckUserIdentifier() {
-        return config.getString("sitnet.integration.enrolmentPermissionCheck.id");
+        return config.getString("exam.integration.enrolmentPermissionCheck.id");
     }
 
     @Override
     public String getPermissionCheckUrl() {
-        return config.getString("sitnet.integration.enrolmentPermissionCheck.url");
+        return config.getString("exam.integration.enrolmentPermissionCheck.url");
     }
 
     @Override
     public String getBaseSystemUrl() {
-        return config.getString("sitnet.baseSystemURL");
+        return config.getString("exam.baseSystemURL");
     }
 
     @Override
     public String getSystemAccount() {
-        return config.getString("sitnet.email.system.account");
+        return config.getString("exam.email.system.account");
     }
 
     @Override
     public String getAttachmentPath() {
-        return config.getString("sitnet.attachments.path");
+        return config.getString("exam.attachments.path");
     }
 
     @Override
     public String getLoginType() {
-        return config.getString("sitnet.login");
+        return config.getString("exam.login");
     }
 
     @Override
     public boolean isMultiStudentIdEnabled() {
-        return config.getBoolean("sitnet.user.studentIds.multiple.enabled");
+        return config.getBoolean("exam.user.studentIds.multiple.enabled");
     }
 
     @Override
     public String getMultiStudentOrganisations() {
-        return config.getString("sitnet.user.studentIds.multiple.organisations");
+        return config.getString("exam.user.studentIds.multiple.organisations");
     }
 
     @Override

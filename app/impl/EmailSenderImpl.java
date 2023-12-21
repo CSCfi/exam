@@ -72,7 +72,7 @@ public class EmailSenderImpl implements EmailSender {
         for (String r : recipients) {
             email.addTo(r);
         }
-        email.setFrom(String.format("Exam <%s>", config.getString("sitnet.email.system.account")));
+        email.setFrom(String.format("Exam <%s>", config.getString("exam.email.system.account")));
         email.addReplyTo(sender);
         for (String addr : cc) {
             email.addCc(addr);
