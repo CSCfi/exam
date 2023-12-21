@@ -15,10 +15,12 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
 import { CanComponentDeactivate } from '../has-unsaved-changes.quard';
+import { QuestionPreviewDialogComponent } from '../preview/question-preview-dialog.component';
 import type { QuestionDraft } from '../question.service';
 import { QuestionService } from '../question.service';
 
@@ -33,7 +35,7 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
     @Input() lotteryOn = false;
     @Input() collaborative = false;
     @Input() examId = 0;
-    @Input() sectionQuestion!: ExamSectionQuestion;
+    @Input() sectionQuestion?: ExamSectionQuestion;
 
     @Output() saved = new EventEmitter<Question | QuestionDraft>();
     @Output() cancelled = new EventEmitter<void>();
@@ -42,7 +44,6 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
 
     currentOwners: User[] = [];
     question!: ReverseQuestion | QuestionDraft;
-    transitionWatcher?: unknown;
     cancelClicked = false;
     nextState = '';
 
@@ -51,6 +52,7 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
         private route: ActivatedRoute,
         private toast: ToastrService,
         private Question: QuestionService,
+        private modal: NgbModal,
     ) {}
 
     ngOnInit() {
@@ -94,6 +96,16 @@ export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactiv
     hasInvalidClaimChoiceOptions = () =>
         this.question.type === 'ClaimChoiceQuestion' &&
         this.Question.getInvalidClaimOptionTypes(this.question.options).length > 0;
+
+    openPreview = () => {
+        const modal = this.modal.open(QuestionPreviewDialogComponent, {
+            backdrop: 'static',
+            keyboard: true,
+            size: 'lg',
+        });
+        modal.componentInstance.question = this.sectionQuestion || this.question;
+        modal.componentInstance.isExamQuestion = this.sectionQuestion;
+    };
 
     saveQuestion = () => {
         this.question.questionOwners = this.currentOwners;

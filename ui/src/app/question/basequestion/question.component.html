@@ -35,6 +35,22 @@
             </form>
             <!-- buttons -->
             <div class="mart20">
+                <div class="question-cancel marl20">
+                    <button
+                        (click)="openPreview()"
+                        type="submit"
+                        class="btn btn-success float-end bigbutton"
+                        [disabled]="
+                            !question ||
+                            !question.type ||
+                            hasNoCorrectOption() ||
+                            hasInvalidClaimChoiceOptions() ||
+                            questionForm.invalid
+                        "
+                    >
+                        {{ 'sitnet_button_preview' | translate }}
+                    </button>
+                </div>
                 <div class="question-cancel">
                     <button
                         [disabled]="

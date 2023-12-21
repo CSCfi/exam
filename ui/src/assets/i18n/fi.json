@@ -1153,5 +1153,10 @@
   "sitnet_actions": "Toimenpiteet",
   "sitnet_search_course_hint": "Hae opintojakson koodilla tai nimellä",
   "sitnet_search_exam_hint": "Hae opintojakson koodilla tai tentin nimellä",
-  "sitnet_library_search_instructions": "Ohjeet kysymyspankin haun toiminnalle TBD"
+  "sitnet_library_search_instructions": "Ohjeet kysymyspankin haun toiminnalle TBD",
+  "sitnet_go_back": "Takaisin",
+  "sitnet_preview_question": "Kysymyksen esikatselu",
+  "sitnet_button_preview": "Esikatsele kysymys",
+  "sitnet_no_preview_available": "Kysymyksen esikatselu ei ole saatavilla",
+  "sitnet_used_in_exams": "Käytössä tenteissä"
 }

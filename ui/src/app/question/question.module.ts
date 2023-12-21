@@ -15,6 +15,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ExaminationModule } from '../examination/examination.module';
 import { SharedModule } from '../shared/shared.module';
 import { ClaimChoiceEditorComponent } from './basequestion/claim-choice.component';
 import { EssayEditorComponent } from './basequestion/essay.component';
@@ -34,11 +35,12 @@ import { LibraryResultsComponent } from './library/results/library-results.compo
 import { LibrarySearchComponent } from './library/search/library-search.component';
 import { LibraryTagsDialogComponent } from './library/tags/library-tags-dialog.component';
 import { QuestionSelectorComponent } from './picker/question-picker.component';
+import { QuestionPreviewDialogComponent } from './preview/question-preview-dialog.component';
 import { QuestionService } from './question.service';
 import { TagPickerComponent } from './tags/tag-picker.component';
 
 @NgModule({
-    imports: [SharedModule, NgbModule, RouterModule],
+    imports: [SharedModule, NgbModule, RouterModule, ExaminationModule],
     declarations: [
         LibraryComponent,
         LibrarySearchComponent,
@@ -58,6 +60,7 @@ import { TagPickerComponent } from './tags/tag-picker.component';
         MultipleChoiceOptionEditorComponent,
         WeightedMultipleChoiceOptionEditorComponent,
         TagPickerComponent,
+        QuestionPreviewDialogComponent,
     ],
     bootstrap: [
         QuestionSelectorComponent,

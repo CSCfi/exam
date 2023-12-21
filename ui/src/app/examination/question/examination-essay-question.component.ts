@@ -26,7 +26,7 @@ import { ExaminationService } from '../examination.service';
 })
 export class ExaminationEssayQuestionComponent implements OnInit {
     @Input() sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
-    @Input() exam!: Examination;
+    @Input() exam?: Examination;
     @Input() isPreview = false;
 
     questionTitle!: string;
@@ -48,10 +48,11 @@ export class ExaminationEssayQuestionComponent implements OnInit {
         const decodedString = doc.documentElement.innerText;
         this.questionTitle = decodedString;
     }
-    saveAnswer = () => this.Examination.saveTextualAnswer$(this.sq, this.exam.hash, false, false).subscribe();
+    saveAnswer = () => this.Examination.saveTextualAnswer$(this.sq, this.exam?.hash || '', false, false).subscribe();
+
     removeQuestionAnswerAttachment = () => {
         const answeredQuestion = this.sq as AnsweredQuestion; // TODO: no casting
-        if (this.exam.external) {
+        if (this.exam?.external) {
             this.Attachment.removeExternalQuestionAnswerAttachment(answeredQuestion, this.exam.hash);
             return;
         }
@@ -59,11 +60,11 @@ export class ExaminationEssayQuestionComponent implements OnInit {
     };
 
     selectFile = () => {
-        if (this.isPreview) {
+        if (this.isPreview || !this.exam) {
             return;
         }
         this.Attachment.selectFile(false).then((data) => {
-            if (this.exam.external) {
+            if (this.exam?.external) {
                 this.Files.uploadAnswerAttachment(
                     '/app/iop/attachment/question/answer',
                     data.$value.attachmentFile,

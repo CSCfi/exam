@@ -1153,5 +1153,10 @@
   "sitnet_actions": "Toimenpiteet EN",
   "sitnet_search_course_hint": "Hae opintojakson koodilla tai nimellä EN",
   "sitnet_search_exam_hint": "Hae opintojakson koodilla tai tentin nimellä EN",
-  "sitnet_library_search_instructions": "Ohjeet kysymyspankin haun toiminnalle EN"
+  "sitnet_library_search_instructions": "Ohjeet kysymyspankin haun toiminnalle EN",
+  "sitnet_go_back": "Back",
+  "sitnet_preview_question": "Question Preview",
+  "sitnet_button_preview": "Preview question",
+  "sitnet_no_preview_available": "No preview available",
+  "sitnet_used_in_exams": "Used in exams"
 }
