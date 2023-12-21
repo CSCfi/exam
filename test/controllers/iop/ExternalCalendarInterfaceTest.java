@@ -155,7 +155,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
 
     @Override
     protected Application provideApplication() {
-        Map<String, Object> config = Map.of("sitnet.integration.enrolmentPermissionCheck.active", false);
+        Map<String, Object> config = Map.of("exam.integration.enrolmentPermissionCheck.active", false);
         return new GuiceApplicationBuilder().configure(config).build();
     }
 
@@ -681,7 +681,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/app/iop/reservations/external", json);
 
         assertThat(result.status()).isEqualTo(403);
-        assertThat(contentAsString(result).equals("sitnet_error_enrolment_not_found"));
+        assertThat(contentAsString(result).equals("i18n_error_enrolment_not_found"));
 
         // Verify
         ExamEnrolment ee = DB.find(ExamEnrolment.class, enrolment.getId());
@@ -722,7 +722,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         Result result = request(Helpers.POST, "/app/iop/reservations/external", json);
 
         assertThat(result.status()).isEqualTo(201);
-        assertThat(contentAsString(result).equals("sitnet_error_enrolment_not_found"));
+        assertThat(contentAsString(result).equals("i18n_error_enrolment_not_found"));
 
         // Verify
         ExamEnrolment ee = DB.find(ExamEnrolment.class, enrolment.getId());
