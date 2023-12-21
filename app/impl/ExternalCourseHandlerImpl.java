@@ -228,7 +228,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private URL parseUrl(Organisation organisation, String courseCode) throws MalformedURLException {
-        String urlConfigPrefix = "sitnet.integration.courseUnitInfo.url";
+        String urlConfigPrefix = "exam.integration.courseUnitInfo.url";
         String configPath = null;
         if (organisation != null && organisation.getCode() != null) {
             String path = String.format("%s.%s", urlConfigPrefix, organisation.getCode());
@@ -241,12 +241,12 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             if (configReader.hasPath(path)) {
                 configPath = path;
             } else {
-                throw new RuntimeException("sitnet.integration.courseUnitInfo.url holds no suitable URL for user");
+                throw new RuntimeException("exam.integration.courseUnitInfo.url holds no suitable URL for user");
             }
         }
         String url = configReader.getString(configPath);
         if (url == null || !url.contains(COURSE_CODE_PLACEHOLDER)) {
-            throw new RuntimeException("sitnet.integration.courseUnitInfo.url is malformed");
+            throw new RuntimeException("exam.integration.courseUnitInfo.url is malformed");
         }
         url = url.replace(COURSE_CODE_PLACEHOLDER, courseCode);
         return URI.create(url).toURL();
@@ -260,7 +260,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         }
         String url = configReader.getPermissionCheckUrl();
         if (url == null || !url.contains(USER_ID_PLACEHOLDER)) {
-            throw new MalformedURLException("sitnet.integration.enrolmentPermissionCheck.url is malformed");
+            throw new MalformedURLException("exam.integration.enrolmentPermissionCheck.url is malformed");
         }
         String identifier = URLEncoder.encode(
             configReader.getPermissionCheckUserIdentifier().equals("userIdentifier")

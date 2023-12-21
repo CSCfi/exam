@@ -11,9 +11,9 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_DB: sitnet_test
-          POSTGRES_USER: sitnet
-          POSTGRES_PASSWORD: sitnetsitnet
+          POSTGRES_DB: exam_test
+          POSTGRES_USER: exam
+          POSTGRES_PASSWORD: exam
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
