@@ -139,18 +139,18 @@ export class SlotPickerComponent implements OnInit, OnChanges {
 
     getDescription(room: ExamRoom): string {
         const status = room.statusComment ? ': ' + room.statusComment : '';
-        return this.translate.instant('sitnet_room_out_of_service') + status;
+        return this.translate.instant('i18n_room_out_of_service') + status;
     }
 
     outOfServiceGate = (room: ExamRoom, text: string) => (room.outOfService ? text : undefined);
 
     private getTitle(slot: AvailableSlot): string {
         if (slot.availableMachines > 0) {
-            return `${this.translate.instant('sitnet_slot_available')} (${slot.availableMachines})`;
+            return `${this.translate.instant('i18n_slot_available')} (${slot.availableMachines})`;
         } else {
             return slot.conflictingExam
-                ? this.translate.instant('sitnet_own_reservation')
-                : this.translate.instant('sitnet_reserved');
+                ? this.translate.instant('i18n_own_reservation')
+                : this.translate.instant('i18n_reserved');
         }
     }
 

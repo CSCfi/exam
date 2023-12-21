@@ -21,7 +21,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ 'sitnet_give_feedback' | translate }}</div>
+                <div class="student-enroll-title">{{ 'i18n_give_feedback' | translate }}</div>
             </div>
             <div class="mart20 student-feedback">
                 <p mathjax [innerHtml]="statement"></p>
@@ -29,7 +29,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
                     <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                        {{ 'sitnet_close' | translate }}
+                        {{ 'i18n_close' | translate }}
                     </button>
                 </div>
             </div>

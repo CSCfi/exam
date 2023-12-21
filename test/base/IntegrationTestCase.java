@@ -44,6 +44,7 @@ import org.junit.rules.TestName;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.inspector.TrustedTagInspector;
 import org.yaml.snakeyaml.representer.Representer;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
@@ -311,7 +312,9 @@ public class IntegrationTestCase extends WithApplication {
         if (userCount == 0) {
             LoaderOptions options = new LoaderOptions();
             options.setMaxAliasesForCollections(400);
-            Yaml yaml = new Yaml(new JodaPropertyConstructor(), new Representer(), new DumperOptions(), options);
+            options.setTagInspector(new TrustedTagInspector());
+            Yaml yaml = new Yaml(new JodaPropertyConstructor(options), new Representer(new DumperOptions()));
+            //Yaml yaml = new Yaml(new JodaPropertyConstructor(), new Representer(new DumperOptions()), new DumperOptions(), options);
             InputStream is = new FileInputStream(new File("test/resources/initial-data.yml"));
             Map<String, List<Object>> all = yaml.load(is);
             is.close();

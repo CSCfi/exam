@@ -28,7 +28,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     <img
                         *ngIf="option.answered"
                         src="/assets/images/icon_correct_answer_radio.svg"
-                        [attr.aria-label]="'sitnet_correct_answer' | translate"
+                        [attr.aria-label]="'i18n_correct_answer' | translate"
                         alt=""
                     />
                 </div>
@@ -41,7 +41,7 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     <img
                         *ngIf="option.answered"
                         src="/assets/images/icon_wrong_answer_radio.svg"
-                        [attr.aria-label]="'sitnet_incorrect_answer' | translate"
+                        [attr.aria-label]="'i18n_incorrect_answer' | translate"
                         alt=""
                     />
                 </div>
@@ -56,13 +56,13 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
                     <img
                         *ngIf="option.option.correctOption"
                         src="/assets/images/icon_correct_answer_radio.svg"
-                        [attr.aria-label]="'sitnet_correct_answer' | translate"
+                        [attr.aria-label]="'i18n_correct_answer' | translate"
                         alt=""
                     />
                     <img
                         *ngIf="!option.option.correctOption"
                         src="/assets/images/icon_wrong_answer.png"
-                        [attr.aria-label]="'sitnet_incorrect_answer' | translate"
+                        [attr.aria-label]="'i18n_incorrect_answer' | translate"
                         alt=""
                     />
                 </div>

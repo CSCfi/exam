@@ -147,12 +147,12 @@ export class SpeedReviewComponent implements OnInit {
     gradeExams = () => {
         const reviews = this.examReviews.filter((r) => r.selectedGrade && r.selectedGrade.type && this.isGradeable(r));
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_confirm_grade_review'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_confirm_grade_review'),
         ).subscribe({
             next: () => {
                 forkJoin(reviews.map(this.gradeExam$)).subscribe(() => {
-                    this.toast.info(this.translate.instant('sitnet_saved'));
+                    this.toast.info(this.translate.instant('i18n_saved'));
                     if (this.examReviews.length === 0) {
                         this.router.navigate(['/staff/exams', this.examId, '5']);
                     }
@@ -163,13 +163,13 @@ export class SpeedReviewComponent implements OnInit {
     };
 
     importGrades = () => {
-        this.Attachment.selectFile(false, {}, 'sitnet_import_grades_from_csv')
+        this.Attachment.selectFile(false, {}, 'i18n_import_grades_from_csv')
             .then((result) => {
                 this.Files.upload('/app/gradeimport', result.$value.attachmentFile, {}, undefined, () => this.reload());
-                this.toast.success(`${this.translate.instant('sitnet_csv_uploaded_successfully')}`);
+                this.toast.success(`${this.translate.instant('i18n_csv_uploaded_successfully')}`);
             })
             .catch(() => {
-                this.toast.error(`${this.translate.instant('sitnet_csv_uploading_failed')}`);
+                this.toast.error(`${this.translate.instant('i18n_csv_uploading_failed')}`);
                 return noop;
             });
     };
@@ -234,14 +234,14 @@ export class SpeedReviewComponent implements OnInit {
     private getErrors = (review: Review) => {
         const messages = [];
         if (!this.isAllowedToGrade(review)) {
-            messages.push('sitnet_error_unauthorized');
+            messages.push('i18n_error_unauthorized');
         }
         const exam = review.examParticipation.exam;
         if (!exam.creditType && !exam.examType) {
-            messages.push('sitnet_exam_choose_credit_type');
+            messages.push('i18n_exam_choose_credit_type');
         }
         if (!exam.answerLanguage && exam.examLanguages.length !== 1) {
-            messages.push('sitnet_exam_choose_response_language');
+            messages.push('i18n_exam_choose_response_language');
         }
         return messages;
     };
@@ -254,7 +254,7 @@ export class SpeedReviewComponent implements OnInit {
         const exam = review.examParticipation.exam;
         const gradeId = exam.grade && (exam.grade as Grade).id;
         if (!review.selectedGrade && !gradeId) {
-            messages.push('sitnet_participation_unreviewed');
+            messages.push('i18n_participation_unreviewed');
         }
         messages.forEach((msg) => this.toast.warning(this.translate.instant(msg)));
         if (messages.length === 0) {

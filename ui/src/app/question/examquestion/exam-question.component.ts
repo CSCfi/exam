@@ -87,7 +87,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
 
     removeOption = (selectedOption: ExamSectionQuestionOption) => {
         if (this.lotteryOn) {
-            this.toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('i18n_action_disabled_lottery_on'));
             return;
         }
 
@@ -102,13 +102,13 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         if (!this.isInPublishedExam || hasCorrectAnswer) {
             this.examQuestion.options.splice(this.examQuestion.options.indexOf(selectedOption), 1);
         } else {
-            this.toast.error(this.translate.instant('sitnet_action_disabled_minimum_options'));
+            this.toast.error(this.translate.instant('i18n_action_disabled_minimum_options'));
         }
     };
 
     addNewOption = () => {
         if (this.lotteryOn) {
-            this.toast.error(this.translate.instant('sitnet_action_disabled_lottery_on'));
+            this.toast.error(this.translate.instant('i18n_action_disabled_lottery_on'));
             return;
         }
         const newOption: ExamSectionQuestionOption = {

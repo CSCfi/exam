@@ -125,16 +125,16 @@ public class ExaminationEventController extends BaseController {
         ExaminationEvent ee = new ExaminationEvent();
         DateTime start = request.attrs().get(Attrs.START_DATE);
         if (start.isBeforeNow()) {
-            return forbidden("sitnet_error_examination_event_in_the_past");
+            return forbidden("i18n_error_examination_event_in_the_past");
         }
         DateTime end = start.plusMinutes(exam.getDuration());
         if (isWithinMaintenancePeriod(new Interval(start, end))) {
-            return forbidden("sitnet_error_conflicts_with_maintenance_period");
+            return forbidden("i18n_error_conflicts_with_maintenance_period");
         }
         int ub = getParticipantUpperBound(start, end, null);
         int capacity = request.attrs().get(Attrs.CAPACITY);
         if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {
-            return forbidden("sitnet_error_max_capacity_exceeded");
+            return forbidden("i18n_error_max_capacity_exceeded");
         }
         String password = request.attrs().get(Attrs.SETTINGS_PASSWORD);
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH && password == null) {
@@ -179,18 +179,18 @@ public class ExaminationEventController extends BaseController {
         DateTime start = request.attrs().get(Attrs.START_DATE);
         if (!hasEnrolments) {
             if (start.isBeforeNow()) {
-                return forbidden("sitnet_error_examination_event_in_the_past");
+                return forbidden("i18n_error_examination_event_in_the_past");
             }
             ee.setStart(start);
         }
         DateTime end = start.plusMinutes(exam.getDuration());
         if (isWithinMaintenancePeriod(new Interval(start, end))) {
-            return forbidden("sitnet_error_conflicts_with_maintenance_period");
+            return forbidden("i18n_error_conflicts_with_maintenance_period");
         }
         int ub = getParticipantUpperBound(start, end, ee.getId());
         int capacity = request.attrs().get(Attrs.CAPACITY);
         if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {
-            return forbidden("sitnet_error_max_capacity_exceeded");
+            return forbidden("i18n_error_max_capacity_exceeded");
         }
         ee.setCapacity(capacity);
         ee.setDescription(request.attrs().get(Attrs.DESCRIPTION));

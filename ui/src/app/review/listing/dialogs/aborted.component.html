@@ -2,13 +2,13 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title">{{ 'sitnet_aborted_exams' | translate }}</div>
+                <div class="student-enroll-title">{{ 'i18n_aborted_exams' | translate }}</div>
             </div>
         </div>
     </div>
     <div class="row mart40 padl30" *ngIf="abortedExams.length === 0">
         <div class="review-no-results">
-            <i class="bi-exclamation-circle padl20 grayish"></i> {{ 'sitnet_exam_no_aborted' | translate }}
+            <i class="bi-exclamation-circle padl20 grayish"></i> {{ 'i18n_exam_no_aborted' | translate }}
         </div>
     </div>
     <div class="row review-no-show" *ngIf="abortedExams.length > 0">
@@ -21,7 +21,7 @@
                             [reverse]="reverse"
                             [predicate]="abortedPredicate"
                             by="displayName"
-                            text="sitnet_student"
+                            text="i18n_student"
                             (click)="setPredicate('displayName')"
                         ></xm-table-sort>
                     </th>
@@ -30,7 +30,7 @@
                             [reverse]="reverse"
                             [predicate]="abortedPredicate"
                             by="examParticipation.user.email"
-                            text="sitnet_email"
+                            text="i18n_email"
                             (click)="setPredicate('examParticipation.user.email')"
                         ></xm-table-sort>
                     </th>
@@ -39,17 +39,17 @@
                             [reverse]="reverse"
                             [predicate]="abortedPredicate"
                             by="examParticipation.started"
-                            text="sitnet_exam_duration"
+                            text="i18n_exam_duration"
                             (click)="setPredicate('examParticipation.started')"
                         ></xm-table-sort>
                     </th>
-                    <th>{{ 'sitnet_exam_state' | translate }}</th>
+                    <th>{{ 'i18n_exam_state' | translate }}</th>
                     <th>
                         <xm-table-sort
                             [reverse]="reverse"
                             [predicate]="abortedPredicate"
                             by="examParticipation.reservation.trialCount"
-                            text="sitnet_trial"
+                            text="i18n_trial"
                             (click)="setPredicate('examParticipation.exam.trialCount')"
                         ></xm-table-sort>
                     </th>
@@ -78,21 +78,21 @@
                         "
                     >
                         {{ review.examParticipation.started | date : 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }} {{ review.examParticipation.started | date : 'HH:mm' }} -
+                        {{ 'i18n_clock_short' | translate }} {{ review.examParticipation.started | date : 'HH:mm' }} -
                         {{ review.examParticipation.ended | date : 'HH:mm' }} ({{
                             review.examParticipation.started | minuteDiff : review.examParticipation.ended
                         }}&nbsp;min)
                     </td>
                     <td class="table-column-25" *ngIf="review.examParticipation.exam.implementation === 'AQUARIUM'">
                         {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
-                        {{ 'sitnet_clock_short' | translate }}
+                        {{ 'i18n_clock_short' | translate }}
                         {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
                         {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }} ({{
                             review.examParticipation.started | minuteDiff : review.examParticipation.ended
                         }}&nbsp;min)
                     </td>
                     <td class="table-column-15 sitnet-text-aborted">
-                        {{ 'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
+                        {{ 'i18n_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
                     </td>
                     <td class="table-column-10" *ngIf="review.examParticipation.exam.executionType.type === 'PUBLIC'">
                         <div
@@ -108,13 +108,13 @@
                             >
                                 {{
                                     review.examParticipation.exam.examEnrolments[0].retrialPermitted
-                                        ? ('sitnet_retrial_permitted' | translate)
-                                        : ('sitnet_permit_retrial' | translate)
+                                        ? ('i18n_retrial_permitted' | translate)
+                                        : ('i18n_permit_retrial' | translate)
                                 }}
                             </button>
                         </div>
                         <div *ngIf="!review.examParticipation.exam.trialCount" class="text-muted">
-                            {{ 'sitnet_unrestricted' | translate }}
+                            {{ 'i18n_unrestricted' | translate }}
                         </div>
                     </td>
                     <td class="table-column-10" *ngIf="review.examParticipation.exam.executionType.type !== 'PUBLIC'">
@@ -128,7 +128,7 @@
     <div class="flex justify-content-end">
         <div class="review-attachment-button marr10 marb10">
             <a class="pointer preview" (click)="cancel()">
-                {{ 'sitnet_button_ok' | translate }}
+                {{ 'i18n_button_ok' | translate }}
             </a>
         </div>
     </div>

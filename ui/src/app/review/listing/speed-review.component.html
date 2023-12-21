@@ -3,7 +3,7 @@
         <div class="col-md-12">
             <div class="student-details-title-wrap">
                 <xm-history-back></xm-history-back>
-                <div class="student-exam-details-title">{{ 'sitnet_speed_review' | translate }}</div>
+                <div class="student-exam-details-title">{{ 'i18n_speed_review' | translate }}</div>
             </div>
         </div>
     </div>
@@ -13,7 +13,7 @@
             <div class="col-md-12 padl0">
                 <div class="speed-review-title" *ngIf="examInfo?.examOwners">
                     {{ examInfo?.title }}
-                    <span class="speed-review-subtitle">({{ 'sitnet_teachers' | translate }}:</span>
+                    <span class="speed-review-subtitle">({{ 'i18n_teachers' | translate }}:</span>
                     <span class="speed-review-subtitle" *ngFor="let owner of examInfo?.examOwners; let isLast = last">
                         {{ owner.firstName }} {{ owner.lastName }} <span *ngIf="!isLast">,&nbsp;</span>
                     </span>
@@ -23,7 +23,7 @@
         </div>
 
         <div class="col-md-12 padl30 mart20 padb30" *ngIf="examReviews && examReviews.length === 0">
-            {{ 'sitnet_no_examinations_to_grade' | translate }}
+            {{ 'i18n_no_examinations_to_grade' | translate }}
         </div>
 
         <div *ngIf="examReviews && examReviews.length > 0">
@@ -34,7 +34,7 @@
                             <th class="with-top">
                                 <xm-table-sort
                                     by="displayName"
-                                    text="sitnet_student"
+                                    text="i18n_student"
                                     [predicate]="reviewPredicate"
                                     [reverse]="reverse"
                                     (click)="setPredicate('displayName')"
@@ -43,7 +43,7 @@
                             <th class="with-top">
                                 <xm-table-sort
                                     by="examParticipation.started"
-                                    text="sitnet_exam_duration"
+                                    text="i18n_exam_duration"
                                     [predicate]="reviewPredicate"
                                     [reverse]="reverse"
                                     (click)="setPredicate('examParticipation.started')"
@@ -52,17 +52,17 @@
                             <th class="with-top">
                                 <xm-table-sort
                                     by="examParticipation.deadline"
-                                    text="sitnet_review_deadline"
+                                    text="i18n_review_deadline"
                                     [predicate]="reviewPredicate"
                                     [reverse]="reverse"
                                     (click)="setPredicate('examParticipation.deadline')"
                                 ></xm-table-sort>
                             </th>
-                            <th class="with-space">{{ 'sitnet_inspection_status' | translate }}</th>
-                            <th class="with-space">{{ 'sitnet_exam_state' | translate }}</th>
-                            <th class="with-space">{{ 'sitnet_total_score' | translate }}</th>
-                            <th class="with-top">{{ 'sitnet_grade' | translate }}</th>
-                            <th class="with-top">{{ 'sitnet_feedback' | translate }}</th>
+                            <th class="with-space">{{ 'i18n_inspection_status' | translate }}</th>
+                            <th class="with-space">{{ 'i18n_exam_state' | translate }}</th>
+                            <th class="with-space">{{ 'i18n_total_score' | translate }}</th>
+                            <th class="with-top">{{ 'i18n_grade' | translate }}</th>
+                            <th class="with-top">{{ 'i18n_feedback' | translate }}</th>
                         </tr>
                     </thead>
 
@@ -89,7 +89,7 @@
                             </td>
                             <td>
                                 {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
-                                {{ 'sitnet_clock_short' | translate }}
+                                {{ 'i18n_clock_short' | translate }}
                                 {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
                                 {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }} ({{
                                     review.examParticipation.started | minuteDiff : review.examParticipation.ended
@@ -115,9 +115,7 @@
                                 </div>
                             </td>
                             <td class="text-success">
-                                {{
-                                    'sitnet_exam_status_' + review.examParticipation.exam.state | lowercase | translate
-                                }}
+                                {{ 'i18n_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
                             </td>
                             <td>
                                 {{ review.examParticipation.exam.totalScore }} /
@@ -128,15 +126,15 @@
                                         review.examParticipation.exam.approvedAnswerCount > 0
                                     "
                                 >
-                                    <br />{{ 'sitnet_approved' | translate }}:
+                                    <br />{{ 'i18n_approved' | translate }}:
                                     {{ review.examParticipation.exam.approvedAnswerCount }} <br />{{
-                                        'sitnet_rejected' | translate
+                                        'i18n_rejected' | translate
                                     }}: {{ review.examParticipation.exam.rejectedAnswerCount }}
                                 </span>
                             </td>
                             <td>
                                 <span *ngIf="!isGradeable(review)">{{
-                                    'sitnet_speed_review_incomplete_info_or_no_permission' | translate
+                                    'i18n_speed_review_incomplete_info_or_no_permission' | translate
                                 }}</span>
                                 <select
                                     class="form-select custom-select"
@@ -147,7 +145,7 @@
                                         {{ grade.name }}
                                     </option>
                                     <option value="" [selected]="!review.selectedGrade">
-                                        {{ 'sitnet_choose' | translate }}
+                                        {{ 'i18n_choose' | translate }}
                                     </option>
                                 </select>
                             </td>
@@ -157,7 +155,7 @@
                                     [disabled]="!isAllowedToGrade(review)"
                                     (click)="showFeedbackEditor(review)"
                                 >
-                                    {{ 'sitnet_edit' | translate }}
+                                    {{ 'i18n_edit' | translate }}
                                 </button>
                             </td>
                         </tr>
@@ -185,10 +183,10 @@
         <div class="padl15 padr15 marb20 d-flex justify-content-between">
             <div>
                 <div class="speed-review-csv ms-3 mb-1">
-                    <a class="pointer" (click)="importGrades()">{{ 'sitnet_import_grades_from_csv' | translate }}</a>
+                    <a class="pointer" (click)="importGrades()">{{ 'i18n_import_grades_from_csv' | translate }}</a>
                     <sup
-                        ngbPopover="{{ 'sitnet_grade_import_file_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_grade_import_file_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
                         <img
@@ -201,11 +199,11 @@
 
                 <div class="speed-review-csv ms-3">
                     <a class="pointer" (click)="createGradingTemplate()">{{
-                        'sitnet_create_grading_template' | translate
+                        'i18n_create_grading_template' | translate
                     }}</a>
                     <sup
-                        ngbPopover="{{ 'sitnet_create_grading_template_description' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_create_grading_template_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
                         <img
@@ -220,7 +218,7 @@
             <div class="p-2">
                 <div class="review-attachment-button make-inline">
                     <a class="pointer preview" [routerLink]="['/staff/exams/', examId, '5']">
-                        {{ 'sitnet_button_cancel' | translate }}
+                        {{ 'i18n_button_cancel' | translate }}
                     </a>
                 </div>
                 <div class="review-attachment-button make-inline ms-2">
@@ -230,7 +228,7 @@
                         class="pointer"
                         (click)="gradeExams()"
                     >
-                        {{ 'sitnet_grade_exams' | translate }}
+                        {{ 'i18n_grade_exams' | translate }}
                     </button>
                 </div>
             </div>

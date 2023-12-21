@@ -35,13 +35,13 @@
                     </h2>
 
                     <small *ngIf="enrolment.exam?.anonymous || enrolment.collaborativeExam?.anonymous"
-                        >({{ 'sitnet_anonymous_review' | translate }})</small
+                        >({{ 'i18n_anonymous_review' | translate }})</small
                     >
                     <small *ngIf="enrolment.exam && enrolment.exam.implementation === 'CLIENT_AUTH'"
-                        >({{ 'sitnet_examination_type_seb' | translate }})</small
+                        >({{ 'i18n_examination_type_seb' | translate }})</small
                     >
                     <small *ngIf="enrolment.exam && enrolment.exam.implementation === 'WHATEVER'"
-                        >({{ 'sitnet_examination_type_home_exam' | translate }})</small
+                        >({{ 'i18n_examination_type_home_exam' | translate }})</small
                     >
                     <div class="row">
                         <div class="col">
@@ -52,7 +52,7 @@
                                     (enrolment.reservation || enrolment.examinationEventConfiguration)
                                 "
                                 class="exam-ready"
-                                >{{ 'sitnet_state_ready' | translate }}</span
+                                >{{ 'i18n_state_ready' | translate }}</span
                             >
                             <span
                                 *ngIf="
@@ -61,10 +61,10 @@
                                     !enrolment.examinationEventConfiguration
                                 "
                                 class="exam-needs-reservation"
-                                >{{ 'sitnet_state_needs_reservation_title' | translate }}</span
+                                >{{ 'i18n_state_needs_reservation_title' | translate }}</span
                             >
                             <span *ngIf="enrolment.exam?.state === 'STUDENT_STARTED'" class="exam-ready">
-                                {{ 'sitnet_state_started' | translate }}
+                                {{ 'i18n_state_started' | translate }}
                             </span>
                         </div>
                     </div>
@@ -79,7 +79,7 @@
     </div>
     <div class="row mt-3">
         <div class="col-md">
-            <div *ngIf="enrolment.exam">{{ 'sitnet_course_name' | translate }}:</div>
+            <div *ngIf="enrolment.exam">{{ 'i18n_course_name' | translate }}:</div>
 
             <div *ngIf="enrolment.exam && enrolment.exam.course">
                 <span class="exam-code">
@@ -89,7 +89,7 @@
             </div>
         </div>
         <div class="col">
-            <div *ngIf="enrolment.exam">{{ 'sitnet_teachers' | translate }}:</div>
+            <div *ngIf="enrolment.exam">{{ 'i18n_teachers' | translate }}:</div>
             <div *ngIf="enrolment.exam">
                 <xm-teacher-list [exam]="enrolment.exam"></xm-teacher-list>
             </div>
@@ -104,29 +104,23 @@
                     alt="edit message to teacher"
                     src="/assets/images/icon_message.png"
                 />
-                <div class="infolink">{{ 'sitnet_student_edit' | translate }}</div>
+                <div class="infolink">{{ 'i18n_student_edit' | translate }}</div>
             </button>
         </div>
     </div>
     <div class="row mt-3" *ngIf="!enrolment.reservation">
         <div class="col">
-            <div>{{ 'sitnet_exam_validity' | translate }}:</div>
+            <div>{{ 'i18n_exam_validity' | translate }}:</div>
             <div>
-                {{
-                    enrolment.exam?.examActiveStartDate || enrolment.collaborativeExam.examActiveStartDate
-                        | date : 'dd.MM.yyyy'
-                }}
+                {{ enrolment.exam?.periodStart || enrolment.collaborativeExam.periodStart | date : 'dd.MM.yyyy' }}
                 &ndash;
-                {{
-                    enrolment.exam?.examActiveEndDate || enrolment.collaborativeExam.examActiveEndDate
-                        | date : 'dd.MM.yyyy'
-                }}
+                {{ enrolment.exam?.periodEnd || enrolment.collaborativeExam.periodEnd | date : 'dd.MM.yyyy' }}
             </div>
         </div>
     </div>
     <div class="" *ngIf="enrolment.reservation">
         <div class="row mt-3">
-            <div class="col-md-3 col-lg-2">{{ 'sitnet_exam_room' | translate }}:</div>
+            <div class="col-md-3 col-lg-2">{{ 'i18n_exam_room' | translate }}:</div>
             <div class="col-md-9 col-lg-10" *ngIf="enrolment.reservation.machine">
                 {{ enrolment.reservation.machine.name }}&nbsp;&nbsp;|&nbsp;&nbsp;{{
                     enrolment.reservation.machine.room.name
@@ -135,19 +129,19 @@
             </div>
             <div class="col-sm-12" *ngIf="enrolment.reservation.externalReservation">
                 <span *ngIf="enrolment.reservation.externalReservation.orgName">
-                    <strong>{{ 'sitnet_faculty_name' | translate | uppercase }}:</strong>
+                    <strong>{{ 'i18n_faculty_name' | translate | uppercase }}:</strong>
                     {{ enrolment.reservation.externalReservation.orgName }} ({{
                         enrolment.reservation.externalReservation.orgCode
                     }})<br />
                 </span>
-                <strong>{{ 'sitnet_room_campus' | translate | uppercase }}:</strong>
+                <strong>{{ 'i18n_room_campus' | translate | uppercase }}:</strong>
                 {{ enrolment.reservation.externalReservation.campus }}<br />
-                <strong>{{ 'sitnet_room_building_name' | translate | uppercase }}:</strong>
+                <strong>{{ 'i18n_room_building_name' | translate | uppercase }}:</strong>
                 {{ enrolment.reservation.externalReservation.buildingName }}<br />
-                <strong>{{ 'sitnet_exam_room' | translate | uppercase }}:</strong>
+                <strong>{{ 'i18n_exam_room' | translate | uppercase }}:</strong>
                 {{ enrolment.reservation.externalReservation.roomName }}
                 ({{ enrolment.reservation.externalReservation.roomCode }})<br />
-                <strong>{{ 'sitnet_exam_machine' | translate | uppercase }}:</strong>
+                <strong>{{ 'i18n_exam_machine' | translate | uppercase }}:</strong>
                 {{ enrolment.reservation.externalReservation.machineName }}<br />
                 {{ enrolment.reservation.externalReservation.mailAddress.street }},
                 {{ enrolment.reservation.externalReservation.mailAddress.zip }}&nbsp;
@@ -156,7 +150,7 @@
 
             <div class="clearfix visible-xs"></div>
             <div class="clearfix visible-sm"></div>
-            <div class="col-md-3 col-lg-2 mt-md-2 mt-3">{{ 'sitnet_reservation' | translate }}:</div>
+            <div class="col-md-3 col-lg-2 mt-md-2 mt-3">{{ 'i18n_reservation' | translate }}:</div>
             <div class="col-md-9 col-lg-10 mt-md-2">
                 {{ enrolment.reservation.startAt | applyDst | date : 'dd.MM.yyyy' }}
                 {{ enrolment.occasion?.startAt }} &ndash; {{ enrolment.occasion?.endAt }} ({{ enrolment.occasion?.tz }})
@@ -170,7 +164,7 @@
                     (keydown.enter)="showGuide = !showGuide"
                     [attr.aria-expanded]="showGuide"
                 >
-                    {{ 'sitnet_room_guidance' | translate }}
+                    {{ 'i18n_room_guidance' | translate }}
                     <img class="arrow_icon" [hidden]="showGuide" alt="" src="/assets/images/arrow_right.png" />
                     <img class="arrow_icon" [hidden]="!showGuide" alt="" src="/assets/images/arrow_down.png" />
                 </button>
@@ -182,7 +176,7 @@
     </div>
     <div class="row mt-3 justify-content-start" *ngIf="!enrolment.reservation && enrolment.reservationCanceled">
         <div class="text-danger" *ngIf="enrolment.reservationCanceled">
-            {{ 'sitnet_canceled' | translate }}
+            {{ 'i18n_canceled' | translate }}
         </div>
     </div>
     <div
@@ -191,7 +185,7 @@
         "
     >
         <div class="row mt-3 justify-content-start">
-            <div class="">{{ 'sitnet_examination_event' | translate }}:</div>
+            <div class="">{{ 'i18n_examination_event' | translate }}:</div>
             <div class="">
                 {{ enrolment.examinationEventConfiguration?.examinationEvent?.start | date : 'dd.MM.yyyy HH:mm zzzz' }}
             </div>
@@ -206,7 +200,7 @@
     >
         <div class="col">
             <div class="row">
-                <div class="">{{ 'sitnet_instructions' | translate }}:</div>
+                <div class="">{{ 'i18n_instructions' | translate }}:</div>
                 <div class="">
                     <span class="marr20">
                         {{ enrolment.examinationEventConfiguration.examinationEvent.description }}
@@ -222,14 +216,14 @@
     >
         <div class="col">
             <div class="row">
-                <div class="">{{ 'sitnet_seb_file' | translate }}:</div>
+                <div class="">{{ 'i18n_seb_file' | translate }}:</div>
                 <div class="">
                     <span class="marr20">
                         <button
                             (click)="downloadSebFile()"
                             class="text text-success pointer mart10 pointer border rounded hover-grey"
                         >
-                            <strong>{{ 'sitnet_download' | translate }}</strong>
+                            <strong>{{ 'i18n_download' | translate }}</strong>
                         </button>
                     </span>
                 </div>
@@ -247,7 +241,7 @@
                 (keydown.enter)="showMaterials = !showMaterials"
                 [attr.aria-expanded]="showMaterials"
             >
-                {{ 'sitnet_selected_sections' | translate }}
+                {{ 'i18n_selected_sections' | translate }}
                 <img class="arrow_icon" [hidden]="showMaterials" alt="" src="/assets/images/arrow_right.png" />
                 <img class="arrow_icon" [hidden]="!showMaterials" alt="" src="/assets/images/arrow_down.png" />
             </button>
@@ -261,9 +255,9 @@
                         <div class="row">
                             <div class="col">
                                 <strong
-                                    >{{ 'sitnet_exam_section' | translate }}
+                                    >{{ 'i18n_exam_section' | translate }}
                                     <small class="text text-danger"
-                                        >({{ 'sitnet_required' | translate | lowercase }})</small
+                                        >({{ 'i18n_required' | translate | lowercase }})</small
                                     >:</strong
                                 >
                                 {{ section.name }}
@@ -280,9 +274,8 @@
                     <div class="row">
                         <div class="col">
                             <strong
-                                >{{ 'sitnet_exam_section' | translate }}
-                                <small class="text text-success"
-                                    >({{ 'sitnet_optional' | translate | lowercase }})</small
+                                >{{ 'i18n_exam_section' | translate }}
+                                <small class="text text-success">({{ 'i18n_optional' | translate | lowercase }})</small
                                 >:</strong
                             >
                             {{ section.name }}
@@ -296,15 +289,15 @@
                     <div *ngIf="section.examMaterials.length > 0">
                         <div class="row">
                             <div class="col">
-                                <strong>{{ 'sitnet_exam_materials' | translate }}</strong>
+                                <strong>{{ 'i18n_exam_materials' | translate }}</strong>
                             </div>
                         </div>
                         <div *ngFor="let material of section.examMaterials">
                             <div class="row">
                                 <span class="col">
-                                    {{ 'sitnet_name' | translate | uppercase }}: {{ material.name }}
+                                    {{ 'i18n_name' | translate | uppercase }}: {{ material.name }}
                                     <span *ngIf="material.author">
-                                        {{ 'sitnet_author' | translate | uppercase }}: {{ material.author }}
+                                        {{ 'i18n_author' | translate | uppercase }}: {{ material.author }}
                                     </span>
                                     <span *ngIf="material.isbn"> ISBN: {{ material.isbn }} </span>
                                 </span>
@@ -322,7 +315,7 @@
                 [hidden]="!enrolment.exam?.enrollInstruction && !enrolment.collaborativeExam?.enrollInstruction"
                 (click)="showInstructions = !showInstructions"
             >
-                {{ 'sitnet_view_instructions' | translate }}
+                {{ 'i18n_view_instructions' | translate }}
                 <img
                     class="arrow_icon"
                     [hidden]="showInstructions"
@@ -352,7 +345,7 @@
             class="student-message-dialog-button-save"
         >
             <button class="link-button pointer" (click)="makeReservation()">
-                {{ 'sitnet_student_new_reservation' | translate }}
+                {{ 'i18n_student_new_reservation' | translate }}
             </button>
         </div>
         <div
@@ -364,7 +357,7 @@
             class="student-message-dialog-button-save"
         >
             <button class="link-button pointer" (click)="makeReservation()">
-                {{ 'sitnet_student_new_reservation' | translate }}
+                {{ 'i18n_student_new_reservation' | translate }}
             </button>
         </div>
     </div>

@@ -49,13 +49,13 @@ export class EnrolmentService {
 
     removeExaminationEvent = (enrolment: ExamEnrolment) => {
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_are_you_sure'),
         ).subscribe({
             next: () =>
                 this.http.delete(`/app/enrolments/${enrolment.id}/examination`).subscribe({
                     next: () => {
-                        this.toast.info(this.translate.instant('sitnet_examination_event_removed'));
+                        this.toast.info(this.translate.instant('i18n_examination_event_removed'));
                         delete enrolment.examinationEventConfiguration;
                     },
                     error: (err) => this.toast.error(err),
@@ -78,8 +78,8 @@ export class EnrolmentService {
             ? `/app/iop/reservations/external/${externalRef}`
             : `/app/calendar/reservation/${enrolment.reservation.id}`;
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_are_you_sure'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_are_you_sure'),
         ).subscribe({
             next: () => this.http.delete(url).subscribe({ next: successFn, error: errorFn }),
             error: (err) => this.toast.error(err),
@@ -94,8 +94,8 @@ export class EnrolmentService {
             .pipe(
                 tap((enrolment) => {
                     this.toast.success(
-                        this.translate.instant('sitnet_remember_exam_machine_reservation'),
-                        this.translate.instant('sitnet_you_have_enrolled_to_exam'),
+                        this.translate.instant('i18n_remember_exam_machine_reservation'),
+                        this.translate.instant('i18n_you_have_enrolled_to_exam'),
                     );
                     if (exam.implementation !== 'AQUARIUM' && exam.examinationEventConfigurations.length > 0) {
                         this.selectExaminationEvent(exam, enrolment, '/dashboard');
@@ -114,7 +114,7 @@ export class EnrolmentService {
             switchMap((resp) =>
                 resp.length == 0
                     ? this.enroll(exam, collaborative)
-                    : throwError(() => new Error(this.translate.instant('sitnet_already_enrolled'))),
+                    : throwError(() => new Error(this.translate.instant('i18n_already_enrolled'))),
             ),
             catchError((err) => {
                 this.toast.error(err);
@@ -126,7 +126,7 @@ export class EnrolmentService {
         const data = { uid: student.id, email: student.email };
         return this.http
             .post<ExamEnrolment>(`/app/enrolments/student/${exam.id}`, data)
-            .pipe(tap(() => this.toast.success(this.translate.instant('sitnet_student_enrolled_to_exam'))));
+            .pipe(tap(() => this.toast.success(this.translate.instant('i18n_student_enrolled_to_exam'))));
     };
 
     getEnrolmentInfo$ = (code: string, id: number): Observable<EnrolmentInfo> =>
@@ -201,7 +201,7 @@ export class EnrolmentService {
         modalRef.result.then((information: string) => {
             this.http.put(`/app/enrolments/${enrolment.id}`, { information: information }).subscribe({
                 next: () => {
-                    this.toast.success(this.translate.instant('sitnet_saved'));
+                    this.toast.success(this.translate.instant('i18n_saved'));
                     enrolment.information = information;
                 },
                 error: (err) => this.toast.error(err),
@@ -241,7 +241,7 @@ export class EnrolmentService {
             keyboard: false,
         });
         modalRef.componentInstance.instructions = enrolment.exam.enrollInstruction;
-        modalRef.componentInstance.title = 'sitnet_instructions';
+        modalRef.componentInstance.title = 'i18n_instructions';
         modalRef.result.catch((err) => this.toast.error(err));
     };
 
@@ -252,7 +252,7 @@ export class EnrolmentService {
                 keyboard: false,
             });
             modalRef.componentInstance.instructions = instructions;
-            modalRef.componentInstance.title = 'sitnet_maturity_instructions';
+            modalRef.componentInstance.title = 'i18n_maturity_instructions';
             modalRef.result.catch((err) => this.toast.error(err));
         });
     };

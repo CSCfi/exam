@@ -1,13 +1,13 @@
 <div class="top-padding-2 lightBorderBox">
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question' | translate }}:</div>
+        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             <span [xmMathJax]="sectionQuestion.question.question"></span>
         </div>
     </div>
     <!-- question attachment -->
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_question_attachment' | translate }}:</div>
+        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_question_attachment' | translate }}:</div>
         <div class="sub-content-row col-md-9">
             <span [hidden]="sectionQuestion.question.attachment">N/A</span>
             <span *ngIf="sectionQuestion.question.attachment">{{ sectionQuestion.question.attachment?.fileName }}</span>
@@ -15,7 +15,7 @@
     </div>
     <!-- answer -->
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_exam_answer' | translate }}:</div>
+        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_exam_answer' | translate }}:</div>
 
         <div class="sub-content-row col-md-9">
             <div
@@ -42,7 +42,7 @@
                         <i [ngClass]="o.answered ? 'bi-check-square' : 'bi-square'"></i>
                     </span>
                     <span [ngClass]="o.score > 0 ? 'font-bold' : ''"
-                        >&nbsp;&nbsp;{{ o.score }} {{ 'sitnet_unit_points' | translate }}</span
+                        >&nbsp;&nbsp;{{ o.score }} {{ 'i18n_unit_points' | translate }}</span
                     >
                 </div>
                 <div class="col-md-9 review-question-option-name">
@@ -70,7 +70,7 @@
     </div>
     <!-- grade -->
     <div class="row">
-        <div class="sub-header-row col-md-3 newRow">{{ 'sitnet_word_points' | translate }}:</div>
+        <div class="sub-header-row col-md-3 newRow">{{ 'i18n_word_points' | translate }}:</div>
         <div *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'" class="sub-content-row col-md-9">
             <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
                 {{ scoreMultipleChoiceAnswer(true) }}
@@ -78,7 +78,7 @@
             <span *ngIf="hasForcedScore()" class="text text-danger">
                 {{ sectionQuestion.forcedScore }}
             </span>
-            / {{ calculateMultiChoiceMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
+            / {{ calculateMultiChoiceMaxPoints() }} {{ 'i18n_unit_points' | translate }}
         </div>
         <div
             *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
@@ -90,7 +90,7 @@
             <span *ngIf="hasForcedScore()" class="text text-danger">
                 {{ sectionQuestion.forcedScore }}
             </span>
-            / {{ calculateWeightedMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
+            / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }}
         </div>
         <div *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'" class="sub-content-row col-md-9">
             <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
@@ -99,7 +99,7 @@
             <span *ngIf="hasForcedScore()" class="text text-danger">
                 {{ sectionQuestion.forcedScore }}
             </span>
-            / {{ getCorrectClaimChoiceOptionScore() }} {{ 'sitnet_unit_points' | translate }}
+            / {{ getCorrectClaimChoiceOptionScore() }} {{ 'i18n_unit_points' | translate }}
         </div>
     </div>
 </div>

@@ -129,7 +129,7 @@ export class LibraryService {
                                 const exam = esq.examSection.exam;
                                 return (
                                     exam.state === 'PUBLISHED' &&
-                                    new Date(exam.examActiveEndDate || 0).getTime() > new Date().getTime()
+                                    new Date(exam.periodEnd || 0).getTime() > new Date().getTime()
                                 );
                             }).length === 0;
                     });
@@ -185,7 +185,7 @@ export class LibraryService {
         ) {
             return q.defaultMaxScore || 0;
         } else if (q.defaultEvaluationType === 'Selection') {
-            return 'sitnet_evaluation_select';
+            return 'i18n_evaluation_select';
         } else if (q.type === 'WeightedMultipleChoiceQuestion') {
             return this.Question.calculateDefaultMaxPoints(q);
         } else if (q.type === 'ClaimChoiceQuestion') {

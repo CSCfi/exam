@@ -54,7 +54,7 @@ export class LanguageInspectionService {
 
     assignInspection = (inspection: LanguageInspection) =>
         this.dialogs
-            .open$(this.translate.instant('sitnet_confirm'), this.translate.instant('sitnet_confirm_assign_inspection'))
+            .open$(this.translate.instant('i18n_confirm'), this.translate.instant('i18n_confirm_assign_inspection'))
             .subscribe({
                 next: () => {
                     this.http.put(`/app/inspection/${inspection.id}`, {}).subscribe({

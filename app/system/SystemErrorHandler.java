@@ -59,7 +59,7 @@ public class SystemErrorHandler implements HttpErrorHandler {
             switch (cause) {
                 case MalformedDataException __ -> Results.badRequest(Json.toJson(errorMessage));
                 case IllegalArgumentException __ -> Results.badRequest(Json.toJson(new ApiError(errorMessage)));
-                case OptimisticLockException __ -> Results.badRequest("sitnet_error_data_has_changed");
+                case OptimisticLockException __ -> Results.badRequest("i18n_error_data_has_changed");
                 case null, default -> Results.internalServerError(Json.toJson(new ApiError(errorMessage)));
             };
         return CompletableFuture.completedFuture(result);

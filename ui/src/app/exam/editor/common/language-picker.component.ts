@@ -62,7 +62,7 @@ export class LanguageSelectorComponent implements OnInit {
 
     selectedLanguages = () =>
         this.exam.examLanguages.length === 0
-            ? this.translate.instant('sitnet_select')
+            ? this.translate.instant('i18n_select')
             : this.exam.examLanguages.map((language) => language.name).join(', ');
 
     isSelected = (lang: ExamLanguage) => this.exam.examLanguages.map((el) => el.code).indexOf(lang.code) > -1;
@@ -77,7 +77,7 @@ export class LanguageSelectorComponent implements OnInit {
                 } else {
                     this.exam.examLanguages.push(lang);
                 }
-                this.toast.info(this.translate.instant('sitnet_exam_language_updated'));
+                this.toast.info(this.translate.instant('i18n_exam_language_updated'));
             },
             error: (err) => this.toast.error(err),
         });

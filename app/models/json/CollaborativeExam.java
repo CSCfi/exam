@@ -47,15 +47,15 @@ public class CollaborativeExam extends GeneratedIdentityModel {
     @Column
     private Exam.State state;
 
-    @Column
+    @Column(name = "exam_active_start_date")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
-    private DateTime examActiveStartDate;
+    private DateTime periodStart;
 
-    @Column
+    @Column(name = "exam_active_end_date")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonSerialize(using = DateTimeAdapter.class)
-    private DateTime examActiveEndDate;
+    private DateTime periodEnd;
 
     @Column
     private Integer duration;
@@ -101,20 +101,20 @@ public class CollaborativeExam extends GeneratedIdentityModel {
         this.name = name;
     }
 
-    public DateTime getExamActiveStartDate() {
-        return examActiveStartDate;
+    public DateTime getPeriodStart() {
+        return periodStart;
     }
 
-    public void setExamActiveStartDate(DateTime examActiveStartDate) {
-        this.examActiveStartDate = examActiveStartDate;
+    public void setPeriodStart(DateTime periodStart) {
+        this.periodStart = periodStart;
     }
 
-    public DateTime getExamActiveEndDate() {
-        return examActiveEndDate;
+    public DateTime getPeriodEnd() {
+        return periodEnd;
     }
 
-    public void setExamActiveEndDate(DateTime examActiveEndDate) {
-        this.examActiveEndDate = examActiveEndDate;
+    public void setPeriodEnd(DateTime periodEnd) {
+        this.periodEnd = periodEnd;
     }
 
     public Integer getDuration() {

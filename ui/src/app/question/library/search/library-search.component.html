@@ -8,7 +8,7 @@
                 ngbDropdownToggle
                 (click)="listCourses()"
             >
-                {{ 'sitnet_course' | translate }}&nbsp;
+                {{ 'i18n_course' | translate }}&nbsp;
                 <span class="caret"></span>
             </button>
             <ul class="scrollable-menu max-w-1100 pointer" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
@@ -17,7 +17,7 @@
                         [(ngModel)]="limitations.course"
                         (ngModelChange)="filterCourses()"
                         class="form-control"
-                        placeholder="{{ 'sitnet_search_course_hint' | translate }}"
+                        placeholder="{{ 'i18n_search_course_hint' | translate }}"
                         aria-describedby="search-icon-1"
                     />
                     <div class="input-group-append">
@@ -45,7 +45,7 @@
                 id="dropDownMenu2"
                 (click)="listExams$().subscribe()"
             >
-                {{ 'sitnet_exam' | translate }}&nbsp;
+                {{ 'i18n_exam' | translate }}&nbsp;
             </button>
             <ul class="scrollable-menu max-w-1100" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
                 <li ngbDropdownItem role="presentation" class="important-flex min-width-300 max-w-1100">
@@ -53,7 +53,7 @@
                         [(ngModel)]="limitations.exam"
                         (ngModelChange)="filterExams()"
                         class="form-control"
-                        placeholder="{{ 'sitnet_search_exam_hint' | translate }}"
+                        placeholder="{{ 'i18n_search_exam_hint' | translate }}"
                         aria-describedby="search-icon-2"
                     />
                     <div class="input-group-append">
@@ -85,7 +85,7 @@
                 id="dropDownMenu3"
                 (click)="listTags$().subscribe()"
             >
-                {{ 'sitnet_category' | translate }}&nbsp;
+                {{ 'i18n_category' | translate }}&nbsp;
                 <span class="caret"></span>
             </button>
             <ul class="scrollable-menu max-w-1100" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
@@ -94,7 +94,7 @@
                         [(ngModel)]="limitations.tag"
                         (ngModelChange)="filterTags()"
                         class="form-control"
-                        placeholder="{{ 'sitnet_search' | translate }}"
+                        placeholder="{{ 'i18n_search' | translate }}"
                         aria-describedby="search-icon-3"
                     />
                     <div class="input-group-append">
@@ -113,7 +113,7 @@
                     <div
                         role="menuitem"
                         class="text"
-                        title="{{ 'sitnet_category' | translate }}"
+                        title="{{ 'i18n_category' | translate }}"
                         *ngIf="tag.usage && tag.usage > 0"
                     >
                         {{ tag.name }} <small class="text-muted">({{ tag.usage }})</small>
@@ -130,7 +130,7 @@
                 id="dropDownMenu3"
                 (click)="listSections$().subscribe()"
             >
-                {{ 'sitnet_exam_section' | translate }}&nbsp;
+                {{ 'i18n_exam_section' | translate }}&nbsp;
                 <span class="caret"></span>
             </button>
             <ul class="scrollable-menu max-w-1100" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
@@ -139,7 +139,7 @@
                         [(ngModel)]="limitations.section"
                         (ngModelChange)="filterSections()"
                         class="form-control"
-                        placeholder="{{ 'sitnet_search' | translate }}"
+                        placeholder="{{ 'i18n_search' | translate }}"
                         aria-describedby="search-icon-3"
                     />
                     <div class="input-group-append">
@@ -155,13 +155,13 @@
                     (click)="applyFilter(section)"
                     ngbDropdownItem
                 >
-                    <div role="menuitem" class="text" title="{{ 'sitnet_exam_section' | translate }}">
+                    <div role="menuitem" class="text" title="{{ 'i18n_exam_section' | translate }}">
                         {{ section.name }}
                     </div>
                 </li>
             </ul>
         </span>
-        <span class="ms-2 text-muted" *ngIf="user.isAdmin">{{ 'sitnet_choose_atleast_one' | translate }}</span>
+        <span class="ms-2 text-muted" *ngIf="user.isAdmin">{{ 'i18n_choose_atleast_one' | translate }}</span>
     </div>
     <div class="col-md-6">
         <div class="row">
@@ -173,7 +173,7 @@
                             name="filterSearch"
                             (input)="applySearchFilter()"
                             [(ngModel)]="filter.text"
-                            placeholder="{{ 'sitnet_search_by_question_text' | translate }}"
+                            placeholder="{{ 'i18n_search_by_question_text' | translate }}"
                         />
                         <div class="input-group-text p-0">
                             <img src="/assets/images/icon_search.png" width="46" height="38" />
@@ -189,7 +189,7 @@
                             name="ownerSearch"
                             (input)="applySearchFilter()"
                             [(ngModel)]="filter.owner"
-                            placeholder="{{ 'sitnet_search_by_owner' | translate }}"
+                            placeholder="{{ 'i18n_search_by_owner' | translate }}"
                         />
                         <div class="input-group-text p-0">
                             <img src="/assets/images/icon_search.png" width="46" height="38" />
@@ -205,7 +205,7 @@
         <ul class="inline-list ps-1">
             <li *ngFor="let filter of getFilters()">
                 {{ filter.name }}
-                <button class="reviewer-remove" (click)="applyFilter(filter)" title="{{ 'sitnet_remove' | translate }}">
+                <button class="reviewer-remove" (click)="applyFilter(filter)" title="{{ 'i18n_remove' | translate }}">
                     <img
                         src="/assets/images/icon_remove.svg"
                         alt=""

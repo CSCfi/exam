@@ -1,16 +1,16 @@
 <div class="row ms-3 mt-3">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_name' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_name' | translate }}:</div>
     <div class="col-md-4 general-info-content">
         {{ studentName }}
         <span *ngIf="student?.userIdentifier">&nbsp;({{ student?.userIdentifier }})</span>
     </div>
-    <div class="col-md-2 general-info-title">{{ 'sitnet_email' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_email' | translate }}:</div>
     <div class="col-md-4 general-info-link-bold">
         <a *ngIf="student?.email" href="mailto:{{ student?.email }}">{{ student?.email }}</a>
     </div>
 </div>
 <div class="row ms-3">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_exam_reservation' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_exam_reservation' | translate }}:</div>
     <div *ngIf="!participation.examinationEvent" class="col-md-4 general-info-content">
         {{ participation.started | applyDst | date : 'dd.MM.yyyy HH:mm' }} -
         {{ participation.ended | applyDst | date : 'HH:mm' }}
@@ -18,44 +18,44 @@
     <div *ngIf="participation.examinationEvent" class="col-md-4 general-info-content">
         {{ participation.started | date : 'dd.MM.yyyy HH:mm' }} - {{ participation.ended | date : 'HH:mm' }}
     </div>
-    <div class="col-md-2 general-info-title">{{ 'sitnet_time_of_exam_participation' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_time_of_exam_participation' | translate }}:</div>
     <div class="col-md-4 general-info-content">{{ participation.duration | date : 'HH:mm' : 'UTC' }}</div>
 </div>
 <div class="row ms-3" *ngIf="enrolment?.information">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_student_enrolment_info' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_student_enrolment_info' | translate }}:</div>
     <div class="col-md-10 general-info-content">{{ enrolment?.information }}</div>
 </div>
 <div class="row ms-3" *ngIf="reservation">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_examination_location' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_examination_location' | translate }}:</div>
     <div class="col-md-4 general-info-content" *ngIf="reservation.machine?.room">
         {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
     </div>
     <div class="col-md-4 general-info-content" *ngIf="!reservation?.machine?.room">N/A</div>
 
-    <div class="col-md-2 general-info-title">{{ 'sitnet_exam_machine' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_exam_machine' | translate }}:</div>
     <div class="col-md-4 general-info-content" *ngIf="reservation?.machine">
         {{ reservation.machine.name }}
     </div>
     <div class="col-md-4 general-info-content" *ngIf="!reservation?.machine">N/A</div>
 </div>
 <div class="row ms-3" *ngIf="enrolment?.examinationEventConfiguration">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_examination_event' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_examination_event' | translate }}:</div>
     <div class="col-md-4 general-info-content">
         {{ enrolment?.examinationEventConfiguration?.examinationEvent?.start | date }}
     </div>
-    <div class="col-md-2 general-info-title">{{ 'sitnet_instructions' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_instructions' | translate }}:</div>
     <div class="col-md-4 general-info-content">
         {{ enrolment?.examinationEventConfiguration?.examinationEvent?.description }}
     </div>
 </div>
 <div class="row ms-3 mt-2" *ngIf="participations.length === 0 && noShows.length === 0">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_previous_exam_participations' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_previous_exam_participations' | translate }}:</div>
     <div class="col-md-10 general-info-title">
-        {{ 'sitnet_exam_no_previous_participations' | translate }}
+        {{ 'i18n_exam_no_previous_participations' | translate }}
     </div>
 </div>
 <div class="row ms-3 mt-2" *ngIf="participations.length > 0 || noShows.length > 0">
-    <div class="col-md-12 general-info-title">{{ 'sitnet_previous_exam_participations' | translate }}:</div>
+    <div class="col-md-12 general-info-title">{{ 'i18n_previous_exam_participations' | translate }}:</div>
 </div>
 <div [hidden]="participations.length === 0" *ngFor="let participation of participations">
     <xm-r-participation
@@ -71,14 +71,14 @@
 <div class="row ms-3 mt-3" *ngIf="exam.instruction">
     <div class="col-md-2 general-info-title" role="note">
         <img src="/assets/images/icon_info.svg" alt="" />
-        <span class="padl10 notice-text">{{ 'sitnet_exam_instruction' | translate }}:</span>
+        <span class="padl10 notice-text">{{ 'i18n_exam_instruction' | translate }}:</span>
     </div>
     <div class="col-md-10 general-info-content">
         <p [xmMathJax]="exam.instruction"></p>
     </div>
 </div>
 <div class="row ms-3 mt-3" *ngIf="exam.attachment">
-    <div class="col-md-2 general-info-title">{{ 'sitnet_exam_attachment' | translate }}:</div>
+    <div class="col-md-2 general-info-title">{{ 'i18n_exam_attachment' | translate }}:</div>
     <div class="col-md-10 general-info-link-bold">
         <a class="pointer" (click)="downloadExamAttachment()">{{ exam.attachment?.fileName }}</a>
     </div>

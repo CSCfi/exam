@@ -70,7 +70,7 @@ public class StudentActionControllerTest extends IntegrationTestCase {
 
     private ExamEnrolment createEnrolment(long examId) {
         Exam exam = DB.find(Exam.class).where().idEq(examId).findOne();
-        exam.setExamActiveEndDate(DateTime.now().plusYears(1));
+        exam.setPeriodEnd(DateTime.now().plusYears(1));
         exam.setState(Exam.State.PUBLISHED);
         exam.save();
 

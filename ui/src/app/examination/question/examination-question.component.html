@@ -3,10 +3,10 @@
         <div class="guide-wrapper" [ngClass]="isAnswered() ? 'active' : 'notactive'">
             <div class="row align-items-center">
                 <div class="col-auto">
-                    <div *ngIf="isAnswered()" [attr.aria-label]="'sitnet_all_questions_answered' | translate">
+                    <div *ngIf="isAnswered()" [attr.aria-label]="'i18n_all_questions_answered' | translate">
                         <img class="mart05" src="/assets/images/icon_question_type_ready_grey.png" alt="" />
                     </div>
-                    <div *ngIf="!isAnswered()" [attr.aria-label]="'sitnet_questions_unanswered' | translate">
+                    <div *ngIf="!isAnswered()" [attr.aria-label]="'i18n_questions_unanswered' | translate">
                         <img class="mart05" src="/assets/images/icon_question_type_waiting.svg" alt="" />
                     </div>
                 </div>
@@ -35,7 +35,7 @@
                     <div
                         tabindex="0"
                         class="section-header-right pointer section-box-title arrow"
-                        [attr.aria-label]="expanded ? ('sitnet_collapse' | translate) : ('sitnet_expand' | translate)"
+                        [attr.aria-label]="expanded ? ('i18n_collapse' | translate) : ('i18n_expand' | translate)"
                         (click)="expanded = !expanded"
                         (keydown.enter)="expanded = !expanded"
                     >
@@ -48,7 +48,7 @@
                 <div class="col-md-12 ps-4">
                     <p class="question-text question-type-text info" role="note">
                         <img class="me-4" src="/assets/images/icon_info.svg" alt="" />
-                        {{ 'sitnet_instructions' | translate }}:&nbsp;{{ sq.answerInstructions }}
+                        {{ 'i18n_instructions' | translate }}:&nbsp;{{ sq.answerInstructions }}
                     </p>
                 </div>
             </div>
@@ -62,7 +62,7 @@
                         (click)="downloadQuestionAttachment()"
                         (keydown.enter)="downloadQuestionAttachment()"
                     >
-                        {{ 'sitnet_download_section_question_attachment' | translate }}
+                        {{ 'i18n_download_section_question_attachment' | translate }}
                         <img src="/assets/images/icon_attachment.svg" alt=""
                     /></a>
                     <div class="attachment-name">{{ sq.question.attachment?.fileName | uppercase }}</div>

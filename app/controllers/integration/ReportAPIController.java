@@ -29,7 +29,7 @@ public class ReportAPIController extends BaseController {
             "user(id, firstName, lastName, eppn, email, userIdentifier), " +
             "exam(id, name, course(name, code, credits, " +
             "gradeScale(description, displayName), organisation(code, name)), softwares(name), duration, examTypeId, executionTypeId, " +
-            "trialCount, answerLanguage, instruction, examActiveStartDate, examActiveEndDate)" +
+            "trialCount, answerLanguage, instruction, periodStart, periodEnd)" +
             ")"
         );
 

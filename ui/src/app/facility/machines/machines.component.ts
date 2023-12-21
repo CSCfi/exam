@@ -44,7 +44,7 @@ export class MachineListComponent implements OnInit {
     addNewMachine = () =>
         this.http.post<ExamMachine>(`/app/machines/${this.room.id}`, {}).subscribe({
             next: (resp) => {
-                this.toast.info(this.translate.instant('sitnet_machine_added'));
+                this.toast.info(this.translate.instant('i18n_machine_added'));
                 this.room.examMachines.push(resp);
             },
             error: (err) => this.toast.error(err.data),

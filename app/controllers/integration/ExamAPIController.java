@@ -35,7 +35,7 @@ public class ExamAPIController extends BaseController {
         PathProperties pp = PathProperties.parse(
             "(course(name, code, credits, " +
             "gradeScale(description, externalRef, displayName), organisation(code, name, nameAbbreviation)) " +
-            "id, name, examActiveStartDate, examActiveEndDate, duration, enrollInstruction, " +
+            "id, name, periodStart, periodEnd, duration, enrollInstruction, " +
             "examLanguages(code, name), gradeScale(description, externalRef, displayName), " +
             "examOwners(firstName, lastName, email), examType(type)" +
             ")"
@@ -48,7 +48,7 @@ public class ExamAPIController extends BaseController {
         List<Exam> exams = query
             .where()
             .eq("state", Exam.State.PUBLISHED)
-            .ge("examActiveEndDate", dateTime)
+            .ge("periodEnd", dateTime)
             .eq("executionType.type", ExamExecutionType.Type.PUBLIC.toString())
             .findList();
 

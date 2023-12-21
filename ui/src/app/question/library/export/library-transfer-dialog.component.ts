@@ -51,7 +51,7 @@ export class LibraryTransferDialogComponent implements OnInit {
 
     transfer = () => {
         if (this.selections.length == 0) {
-            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
+            this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
         } else {
             this.http
                 .post('/app/iop/export', {
@@ -60,7 +60,7 @@ export class LibraryTransferDialogComponent implements OnInit {
                     ids: this.selections,
                 })
                 .subscribe({
-                    next: () => this.toast.info(this.translate.instant('sitnet_questions_transferred')),
+                    next: () => this.toast.info(this.translate.instant('i18n_questions_transferred')),
                     error: (err) => this.toast.error(err),
                 });
         }

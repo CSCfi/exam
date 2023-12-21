@@ -16,7 +16,7 @@
                         <span *ngIf="hasForcedScore()" class="text text-danger">
                             {{ sectionQuestion.forcedScore }}
                         </span>
-                        / {{ displayMaxScore() }} {{ 'sitnet_unit_points' | translate }}
+                        / {{ displayMaxScore() }} {{ 'i18n_unit_points' | translate }}
                     </div>
                     <div
                         class="d-inline-block review-points"
@@ -28,7 +28,7 @@
                         <span *ngIf="hasForcedScore()" class="text text-danger">
                             {{ sectionQuestion.forcedScore }}
                         </span>
-                        / {{ calculateWeightedMaxPoints() }} {{ 'sitnet_unit_points' | translate }}
+                        / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }}
                     </div>
                     <div
                         class="d-inline-block review-points"
@@ -40,7 +40,7 @@
                         <span *ngIf="hasForcedScore()" class="text text-danger">
                             {{ sectionQuestion.forcedScore }}
                         </span>
-                        / {{ getCorrectClaimChoiceOptionScore() }} {{ 'sitnet_unit_points' | translate }}
+                        / {{ getCorrectClaimChoiceOptionScore() }} {{ 'i18n_unit_points' | translate }}
                     </div>
                     <a class="d-inline-block" (click)="reviewExpanded = !reviewExpanded">
                         <img
@@ -61,7 +61,7 @@
 
             <!-- question attachment -->
             <div class="padl0 mart20 marb20 notice-text" *ngIf="reviewExpanded && sectionQuestion.question.attachment">
-                {{ 'sitnet_question_attachment' | translate }}:
+                {{ 'i18n_question_attachment' | translate }}:
                 <a class="pointer" (click)="downloadQuestionAttachment()">
                     {{ sectionQuestion.question.attachment.fileName }}</a
                 >
@@ -82,7 +82,7 @@
                 <div *ngIf="participation.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
                     <div class="points-title">
                         <span class="text text-danger"
-                            >{{ 'sitnet_set_forced_score' | translate | uppercase }}&nbsp;
+                            >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
                             <small
                                 >[{{ getMinimumOptionScore() }} &hellip;
                                 {{ sectionQuestion.maxScore || calculateWeightedMaxPoints() }}]</small
@@ -104,7 +104,7 @@
                             [max]="sectionQuestion.maxScore || calculateWeightedMaxPoints()"
                         />
                         <small *ngIf="forcedPoints.invalid" class="alert-danger">
-                            <i class="bi-exclamation-circle"></i>&nbsp;{{ 'sitnet_error_score_input' | translate }}
+                            <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_error_score_input' | translate }}
                         </small>
                     </form>
                 </div>

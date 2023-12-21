@@ -21,7 +21,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ 'sitnet_please_check_following_infos' | translate }}</div>
+                <div class="student-enroll-title">{{ 'i18n_please_check_following_infos' | translate }}</div>
             </div>
             <div class="modal-body">
                 <p *ngFor="let error of errors">{{ error | translate }}</p>
@@ -29,7 +29,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
                     <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                        {{ 'sitnet_button_ok' | translate }}
+                        {{ 'i18n_button_ok' | translate }}
                     </button>
                 </div>
             </div>

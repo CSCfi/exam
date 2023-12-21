@@ -189,8 +189,8 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
                 Exam exam = ce.getExam(root);
                 // Save certain informative properties locally so we can display them right away in some cases
                 ce.setName(exam.getName());
-                ce.setExamActiveStartDate(exam.getExamActiveStartDate());
-                ce.setExamActiveEndDate(exam.getExamActiveEndDate());
+                ce.setPeriodStart(exam.getPeriodStart());
+                ce.setPeriodEnd(exam.getPeriodEnd());
                 ce.setEnrollInstruction(exam.getEnrollInstruction());
                 ce.setDuration(exam.getDuration());
                 ce.setHash(exam.getHash());

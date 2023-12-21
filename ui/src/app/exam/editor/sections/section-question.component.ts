@@ -70,14 +70,14 @@ export class SectionQuestionComponent {
 
     removeQuestion = () =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_remove_question'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_remove_question'),
         ).subscribe({ next: () => this.removed.emit(this.sectionQuestion), error: (err) => this.toast.error(err) });
 
     copyQuestion = () =>
         this.Confirmation.open$(
-            this.translate.instant('sitnet_confirm'),
-            this.translate.instant('sitnet_copy_question'),
+            this.translate.instant('i18n_confirm'),
+            this.translate.instant('i18n_copy_question'),
         ).subscribe({ next: () => this.copied.emit(this.sectionQuestion), error: (err) => this.toast.error(err) });
 
     determineClaimOptionType(examOption: ExamSectionQuestionOption) {
@@ -180,7 +180,7 @@ export class SectionQuestionComponent {
                     this.section.id,
                 ).subscribe({
                     next: (esq: ExamSectionQuestion) => {
-                        this.toast.info(this.translate.instant('sitnet_question_saved'));
+                        this.toast.info(this.translate.instant('i18n_question_saved'));
                         // apply changes back to scope
                         this.sectionQuestion = { ...mergeDeepRight(this.sectionQuestion, esq) } as ExamSectionQuestion;
                         this.updated.emit(this.sectionQuestion);

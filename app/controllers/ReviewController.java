@@ -162,11 +162,11 @@ public class ReviewController extends BaseController {
         query = query.endJunction();
         ExamParticipation examParticipation = query.findOne();
         if (examParticipation == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         Exam exam = examParticipation.getExam();
         if (!exam.isChildInspectedOrCreatedOrOwnedBy(user) && !isAdmin && !exam.isViewableForLanguageInspector(user)) {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
 
         String blankAnswerText = messaging.get(Lang.forCode(user.getLanguage().getCode()), "clozeTest.blank.answer");
@@ -199,7 +199,7 @@ public class ReviewController extends BaseController {
             "course(code, name, gradeScale(grades(*))), " +
             "examSections(name, sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
             "languageInspection(*), examLanguages(*), examFeedback(*), grade(name), " +
-            "parent(name, examActiveStartDate, examActiveEndDate, course(code, name), examOwners(firstName, lastName, email)), " +
+            "parent(name, periodStart, periodEnd, course(code, name), examOwners(firstName, lastName, email)), " +
             "examParticipation(*, user(id, firstName, lastName, email, userIdentifier)), " +
             "examEnrolments(retrialPermitted)" +
             ")"
@@ -320,7 +320,7 @@ public class ReviewController extends BaseController {
             .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)
             .findOneOrEmpty();
         if (option.isEmpty()) {
-            return notFound("sitnet_exam_not_found");
+            return notFound("i18n_exam_not_found");
         }
         Exam exam = option.get();
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -341,7 +341,7 @@ public class ReviewController extends BaseController {
         DynamicForm df = formFactory.form().bindFromRequest(request);
         Exam exam = DB.find(Exam.class).fetch("parent").fetch("parent.creator").where().idEq(id).findOne();
         if (exam == null) {
-            return notFound("sitnet_exam_not_found");
+            return notFound("i18n_exam_not_found");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Exam.State newState = Exam.State.valueOf(df.get("state"));
@@ -401,7 +401,7 @@ public class ReviewController extends BaseController {
     public Result sendInspectionMessage(Long eid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         JsonNode body = request.body().asJson();
         if (!body.has("msg")) {
@@ -474,7 +474,7 @@ public class ReviewController extends BaseController {
     public Result updateComment(Long eid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED)) {
             return forbidden();
@@ -510,7 +510,7 @@ public class ReviewController extends BaseController {
     public Result setCommentStatusRead(Long eid, Long cid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
         if (exam == null) {
-            return notFound("sitnet_error_exam_not_found");
+            return notFound("i18n_error_exam_not_found");
         }
         if (exam.hasState(Exam.State.ABORTED, Exam.State.ARCHIVED)) {
             return forbidden();

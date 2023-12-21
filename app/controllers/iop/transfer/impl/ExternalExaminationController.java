@@ -224,7 +224,7 @@ public class ExternalExaminationController extends ExaminationController {
                     } else if (objectVersion.isPresent()) {
                         if (answer.getObjectVersion() > objectVersion.get()) {
                             // Optimistic locking problem
-                            return forbidden("sitnet_error_data_has_changed");
+                            return forbidden("i18n_error_data_has_changed");
                         }
                         answer.setObjectVersion(objectVersion.get() + 1);
                     }
@@ -280,7 +280,7 @@ public class ExternalExaminationController extends ExaminationController {
                                 long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
                                 if (answer.getObjectVersion() > objectVersion) {
                                     // Optimistic locking problem
-                                    return forbidden("sitnet_error_data_has_changed");
+                                    return forbidden("i18n_error_data_has_changed");
                                 }
                                 answer.setObjectVersion(objectVersion + 1);
                             }

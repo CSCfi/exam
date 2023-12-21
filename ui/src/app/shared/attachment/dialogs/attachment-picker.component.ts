@@ -42,7 +42,7 @@ export interface FileResult {
             <div class="row">
                 <div class="col-md-3">
                     <label for="file-select" class="btn btn-success btn-file" aria-hidden="true"
-                        >{{ 'sitnet_choose' | translate }}
+                        >{{ 'i18n_choose' | translate }}
                     </label>
                     <input
                         id="file-select"
@@ -52,7 +52,7 @@ export interface FileResult {
                         autofocus
                         #file
                         (change)="onFilesAdded()"
-                        attr.aria-label="{{ 'sitnet_choose_file' | translate }}"
+                        attr.aria-label="{{ 'i18n_choose_file' | translate }}"
                     />
                 </div>
                 <div class="col-md-9 attachment-file">
@@ -61,21 +61,21 @@ export interface FileResult {
             </div>
             <div class="row top-padding-2">
                 <div class="col-md-12" *ngIf="isTeacherModal">
-                    {{ 'sitnet_check_file_accessible' | translate }}
+                    {{ 'i18n_check_file_accessible' | translate }}
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
-                    {{ 'sitnet_max_file_size' | translate }} {{ (maxFileSize || 0) / 1000000 }} MB.
+                    {{ 'i18n_max_file_size' | translate }} {{ (maxFileSize || 0) / 1000000 }} MB.
                 </div>
             </div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-primary float-start" (click)="activeModal.dismiss()">
-                {{ 'sitnet_button_cancel' | translate }}
+                {{ 'i18n_button_cancel' | translate }}
             </button>
             <button class="btn btn btn-success float-end" (click)="confirmed()" [disabled]="!fileObject">
-                {{ 'sitnet_button_save' | translate }}
+                {{ 'i18n_button_save' | translate }}
             </button>
         </div>
     </div> `,

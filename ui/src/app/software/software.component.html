@@ -1,13 +1,13 @@
 <div id="room">
     <div class="row">
         <div class="col-md-12">
-            <h2 class="room-name-title">{{ 'sitnet_softwares' | translate }}</h2>
+            <h2 class="room-name-title">{{ 'i18n_softwares' | translate }}</h2>
         </div>
     </div>
     <div class="row ms-3">
         <div class="col-md-12">
             <form role="form">
-                <label for="new-software-name" class="form-label">{{ 'sitnet_software_name' | translate }}</label>
+                <label for="new-software-name" class="form-label">{{ 'i18n_software_name' | translate }}</label>
                 <input
                     type="text"
                     id="new-software-name"
@@ -21,7 +21,7 @@
                     class="btn btn-primary mt-2"
                     type="button"
                 >
-                    {{ 'sitnet_create_new' | translate }}
+                    {{ 'i18n_create_new' | translate }}
                 </button>
             </form>
         </div>
@@ -31,9 +31,9 @@
             <table class="table table-sm">
                 <thead>
                     <tr>
-                        <th scope="col">{{ 'sitnet_name' | translate }}</th>
-                        <th scope="col">{{ 'sitnet_edit' | translate }}</th>
-                        <th scope="col">{{ 'sitnet_remove' | translate }}</th>
+                        <th scope="col">{{ 'i18n_name' | translate }}</th>
+                        <th scope="col">{{ 'i18n_edit' | translate }}</th>
+                        <th scope="col">{{ 'i18n_remove' | translate }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,7 +55,7 @@
                                         <span
                                             class="input-group-text pointer"
                                             (click)="sw.showName = !sw.showName; updateSoftware(sw)"
-                                            >{{ 'sitnet_add' | translate }}</span
+                                            >{{ 'i18n_add' | translate }}</span
                                         >
                                     </div>
                                 </form>

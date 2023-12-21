@@ -42,9 +42,9 @@ export class UsersComponent implements OnInit, OnDestroy {
     textChanged = new Subject<string>();
     ngUnsubscribe = new Subject();
     roles: RoleOption[] = [
-        { type: 'ADMIN', name: 'sitnet_admin', icon: 'bi-gear' },
-        { type: 'TEACHER', name: 'sitnet_teacher', icon: 'bi-person-fill' },
-        { type: 'STUDENT', name: 'sitnet_student', icon: 'bi-person' },
+        { type: 'ADMIN', name: 'i18n_admin', icon: 'bi-gear' },
+        { type: 'TEACHER', name: 'i18n_teacher', icon: 'bi-person-fill' },
+        { type: 'STUDENT', name: 'i18n_student', icon: 'bi-person' },
     ];
     permissions: PermissionOption[] = [];
     loader = { loading: false };
@@ -74,7 +74,7 @@ export class UsersComponent implements OnInit, OnDestroy {
                 if (p.type === PermissionType.CAN_INSPECT_LANGUAGE) {
                     return {
                         ...p,
-                        name: 'sitnet_can_inspect_language',
+                        name: 'i18n_can_inspect_language',
                         icon: 'bi-pencil',
                     };
                 }

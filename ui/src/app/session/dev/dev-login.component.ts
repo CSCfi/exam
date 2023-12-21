@@ -23,7 +23,7 @@ import { SessionService } from '../session.service';
             <div class="row mt-2">
                 <div class="col-md-12">
                     <div class="student-details-title-wrap">
-                        <div class="student-enroll-title">{{ 'sitnet_login' | translate }}</div>
+                        <div class="student-enroll-title">{{ 'i18n_login' | translate }}</div>
                     </div>
                 </div>
             </div>
@@ -31,32 +31,32 @@ import { SessionService } from '../session.service';
                 <div class="col-md-12">
                     <form (ngSubmit)="login($event, false)">
                         <div class="mb-3">
-                            <label class="form-label" for="uname">{{ 'sitnet_username' | translate }}</label>
+                            <label class="form-label" for="uname">{{ 'i18n_username' | translate }}</label>
                             <input
                                 id="uname"
                                 class="form-control login"
                                 name="uname"
                                 type="text"
-                                placeholder="{{ 'sitnet_username' | translate }}"
+                                placeholder="{{ 'i18n_username' | translate }}"
                                 [(ngModel)]="username"
                                 (keydown.enter)="login($event, true)"
                             />
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" for="pwd">{{ 'sitnet_password' | translate }}</label>
+                            <label class="form-label" for="pwd">{{ 'i18n_password' | translate }}</label>
                             <input
                                 id="pwd"
                                 class="form-control login"
                                 type="password"
                                 name="pwd"
-                                placeholder="{{ 'sitnet_password' | translate }}"
+                                placeholder="{{ 'i18n_password' | translate }}"
                                 [(ngModel)]="password"
                                 (keydown.enter)="login($event, true)"
                             />
                         </div>
 
                         <button type="submit" class="btn btn-primary" id="submit">
-                            {{ 'sitnet_login' | translate }}
+                            {{ 'i18n_login' | translate }}
                         </button>
                     </form>
                 </div>

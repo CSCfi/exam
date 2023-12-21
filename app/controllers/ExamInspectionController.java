@@ -59,7 +59,7 @@ public class ExamInspectionController extends BaseController {
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!user.hasRole(Role.Name.ADMIN) && !exam.isOwnedOrCreatedBy(user)) {
-            return forbidden("sitnet_error_access_forbidden");
+            return forbidden("i18n_error_access_forbidden");
         }
         if (isInspectorOf(recipient, exam)) {
             return forbidden("already an inspector");
@@ -67,7 +67,7 @@ public class ExamInspectionController extends BaseController {
         Optional<String> comment = request.attrs().getOptional(Attrs.COMMENT);
         // Exam name required before adding inspectors that are to receive an email notification
         if ((exam.getName() == null || exam.getName().isEmpty()) && comment.isPresent()) {
-            return badRequest("sitnet_exam_name_missing_or_too_short");
+            return badRequest("i18n_exam_name_missing_or_too_short");
         }
         ExamInspection inspection = new ExamInspection();
         inspection.setExam(exam);
@@ -140,7 +140,7 @@ public class ExamInspectionController extends BaseController {
     public Result deleteInspection(Long id) {
         ExamInspection inspection = DB.find(ExamInspection.class, id);
         if (inspection == null) {
-            return notFound("sitnet_error_not_found");
+            return notFound("i18n_error_not_found");
         }
         User inspector = inspection.getUser();
         Exam exam = inspection.getExam();

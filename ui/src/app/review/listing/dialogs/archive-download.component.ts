@@ -22,12 +22,12 @@ import { ToastrService } from 'ngx-toastr';
     selector: 'xm-archive-download',
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-details-title-wrap mart20">
-            <div class="student-enroll-title">{{ 'sitnet_exam_validity' | translate }}</div>
+            <div class="student-enroll-title">{{ 'i18n_exam_validity' | translate }}</div>
         </div>
         <div class="modal-body mx-4">
             <div id="dashboard">
                 <div>
-                    <label for="archive-download-start">{{ 'sitnet_begin' | translate }}:</label>
+                    <label for="archive-download-start">{{ 'i18n_begin' | translate }}:</label>
                     <xm-date-picker
                         id="archive-download-start"
                         (updated)="startDateChanged($event)"
@@ -35,17 +35,17 @@ import { ToastrService } from 'ngx-toastr';
                     ></xm-date-picker>
                 </div>
                 <div>
-                    <label for="archive-download-end">{{ 'sitnet_end' | translate }}:</label>
+                    <label for="archive-download-end">{{ 'i18n_end' | translate }}:</label>
                     <xm-date-picker id="archive-download-end" (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-primary" (click)="cancel()">
-                {{ 'sitnet_button_cancel' | translate }}
+                {{ 'i18n_button_cancel' | translate }}
             </button>
             <button class="btn btn btn-success" (click)="ok()">
-                {{ 'sitnet_search' | translate }}
+                {{ 'i18n_search' | translate }}
             </button>
         </div>
     </div> `,
@@ -68,7 +68,7 @@ export class ArchiveDownloadComponent {
             end = this.params.endDate;
         }
         if (start && end && end < start) {
-            this.toast.error(this.translate.instant('sitnet_endtime_before_starttime'));
+            this.toast.error(this.translate.instant('i18n_endtime_before_starttime'));
         } else if (start && end) {
             this.modal.close({
                 $value: {

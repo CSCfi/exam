@@ -27,12 +27,12 @@ import { MaturityService } from './maturity.service';
             <span [hidden]="isUnderLanguageInspection()">
                 <div *ngIf="!isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
                     <button (click)="saveAssessment()" [disabled]="!valid" class="btn inspection-button">
-                        {{ 'sitnet_save' | translate }}
+                        {{ 'i18n_save' | translate }}
                     </button>
                 </div>
                 <div *ngIf="isReadOnly()" class="review-attachment-button exam-questions-buttons marl15">
                     <a class="pointer preview" [routerLink]="['/staff/exams', exam.parent?.id, '5']">
-                        {{ 'sitnet_close' | translate }}</a
+                        {{ 'i18n_close' | translate }}</a
                     >
                 </div>
             </span>

@@ -21,11 +21,11 @@ import type { EnrolmentInfo } from '../../enrolment.model';
     selector: 'xm-add-enrolment-information-dialog',
     template: `
         <div class="modal-header">
-            <h4 class="modal-title">{{ 'sitnet_student_enrolment_info' | translate }}</h4>
+            <h4 class="modal-title">{{ 'i18n_student_enrolment_info' | translate }}</h4>
         </div>
         <div class="modal-body">
             <form role="form" id="infoForm" name="infoForm" novalidate>
-                {{ 'sitnet_student_enrolment_info_description' | translate }}
+                {{ 'i18n_student_enrolment_info_description' | translate }}
                 <textarea
                     name="info"
                     aria-label="write additional information for the examiner"
@@ -39,12 +39,12 @@ import type { EnrolmentInfo } from '../../enrolment.model';
         <div class="modal-footer student-message-dialog-buttons">
             <div class="student-message-dialog-button-save mar0">
                 <button class="btn mar0" (click)="ok()">
-                    {{ 'sitnet_button_save' | translate }}
+                    {{ 'i18n_button_save' | translate }}
                 </button>
             </div>
             <div class="student-message-dialog-button-cancel">
                 <button class="btn btn-sm btn-danger float-start" (click)="cancel()">
-                    {{ 'sitnet_button_cancel' | translate }}
+                    {{ 'i18n_button_cancel' | translate }}
                 </button>
             </div>
         </div>

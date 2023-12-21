@@ -122,12 +122,12 @@ public class UserController extends BaseController {
     public Result addRole(Long uid, String roleName) {
         User user = DB.find(User.class, uid);
         if (user == null) {
-            return notFound("sitnet_user_not_found");
+            return notFound("i18n_user_not_found");
         }
         if (user.getRoles().stream().noneMatch(r -> r.getName().equals(roleName))) {
             Role role = DB.find(Role.class).where().eq("name", roleName).findOne();
             if (role == null) {
-                return notFound("sitnet_role_not_found");
+                return notFound("i18n_role_not_found");
             }
             user.getRoles().add(role);
             user.update();
@@ -139,12 +139,12 @@ public class UserController extends BaseController {
     public Result removeRole(Long uid, String roleName) {
         User user = DB.find(User.class, uid);
         if (user == null) {
-            return notFound("sitnet_user_not_found");
+            return notFound("i18n_user_not_found");
         }
         if (user.getRoles().stream().anyMatch(r -> r.getName().equals(roleName))) {
             Role role = DB.find(Role.class).where().eq("name", roleName).findOne();
             if (role == null) {
-                return notFound("sitnet_role_not_found");
+                return notFound("i18n_role_not_found");
             }
             user.getRoles().remove(role);
             user.update();

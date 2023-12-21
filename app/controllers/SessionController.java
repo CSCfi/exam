@@ -148,7 +148,7 @@ public class SessionController extends BaseController {
         Credentials credentials = bindForm(Credentials.class, request);
         logger.debug("User login with username: {}", credentials.getUsername() + "@funet.fi");
         if (credentials.getPassword() == null || credentials.getUsername() == null) {
-            return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
+            return wrapAsPromise(unauthorized("i18n_error_unauthenticated"));
         }
         String pwd = DigestUtils.md5Hex(credentials.getPassword());
         User user = DB
@@ -159,7 +159,7 @@ public class SessionController extends BaseController {
             .findOne();
 
         if (user == null) {
-            return wrapAsPromise(unauthorized("sitnet_error_unauthenticated"));
+            return wrapAsPromise(unauthorized("i18n_error_unauthenticated"));
         }
         user.setLastLogin(new Date());
         user.update();
@@ -414,7 +414,7 @@ public class SessionController extends BaseController {
             }
         }
         if (userRoles.isEmpty() && !ignoreRoleNotFound) {
-            throw new NotFoundException("sitnet_error_role_not_found " + attribute);
+            throw new NotFoundException("i18n_error_role_not_found " + attribute);
         }
         return userRoles;
     }

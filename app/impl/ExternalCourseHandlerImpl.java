@@ -161,7 +161,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                     .collect(Collectors.toSet());
             } else {
                 logger.warn("Unexpected content {}", root.asText());
-                throw new RemoteException("sitnet_request_timed_out");
+                throw new RemoteException("i18n_request_timed_out");
             }
         };
         return request.get().thenApplyAsync(onSuccess);
@@ -216,7 +216,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
                 return parseCourses(stripBom(response));
             }
             logger.info("Non-OK response received for URL: {}. Status: {}", url, status);
-            throw new RemoteException(String.format("sitnet_remote_failure %d %s", status, response.getStatusText()));
+            throw new RemoteException(String.format("i18n_remote_failure %d %s", status, response.getStatusText()));
         };
         return request
             .get()

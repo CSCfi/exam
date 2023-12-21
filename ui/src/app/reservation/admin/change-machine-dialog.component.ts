@@ -27,25 +27,25 @@ import type { ExamMachine, Reservation } from '../reservation.model';
     selector: 'xm-change-machine-dialog',
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="terms-dialog-header">
-            <h4><i class="bi-info-circle"></i>&nbsp;&nbsp;{{ 'sitnet_change_reservation_machine' | translate }}</h4>
+            <h4><i class="bi-info-circle"></i>&nbsp;&nbsp;{{ 'i18n_change_reservation_machine' | translate }}</h4>
         </div>
         <div class="modal-body">
-            <strong>{{ 'sitnet_exam_machine' | translate }}</strong>
+            <strong>{{ 'i18n_exam_machine' | translate }}</strong>
             <xm-dropdown-select
                 [options]="availableMachineOptions"
                 (optionSelected)="machineChanged($event)"
                 (limitTo)="(0)"
-                placeholder="{{ 'sitnet_select' | translate }}"
+                placeholder="{{ 'i18n_select' | translate }}"
                 autofocus
             ></xm-dropdown-select>
         </div>
         <div class="modal-footer">
             <button class="btn btn-sm btn-danger" (click)="cancel()">
-                {{ 'sitnet_button_cancel' | translate }}
+                {{ 'i18n_button_cancel' | translate }}
             </button>
 
             <button class="btn btn-sm btn-primary" (click)="ok()" [disabled]="!selection?.id">
-                {{ 'sitnet_button_save' | translate }}
+                {{ 'i18n_button_save' | translate }}
             </button>
         </div>
     </div> `,
@@ -83,7 +83,7 @@ export class ChangeMachineDialogComponent implements OnInit {
             .put<ExamMachine>(`/app/reservations/${this.reservation.id}/machine`, { machineId: this.selection?.id })
             .subscribe({
                 next: (resp) => {
-                    this.toast.info(this.translate.instant('sitnet_updated'));
+                    this.toast.info(this.translate.instant('i18n_updated'));
                     this.activeModal.close(resp);
                 },
                 error: (err) => this.toast.error(err),

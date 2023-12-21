@@ -62,11 +62,11 @@ export class ExamSummaryService {
     getGrades = (reviews: ExamParticipation[]): string[] =>
         reviews
             .filter((r) => r.exam.gradedTime)
-            .map((r) => (r.exam.grade ? r.exam.grade.name : this.translate.instant('sitnet_no_grading')));
+            .map((r) => (r.exam.grade ? r.exam.grade.name : this.translate.instant('i18n_no_grading')));
 
     getGradeDistributionChart = (context: string, reviews: ExamParticipation[]) => {
         const chartColors = ['#97BBCD', '#DCDCDC', '#F7464A', '#46BFBD', '#FDB45C', '#949FB1', '#4D5360'];
-        const amount = this.translate.instant('sitnet_pieces');
+        const amount = this.translate.instant('i18n_pieces');
         const { data, labels } = this.calculateGradeDistribution(reviews);
 
         return new Chart(context, {
@@ -184,7 +184,7 @@ export class ExamSummaryService {
                     x: {
                         title: {
                             display: true,
-                            text: this.translate.instant('sitnet_days_since_period_beginning').toLowerCase(),
+                            text: this.translate.instant('i18n_days_since_period_beginning').toLowerCase(),
                         },
                     },
                 },
@@ -194,7 +194,7 @@ export class ExamSummaryService {
                 labels: data.map((d) => d.date),
                 datasets: [
                     {
-                        label: this.translate.instant('sitnet_amount_exams'),
+                        label: this.translate.instant('i18n_amount_exams'),
                         data: data.map((d) => d.amount),
                         fill: false,
                         borderColor: '#028a0f',
@@ -229,7 +229,7 @@ export class ExamSummaryService {
                         display: true,
                         title: {
                             display: true,
-                            text: this.translate.instant('sitnet_word_points').toLowerCase(),
+                            text: this.translate.instant('i18n_word_points').toLowerCase(),
                         },
                     },
 
@@ -239,7 +239,7 @@ export class ExamSummaryService {
                         display: true,
                         title: {
                             display: true,
-                            text: this.translate.instant('sitnet_word_minutes').toLowerCase(),
+                            text: this.translate.instant('i18n_word_minutes').toLowerCase(),
                         },
                     },
                 },
@@ -250,8 +250,8 @@ export class ExamSummaryService {
                         callbacks: {
                             label: (item: TooltipItem<'scatter'>) => {
                                 const [xLabel, yLabel] = [item.label, item.formattedValue];
-                                const pointsLabel = this.translate.instant('sitnet_word_points');
-                                const minutesLabel = this.translate.instant('sitnet_word_minutes');
+                                const pointsLabel = this.translate.instant('i18n_word_points');
+                                const minutesLabel = this.translate.instant('i18n_word_minutes');
                                 return `${pointsLabel}: ${yLabel} ${minutesLabel}: ${xLabel}`;
                             },
                         },
@@ -323,8 +323,8 @@ export class ExamSummaryService {
 
     private calculateExaminationTimeValues = (reviews: ExamParticipation[], exam: Exam) => {
         const dates = eachDayOfInterval({
-            start: min([new Date(exam.examActiveStartDate as string), new Date()]),
-            end: min([new Date(exam.examActiveEndDate as string), new Date()]),
+            start: min([new Date(exam.periodStart as string), new Date()]),
+            end: min([new Date(exam.periodEnd as string), new Date()]),
         });
         return dates.map((d, i) => ({
             date: i,

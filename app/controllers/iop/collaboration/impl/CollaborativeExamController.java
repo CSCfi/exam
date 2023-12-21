@@ -91,8 +91,8 @@ public class CollaborativeExamController extends CollaborationController {
         exam.setExamType(DB.find(ExamType.class, 2)); // Final
 
         DateTime start = DateTime.now().withTimeAtStartOfDay();
-        exam.setExamActiveStartDate(start);
-        exam.setExamActiveEndDate(start.plusDays(1));
+        exam.setPeriodStart(start);
+        exam.setPeriodEnd(start.plusDays(1));
         exam.setDuration(configReader.getExamDurations().get(0)); // check
         exam.setGradeScale(DB.find(GradeScale.class).findList().get(0)); // check
 
@@ -107,7 +107,7 @@ public class CollaborativeExamController extends CollaborationController {
     public CompletionStage<Result> searchExams(Http.Request request, final Optional<String> filter) {
         Optional<URL> url = filter.orElse("").isEmpty() ? parseUrl() : parseUrlWithSearchParam(filter.get(), false);
         if (url.isEmpty()) {
-            return wrapAsPromise(internalServerError("sitnet_internal_error"));
+            return wrapAsPromise(internalServerError("i18n_internal_error"));
         }
 
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -139,11 +139,11 @@ public class CollaborativeExamController extends CollaborationController {
                 downloadExam(ce)
                     .thenApplyAsync(result -> {
                         if (result.isEmpty()) {
-                            return notFound("sitnet_error_exam_not_found");
+                            return notFound("i18n_error_exam_not_found");
                         }
                         Exam exam = result.get();
                         if (!isAuthorizedToView(exam, user, homeOrg)) {
-                            return notFound("sitnet_error_exam_not_found");
+                            return notFound("i18n_error_exam_not_found");
                         }
                         postProcessor.accept(exam);
                         return ok(serialize(exam));
@@ -202,7 +202,7 @@ public class CollaborativeExamController extends CollaborationController {
         return findCollaborativeExam(id)
             .map(ce -> {
                 if (!ce.getState().equals(Exam.State.DRAFT) && !ce.getState().equals(Exam.State.PRE_PUBLISHED)) {
-                    return wrapAsPromise(forbidden("sitnet_exam_removal_not_possible"));
+                    return wrapAsPromise(forbidden("i18n_exam_removal_not_possible"));
                 }
                 return examLoader
                     .deleteExam(ce)
@@ -269,7 +269,7 @@ public class CollaborativeExamController extends CollaborationController {
                                         return result2;
                                     });
                             }
-                            return wrapAsPromise(forbidden("sitnet_error_access_forbidden"));
+                            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
                         }
                         return wrapAsPromise(notFound());
                     });

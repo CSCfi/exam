@@ -36,7 +36,7 @@ import { ExaminationService } from '../examination.service';
             </fieldset>
         </div>
 
-        <div class="padl0 question-type-text">{{ sq.derivedMaxScore }} {{ 'sitnet_unit_points' | translate }}</div>
+        <div class="padl0 question-type-text">{{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
     `,
 })
 export class ExaminationWeightedMultiChoiceComponent implements OnInit {

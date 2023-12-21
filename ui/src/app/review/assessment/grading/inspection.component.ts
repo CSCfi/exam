@@ -24,11 +24,11 @@ import type { User } from '../../../session/session.service';
     selector: 'xm-r-inspection',
     template: `<span *ngIf="inspection.user?.id !== user.id">
             <span class="sitnet-text-ready" *ngIf="inspection.ready">
-                {{ inspection.user.firstName }} {{ inspection.user.lastName }} {{ 'sitnet_ready' | translate }}</span
+                {{ inspection.user.firstName }} {{ inspection.user.lastName }} {{ 'i18n_ready' | translate }}</span
             >
             <span class="sitnet-text-alarm" *ngIf="!inspection.ready">
                 {{ inspection.user.firstName }} {{ inspection.user.lastName }}
-                {{ 'sitnet_in_progress' | translate }}</span
+                {{ 'i18n_in_progress' | translate }}</span
             >
         </span>
         <div class="input-group-sm make-inline" *ngIf="inspection.user?.id === user.id">
@@ -59,11 +59,11 @@ export class InspectionComponent implements OnInit {
         this.reviewStatuses = [
             {
                 key: true,
-                value: this.translate.instant('sitnet_ready'),
+                value: this.translate.instant('i18n_ready'),
             },
             {
                 key: false,
-                value: this.translate.instant('sitnet_in_progress'),
+                value: this.translate.instant('i18n_in_progress'),
             },
         ];
     }
@@ -72,7 +72,7 @@ export class InspectionComponent implements OnInit {
         if (this.inspection.user.id === this.user.id) {
             this.http.put(`/app/exams/inspection/${this.inspection.id}`, { ready: this.inspection.ready }).subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_exam_updated'));
+                    this.toast.info(this.translate.instant('i18n_exam_updated'));
                     this.inspected.emit();
                 },
                 error: (err) => this.toast.error(err),

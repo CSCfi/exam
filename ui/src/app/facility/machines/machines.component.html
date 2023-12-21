@@ -1,21 +1,21 @@
 <div class="" [hidden]="room.state === 'INACTIVE'">
     <div class="row">
         <div class="col">
-            <span class="pointer user-select-none"> {{ 'sitnet_exam_room_machines' | translate }}&nbsp;&nbsp; </span>
+            <span class="pointer user-select-none"> {{ 'i18n_exam_room_machines' | translate }}&nbsp;&nbsp; </span>
         </div>
         <div class="flex justify-content-end col">
             <a
                 class="ps-2 marr20 text text-success pointer"
                 (click)="addNewMachine()"
                 triggers="mouseenter:mouseleave"
-                ngbPopover="{{ 'sitnet_add' | translate }}"
+                ngbPopover="{{ 'i18n_add' | translate }}"
             >
                 <i class="pt-2 bi bi-plus-circle"></i>
             </a>
             <span
                 triggers="mouseenter:mouseleave"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                ngbPopover="{{ 'sitnet_status_machine_available' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                ngbPopover="{{ 'i18n_status_machine_available' | translate }}"
             >
                 <span class="badge bg-success">
                     {{ room.examMachines.length - countMachineAlerts() - countMachineNotices() }}
@@ -23,8 +23,8 @@
             </span>
             <span
                 triggers="mouseenter:mouseleave"
-                popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                ngbPopover="{{ 'sitnet_status_inservice' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                ngbPopover="{{ 'i18n_status_inservice' | translate }}"
             >
                 <span class="badge bg-danger marl10 marr30">
                     {{ countMachineAlerts() }}
@@ -41,11 +41,11 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>{{ 'sitnet_name' | translate }}</th>
-                        <th>{{ 'sitnet_machine_other_identifier' | translate }}</th>
-                        <th>{{ 'sitnet_room_accessibility_info' | translate }}</th>
-                        <th>{{ 'sitnet_machine_softwares' | translate }}</th>
-                        <th>{{ 'sitnet_status' | translate }}</th>
+                        <th>{{ 'i18n_name' | translate }}</th>
+                        <th>{{ 'i18n_machine_other_identifier' | translate }}</th>
+                        <th>{{ 'i18n_room_accessibility_info' | translate }}</th>
+                        <th>{{ 'i18n_machine_softwares' | translate }}</th>
+                        <th>{{ 'i18n_status' | translate }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -56,7 +56,7 @@
                                 class="exams-info-title bold-button"
                                 [routerLink]="['/staff/machines', machine.id]"
                             >
-                                {{ !machine.name ? ('sitnet_no_name' | translate) : machine.name }}
+                                {{ !machine.name ? ('i18n_no_name' | translate) : machine.name }}
                             </a>
                         </td>
                         <td>{{ machine.otherIdentifier }}</td>
@@ -72,10 +72,10 @@
                         </td>
                         <td>
                             <span class="status_red" *ngIf="machine.outOfService">{{
-                                'sitnet_status_inactive' | translate
+                                'i18n_status_inactive' | translate
                             }}</span>
                             <span class="status_green" *ngIf="!machine.outOfService">{{
-                                'sitnet_status_active' | translate
+                                'i18n_status_active' | translate
                             }}</span>
                             <span class="ms-2">{{ machine.statusComment }}</span>
                         </td>

@@ -1,11 +1,11 @@
 <div id="sitnet-header" class="header">
     <div class="col-md-12 header-wrapper">
-        <span class="header-text">{{ 'sitnet_user_administration' | translate }}</span>
+        <span class="header-text">{{ 'i18n_user_administration' | translate }}</span>
     </div>
 </div>
 <div id="dashboard">
     <div class="main-row">
-        <label class="col-md-12" for="userSearch">{{ 'sitnet_search_for_users' | translate }}</label>
+        <label class="col-md-12" for="userSearch">{{ 'i18n_search_for_users' | translate }}</label>
         <div id="userSearch" class="flex-wrap-gap">
             <div class="">
                 <div class="form-group input-group min-width-300">
@@ -14,12 +14,12 @@
                         type="text"
                         class="form-control"
                         (ngModelChange)="loader.loading = true; textChanged.next($event)"
-                        placeholder="{{ 'sitnet_search' | translate }}"
+                        placeholder="{{ 'i18n_search' | translate }}"
                         [openDelay]="500"
                         [closeDelay]="500"
                         triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                        ngbPopover="{{ 'sitnet_user_search_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_user_search_description' | translate }}"
                         aria-labelledby="userSearch"
                     />
                     <div class="input-group-append">
@@ -37,7 +37,7 @@
                     id="dropDownMenu1"
                     aria-expanded="true"
                 >
-                    {{ 'sitnet_filter_by_role' | translate }}&nbsp;<span class="caret"></span>
+                    {{ 'i18n_filter_by_role' | translate }}&nbsp;<span class="caret"></span>
                 </button>
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
                     <button
@@ -65,7 +65,7 @@
                     data-toggle="dropdown"
                     aria-expanded="true"
                 >
-                    {{ 'sitnet_filter_by_permission' | translate }}&nbsp;<span class="caret"></span>
+                    {{ 'i18n_filter_by_permission' | translate }}&nbsp;<span class="caret"></span>
                 </button>
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
                     <button
@@ -89,7 +89,7 @@
         <div class="col-md-12" [hidden]="!loader.loading">
             <button class="btn btn-success" type="button" disabled>
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                {{ 'sitnet_searching' | translate }}&hellip;
+                {{ 'i18n_searching' | translate }}&hellip;
             </button>
         </div>
     </div>
@@ -98,14 +98,14 @@
             <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
-                        <th>{{ 'sitnet_lastname' | translate }}</th>
-                        <th>{{ 'sitnet_firstname' | translate }}</th>
-                        <th>{{ 'sitnet_email' | translate }}</th>
-                        <th>{{ 'sitnet_userid' | translate }}</th>
-                        <th>{{ 'sitnet_employeeno' | translate }}</th>
-                        <th>{{ 'sitnet_last_login' | translate }}</th>
-                        <th>{{ 'sitnet_user_roles' | translate }}</th>
-                        <th>{{ 'sitnet_user_permissions' | translate }}</th>
+                        <th>{{ 'i18n_lastname' | translate }}</th>
+                        <th>{{ 'i18n_firstname' | translate }}</th>
+                        <th>{{ 'i18n_email' | translate }}</th>
+                        <th>{{ 'i18n_userid' | translate }}</th>
+                        <th>{{ 'i18n_employeeno' | translate }}</th>
+                        <th>{{ 'i18n_last_login' | translate }}</th>
+                        <th>{{ 'i18n_user_roles' | translate }}</th>
+                        <th>{{ 'i18n_user_permissions' | translate }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -147,7 +147,7 @@
                                         *ngIf="user.availableRoles.length > 0"
                                         aria-labelledby="addRoleDropdown"
                                     >
-                                        <div class="dropdown-header">{{ 'sitnet_add' | translate }}</div>
+                                        <div class="dropdown-header">{{ 'i18n_add' | translate }}</div>
                                         <button
                                             *ngFor="let role of user.availableRoles"
                                             ngbDropdownItem
@@ -173,8 +173,8 @@
                                             *ngIf="user.removableRoles.length <= 1"
                                             class="text-muted bi-dash"
                                             triggers="mouseenter:mouseleave"
-                                            popoverTitle="{{ 'sitnet_instructions' | translate }}"
-                                            ngbPopover="{{ 'sitnet_at_least_one_role_required' | translate }}"
+                                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                            ngbPopover="{{ 'i18n_at_least_one_role_required' | translate }}"
                                         ></i>
                                     </button>
                                     <div
@@ -184,7 +184,7 @@
                                         *ngIf="user.removableRoles.length > 1"
                                         aria-labelledby="removeRoleDropdown"
                                     >
-                                        <div class="dropdown-header">{{ 'sitnet_remove' | translate }}</div>
+                                        <div class="dropdown-header">{{ 'i18n_remove' | translate }}</div>
                                         <button
                                             *ngFor="let role of user.removableRoles"
                                             ngbDropdownItem
@@ -227,7 +227,7 @@
                                         aria-labelledby="addPermissionDropdown"
                                         role="menu"
                                     >
-                                        <div class="dropdown-header">{{ 'sitnet_add' | translate }}</div>
+                                        <div class="dropdown-header">{{ 'i18n_add' | translate }}</div>
                                         <button
                                             *ngFor="let permission of user.availablePermissions"
                                             ngbDropdownItem
@@ -261,7 +261,7 @@
                                         aria-labelledby="removePermissionDropdown"
                                         role="menu"
                                     >
-                                        <div class="dropdown-header">{{ 'sitnet_remove' | translate }}</div>
+                                        <div class="dropdown-header">{{ 'i18n_remove' | translate }}</div>
                                         <button
                                             *ngFor="let permission of user.removablePermissions"
                                             ngbDropdownItem

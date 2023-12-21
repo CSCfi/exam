@@ -1,6 +1,6 @@
 <div>
     <div class="review-list-title">
-        {{ 'sitnet_await_inspection' | translate }}
+        {{ 'i18n_await_inspection' | translate }}
         <a (click)="view.toggle = !view.toggle" class="pointer">
             <img
                 *ngIf="!view.toggle"
@@ -21,7 +21,7 @@
 <div *ngIf="view.items.length === 0">
     <div class="review-no-results">
         <i class="bi-exclamation-circle grayish"></i>
-        {{ 'sitnet_exam_no_inspection' | translate }}
+        {{ 'i18n_exam_no_inspection' | translate }}
     </div>
 </div>
 
@@ -31,7 +31,7 @@
             (change)="applyFreeSearchFilter()"
             [(ngModel)]="view.filter"
             class="form-control"
-            placeholder="{{ 'sitnet_search' | translate }}"
+            placeholder="{{ 'i18n_search' | translate }}"
         />
         <i class="input-group-text bi-search"></i>
     </div>
@@ -43,7 +43,7 @@
                 <th class="with-top">
                     <xm-table-sort
                         by="displayName"
-                        text="sitnet_student"
+                        text="i18n_student"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('displayName')"
@@ -52,7 +52,7 @@
                 <th class="with-top">
                     <xm-table-sort
                         by="examParticipation.user.email"
-                        text="sitnet_email"
+                        text="i18n_email"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('examParticipation.user.email')"
@@ -61,7 +61,7 @@
                 <th class="with-top">
                     <xm-table-sort
                         by="duration"
-                        text="sitnet_exam_duration"
+                        text="i18n_exam_duration"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('duration')"
@@ -70,7 +70,7 @@
                 <th class="with-top">
                     <xm-table-sort
                         by="examParticipation.started"
-                        text="sitnet_exam_time"
+                        text="i18n_exam_time"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('examParticipation.started')"
@@ -79,7 +79,7 @@
                 <th class="with-top">
                     <xm-table-sort
                         by="examParticipation.deadline"
-                        text="sitnet_review_deadline"
+                        text="i18n_review_deadline"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('examParticipation.deadline')"
@@ -88,7 +88,7 @@
                 <th class="with-top">
                     <xm-table-sort
                         by="displayedGrade"
-                        text="sitnet_grade"
+                        text="i18n_grade"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('displayedGrade')"
@@ -97,7 +97,7 @@
                 <th class="with-top">
                     <xm-table-sort
                         by="displayedCredit"
-                        text="sitnet_exam_credit"
+                        text="i18n_exam_credit"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('displayedCredit')"
@@ -106,7 +106,7 @@
                 <th class="with-top">
                     <xm-table-sort
                         by="examParticipation.exam.gradedTime"
-                        text="sitnet_graded"
+                        text="i18n_graded"
                         [predicate]="view.predicate"
                         [reverse]="view.reverse"
                         (click)="setPredicate('examParticipation.eam.gradedTime')"
@@ -139,7 +139,7 @@
                 <td class="table-column-10">{{ review.duration + ' min' }}</td>
                 <td class="table-column-10">
                     {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
-                    {{ 'sitnet_clock_short' | translate }}
+                    {{ 'i18n_clock_short' | translate }}
                     {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
                     {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }}
                 </td>
@@ -157,10 +157,10 @@
             </tr>
             <tr *ngIf="view.filtered.length === 0">
                 <td *ngIf="showId()" class="table-column-examname" colspan="9">
-                    {{ 'sitnet_review_no_result' | translate }}
+                    {{ 'i18n_review_no_result' | translate }}
                 </td>
                 <td *ngIf="!showId()" class="table-column-examname" colspan="8">
-                    {{ 'sitnet_review_no_result' | translate }}
+                    {{ 'i18n_review_no_result' | translate }}
                 </td>
             </tr>
             <!--Fill if page not full-->

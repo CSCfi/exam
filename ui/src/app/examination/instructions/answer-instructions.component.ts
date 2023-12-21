@@ -23,30 +23,30 @@ import type { Examination } from '../examination.model';
         <div class="row">
             <div class="col-md-12" class="studentexam-header">
                 <h2 class="exam-title" aria-live="polite" id="examination-section">
-                    {{ 'sitnet_exam_guide' | translate }}
+                    {{ 'i18n_exam_guide' | translate }}
                 </h2>
             </div>
         </div>
         <div class="row ms-2 guide-wrapper">
             <div class="col-md-12">
                 <div class="row" *ngIf="exam.course">
-                    <div class="header col-md-4">{{ 'sitnet_course_name' | translate }}:</div>
+                    <div class="header col-md-4">{{ 'i18n_course_name' | translate }}:</div>
                     <div class="text col-md-8">{{ exam.course.name }}</div>
                 </div>
                 <div class="row" *ngIf="exam.course">
-                    <div class="header col-md-4">{{ 'sitnet_course_code' | translate }}:</div>
+                    <div class="header col-md-4">{{ 'i18n_course_code' | translate }}:</div>
                     <div class="text col-md-8"><xm-course-code [course]="exam.course"></xm-course-code></div>
                 </div>
                 <div class="row">
-                    <div class="header col-md-4">{{ 'sitnet_exam_name' | translate }}:</div>
+                    <div class="header col-md-4">{{ 'i18n_exam_name' | translate }}:</div>
                     <div class="text col-md-8">{{ exam.name }}</div>
                 </div>
                 <div class="row">
-                    <div class="header col-md-4">{{ 'sitnet_exam_duration' | translate }}:</div>
+                    <div class="header col-md-4">{{ 'i18n_exam_duration' | translate }}:</div>
                     <div class="text col-md-8">{{ printExamDuration() }}</div>
                 </div>
                 <div class="row">
-                    <div class="header col-md-4">{{ 'sitnet_exam_guide' | translate }}:</div>
+                    <div class="header col-md-4">{{ 'i18n_exam_guide' | translate }}:</div>
                     <div class="text col-md-8" [xmMathJax]="exam.instruction"></div>
                 </div>
             </div>

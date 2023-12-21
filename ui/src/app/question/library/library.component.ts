@@ -32,13 +32,13 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
         <div class="top-row">
             <div class="col-md-12">
                 <div class="student-enroll-title-wrap">
-                    <div class="student-enroll-title marl20 marr-20">{{ 'sitnet_library_new' | translate }}</div>
+                    <div class="student-enroll-title marl20 marr-20">{{ 'i18n_library_new' | translate }}</div>
                 </div>
                 <div class="teacher-toolbar">
                     <div class="make-inline">
                         <div class="review-attachment-button print-button">
                             <a (click)="import()" class="pointer">
-                                {{ 'sitnet_toolbar_import_questions' | translate }}
+                                {{ 'i18n_toolbar_import_questions' | translate }}
                             </a>
                         </div>
                     </div>
@@ -47,7 +47,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                     <div class="make-inline">
                         <div class="review-attachment-button print-button">
                             <a [routerLink]="['new']" [queryParams]="{ nextState: 'questions' }" class="pointer">
-                                {{ 'sitnet_toolbar_new_question' | translate }}
+                                {{ 'i18n_toolbar_new_question' | translate }}
                             </a>
                         </div>
                     </div>
@@ -58,10 +58,10 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
         <div class="reservation-border">
             <div class="row ms-4 mt-2">
                 <div class="col-12">
-                    <strong>{{ 'sitnet_search' | translate }}:</strong>
+                    <strong>{{ 'i18n_search' | translate }}:</strong>
                     <span
-                        ngbPopover="{{ 'sitnet_library_search_instructions' | translate }}"
-                        popoverTitle="{{ 'sitnet_instructions' | translate }}"
+                        ngbPopover="{{ 'i18n_library_search_instructions' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                         class="ms-2"
                     >
@@ -76,7 +76,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
             <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
             <div class="row ms-4 mb-1">
                 <div class="col-12">
-                    <strong>{{ 'sitnet_actions' | translate }}:</strong>
+                    <strong>{{ 'i18n_actions' | translate }}:</strong>
                 </div>
             </div>
             <div class="row ms-4">
@@ -88,7 +88,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                             id="dropDownMenu1"
                             ngbDropdownToggle
                         >
-                            {{ 'sitnet_choose' | translate }}&nbsp;
+                            {{ 'i18n_choose' | translate }}&nbsp;
                             <span class="caret"></span>
                         </button>
                         <ul class="pointer" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
@@ -99,7 +99,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                                 [disabled]="selections.length === 0"
                                 (click)="openOwnerSelection()"
                             >
-                                <a role="menuitem">{{ 'sitnet_add_question_owner' | translate }}</a>
+                                <a role="menuitem">{{ 'i18n_add_question_owner' | translate }}</a>
                             </li>
                             <li
                                 ngbDropdownItem
@@ -108,7 +108,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                                 [disabled]="selections.length === 0"
                                 (click)="openTagSelection()"
                             >
-                                <a role="menuitem">{{ 'sitnet_tag_questions' | translate }}</a>
+                                <a role="menuitem">{{ 'i18n_tag_questions' | translate }}</a>
                             </li>
                             <li
                                 ngbDropdownItem
@@ -117,7 +117,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                                 [disabled]="selections.length === 0"
                                 (click)="openFileTransfer()"
                             >
-                                <a role="menuitem">{{ 'sitnet_transfer_questions' | translate }}</a>
+                                <a role="menuitem">{{ 'i18n_transfer_questions' | translate }}</a>
                             </li>
                             <li
                                 ngbDropdownItem
@@ -126,15 +126,15 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                                 [disabled]="selections.length === 0"
                                 (click)="export()"
                             >
-                                <a role="menuitem">{{ 'sitnet_export_questions' | translate }}</a>
+                                <a role="menuitem">{{ 'i18n_export_questions' | translate }}</a>
                             </li>
                         </ul>
                     </span>
                     <small class="ms-2 text-muted" *ngIf="selections.length === 0">{{
-                        'sitnet_choose_atleast_one' | translate
+                        'i18n_choose_atleast_one' | translate
                     }}</small>
                     <small class="ms-2" *ngIf="selections.length > 0">
-                        {{ selections.length }} {{ 'sitnet_questions_selected' | translate }}
+                        {{ selections.length }} {{ 'i18n_questions_selected' | translate }}
                     </small>
                 </div>
             </div>
@@ -172,24 +172,24 @@ export class LibraryComponent {
     }
 
     questionCopied(copy: Question) {
-        this.toast.info(this.translate.instant('sitnet_question_copied'));
+        this.toast.info(this.translate.instant('i18n_question_copied'));
         this.router.navigate(['/staff/questions', copy.id, 'edit']);
     }
 
     import() {
-        this.Attachment.selectFile(false, {}, 'sitnet_import_questions_detail')
+        this.Attachment.selectFile(false, {}, 'i18n_import_questions_detail')
             .then((result) => {
                 this.Files.upload('/app/questions/import', result.$value.attachmentFile, {}, undefined, () =>
                     this.reload(),
                 );
-                this.toast.success(`${this.translate.instant('sitnet_questions_imported_successfully')}`);
+                this.toast.success(`${this.translate.instant('i18n_questions_imported_successfully')}`);
             })
             .catch((err) => this.toast.error(err));
     }
 
     export() {
         if (this.selections.length === 0) {
-            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
+            this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
         } else {
             this.Files.download(
                 '/app/questions/export',

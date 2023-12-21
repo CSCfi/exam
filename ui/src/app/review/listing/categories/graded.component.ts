@@ -80,12 +80,12 @@ export class GradedReviewsComponent implements OnInit, OnChanges {
         }
         const content = this.Assessment.getRecordReviewConfirmationDialogContent('', this.needsFeedbackWarning);
         const examId = this.collaborative ? this.exam.id : undefined;
-        this.Confirmation.open$(this.translate.instant('sitnet_confirm'), content).subscribe({
+        this.Confirmation.open$(this.translate.instant('i18n_confirm'), content).subscribe({
             next: () =>
                 forkJoin(selection.map((s) => this.ReviewList.sendToRegistry$(s.examParticipation, examId))).subscribe(
                     () => {
                         this.registered.emit(selection);
-                        this.toast.info(this.translate.instant('sitnet_results_send_ok'));
+                        this.toast.info(this.translate.instant('i18n_results_send_ok'));
                     },
                 ),
         });

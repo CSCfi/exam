@@ -28,7 +28,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
         <div class="modal-footer">
             <div class="student-message-dialog-button-save">
                 <button class="btn btn-sm btn-primary" (click)="ok()" autofocus>
-                    {{ 'sitnet_button_ok' | translate }}
+                    {{ 'i18n_button_ok' | translate }}
                 </button>
             </div>
         </div>

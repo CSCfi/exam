@@ -27,10 +27,10 @@ export class CommonExamService {
         let name = '';
         switch (type) {
             case 'PARTIAL':
-                name = 'sitnet_exam_credit_type_partial';
+                name = 'i18n_exam_credit_type_partial';
                 break;
             case 'FINAL':
-                name = 'sitnet_exam_credit_type_final';
+                name = 'i18n_exam_credit_type_final';
                 break;
             default:
                 break;
@@ -52,7 +52,7 @@ export class CommonExamService {
                 name = 'Improbatur-Laudatur';
                 break;
             case 'APPROVED_REJECTED':
-                name = this.translate.instant('sitnet_evaluation_select');
+                name = this.translate.instant('i18n_evaluation_select');
                 break;
             case 'OTHER':
                 name = gs.displayName;
@@ -64,7 +64,7 @@ export class CommonExamService {
         let name;
         switch (grade) {
             case 'NONE':
-                name = this.translate.instant('sitnet_no_grading');
+                name = this.translate.instant('i18n_no_grading');
                 break;
             case 'I':
                 name = 'Improbatur';
@@ -91,10 +91,10 @@ export class CommonExamService {
                 name = 'Laudatur approbatur';
                 break;
             case 'REJECTED':
-                name = this.translate.instant('sitnet_rejected');
+                name = this.translate.instant('i18n_rejected');
                 break;
             case 'APPROVED':
-                name = this.translate.instant('sitnet_approved');
+                name = this.translate.instant('i18n_approved');
                 break;
             default:
                 name = grade;
@@ -121,11 +121,11 @@ export class CommonExamService {
     getExamImplementationTranslation = (impl: Implementation) => {
         switch (impl) {
             case 'AQUARIUM':
-                return 'sitnet_examination_type_aquarium';
+                return 'i18n_examination_type_aquarium';
             case 'CLIENT_AUTH':
-                return 'sitnet_examination_type_seb';
+                return 'i18n_examination_type_seb';
             case 'WHATEVER':
-                return 'sitnet_examination_type_home_exam';
+                return 'i18n_examination_type_home_exam';
         }
     };
 

@@ -26,7 +26,7 @@ import type { ExamSection, Question } from '../../exam/exam.model';
             <!-- title row and add new question button -->
             <div class="modal-header">
                 <div class="student-enroll-title-wrap">
-                    <div class="student-enroll-title">{{ 'sitnet_library_choose' | translate }}</div>
+                    <div class="student-enroll-title">{{ 'i18n_library_choose' | translate }}</div>
                 </div>
             </div>
             <div class="modal-content">
@@ -38,7 +38,7 @@ import type { ExamSection, Question } from '../../exam/exam.model';
                         <span class="float-start marl20">
                             <div class="library-button make-inline mart20 marr30 marl10">
                                 <a class="pointer" (click)="addQuestions()"
-                                    >{{ 'sitnet_add_chosen' | translate }} ( {{ selections.length }} )
+                                    >{{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
                                 </a>
                             </div>
                         </span>
@@ -62,12 +62,12 @@ import type { ExamSection, Question } from '../../exam/exam.model';
                     <span class="float-end">
                         <div class="library-button make-inline">
                             <a class="pointer preview" (click)="cancel()">
-                                {{ 'sitnet_button_cancel' | translate }}
+                                {{ 'i18n_button_cancel' | translate }}
                             </a>
                         </div>
                         <div class="library-button make-inline mart20 marr30 marl10">
                             <a class="pointer" (click)="addQuestions()">
-                                {{ 'sitnet_add_chosen' | translate }} ( {{ selections.length }} )
+                                {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
                             </a>
                         </div>
                     </span>
@@ -92,13 +92,13 @@ export class QuestionSelectorComponent {
 
     resultsUpdated = (event: Question[]) => (this.questions = event);
     questionSelected = (event: number[]) => (this.selections = event);
-    questionCopied = () => this.toast.info(this.translate.instant('sitnet_question_copied'));
+    questionCopied = () => this.toast.info(this.translate.instant('i18n_question_copied'));
     cancel = () => this.modal.dismiss();
 
     addQuestions = () => {
         // check that at least one has been selected
         if (this.selections.length === 0) {
-            this.toast.warning(this.translate.instant('sitnet_choose_atleast_one'));
+            this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
             return;
         }
 
@@ -113,7 +113,7 @@ export class QuestionSelectorComponent {
                         const insertedSectionQuestions = resp.sectionQuestions.filter((esq) =>
                             this.selections.includes(esq.question.id),
                         );
-                        this.toast.info(this.translate.instant('sitnet_question_added'));
+                        this.toast.info(this.translate.instant('i18n_question_added'));
                         this.modal.close(insertedSectionQuestions);
                     },
                     error: (err) => {

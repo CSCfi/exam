@@ -69,23 +69,23 @@ public class ExamUpdaterImpl implements ExamUpdater {
         boolean isAdmin = user.hasRole(Role.Name.ADMIN);
         if (newStart.isPresent()) {
             if (isAdmin || !hasFutureReservations || isNonRestrictingValidityChange(newStart.get(), exam, true)) {
-                exam.setExamActiveStartDate(newStart.get());
+                exam.setPeriodStart(newStart.get());
             } else {
-                return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
+                return Optional.of(forbidden("i18n_error_future_reservations_exist"));
             }
         }
         if (newEnd.isPresent()) {
             if (isAdmin || !hasFutureReservations || isNonRestrictingValidityChange(newEnd.get(), exam, false)) {
-                exam.setExamActiveEndDate(newEnd.get());
+                exam.setPeriodEnd(newEnd.get());
             } else {
-                return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
+                return Optional.of(forbidden("i18n_error_future_reservations_exist"));
             }
         }
         if (newDuration.isPresent()) {
             if (Objects.equals(newDuration.get(), exam.getDuration()) || !hasFutureReservations || isAdmin) {
                 exam.setDuration(newDuration.get());
             } else {
-                return Optional.of(forbidden("sitnet_error_future_reservations_exist"));
+                return Optional.of(forbidden("i18n_error_future_reservations_exist"));
             }
         }
         return Optional.empty();
@@ -115,7 +115,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
                 }
                 // no sections named
                 if (exam.getExamSections().stream().anyMatch(section -> section.getName() == null)) {
-                    return Optional.of(badRequest("sitnet_exam_contains_unnamed_sections"));
+                    return Optional.of(badRequest("i18n_exam_contains_unnamed_sections"));
                 }
                 if (exam.getExamLanguages().isEmpty()) {
                     return Optional.of(badRequest("no exam languages specified"));
@@ -137,7 +137,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
                 if (exam.isPrivate() && exam.getState() != Exam.State.PUBLISHED) {
                     // No participants added, this is not good.
                     if (exam.getExamEnrolments().isEmpty()) {
-                        return Optional.of(badRequest("sitnet_no_participants"));
+                        return Optional.of(badRequest("i18n_no_participants"));
                     }
                     notifyParticipantsAboutPrivateExamPublication(exam, user);
                 }
@@ -296,7 +296,7 @@ public class ExamUpdaterImpl implements ExamUpdater {
     @Override
     public Optional<Result> updateLanguage(Exam exam, String code, User user) {
         if (!isPermittedToUpdate(exam, user)) {
-            return Optional.of(forbidden("sitnet_error_access_forbidden"));
+            return Optional.of(forbidden("i18n_error_access_forbidden"));
         }
         Language language = DB.find(Language.class, code);
         if (exam.getExamLanguages().contains(language)) {
@@ -385,20 +385,20 @@ public class ExamUpdaterImpl implements ExamUpdater {
             Optional<DateTime> start = request.attrs().getOptional(Attrs.START_DATE);
             Optional<DateTime> end = request.attrs().getOptional(Attrs.END_DATE);
             if (start.isEmpty()) {
-                reason = "sitnet_error_start_date";
+                reason = "i18n_error_start_date";
             } else if (end.isEmpty()) {
-                reason = "sitnet_error_end_date";
+                reason = "i18n_error_end_date";
             } else if (start.get().isAfter(end.get())) {
-                reason = "sitnet_error_end_sooner_than_start";
+                reason = "i18n_error_end_sooner_than_start";
             }/*else if (end.get().isBeforeNow()) { // CSCEXAM-1127
-                reason = "sitnet_error_end_sooner_than_now";
+                reason = "i18n_error_end_sooner_than_now";
             }*/
         }
         return reason == null ? Optional.empty() : Optional.of(badRequest(reason));
     }
 
     private boolean isNonRestrictingValidityChange(DateTime newDate, Exam exam, boolean isStartDate) {
-        DateTime oldDate = isStartDate ? exam.getExamActiveStartDate() : exam.getExamActiveEndDate();
+        DateTime oldDate = isStartDate ? exam.getPeriodStart() : exam.getPeriodEnd();
         return isStartDate ? !oldDate.isBefore(newDate) : !newDate.isBefore(oldDate);
     }
 

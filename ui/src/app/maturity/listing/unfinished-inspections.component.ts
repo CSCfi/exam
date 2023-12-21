@@ -65,7 +65,7 @@ export class UnfinishedInspectionsComponent implements OnChanges {
 
     getInspectionAmounts = () =>
         this.translate
-            .instant('sitnet_ongoing_language_inspections_detail')
+            .instant('i18n_ongoing_language_inspections_detail')
             .replace('{0}', this.inspections.length.toString());
 
     assignInspection = (inspection: LanguageInspection) => this.LanguageInspection.assignInspection(inspection);

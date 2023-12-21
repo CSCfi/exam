@@ -13,26 +13,24 @@
                         <span *ngIf="!sectionQuestion.forcedScore" class="text text-danger">
                             {{ scoreValue }}
                         </span>
-                        / {{ displayMaxScore() }} {{ 'sitnet_unit_points' | translate }}
+                        / {{ displayMaxScore() }} {{ 'i18n_unit_points' | translate }}
                     </div>
                     <div class="d-inline-block review-points" *ngIf="sectionQuestion.evaluationType === 'Selection'">
-                        {{ 'sitnet_evaluation_select' | translate }}:
+                        {{ 'i18n_evaluation_select' | translate }}:
                         <div *ngIf="scoreValue === 1">
-                            {{ 'sitnet_approved' | translate }}
+                            {{ 'i18n_approved' | translate }}
                         </div>
                         <div *ngIf="scoreValue === 0">
-                            {{ 'sitnet_rejected' | translate }}
+                            {{ 'i18n_rejected' | translate }}
                         </div>
                         <div *ngIf="!scoreValue && scoreValue !== 0" class="warning-no-hover border-none">
-                            {{ 'sitnet_no_grading' | translate }}
+                            {{ 'i18n_no_grading' | translate }}
                         </div>
                     </div>
                     <!--chevron -->
                     <a
                         (click)="reviewExpanded = !reviewExpanded"
-                        [attr.aria-label]="
-                            reviewExpanded ? ('sitnet_collapse' | translate) : ('sitnet_expand' | translate)
-                        "
+                        [attr.aria-label]="reviewExpanded ? ('i18n_collapse' | translate) : ('i18n_expand' | translate)"
                     >
                         <img *ngIf="!reviewExpanded" src="/assets/images/icon_list_show_right.svg" alt="" />
                         <img *ngIf="reviewExpanded" src="/assets/images/icon_list_show_down.svg" alt="" />
@@ -44,7 +42,7 @@
                 <div class="col-12">
                     <!-- question attachment -->
                     <div *ngIf="sectionQuestion.question.attachment" class="padl0 mart20 marb20 notice-text">
-                        {{ 'sitnet_question_attachment' | translate }}:
+                        {{ 'i18n_question_attachment' | translate }}:
                         <a class="pointer" (click)="downloadQuestionAttachment()">
                             {{ sectionQuestion.question.attachment?.fileName }}
                         </a>
@@ -52,13 +50,13 @@
                     <!-- question instructions -->
                     <div *ngIf="sectionQuestion.answerInstructions" class="padl0 mart20 marb20 notice-text" role="note">
                         <img src="/assets/images/icon_info.svg" alt="" />
-                        <span class="padl10">{{ 'sitnet_instructions' | translate }}:</span>
+                        <span class="padl10">{{ 'i18n_instructions' | translate }}:</span>
                         <span [innerHtml]="sectionQuestion.answerInstructions"></span>
                     </div>
                     <!-- answer -->
                     <div class="marb10">
                         <div class="points-title">
-                            <span>{{ 'sitnet_exam_answer' | translate | uppercase }}</span>
+                            <span>{{ 'i18n_exam_answer' | translate | uppercase }}</span>
                         </div>
                         <span [xmMathJax]="sectionQuestion.essayAnswer?.answer"></span>
                     </div>
@@ -69,7 +67,7 @@
                             class="pointer green_button left-floater-for-section"
                             (click)="downloadQuestionAnswerAttachment()"
                         >
-                            {{ 'sitnet_download_answer_attachment' | translate }}
+                            {{ 'i18n_download_answer_attachment' | translate }}
                             <img src="/assets/images/icon_attachment.svg" alt="" />
                         </a>
                         <div class="attachment-name">
@@ -80,7 +78,7 @@
                     <!-- question evaluation criteria -->
                     <div *ngIf="sectionQuestion.evaluationCriteria" class="padl0 mart20">
                         <div class="points-title">
-                            <span>{{ 'sitnet_exam_evaluation_criteria' | translate | uppercase }}</span>
+                            <span>{{ 'i18n_exam_evaluation_criteria' | translate | uppercase }}</span>
                         </div>
                         <span [innerHtml]="sectionQuestion.evaluationCriteria"></span>
                     </div>
@@ -89,11 +87,11 @@
                     <div *ngIf="exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
                         <div class="points-title">
                             <span *ngIf="sectionQuestion.evaluationType === 'Points'"
-                                >{{ 'sitnet_word_points' | translate | uppercase }}&nbsp;
+                                >{{ 'i18n_word_points' | translate | uppercase }}&nbsp;
                                 <small>[0 &hellip; {{ sectionQuestion.maxScore.toFixed(2) }}]</small>
                             </span>
                             <span [hidden]="sectionQuestion.evaluationType === 'Points'"
-                                >{{ 'sitnet_comments' | translate | uppercase }}:
+                                >{{ 'i18n_comments' | translate | uppercase }}:
                             </span>
                         </div>
                         <div>
@@ -114,7 +112,7 @@
                                     />
                                     <small *ngIf="!essayPoints.valid && isScorable" class="alert-danger">
                                         <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                            'sitnet_error_score_input' | translate
+                                            'i18n_error_score_input' | translate
                                         }}
                                     </small>
                                 </form>
@@ -127,10 +125,10 @@
                                     [disabled]="!isScorable"
                                 >
                                     <option [ngValue]="1">
-                                        {{ 'sitnet_approved' | translate }}
+                                        {{ 'i18n_approved' | translate }}
                                     </option>
                                     <option [ngValue]="0">
-                                        {{ 'sitnet_rejected' | translate }}
+                                        {{ 'i18n_rejected' | translate }}
                                     </option>
                                 </select>
                             </span>
@@ -138,14 +136,14 @@
                     </div>
                     <div class="make-inline notice-text">
                         <!-- answer length & recommended length-->
-                        <span>{{ 'sitnet_answer_length' | translate }}:</span>
-                        {{ getWordCount() }} {{ 'sitnet_words' | translate }}, {{ 'sitnet_approximately' | translate }}
+                        <span>{{ 'i18n_answer_length' | translate }}:</span>
+                        {{ getWordCount() }} {{ 'i18n_words' | translate }}, {{ 'i18n_approximately' | translate }}
                         {{ getCharacterCount() }}
-                        {{ 'sitnet_characters' | translate }}
+                        {{ 'i18n_characters' | translate }}
                         <div *ngIf="sectionQuestion.expectedWordCount">
-                            <span>{{ 'sitnet_essay_length_recommendation' | translate }}:</span>
-                            {{ sectionQuestion.expectedWordCount }} ({{ 'sitnet_approximately' | translate }}
-                            {{ (sectionQuestion.expectedWordCount || 0) * 8 }} {{ 'sitnet_characters' | translate }})
+                            <span>{{ 'i18n_essay_length_recommendation' | translate }}:</span>
+                            {{ sectionQuestion.expectedWordCount }} ({{ 'i18n_approximately' | translate }}
+                            {{ (sectionQuestion.expectedWordCount || 0) * 8 }} {{ 'i18n_characters' | translate }})
                         </div>
                     </div>
                 </div>

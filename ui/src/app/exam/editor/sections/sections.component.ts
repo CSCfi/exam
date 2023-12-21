@@ -68,7 +68,7 @@ export class SectionsComponent implements OnInit, OnChanges {
                 next: () => {
                     moveItemInArray(this.exam.examSections, from, to);
                     this.updateIndices();
-                    this.toast.info(this.translate.instant('sitnet_sections_reordered'));
+                    this.toast.info(this.translate.instant('i18n_sections_reordered'));
                 },
                 error: (err) => this.toast.error(err),
             });
@@ -79,7 +79,7 @@ export class SectionsComponent implements OnInit, OnChanges {
         this.Exam.addSection$(this.exam, this.collaborative)
             .pipe(
                 tap((es) => {
-                    this.toast.success(this.translate.instant('sitnet_section_added'));
+                    this.toast.success(this.translate.instant('i18n_section_added'));
                     this.exam.examSections.push(es);
                 }),
                 catchError(async (resp) => this.toast.error(resp)),
@@ -91,7 +91,7 @@ export class SectionsComponent implements OnInit, OnChanges {
         this.Exam.updateExam$(this.exam, {}, this.collaborative).subscribe({
             next: () => {
                 if (!silent) {
-                    this.toast.info(this.translate.instant('sitnet_exam_saved'));
+                    this.toast.info(this.translate.instant('i18n_exam_saved'));
                 }
             },
             error: (resp) => this.toast.error(this.translate.instant(resp)),
@@ -106,7 +106,7 @@ export class SectionsComponent implements OnInit, OnChanges {
             .delete(this.Exam.getResource(`/app/exams/${this.exam.id}/sections/${section.id}`, this.collaborative))
             .subscribe({
                 next: () => {
-                    this.toast.info(this.translate.instant('sitnet_section_removed'));
+                    this.toast.info(this.translate.instant('i18n_section_removed'));
                     this.exam.examSections.splice(this.exam.examSections.indexOf(section), 1);
                 },
                 error: (err) => this.toast.error(err),
