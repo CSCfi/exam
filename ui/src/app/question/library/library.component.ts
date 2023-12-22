@@ -23,7 +23,6 @@ import { AttachmentService } from 'src/app/shared/attachment/attachment.service'
 import { FileService } from 'src/app/shared/file/file.service';
 import type { Question, Tag } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
-import { LibraryFileExportComponent } from './export/library-file-export.component';
 import { LibraryTransferDialogComponent } from './export/library-transfer-dialog.component';
 import { LibraryOwnersDialogComponent } from './owners/library-owners-dialog.component';
 import { LibraryResultsComponent } from './results/library-results.component';
@@ -162,7 +161,6 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
         LibrarySearchComponent,
         LibraryOwnersDialogComponent,
         LibraryTransferDialogComponent,
-        LibraryFileExportComponent,
         LibraryResultsComponent,
         TranslateModule,
     ],

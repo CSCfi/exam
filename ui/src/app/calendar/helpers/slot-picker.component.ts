@@ -108,7 +108,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
         if (!this.selectedRoom) {
             return;
         }
-        const start = DateTime.fromISO($event.date, { zone: $event.timeZone }).startOf('week') as DateTime<true>;
+        const start = DateTime.fromISO($event.date, { zone: $event.timeZone }).startOf('week');
         this.currentWeek = start;
         const accessibilities = this.accessibilities.filter((i) => i.filtered).map((i) => i.id);
 
