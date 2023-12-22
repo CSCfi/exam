@@ -12,16 +12,21 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
 
 @Component({
     templateUrl: './machines.component.html',
     selector: 'xm-machines',
+    standalone: true,
+    imports: [NgbPopover, NgFor, NgClass, RouterLink, NgIf, TranslateModule],
 })
 export class MachineListComponent implements OnInit {
     @Input() room!: ExamRoom;

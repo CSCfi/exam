@@ -12,12 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { addDays } from 'date-fns';
 import { LanguageService } from '../shared/language/language.service';
 import type { QueryParams } from './language-inspections.service';
 import { LanguageInspectionService } from './language-inspections.service';
+import { ReviewedInspectionsComponent } from './listing/reviewed-inspections.component';
+import { UnfinishedInspectionsComponent } from './listing/unfinished-inspections.component';
 import type { LanguageInspection } from './maturity.model';
 
 export interface LanguageInspectionData extends LanguageInspection {
@@ -59,6 +63,8 @@ export interface LanguageInspectionData extends LanguageInspection {
             </div>
         </div>
     </div> `,
+    standalone: true,
+    imports: [NgIf, UnfinishedInspectionsComponent, ReviewedInspectionsComponent, TranslateModule],
 })
 export class LanguageInspectionsComponent implements OnInit {
     ongoingInspections: LanguageInspectionData[] = [];

@@ -12,10 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { CdkDrag } from '@angular/cdk/drag-drop';
+import { NgClass, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
 import type { FileResult } from '../../../shared/attachment/dialogs/attachment-picker.component';
+import { CKEditorComponent } from '../../../shared/ckeditor/ckeditor.component';
 import { FileService } from '../../../shared/file/file.service';
 import { MaturityService } from '../maturity/maturity.service';
 
@@ -81,6 +87,8 @@ import { MaturityService } from '../maturity/maturity.service';
             </div>
         </div>
     </div> `,
+    standalone: true,
+    imports: [CdkDrag, NgbPopover, NgClass, CKEditorComponent, FormsModule, NgIf, TranslateModule],
 })
 export class StatementComponent {
     @Input() exam!: Exam;

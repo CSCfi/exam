@@ -1,10 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 import type { MaintenancePeriod } from '../../exam/exam.model';
 
 @Component({
+    standalone: true,
+    imports: [FormsModule, TranslateModule, DateTimePickerComponent],
     template: `<div>
         <div class="modal-header">
             <h4><i class="fa fa-exclamation"></i>&nbsp;&nbsp;{{ 'i18n_maintenance_period' | translate }}</h4>

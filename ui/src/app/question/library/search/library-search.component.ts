@@ -12,8 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
@@ -37,6 +41,18 @@ interface Filterable<T> {
 @Component({
     selector: 'xm-library-search',
     templateUrl: './library-search.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        NgClass,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        FormsModule,
+        NgFor,
+        TranslateModule,
+    ],
 })
 export class LibrarySearchComponent implements OnInit {
     @Output() updated: EventEmitter<LibraryQuestion[]> = new EventEmitter<LibraryQuestion[]>();

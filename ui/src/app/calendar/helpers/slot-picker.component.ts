@@ -1,16 +1,26 @@
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EventApi, EventInput } from '@fullcalendar/core';
-import { TranslateService } from '@ngx-translate/core';
+import {
+    NgbCollapse,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { MaintenancePeriod } from '../../exam/exam.model';
 import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
+import { BookingCalendarComponent } from '../booking-calendar.component';
 import type { Organisation, Slot } from '../calendar.service';
 import { CalendarService } from '../calendar.service';
+import { SelectedRoomComponent } from './selected-room.component';
 
 type FilterableAccessibility = Accessibility & { filtered: boolean };
 type FilterableRoom = ExamRoom & { filtered: boolean };
@@ -20,6 +30,20 @@ type AvailableSlot = Slot & { availableMachines: number };
     selector: 'xm-calendar-slot-picker',
     templateUrl: './slot-picker.component.html',
     encapsulation: ViewEncapsulation.None,
+    standalone: true,
+    imports: [
+        NgClass,
+        NgIf,
+        NgbCollapse,
+        NgFor,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        SelectedRoomComponent,
+        BookingCalendarComponent,
+        TranslateModule,
+    ],
 })
 export class SlotPickerComponent implements OnInit, OnChanges {
     @Input() sequenceNumber = 0;
@@ -84,7 +108,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
         if (!this.selectedRoom) {
             return;
         }
-        const start = DateTime.fromISO($event.date, { zone: $event.timeZone }).startOf('week');
+        const start = DateTime.fromISO($event.date, { zone: $event.timeZone }).startOf('week') as DateTime<true>;
         this.currentWeek = start;
         const accessibilities = this.accessibilities.filter((i) => i.filtered).map((i) => i.id);
 

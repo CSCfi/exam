@@ -1,10 +1,13 @@
-import { formatDate } from '@angular/common';
+import { formatDate, NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { NgbActiveModal, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { areIntervalsOverlapping, eachDayOfInterval } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { range } from 'ramda';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 import { ExceptionWorkingHours } from '../../reservation/reservation.model';
 import { DateTimeService, REPEAT_OPTIONS } from '../../shared/date/date.service';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
@@ -18,6 +21,17 @@ enum ORDINAL {
 }
 
 @Component({
+    standalone: true,
+    imports: [
+        FormsModule,
+        TranslateModule,
+        NgClass,
+        NgFor,
+        NgIf,
+        DateTimePickerComponent,
+        DatePickerComponent,
+        NgbTimepickerModule,
+    ],
     templateUrl: './exception-dialog.component.html',
 })
 export class ExceptionDialogComponent {

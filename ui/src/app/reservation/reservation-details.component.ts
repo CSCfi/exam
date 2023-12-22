@@ -14,11 +14,18 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { DatePipe, LowerCasePipe, NgClass, NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
+import { ApplyDstPipe } from '../shared/date/apply-dst.pipe';
+import { CourseCodeComponent } from '../shared/miscellaneous/course-code.component';
+import { OrderByPipe } from '../shared/sorting/order-by.pipe';
+import { TableSortComponent } from '../shared/sorting/table-sort.component';
+import { TeacherListComponent } from '../shared/user/teacher-list.component';
 import type { Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
 import { AnyReservation } from './reservations.component';
@@ -28,6 +35,21 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
 @Component({
     selector: 'xm-reservation-details',
     templateUrl: './reservation-details.component.html',
+    standalone: true,
+    imports: [
+        TableSortComponent,
+        NgIf,
+        NgFor,
+        RouterLink,
+        CourseCodeComponent,
+        TeacherListComponent,
+        NgClass,
+        LowerCasePipe,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+        OrderByPipe,
+    ],
 })
 export class ReservationDetailsComponent implements OnChanges {
     @Input() reservations: AnyReservation[] = [];

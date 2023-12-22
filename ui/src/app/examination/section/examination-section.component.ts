@@ -12,9 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf } from '@angular/common';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
 import type { Examination, ExaminationSection } from '../examination.model';
 import { ExaminationService } from '../examination.service';
+import { ExaminationQuestionComponent } from '../question/examination-question.component';
 
 @Component({
     selector: 'xm-examination-section',
@@ -69,6 +73,8 @@ import { ExaminationService } from '../examination.service';
                 ></xm-examination-question>
             </div>
         </div> `,
+    standalone: true,
+    imports: [NgIf, NgFor, ExaminationQuestionComponent, TranslateModule, OrderByPipe],
 })
 export class ExaminationSectionComponent implements OnInit, OnDestroy {
     @Input() exam!: Examination;

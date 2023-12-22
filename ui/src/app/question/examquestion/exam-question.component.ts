@@ -12,11 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type {
     ExamSectionQuestion,
@@ -26,6 +27,8 @@ import type {
     ReverseQuestion,
 } from '../../exam/exam.model';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
+import { CKEditorComponent } from '../../shared/ckeditor/ckeditor.component';
+import { FixedPrecisionValidatorDirective } from '../../shared/validation/fixed-precision.directive';
 import { QuestionPreviewDialogComponent } from '../preview/question-preview-dialog.component';
 import { QuestionService } from '../question.service';
 
@@ -33,6 +36,18 @@ import { QuestionService } from '../question.service';
 @Component({
     selector: 'xm-exam-question',
     templateUrl: './exam-question.component.html',
+    standalone: true,
+    imports: [
+        FormsModule,
+        NgIf,
+        NgFor,
+        NgbPopover,
+        CKEditorComponent,
+        NgClass,
+        FixedPrecisionValidatorDirective,
+        UpperCasePipe,
+        TranslateModule,
+    ],
 })
 export class ExamQuestionComponent implements OnInit, OnDestroy {
     @Input() examQuestion!: ExamSectionQuestion;

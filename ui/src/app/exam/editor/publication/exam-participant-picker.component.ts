@@ -12,11 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
@@ -75,6 +77,8 @@ import type { Exam, ExamParticipation } from '../../exam.model';
                 </ul>
             </div>
         </div> `,
+    standalone: true,
+    imports: [FormsModule, NgbTypeahead, NgFor, NgIf, TranslateModule],
 })
 export class ExamParticipantSelectorComponent implements OnInit {
     @Input() exam!: Exam;

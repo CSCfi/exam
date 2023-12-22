@@ -12,17 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input, OnDestroy } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import type { CollaborativeParticipation } from '../../exam/collaborative/collaborative-exam.service';
 import type { Exam } from '../../exam/exam.model';
+import { ApplyDstPipe } from '../../shared/date/apply-dst.pipe';
 import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from '../../shared/user/teacher-list.component';
 import type { ReviewedExam } from '../enrolment.model';
 import type { ParticipationLike } from '../enrolment.service';
 import { EnrolmentService } from '../enrolment.service';
+import { ExamFeedbackComponent } from './exam-feedback.component';
 
 type Scores = {
     maxScore: number;
@@ -34,6 +40,18 @@ type Scores = {
 @Component({
     selector: 'xm-exam-participation',
     templateUrl: './exam-participation.component.html',
+    standalone: true,
+    imports: [
+        NgClass,
+        NgIf,
+        CourseCodeComponent,
+        TeacherListComponent,
+        NgbCollapse,
+        ExamFeedbackComponent,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+    ],
 })
 export class ExamParticipationComponent implements OnInit, OnDestroy {
     @Input() participation!: ParticipationLike;

@@ -12,13 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom } from '../../../reservation/reservation.model';
+import { DatePickerComponent } from '../../../shared/date/date-picker.component';
 import { FileService } from '../../../shared/file/file.service';
-import { Option } from '../../../shared/select/dropdown-select.component';
+import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown-select.component';
 
 @Component({
     template: `
@@ -68,6 +71,8 @@ import { Option } from '../../../shared/select/dropdown-select.component';
         </div>
     `,
     selector: 'xm-rooms-report',
+    standalone: true,
+    imports: [NgIf, DropdownSelectComponent, DatePickerComponent, NgbPopover, TranslateModule],
 })
 export class RoomsReportComponent {
     @Input() rooms: Option<ExamRoom, number>[] = [];
@@ -76,20 +81,15 @@ export class RoomsReportComponent {
     startDate: Date | null = null;
     endDate: Date | null = null;
 
-    constructor(
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private datePipe: DatePipe,
-        private files: FileService,
-    ) {}
+    constructor(private translate: TranslateService, private toast: ToastrService, private files: FileService) {}
 
     roomSelected = (event?: Option<ExamRoom, number>) => {
         this.room = event?.id;
     };
 
     getRoomReservationsByDate = () => {
-        const f = this.datePipe.transform(this.startDate || new Date(), 'dd.MM.yyyy');
-        const t = this.datePipe.transform(this.endDate || new Date(), 'dd.MM.yyyy');
+        const f = format(this.startDate || new Date(), 'dd.MM.yyyy');
+        const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
         if (this.room) {
             this.files.download(`/app/statistics/resbydate/${this.room}/${f}/${t}`, `reservations_${f}_${t}.xlsx`);
         } else {

@@ -12,10 +12,19 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import {
+    NgbCollapse,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbModal,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { mergeDeepRight } from 'ramda';
 import { from, noop, Observable, of } from 'rxjs';
@@ -26,11 +35,27 @@ import { QuestionService } from '../../../question/question.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
 import { FileService } from '../../../shared/file/file.service';
+import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
+import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
 import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from '../../exam.model';
 
 @Component({
     selector: 'xm-section-question',
     templateUrl: './section-question.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        NgbPopover,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        MathJaxDirective,
+        NgbCollapse,
+        NgFor,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class SectionQuestionComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;

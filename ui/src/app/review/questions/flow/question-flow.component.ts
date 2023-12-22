@@ -12,11 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { SessionService } from '../../../session/session.service';
 import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../question-review.service';
+import { QuestionFlowCategoryComponent } from './question-flow-category.component';
 
 @Component({
     selector: 'xm-question-flow',
@@ -40,6 +43,8 @@ import { QuestionReviewService } from '../question-review.service';
             (selected)="questionSelected($event)"
         >
         </xm-question-flow-category> `,
+    standalone: true,
+    imports: [NgIf, QuestionFlowCategoryComponent, TranslateModule],
 })
 export class QuestionFlowComponent implements OnInit, OnChanges {
     @Input() reviews: QuestionReview[] = [];

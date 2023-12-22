@@ -12,7 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgStyle } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
 @Component({
@@ -21,6 +23,8 @@ import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
         <div class="col-md-10 general-info-content" [ngStyle]="{ color: '#F35D6C' }">
             {{ 'i18n_exam_status_no_show' | translate }}
         </div>`,
+    standalone: true,
+    imports: [NgStyle, DatePipe, TranslateModule],
 })
 export class NoShowComponent implements OnInit {
     @Input() enrolment!: ExamEnrolment;

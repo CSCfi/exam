@@ -13,15 +13,39 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { NgFor, NgIf, SlicePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { CollaborativeParticipation } from '../../exam/collaborative/collaborative-exam.service';
+import { PaginatorComponent } from '../../shared/paginator/paginator.component';
+import { AutoFocusDirective } from '../../shared/select/auto-focus.directive';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
 import { EnrolmentService } from '../enrolment.service';
+import { ExamParticipationComponent } from './exam-participation.component';
 
 @Component({
     selector: 'xm-collaborative-exam-participations',
     templateUrl: './exam-participations.component.html',
+    standalone: true,
+    imports: [
+        FormsModule,
+        AutoFocusDirective,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        NgFor,
+        ExamParticipationComponent,
+        NgIf,
+        PaginatorComponent,
+        SlicePipe,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class CollaborativeParticipationsComponent implements OnInit, AfterViewInit {
     collaborative = true;

@@ -1,11 +1,21 @@
+import { DatePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import {
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
+import { PaginatorComponent } from '../../shared/paginator/paginator.component';
 import type { Permission } from './users.service';
 import { PermissionType, UserManagementService } from './users.service';
 
@@ -32,6 +42,22 @@ interface UserWithOptions extends User {
 @Component({
     templateUrl: './users.component.html',
     selector: 'xm-users',
+    standalone: true,
+    imports: [
+        FormsModule,
+        NgbPopover,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgFor,
+        NgbDropdownItem,
+        NgClass,
+        NgIf,
+        PaginatorComponent,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+    ],
 })
 export class UsersComponent implements OnInit, OnDestroy {
     users: UserWithOptions[] = [];

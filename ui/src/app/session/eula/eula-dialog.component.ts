@@ -16,9 +16,12 @@ import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-xm-eula-dialog',
+    standalone: true,
+    imports: [TranslateModule],
     template: `
         <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">

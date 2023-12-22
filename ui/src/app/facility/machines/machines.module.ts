@@ -9,9 +9,16 @@ import { MachineListComponent } from './machines.component';
 import { MachineService } from './machines.service';
 
 @NgModule({
-    imports: [CommonModule, RouterModule, TranslateModule, NgbModule, SharedModule],
+    imports: [
+        CommonModule,
+        RouterModule,
+        TranslateModule,
+        NgbModule,
+        SharedModule,
+        MachineListComponent,
+        MachineComponent,
+    ],
     providers: [MachineService],
-    declarations: [MachineListComponent, MachineComponent],
     exports: [MachineListComponent],
 })
 export class MachineModule {}

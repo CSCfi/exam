@@ -14,8 +14,8 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import { NgbActiveModal, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbActiveModal, NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
@@ -56,6 +56,8 @@ import { LibraryService } from '../library.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [NgbTypeaheadModule, TranslateModule],
 })
 export class LibraryTagsDialogComponent implements OnInit {
     @Input() selections: number[] = [];

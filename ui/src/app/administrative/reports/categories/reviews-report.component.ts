@@ -12,8 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import { format } from 'date-fns';
+import { DatePickerComponent } from '../../../shared/date/date-picker.component';
 import { FileService } from '../../../shared/file/file.service';
 
 @Component({
@@ -54,16 +57,18 @@ import { FileService } from '../../../shared/file/file.service';
         </div>
     `,
     selector: 'xm-reviews-report',
+    standalone: true,
+    imports: [DatePickerComponent, NgbPopover, TranslateModule],
 })
 export class ReviewsReportComponent {
     startDate: Date | null = null;
     endDate: Date | null = null;
 
-    constructor(private datePipe: DatePipe, private files: FileService) {}
+    constructor(private files: FileService) {}
 
     getReviewsByDate = () => {
-        const f = this.datePipe.transform(this.startDate || new Date(), 'dd.MM.yyyy');
-        const t = this.datePipe.transform(this.endDate || new Date(), 'dd.MM.yyyy');
+        const f = format(this.startDate || new Date(), 'dd.MM.yyyy');
+        const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
         this.files.download(`/app/statistics/reviewsbydate/${f}/${t}`, `reviews_${f}_${t}.xlsx`);
     };
 

@@ -12,11 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, LowerCasePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
@@ -36,16 +38,45 @@ import { isRealGrade } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import type { User } from '../../session/session.service';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
+import { ApplyDstPipe } from '../../shared/date/apply-dst.pipe';
 import { DateTimeService } from '../../shared/date/date.service';
+import { DiffInDaysPipe } from '../../shared/date/day-diff.pipe';
+import { DiffInMinutesPipe } from '../../shared/date/minute-diff.pipe';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 import { FileService } from '../../shared/file/file.service';
+import { HistoryBackComponent } from '../../shared/history/history-back.component';
 import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
+import { PageFillPipe } from '../../shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from '../../shared/paginator/paginator.component';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
+import { TableSortComponent } from '../../shared/sorting/table-sort.component';
 import type { Review } from '../review.model';
 import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 
 @Component({
     selector: 'xm-speed-review',
     templateUrl: './speed-review.component.html',
+    standalone: true,
+    imports: [
+        HistoryBackComponent,
+        NgIf,
+        NgFor,
+        TableSortComponent,
+        RouterLink,
+        NgClass,
+        FormsModule,
+        PaginatorComponent,
+        NgbPopover,
+        LowerCasePipe,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+        PageFillPipe,
+        DiffInMinutesPipe,
+        DiffInDaysPipe,
+        OrderByPipe,
+    ],
 })
 export class SpeedReviewComponent implements OnInit {
     pageSize = 10;

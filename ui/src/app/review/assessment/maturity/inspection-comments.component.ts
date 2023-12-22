@@ -12,9 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import type { Exam } from '../../../exam/exam.model';
@@ -59,6 +61,8 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
                 </sup>
             </span>
         </div> `,
+    standalone: true,
+    imports: [NgFor, NgIf, NgbPopover, DatePipe, TranslateModule],
 })
 export class InspectionCommentsComponent {
     @Input() exam!: Exam;

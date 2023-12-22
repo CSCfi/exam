@@ -12,10 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { groupBy } from 'ramda';
@@ -24,6 +26,10 @@ import { ExceptionWorkingHours } from '../../reservation/reservation.model';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import { DateTimeService } from '../../shared/date/date.service';
+import { MachineListComponent } from '../machines/machines.component';
+import { ExceptionListComponent } from '../schedule/exceptions.component';
+import { OpenHoursComponent } from '../schedule/opening-hours.component';
+import { StartingTimeComponent } from '../schedule/starting-time.component';
 import { RoomService } from './room.service';
 
 interface ExtendedRoom extends ExamRoom {
@@ -43,6 +49,19 @@ export interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
 @Component({
     templateUrl: './rooms.component.html',
     selector: 'xm-rooms',
+    standalone: true,
+    imports: [
+        NgFor,
+        NgClass,
+        NgbPopover,
+        RouterLink,
+        NgIf,
+        OpenHoursComponent,
+        ExceptionListComponent,
+        StartingTimeComponent,
+        MachineListComponent,
+        TranslateModule,
+    ],
 })
 export class RoomListComponent implements OnInit {
     user: User;

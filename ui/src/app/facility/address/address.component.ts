@@ -13,8 +13,9 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component, Input, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule, NgForm } from '@angular/forms';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Address } from '../rooms/room.service';
 import { RoomService } from '../rooms/room.service';
@@ -92,6 +93,8 @@ import { RoomService } from '../rooms/room.service';
             </div>
         </form>
     </div> `,
+    standalone: true,
+    imports: [FormsModule, NgbPopover, TranslateModule],
 })
 export class AddressComponent {
     @Input() address!: Address;

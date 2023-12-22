@@ -12,11 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { LowerCasePipe, NgIf } from '@angular/common';
 import type { OnDestroy, OnInit } from '@angular/core';
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavItemRole, NgbNavLink } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
@@ -29,6 +30,18 @@ import { ExamTabService } from './exam-tabs.service';
 @Component({
     selector: 'xm-exam-tabs',
     templateUrl: './exam-tabs.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        RouterLink,
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLink,
+        RouterOutlet,
+        LowerCasePipe,
+        TranslateModule,
+    ],
 })
 export class ExamTabsComponent implements OnInit, OnDestroy {
     exam!: Exam;

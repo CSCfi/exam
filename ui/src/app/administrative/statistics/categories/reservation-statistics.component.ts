@@ -14,6 +14,7 @@
  */
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import type { QueryParams } from '../statistics.service';
 import { StatisticsService } from '../statistics.service';
 
@@ -40,6 +41,8 @@ import { StatisticsService } from '../statistics.service';
         </div>
     `,
     selector: 'xm-reservation-statistics',
+    standalone: true,
+    imports: [TranslateModule],
 })
 export class ReservationStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};

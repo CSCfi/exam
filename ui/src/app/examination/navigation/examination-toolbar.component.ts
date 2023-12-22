@@ -12,10 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
@@ -24,12 +26,15 @@ import type { ExamRoom } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
 import type { Examination, ExaminationSection } from '../examination.model';
 import { ExaminationService } from '../examination.service';
 
 @Component({
     selector: 'xm-examination-toolbar',
     templateUrl: './examination-toolbar.component.html',
+    standalone: true,
+    imports: [NgIf, NgClass, NgFor, NgbPopover, UpperCasePipe, SlicePipe, TranslateModule, OrderByPipe],
 })
 export class ExaminationToolbarComponent implements OnInit {
     @Input() exam!: Examination;

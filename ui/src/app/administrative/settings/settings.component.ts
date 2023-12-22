@@ -1,12 +1,18 @@
+import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { CKEditorComponent } from '../../shared/ckeditor/ckeditor.component';
 import { AppConfig, SettingsService } from './settings.service';
 
 @Component({
     templateUrl: './settings.component.html',
     selector: 'xm-settings',
+    standalone: true,
+    imports: [NgIf, CKEditorComponent, FormsModule, NgbPopover, NgFor, KeyValuePipe, TranslateModule],
 })
 export class SettingsComponent implements OnInit {
     config!: AppConfig;

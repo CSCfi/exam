@@ -12,14 +12,42 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgFor, NgIf, SlicePipe } from '@angular/common';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import { DatePickerComponent } from '../../shared/date/date-picker.component';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
+import { PageFillPipe } from '../../shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from '../../shared/paginator/paginator.component';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
+import { TableSortComponent } from '../../shared/sorting/table-sort.component';
 import type { LanguageInspectionData } from '../language-inspections.component';
 import { LanguageInspectionService } from '../language-inspections.service';
 
 @Component({
     selector: 'xm-reviewed-inspections',
     templateUrl: './reviewed-inspections.component.html',
+    standalone: true,
+    imports: [
+        RouterLink,
+        NgIf,
+        FormsModule,
+        NgbPopover,
+        DatePickerComponent,
+        TableSortComponent,
+        NgFor,
+        CourseCodeComponent,
+        PaginatorComponent,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        PageFillPipe,
+        OrderByPipe,
+    ],
 })
 export class ReviewedInspectionsComponent implements OnChanges {
     @Input() inspections: LanguageInspectionData[] = [];

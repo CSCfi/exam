@@ -15,7 +15,10 @@
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
 
-@Pipe({ name: 'dayDiff' })
+@Pipe({
+    name: 'dayDiff',
+    standalone: true,
+})
 export class DiffInDaysPipe implements PipeTransform {
     transform = (from: string, to?: string): string => {
         const msInDay = 1000 * 60 * 60 * 24;

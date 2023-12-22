@@ -14,9 +14,15 @@
  */
 import type { OnChanges, OnInit } from '@angular/core';
 import { Component, EventEmitter, Injectable, Input, Output } from '@angular/core';
-import type { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { NgbDate, NgbDateParserFormatter, NgbDatepickerI18n } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import {
+    NgbDate,
+    NgbDateParserFormatter,
+    NgbDatepickerI18n,
+    NgbDateStruct,
+    NgbInputDatepicker,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTimeService } from './date.service';
 
 @Injectable({ providedIn: 'root' })
@@ -64,6 +70,8 @@ export class DatePickerI18n extends NgbDatepickerI18n {
         { provide: NgbDateParserFormatter, useClass: DatePickerFormatter },
         { provide: NgbDatepickerI18n, useClass: DatePickerI18n },
     ],
+    standalone: true,
+    imports: [FormsModule, NgbInputDatepicker, TranslateModule],
 })
 export class DatePickerComponent implements OnInit, OnChanges {
     @Input() initialDate: Date | string | number | null = null;

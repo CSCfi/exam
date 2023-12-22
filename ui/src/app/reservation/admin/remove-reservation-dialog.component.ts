@@ -14,12 +14,16 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Reservation } from '../reservation.model';
 
 @Component({
     selector: 'xm-remove-reservation-dialog',
+    standalone: true,
+    imports: [FormsModule, TranslateModule],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="terms-dialog-header">
             <h4><i class="bi-trash"></i>&nbsp;&nbsp;{{ 'i18n_remove_reservation' | translate }}</h4>

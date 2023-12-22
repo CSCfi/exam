@@ -12,13 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe } from '@angular/common';
+import { NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import type { User } from '../../../session/session.service';
+import { DatePickerComponent } from '../../../shared/date/date-picker.component';
 import { FileService } from '../../../shared/file/file.service';
-import { Option } from '../../../shared/select/dropdown-select.component';
+import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown-select.component';
 
 @Component({
     template: `
@@ -68,6 +71,8 @@ import { Option } from '../../../shared/select/dropdown-select.component';
         </div>
     `,
     selector: 'xm-teachers-report',
+    standalone: true,
+    imports: [NgIf, DropdownSelectComponent, DatePickerComponent, NgbPopover, TranslateModule],
 })
 export class TeachersReportComponent {
     @Input() teachers: Option<User, number>[] = [];
@@ -75,16 +80,11 @@ export class TeachersReportComponent {
     answerStartDate: Date | null = null;
     answerEndDate: Date | null = null;
 
-    constructor(
-        private datePipe: DatePipe,
-        private translate: TranslateService,
-        private toast: ToastrService,
-        private files: FileService,
-    ) {}
+    constructor(private translate: TranslateService, private toast: ToastrService, private files: FileService) {}
 
     getTeacherExamsByDate = () => {
-        const f = this.datePipe.transform(this.answerStartDate || new Date(), 'dd.MM.yyyy');
-        const t = this.datePipe.transform(this.answerEndDate || new Date(), 'dd.MM.yyyy');
+        const f = format(this.answerStartDate || new Date(), 'dd.MM.yyyy');
+        const t = format(this.answerEndDate || new Date(), 'dd.MM.yyyy');
         if (this.teacher) {
             this.files.download(
                 `/app/statistics/teacherexamsbydate/${this.teacher}/${f}/${t}`,

@@ -16,6 +16,7 @@ import { Directive, ElementRef, HostListener } from '@angular/core';
 
 @Directive({
     selector: '[xmLowerCase]',
+    standalone: true,
 })
 export class LowerCaseValidatorDirective {
     constructor(private el: ElementRef) {}

@@ -12,13 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import type { User } from '../../../session/session.service';
+import { DatePickerComponent } from '../../../shared/date/date-picker.component';
 import { FileService } from '../../../shared/file/file.service';
-import { Option } from '../../../shared/select/dropdown-select.component';
+import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown-select.component';
 
 @Component({
     template: `
@@ -68,6 +71,8 @@ import { Option } from '../../../shared/select/dropdown-select.component';
         </div>
     `,
     selector: 'xm-students-report',
+    standalone: true,
+    imports: [NgIf, DropdownSelectComponent, DatePickerComponent, NgbPopover, TranslateModule],
 })
 export class StudentsReportComponent {
     @Input() students: Option<User, number>[] = [];
@@ -84,8 +89,8 @@ export class StudentsReportComponent {
 
     getStudentReport = () => {
         if (this.student) {
-            const f = this.datePipe.transform(this.startDate || new Date(), 'dd.MM.yyyy');
-            const t = this.datePipe.transform(this.endDate || new Date(), 'dd.MM.yyyy');
+            const f = format(this.startDate || new Date(), 'dd.MM.yyyy');
+            const t = format(this.endDate || new Date(), 'dd.MM.yyyy');
             this.files.download(`/app/statistics/student/${this.student}/${f}/${t}`, 'student_activity.xlsx');
         } else {
             this.toast.error(this.translate.instant('i18n_choose_student'));

@@ -12,10 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { addMinutes, endOfDay, parseISO, startOfDay } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, from, Observable, of } from 'rxjs';
@@ -24,9 +27,11 @@ import type { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { CollaborativeExam, Exam, ExamImpl, Implementation } from '../exam/exam.model';
 import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
+import { DatePickerComponent } from '../shared/date/date-picker.component';
 import { isObject } from '../shared/miscellaneous/helpers';
-import type { Option } from '../shared/select/dropdown-select.component';
+import { DropdownSelectComponent, Option } from '../shared/select/dropdown-select.component';
 import { OrderByPipe } from '../shared/sorting/order-by.pipe';
+import { ReservationDetailsComponent } from './reservation-details.component';
 import type { ExamMachine, ExamRoom, Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
 
@@ -67,6 +72,16 @@ export type AnyReservation =
 
 @Component({
     selector: 'xm-reservations',
+    standalone: true,
+    imports: [
+        FormsModule,
+        TranslateModule,
+        NgbTypeaheadModule,
+        NgIf,
+        DatePickerComponent,
+        DropdownSelectComponent,
+        ReservationDetailsComponent,
+    ],
     templateUrl: './reservations.component.html',
 })
 export class ReservationsComponent implements OnInit {

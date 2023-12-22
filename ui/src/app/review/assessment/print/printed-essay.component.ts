@@ -12,13 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
+import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
 
 @Component({
     selector: 'xm-printed-essay',
     templateUrl: './templates/essay.component.html',
+    standalone: true,
+    imports: [MathJaxDirective, NgIf, TranslateModule],
 })
 export class PrintedEssayComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;

@@ -12,13 +12,15 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { from } from 'rxjs';
 import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import { FilterByPipe } from '../../shared/filter/filter-by.pipe';
 import { RoomService } from '../rooms/room.service';
 import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.component';
 
@@ -61,6 +63,8 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [NgIf, NgFor, TranslateModule, FilterByPipe],
 })
 export class ExceptionListComponent implements OnInit, OnChanges {
     @Input() exceptions: ExceptionWorkingHours[] = [];

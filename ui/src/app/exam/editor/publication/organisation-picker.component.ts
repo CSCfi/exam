@@ -12,8 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
+import {
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
@@ -89,6 +98,17 @@ type Organisation = {
                 </ul>
             </div>
         </div> `,
+    standalone: true,
+    imports: [
+        NgbPopover,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgFor,
+        NgbDropdownItem,
+        NgIf,
+        TranslateModule,
+    ],
 })
 export class OrganisationSelectorComponent implements OnInit {
     @Input() exam!: Exam;

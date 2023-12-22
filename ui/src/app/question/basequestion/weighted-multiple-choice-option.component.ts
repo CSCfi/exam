@@ -12,11 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { ControlContainer, NgForm } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
+import { FixedPrecisionValidatorDirective } from '../../shared/validation/fixed-precision.directive';
 import { QuestionDraft } from '../question.service';
 
 @Component({
@@ -61,6 +63,8 @@ import { QuestionDraft } from '../question.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [FormsModule, NgClass, FixedPrecisionValidatorDirective, TranslateModule],
 })
 export class WeightedMultipleChoiceOptionEditorComponent {
     @Input() option!: MultipleChoiceOption;

@@ -12,10 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
+import {
+    NgbCollapse,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import { DatePickerComponent } from '../../../shared/date/date-picker.component';
 import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
+import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
+import { UniqueValuesValidatorDirective } from '../../../shared/validation/unique-values.directive';
 import type { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 
@@ -29,6 +42,24 @@ type AutoEvaluationConfigurationTemplate = {
 @Component({
     selector: 'xm-auto-evaluation',
     templateUrl: './auto-evaluation.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        NgbPopover,
+        NgbCollapse,
+        NgStyle,
+        FormsModule,
+        UniqueValuesValidatorDirective,
+        NgFor,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgClass,
+        NgbDropdownItem,
+        DatePickerComponent,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class AutoEvaluationComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;

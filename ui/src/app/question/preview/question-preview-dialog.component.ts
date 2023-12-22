@@ -13,10 +13,13 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { Question } from 'src/app/exam/exam.model';
+import { ExaminationQuestionComponent } from 'src/app/examination/question/examination-question.component';
 import { ExaminationQuestion } from '../../examination/examination.model';
 
 @Component({
@@ -39,6 +42,8 @@ import { ExaminationQuestion } from '../../examination/examination.model';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [NgIf, ExaminationQuestionComponent, TranslateModule],
 })
 export class QuestionPreviewDialogComponent implements OnInit {
     @Input() question!: ExaminationQuestion | Question;

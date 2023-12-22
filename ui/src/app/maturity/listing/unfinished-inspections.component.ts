@@ -1,8 +1,15 @@
+import { DatePipe, NgFor, NgIf } from '@angular/common';
 import type { OnChanges } from '@angular/core';
 import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
+import { TableSortComponent } from '../../shared/sorting/table-sort.component';
 import type { LanguageInspectionData } from '../language-inspections.component';
 import { LanguageInspectionService } from '../language-inspections.service';
 import type { LanguageInspection } from '../maturity.model';
@@ -24,6 +31,19 @@ import type { LanguageInspection } from '../maturity.model';
 @Component({
     selector: 'xm-unfinished-inspections',
     templateUrl: './unfinished-inspections.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        FormsModule,
+        NgbPopover,
+        TableSortComponent,
+        NgFor,
+        CourseCodeComponent,
+        RouterLink,
+        DatePipe,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class UnfinishedInspectionsComponent implements OnChanges {
     @Input() inspections: LanguageInspectionData[] = [];

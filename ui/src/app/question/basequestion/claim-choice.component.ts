@@ -12,10 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { ControlContainer, NgForm } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
+import { FixedPrecisionValidatorDirective } from '../../shared/validation/fixed-precision.directive';
 import { QuestionDraft, QuestionService } from '../question.service';
 
 @Component({
@@ -92,6 +94,8 @@ import { QuestionDraft, QuestionService } from '../question.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [FormsModule, NgIf, NgFor, NgClass, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
 })
 export class ClaimChoiceEditorComponent implements OnInit {
     @Input() option!: MultipleChoiceOption;

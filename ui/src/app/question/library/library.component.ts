@@ -12,18 +12,22 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { Router, RouterLink } from '@angular/router';
+import { NgbDropdownModule, NgbModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { from, tap } from 'rxjs';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import type { Question, Tag } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
+import { LibraryFileExportComponent } from './export/library-file-export.component';
 import { LibraryTransferDialogComponent } from './export/library-transfer-dialog.component';
 import { LibraryOwnersDialogComponent } from './owners/library-owners-dialog.component';
+import { LibraryResultsComponent } from './results/library-results.component';
+import { LibrarySearchComponent } from './search/library-search.component';
 import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component';
 
 @Component({
@@ -149,6 +153,19 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
             </div>
         </div>
     </div> `,
+    standalone: true,
+    imports: [
+        NgIf,
+        RouterLink,
+        NgbDropdownModule,
+        NgbPopoverModule,
+        LibrarySearchComponent,
+        LibraryOwnersDialogComponent,
+        LibraryTransferDialogComponent,
+        LibraryFileExportComponent,
+        LibraryResultsComponent,
+        TranslateModule,
+    ],
 })
 export class LibraryComponent {
     questions: Question[] = [];

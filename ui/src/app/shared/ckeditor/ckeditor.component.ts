@@ -31,6 +31,7 @@ import { debounce } from '../miscellaneous/helpers';
         },
     ],
     template: ` <textarea #host [required]="required"></textarea> `,
+    standalone: true,
 })
 export class CKEditorComponent implements AfterViewChecked, AfterViewInit, OnDestroy, ControlValueAccessor {
     @ViewChild('host', { static: false }) host!: ElementRef;

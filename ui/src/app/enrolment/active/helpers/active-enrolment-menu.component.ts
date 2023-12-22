@@ -1,5 +1,8 @@
+import { NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { RouterLink } from '@angular/router';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { Reservation } from 'src/app/reservation/reservation.model';
@@ -10,6 +13,8 @@ import { EnrolmentService } from '../../enrolment.service';
 @Component({
     selector: 'xm-active-enrolment-menu',
     templateUrl: './active-enrolment-menu.component.html',
+    standalone: true,
+    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgIf, NgbDropdownItem, RouterLink, TranslateModule],
 })
 export class ActiveEnrolmentMenuComponent {
     @Input() enrolment!: ExamEnrolment;

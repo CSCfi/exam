@@ -12,9 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamParticipation } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
@@ -78,6 +80,8 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                 </span>
             </div>
         </div> `,
+    standalone: true,
+    imports: [RouterLink, NgIf, NgbPopover, TranslateModule],
 })
 export class ToolbarComponent implements OnInit {
     @Input() valid = false;

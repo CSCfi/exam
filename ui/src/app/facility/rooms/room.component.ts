@@ -12,19 +12,34 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { AccessibilitySelectorComponent } from '../accessibility/accessibility-picker.component';
+import { AddressComponent } from '../address/address.component';
+import { AvailabilityComponent } from './availability.component';
 import { InteroperabilityService } from './interoperability.service';
 import { RoomService } from './room.service';
 
 @Component({
     templateUrl: './room.component.html',
     selector: 'xm-room',
+    standalone: true,
+    imports: [
+        NgIf,
+        FormsModule,
+        NgbPopover,
+        AvailabilityComponent,
+        AccessibilitySelectorComponent,
+        AddressComponent,
+        TranslateModule,
+    ],
 })
 export class RoomComponent implements OnInit {
     @ViewChild('roomForm', { static: false }) roomForm!: NgForm;

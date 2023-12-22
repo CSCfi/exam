@@ -12,8 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, LowerCasePipe, NgIf, NgStyle } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import type { ExamParticipation } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
 import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
@@ -34,6 +36,8 @@ import { CommonExamService } from '../../../shared/miscellaneous/common-exam.ser
             <a class="pointer" (click)="viewAnswers()">{{ 'i18n_view_answers' | translate }}</a>
         </div>
     `,
+    standalone: true,
+    imports: [NgStyle, NgIf, LowerCasePipe, DatePipe, TranslateModule],
 })
 export class ParticipationComponent {
     @Input() participation!: ExamParticipation;

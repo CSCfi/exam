@@ -12,17 +12,41 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf, SlicePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { PaginatorComponent } from '../../shared/paginator/paginator.component';
+import { AutoFocusDirective } from '../../shared/select/auto-focus.directive';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
 import type { ParticipationLike } from '../enrolment.service';
 import { EnrolmentService } from '../enrolment.service';
+import { ExamParticipationComponent } from './exam-participation.component';
 
 @Component({
     selector: 'xm-exam-participations',
     templateUrl: './exam-participations.component.html',
+    standalone: true,
+    imports: [
+        FormsModule,
+        AutoFocusDirective,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        NgFor,
+        ExamParticipationComponent,
+        NgIf,
+        PaginatorComponent,
+        SlicePipe,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class ExamParticipationsComponent implements OnInit, OnDestroy {
     filter = { ordering: 'ended', reverse: true, text: '' };

@@ -12,18 +12,42 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgIf, NgSwitch, NgSwitchCase, SlicePipe, UpperCasePipe } from '@angular/common';
 import type { AfterViewInit } from '@angular/core';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import type { EssayAnswer } from '../../exam/exam.model';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
+import { MathJaxDirective } from '../../shared/math/math-jax.directive';
 import type { Examination, ExaminationQuestion } from '../examination.model';
 import { ExaminationService } from '../examination.service';
+import { DynamicClozeTestComponent } from './dynamic-cloze-test.component';
+import { ExaminationClozeTestComponent } from './examination-cloze-test.component';
+import { ExaminationEssayQuestionComponent } from './examination-essay-question.component';
+import { ExaminationMultiChoiceComponent } from './examination-multi-choice-question.component';
+import { ExaminationWeightedMultiChoiceComponent } from './examination-weighted-multi-choice-question.component';
 
 type ClozeTestAnswer = { [key: string]: string };
 
 @Component({
     selector: 'xm-examination-question',
     templateUrl: './examination-question.component.html',
+    standalone: true,
+    imports: [
+        NgClass,
+        NgIf,
+        MathJaxDirective,
+        DynamicClozeTestComponent,
+        NgSwitch,
+        NgSwitchCase,
+        ExaminationEssayQuestionComponent,
+        ExaminationClozeTestComponent,
+        ExaminationMultiChoiceComponent,
+        ExaminationWeightedMultiChoiceComponent,
+        UpperCasePipe,
+        SlicePipe,
+        TranslateModule,
+    ],
 })
 export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
     @Input() exam?: Examination;

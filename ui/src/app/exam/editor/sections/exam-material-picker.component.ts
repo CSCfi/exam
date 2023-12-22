@@ -12,11 +12,13 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { NgbModal, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
@@ -26,6 +28,8 @@ import { ExamMaterialComponent } from './exam-material.component';
 @Component({
     selector: 'xm-exam-material-selector',
     templateUrl: './exam-material-picker.component.html',
+    standalone: true,
+    imports: [NgbPopover, FormsModule, NgbTypeahead, NgFor, TranslateModule],
 })
 export class ExamMaterialSelectorComponent implements OnInit, OnChanges {
     @Input() section!: ExamSection;

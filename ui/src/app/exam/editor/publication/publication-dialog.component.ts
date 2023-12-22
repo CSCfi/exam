@@ -13,13 +13,16 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Exam } from '../../exam.model';
 
 @Component({
     selector: 'xm-publication-dialog',
+    standalone: true,
+    imports: [TranslateModule, NgIf],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">

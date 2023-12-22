@@ -12,11 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
+import { BookingCalendarComponent } from '../../calendar/booking-calendar.component';
 import type { OpeningHours } from '../../calendar/calendar.service';
 import { CalendarService } from '../../calendar/calendar.service';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
@@ -33,6 +36,8 @@ import { RoomService } from './room.service';
             }
         `,
     ],
+    standalone: true,
+    imports: [NgIf, NgFor, NgClass, BookingCalendarComponent, TranslateModule],
 })
 export class AvailabilityComponent implements OnInit {
     @Input() room!: ExamRoom;

@@ -8,8 +8,14 @@ import { AccessibilityComponent } from './accessibility.component';
 import { AccessibilityService } from './accessibility.service';
 
 @NgModule({
-    imports: [NgbModule, TranslateModule, CommonModule, FormsModule],
-    declarations: [AccessibilityComponent, AccessibilitySelectorComponent],
+    imports: [
+        NgbModule,
+        TranslateModule,
+        CommonModule,
+        FormsModule,
+        AccessibilityComponent,
+        AccessibilitySelectorComponent,
+    ],
     exports: [AccessibilityComponent, AccessibilitySelectorComponent],
     providers: [AccessibilityService],
 })

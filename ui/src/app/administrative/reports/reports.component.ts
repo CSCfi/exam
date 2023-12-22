@@ -12,13 +12,23 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { RoomService } from '../../facility/rooms/room.service';
 import { ExamRoom } from '../../reservation/reservation.model';
 import { User } from '../../session/session.service';
 import { Option } from '../../shared/select/dropdown-select.component';
 import { UserService } from '../../shared/user/user.service';
+import { AnswersReportComponent } from './categories/answers-report.component';
+import { EnrolmentsReportComponent } from './categories/enrolments-report.component';
+import { ExamsReportComponent } from './categories/exams-report.component';
+import { RecordsReportComponent } from './categories/records-report.component';
+import { ReviewsReportComponent } from './categories/reviews-report.component';
+import { RoomsReportComponent } from './categories/rooms-report.component';
+import { StudentsReportComponent } from './categories/students-report.component';
+import { TeachersReportComponent } from './categories/teachers-report.component';
 import { ReportsService, UserRole } from './reports.service';
 
 @Component({
@@ -51,6 +61,19 @@ import { ReportsService, UserRole } from './reports.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [
+        NgIf,
+        RoomsReportComponent,
+        ExamsReportComponent,
+        StudentsReportComponent,
+        EnrolmentsReportComponent,
+        AnswersReportComponent,
+        ReviewsReportComponent,
+        RecordsReportComponent,
+        TeachersReportComponent,
+        TranslateModule,
+    ],
 })
 export class ReportsComponent implements OnInit {
     rooms: Option<ExamRoom, number>[] = [];

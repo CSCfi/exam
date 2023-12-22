@@ -12,12 +12,16 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ExamTabService } from '../../../exam/editor/exam-tabs.service';
 import type { QuestionReview } from '../../review.model';
 import { QuestionReviewService } from '../question-review.service';
+import { QuestionReviewComponent } from './question-review.component';
 
 @Component({
     selector: 'xm-question-reviews',
@@ -82,6 +86,8 @@ import { QuestionReviewService } from '../question-review.service';
             </div>
         </div>
     </div> `,
+    standalone: true,
+    imports: [NgIf, FormsModule, NgFor, QuestionReviewComponent, TranslateModule],
 })
 export class QuestionReviewsComponent implements OnInit {
     examId = 0;

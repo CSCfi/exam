@@ -14,38 +14,12 @@
  */
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { AdministrativeModule } from '../../administrative/administrative.module';
-import { ExamModule } from '../../exam/exam.module';
-import { ExaminationModule } from '../../examination/examination.module';
-import { FacilityModule } from '../../facility/facility.module';
-import { MaturityModule } from '../../maturity/maturity.module';
-import { QuestionModule } from '../../question/question.module';
-import { ReviewModule } from '../../review/review.module';
-import { SharedModule } from '../../shared/shared.module';
-import { SoftwareModule } from '../../software/software.module';
-import { AdminDashboardModule } from './admin/admin-dashboard.module';
 import { StaffDashboardComponent } from './staff-dashboard.component';
 import { StaffRoutingModule } from './staff-routing.module';
-import { TeacherDashboardModule } from './teacher/teacher-dashboard.module';
 
 // TODO: Student & teacher dashboard + reservation modules should be lazy loaded to decrease bundle size
 // We need a router setup that supports this first
 @NgModule({
-    imports: [
-        SharedModule,
-        TeacherDashboardModule,
-        AdminDashboardModule,
-        ExamModule,
-        ExaminationModule,
-        QuestionModule,
-        ReviewModule,
-        MaturityModule,
-        AdministrativeModule,
-        SoftwareModule,
-        FacilityModule,
-        RouterModule,
-        StaffRoutingModule,
-    ],
-    declarations: [StaffDashboardComponent],
+    imports: [RouterModule, StaffRoutingModule, StaffDashboardComponent],
 })
 export class StaffDashboardModule {}

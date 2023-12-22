@@ -12,19 +12,43 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
-import type { NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
+import { RouterLink } from '@angular/router';
+import {
+    NgbNav,
+    NgbNavChangeEvent,
+    NgbNavContent,
+    NgbNavItem,
+    NgbNavItemRole,
+    NgbNavLink,
+    NgbNavOutlet,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import { Exam } from 'src/app/exam/exam.model';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
-import { ExtraData } from './categories/exam-list-category.component';
-import { ExamSearchPipe } from './exam-search.pipe';
+import { ExamListCategoryComponent, ExtraData } from './categories/exam-list-category.component';
 import type { DashboardExam } from './teacher-dashboard.service';
 import { TeacherDashboardService } from './teacher-dashboard.service';
 
 @Component({
     selector: 'xm-teacher-dashboard',
     templateUrl: './teacher-dashboard.component.html',
+    standalone: true,
+    imports: [
+        RouterLink,
+        NgbNav,
+        NgbNavItem,
+        NgbNavItemRole,
+        NgbNavLink,
+        NgIf,
+        NgbNavContent,
+        ExamListCategoryComponent,
+        NgbNavOutlet,
+        TranslateModule,
+    ],
 })
 export class TeacherDashboardComponent implements OnInit {
     activeTab = 1;
@@ -42,11 +66,7 @@ export class TeacherDashboardComponent implements OnInit {
     draftExams: DashboardExam[] = [];
     filteredDrafts: DashboardExam[] = [];
 
-    constructor(
-        private TeacherDashboard: TeacherDashboardService,
-        private Session: SessionService,
-        private searchFilter: ExamSearchPipe,
-    ) {
+    constructor(private TeacherDashboard: TeacherDashboardService, private Session: SessionService) {
         this.activeExtraData = [
             {
                 text: 'i18n_participation_unreviewed',
@@ -105,10 +125,10 @@ export class TeacherDashboardComponent implements OnInit {
 
     search = (text: string) => {
         // Use same search parameter for all the 4 result tables
-        this.filteredFinished = this.searchFilter.transform(this.finishedExams, text);
-        this.filteredActive = this.searchFilter.transform(this.activeExams, text);
-        this.filteredArchived = this.searchFilter.transform(this.archivedExams, text);
-        this.filteredDrafts = this.searchFilter.transform(this.draftExams, text);
+        this.filteredFinished = this.find(this.finishedExams, text);
+        this.filteredActive = this.find(this.activeExams, text);
+        this.filteredArchived = this.find(this.archivedExams, text);
+        this.filteredDrafts = this.find(this.draftExams, text);
 
         // for drafts, display exams only for owners AM-1658
         this.filteredDrafts = this.filteredDrafts.filter((exam) =>
@@ -125,4 +145,13 @@ export class TeacherDashboardComponent implements OnInit {
             (exam) => exam.unassessedCount > 0 || exam.examOwners.some((eo: User) => eo.id === this.userId),
         );
     };
+
+    private find<T extends Exam>(exams: T[], filter: string): T[] {
+        const getAggregate = (exam: Exam) => {
+            const code = exam.course ? exam.course.code : '';
+            const owners = exam.examOwners.map((eo) => `${eo.firstName} ${eo.lastName}`).join(' ');
+            return `${code} ${owners} ${exam.name}`;
+        };
+        return !filter ? exams : exams.filter((e) => getAggregate(e).toLowerCase().includes(filter.toLowerCase()));
+    }
 }

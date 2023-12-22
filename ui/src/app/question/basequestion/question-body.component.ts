@@ -12,10 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf, NgSwitch, NgSwitchCase } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { ControlContainer, NgForm } from '@angular/forms';
-import type { NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
+import { NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
@@ -23,13 +25,35 @@ import type { ExamSectionQuestion, ReverseQuestion, Tag } from '../../exam/exam.
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
+import { CKEditorComponent } from '../../shared/ckeditor/ckeditor.component';
 import type { QuestionDraft } from '../question.service';
 import { QuestionService } from '../question.service';
+import { TagPickerComponent } from '../tags/tag-picker.component';
+import { ClaimChoiceEditorComponent } from './claim-choice.component';
+import { EssayEditorComponent } from './essay.component';
+import { MultipleChoiceEditorComponent } from './multiple-choice.component';
 
 @Component({
     selector: 'xm-question-body',
     templateUrl: './question-body.component.html',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
+    standalone: true,
+    imports: [
+        FormsModule,
+        NgIf,
+        NgFor,
+        NgbPopover,
+        NgClass,
+        CKEditorComponent,
+        NgSwitch,
+        NgSwitchCase,
+        EssayEditorComponent,
+        MultipleChoiceEditorComponent,
+        ClaimChoiceEditorComponent,
+        NgbTypeahead,
+        TagPickerComponent,
+        TranslateModule,
+    ],
 })
 export class QuestionBodyComponent implements OnInit {
     @Input() question!: ReverseQuestion | QuestionDraft;

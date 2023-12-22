@@ -12,7 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgFor } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import type { ExamParticipation } from '../../../exam/exam.model';
 import type { Participations, QueryParams } from '../statistics.service';
 import { StatisticsService } from '../statistics.service';
@@ -59,6 +61,8 @@ import { StatisticsService } from '../statistics.service';
         </div>
     `,
     selector: 'xm-room-statistics',
+    standalone: true,
+    imports: [NgFor, DatePipe, TranslateModule],
 })
 export class RoomStatisticsComponent {
     @Input() queryParams: QueryParams = {};

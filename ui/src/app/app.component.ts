@@ -12,15 +12,17 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { registerLocaleData } from '@angular/common';
+import { NgClass, NgIf, registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ExaminationStatusService } from './examination/examination-status.service';
+import { NavigationComponent } from './navigation/navigation.component';
+import { DevLoginComponent } from './session/dev/dev-login.component';
 import type { User } from './session/session.service';
 import { SessionService } from './session/session.service';
 
@@ -37,6 +39,8 @@ import { SessionService } from './session/session.service';
             </main>
         </div>
     `,
+    standalone: true,
+    imports: [NgIf, DevLoginComponent, NavigationComponent, NgClass, RouterOutlet],
 })
 export class AppComponent implements OnInit, OnDestroy {
     user?: User;

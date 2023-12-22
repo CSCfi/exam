@@ -13,12 +13,15 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
+import { NgClass, NgFor } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import type { User } from '../session.service';
 
 @Component({
-    selector: 'xm-role-selector-dialog',
+    standalone: true,
+    imports: [TranslateModule, NgFor, NgClass, NgbDropdownModule],
     template: `
         <div class="modal-header">
             <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'i18n_select_role' | translate }}</h4>

@@ -12,7 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from '../../../exam/exam.model';
 import { ExamService } from '../../../exam/exam.service';
 import { SessionService } from '../../../session/session.service';
@@ -83,6 +86,8 @@ import { MaturityService } from './maturity.service';
                 >
             </div>
         </div> `,
+    standalone: true,
+    imports: [NgIf, RouterLink, NgClass, TranslateModule],
 })
 export class MaturityToolbarComponent {
     @Input() exam!: Exam;

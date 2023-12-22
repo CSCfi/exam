@@ -9,6 +9,7 @@ import { Toast, ToastPackage, ToastrService } from 'ngx-toastr';
         <b>{{ title }}.</b>
         {{ message }}
     `,
+    standalone: true,
 })
 export class SessionExpireWarningComponent extends Toast {
     // constructor is only necessary when not using AoT

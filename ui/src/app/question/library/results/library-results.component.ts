@@ -12,10 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { isNumber, isString } from 'src/app/shared/miscellaneous/helpers';
 import type { Question } from '../../../exam/exam.model';
@@ -23,6 +27,11 @@ import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
+import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
+import { PageFillPipe } from '../../../shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from '../../../shared/paginator/paginator.component';
+import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
+import { TableSortComponent } from '../../../shared/sorting/table-sort.component';
 import type { LibraryQuestion } from '../library.service';
 import { LibraryService } from '../library.service';
 
@@ -31,6 +40,23 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
 @Component({
     selector: 'xm-library-results',
     templateUrl: './library-results.component.html',
+    standalone: true,
+    imports: [
+        NgClass,
+        FormsModule,
+        NgbPopover,
+        TableSortComponent,
+        NgIf,
+        NgFor,
+        MathJaxDirective,
+        RouterLink,
+        PaginatorComponent,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        PageFillPipe,
+        OrderByPipe,
+    ],
 })
 export class LibraryResultsComponent implements OnInit, OnChanges {
     @Input() questions: Question[] = [];

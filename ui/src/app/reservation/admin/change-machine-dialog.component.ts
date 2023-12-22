@@ -18,13 +18,15 @@ import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Option } from '../../shared/select/dropdown-select.component';
+import { DropdownSelectComponent, Option } from '../../shared/select/dropdown-select.component';
 import type { ExamMachine, Reservation } from '../reservation.model';
 
 @Component({
     selector: 'xm-change-machine-dialog',
+    standalone: true,
+    imports: [TranslateModule, DropdownSelectComponent],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="terms-dialog-header">
             <h4><i class="bi-info-circle"></i>&nbsp;&nbsp;{{ 'i18n_change_reservation_machine' | translate }}</h4>

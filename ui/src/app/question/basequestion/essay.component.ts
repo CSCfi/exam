@@ -12,8 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { ControlContainer, NgForm } from '@angular/forms';
+import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import type { Question } from '../../exam/exam.model';
 import { QuestionDraft } from '../question.service';
 
@@ -52,6 +54,8 @@ import { QuestionDraft } from '../question.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [FormsModule, NgIf, TranslateModule],
 })
 export class EssayEditorComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;

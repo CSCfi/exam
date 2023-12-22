@@ -12,9 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgFor, NgIf } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { ClozeTestAnswer, ExamParticipation } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
@@ -23,12 +26,35 @@ import type { QuestionAmounts } from '../../question/question.service';
 import { QuestionService } from '../../question/question.service';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
+import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
 import { AssessmentService } from './assessment.service';
 import { CollaborativeAssesmentService } from './collaborative-assessment.service';
+import { FeedbackComponent } from './feedback/feedback.component';
+import { StatementComponent } from './feedback/statement.component';
+import { GeneralInfoComponent } from './general/general-info.component';
+import { GradingComponent } from './grading/grading.component';
+import { MaturityGradingComponent } from './maturity/grading.component';
+import { ExamSectionComponent } from './sections/section.component';
 
 @Component({
     selector: 'xm-assessment',
     templateUrl: './assessment.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        CourseCodeComponent,
+        NgbCollapse,
+        GeneralInfoComponent,
+        NgFor,
+        ExamSectionComponent,
+        GradingComponent,
+        MaturityGradingComponent,
+        FeedbackComponent,
+        StatementComponent,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class AssessmentComponent implements OnInit {
     collaborative = false;

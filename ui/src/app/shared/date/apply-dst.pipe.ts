@@ -17,7 +17,10 @@ import { Pipe } from '@angular/core';
 import { addHours, formatISO, parseISO } from 'date-fns';
 import { DateTimeService } from './date.service';
 
-@Pipe({ name: 'applyDst' })
+@Pipe({
+    name: 'applyDst',
+    standalone: true,
+})
 export class ApplyDstPipe implements PipeTransform {
     constructor(private DateTime: DateTimeService) {}
     transform = (input?: string): string => {

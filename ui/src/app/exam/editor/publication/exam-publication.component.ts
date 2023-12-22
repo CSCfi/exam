@@ -12,12 +12,14 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateService } from '@ngx-translate/core';
+import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { from, Observable, throwError } from 'rxjs';
@@ -25,7 +27,9 @@ import { catchError, tap } from 'rxjs/operators';
 import { isBoolean } from 'src/app/shared/miscellaneous/helpers';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
+import { DatePickerComponent } from '../../../shared/date/date-picker.component';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
+import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
 import type {
     AutoEvaluationConfig,
     Exam,
@@ -36,6 +40,10 @@ import type {
 import { ExamService } from '../../exam.service';
 import { ExaminationEventDialogComponent } from '../events/examination-event-dialog.component';
 import { ExamTabService } from '../exam-tabs.service';
+import { CollaborativeExamOwnerSelectorComponent } from './collaborative-exam-owner-picker.component';
+import { ExamParticipantSelectorComponent } from './exam-participant-picker.component';
+import { ExamPreParticipantSelectorComponent } from './exam-pre-participant-picker.component';
+import { OrganisationSelectorComponent } from './organisation-picker.component';
 import { PublicationDialogComponent } from './publication-dialog.component';
 import { PublicationErrorDialogComponent } from './publication-error-dialog.component';
 import { PublicationRevocationDialogComponent } from './publication-revocation-dialog.component';
@@ -43,6 +51,23 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
 @Component({
     selector: 'xm-exam-publication',
     templateUrl: './exam-publication.component.html',
+    standalone: true,
+    imports: [
+        DatePickerComponent,
+        NgFor,
+        FormsModule,
+        NgbPopover,
+        NgIf,
+        NgClass,
+        ExamParticipantSelectorComponent,
+        ExamPreParticipantSelectorComponent,
+        CollaborativeExamOwnerSelectorComponent,
+        OrganisationSelectorComponent,
+        UpperCasePipe,
+        DatePipe,
+        TranslateModule,
+        OrderByPipe,
+    ],
 })
 export class ExamPublicationComponent implements OnInit {
     exam!: Exam;

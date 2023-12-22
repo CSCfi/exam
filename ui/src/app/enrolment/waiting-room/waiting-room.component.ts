@@ -12,16 +12,21 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgIf, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom, Reservation } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
+import { ApplyDstPipe } from '../../shared/date/apply-dst.pipe';
 import { DateTimeService } from '../../shared/date/date.service';
+import { MathJaxDirective } from '../../shared/math/math-jax.directive';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from '../../shared/user/teacher-list.component';
 import type { ExamEnrolment } from '../enrolment.model';
 
 type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
@@ -32,6 +37,18 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
 @Component({
     selector: 'xm-waiting-room',
     templateUrl: './waiting-room.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        CourseCodeComponent,
+        TeacherListComponent,
+        MathJaxDirective,
+        UpperCasePipe,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+    ],
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {
     enrolment!: WaitingEnrolment;

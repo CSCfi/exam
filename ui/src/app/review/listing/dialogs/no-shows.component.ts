@@ -12,13 +12,20 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 import { ExamEnrolment } from '../../../enrolment/enrolment.model';
 import { SessionService } from '../../../session/session.service';
 
 @Component({
     selector: 'xm-no-shows-component',
+    standalone: true,
+    imports: [TranslateModule, NgIf, NgFor, ApplyDstPipe, OrderByPipe, DatePipe, TableSortComponent],
     templateUrl: './no-shows.component.html',
 })
 export class NoShowsComponent implements OnInit {

@@ -13,10 +13,14 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-r-inspection-comment',
+    standalone: true,
+    imports: [FormsModule, TranslateModule],
     template: `
         <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="student-message-dialog-wrapper-padding">

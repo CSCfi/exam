@@ -1,3 +1,4 @@
+import { NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import type { Course } from '../../exam/exam.model';
 import { CourseCodeService } from './course-code.service';
@@ -5,6 +6,8 @@ import { CourseCodeService } from './course-code.service';
 @Component({
     selector: 'xm-course-code',
     template: ` <span *ngIf="course.code">{{ formatCode() }}</span> `,
+    standalone: true,
+    imports: [NgIf],
 })
 export class CourseCodeComponent {
     @Input() course!: Course;

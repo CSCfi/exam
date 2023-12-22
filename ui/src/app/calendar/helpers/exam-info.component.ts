@@ -1,7 +1,10 @@
+import { DatePipe, NgIf } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { DateTimeService } from '../../shared/date/date.service';
+import { MathJaxDirective } from '../../shared/math/math-jax.directive';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
 import type { ExamInfo } from '../calendar.service';
 
 @Component({
@@ -73,6 +76,8 @@ import type { ExamInfo } from '../calendar.service';
             </div>
         </div>
     `,
+    standalone: true,
+    imports: [NgIf, CourseCodeComponent, MathJaxDirective, DatePipe, TranslateModule],
 })
 export class CalendarExamInfoComponent implements OnInit {
     @Input() examInfo!: ExamInfo;

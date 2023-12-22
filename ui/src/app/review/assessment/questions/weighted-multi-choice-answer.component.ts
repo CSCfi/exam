@@ -12,8 +12,12 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
+import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
+import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-weighted-multi-choice-answer',
@@ -65,6 +69,8 @@ import type { ExamSectionQuestion } from '../../../exam/exam.model';
             </div>
         </div>
     </div> `,
+    standalone: true,
+    imports: [NgFor, NgIf, MathJaxDirective, NgClass, TranslateModule, OrderByPipe],
 })
 export class WeightedMultiChoiceAnswerComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;

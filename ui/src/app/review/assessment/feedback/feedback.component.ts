@@ -12,12 +12,18 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { CdkDrag } from '@angular/cdk/drag-drop';
+import { NgClass, NgIf } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule } from '@ngx-translate/core';
 import type { ExamParticipation } from '../../../exam/exam.model';
 import type { Examination } from '../../../examination/examination.model';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
 import type { FileResult } from '../../../shared/attachment/dialogs/attachment-picker.component';
+import { CKEditorComponent } from '../../../shared/ckeditor/ckeditor.component';
 import { FileService } from '../../../shared/file/file.service';
 import { AssessmentService } from '../assessment.service';
 import { CollaborativeAssesmentService } from '../collaborative-assessment.service';
@@ -76,6 +82,8 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
             </div>
         </div>
     </div> `,
+    standalone: true,
+    imports: [CdkDrag, NgbPopover, NgClass, NgbCollapse, CKEditorComponent, FormsModule, NgIf, TranslateModule],
 })
 export class FeedbackComponent implements OnInit {
     @Input() exam!: Examination;

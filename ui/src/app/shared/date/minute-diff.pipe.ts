@@ -15,7 +15,10 @@
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
 
-@Pipe({ name: 'minuteDiff' })
+@Pipe({
+    name: 'minuteDiff',
+    standalone: true,
+})
 export class DiffInMinutesPipe implements PipeTransform {
     transform = (from: string, to: string): number => {
         const diff = (new Date(to).getTime() - new Date(from).getTime()) / 1000 / 60;

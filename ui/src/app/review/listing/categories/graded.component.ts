@@ -12,16 +12,32 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { DatePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import {
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+    NgbPopover,
+} from '@ng-bootstrap/ng-bootstrap';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
 import type { Exam } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
+import { ApplyDstPipe } from '../../../shared/date/apply-dst.pipe';
+import { DiffInDaysPipe } from '../../../shared/date/day-diff.pipe';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
+import { PageFillPipe } from '../../../shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from '../../../shared/paginator/paginator.component';
+import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
+import { TableSortComponent } from '../../../shared/sorting/table-sort.component';
 import { AssessmentService } from '../../assessment/assessment.service';
 import type { Review } from '../../review.model';
 import type { ReviewListView } from '../review-list.service';
@@ -30,6 +46,28 @@ import { ReviewListService } from '../review-list.service';
 @Component({
     selector: 'xm-rl-graded',
     templateUrl: './graded.component.html',
+    standalone: true,
+    imports: [
+        NgIf,
+        NgbPopover,
+        FormsModule,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        NgClass,
+        TableSortComponent,
+        NgFor,
+        RouterLink,
+        PaginatorComponent,
+        SlicePipe,
+        DatePipe,
+        TranslateModule,
+        ApplyDstPipe,
+        PageFillPipe,
+        DiffInDaysPipe,
+        OrderByPipe,
+    ],
 })
 export class GradedReviewsComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;

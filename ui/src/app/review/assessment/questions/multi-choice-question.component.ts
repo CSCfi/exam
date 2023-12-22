@@ -12,20 +12,39 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf, NgStyle, UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { QuestionService } from 'src/app/question/question.service';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
+import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
+import { FixedPrecisionValidatorDirective } from '../../../shared/validation/fixed-precision.directive';
 import { AssessmentService } from '../assessment.service';
+import { ClaimChoiceAnswerComponent } from './claim-choice-answer.component';
+import { MultiChoiceAnswerComponent } from './multi-choice-answer.component';
+import { WeightedMultiChoiceAnswerComponent } from './weighted-multi-choice-answer.component';
 
 @Component({
     selector: 'xm-r-multi-choice-question',
     templateUrl: './multi-choice-question.component.html',
+    standalone: true,
+    imports: [
+        MathJaxDirective,
+        NgIf,
+        NgStyle,
+        MultiChoiceAnswerComponent,
+        WeightedMultiChoiceAnswerComponent,
+        ClaimChoiceAnswerComponent,
+        FormsModule,
+        FixedPrecisionValidatorDirective,
+        UpperCasePipe,
+        TranslateModule,
+    ],
 })
 export class MultiChoiceQuestionComponent implements OnInit {
     @Input() sectionQuestion!: ExamSectionQuestion;

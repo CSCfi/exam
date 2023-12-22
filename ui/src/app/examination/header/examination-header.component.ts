@@ -12,8 +12,11 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { SessionService } from '../../session/session.service';
+import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
+import { ExaminationClockComponent } from '../clock/examination-clock.component';
 import type { Examination } from '../examination.model';
 
 @Component({
@@ -71,6 +74,8 @@ import type { Examination } from '../examination.model';
             </div>
         </div>
     </div> `,
+    standalone: true,
+    imports: [NgIf, CourseCodeComponent, ExaminationClockComponent],
 })
 export class ExaminationHeaderComponent {
     @Input() exam!: Examination;

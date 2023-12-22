@@ -13,9 +13,12 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
     selector: 'xm-staff-dashboard',
     template: `<router-outlet></router-outlet>`,
+    standalone: true,
+    imports: [RouterOutlet],
 })
 export class StaffDashboardComponent {}

@@ -145,6 +145,8 @@ const routes: Route[] = [
     */
     {
         path: 'staff',
+        //loadComponent: () =>
+        //    import('./dashboard/staff/admin/admin-dashboard.component').then((mod) => mod.AdminDashboardComponent),
         loadChildren: () => import('./dashboard/staff/staff-dashboard.module').then((mod) => mod.StaffDashboardModule),
     },
 ];
