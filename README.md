@@ -1,4 +1,5 @@
 ![Build](https://github.com/CSCfi/exam/actions/workflows/scala.yml/badge.svg?branch=dev)
+
 EXAM Quickstart for developers
 =====================================
 
