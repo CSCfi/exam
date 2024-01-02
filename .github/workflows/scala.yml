@@ -1,4 +1,4 @@
-name: Exam
+name: Build
 
 on: [push]
 
