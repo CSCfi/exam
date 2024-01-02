@@ -1,4 +1,4 @@
-![Build](https://github.com/CSCfi/exam/actions/workflows/scala.yml/badge.svg?branch=dev)
+[![Build](https://github.com/CSCfi/exam/actions/workflows/scala.yml/badge.svg?branch=dev)](https://github.com/CSCfi/exam/actions) 
 
 EXAM Quickstart for developers
 =====================================
