@@ -30,7 +30,7 @@ EXAM Quickstart for developers
 
     This opens up a debug port at 9999 and allocates 2 Gb of heap memory for the JVM
 
-5.  Open http://localhost:4200 in your browser
+5.  Open http://localhost:4200 in your browser. 
     Accept the database migrations in case you see a prompt.
 
 ## More information
