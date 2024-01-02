@@ -1,5 +1,4 @@
-[![Build Status](https://api.travis-ci.com/CSCfi/exam.svg?branch=dev)](https://app.travis-ci.com/github/CSCfi/exam)
-
+![Build](https://github.com/CSCfi/exam/actions/workflows/scala.yml/badge.svg?branch=dev)
 EXAM Quickstart for developers
 =====================================
 
