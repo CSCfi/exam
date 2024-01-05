@@ -33,7 +33,6 @@ public interface ConfigReader {
     String getQuitExaminationLink();
     String getExaminationAdminPassword();
     String getSettingsPasswordEncryptionKey();
-    String getQuitPassword();
     String getHomeOrganisationRef();
     Integer getMaxByodExaminationParticipantCount();
     String getCourseCodePrefix();

@@ -1158,5 +1158,6 @@
   "i18n_preview_question": "Question Preview",
   "i18n_button_preview": "Preview question",
   "i18n_no_preview_available": "No preview available",
-  "i18n_used_in_exams": "Used in exams"
+  "i18n_used_in_exams": "Used in exams",
+  "i18n_quit_password": "SEB-poistumissalasana EN"
 }

@@ -136,9 +136,13 @@ public class ExaminationEventController extends BaseController {
         if (capacity + ub > configReader.getMaxByodExaminationParticipantCount()) {
             return forbidden("i18n_error_max_capacity_exceeded");
         }
-        String password = request.attrs().get(Attrs.SETTINGS_PASSWORD);
-        if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH && password == null) {
-            return forbidden("no password provided");
+        String quitPassword = request.attrs().get(Attrs.QUIT_PASSWORD);
+        if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH && quitPassword == null) {
+            return forbidden("no quit password provided");
+        }
+        String settingsPassword = request.attrs().get(Attrs.SETTINGS_PASSWORD);
+        if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH && settingsPassword == null) {
+            return forbidden("no settings password provided");
         }
         ee.setStart(start);
         ee.setDescription(request.attrs().get(Attrs.DESCRIPTION));
@@ -147,12 +151,14 @@ public class ExaminationEventController extends BaseController {
         eec.setExaminationEvent(ee);
         eec.setExam(exam);
         eec.setHash(UUID.randomUUID().toString());
-        if (password != null) {
-            encryptSettingsPassword(eec, password);
+        if (quitPassword != null && settingsPassword != null) {
+            encryptQuitPassword(eec, quitPassword);
+            encryptSettingsPassword(eec, settingsPassword, quitPassword);
+            // Pass back the plaintext password, so it can be shown to user
+            eec.setQuitPassword(quitPassword);
+            eec.setSettingsPassword(settingsPassword);
         }
         eec.save();
-        // Pass back the plaintext password, so it can be shown to user
-        eec.setSettingsPassword(request.attrs().get(Attrs.SETTINGS_PASSWORD));
         return ok(eec);
     }
 
@@ -172,9 +178,13 @@ public class ExaminationEventController extends BaseController {
         ExaminationEventConfiguration eec = oeec.get();
         boolean hasEnrolments = !eec.getExamEnrolments().isEmpty();
         ExaminationEvent ee = eec.getExaminationEvent();
-        String password = request.attrs().get(Attrs.SETTINGS_PASSWORD);
-        if (eec.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH && password == null) {
-            return forbidden("no password provided");
+        String quitPassword = request.attrs().get(Attrs.QUIT_PASSWORD);
+        if (eec.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH && quitPassword == null) {
+            return forbidden("no quit password provided");
+        }
+        String settingsPassword = request.attrs().get(Attrs.SETTINGS_PASSWORD);
+        if (eec.getExam().getImplementation() == Exam.Implementation.CLIENT_AUTH && settingsPassword == null) {
+            return forbidden("no settings password provided");
         }
         DateTime start = request.attrs().get(Attrs.START_DATE);
         if (!hasEnrolments) {
@@ -194,19 +204,23 @@ public class ExaminationEventController extends BaseController {
         }
         ee.setCapacity(capacity);
         ee.setDescription(request.attrs().get(Attrs.DESCRIPTION));
-
         ee.update();
-        if (password == null) {
+        if (quitPassword == null || settingsPassword == null) {
             return ok(eec);
-        } else if (!hasEnrolments) {
-            encryptSettingsPassword(eec, password);
+        }
+        if (!hasEnrolments) {
+            encryptQuitPassword(eec, settingsPassword);
+            encryptSettingsPassword(eec, settingsPassword, quitPassword);
             eec.save();
-            // Pass back the plaintext password, so it can be shown to user
-            eec.setSettingsPassword(request.attrs().get(Attrs.SETTINGS_PASSWORD));
+            // Pass back the plaintext passwords, so they can be shown to user
+            eec.setQuitPassword(quitPassword);
+            eec.setSettingsPassword(settingsPassword);
         } else {
             // Disallow changing password if enrolments exist for this event
-            // TODO: check how this could be made possible. Would need resending seb-files with new encryption
-            // Send back the original (unchanged password)
+            // Pass back the original unchanged passwords
+            eec.setQuitPassword(
+                byodConfigHandler.getPlaintextPassword(eec.getEncryptedQuitPassword(), eec.getQuitPasswordSalt())
+            );
             eec.setSettingsPassword(
                 byodConfigHandler.getPlaintextPassword(
                     eec.getEncryptedSettingsPassword(),
@@ -246,7 +260,7 @@ public class ExaminationEventController extends BaseController {
         return ok();
     }
 
-    private void encryptSettingsPassword(ExaminationEventConfiguration eec, String password) {
+    private void encryptSettingsPassword(ExaminationEventConfiguration eec, String password, String quitPassword) {
         try {
             String oldPwd = eec.getEncryptedSettingsPassword() != null
                 ? byodConfigHandler.getPlaintextPassword(
@@ -260,7 +274,26 @@ public class ExaminationEventController extends BaseController {
                 eec.setEncryptedSettingsPassword(byodConfigHandler.getEncryptedPassword(password, newSalt));
                 eec.setSettingsPasswordSalt(newSalt);
                 // Pre-calculate config key, so we don't need to do it each time a check is needed
-                eec.setConfigKey(byodConfigHandler.calculateConfigKey(eec.getHash()));
+                eec.setConfigKey(byodConfigHandler.calculateConfigKey(eec.getHash(), quitPassword));
+            }
+        } catch (Exception e) {
+            logger.error("unable to set settings password", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void encryptQuitPassword(ExaminationEventConfiguration eec, String password) {
+        try {
+            String oldPwd = eec.getEncryptedQuitPassword() != null
+                ? byodConfigHandler.getPlaintextPassword(eec.getEncryptedQuitPassword(), eec.getQuitPasswordSalt())
+                : null;
+
+            if (!password.equals(oldPwd)) {
+                String newSalt = UUID.randomUUID().toString();
+                eec.setEncryptedQuitPassword(byodConfigHandler.getEncryptedPassword(password, newSalt));
+                eec.setQuitPasswordSalt(newSalt);
+                // Pre-calculate config key, so we don't need to do it each time a check is needed
+                eec.setConfigKey(byodConfigHandler.calculateConfigKey(eec.getHash(), password));
             }
         } catch (Exception e) {
             logger.error("unable to set settings password", e);

@@ -53,19 +53,37 @@
                 />
             </div>
             <div *ngIf="requiresPassword" class="form-group">
-                <label for="password">{{ 'i18n_settings_password' | translate }}:</label>
-                <div id="password" class="input-group wdth-30">
+                <label for="settings-password">{{ 'i18n_settings_password' | translate }}:</label>
+                <div id="settings-password" class="input-group wdth-30">
                     <input
-                        type="{{ pwdInputType }}"
-                        name="password"
+                        type="{{ settingsPasswordInputType }}"
+                        name="settingsPassword"
                         class="form-control"
-                        [(ngModel)]="password"
+                        [(ngModel)]="settingsPassword"
                         [disabled]="hasEnrolments"
                         required
                     />
                     <div class="input-group-append">
-                        <button class="btn btn-primary green" type="button" (click)="togglePasswordInputType()">
-                            <i [ngClass]="pwdInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
+                        <button class="btn btn-primary green" type="button" (click)="toggleSettingsPasswordInputType()">
+                            <i [ngClass]="settingsPasswordInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="requiresPassword" class="form-group">
+                <label for="quit-password">{{ 'i18n_quit_password' | translate }}:</label>
+                <div id="quit-password" class="input-group wdth-30">
+                    <input
+                        type="{{ quitPasswordInputType }}"
+                        name="quitPassword"
+                        class="form-control"
+                        [(ngModel)]="quitPassword"
+                        [disabled]="hasEnrolments"
+                        required
+                    />
+                    <div class="input-group-append">
+                        <button class="btn btn-primary green" type="button" (click)="toggleQuitPasswordInputType()">
+                            <i [ngClass]="quitPasswordInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
                         </button>
                     </div>
                 </div>

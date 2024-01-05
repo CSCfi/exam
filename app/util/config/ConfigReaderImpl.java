@@ -198,11 +198,6 @@ public class ConfigReaderImpl implements ConfigReader {
     }
 
     @Override
-    public String getQuitPassword() {
-        return config.getString("exam.exam.seb.quitPwd");
-    }
-
-    @Override
     public String getHomeOrganisationRef() {
         return config.getString("exam.integration.iop.organisationRef");
     }
