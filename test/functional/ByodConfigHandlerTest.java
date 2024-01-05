@@ -15,8 +15,8 @@ public class ByodConfigHandlerTest extends IntegrationTestCase {
             app,
             () -> {
                 ByodConfigHandler bch = app.injector().instanceOf(ByodConfigHandler.class);
-                String key = bch.calculateConfigKey("123456");
-                assertThat(key).isEqualTo("e3c8007ac6b9f8a70b20b9696eb38a13097b22806a85e13f356a6eb45d7800d3");
+                String key = bch.calculateConfigKey("123456", "quit");
+                assertThat(key).isEqualTo("50ea3844757d2c915284d1f9ded0d6c9ceb41930105ac32530c4c1eb8623053a");
             }
         );
     }
@@ -28,7 +28,7 @@ public class ByodConfigHandlerTest extends IntegrationTestCase {
             () -> {
                 ByodConfigHandler bch = app.injector().instanceOf(ByodConfigHandler.class);
                 byte[] pwd = bch.getEncryptedPassword("password", "salt");
-                byte[] data = bch.getExamConfig("123456", pwd, "salt");
+                byte[] data = bch.getExamConfig("123456", pwd, "salt", "quit");
                 // sanity check that we actually have a reasonably sized file content
                 assertThat(data.length).isGreaterThan(1000);
             }

@@ -42,6 +42,7 @@ export type ExaminationEventConfigurationInput = {
             description: string;
             capacity: number;
         };
+        quitPassword?: string;
         settingsPassword?: string;
     };
 };

@@ -348,6 +348,10 @@ class EmailComposerImpl implements EmailComposer {
 
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH) {
             // Attach a SEB config file
+            String quitPassword = byodConfigHandler.getPlaintextPassword(
+                config.getEncryptedQuitPassword(),
+                config.getQuitPasswordSalt()
+            );
             String fileName = exam.getName().replace(" ", "-");
             File file;
             try {
@@ -356,7 +360,8 @@ class EmailComposerImpl implements EmailComposer {
                 byte[] data = byodConfigHandler.getExamConfig(
                     config.getHash(),
                     config.getEncryptedSettingsPassword(),
-                    config.getSettingsPasswordSalt()
+                    config.getSettingsPasswordSalt(),
+                    quitPassword
                 );
                 fos.write(data);
                 fos.close();
