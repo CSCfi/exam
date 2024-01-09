@@ -125,10 +125,13 @@ public class EnrolmentRepository {
             .endJunction()
             .findList()
             .stream()
-            .filter(ee ->
-                ee.getExaminationEventConfiguration() == null ||
-                ee.getExaminationEventConfiguration().getExaminationEvent().getStart().isAfter((DateTime.now()))
-            )
+            .filter(ee -> {
+                if (ee.getExaminationEventConfiguration() == null) {
+                    return true;
+                }
+                var start = ee.getExaminationEventConfiguration().getExaminationEvent().getStart();
+                return start.plusMinutes(ee.getExam().getDuration()).isAfter(now);
+            })
             .toList();
         enrolments.forEach(ee -> {
             Exam exam = ee.getExam();
