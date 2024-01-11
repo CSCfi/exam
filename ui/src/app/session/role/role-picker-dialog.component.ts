@@ -38,7 +38,7 @@ import type { User } from '../session.service';
                             title="{{ role.displayName || '' | translate }}"
                             (click)="activeModal.close(role)"
                         >
-                            {{ role.displayName || '' | translate }} <i [ngClass]="role.icon || ''"></i>
+                            {{ role.displayName || '' | translate }} <i class="ps-1" [ngClass]="role.icon"></i>
                         </button>
                     }
                 </div>

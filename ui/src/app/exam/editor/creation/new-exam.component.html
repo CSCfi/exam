@@ -27,7 +27,11 @@
                                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     ngbPopover="{{ 'i18n_new_exam_type_description' | translate }}"
                                 >
-                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
+                                    <img
+                                        src="/assets/images/icon_tooltip.svg"
+                                        alt=""
+                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
+                                    />
                                 </sup>
                             </label>
                             <select
@@ -57,7 +61,11 @@
                                         popoverTitle="{{ 'i18n_instructions' | translate }}"
                                         ngbPopover="{{ 'i18n_examination_type_description' | translate }}"
                                     >
-                                        <img src="/assets/images/icon_tooltip.svg" alt="" />
+                                        <img
+                                            src="/assets/images/icon_tooltip.svg"
+                                            alt=""
+                                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
+                                        />
                                     </sup>
                                 </label>
                                 <select
@@ -69,12 +77,12 @@
                                 >
                                     <option value="AQUARIUM">{{ 'i18n_examination_type_aquarium' | translate }}</option>
                                     @if (sebExaminationSupported) {
-                                        <option value="CLIENT_AUTH">
+                                        <option [disabled]="!canCreateByodExams" value="CLIENT_AUTH">
                                             {{ 'i18n_examination_type_seb' | translate }}
                                         </option>
                                     }
                                     @if (homeExaminationSupported) {
-                                        <option value="WHATEVER">
+                                        <option [disabled]="!canCreateByodExams" value="WHATEVER">
                                             {{ 'i18n_examination_type_home_exam' | translate }}
                                         </option>
                                     }

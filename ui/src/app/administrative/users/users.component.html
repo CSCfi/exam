@@ -56,7 +56,7 @@
                     }
                 </div>
             </span>
-            <!-- ng-show="permissions.length > 0" -->
+
             <span class="dropdown" ngbDropdown>
                 <button
                     ngbDropdownToggle
@@ -126,13 +126,13 @@
                             <td>{{ user.lastLogin | date: 'dd.MM.yyyy HH:mm:ss' }}</td>
                             <td>
                                 @if (hasRole(user, 'ADMIN')) {
-                                    <i class="bi-gear-fill"></i>
+                                    <i class="bi-gear-fill pe-1"></i>
                                 }
                                 @if (hasRole(user, 'TEACHER')) {
-                                    <i class="bi-person-fill"></i>
+                                    <i class="bi-person pe-1"></i>
                                 }
                                 @if (hasRole(user, 'STUDENT')) {
-                                    <i class="bi-person"></i>
+                                    <i class="bi-mortarboard pe-1"></i>
                                 }
                                 <div class="float-end">
                                     <span class="no-caret pointer" ngbDropdown>
@@ -146,8 +146,7 @@
                                         >
                                             @if (user.availableRoles.length > 0) {
                                                 <i class="text-success bi-plus"></i>
-                                            }
-                                            @if (user.availableRoles.length === 0) {
+                                            } @else {
                                                 <i class="text-muted bi-plus"></i>
                                             }
                                         </button>
@@ -178,8 +177,7 @@
                                         >
                                             @if (user.removableRoles.length > 1) {
                                                 <i class="text-danger bi-dash"></i>
-                                            }
-                                            @if (user.removableRoles.length <= 1) {
+                                            } @else {
                                                 <i
                                                     class="text-muted bi-dash"
                                                     triggers="mouseenter:mouseleave"
@@ -213,7 +211,10 @@
                             </td>
                             <td>
                                 @if (hasPermission(user, 'CAN_INSPECT_LANGUAGE')) {
-                                    <i class="bi-pencil"></i>
+                                    <i class="bi-alphabet pe-1"></i>
+                                }
+                                @if (hasPermission(user, 'CAN_CREATE_BYOD_EXAM')) {
+                                    <i class="bi-house-gear pe-1"></i>
                                 }
                                 <div class="float-end">
                                     <span class="no-caret" ngbDropdown>
@@ -296,7 +297,7 @@
                     }
                 </tbody>
             </table>
-            @if (filteredUsers && filteredUsers.length > pageSize) {
+            @if (filteredUsers.length > pageSize) {
                 <div>
                     <xm-paginator
                         [items]="filteredUsers"
