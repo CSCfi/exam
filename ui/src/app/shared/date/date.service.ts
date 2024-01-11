@@ -15,7 +15,7 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { format, roundToNearestMinutes } from 'date-fns';
-import { DateTime } from 'luxon';
+import { DateTime, WeekdayNumbers } from 'luxon';
 import { range } from 'ramda';
 
 export enum REPEAT_OPTIONS {
@@ -58,7 +58,7 @@ export class DateTimeService {
     getLocalizedDateForMonth = (ordinal: number, locale: string): DateTime =>
         DateTime.now().set({ month: ordinal }).setLocale(locale);
 
-    getLocalizedDateForDay = (ordinal: number, locale: string): DateTime =>
+    getLocalizedDateForDay = (ordinal: WeekdayNumbers, locale: string): DateTime =>
         DateTime.now().set({ weekday: ordinal }).setLocale(locale);
 
     getWeekdayNames(long = false): string[] {

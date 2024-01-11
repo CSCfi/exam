@@ -109,7 +109,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
             return;
         }
         const start = DateTime.fromISO($event.date, { zone: $event.timeZone }).startOf('week');
-        this.currentWeek = start;
+        this.currentWeek = start as DateTime<true>;
         const accessibilities = this.accessibilities.filter((i) => i.filtered).map((i) => i.id);
 
         const getColor = (slot: AvailableSlot) => {

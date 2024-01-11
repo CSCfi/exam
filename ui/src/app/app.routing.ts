@@ -12,8 +12,8 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { inject, NgModule } from '@angular/core';
-import { Route, RouterModule } from '@angular/router';
+import { inject } from '@angular/core';
+import { Route } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { map, Observable } from 'rxjs';
 import { AppComponent } from './app.component';
@@ -36,7 +36,7 @@ const buildTitle = (key: string, extraPart = ''): Observable<string> => {
     return tx.get(key).pipe(map(() => `${tx.instant(key)}${extra} - EXAM`));
 };
 
-const routes: Route[] = [
+export const APP_ROUTES: Route[] = [
     {
         path: '',
         component: AppComponent,
@@ -145,14 +145,6 @@ const routes: Route[] = [
     */
     {
         path: 'staff',
-        //loadComponent: () =>
-        //    import('./dashboard/staff/admin/admin-dashboard.component').then((mod) => mod.AdminDashboardComponent),
-        loadChildren: () => import('./dashboard/staff/staff-dashboard.module').then((mod) => mod.StaffDashboardModule),
+        loadChildren: () => import('./dashboard/staff/staff.routes').then((mod) => mod.STAFF_ROUTES),
     },
 ];
-
-@NgModule({
-    imports: [RouterModule.forRoot(routes, { enableTracing: false })],
-    exports: [RouterModule],
-})
-export class AppRoutingModule {}
