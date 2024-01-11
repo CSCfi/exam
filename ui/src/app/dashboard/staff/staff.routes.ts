@@ -1,5 +1,5 @@
-import { inject, NgModule } from '@angular/core';
-import { ActivatedRouteSnapshot, Route, RouterModule } from '@angular/router';
+import { inject } from '@angular/core';
+import { ActivatedRouteSnapshot, Route } from '@angular/router';
 import { CollaborativeExamService } from 'src/app/exam/collaborative/collaborative-exam.service';
 import { ExamAssessmentComponent } from 'src/app/exam/editor/assessment/exam-assessment.component';
 import { BasicExamInfoComponent } from 'src/app/exam/editor/basic/basic-exam-info.component';
@@ -49,7 +49,7 @@ const reviewListResolver = (route: ActivatedRouteSnapshot) => {
     return inject(ReviewListService).getReviews$(id, isCollab);
 };
 
-const routes: Route[] = [
+export const STAFF_ROUTES: Route[] = [
     {
         path: '',
         component: StaffDashboardComponent,
@@ -166,9 +166,3 @@ const routes: Route[] = [
         ],
     },
 ];
-
-@NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule],
-})
-export class StaffRoutingModule {}

@@ -15,55 +15,58 @@
     }
 </style>
 <div ngModelGroup="questionBody" id="questionBody">
-    <div class="student-enrolment-wrapper review-view exam-view-warning mart40" *ngIf="showWarning()">
-        <!-- Exam contexts -->
-        <div class="row">
-            <div class="col-auto p-1">
-                <img
-                    src="/assets/images/icon_warning.png"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_warning.svg';"
-                />
-            </div>
-            <div class="col warning-text">
-                {{ 'i18n_exam_question_edit_instructions' | translate }}
-                <ul class="list-inline margin-10">
-                    <li class="list-inline-item">
-                        <span *ngFor="let name of examNames" class="exists-text">
-                            <span class="padr10">{{ name }}</span>
-                        </span>
-                    </li>
-                </ul>
+    @if (showWarning()) {
+        <div class="student-enrolment-wrapper review-view exam-view-warning mart40">
+            <!-- Exam contexts -->
+            <div class="row">
+                <div class="col-auto p-1">
+                    <img
+                        src="/assets/images/icon_warning.png"
+                        alt=""
+                        onerror="this.onerror=null;this.src='/assets/images/icon_warning.svg';"
+                    />
+                </div>
+                <div class="col warning-text">
+                    {{ 'i18n_exam_question_edit_instructions' | translate }}
+                    <ul class="list-inline margin-10">
+                        <li class="list-inline-item">
+                            <span *ngFor="let name of examNames" class="exists-text">
+                                <span class="padr10">{{ name }}</span>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
-    </div>
+    }
 
     <!-- Question editor -->
-    <div class="row mt-3" *ngIf="!showWarning()">
+    <div class="row mt-3">
         <div class="col-md-12">
-            <div class="review-list-title">
-                {{ 'i18n_exam_basic_information_tab' | translate }}
-            </div>
-        </div>
-    </div>
-    <div class="row mt-3" *ngIf="showWarning()">
-        <div class="col-md-12">
-            <div class="review-list-title edit-warning-container">
-                {{ 'i18n_exam_basic_information_tab' | translate }}
-                <i class="bi-exclamation-circle ps-4 reddish"></i>
-                <span class="warning-text-small ps-2">
-                    {{ 'i18n_shared_question_property_info' | translate }}
-                </span>
-            </div>
+            @if (showWarning()) {
+                <div class="review-list-title edit-warning-container">
+                    {{ 'i18n_exam_basic_information_tab' | translate }}
+                    <i class="bi-exclamation-circle ps-4 reddish"></i>
+                    <span class="warning-text-small ps-2">
+                        {{ 'i18n_shared_question_property_info' | translate }}
+                    </span>
+                </div>
+            } @else {
+                <div class="review-list-title">
+                    {{ 'i18n_exam_basic_information_tab' | translate }}
+                </div>
+            }
         </div>
     </div>
 
-    <div class="row mt-3">
-        <div class="col-md-3 exam-basic-title" *ngIf="question.id">
-            {{ 'i18n_question_id' | translate }}
+    @if (question.id) {
+        <div class="row mt-3">
+            <div class="col-md-3 exam-basic-title">
+                {{ 'i18n_question_id' | translate }}
+            </div>
+            <div class="col-md-9 padr0">#{{ question.id }}</div>
         </div>
-        <div class="col-md-9 padr0" *ngIf="question.id">#{{ question.id }}</div>
-    </div>
+    }
     <div class="row mt-3">
         <div class="col-md-3 exam-basic-title">
             {{ 'i18n_new_question_type' | translate }}
@@ -88,26 +91,30 @@
                 [(ngModel)]="newType"
                 (change)="setQuestionType()"
             >
-                <option *ngFor="let type of questionTypes" value="{{ type.type }}">{{ type.name | translate }}</option>
+                @for (type of questionTypes; track type.name) {
+                    <option value="{{ type.type }}">{{ type.name | translate }}</option>
+                }
             </select>
-            <span *ngIf="question.type === 'EssayQuestion'">
-                {{ 'i18n_toolbar_essay_question' | translate }}
-            </span>
-            <span *ngIf="question.type === 'ClozeTestQuestion'">
-                {{ 'i18n_toolbar_cloze_test_question' | translate }}
-            </span>
-            <span *ngIf="question.type === 'MultipleChoiceQuestion'">
-                {{ 'i18n_toolbar_multiplechoice_question' | translate }}
-            </span>
-            <span *ngIf="question.type === 'WeightedMultipleChoiceQuestion'">
-                {{ 'i18n_toolbar_weighted_multiplechoice_question' | translate }}
-            </span>
-            <span *ngIf="question.type === 'ClaimChoiceQuestion'">
-                {{ 'i18n_toolbar_claim_choice_question' | translate }}
-            </span>
+            @switch (question.type) {
+                @case ('EssayQuestion') {
+                    {{ 'i18n_toolbar_essay_question' | translate }}
+                }
+                @case ('ClozeTestQuestion') {
+                    {{ 'i18n_toolbar_cloze_test_question' | translate }}
+                }
+                @case ('MultipleChoiceQuestion') {
+                    {{ 'i18n_toolbar_mutltiplechoice_question' | translate }}
+                }
+                @case ('WeightedMultipleChoiceQuestion') {
+                    {{ 'i18n_toolbar_weighted_mutltiplechoice_question' | translate }}
+                }
+                @case ('ClaimChoiceQuestion') {
+                    {{ 'i18n_toolbar_claim_choice_question' | translate }}
+                }
+            }
         </div>
     </div>
-    <div *ngIf="question.type">
+    @if (question.type) {
         <div class="row mt-3">
             <div class="col-md-3 exam-basic-title">
                 {{ 'i18n_question_text' | translate }}
@@ -139,97 +146,94 @@
         </div>
 
         <div class="row mt-2">
-            <!-- Evaluation -->
-            <div class="col-md-12" *ngIf="question.type === 'EssayQuestion'">
-                <div class="review-list-title">{{ 'i18n_comments' | translate }}</div>
-            </div>
-            <!-- Multiple choices -->
-            <div
-                class="col-md-12"
-                *ngIf="
+            <div class="col-md-12">
+                @if (question.type === 'EssayQuestion') {
+                    <!-- Evaluation -->
+                    <div class="review-list-title">{{ 'i18n_comments' | translate }}</div>
+                } @else if (
                     question.type === 'MultipleChoiceQuestion' ||
                     question.type === 'WeightedMultipleChoiceQuestion' ||
                     question.type === 'ClaimChoiceQuestion'
-                "
-            >
-                <div class="review-list-title">{{ 'i18n_question_options' | translate }}</div>
+                ) {
+                    <!-- Multiple choices -->
+                    <div class="review-list-title">{{ 'i18n_question_options' | translate }}</div>
+                }
             </div>
         </div>
 
         <!-- Type specific content -->
-        <div [ngSwitch]="question.type">
-            <xm-essay-editor *ngSwitchCase="'EssayQuestion'" [question]="question"></xm-essay-editor>
-            <xm-multiple-choice-editor
-                *ngSwitchCase="'MultipleChoiceQuestion'"
-                [question]="question"
-                [showWarning]="showWarning()"
-                [lotteryOn]="lotteryOn"
-                [allowOptionRemoval]="!isInPublishedExam"
-            >
-            </xm-multiple-choice-editor>
-            <xm-multiple-choice-editor
-                *ngSwitchCase="'WeightedMultipleChoiceQuestion'"
-                [question]="question"
-                [showWarning]="showWarning()"
-                [lotteryOn]="lotteryOn"
-                [allowOptionRemoval]="!isInPublishedExam"
-            >
-            </xm-multiple-choice-editor>
-            <xm-claim-choice-editor
-                *ngSwitchCase="'ClaimChoiceQuestion'"
-                [question]="question"
-                [showWarning]="showWarning()"
-            >
-            </xm-claim-choice-editor>
-        </div>
-
-        <!-- Evaluation type - not allowed if question is in use in other published exam. -->
-        <div class="row mt-3" *ngIf="question.type === 'EssayQuestion'">
-            <div class="col-md-3 exam-basic-title">
-                {{ 'i18n_evaluation_type' | translate }}
-            </div>
-            <div class="col-md-9">
-                <select
-                    id="evaluationType"
-                    name="evaluationType"
-                    class="form-select wdt240"
-                    [(ngModel)]="question.defaultEvaluationType"
-                    (change)="updateEvaluationType()"
-                    required="question.type == 'EssayQuestion'"
-                >
-                    <option value="Points">{{ 'i18n_word_points' | translate }}</option>
-                    <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Max score -->
-        <div
-            class="row mt-3"
-            *ngIf="
-                question.type === 'MultipleChoiceQuestion' ||
-                question.type === 'ClozeTestQuestion' ||
-                question.defaultEvaluationType === 'Points'
-            "
-        >
-            <div class="col-md-3 exam-basic-title">
-                {{ 'i18n_max_score' | translate }}
-            </div>
-            <div class="col-md-9">
-                <input
-                    id="defaultMaxScore"
-                    name="defaultMaxScore"
-                    type="number"
-                    lang="en"
-                    class="form-control wdt100"
-                    [(ngModel)]="question.defaultMaxScore"
-                    [min]="0"
-                    [max]="1000"
-                    required
-                    [disabled]="lotteryOn"
+        @switch (question.type) {
+            @case ('EssayQuestion') {
+                <xm-essay-editor [question]="question" />
+            }
+            @case ('MultipleChoiceQuestion') {
+                <xm-multiple-choice-editor
+                    [question]="question"
+                    [showWarning]="showWarning()"
+                    [lotteryOn]="lotteryOn"
+                    [allowOptionRemoval]="!isInPublishedExam"
                 />
+            }
+            @case ('WeightedMultipleChoiceQuestion') {
+                <xm-multiple-choice-editor
+                    [question]="question"
+                    [showWarning]="showWarning()"
+                    [lotteryOn]="lotteryOn"
+                    [allowOptionRemoval]="!isInPublishedExam"
+                />
+            }
+            @case ('ClaimChoiceQuestion') {
+                <xm-claim-choice-editor [question]="question" [showWarning]="showWarning()" />
+            }
+        }
+
+        @if (question.type === 'EssayQuestion') {
+            <!-- Evaluation type - not allowed if question is in use in other published exam. -->
+            <div class="row mt-3">
+                <div class="col-md-3 exam-basic-title">
+                    {{ 'i18n_evaluation_type' | translate }}
+                </div>
+                <div class="col-md-9">
+                    <select
+                        id="evaluationType"
+                        name="evaluationType"
+                        class="form-select wdt240"
+                        [(ngModel)]="question.defaultEvaluationType"
+                        (change)="updateEvaluationType()"
+                        required="question.type == 'EssayQuestion'"
+                    >
+                        <option value="Points">{{ 'i18n_word_points' | translate }}</option>
+                        <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
+                    </select>
+                </div>
             </div>
-        </div>
+        }
+        @if (
+            question.type === 'MultipleChoiceQuestion' ||
+            question.type === 'ClozeTestQuestion' ||
+            question.defaultEvaluationType === 'Points'
+        ) {
+            <!-- Max score -->
+            <div class="row mt-3">
+                <div class="col-md-3 exam-basic-title">
+                    {{ 'i18n_max_score' | translate }}
+                </div>
+                <div class="col-md-9">
+                    <input
+                        id="defaultMaxScore"
+                        name="defaultMaxScore"
+                        type="number"
+                        lang="en"
+                        class="form-control wdt100"
+                        [(ngModel)]="question.defaultMaxScore"
+                        [min]="0"
+                        [max]="1000"
+                        required
+                        [disabled]="lotteryOn"
+                    />
+                </div>
+            </div>
+        }
 
         <!-- Additional info -->
         <div class="row mt-3">
@@ -254,51 +258,75 @@
                     />
                 </sup>
             </div>
-            <div class="col-md-3" *ngIf="isUserAllowedToModifyOwners()">
-                <div class="input-group">
-                    <input
-                        type="text"
-                        name="questionOnwers"
-                        class="form-control"
-                        [(ngModel)]="newOwner.name"
-                        [ngbTypeahead]="listQuestionOwners$"
-                        [editable]="false"
-                        [inputFormatter]="nameFormat"
-                        [resultFormatter]="nameFormat"
-                        (selectItem)="setQuestionOwner($event)"
-                    />
-                    <button
-                        (click)="addQuestionOwner()"
-                        [disabled]="!newOwner?.name"
-                        class="btn btn-primary green input-group-text"
-                    >
-                        {{ 'i18n_add' | translate }}
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <ul class="list-inline mart10 padl10" *ngIf="isUserAllowedToModifyOwners()">
-                    <li *ngFor="let user of currentOwners" class="list-inline-item">
-                        {{ user.firstName }} {{ user.lastName }}
+            @if (isUserAllowedToModifyOwners()) {
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            name="questionOnwers"
+                            class="form-control"
+                            [(ngModel)]="newOwner.name"
+                            [ngbTypeahead]="listQuestionOwners$"
+                            [editable]="false"
+                            [inputFormatter]="nameFormat"
+                            [resultFormatter]="nameFormat"
+                            (selectItem)="setQuestionOwner($event)"
+                        />
                         <button
-                            class="reviewer-remove"
-                            [disabled]="removeOwnerDisabled(user)"
-                            (click)="removeOwner(user)"
-                            title="{{ 'i18n_remove' | translate }}"
+                            (click)="addQuestionOwner()"
+                            [disabled]="!newOwner?.name"
+                            class="btn btn-primary green input-group-text"
                         >
-                            <img
-                                src="/assets/images/icon_remove.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
-                            />
+                            {{ 'i18n_add' | translate }}
                         </button>
-                    </li>
-                </ul>
-                <div *ngIf="!isUserAllowedToModifyOwners()">
-                    <span *ngFor="let user of currentOwners" class="label label-default pe-2">
-                        {{ user.firstName }} {{ user.lastName }}
-                    </span>
+                    </div>
                 </div>
+            }
+            <div class="col-md-3">
+                @if (isUserAllowedToModifyOwners()) {
+                    <ul class="list-inline mart10 padl10">
+                        <li *ngFor="let user of currentOwners" class="list-inline-item">
+                            {{ user.firstName }} {{ user.lastName }}
+                            <button
+                                class="reviewer-remove"
+                                [disabled]="removeOwnerDisabled(user)"
+                                (click)="removeOwner(user)"
+                                title="{{ 'i18n_remove' | translate }}"
+                            >
+                                <img
+                                    src="/assets/images/icon_remove.svg"
+                                    alt=""
+                                    onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
+                                />
+                            </button>
+                        </li>
+                    </ul>
+                }
+                @if (isUserAllowedToModifyOwners()) {
+                    <ul class="list-inline mart10 padl10">
+                        @for (user of currentOwners; track user.id) {
+                            <li class="list-inline-item">
+                                {{ user.firstName }} {{ user.lastName }}
+                                <button
+                                    class="reviewer-remove"
+                                    [disabled]="removeOwnerDisabled(user)"
+                                    (click)="removeOwner(user)"
+                                    title="{{ 'i18n_remove' | translate }}"
+                                >
+                                    <img
+                                        src="/assets/images/icon_remove.svg"
+                                        alt=""
+                                        onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
+                                    />
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                } @else {
+                    @for (user of currentOwners; track user.id) {
+                        <span class="label label-default pe-2">{{ user.firstName }} {{ user.lastName }}</span>
+                    }
+                }
             </div>
         </div>
 
@@ -322,32 +350,34 @@
                 <div class="review-attachment-button wdt120 make-inline">
                     <a class="pointer" (click)="selectFile()">{{ 'i18n_attach_file' | translate }}</a>
                 </div>
-                <div *ngIf="question.attachment && !question.attachment?.removed" class="make-inline padl10">
-                    <!-- Uploaded -->
-                    <a
-                        *ngIf="hasUploadedAttachment()"
-                        class="pointer attachment-link"
-                        (click)="downloadQuestionAttachment()"
-                    >
-                        <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
-                    </a>
-                    <!-- Not yet uploaded -->
-                    <span *ngIf="!hasUploadedAttachment()" class="attachment-link">
-                        <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
-                        <small *ngIf="question.attachment"> ({{ getFileSize() }})</small>
-                    </span>
-                    <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
-                        <img
-                            src="/assets/images/icon_remove.svg"
-                            alt="{{ 'i18n_remove_attachment' | translate }}"
-                            onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
-                        />
-                    </span>
-                </div>
-                <div class="mart10 edit-warning-container" *ngIf="showWarning()">
-                    <i class="bi-exclamation-circle reddish me-2"></i>
-                    <span class="warning-text-small">{{ 'i18n_shared_question_property_info' | translate }}</span>
-                </div>
+                @if (question.attachment && !question.attachment?.removed) {
+                    <div class="make-inline padl10">
+                        @if (hasUploadedAttachment()) {
+                            <!-- Uploaded -->
+                            <a class="pointer attachment-link" (click)="downloadQuestionAttachment()">
+                                <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
+                            </a>
+                        } @else {
+                            <!-- Not yet uploaded -->
+                            <span class="attachment-link">
+                                <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
+                                <small> ({{ getFileSize() }})</small>
+                            </span>
+                        }
+                        <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
+                            <img
+                                src="/assets/images/icon_remove.svg"
+                                alt="{{ 'i18n_remove_attachment' | translate }}"
+                            />
+                        </span>
+                    </div>
+                }
+                @if (showWarning()) {
+                    <div class="mart10 edit-warning-container">
+                        <i class="bi-exclamation-circle reddish me-2"></i>
+                        <span class="warning-text-small">{{ 'i18n_shared_question_property_info' | translate }}</span>
+                    </div>
+                }
             </div>
         </div>
 
@@ -380,48 +410,56 @@
             </div>
         </div>
 
-        <!-- Evaluation criteria -->
-        <div class="row mt-3" *ngIf="question.type === 'EssayQuestion'">
-            <div class="col-md-3 exam-basic-title">
-                {{ 'i18n_exam_evaluation_criteria' | translate }}
-                <sup
-                    ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    <img
-                        src="/assets/images/icon_tooltip.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                    />
-                </sup>
+        @if (question.type === 'EssayQuestion') {
+            <!-- Evaluation criteria -->
+            <div class="row mt-3">
+                <div class="col-md-3 exam-basic-title">
+                    {{ 'i18n_exam_evaluation_criteria' | translate }}
+                    <sup
+                        ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    >
+                        <img
+                            src="/assets/images/icon_tooltip.svg"
+                            alt=""
+                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                        />
+                    </sup>
+                </div>
+                <div class="col-md-9 padr0">
+                    <textarea
+                        id="defaultEvaluationCriteria"
+                        name="defaultEvaluationCriteria"
+                        class="form-control"
+                        rows="3"
+                        [(ngModel)]="question.defaultEvaluationCriteria"
+                        placeholder="{{ 'i18n_exam_evaluation_criteria' | translate }}"
+                    >
+                    </textarea>
+                </div>
             </div>
-            <div class="col-md-9 padr0">
-                <textarea
-                    id="defaultEvaluationCriteria"
-                    name="defaultEvaluationCriteria"
-                    class="form-control"
-                    rows="3"
-                    [(ngModel)]="question.defaultEvaluationCriteria"
-                    placeholder="{{ 'i18n_exam_evaluation_criteria' | translate }}"
-                >
-                </textarea>
-            </div>
-        </div>
+        }
 
-        <!-- Tags -->
-        <xm-tag-picker *ngIf="!collaborative" [question]="question"></xm-tag-picker>
+        @if (!collaborative) {
+            <!-- Tags -->
+            <xm-tag-picker [question]="question"></xm-tag-picker>
+        }
 
-        <!-- Categories -->
-        <div class="row mt-3" *ngIf="sectionNames.length > 0">
-            <div class="col-md-3 exam-basic-title">
-                {{ 'i18n_added_to_sections' | translate }}
+        @if (sectionNames.length > 0) {
+            <!-- Categories -->
+            <div class="row mt-3">
+                <div class="col-md-3 exam-basic-title">
+                    {{ 'i18n_added_to_sections' | translate }}
+                </div>
+                <div class="col-md-9 padr0">
+                    <ul class="list-inline mart10">
+                        @for (name of sectionNames; track $index) {
+                            <li class="list-inline-item">{{ name }}</li>
+                        }
+                    </ul>
+                </div>
             </div>
-            <div class="col-md-9 padr0">
-                <ul class="list-inline mart10">
-                    <li *ngFor="let name of sectionNames" class="list-inline-item">{{ name }}</li>
-                </ul>
-            </div>
-        </div>
-    </div>
+        }
+    }
 </div>
