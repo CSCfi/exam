@@ -40,6 +40,7 @@ import models.ExamMachine;
 import models.ExamType;
 import models.GradeScale;
 import models.Language;
+import models.Permission;
 import models.Role;
 import models.Software;
 import models.User;
@@ -494,6 +495,12 @@ public class ExamController extends BaseController {
             return badRequest("Unsupported execution type");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (
+            Exam.Implementation.valueOf(implementation) != Exam.Implementation.AQUARIUM &&
+            !user.hasPermission(Permission.Type.CAN_CREATE_BYOD_EXAM)
+        ) {
+            return forbidden("No permission to create home examinations");
+        }
         Exam exam = new Exam();
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);

@@ -208,6 +208,11 @@ public class ConfigReaderImpl implements ConfigReader {
     }
 
     @Override
+    public boolean isByodExamCreationPermissionGrantedForNewUsers() {
+        return config.getBoolean("exam.byod.permission.allowed");
+    }
+
+    @Override
     public String getCourseCodePrefix() {
         return config.getString("exam.course.code.prefix");
     }
