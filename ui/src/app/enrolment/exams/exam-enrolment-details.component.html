@@ -12,39 +12,49 @@
         <div class="student-details-title col-md-9 col-6">
             <h2>{{ exam.name }}</h2>
             <div class="student-details-subtitle">
-                <span
-                    *ngIf="!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft"
-                    class="exam-needs-reservation"
-                >
-                    {{ 'i18n_state_needs_reservation_title' | translate }}
-                </span>
-                <span *ngIf="exam.reservationMade" class="exam-ready">
-                    {{ 'i18n_state_ready' | translate }}
-                </span>
+                @if (!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft) {
+                    <span class="exam-needs-reservation">
+                        {{ 'i18n_state_needs_reservation_title' | translate }}
+                    </span>
+                }
+                @if (exam.reservationMade) {
+                    <span class="exam-ready">
+                        {{ 'i18n_state_ready' | translate }}
+                    </span>
+                }
             </div>
         </div>
-        <div class="col-md-3 col-6" *ngIf="!exam.alreadyEnrolled && !exam.noTrialsLeft">
-            <div class="student-message-dialog-button-save">
-                <button
-                    class="btn btn-success important-clear-focus"
-                    [disabled]="getExpiration()"
-                    (click)="enrollForExam()"
-                >
-                    {{ 'i18n_enroll_to_exam' | translate }}
-                </button>
-                <div class="text-danger marl10" *ngIf="getExpiration()">
-                    {{ 'i18n_exam_period_over' | translate }}
+        @if (!exam.alreadyEnrolled && !exam.noTrialsLeft) {
+            <div class="col-md-3 col-6">
+                <div class="student-message-dialog-button-save">
+                    <button
+                        class="btn btn-success important-clear-focus"
+                        [disabled]="getExpiration()"
+                        (click)="enrollForExam()"
+                    >
+                        {{ 'i18n_enroll_to_exam' | translate }}
+                    </button>
+                    @if (getExpiration()) {
+                        <div class="text-danger marl10">
+                            {{ 'i18n_exam_period_over' | translate }}
+                        </div>
+                    }
                 </div>
             </div>
-        </div>
-        <div class="student-details-indicator col-md-3 col-6" *ngIf="exam.alreadyEnrolled && exam.reservationMade">
-            {{ 'i18n_enrolled_to_exam' | translate }}
-        </div>
+        }
+        @if (exam.alreadyEnrolled && exam.reservationMade) {
+            <div class="student-details-indicator col-md-3 col-6">
+                {{ 'i18n_enrolled_to_exam' | translate }}
+            </div>
+        }
     </div>
     <div class="row ms-2 mt-1">
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_course_name' | translate }}:</div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code> {{ exam.course?.name }}
+            @if (exam.course) {
+                <xm-course-code [course]="exam.course"></xm-course-code>
+            }
+            {{ exam.course?.name }}
         </div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_teachers' | translate }}:</div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">
@@ -55,7 +65,7 @@
     <div class="row ms-2 mt-1">
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_start_time' | translate }}:</div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            {{ exam.periodStart | date : 'dd.MM.yyyy' }} - {{ exam.periodEnd | date : 'dd.MM.yyyy' }}
+            {{ exam.periodStart | date: 'dd.MM.yyyy' }} - {{ exam.periodEnd | date: 'dd.MM.yyyy' }}
         </div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_exam_language' | translate }}:</div>
         <div class="col-6 col-sm-6 col-md-3 col-lg-3">
@@ -108,11 +118,13 @@
         </div>
     </div>
 
-    <div *ngIf="!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft" class="row ms-2 mt-1 me-1">
-        <div class="col-md-12 student-message-dialog-button-save">
-            <button class="link-button float-end" (click)="makeReservation()">
-                {{ 'i18n_student_new_reservation' | translate }}
-            </button>
+    @if (!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft) {
+        <div class="row ms-2 mt-1 me-1">
+            <div class="col-md-12 student-message-dialog-button-save">
+                <button class="link-button float-end" (click)="makeReservation()">
+                    {{ 'i18n_student_new_reservation' | translate }}
+                </button>
+            </div>
         </div>
-    </div>
+    }
 </div>

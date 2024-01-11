@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
@@ -27,7 +27,7 @@ import { ExamService } from '../../exam.service';
     selector: 'xm-new-exam',
     templateUrl: './new-exam.component.html',
     standalone: true,
-    imports: [HistoryBackComponent, FormsModule, NgbPopover, NgFor, NgIf, TranslateModule],
+    imports: [HistoryBackComponent, FormsModule, NgbPopover, TranslateModule],
 })
 export class NewExamComponent implements OnInit {
     executionTypes: (ExamExecutionType & { name: string })[] = [];
@@ -36,7 +36,10 @@ export class NewExamComponent implements OnInit {
     homeExaminationSupported = false;
     sebExaminationSupported = false;
 
-    constructor(private http: HttpClient, private Exam: ExamService) {}
+    constructor(
+        private http: HttpClient,
+        private Exam: ExamService,
+    ) {}
 
     ngOnInit() {
         this.Exam.listExecutionTypes$().subscribe((types) => {

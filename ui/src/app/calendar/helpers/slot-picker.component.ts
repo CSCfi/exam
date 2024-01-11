@@ -1,4 +1,4 @@
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation } from '@angular/core';
@@ -33,9 +33,7 @@ type AvailableSlot = Slot & { availableMachines: number };
     standalone: true,
     imports: [
         NgClass,
-        NgIf,
         NgbCollapse,
-        NgFor,
         NgbDropdown,
         NgbDropdownToggle,
         NgbDropdownMenu,

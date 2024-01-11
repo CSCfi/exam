@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -42,11 +42,9 @@ import { ExamSectionComponent } from './sections/section.component';
     templateUrl: './assessment.component.html',
     standalone: true,
     imports: [
-        NgIf,
         CourseCodeComponent,
         NgbCollapse,
         GeneralInfoComponent,
-        NgFor,
         ExamSectionComponent,
         GradingComponent,
         MaturityGradingComponent,

@@ -1,4 +1,4 @@
-import { DatePipe, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -24,7 +24,9 @@ import type { ExamInfo } from '../calendar.service';
                     <div class="col-md-12">
                         <div class="calendar-titles">
                             <span class="calendar-course-title">{{ examInfo.name }}</span>
-                            <span *ngIf="examInfo.anonymous">({{ 'i18n_anonymous_review' | translate }})</span>
+                            @if (examInfo.anonymous) {
+                                <span>({{ 'i18n_anonymous_review' | translate }})</span>
+                            }
                         </div>
                     </div>
                 </div>
@@ -33,10 +35,12 @@ import type { ExamInfo } from '../calendar.service';
                         <div class="row">
                             <div class="col-6 col-sm-6 col-md-4 col-lg-4">{{ 'i18n_course_name' | translate }}:</div>
                             <div class="col-6 col-sm-6 col-md-4 col-lg-4">
-                                <div *ngIf="!collaborative">
-                                    <xm-course-code [course]="examInfo.course"></xm-course-code>
-                                    {{ examInfo.course.name }}
-                                </div>
+                                @if (!collaborative) {
+                                    <div>
+                                        <xm-course-code [course]="examInfo.course"></xm-course-code>
+                                        {{ examInfo.course.name }}
+                                    </div>
+                                }
                             </div>
                             <div class="clearfix visible-xs"></div>
                             <div class="clearfix visible-sm"></div>
@@ -44,8 +48,8 @@ import type { ExamInfo } from '../calendar.service';
                                 {{ 'i18n_exam_validity' | translate }}:
                             </div>
                             <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
-                                {{ examInfo.periodStart | date : 'dd.MM.yyyy' }} -
-                                {{ examInfo.periodEnd | date : 'dd.MM.yyyy' }}
+                                {{ examInfo.periodStart | date: 'dd.MM.yyyy' }} -
+                                {{ examInfo.periodEnd | date: 'dd.MM.yyyy' }}
                             </div>
                             <div class="clearfix visible-md"></div>
                             <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-6">
@@ -67,17 +71,19 @@ import type { ExamInfo } from '../calendar.service';
                 </div>
                 <div class="row mart10">
                     <div class="col-md-12">
-                        <span *ngIf="showReservationWindowInfo()" class="infolink" role="note">
-                            <img class="arrow_icon padr10" src="/assets/images/icon_info.png" alt="" />
-                            {{ getReservationWindowDescription() }}
-                        </span>
+                        @if (showReservationWindowInfo()) {
+                            <span class="infolink" role="note">
+                                <img class="arrow_icon padr10" src="/assets/images/icon_info.png" alt="" />
+                                {{ getReservationWindowDescription() }}
+                            </span>
+                        }
                     </div>
                 </div>
             </div>
         </div>
     `,
     standalone: true,
-    imports: [NgIf, CourseCodeComponent, MathJaxDirective, DatePipe, TranslateModule],
+    imports: [CourseCodeComponent, MathJaxDirective, DatePipe, TranslateModule],
 })
 export class CalendarExamInfoComponent implements OnInit {
     @Input() examInfo!: ExamInfo;
@@ -86,7 +92,10 @@ export class CalendarExamInfoComponent implements OnInit {
 
     reservationWindowEndDate = new Date();
 
-    constructor(private translate: TranslateService, private DateTimeService: DateTimeService) {}
+    constructor(
+        private translate: TranslateService,
+        private DateTimeService: DateTimeService,
+    ) {}
 
     ngOnInit() {
         this.reservationWindowEndDate = DateTime.fromJSDate(this.reservationWindowEndDate)

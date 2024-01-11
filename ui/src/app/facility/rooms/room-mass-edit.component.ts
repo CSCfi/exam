@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -84,39 +84,43 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                             </div>
                         </div>
                     </div>
-                    <div *ngFor="let room of selectableRooms">
-                        <div class="row mt-2">
-                            <div class="col-md-12">
-                                <div class="form-check">
-                                    <input
-                                        type="checkbox"
-                                        class="form-check-input"
-                                        name="select_room"
-                                        id="room"
-                                        [(ngModel)]="room.selected"
-                                    />
-                                    <label class="form-check-label" for="room"
-                                        ><strong>{{ room.name || 'i18n_no_name' | translate }}</strong></label
-                                    >
-                                    <i
-                                        class="user-select-none marl5"
-                                        [ngClass]="room.showBreaks ? 'bi-chevron-down' : 'bi-chevron-right'"
-                                        (click)="room.showBreaks = !room.showBreaks"
-                                    ></i>
+                    @for (room of selectableRooms; track room) {
+                        <div>
+                            <div class="row mt-2">
+                                <div class="col-md-12">
+                                    <div class="form-check">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            name="select_room"
+                                            id="room"
+                                            [(ngModel)]="room.selected"
+                                        />
+                                        <label class="form-check-label" for="room"
+                                            ><strong>{{ room.name || 'i18n_no_name' | translate }}</strong></label
+                                        >
+                                        <i
+                                            class="user-select-none marl5"
+                                            [ngClass]="room.showBreaks ? 'bi-chevron-down' : 'bi-chevron-right'"
+                                            (click)="room.showBreaks = !room.showBreaks"
+                                        ></i>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row ms-3">
-                            <div class="col-md-12" *ngIf="room.showBreaks">
-                                <xm-exceptions
-                                    [exceptions]="room.calendarExceptionEvents"
-                                    (removed)="deleteException($event)"
-                                    [hideButton]="true"
-                                    [hideTitle]="true"
-                                ></xm-exceptions>
+                            <div class="row ms-3">
+                                @if (room.showBreaks) {
+                                    <div class="col-md-12">
+                                        <xm-exceptions
+                                            [exceptions]="room.calendarExceptionEvents"
+                                            (removed)="deleteException($event)"
+                                            [hideButton]="true"
+                                            [hideTitle]="true"
+                                        ></xm-exceptions>
+                                    </div>
+                                }
                             </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
             <div class="col-12">
@@ -130,7 +134,7 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
         </div>
     `,
     standalone: true,
-    imports: [FormsModule, NgbPopover, NgClass, NgFor, NgIf, ExceptionListComponent, TranslateModule],
+    imports: [FormsModule, NgbPopover, NgClass, ExceptionListComponent, TranslateModule],
 })
 export class MultiRoomComponent implements OnInit, OnChanges {
     @Output() selected = new EventEmitter<number[]>();
@@ -141,7 +145,11 @@ export class MultiRoomComponent implements OnInit, OnChanges {
     allSelected = false;
     showBreaks = false;
 
-    constructor(private toast: ToastrService, private roomService: RoomService, private translate: TranslateService) {}
+    constructor(
+        private toast: ToastrService,
+        private roomService: RoomService,
+        private translate: TranslateService,
+    ) {}
 
     ngOnInit() {
         this.loadRooms();

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -24,26 +24,35 @@ import type { Examination, ExaminationSection, NavigationPage } from '../examina
         <div class="row exam-navigation mb-3">
             <span class="col-md-12 ms-2">
                 <!-- PREVIOUS SECTION BUTTON -->
-                <button class="btn btn-outline-secondary" *ngIf="prev.valid" (click)="previousPage()">
-                    <img
-                        class="arrow_icon sitnet-black"
-                        style="filter: invert()"
-                        alt=""
-                        src="/assets/images/icon_left_white.png"
-                    />
-                    {{ prev?.index ? ('i18n_move_to_section' | translate) : ('i18n_open' | translate) }}
-                    {{ prev?.index ? prev.index + '.' : '' }} {{ prev.text || '' | translate }}
-                </button>
+                @if (prev.valid) {
+                    <button class="btn btn-outline-secondary" (click)="previousPage()">
+                        <img
+                            class="arrow_icon sitnet-black"
+                            style="filter: invert()"
+                            alt=""
+                            src="/assets/images/icon_left_white.png"
+                        />
+                        {{ prev?.index ? ('i18n_move_to_section' | translate) : ('i18n_open' | translate) }}
+                        {{ prev?.index ? prev.index + '.' : '' }} {{ prev.text || '' | translate }}
+                    </button>
+                }
                 <!-- NEXT SECTION BUTTON -->
-                <button class="btn btn-outline-secondary float-end me-2" *ngIf="next.valid" (click)="nextPage()">
-                    {{ next?.index ? ('i18n_move_to_section' | translate) : ('i18n_open' | translate) }}
-                    {{ next?.index ? next.index + '.' : '' }} {{ next.text || '' | translate }}
-                    <img class="arrow_icon" style="filter: invert()" alt="" src="/assets/images/icon_right_white.png" />
-                </button>
+                @if (next.valid) {
+                    <button class="btn btn-outline-secondary float-end me-2" (click)="nextPage()">
+                        {{ next?.index ? ('i18n_move_to_section' | translate) : ('i18n_open' | translate) }}
+                        {{ next?.index ? next.index + '.' : '' }} {{ next.text || '' | translate }}
+                        <img
+                            class="arrow_icon"
+                            style="filter: invert()"
+                            alt=""
+                            src="/assets/images/icon_right_white.png"
+                        />
+                    </button>
+                }
             </span>
-        </div> `,
+        </div>`,
     standalone: true,
-    imports: [NgIf, TranslateModule],
+    imports: [TranslateModule],
 })
 export class ExaminationNavigationComponent implements OnInit, OnChanges {
     @Input() exam!: Examination;

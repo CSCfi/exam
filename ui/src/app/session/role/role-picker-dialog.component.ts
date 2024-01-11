@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { NgClass, NgFor } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,7 +21,7 @@ import type { User } from '../session.service';
 
 @Component({
     standalone: true,
-    imports: [TranslateModule, NgFor, NgClass, NgbDropdownModule],
+    imports: [TranslateModule, NgClass, NgbDropdownModule],
     template: `
         <div class="modal-header">
             <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'i18n_select_role' | translate }}</h4>
@@ -32,14 +32,15 @@ import type { User } from '../session.service';
                     {{ 'i18n_choose' | translate }}
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropDownMenu1">
-                    <button
-                        ngbDropdownItem
-                        *ngFor="let role of user.roles"
-                        title="{{ role.displayName || '' | translate }}"
-                        (click)="activeModal.close(role)"
-                    >
-                        {{ role.displayName || '' | translate }} <i [ngClass]="role.icon || ''"></i>
-                    </button>
+                    @for (role of user.roles; track role) {
+                        <button
+                            ngbDropdownItem
+                            title="{{ role.displayName || '' | translate }}"
+                            (click)="activeModal.close(role)"
+                        >
+                            {{ role.displayName || '' | translate }} <i [ngClass]="role.icon || ''"></i>
+                        </button>
+                    }
                 </div>
             </div>
         </div>

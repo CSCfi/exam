@@ -1,4 +1,4 @@
-import { DatePipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import type { OnChanges } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -33,11 +33,9 @@ import type { LanguageInspection } from '../maturity.model';
     templateUrl: './unfinished-inspections.component.html',
     standalone: true,
     imports: [
-        NgIf,
         FormsModule,
         NgbPopover,
         TableSortComponent,
-        NgFor,
         CourseCodeComponent,
         RouterLink,
         DatePipe,

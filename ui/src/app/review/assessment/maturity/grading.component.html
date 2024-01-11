@@ -1,64 +1,81 @@
 <!-- language inspection - verdict -->
-<div class="detail-row marb20 mart20" *ngIf="hasGoneThroughLanguageInspection()">
-    <div class="col-md-2 general-info-title">{{ 'i18n_language_inspections' | translate }}:</div>
-    <div class="col-md-10 general-info-content">
-        <span [ngClass]="exam.languageInspection.approved ? 'text-success' : 'text-danger'">
-            <span *ngIf="exam.languageInspection.approved">
-                {{ 'i18n_approved' | translate | uppercase }}
+@if (hasGoneThroughLanguageInspection()) {
+    <div class="detail-row marb20 mart20">
+        <div class="col-md-2 general-info-title">{{ 'i18n_language_inspections' | translate }}:</div>
+        <div class="col-md-10 general-info-content">
+            <span [ngClass]="exam.languageInspection.approved ? 'text-success' : 'text-danger'">
+                @if (exam.languageInspection.approved) {
+                    <span>
+                        {{ 'i18n_approved' | translate | uppercase }}
+                    </span>
+                }
+                @if (!exam.languageInspection.approved) {
+                    <span>
+                        {{ 'i18n_rejected' | translate | uppercase }}
+                    </span>
+                }
             </span>
-            <span *ngIf="!exam.languageInspection.approved">
-                {{ 'i18n_rejected' | translate | uppercase }}
-            </span>
-        </span>
+        </div>
     </div>
-</div>
+}
 
 <!-- inspector comments -->
 <xm-r-inspection-comments [exam]="exam" [addingVisible]="!isMaturityRejection()"> </xm-r-inspection-comments>
 
 <!-- language inspection - inspector -->
-<div class="detail-row mart20" *ngIf="hasGoneThroughLanguageInspection()">
-    <div class="col-md-2 general-info-title">{{ 'i18n_language_inspector' | translate }}:</div>
-    <div class="col-md-10 general-info-content" *ngIf="exam.languageInspection">
-        {{ exam.languageInspection.modifier.firstName }} {{ exam.languageInspection.modifier.lastName }}
+@if (hasGoneThroughLanguageInspection()) {
+    <div class="detail-row mart20">
+        <div class="col-md-2 general-info-title">{{ 'i18n_language_inspector' | translate }}:</div>
+        @if (exam.languageInspection) {
+            <div class="col-md-10 general-info-content">
+                {{ exam.languageInspection.modifier.firstName }} {{ exam.languageInspection.modifier.lastName }}
+            </div>
+        }
     </div>
-</div>
+}
 
 <!-- language inspection - statement -->
-<div class="detail-row mart20" *ngIf="hasGoneThroughLanguageInspection()">
-    <div class="col-md-2 general-info-title">{{ 'i18n_inspector_statement' | translate }}:</div>
-    <div class="col-md-10 general-info-content">
-        <div [xmMathJax]="exam.languageInspection.statement.comment"></div>
+@if (hasGoneThroughLanguageInspection()) {
+    <div class="detail-row mart20">
+        <div class="col-md-2 general-info-title">{{ 'i18n_inspector_statement' | translate }}:</div>
+        <div class="col-md-10 general-info-content">
+            <div [xmMathJax]="exam.languageInspection.statement.comment"></div>
+        </div>
     </div>
-</div>
+}
 <!-- language inspection - statement attachment -->
-<div
-    class="detail-row mart20"
-    *ngIf="hasGoneThroughLanguageInspection() && exam.languageInspection?.statement?.attachment"
->
-    <div class="col-md-2 general-info-title">{{ 'i18n_statement_attachment' | translate }}:</div>
-    <div class="col-md-10 general-info-content">
-        <a class="pointer" (click)="downloadStatementAttachment()">
-            {{ exam.languageInspection?.statement?.attachment?.fileName }}
-        </a>
+@if (hasGoneThroughLanguageInspection() && exam.languageInspection?.statement?.attachment) {
+    <div class="detail-row mart20">
+        <div class="col-md-2 general-info-title">{{ 'i18n_statement_attachment' | translate }}:</div>
+        <div class="col-md-10 general-info-content">
+            <a class="pointer" (click)="downloadStatementAttachment()">
+                {{ exam.languageInspection?.statement?.attachment?.fileName }}
+            </a>
+        </div>
     </div>
-</div>
+}
 
 <!-- inspection creator -->
-<div class="detail-row mart20" *ngIf="isReadOnly() || isUnderLanguageInspection()">
-    <div class="col-md-2 general-info-title">{{ 'i18n_inspector_name' | translate }}:</div>
-    <div class="col-md-10 general-info-content" *ngIf="exam.languageInspection">
-        {{ exam.languageInspection.creator.firstName }} {{ exam.languageInspection.creator.lastName }}
+@if (isReadOnly() || isUnderLanguageInspection()) {
+    <div class="detail-row mart20">
+        <div class="col-md-2 general-info-title">{{ 'i18n_inspector_name' | translate }}:</div>
+        @if (exam.languageInspection) {
+            <div class="col-md-10 general-info-content">
+                {{ exam.languageInspection.creator.firstName }} {{ exam.languageInspection.creator.lastName }}
+            </div>
+        }
     </div>
-</div>
+}
 
 <!-- exam feedback -->
-<div class="detail-row mart20" *ngIf="isReadOnly() || isUnderLanguageInspection()">
-    <div class="col-md-2 general-info-title">{{ 'i18n_teachers_comment' | translate }}:</div>
-    <div class="col-md-10 general-info-content">
-        <div [xmMathJax]="exam.examFeedback.comment"></div>
+@if (isReadOnly() || isUnderLanguageInspection()) {
+    <div class="detail-row mart20">
+        <div class="col-md-2 general-info-title">{{ 'i18n_teachers_comment' | translate }}:</div>
+        <div class="col-md-10 general-info-content">
+            <div [xmMathJax]="exam.examFeedback.comment"></div>
+        </div>
     </div>
-</div>
+}
 
 <form #examForm="ngForm" name="examForm" role="form" novalidate>
     <!-- extra info for registry -->
@@ -69,10 +86,7 @@
                 ngbPopover="{{ 'i18n_additional_info_for_registry_description' | translate }}"
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
-                ><img
-                    src="/assets/images/icon_tooltip.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
+                ><img src="/assets/images/icon_tooltip.svg" alt=""
             /></sup>
         </div>
         <div class="col-md-10 general-info-content">
@@ -108,7 +122,9 @@
                 (change)="setGrade()"
                 required
             >
-                <option *ngFor="let grade of grades" [ngValue]="grade">{{ grade.name }}</option>
+                @for (grade of grades; track grade) {
+                    <option [ngValue]="grade">{{ grade.name }}</option>
+                }
                 <option value="" [selected]="!exam.grade">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>
@@ -122,7 +138,9 @@
                 [disabled]="isReadOnly() || !isOwnerOrAdmin() || isAwaitingInspection()"
                 required
             >
-                <option *ngFor="let type of creditTypes" [ngValue]="type">{{ type.name }}</option>
+                @for (type of creditTypes; track type) {
+                    <option [ngValue]="type">{{ type.name }}</option>
+                }
                 <option value="">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>
@@ -136,7 +154,9 @@
                 (change)="setLanguage()"
                 required
             >
-                <option *ngFor="let lang of languages" [ngValue]="lang">{{ lang.name }}</option>
+                @for (lang of languages; track lang) {
+                    <option [ngValue]="lang">{{ lang.name }}</option>
+                }
                 <option value="">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>

@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { NgIf } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -22,7 +22,7 @@ import type { Exam } from '../../exam.model';
 @Component({
     selector: 'xm-publication-dialog',
     standalone: true,
-    imports: [TranslateModule, NgIf],
+    imports: [TranslateModule],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
@@ -32,9 +32,11 @@ import type { Exam } from '../../exam.model';
                 <p>
                     {{ getConfirmationText() }}
                 </p>
-                <p *ngIf="exam.examFeedbackConfig">
-                    {{ 'i18n_exam_feedback_config_confirmation' | translate }}
-                </p>
+                @if (exam.examFeedbackConfig) {
+                    <p>
+                        {{ 'i18n_exam_feedback_config_confirmation' | translate }}
+                    </p>
+                }
             </div>
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
@@ -49,13 +51,16 @@ import type { Exam } from '../../exam.model';
                 </div>
             </div>
         </div>
-    </div> `,
+    </div>`,
 })
 export class PublicationDialogComponent {
     @Input() exam!: Exam;
     @Input() prePublication = false;
 
-    constructor(public activeModal: NgbActiveModal, private translate: TranslateService) {}
+    constructor(
+        public activeModal: NgbActiveModal,
+        private translate: TranslateService,
+    ) {}
 
     getConfirmationText = () => {
         let confirmation = this.prePublication

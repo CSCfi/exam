@@ -1,4 +1,4 @@
-import { DatePipe, NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
+import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -29,46 +29,60 @@ import { CalendarService } from '../calendar.service';
                 </div>
             </div>
             <div class="col-md-10 col-12">
-                <div class="row" *ngFor="let oh of openingHours">
-                    <div class="col-md-1 col-6">{{ oh.name | uppercase }}</div>
-                    <div class="col-md-11 col-6">{{ oh.periodText }}</div>
-                </div>
+                @for (oh of openingHours; track oh.ord) {
+                    <div class="row">
+                        <div class="col-md-1 col-6">{{ oh.name | uppercase }}</div>
+                        <div class="col-md-11 col-6">{{ oh.periodText }}</div>
+                    </div>
+                }
             </div>
         </div>
-        <div class="row mt-2" *ngIf="maintenancePeriods.length > 0">
-            <div class="col-md-2 col-12">{{ 'i18n_maintenance_periods' | translate }}:</div>
-            <div class="col-md-10 col-12">
-                <div *ngFor="let period of maintenancePeriods | orderBy : 'startsAt'">
-                    {{ period.startsAt | date : 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date : 'dd.MM.yyyy HH:mm' }}
-                    {{ period.description }}
+        @if (maintenancePeriods.length > 0) {
+            <div class="row mt-2">
+                <div class="col-md-2 col-12">{{ 'i18n_maintenance_periods' | translate }}:</div>
+                <div class="col-md-10 col-12">
+                    @for (period of maintenancePeriods | orderBy: 'startsAt'; track period.id) {
+                        <div>
+                            {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
+                            {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
+                            {{ period.description }}
+                        </div>
+                    }
                 </div>
             </div>
-        </div>
-        <div class="row mt-2" *ngIf="exceptionHours.length > 0">
-            <div class="col-md-2 col-12">{{ 'i18n_exception_datetimes' | translate }}:</div>
-            <div class="col-md-10 col-12">
-                <div
-                    *ngFor="let eh of exceptionHours"
-                    [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'"
-                    triggers="mouseenter:mouseleave"
-                    ngbPopover="{{ eh.description | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                >
-                    {{ eh.start }} - {{ eh.end }}
+        }
+        @if (exceptionHours.length > 0) {
+            <div class="row mt-2">
+                <div class="col-md-2 col-12">{{ 'i18n_exception_datetimes' | translate }}:</div>
+                <div class="col-md-10 col-12">
+                    @for (eh of exceptionHours; track eh.id) {
+                        <div
+                            [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'"
+                            triggers="mouseenter:mouseleave"
+                            ngbPopover="{{ eh.description | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        >
+                            {{ eh.start }} - {{ eh.end }}
+                        </div>
+                    }
                 </div>
             </div>
-        </div>
-        <div class="row mt-2" *ngIf="getRoomInstructions()">
-            <div class="col-md-2 col-12">{{ 'i18n_instructions' | translate }}:</div>
-            <div class="col-md-10 col-12">{{ getRoomInstructions() }}</div>
-        </div>
-        <div class="row mt-2" *ngIf="getRoomAccessibility()">
-            <div class="col-md-2 col-12">{{ 'i18n_room_accessibility' | translate }}:</div>
-            <div class="col-md-10 col-12">{{ getRoomAccessibility() }}</div>
-        </div>
+        }
+        @if (getRoomInstructions()) {
+            <div class="row mt-2">
+                <div class="col-md-2 col-12">{{ 'i18n_instructions' | translate }}:</div>
+                <div class="col-md-10 col-12">{{ getRoomInstructions() }}</div>
+            </div>
+        }
+        @if (getRoomAccessibility()) {
+            <div class="row mt-2">
+                <div class="col-md-2 col-12">{{ 'i18n_room_accessibility' | translate }}:</div>
+                <div class="col-md-10 col-12">{{ getRoomAccessibility() }}</div>
+            </div>
+        }
     `,
     standalone: true,
-    imports: [NgFor, NgIf, NgClass, NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
+    imports: [NgClass, NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
 })
 export class SelectedRoomComponent implements OnInit, OnChanges {
     @Input() room!: ExamRoom;
@@ -78,7 +92,10 @@ export class SelectedRoomComponent implements OnInit, OnChanges {
     openingHours: OpeningHours[] = [];
     exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
 
-    constructor(private translate: TranslateService, private Calendar: CalendarService) {}
+    constructor(
+        private translate: TranslateService,
+        private Calendar: CalendarService,
+    ) {}
 
     ngOnInit() {
         this.translate.onLangChange.subscribe(() => {

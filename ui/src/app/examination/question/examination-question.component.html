@@ -3,32 +3,43 @@
         <div class="guide-wrapper" [ngClass]="isAnswered() ? 'active' : 'notactive'">
             <div class="row align-items-center">
                 <div class="col-auto">
-                    <div *ngIf="isAnswered()" [attr.aria-label]="'i18n_all_questions_answered' | translate">
-                        <img class="mart05" src="/assets/images/icon_question_type_ready_grey.png" alt="" />
-                    </div>
-                    <div *ngIf="!isAnswered()" [attr.aria-label]="'i18n_questions_unanswered' | translate">
-                        <img class="mart05" src="/assets/images/icon_question_type_waiting.svg" alt="" />
-                    </div>
+                    @if (isAnswered()) {
+                        <div [attr.aria-label]="'i18n_all_questions_answered' | translate">
+                            <img class="mart05" src="/assets/images/icon_question_type_ready_grey.png" alt="" />
+                        </div>
+                    }
+                    @if (!isAnswered()) {
+                        <div [attr.aria-label]="'i18n_questions_unanswered' | translate">
+                            <img class="mart05" src="/assets/images/icon_question_type_waiting.svg" alt="" />
+                        </div>
+                    }
                 </div>
                 <!-- question text -->
                 <div class="col mt-3">
-                    <div *ngIf="sq.question.type !== 'ClozeTestQuestion'">
-                        <div class="section-box-title" *ngIf="expanded" [xmMathJax]="sq.question.question"></div>
-                        <div
-                            class="section-box-title"
-                            *ngIf="!expanded"
-                            [xmMathJax]="sq.question.question | slice : 0 : 240"
-                        ></div>
-                    </div>
-                    <div *ngIf="sq.question.type === 'ClozeTestQuestion'">
-                        <div class="section-box-title">
-                            <xm-dynamic-cloze-test
-                                [content]="sq.clozeTestAnswer?.question || ''"
-                                [answer]="clozeAnswer"
-                                (answerChanged)="answered($event)"
-                            ></xm-dynamic-cloze-test>
+                    @if (sq.question.type !== 'ClozeTestQuestion') {
+                        <div>
+                            @if (expanded) {
+                                <div class="section-box-title" [xmMathJax]="sq.question.question"></div>
+                            }
+                            @if (!expanded) {
+                                <div
+                                    class="section-box-title"
+                                    [xmMathJax]="sq.question.question | slice: 0 : 240"
+                                ></div>
+                            }
                         </div>
-                    </div>
+                    }
+                    @if (sq.question.type === 'ClozeTestQuestion') {
+                        <div>
+                            <div class="section-box-title">
+                                <xm-dynamic-cloze-test
+                                    [content]="sq.clozeTestAnswer?.question || ''"
+                                    [answer]="clozeAnswer"
+                                    (answerChanged)="answered($event)"
+                                ></xm-dynamic-cloze-test>
+                            </div>
+                        </div>
+                    }
                 </div>
                 <!-- Expand button -->
                 <div class="col-auto">
@@ -44,81 +55,86 @@
                 </div>
             </div>
             <!-- instruction -->
-            <div class="row" *ngIf="sq.answerInstructions && expanded">
-                <div class="col-md-12 ps-4">
-                    <p class="question-text question-type-text info" role="note">
-                        <img class="me-4" src="/assets/images/icon_info.svg" alt="" />
-                        {{ 'i18n_instructions' | translate }}:&nbsp;{{ sq.answerInstructions }}
-                    </p>
+            @if (sq.answerInstructions && expanded) {
+                <div class="row">
+                    <div class="col-md-12 ps-4">
+                        <p class="question-text question-type-text info" role="note">
+                            <img class="me-4" src="/assets/images/icon_info.svg" alt="" />
+                            {{ 'i18n_instructions' | translate }}:&nbsp;{{ sq.answerInstructions }}
+                        </p>
+                    </div>
                 </div>
-            </div>
+            }
 
             <!-- attachment -->
-            <div class="row mt-3" *ngIf="sq.question.attachment && expanded">
-                <div class="col-md-12">
-                    <a
-                        class="pointer green_button left-floater-for-section"
-                        tabindex="0"
-                        (click)="downloadQuestionAttachment()"
-                        (keydown.enter)="downloadQuestionAttachment()"
-                    >
-                        {{ 'i18n_download_section_question_attachment' | translate }}
-                        <img src="/assets/images/icon_attachment.svg" alt=""
-                    /></a>
-                    <div class="attachment-name">{{ sq.question.attachment?.fileName | uppercase }}</div>
+            @if (sq.question.attachment && expanded) {
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <a
+                            class="pointer green_button left-floater-for-section"
+                            tabindex="0"
+                            (click)="downloadQuestionAttachment()"
+                            (keydown.enter)="downloadQuestionAttachment()"
+                        >
+                            {{ 'i18n_download_section_question_attachment' | translate }}
+                            <img src="/assets/images/icon_attachment.svg" alt=""
+                        /></a>
+                        <div class="attachment-name">{{ sq.question.attachment?.fileName | uppercase }}</div>
+                    </div>
                 </div>
-            </div>
+            }
 
             <!-- answer -->
             <div class="row">
                 <div class="col-md-12">
-                    <div class="exam-question-container" *ngIf="expanded">
-                        <hr class="info-question-separator" aria-hidden="true" />
-                        <div class="question" [ngSwitch]="sq.question.type">
-                            <xm-examination-essay-question
-                                *ngSwitchCase="'EssayQuestion'"
-                                [sq]="sq"
-                                [exam]="exam"
-                                [isPreview]="isPreview"
-                            >
-                            </xm-examination-essay-question>
-
-                            <xm-examination-cloze-test
-                                *ngSwitchCase="'ClozeTestQuestion'"
-                                [sq]="sq"
-                                [examHash]="exam?.hash || ''"
-                                [isPreview]="isPreview"
-                            >
-                            </xm-examination-cloze-test>
-
-                            <xm-examination-multi-choice-question
-                                *ngSwitchCase="'MultipleChoiceQuestion'"
-                                [sq]="sq"
-                                [examHash]="exam?.hash || ''"
-                                [isPreview]="isPreview"
-                                [orderOptions]="!exam?.external"
-                            >
-                            </xm-examination-multi-choice-question>
-
-                            <xm-examination-multi-choice-question
-                                *ngSwitchCase="'ClaimChoiceQuestion'"
-                                [sq]="sq"
-                                [examHash]="exam?.hash || ''"
-                                [isPreview]="isPreview"
-                                [orderOptions]="true"
-                            >
-                            </xm-examination-multi-choice-question>
-
-                            <xm-examination-weighted-multi-choice-question
-                                *ngSwitchCase="'WeightedMultipleChoiceQuestion'"
-                                [sq]="sq"
-                                [examHash]="exam?.hash || ''"
-                                [isPreview]="isPreview"
-                                [orderOptions]="!exam?.external"
-                            >
-                            </xm-examination-weighted-multi-choice-question>
+                    @if (expanded) {
+                        <div class="exam-question-container">
+                            <hr class="info-question-separator" aria-hidden="true" />
+                            <div class="question">
+                                @switch (sq.question.type) {
+                                    @case ('EssayQuestion') {
+                                        <xm-examination-essay-question [sq]="sq" [exam]="exam" [isPreview]="isPreview">
+                                        </xm-examination-essay-question>
+                                    }
+                                    @case ('ClozeTestQuestion') {
+                                        <xm-examination-cloze-test
+                                            [sq]="sq"
+                                            [examHash]="exam?.hash || ''"
+                                            [isPreview]="isPreview"
+                                        >
+                                        </xm-examination-cloze-test>
+                                    }
+                                    @case ('MultipleChoiceQuestion') {
+                                        <xm-examination-multi-choice-question
+                                            [sq]="sq"
+                                            [examHash]="exam?.hash || ''"
+                                            [isPreview]="isPreview"
+                                            [orderOptions]="!exam?.external"
+                                        >
+                                        </xm-examination-multi-choice-question>
+                                    }
+                                    @case ('ClaimChoiceQuestion') {
+                                        <xm-examination-multi-choice-question
+                                            [sq]="sq"
+                                            [examHash]="exam?.hash || ''"
+                                            [isPreview]="isPreview"
+                                            [orderOptions]="true"
+                                        >
+                                        </xm-examination-multi-choice-question>
+                                    }
+                                    @case ('WeightedMultipleChoiceQuestion') {
+                                        <xm-examination-weighted-multi-choice-question
+                                            [sq]="sq"
+                                            [examHash]="exam?.hash || ''"
+                                            [isPreview]="isPreview"
+                                            [orderOptions]="!exam?.external"
+                                        >
+                                        </xm-examination-weighted-multi-choice-question>
+                                    }
+                                }
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>

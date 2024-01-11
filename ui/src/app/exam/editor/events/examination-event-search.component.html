@@ -55,115 +55,127 @@
         </div>
     </div>
 
-    <div class="mt-4 overflow-x-auto" *ngIf="events.length > 0">
-        <div class="col-md-12">
-            <table class="table table-striped exams-table">
-                <thead>
-                    <tr>
-                        <th class="with-top">
-                            <xm-table-sort
-                                by="exam.course.code"
-                                text="i18n_code"
-                                [predicate]="sorting.predicate"
-                                [reverse]="sorting.reverse"
-                                (click)="setPredicate('exam.course.code')"
-                            >
-                            </xm-table-sort>
-                        </th>
-                        <th class="with-top">
-                            <xm-table-sort
-                                by="exam.name"
-                                text="i18n_exam_name"
-                                [predicate]="sorting.predicate"
-                                [reverse]="sorting.reverse"
-                                (click)="setPredicate('exam.name')"
-                            >
-                            </xm-table-sort>
-                        </th>
-                        <th class="with-top">
-                            <xm-table-sort
-                                by="exam.creator.firstName"
-                                text="i18n_teachers"
-                                [predicate]="sorting.predicate"
-                                [reverse]="sorting.reverse"
-                                (click)="setPredicate('exam.creator.firstName')"
-                            >
-                            </xm-table-sort>
-                        </th>
-                        <th class="with-top">
-                            <xm-table-sort
-                                by="examinationEvent.start"
-                                text="i18n_date"
-                                [predicate]="sorting.predicate"
-                                [reverse]="sorting.reverse"
-                                (click)="setPredicate('examinationEvent.start')"
-                            >
-                            </xm-table-sort>
-                        </th>
-                        <th class="with-top">
-                            <xm-table-sort
-                                by="examEnrolments.length"
-                                text="i18n_participants"
-                                [predicate]="sorting.predicate"
-                                [reverse]="sorting.reverse"
-                                (click)="setPredicate('examEnrolments.length')"
-                            >
-                            </xm-table-sort>
-                        </th>
-                        <th class="with-top">
-                            <xm-table-sort
-                                by="examEnrolments.length"
-                                text="i18n_control"
-                                [predicate]="sorting.predicate"
-                                [reverse]="sorting.reverse"
-                                (click)="setPredicate('examEnrolments.length')"
-                            >
-                            </xm-table-sort>
-                        </th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <tr *ngFor="let event of events | orderBy : sorting.predicate : sorting.reverse">
-                        <!-- 1 -->
-                        <td>
-                            <xm-course-code *ngIf="event.exam.course" [course]="event.exam.course"></xm-course-code>
-                        </td>
-                        <!-- 2 -->
-                        <td>
-                            <a class="infolink" [routerLink]="['/staff/exams', event.exam.id, '1']">
-                                {{ event.exam.name }}
-                            </a>
-                        </td>
-                        <!-- 3 -->
-                        <td>
-                            {{
-                                event.exam?.creator?.firstName && event.exam?.creator?.lastName
-                                    ? event.exam?.creator?.firstName + ' ' + event.exam?.creator?.lastName
-                                    : '–'
-                            }}
-                        </td>
-                        <!-- 4 -->
-                        <td>
-                            {{ event.examinationEvent?.start | date : 'dd.MM.yyyy HH:mm' }} -
-                            {{ getEventEndTime(event.examinationEvent?.start, event.exam?.duration) | date : 'HH:mm' }}
-                        </td>
-                        <!-- 5 -->
-                        <td>
-                            {{ event.examEnrolments?.length }}
-                        </td>
-                        <!-- 6 -->
-                        <td>
-                            <button *ngIf="isActive(event)" class="rounded warning" (click)="removeEvent(event)">
-                                {{ 'i18n_remove' | translate }}
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    @if (events.length > 0) {
+        <div class="mt-4 overflow-x-auto">
+            <div class="col-md-12">
+                <table class="table table-striped exams-table">
+                    <thead>
+                        <tr>
+                            <th class="with-top">
+                                <xm-table-sort
+                                    by="exam.course.code"
+                                    text="i18n_code"
+                                    [predicate]="sorting.predicate"
+                                    [reverse]="sorting.reverse"
+                                    (click)="setPredicate('exam.course.code')"
+                                >
+                                </xm-table-sort>
+                            </th>
+                            <th class="with-top">
+                                <xm-table-sort
+                                    by="exam.name"
+                                    text="i18n_exam_name"
+                                    [predicate]="sorting.predicate"
+                                    [reverse]="sorting.reverse"
+                                    (click)="setPredicate('exam.name')"
+                                >
+                                </xm-table-sort>
+                            </th>
+                            <th class="with-top">
+                                <xm-table-sort
+                                    by="exam.creator.firstName"
+                                    text="i18n_teachers"
+                                    [predicate]="sorting.predicate"
+                                    [reverse]="sorting.reverse"
+                                    (click)="setPredicate('exam.creator.firstName')"
+                                >
+                                </xm-table-sort>
+                            </th>
+                            <th class="with-top">
+                                <xm-table-sort
+                                    by="examinationEvent.start"
+                                    text="i18n_date"
+                                    [predicate]="sorting.predicate"
+                                    [reverse]="sorting.reverse"
+                                    (click)="setPredicate('examinationEvent.start')"
+                                >
+                                </xm-table-sort>
+                            </th>
+                            <th class="with-top">
+                                <xm-table-sort
+                                    by="examEnrolments.length"
+                                    text="i18n_participants"
+                                    [predicate]="sorting.predicate"
+                                    [reverse]="sorting.reverse"
+                                    (click)="setPredicate('examEnrolments.length')"
+                                >
+                                </xm-table-sort>
+                            </th>
+                            <th class="with-top">
+                                <xm-table-sort
+                                    by="examEnrolments.length"
+                                    text="i18n_control"
+                                    [predicate]="sorting.predicate"
+                                    [reverse]="sorting.reverse"
+                                    (click)="setPredicate('examEnrolments.length')"
+                                >
+                                </xm-table-sort>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (event of events | orderBy: sorting.predicate : sorting.reverse; track event) {
+                            <tr>
+                                <!-- 1 -->
+                                <td>
+                                    @if (event.exam.course) {
+                                        <xm-course-code [course]="event.exam.course"></xm-course-code>
+                                    }
+                                </td>
+                                <!-- 2 -->
+                                <td>
+                                    <a class="infolink" [routerLink]="['/staff/exams', event.exam.id, '1']">
+                                        {{ event.exam.name }}
+                                    </a>
+                                </td>
+                                <!-- 3 -->
+                                <td>
+                                    {{
+                                        event.exam?.creator?.firstName && event.exam?.creator?.lastName
+                                            ? event.exam?.creator?.firstName + ' ' + event.exam?.creator?.lastName
+                                            : '–'
+                                    }}
+                                </td>
+                                <!-- 4 -->
+                                <td>
+                                    {{ event.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm' }} -
+                                    {{
+                                        getEventEndTime(event.examinationEvent?.start, event.exam?.duration)
+                                            | date: 'HH:mm'
+                                    }}
+                                </td>
+                                <!-- 5 -->
+                                <td>
+                                    {{ event.examEnrolments?.length }}
+                                </td>
+                                <!-- 6 -->
+                                <td>
+                                    @if (isActive(event)) {
+                                        <button class="rounded warning" (click)="removeEvent(event)">
+                                            {{ 'i18n_remove' | translate }}
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-    <div *ngIf="events.length <= 0" class="marl30 mart20">
-        {{ 'i18n_exam_no_result' | translate }}
-    </div>
+    }
+    @if (events.length <= 0) {
+        <div class="marl30 mart20">
+            {{ 'i18n_exam_no_result' | translate }}
+        </div>
+    }
 </div>

@@ -4,96 +4,123 @@
             <h4 class="col-md-12 padl0">
                 {{ index }}. &nbsp; &nbsp;{{ section.name }}
                 <span class="score-details">
-                    <span *ngIf="getSectionMaxScore() > 0">
-                        {{ 'i18n_word_points' | translate }}:&nbsp;
-                        <span style="color: #2c2c2c">{{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}</span>
-                    </span>
+                    @if (getSectionMaxScore() > 0) {
+                        <span>
+                            {{ 'i18n_word_points' | translate }}:&nbsp;
+                            <span style="color: #2c2c2c"
+                                >{{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}</span
+                            >
+                        </span>
+                    }
                     &nbsp;
-                    <span *ngIf="(selectionEssays?.totalSelectionEssays || 0) > 0">
-                        {{ 'i18n_section_accepted_and_rejected' | translate }}&nbsp;
-                        <span style="color: #2c2c2c"
-                            >{{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }}</span
-                        >
-                    </span>
-                    <span *ngIf="(selectionEssays?.totalSelectionEssays || 0) > 0">
-                        {{ 'i18n_total' | translate }}: {{ selectionEssays?.totalSelectionEssays }}
-                    </span>
+                    @if ((selectionEssays?.totalSelectionEssays || 0) > 0) {
+                        <span>
+                            {{ 'i18n_section_accepted_and_rejected' | translate }}&nbsp;
+                            <span style="color: #2c2c2c"
+                                >{{ selectionEvaluatedAmounts.accepted }} /
+                                {{ selectionEvaluatedAmounts.rejected }}</span
+                            >
+                        </span>
+                    }
+                    @if ((selectionEssays?.totalSelectionEssays || 0) > 0) {
+                        <span> {{ 'i18n_total' | translate }}: {{ selectionEssays?.totalSelectionEssays }} </span>
+                    }
                 </span>
             </h4>
         </div>
-        <div class="detail-row padr0 padl0 mar0" *ngIf="section.description">
-            <div class="col-md-12 padr0 padl0">
-                <div class="padl30 mart20" role="note">
-                    <img src="/assets/images/icon_info.svg" alt="" />
-                    <span class="padl10 notice-text">{{ section.description }}</span>
+        @if (section.description) {
+            <div class="detail-row padr0 padl0 mar0">
+                <div class="col-md-12 padr0 padl0">
+                    <div class="padl30 mart20" role="note">
+                        <img src="/assets/images/icon_info.svg" alt="" />
+                        <span class="padl10 notice-text">{{ section.description }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        }
         <div class="detail-row ms-2 me-2">
-            <div class="col-md-12 mt-4" *ngFor="let sq of section.sectionQuestions | orderBy : 'sequenceNumber'">
-                <div *ngIf="sq.question.type === 'MultipleChoiceQuestion'">
-                    <xm-r-multi-choice-question
-                        [sectionQuestion]="sq"
-                        [participation]="participation"
-                        [isScorable]="isScorable"
-                        [collaborative]="collaborative"
-                        (scored)="scoreSet($event)"
-                    >
-                    </xm-r-multi-choice-question>
+            @for (sq of section.sectionQuestions | orderBy: 'sequenceNumber'; track sq) {
+                <div class="col-md-12 mt-4">
+                    @if (sq.question.type === 'MultipleChoiceQuestion') {
+                        <div>
+                            <xm-r-multi-choice-question
+                                [sectionQuestion]="sq"
+                                [participation]="participation"
+                                [isScorable]="isScorable"
+                                [collaborative]="collaborative"
+                                (scored)="scoreSet($event)"
+                            >
+                            </xm-r-multi-choice-question>
+                        </div>
+                    }
+                    @if (sq.question.type === 'EssayQuestion') {
+                        <div>
+                            <xm-r-essay-question
+                                [sectionQuestion]="sq"
+                                [participation]="participation"
+                                [exam]="exam"
+                                [isScorable]="isScorable"
+                                [collaborative]="collaborative"
+                                (scored)="scoreSet($event)"
+                            >
+                            </xm-r-essay-question>
+                        </div>
+                    }
+                    @if (sq.question.type === 'WeightedMultipleChoiceQuestion') {
+                        <div>
+                            <xm-r-multi-choice-question
+                                [sectionQuestion]="sq"
+                                [participation]="participation"
+                                [isScorable]="isScorable"
+                                [collaborative]="collaborative"
+                                (scored)="scoreSet($event)"
+                            >
+                            </xm-r-multi-choice-question>
+                        </div>
+                    }
+                    @if (sq.question.type === 'ClozeTestQuestion') {
+                        <div>
+                            <xm-r-cloze-test
+                                [sectionQuestion]="sq"
+                                [participation]="participation"
+                                [isScorable]="isScorable"
+                                [collaborative]="collaborative"
+                                (scored)="scoreSet($event)"
+                            >
+                            </xm-r-cloze-test>
+                        </div>
+                    }
+                    @if (sq.question.type === 'ClaimChoiceQuestion') {
+                        <div>
+                            <xm-r-multi-choice-question
+                                [sectionQuestion]="sq"
+                                [participation]="participation"
+                                [isScorable]="isScorable"
+                                [collaborative]="collaborative"
+                                (scored)="scoreSet($event)"
+                            >
+                            </xm-r-multi-choice-question>
+                        </div>
+                    }
                 </div>
-                <div *ngIf="sq.question.type === 'EssayQuestion'">
-                    <xm-r-essay-question
-                        [sectionQuestion]="sq"
-                        [participation]="participation"
-                        [exam]="exam"
-                        [isScorable]="isScorable"
-                        [collaborative]="collaborative"
-                        (scored)="scoreSet($event)"
-                    >
-                    </xm-r-essay-question>
-                </div>
-                <div *ngIf="sq.question.type === 'WeightedMultipleChoiceQuestion'">
-                    <xm-r-multi-choice-question
-                        [sectionQuestion]="sq"
-                        [participation]="participation"
-                        [isScorable]="isScorable"
-                        [collaborative]="collaborative"
-                        (scored)="scoreSet($event)"
-                    >
-                    </xm-r-multi-choice-question>
-                </div>
-                <div *ngIf="sq.question.type === 'ClozeTestQuestion'">
-                    <xm-r-cloze-test
-                        [sectionQuestion]="sq"
-                        [participation]="participation"
-                        [isScorable]="isScorable"
-                        [collaborative]="collaborative"
-                        (scored)="scoreSet($event)"
-                    >
-                    </xm-r-cloze-test>
-                </div>
-                <div *ngIf="sq.question.type === 'ClaimChoiceQuestion'">
-                    <xm-r-multi-choice-question
-                        [sectionQuestion]="sq"
-                        [participation]="participation"
-                        [isScorable]="isScorable"
-                        [collaborative]="collaborative"
-                        (scored)="scoreSet($event)"
-                    >
-                    </xm-r-multi-choice-question>
-                </div>
-            </div>
+            }
         </div>
         <div class="detail-row ms-2 me-2 d-flex justify-content-end">
             <div class="review-list-footer">
-                <div *ngIf="getSectionMaxScore() > 0">
-                    {{ 'i18n_word_points' | translate }}:
-                    <span> {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }} </span>
-                </div>
-                <div *ngIf="(selectionEssays?.totalSelectionEssays || 0) > 0">
-                    {{ 'i18n_section_accepted_and_rejected' | translate }}
-                    <span> {{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }} </span>
-                </div>
+                @if (getSectionMaxScore() > 0) {
+                    <div>
+                        {{ 'i18n_word_points' | translate }}:
+                        <span> {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }} </span>
+                    </div>
+                }
+                @if ((selectionEssays?.totalSelectionEssays || 0) > 0) {
+                    <div>
+                        {{ 'i18n_section_accepted_and_rejected' | translate }}
+                        <span>
+                            {{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }}
+                        </span>
+                    </div>
+                }
             </div>
         </div>
     </div>

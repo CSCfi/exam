@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
@@ -41,7 +41,6 @@ import { SoftwareSelectorComponent } from './software-picker.component';
     templateUrl: './basic-exam-info.component.html',
     standalone: true,
     imports: [
-        NgIf,
         ExamCourseComponent,
         NgbPopover,
         FormsModule,

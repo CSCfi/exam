@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -25,20 +25,25 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
         <div class="top-row">
             <h4 class="col-md-12">
                 {{ 'i18n_get_all_info_from_exam' | translate }}
-                <span *ngIf="fileType === 'xlsx'">{{ 'i18n_excel_file' | translate }}</span>
-                <span *ngIf="fileType === 'json'">{{ 'i18n_json_file' | translate }}</span>
+                @if (fileType === 'xlsx') {
+                    <span>{{ 'i18n_excel_file' | translate }}</span>
+                }
+                @if (fileType === 'json') {
+                    <span>{{ 'i18n_json_file' | translate }}</span>
+                }
             </h4>
         </div>
         <div class="bottom-row d-flex justify-content-between">
             <div class="col-lg-10 mb-4">
                 <label for="exam">{{ 'i18n_select_exam' | translate }}</label>
-                <xm-dropdown-select
-                    id="exam"
-                    *ngIf="examNames"
-                    [options]="examNames"
-                    (optionSelected)="examSelected($event)"
-                    placeholder="{{ 'i18n_select' | translate }}"
-                ></xm-dropdown-select>
+                @if (examNames) {
+                    <xm-dropdown-select
+                        id="exam"
+                        [options]="examNames"
+                        (optionSelected)="examSelected($event)"
+                        placeholder="{{ 'i18n_select' | translate }}"
+                    ></xm-dropdown-select>
+                }
             </div>
             <div class="col-lg-2 mb-2">
                 <label for="link"></label>
@@ -51,8 +56,12 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
                         popoverTitle="{{ 'i18n_instructions' | translate }}"
                         ngbPopover="{{ 'i18n_download' | translate }}"
                     >
-                        <i *ngIf="fileType === 'xlsx'" class="bi-file-earmark-excel font-6"></i>
-                        <i *ngIf="fileType === 'json'" class="bi-file-earmark-code font-6"></i>
+                        @if (fileType === 'xlsx') {
+                            <i class="bi-file-earmark-excel font-6"></i>
+                        }
+                        @if (fileType === 'json') {
+                            <i class="bi-file-earmark-code font-6"></i>
+                        }
                     </a>
                 </div>
             </div>
@@ -60,7 +69,7 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
     `,
     selector: 'xm-exams-report',
     standalone: true,
-    imports: [NgIf, DropdownSelectComponent, NgbPopover, TranslateModule],
+    imports: [DropdownSelectComponent, NgbPopover, TranslateModule],
 })
 export class ExamsReportComponent {
     @Input() examNames: Option<string, number>[] = [];
@@ -68,7 +77,11 @@ export class ExamsReportComponent {
 
     exam?: number;
 
-    constructor(private translate: TranslateService, private toast: ToastrService, private files: FileService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private files: FileService,
+    ) {}
 
     examSelected = (event?: Option<string, number>) => (this.exam = event?.id);
 

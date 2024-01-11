@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { DatePipe, NgFor } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -24,7 +24,7 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
 @Component({
     selector: 'xm-select-examination-event-dialog',
     standalone: true,
-    imports: [TranslateModule, DatePipe, NgFor],
+    imports: [TranslateModule, DatePipe],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
@@ -41,25 +41,27 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
                         </h3>
                     </div>
                 </div>
-                <div *ngFor="let config of configs" class="examination-event">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h3>{{ config.examinationEvent.start | date : 'dd.MM.yyyy HH:mm' }}</h3>
+                @for (config of configs; track config) {
+                    <div class="examination-event">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h3>{{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}</h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <span>{{ config.examinationEvent.description }}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mart10">
+                                <button class="btn btn-sm btn-success" (click)="selectEvent(config)" autofocus>
+                                    {{ 'i18n_select' | translate }}
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <span>{{ config.examinationEvent.description }}</span>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 mart10">
-                            <button class="btn btn-sm btn-success" (click)="selectEvent(config)" autofocus>
-                                {{ 'i18n_select' | translate }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                }
             </div>
             <div class="modal-footer">
                 <div class="col-md-12">
@@ -69,7 +71,7 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
                 </div>
             </div>
         </div>
-    </div> `,
+    </div>`,
 })
 export class SelectExaminationEventDialogComponent implements OnInit {
     @Input() exam!: Exam;

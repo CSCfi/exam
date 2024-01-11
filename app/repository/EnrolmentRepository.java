@@ -320,16 +320,12 @@ public class EnrolmentRepository {
             ? ee.getExaminationEventConfiguration().getExaminationEvent()
             : null;
         return (
-            (
-                reservation != null &&
+            (reservation != null &&
                 reservation.getStartAt().isBefore(latest) &&
-                reservation.getEndAt().isAfter(earliest)
-            ) ||
-            (
-                event != null &&
+                reservation.getEndAt().isAfter(earliest)) ||
+            (event != null &&
                 event.getStart().isBefore(latest) &&
-                event.getStart().plusMinutes(ee.getExam().getDuration()).isAfter(earliest)
-            )
+                event.getStart().plusMinutes(ee.getExam().getDuration()).isAfter(earliest))
         );
     }
 

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import type { ExamSection } from '../../../exam/exam.model';
 import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
@@ -27,33 +27,26 @@ import { PrintedMultiChoiceComponent } from './printed-multi-choice.component';
             <h4>{{ index + 1 }}.&nbsp; &nbsp;{{ section.name }}</h4>
         </blockquote>
         <p>{{ section.description }}</p>
-        <div
-            class="sub-content-row col-md-12"
-            *ngFor="let sectionQuestion of section.sectionQuestions | orderBy : 'sequenceNumber'"
-        >
-            <xm-printed-multi-choice
-                *ngIf="
+        @for (sectionQuestion of section.sectionQuestions | orderBy: 'sequenceNumber'; track sectionQuestion) {
+            <div class="sub-content-row col-md-12">
+                @if (
                     sectionQuestion.question.type === 'MultipleChoiceQuestion' ||
                     sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion' ||
                     sectionQuestion.question.type === 'ClaimChoiceQuestion'
-                "
-                [sectionQuestion]="sectionQuestion"
-            >
-            </xm-printed-multi-choice>
-            <xm-printed-essay
-                *ngIf="sectionQuestion.question.type === 'EssayQuestion'"
-                [sectionQuestion]="sectionQuestion"
-            >
-            </xm-printed-essay>
-            <xm-printed-cloze-test
-                *ngIf="sectionQuestion.question.type === 'ClozeTestQuestion'"
-                [sectionQuestion]="sectionQuestion"
-            >
-            </xm-printed-cloze-test>
-        </div>
+                ) {
+                    <xm-printed-multi-choice [sectionQuestion]="sectionQuestion"> </xm-printed-multi-choice>
+                }
+                @if (sectionQuestion.question.type === 'EssayQuestion') {
+                    <xm-printed-essay [sectionQuestion]="sectionQuestion"> </xm-printed-essay>
+                }
+                @if (sectionQuestion.question.type === 'ClozeTestQuestion') {
+                    <xm-printed-cloze-test [sectionQuestion]="sectionQuestion"> </xm-printed-cloze-test>
+                }
+            </div>
+        }
     `,
     standalone: true,
-    imports: [NgFor, NgIf, PrintedMultiChoiceComponent, PrintedEssayComponent, PrintedClozeTestComponent, OrderByPipe],
+    imports: [PrintedMultiChoiceComponent, PrintedEssayComponent, PrintedClozeTestComponent, OrderByPipe],
 })
 export class PrintedSectionComponent {
     @Input() section!: ExamSection;

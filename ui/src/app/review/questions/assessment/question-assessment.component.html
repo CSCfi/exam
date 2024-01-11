@@ -15,12 +15,14 @@
                         <div class="essay-review-status">
                             <!-- Assessment status in progress / done -->
                             <span class="inspection-title">{{ 'i18n_inspection_status' | translate }}:</span>
-                            <span *ngIf="isFinalized(selectedReview)" class="text-success"
-                                >{{ 'i18n_exam_status_graded' | translate | lowercase }}
-                            </span>
-                            <span *ngIf="!isFinalized(selectedReview)" class="text-danger"
-                                >{{ 'i18n_in_progress' | translate | lowercase }}
-                            </span>
+                            @if (isFinalized(selectedReview)) {
+                                <span class="text-success"
+                                    >{{ 'i18n_exam_status_graded' | translate | lowercase }}
+                                </span>
+                            }
+                            @if (!isFinalized(selectedReview)) {
+                                <span class="text-danger">{{ 'i18n_in_progress' | translate | lowercase }} </span>
+                            }
                         </div>
                     </div>
                 </div>
@@ -41,56 +43,63 @@
                     >
                         <div class="review-question-title" [xmMathJax]="selectedReview.question.question"></div>
                     </div>
-                    <div *ngIf="selectedReview && selectedReview.question.defaultAnswerInstructions" class="col-md-1">
-                        <a (click)="selectedReview.expanded = !selectedReview.expanded" class="pointer-hand">
-                            <img
-                                *ngIf="!selectedReview.expanded"
-                                src="/assets/images/icon_list_show_right.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-                            />
-                            <img
-                                *ngIf="selectedReview.expanded"
-                                src="/assets/images/icon_list_show_down.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-                            />
-                        </a>
-                    </div>
+                    @if (selectedReview && selectedReview.question.defaultAnswerInstructions) {
+                        <div class="col-md-1">
+                            <a (click)="selectedReview.expanded = !selectedReview.expanded" class="pointer-hand">
+                                @if (!selectedReview.expanded) {
+                                    <img
+                                        src="/assets/images/icon_list_show_right.svg"
+                                        alt=""
+                                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
+                                    />
+                                }
+                                @if (selectedReview.expanded) {
+                                    <img
+                                        src="/assets/images/icon_list_show_down.svg"
+                                        alt=""
+                                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
+                                    />
+                                }
+                            </a>
+                        </div>
+                    }
                 </div>
-                <div
-                    class="main-row"
-                    *ngIf="
-                        selectedReview && selectedReview.expanded && selectedReview.question.defaultAnswerInstructions
-                    "
-                >
-                    <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box" role="note">
-                        <img src="/assets/images/icon_info.png" alt="" />
-                        <span class="padl10">{{ selectedReview.question.defaultAnswerInstructions }}</span>
-                    </div>
-                </div>
-                <div class="main-row" *ngIf="selectedReview && selectedReview.question.attachment">
-                    <div class="col-md-10 col-md-offset-1">
-                        <span>
-                            <i class="bi-paperclip text-primary"></i>&nbsp;
-                            <a class="pointer" (click)="downloadQuestionAttachment()">
-                                {{ selectedReview.question.attachment?.fileName }}</a
-                            >
-                        </span>
-                    </div>
-                </div>
-                <div class="main-row padb0" *ngIf="selectedReview?.evaluationCriteria">
-                    <div class="col-md-11 col-md-offset-1">
-                        {{ 'i18n_exam_evaluation_criteria' | translate }}
-                    </div>
-                </div>
-                <div class="detail-row" *ngIf="selectedReview?.evaluationCriteria">
-                    <div class="col-md-11 col-md-offset-1">
-                        <div class="review-question-title">
-                            {{ selectedReview.evaluationCriteria }}
+                @if (selectedReview && selectedReview.expanded && selectedReview.question.defaultAnswerInstructions) {
+                    <div class="main-row">
+                        <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box" role="note">
+                            <img src="/assets/images/icon_info.png" alt="" />
+                            <span class="padl10">{{ selectedReview.question.defaultAnswerInstructions }}</span>
                         </div>
                     </div>
-                </div>
+                }
+                @if (selectedReview && selectedReview.question.attachment) {
+                    <div class="main-row">
+                        <div class="col-md-10 col-md-offset-1">
+                            <span>
+                                <i class="bi-paperclip text-primary"></i>&nbsp;
+                                <a class="pointer" (click)="downloadQuestionAttachment()">
+                                    {{ selectedReview.question.attachment?.fileName }}</a
+                                >
+                            </span>
+                        </div>
+                    </div>
+                }
+                @if (selectedReview?.evaluationCriteria) {
+                    <div class="main-row padb0">
+                        <div class="col-md-11 col-md-offset-1">
+                            {{ 'i18n_exam_evaluation_criteria' | translate }}
+                        </div>
+                    </div>
+                }
+                @if (selectedReview?.evaluationCriteria) {
+                    <div class="detail-row">
+                        <div class="col-md-11 col-md-offset-1">
+                            <div class="review-question-title">
+                                {{ selectedReview.evaluationCriteria }}
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
             <div class="detail-row p-0">
                 <div class="triangle-line"></div>
@@ -151,8 +160,9 @@
         <!-- END OF RIGHT COL -->
 
         <div class="col-md-4 p-0">
-            <xm-question-flow *ngIf="reviews" [reviews]="reviews" (selected)="questionSelected($event)">
-            </xm-question-flow>
+            @if (reviews) {
+                <xm-question-flow [reviews]="reviews" (selected)="questionSelected($event)"> </xm-question-flow>
+            }
         </div>
     </div>
 </div>

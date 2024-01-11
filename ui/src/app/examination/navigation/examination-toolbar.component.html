@@ -39,11 +39,13 @@
         <div class="more-separators"></div>
     </div>
 </div>
-<div class="row" *ngIf="exam.course">
-    <div class="col-md-12 ms-3">
-        <div class="right-title">{{ exam.course.name }}</div>
+@if (exam.course) {
+    <div class="row">
+        <div class="col-md-12 ms-3">
+            <div class="right-title">{{ exam.course.name }}</div>
+        </div>
     </div>
-</div>
+}
 
 <!-- ATTACHMENT -->
 <div class="row ms-3 mt-3 align-items-center" [hidden]="!exam.attachment">
@@ -60,7 +62,7 @@
         />
     </button>
     <div class="attachment-name ps-1" [title]="exam.attachment?.fileName">
-        {{ exam.attachment?.fileName | uppercase | slice : 0 : 50 }}
+        {{ exam.attachment?.fileName | uppercase | slice: 0 : 50 }}
     </div>
 </div>
 
@@ -86,63 +88,62 @@
                 </a>
             </li>
 
-            <li
-                class="row d-flex align-items-center phase-box"
-                *ngFor="let section of exam.examSections | orderBy : 'sequenceNumber'; let i = index"
-                [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
-            >
-                <div class="me-3">
-                    <div
-                        class="question-type-img-wrap"
-                        *ngIf="getQuestionAmount(section, 'answered') === getQuestionAmount(section, 'total')"
-                    >
-                        <img
-                            src="/assets/images/icon_question_type_ready_grey.png"
-                            alt="{{ 'i18n_all_questions_answered' | translate }}"
-                            onerror="this.onerror=null;this.src='/assets/images/icon_question_type_ready_grey.png';"
-                        />
+            @for (section of exam.examSections | orderBy: 'sequenceNumber'; track section; let i = $index) {
+                <li
+                    class="row d-flex align-items-center phase-box"
+                    [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
+                >
+                    <div class="me-3">
+                        @if (getQuestionAmount(section, 'answered') === getQuestionAmount(section, 'total')) {
+                            <div class="question-type-img-wrap">
+                                <img
+                                    src="/assets/images/icon_question_type_ready_grey.png"
+                                    alt="{{ 'i18n_all_questions_answered' | translate }}"
+                                    onerror="this.onerror=null;this.src='/assets/images/icon_question_type_ready_grey.png';"
+                                />
+                            </div>
+                        }
+                        @if (getQuestionAmount(section, 'answered') !== getQuestionAmount(section, 'total')) {
+                            <div class="question-type-img-wrap">
+                                <img
+                                    src="/assets/images/icon_question_type_waiting.svg"
+                                    alt="{{ 'i18n_unanswered_questions_remain' | translate }}"
+                                    onerror="this.onerror=null;this.src='/assets/images/icon_question_type_waiting.png';"
+                                />
+                            </div>
+                        }
                     </div>
-                    <div
-                        class="question-type-img-wrap"
-                        *ngIf="getQuestionAmount(section, 'answered') !== getQuestionAmount(section, 'total')"
-                    >
-                        <img
-                            src="/assets/images/icon_question_type_waiting.svg"
-                            alt="{{ 'i18n_unanswered_questions_remain' | translate }}"
-                            onerror="this.onerror=null;this.src='/assets/images/icon_question_type_waiting.png';"
-                        />
+                    <div class="flex-grow">
+                        <span [ngClass]="activeSection?.sequenceNumber === i ? 'sitnet-text' : 'sitnet-text-dark'">
+                            {{ i + 1 }}. {{ section.name }}
+                        </span>
                     </div>
-                </div>
-                <div class="flex-grow">
-                    <span [ngClass]="activeSection?.sequenceNumber === i ? 'sitnet-text' : 'sitnet-text-dark'">
-                        {{ i + 1 }}. {{ section.name }}
-                    </span>
-                </div>
-                <div class="flex justify-content-between">
-                    <span class="section-answered">
-                        {{ 'i18n_number_of_answered_questions' | translate }}
-                        {{ getQuestionAmount(section, 'answered') }}
-                        <span class="horizontal-padding-05"> / </span>
-                        {{ getQuestionAmount(section, 'total') }}
-                    </span>
-                    <button
-                        class="w-auto btn green_button"
-                        (click)="selectSection(section)"
-                        (keydown.enter)="selectSection(section)"
-                        [attr.aria-current]="activeSection?.sequenceNumber === i"
-                    >
-                        {{ 'i18n_move_to_section' | translate }} {{ i + 1 }}.
-                    </button>
-                    <a
-                        class="skip"
-                        id="skip-button"
-                        [href]="getSkipLinkPath('#examination-section')"
-                        [hidden]="activeSection?.sequenceNumber !== i"
-                    >
-                        {{ 'i18n_skip_to_content' | translate }}
-                    </a>
-                </div>
-            </li>
+                    <div class="flex justify-content-between">
+                        <span class="section-answered">
+                            {{ 'i18n_number_of_answered_questions' | translate }}
+                            {{ getQuestionAmount(section, 'answered') }}
+                            <span class="horizontal-padding-05"> / </span>
+                            {{ getQuestionAmount(section, 'total') }}
+                        </span>
+                        <button
+                            class="w-auto btn green_button"
+                            (click)="selectSection(section)"
+                            (keydown.enter)="selectSection(section)"
+                            [attr.aria-current]="activeSection?.sequenceNumber === i"
+                        >
+                            {{ 'i18n_move_to_section' | translate }} {{ i + 1 }}.
+                        </button>
+                        <a
+                            class="skip"
+                            id="skip-button"
+                            [href]="getSkipLinkPath('#examination-section')"
+                            [hidden]="activeSection?.sequenceNumber !== i"
+                        >
+                            {{ 'i18n_skip_to_content' | translate }}
+                        </a>
+                    </div>
+                </li>
+            }
         </ul>
     </div>
 </div>

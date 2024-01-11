@@ -15,14 +15,11 @@
                             <span class="caret"></span>
                         </button>
                         <ul ngbDropdownMenu aria-labelledby="dropDownMenu">
-                            <li
-                                ngbDropdownItem
-                                *ngFor="let org of organisations"
-                                role="presentation"
-                                (click)="organisation = org"
-                            >
-                                <a role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
-                            </li>
+                            @for (org of organisations; track org) {
+                                <li ngbDropdownItem role="presentation" (click)="organisation = org">
+                                    <a role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
+                                </li>
+                            }
                         </ul>
                     </div>
                 </div>
@@ -32,7 +29,9 @@
                     <button class="btn green whitetext" [disabled]="!organisation" (click)="transfer()">
                         {{ 'i18n_copy' | translate }}
                     </button>
-                    <span *ngIf="organisation" class="padl10 vertm">({{ organisation.code }})</span>
+                    @if (organisation) {
+                        <span class="padl10 vertm">({{ organisation.code }})</span>
+                    }
                 </div>
             </div>
         </div>

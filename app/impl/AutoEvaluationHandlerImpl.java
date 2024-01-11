@@ -107,7 +107,7 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
     private Grade getGradeBasedOnScore(Exam exam) {
         Double totalScore = exam.getTotalScore();
         Double maxScore = exam.getMaxScore();
-        Double percentage = maxScore == 0 ? 0 : totalScore * 100 / maxScore;
+        Double percentage = maxScore == 0 ? 0 : (totalScore * 100) / maxScore;
         List<GradeEvaluation> gradeEvaluations = new ArrayList<>(exam.getAutoEvaluationConfig().getGradeEvaluations());
         gradeEvaluations.sort(Comparator.comparingInt(GradeEvaluation::getPercentage));
         Grade grade = null;

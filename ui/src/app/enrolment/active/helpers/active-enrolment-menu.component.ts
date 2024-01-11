@@ -1,4 +1,3 @@
-import { NgIf } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
@@ -14,7 +13,7 @@ import { EnrolmentService } from '../../enrolment.service';
     selector: 'xm-active-enrolment-menu',
     templateUrl: './active-enrolment-menu.component.html',
     standalone: true,
-    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgIf, NgbDropdownItem, RouterLink, TranslateModule],
+    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, RouterLink, TranslateModule],
 })
 export class ActiveEnrolmentMenuComponent {
     @Input() enrolment!: ExamEnrolment;

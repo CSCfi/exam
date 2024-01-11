@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -47,8 +47,6 @@ export interface ExtraData {
     imports: [
         FormsModule,
         TableSortComponent,
-        NgFor,
-        NgIf,
         RouterLink,
         CourseCodeComponent,
         TeacherListComponent,

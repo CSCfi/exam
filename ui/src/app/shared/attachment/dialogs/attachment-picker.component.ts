@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import type { OnInit } from '@angular/core';
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -36,7 +36,7 @@ export interface FileResult {
 @Component({
     selector: 'xm-attachment-selector',
     standalone: true,
-    imports: [TranslateModule, NgIf],
+    imports: [TranslateModule],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="modal-header">
             <h2>{{ title | translate }}</h2>
@@ -64,9 +64,11 @@ export interface FileResult {
                 </div>
             </div>
             <div class="row pt-2">
-                <div class="col-12" *ngIf="isTeacherModal">
-                    {{ 'i18n_check_file_accessible' | translate }}
-                </div>
+                @if (isTeacherModal) {
+                    <div class="col-12">
+                        {{ 'i18n_check_file_accessible' | translate }}
+                    </div>
+                }
             </div>
             <div class="row">
                 <div class="col-12">{{ 'i18n_max_file_size' | translate }} {{ (maxFileSize || 0) / 1000000 }} MB.</div>
@@ -80,7 +82,7 @@ export interface FileResult {
                 {{ 'i18n_button_save' | translate }}
             </button>
         </div>
-    </div> `,
+    </div>`,
 })
 export class AttachmentSelectorComponent implements OnInit {
     @ViewChild('file', { static: false }) file!: ElementRef;
@@ -89,7 +91,10 @@ export class AttachmentSelectorComponent implements OnInit {
     fileObject!: File;
     maxFileSize = 0;
 
-    constructor(public activeModal: NgbActiveModal, private Files: FileService) {}
+    constructor(
+        public activeModal: NgbActiveModal,
+        private Files: FileService,
+    ) {}
 
     ngOnInit() {
         this.Files.getMaxFilesize().then((data) => (this.maxFileSize = data.filesize));

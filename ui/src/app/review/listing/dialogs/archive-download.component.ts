@@ -56,7 +56,11 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 export class ArchiveDownloadComponent {
     params: { startDate: Date | null; endDate: Date | null } = { startDate: new Date(), endDate: new Date() };
 
-    constructor(private modal: NgbActiveModal, private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        private modal: NgbActiveModal,
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     startDateChanged = (event: { date: Date | null }) => (this.params.startDate = event.date);
 

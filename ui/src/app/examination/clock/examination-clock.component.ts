@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,21 +23,26 @@ import { TranslateModule } from '@ngx-translate/core';
         <div class="row">
             <div class="header-wrapper col-12">
                 <div class="row align-items-center p-2">
-                    <div class="col-5" *ngIf="showRemainingTime">
-                        <span class="sitnet-white">{{ 'i18n_exam_time_left' | translate }}: </span>
-                    </div>
-                    <div *ngIf="!showRemainingTime" class="col-5 clock-hide text-muted">
-                        {{ 'i18n_clock_hidden' | translate }}
-                    </div>
+                    @if (showRemainingTime) {
+                        <div class="col-5">
+                            <span class="sitnet-white">{{ 'i18n_exam_time_left' | translate }}: </span>
+                        </div>
+                    }
+                    @if (!showRemainingTime) {
+                        <div class="col-5 clock-hide text-muted">
+                            {{ 'i18n_clock_hidden' | translate }}
+                        </div>
+                    }
                     <div class="col-5">
-                        <span
-                            class="exam-clock"
-                            role="region"
-                            *ngIf="showRemainingTime"
-                            [ngClass]="remainingTime <= alarmThreshold ? 'sitnet-text-alarm' : ''"
-                            [attr.aria-live]="remainingTime <= alarmThreshold ? 'polite' : 'off'"
-                            >{{ formatRemainingTime() }}</span
-                        >
+                        @if (showRemainingTime) {
+                            <span
+                                class="exam-clock"
+                                role="region"
+                                [ngClass]="remainingTime <= alarmThreshold ? 'sitnet-text-alarm' : ''"
+                                [attr.aria-live]="remainingTime <= alarmThreshold ? 'polite' : 'off'"
+                                >{{ formatRemainingTime() }}</span
+                            >
+                        }
                     </div>
                     <div class="col-2">
                         <button (click)="showRemainingTime = !showRemainingTime" class="border-none background-none">
@@ -51,9 +56,9 @@ import { TranslateModule } from '@ngx-translate/core';
                 </div>
             </div>
         </div>
-    </div> `,
+    </div>`,
     standalone: true,
-    imports: [NgIf, NgClass, TranslateModule],
+    imports: [NgClass, TranslateModule],
 })
 export class ExaminationClockComponent implements OnInit, OnDestroy {
     @Input() examHash = '';

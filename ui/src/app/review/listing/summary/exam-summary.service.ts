@@ -275,21 +275,27 @@ export class ExamSummaryService {
         const childSectionMaxScores = reviews
             .flatMap((r) => r.exam.examSections)
             .filter((es) => !parentSectionMaxScores[es.name])
-            .reduce((obj, current) => {
-                const prevMax = obj[current.name] || 0;
-                const newMax = this.Exam.getSectionMaxScore(current);
-                return { ...obj, [current.name]: Math.max(prevMax, newMax) };
-            }, {} as Record<string, number>);
+            .reduce(
+                (obj, current) => {
+                    const prevMax = obj[current.name] || 0;
+                    const newMax = this.Exam.getSectionMaxScore(current);
+                    return { ...obj, [current.name]: Math.max(prevMax, newMax) };
+                },
+                {} as Record<string, number>,
+            );
 
         const sectionMaxScores = { ...childSectionMaxScores, ...parentSectionMaxScores };
 
-        const sectionTotalScores: Record<string, number[]> = childExamSections.reduce((obj, curr) => {
-            const { name } = curr;
-            const max = sectionMaxScores[name] || 0;
-            const score = Math.min(this.Exam.getSectionTotalScore(curr), max);
-            const scores = obj[name] || [];
-            return { ...obj, [name]: [...scores, score] };
-        }, {} as Record<string, number[]>);
+        const sectionTotalScores: Record<string, number[]> = childExamSections.reduce(
+            (obj, curr) => {
+                const { name } = curr;
+                const max = sectionMaxScores[name] || 0;
+                const score = Math.min(this.Exam.getSectionTotalScore(curr), max);
+                const scores = obj[name] || [];
+                return { ...obj, [name]: [...scores, score] };
+            },
+            {} as Record<string, number[]>,
+        );
 
         return Object.keys(sectionMaxScores).reduce(
             (obj, name) => ({
@@ -339,10 +345,13 @@ export class ExamSummaryService {
     };
 
     private groupBy = <T>(xs: T[], fn: (x: T) => string) =>
-        xs.map(fn).reduce((acc, x, i) => {
-            acc[x] = (acc[x] || []).concat(xs[i]);
-            return acc;
-        }, {} as { [k: string]: T[] });
+        xs.map(fn).reduce(
+            (acc, x, i) => {
+                acc[x] = (acc[x] || []).concat(xs[i]);
+                return acc;
+            },
+            {} as { [k: string]: T[] },
+        );
 
     private calculateQuestionData = (reviews: ExamParticipation[]) => {
         const sectionQuestions = reviews

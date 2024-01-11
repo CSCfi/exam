@@ -102,12 +102,8 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         Http.MultipartFormData.FilePart<Files.TemporaryFile> file
     ) {
         Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.getRef().path());
-        Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart = new Http.MultipartFormData.FilePart<>(
-            "file",
-            file.getFilename(),
-            file.getContentType(),
-            source
-        );
+        Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart =
+            new Http.MultipartFormData.FilePart<>("file", file.getFilename(), file.getContentType(), source);
         return Source.from(Set.of(filePart));
     }
 

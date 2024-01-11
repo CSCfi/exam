@@ -3,39 +3,40 @@
         <span class="col-md-6">
             <strong class="me-3">#{{ sectionQuestion.question.id }}</strong>
             <!-- question points -->
-            <span
-                *ngIf="
-                    sectionQuestion.evaluationType === 'Points' ||
-                    sectionQuestion.question.type === 'ClozeTestQuestion' ||
-                    sectionQuestion.question.type === 'MultipleChoiceQuestion'
-                "
-            >
-                0 / {{ sectionQuestion.maxScore }} {{ 'i18n_unit_points' | translate }}
-            </span>
-            <span *ngIf="sectionQuestion.evaluationType === 'Selection'">
-                {{ 'i18n_evaluation_select' | translate }}
-            </span>
-            <span *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
-                0 / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }}
-            </span>
-            <span *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'">
-                {{ getMinimumOptionScore() }} / {{ getCorrectClaimChoiceOptionScore() }}
-                {{ 'i18n_unit_points' | translate }}
-            </span>
-            <span
-                *ngIf="sectionQuestion.question.attachment?.id || sectionQuestion.question.attachment?.externalId"
-                class="ms-3"
-            >
-                <a
-                    class="pointer text-dark"
-                    ngbPopover="{{ sectionQuestion.question.attachment?.fileName }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                    (click)="downloadQuestionAttachment()"
-                >
-                    <i class="bi-paperclip"></i>
-                </a>
-            </span>
+            @if (
+                sectionQuestion.evaluationType === 'Points' ||
+                sectionQuestion.question.type === 'ClozeTestQuestion' ||
+                sectionQuestion.question.type === 'MultipleChoiceQuestion'
+            ) {
+                <span> 0 / {{ sectionQuestion.maxScore }} {{ 'i18n_unit_points' | translate }} </span>
+            }
+            @if (sectionQuestion.evaluationType === 'Selection') {
+                <span>
+                    {{ 'i18n_evaluation_select' | translate }}
+                </span>
+            }
+            @if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') {
+                <span> 0 / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }} </span>
+            }
+            @if (sectionQuestion.question.type === 'ClaimChoiceQuestion') {
+                <span>
+                    {{ getMinimumOptionScore() }} / {{ getCorrectClaimChoiceOptionScore() }}
+                    {{ 'i18n_unit_points' | translate }}
+                </span>
+            }
+            @if (sectionQuestion.question.attachment?.id || sectionQuestion.question.attachment?.externalId) {
+                <span class="ms-3">
+                    <a
+                        class="pointer text-dark"
+                        ngbPopover="{{ sectionQuestion.question.attachment?.fileName }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        (click)="downloadQuestionAttachment()"
+                    >
+                        <i class="bi-paperclip"></i>
+                    </a>
+                </span>
+            }
         </span>
         <div class="col fpointer single-question-icon" ngbDropdown>
             <button class="btn btn-outline-dark float-end" ngbDropdownToggle>
@@ -56,108 +57,76 @@
     </div>
     <div class="row mt-2">
         <div class="col-md-12">
-            <button
-                (click)="sectionQuestion.expanded = !sectionQuestion.expanded"
-                class="btn btn-outline-dark"
-                *ngIf="sectionQuestion.answerInstructions || sectionQuestion.options.length > 0"
-            >
-                <span [hidden]="sectionQuestion.expanded">{{ 'i18n_show_more' | translate }}</span>
-                <span [hidden]="!sectionQuestion.expanded">{{ 'i18n_hide' | translate }}</span>
-                <i [hidden]="sectionQuestion.expanded" class="bi bi-chevron-right ms-2" alt="hide evaluation"></i>
-                <i [hidden]="!sectionQuestion.expanded" class="bi bi-chevron-down ms-2" alt="show evaluation"></i>
-            </button>
+            @if (sectionQuestion.answerInstructions || sectionQuestion.options.length > 0) {
+                <button (click)="sectionQuestion.expanded = !sectionQuestion.expanded" class="btn btn-outline-dark">
+                    <span [hidden]="sectionQuestion.expanded">{{ 'i18n_show_more' | translate }}</span>
+                    <span [hidden]="!sectionQuestion.expanded">{{ 'i18n_hide' | translate }}</span>
+                    <i [hidden]="sectionQuestion.expanded" class="bi bi-chevron-right ms-2" alt="hide evaluation"></i>
+                    <i [hidden]="!sectionQuestion.expanded" class="bi bi-chevron-down ms-2" alt="show evaluation"></i>
+                </button>
+            }
         </div>
     </div>
     <div class="row" [ngbCollapse]="!sectionQuestion.expanded">
         <div class="col-md-12">
             <div class="row mt-2 ms-3">
                 <div class="col-md-12 mb-3 ms-2" role="note">
-                    <img
-                        src="/assets/images/icon_info.png"
-                        *ngIf="sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_info.png'"
-                    />
-                    <span
-                        *ngIf="sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0"
-                        class="padl10"
-                    >
-                        {{ sectionQuestion.answerInstructions }}</span
-                    >
+                    @if (sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0) {
+                        <img src="/assets/images/icon_info.png" alt="" />
+                    }
+                    @if (sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0) {
+                        <span class="padl10"> {{ sectionQuestion.answerInstructions }}</span>
+                    }
                 </div>
             </div>
             <div class="row ms-3">
                 <div class="col-md-12">
                     <ul class="exam-section-question-options">
-                        <li
-                            class="ms-2"
-                            [hidden]="sectionQuestion.question.type !== 'MultipleChoiceQuestion'"
-                            *ngFor="let option of sectionQuestion.options"
-                        >
-                            <img
-                                src="/assets/images/icon_correct_answer.png"
-                                *ngIf="option.option.correctOption"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer.png'"
-                            />
-                            <img
-                                src="/assets/images/icon_wrong_answer.png"
-                                *ngIf="!option.option.correctOption"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
-                            />
-                            <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
-                        </li>
-                        <li
-                            class="ms-2"
-                            [hidden]="sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion'"
-                            *ngFor="let option of sectionQuestion.options"
-                        >
-                            <img
-                                src="/assets/images/icon_correct_answer_checkbox.png"
-                                *ngIf="option.score >= 0"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_correct_answer_checkbox.png'"
-                            />
-                            <img
-                                src="/assets/images/icon_wrong_answer_checkbox.png"
-                                *ngIf="option.score < 0"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer_checkbox.png'"
-                            />
-                            <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
-                            <span class="exam-question-option-text ps-2"
-                                >{{ option.score }} {{ 'i18n_unit_points' | translate }}</span
+                        @for (option of sectionQuestion.options; track option) {
+                            <li class="ms-2" [hidden]="sectionQuestion.question.type !== 'MultipleChoiceQuestion'">
+                                @if (option.option.correctOption) {
+                                    <img src="/assets/images/icon_correct_answer.png" alt="" />
+                                }
+                                @if (!option.option.correctOption) {
+                                    <img src="/assets/images/icon_wrong_answer.png" alt="" />
+                                }
+                                <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
+                            </li>
+                        }
+                        @for (option of sectionQuestion.options; track option) {
+                            <li
+                                class="ms-2"
+                                [hidden]="sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion'"
                             >
-                        </li>
-                        <li
-                            class="mt-2"
-                            [hidden]="sectionQuestion.question.type !== 'ClaimChoiceQuestion'"
-                            *ngFor="let option of sectionQuestion.options | orderBy : 'option.id'"
-                        >
-                            <img
-                                src="/assets/images/icon_correct_answer_radio.png"
-                                *ngIf="determineClaimOptionType(option) === 'CorrectOption'"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
-                            />
-                            <img
-                                src="/assets/images/icon_wrong_answer_radio.png"
-                                *ngIf="determineClaimOptionType(option) === 'IncorrectOption'"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
-                            />
-                            <img
-                                src="/assets/images/icon_wrong_answer.png"
-                                *ngIf="determineClaimOptionType(option) === 'SkipOption'"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_wrong_answer.png'"
-                            />
-                            <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
-                            <span class="exam-question-option-text ps-2"
-                                >{{ option.score }} {{ 'i18n_unit_points' | translate }}</span
-                            >
-                        </li>
+                                @if (option.score >= 0) {
+                                    <img src="/assets/images/icon_correct_answer_checkbox.png" alt="" />
+                                }
+                                @if (option.score < 0) {
+                                    <img src="/assets/images/icon_wrong_answer_checkbox.png" alt="" />
+                                }
+                                <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
+                                <span class="exam-question-option-text ps-2"
+                                    >{{ option.score }} {{ 'i18n_unit_points' | translate }}</span
+                                >
+                            </li>
+                        }
+                        @for (option of sectionQuestion.options | orderBy: 'option.id'; track option) {
+                            <li class="mt-2" [hidden]="sectionQuestion.question.type !== 'ClaimChoiceQuestion'">
+                                @if (determineClaimOptionType(option) === 'CorrectOption') {
+                                    <img src="/assets/images/icon_correct_answer_radio.png" alt="" />
+                                }
+                                @if (determineClaimOptionType(option) === 'IncorrectOption') {
+                                    <img src="/assets/images/icon_wrong_answer_radio.png" alt="" />
+                                }
+                                @if (determineClaimOptionType(option) === 'SkipOption') {
+                                    <img src="/assets/images/icon_wrong_answer.png" alt="" />
+                                }
+                                <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
+                                <span class="exam-question-option-text ps-2"
+                                    >{{ option.score }} {{ 'i18n_unit_points' | translate }}</span
+                                >
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

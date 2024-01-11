@@ -44,7 +44,11 @@ export class RemoveReservationDialogComponent {
     @Input() reservation!: Reservation;
     message = { text: '' };
 
-    constructor(public activeModal: NgbActiveModal, private http: HttpClient, private toast: ToastrService) {}
+    constructor(
+        public activeModal: NgbActiveModal,
+        private http: HttpClient,
+        private toast: ToastrService,
+    ) {}
 
     ok = () =>
         this.http

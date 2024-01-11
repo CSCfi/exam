@@ -5,10 +5,7 @@
             ngbPopover="{{ 'i18n_exam_material_description' | translate }}"
             popoverTitle="{{ 'i18n_instructions' | translate }}"
             triggers="mouseenter:mouseleave"
-            ><img
-                src="/assets/images/icon_tooltip.svg"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
+            ><img src="/assets/images/icon_tooltip.svg" alt=""
         /></sup>
     </div>
     <div class="col-md-6">
@@ -37,20 +34,18 @@
     <div class="col-md-3 exam-basic-title"></div>
     <div class="col-md-9">
         <ul class="list-inline mart10">
-            <li *ngFor="let material of section.examMaterials" class="list-inline-item">
-                {{ material.name }}
-                <button
-                    class="reviewer-remove"
-                    (click)="removeMaterial(material)"
-                    title="{{ 'i18n_remove' | translate }}"
-                >
-                    <img
-                        src="/assets/images/icon_remove.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
-                    />
-                </button>
-            </li>
+            @for (material of section.examMaterials; track material) {
+                <li class="list-inline-item">
+                    {{ material.name }}
+                    <button
+                        class="reviewer-remove"
+                        (click)="removeMaterial(material)"
+                        title="{{ 'i18n_remove' | translate }}"
+                    >
+                        <img src="/assets/images/icon_remove.svg" alt="" />
+                    </button>
+                </li>
+            }
         </ul>
     </div>
 </div>

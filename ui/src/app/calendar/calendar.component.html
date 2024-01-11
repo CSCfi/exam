@@ -7,28 +7,33 @@
     </div>
 
     <!-- Phase 1: Exam Info -->
-    <xm-calendar-exam-info
-        *ngIf="examInfo && reservationWindowSize"
-        [examInfo]="examInfo"
-        [reservationWindowSize]="reservationWindowSize"
-        [collaborative]="isCollaborative"
-    ></xm-calendar-exam-info>
-    <!-- Phase 2: Optional exam section selection (optional) -->
-    <div *ngIf="examInfo && hasOptionalSections()" class="mart10">
-        <xm-calendar-optional-sections
+    @if (examInfo && reservationWindowSize) {
+        <xm-calendar-exam-info
             [examInfo]="examInfo"
-            (selected)="onSectionSelection($event)"
-        ></xm-calendar-optional-sections>
-    </div>
+            [reservationWindowSize]="reservationWindowSize"
+            [collaborative]="isCollaborative"
+        ></xm-calendar-exam-info>
+    }
+    <!-- Phase 2: Optional exam section selection (optional) -->
+    @if (examInfo && hasOptionalSections()) {
+        <div class="mart10">
+            <xm-calendar-optional-sections
+                [examInfo]="examInfo"
+                (selected)="onSectionSelection($event)"
+            ></xm-calendar-optional-sections>
+        </div>
+    }
     <!-- Phase 3: Organisation picker -->
-    <div *ngIf="isInteroperable && isExternal" class="mart10">
-        <xm-calendar-organisation-picker
-            [sequenceNumber]="getSequenceNumber('organization')"
-            [disabled]="!sectionSelectionOk()"
-            (selected)="setOrganisation($event)"
-            (cancelled)="makeInternalReservation()"
-        ></xm-calendar-organisation-picker>
-    </div>
+    @if (isInteroperable && isExternal) {
+        <div class="mart10">
+            <xm-calendar-organisation-picker
+                [sequenceNumber]="getSequenceNumber('organization')"
+                [disabled]="!sectionSelectionOk()"
+                (selected)="setOrganisation($event)"
+                (cancelled)="makeInternalReservation()"
+            ></xm-calendar-organisation-picker>
+        </div>
+    }
     <!-- Phase 4: Room picker -->
     <div class="mart10">
         <xm-calendar-slot-picker
@@ -76,17 +81,21 @@
                                     {{ 'i18n_course_name' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                    <div *ngIf="examInfo.course">
-                                        <xm-course-code *ngIf="examInfo" [course]="examInfo.course"></xm-course-code>
-                                        {{ examInfo.course.name }}
-                                    </div>
+                                    @if (examInfo.course) {
+                                        <div>
+                                            @if (examInfo) {
+                                                <xm-course-code [course]="examInfo.course"></xm-course-code>
+                                            }
+                                            {{ examInfo.course.name }}
+                                        </div>
+                                    }
                                 </div>
                                 <div class="mt-2 col-12 col-sm-6 col-md-6 col-lg-6">
                                     {{ 'i18n_exam_validity' | translate }}:
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-6 col-lg-6">
-                                    {{ examInfo.periodStart | date : 'dd.MM.yyyy' }} -
-                                    {{ examInfo.periodEnd | date : 'dd.MM.yyyy' }}
+                                    {{ examInfo.periodStart | date: 'dd.MM.yyyy' }} -
+                                    {{ examInfo.periodEnd | date: 'dd.MM.yyyy' }}
                                 </div>
                             </div>
                         </div>

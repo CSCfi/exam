@@ -6,34 +6,52 @@
                 <!-- question title -->
                 <div class="review-question-title marr20" [xmMathJax]="sectionQuestion.question.question"></div>
                 <div>
-                    <div class="d-inline-block review-points" *ngIf="sectionQuestion.evaluationType === 'Points'">
-                        <span *ngIf="!!sectionQuestion.forcedScore" class="text text-danger">
-                            {{ sectionQuestion.forcedScore }}
-                        </span>
-                        <span *ngIf="!sectionQuestion.forcedScore" class="text text-danger">
-                            {{ scoreValue }}
-                        </span>
-                        / {{ displayMaxScore() }} {{ 'i18n_unit_points' | translate }}
-                    </div>
-                    <div class="d-inline-block review-points" *ngIf="sectionQuestion.evaluationType === 'Selection'">
-                        {{ 'i18n_evaluation_select' | translate }}:
-                        <div *ngIf="scoreValue === 1">
-                            {{ 'i18n_approved' | translate }}
+                    @if (sectionQuestion.evaluationType === 'Points') {
+                        <div class="d-inline-block review-points">
+                            @if (!!sectionQuestion.forcedScore) {
+                                <span class="text text-danger">
+                                    {{ sectionQuestion.forcedScore }}
+                                </span>
+                            }
+                            @if (!sectionQuestion.forcedScore) {
+                                <span class="text text-danger">
+                                    {{ scoreValue }}
+                                </span>
+                            }
+                            / {{ displayMaxScore() }} {{ 'i18n_unit_points' | translate }}
                         </div>
-                        <div *ngIf="scoreValue === 0">
-                            {{ 'i18n_rejected' | translate }}
+                    }
+                    @if (sectionQuestion.evaluationType === 'Selection') {
+                        <div class="d-inline-block review-points">
+                            {{ 'i18n_evaluation_select' | translate }}:
+                            @if (scoreValue === 1) {
+                                <div>
+                                    {{ 'i18n_approved' | translate }}
+                                </div>
+                            }
+                            @if (scoreValue === 0) {
+                                <div>
+                                    {{ 'i18n_rejected' | translate }}
+                                </div>
+                            }
+                            @if (!scoreValue && scoreValue !== 0) {
+                                <div class="warning-no-hover border-none">
+                                    {{ 'i18n_no_grading' | translate }}
+                                </div>
+                            }
                         </div>
-                        <div *ngIf="!scoreValue && scoreValue !== 0" class="warning-no-hover border-none">
-                            {{ 'i18n_no_grading' | translate }}
-                        </div>
-                    </div>
+                    }
                     <!--chevron -->
                     <a
                         (click)="reviewExpanded = !reviewExpanded"
                         [attr.aria-label]="reviewExpanded ? ('i18n_collapse' | translate) : ('i18n_expand' | translate)"
                     >
-                        <img *ngIf="!reviewExpanded" src="/assets/images/icon_list_show_right.svg" alt="" />
-                        <img *ngIf="reviewExpanded" src="/assets/images/icon_list_show_down.svg" alt="" />
+                        @if (!reviewExpanded) {
+                            <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                        }
+                        @if (reviewExpanded) {
+                            <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                        }
                     </a>
                 </div>
             </div>
@@ -41,18 +59,22 @@
             <div class="row" [ngbCollapse]="!reviewExpanded" [attr.aria-expanded]="reviewExpanded">
                 <div class="col-12">
                     <!-- question attachment -->
-                    <div *ngIf="sectionQuestion.question.attachment" class="padl0 mart20 marb20 notice-text">
-                        {{ 'i18n_question_attachment' | translate }}:
-                        <a class="pointer" (click)="downloadQuestionAttachment()">
-                            {{ sectionQuestion.question.attachment?.fileName }}
-                        </a>
-                    </div>
+                    @if (sectionQuestion.question.attachment) {
+                        <div class="padl0 mart20 marb20 notice-text">
+                            {{ 'i18n_question_attachment' | translate }}:
+                            <a class="pointer" (click)="downloadQuestionAttachment()">
+                                {{ sectionQuestion.question.attachment?.fileName }}
+                            </a>
+                        </div>
+                    }
                     <!-- question instructions -->
-                    <div *ngIf="sectionQuestion.answerInstructions" class="padl0 mart20 marb20 notice-text" role="note">
-                        <img src="/assets/images/icon_info.svg" alt="" />
-                        <span class="padl10">{{ 'i18n_instructions' | translate }}:</span>
-                        <span [innerHtml]="sectionQuestion.answerInstructions"></span>
-                    </div>
+                    @if (sectionQuestion.answerInstructions) {
+                        <div class="padl0 mart20 marb20 notice-text" role="note">
+                            <img src="/assets/images/icon_info.svg" alt="" />
+                            <span class="padl10">{{ 'i18n_instructions' | translate }}:</span>
+                            <span [innerHtml]="sectionQuestion.answerInstructions"></span>
+                        </div>
+                    }
                     <!-- answer -->
                     <div class="marb10">
                         <div class="points-title">
@@ -62,89 +84,105 @@
                     </div>
 
                     <!-- answer attachment -->
-                    <div *ngIf="sectionQuestion.essayAnswer?.attachment" class="padl0 mart20 marb30">
-                        <a
-                            class="pointer green_button left-floater-for-section"
-                            (click)="downloadQuestionAnswerAttachment()"
-                        >
-                            {{ 'i18n_download_answer_attachment' | translate }}
-                            <img src="/assets/images/icon_attachment.svg" alt="" />
-                        </a>
-                        <div class="attachment-name">
-                            {{ sectionQuestion.essayAnswer?.attachment?.fileName | uppercase }}
+                    @if (sectionQuestion.essayAnswer?.attachment) {
+                        <div class="padl0 mart20 marb30">
+                            <a
+                                class="pointer green_button left-floater-for-section"
+                                (click)="downloadQuestionAnswerAttachment()"
+                            >
+                                {{ 'i18n_download_answer_attachment' | translate }}
+                                <img src="/assets/images/icon_attachment.svg" alt="" />
+                            </a>
+                            <div class="attachment-name">
+                                {{ sectionQuestion.essayAnswer?.attachment?.fileName | uppercase }}
+                            </div>
                         </div>
-                    </div>
+                    }
 
                     <!-- question evaluation criteria -->
-                    <div *ngIf="sectionQuestion.evaluationCriteria" class="padl0 mart20">
-                        <div class="points-title">
-                            <span>{{ 'i18n_exam_evaluation_criteria' | translate | uppercase }}</span>
+                    @if (sectionQuestion.evaluationCriteria) {
+                        <div class="padl0 mart20">
+                            <div class="points-title">
+                                <span>{{ 'i18n_exam_evaluation_criteria' | translate | uppercase }}</span>
+                            </div>
+                            <span [innerHtml]="sectionQuestion.evaluationCriteria"></span>
                         </div>
-                        <span [innerHtml]="sectionQuestion.evaluationCriteria"></span>
-                    </div>
+                    }
 
                     <!-- grade -->
-                    <div *ngIf="exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
-                        <div class="points-title">
-                            <span *ngIf="sectionQuestion.evaluationType === 'Points'"
-                                >{{ 'i18n_word_points' | translate | uppercase }}&nbsp;
-                                <small>[0 &hellip; {{ sectionQuestion.maxScore.toFixed(2) }}]</small>
-                            </span>
-                            <span [hidden]="sectionQuestion.evaluationType === 'Points'"
-                                >{{ 'i18n_comments' | translate | uppercase }}:
-                            </span>
+                    @if (exam.executionType.type !== 'MATURITY') {
+                        <div class="make-inline padr30 mart20">
+                            <div class="points-title">
+                                @if (sectionQuestion.evaluationType === 'Points') {
+                                    <span
+                                        >{{ 'i18n_word_points' | translate | uppercase }}&nbsp;
+                                        <small>[0 &hellip; {{ sectionQuestion.maxScore.toFixed(2) }}]</small>
+                                    </span>
+                                }
+                                <span [hidden]="sectionQuestion.evaluationType === 'Points'"
+                                    >{{ 'i18n_comments' | translate | uppercase }}:
+                                </span>
+                            </div>
+                            <div>
+                                @if (sectionQuestion.evaluationType === 'Points') {
+                                    <span>
+                                        <form #essayPoints="ngForm" name="essayPoints">
+                                            <input
+                                                name="score"
+                                                type="number"
+                                                lang="en"
+                                                class="form-control"
+                                                [(ngModel)]="scoreValue"
+                                                xmFixedPrecision
+                                                (blur)="essayPoints.valid && insertEssayScore()"
+                                                onclick="this.focus()"
+                                                [disabled]="!isScorable"
+                                                [min]="0"
+                                                [max]="sectionQuestion.maxScore"
+                                            />
+                                            @if (!essayPoints.valid && isScorable) {
+                                                <small class="alert-danger">
+                                                    <i class="bi-exclamation-circle"></i>&nbsp;{{
+                                                        'i18n_error_score_input' | translate
+                                                    }}
+                                                </small>
+                                            }
+                                        </form>
+                                    </span>
+                                }
+                                @if (sectionQuestion.evaluationType === 'Selection') {
+                                    <span>
+                                        <select
+                                            class="form-select"
+                                            [(ngModel)]="scoreValue"
+                                            (change)="insertEssayScore()"
+                                            [disabled]="!isScorable"
+                                        >
+                                            <option [ngValue]="1">
+                                                {{ 'i18n_approved' | translate }}
+                                            </option>
+                                            <option [ngValue]="0">
+                                                {{ 'i18n_rejected' | translate }}
+                                            </option>
+                                        </select>
+                                    </span>
+                                }
+                            </div>
                         </div>
-                        <div>
-                            <span *ngIf="sectionQuestion.evaluationType === 'Points'">
-                                <form #essayPoints="ngForm" name="essayPoints">
-                                    <input
-                                        name="score"
-                                        type="number"
-                                        lang="en"
-                                        class="form-control"
-                                        [(ngModel)]="scoreValue"
-                                        xmFixedPrecision
-                                        (blur)="essayPoints.valid && insertEssayScore()"
-                                        onclick="this.focus()"
-                                        [disabled]="!isScorable"
-                                        [min]="0"
-                                        [max]="sectionQuestion.maxScore"
-                                    />
-                                    <small *ngIf="!essayPoints.valid && isScorable" class="alert-danger">
-                                        <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                            'i18n_error_score_input' | translate
-                                        }}
-                                    </small>
-                                </form>
-                            </span>
-                            <span *ngIf="sectionQuestion.evaluationType === 'Selection'">
-                                <select
-                                    class="form-select"
-                                    [(ngModel)]="scoreValue"
-                                    (change)="insertEssayScore()"
-                                    [disabled]="!isScorable"
-                                >
-                                    <option [ngValue]="1">
-                                        {{ 'i18n_approved' | translate }}
-                                    </option>
-                                    <option [ngValue]="0">
-                                        {{ 'i18n_rejected' | translate }}
-                                    </option>
-                                </select>
-                            </span>
-                        </div>
-                    </div>
+                    }
                     <div class="make-inline notice-text">
                         <!-- answer length & recommended length-->
                         <span>{{ 'i18n_answer_length' | translate }}:</span>
                         {{ getWordCount() }} {{ 'i18n_words' | translate }}, {{ 'i18n_approximately' | translate }}
                         {{ getCharacterCount() }}
                         {{ 'i18n_characters' | translate }}
-                        <div *ngIf="sectionQuestion.expectedWordCount">
-                            <span>{{ 'i18n_essay_length_recommendation' | translate }}:</span>
-                            {{ sectionQuestion.expectedWordCount }} ({{ 'i18n_approximately' | translate }}
-                            {{ (sectionQuestion.expectedWordCount || 0) * 8 }} {{ 'i18n_characters' | translate }})
-                        </div>
+                        @if (sectionQuestion.expectedWordCount) {
+                            <div>
+                                <span>{{ 'i18n_essay_length_recommendation' | translate }}:</span>
+                                {{ sectionQuestion.expectedWordCount }} ({{ 'i18n_approximately' | translate }}
+                                {{ (sectionQuestion.expectedWordCount || 0) * 8 }} {{ 'i18n_characters' | translate }})
+                            </div>
+                        }
                     </div>
                 </div>
             </div>

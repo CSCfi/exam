@@ -6,109 +6,122 @@
                 <div class="review-question-title marr110" [xmMathJax]="sectionQuestion.question.question"></div>
                 <div>
                     <!-- grade -->
-                    <div
-                        class="d-inline-block review-points"
-                        *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'"
-                    >
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
-                            {{ scoreMultipleChoiceAnswer(true) }}
-                        </span>
-                        <span *ngIf="hasForcedScore()" class="text text-danger">
-                            {{ sectionQuestion.forcedScore }}
-                        </span>
-                        / {{ displayMaxScore() }} {{ 'i18n_unit_points' | translate }}
-                    </div>
-                    <div
-                        class="d-inline-block review-points"
-                        *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'"
-                    >
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
-                            {{ scoreWeightedMultipleChoiceAnswer(true) }}
-                        </span>
-                        <span *ngIf="hasForcedScore()" class="text text-danger">
-                            {{ sectionQuestion.forcedScore }}
-                        </span>
-                        / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }}
-                    </div>
-                    <div
-                        class="d-inline-block review-points"
-                        *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'"
-                    >
-                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
-                            {{ scoreClaimChoiceAnswer(true) }}
-                        </span>
-                        <span *ngIf="hasForcedScore()" class="text text-danger">
-                            {{ sectionQuestion.forcedScore }}
-                        </span>
-                        / {{ getCorrectClaimChoiceOptionScore() }} {{ 'i18n_unit_points' | translate }}
-                    </div>
+                    @if (sectionQuestion.question.type === 'MultipleChoiceQuestion') {
+                        <div class="d-inline-block review-points">
+                            <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                                {{ scoreMultipleChoiceAnswer(true) }}
+                            </span>
+                            @if (hasForcedScore()) {
+                                <span class="text text-danger">
+                                    {{ sectionQuestion.forcedScore }}
+                                </span>
+                            }
+                            / {{ displayMaxScore() }} {{ 'i18n_unit_points' | translate }}
+                        </div>
+                    }
+                    @if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') {
+                        <div class="d-inline-block review-points">
+                            <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                                {{ scoreWeightedMultipleChoiceAnswer(true) }}
+                            </span>
+                            @if (hasForcedScore()) {
+                                <span class="text text-danger">
+                                    {{ sectionQuestion.forcedScore }}
+                                </span>
+                            }
+                            / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }}
+                        </div>
+                    }
+                    @if (sectionQuestion.question.type === 'ClaimChoiceQuestion') {
+                        <div class="d-inline-block review-points">
+                            <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                                {{ scoreClaimChoiceAnswer(true) }}
+                            </span>
+                            @if (hasForcedScore()) {
+                                <span class="text text-danger">
+                                    {{ sectionQuestion.forcedScore }}
+                                </span>
+                            }
+                            / {{ getCorrectClaimChoiceOptionScore() }} {{ 'i18n_unit_points' | translate }}
+                        </div>
+                    }
                     <a class="d-inline-block" (click)="reviewExpanded = !reviewExpanded">
-                        <img
-                            *ngIf="!reviewExpanded"
-                            src="/assets/images/icon_list_show_right.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
-                        />
-                        <img
-                            *ngIf="reviewExpanded"
-                            src="/assets/images/icon_list_show_down.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
-                        />
+                        @if (!reviewExpanded) {
+                            <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                        }
+                        @if (reviewExpanded) {
+                            <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                        }
                     </a>
                 </div>
             </div>
 
             <!-- question attachment -->
-            <div class="padl0 mart20 marb20 notice-text" *ngIf="reviewExpanded && sectionQuestion.question.attachment">
-                {{ 'i18n_question_attachment' | translate }}:
-                <a class="pointer" (click)="downloadQuestionAttachment()">
-                    {{ sectionQuestion.question.attachment.fileName }}</a
-                >
-            </div>
+            @if (reviewExpanded && sectionQuestion.question.attachment) {
+                <div class="padl0 mart20 marb20 notice-text">
+                    {{ 'i18n_question_attachment' | translate }}:
+                    <a class="pointer" (click)="downloadQuestionAttachment()">
+                        {{ sectionQuestion.question.attachment.fileName }}</a
+                    >
+                </div>
+            }
             <!-- answer -->
-            <div class="mart20" *ngIf="reviewExpanded">
-                <hr />
-                <div *ngIf="sectionQuestion.question.type === 'MultipleChoiceQuestion'">
-                    <xm-r-multi-choice-answer [sectionQuestion]="sectionQuestion"></xm-r-multi-choice-answer>
+            @if (reviewExpanded) {
+                <div class="mart20">
+                    <hr />
+                    @if (sectionQuestion.question.type === 'MultipleChoiceQuestion') {
+                        <div>
+                            <xm-r-multi-choice-answer [sectionQuestion]="sectionQuestion"></xm-r-multi-choice-answer>
+                        </div>
+                    }
+                    @if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') {
+                        <div>
+                            <xm-r-weighted-multi-choice-answer [sectionQuestion]="sectionQuestion">
+                            </xm-r-weighted-multi-choice-answer>
+                        </div>
+                    }
+                    @if (sectionQuestion.question.type === 'ClaimChoiceQuestion') {
+                        <div>
+                            <xm-r-claim-choice-answer [sectionQuestion]="sectionQuestion"></xm-r-claim-choice-answer>
+                        </div>
+                    }
+                    @if (participation.exam.executionType.type !== 'MATURITY') {
+                        <div class="make-inline padr30 mart20">
+                            <div class="points-title">
+                                <span class="text text-danger"
+                                    >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
+                                    <small
+                                        >[{{ getMinimumOptionScore() }} &hellip;
+                                        {{ sectionQuestion.maxScore || calculateWeightedMaxPoints() }}]</small
+                                    ></span
+                                >
+                            </div>
+                            <form #forcedPoints="ngForm" name="forcedPoints">
+                                <input
+                                    name="score"
+                                    type="number"
+                                    lang="en"
+                                    class="form-control"
+                                    xmFixedPrecision
+                                    [(ngModel)]="scoreValue"
+                                    (blur)="forcedPoints.valid && insertForcedScore()"
+                                    onclick="this.focus()"
+                                    [disabled]="!isScorable"
+                                    [min]="getMinimumOptionScore()"
+                                    [max]="sectionQuestion.maxScore || calculateWeightedMaxPoints()"
+                                />
+                                @if (forcedPoints.invalid) {
+                                    <small class="alert-danger">
+                                        <i class="bi-exclamation-circle"></i>&nbsp;{{
+                                            'i18n_error_score_input' | translate
+                                        }}
+                                    </small>
+                                }
+                            </form>
+                        </div>
+                    }
                 </div>
-                <div *ngIf="sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion'">
-                    <xm-r-weighted-multi-choice-answer [sectionQuestion]="sectionQuestion">
-                    </xm-r-weighted-multi-choice-answer>
-                </div>
-                <div *ngIf="sectionQuestion.question.type === 'ClaimChoiceQuestion'">
-                    <xm-r-claim-choice-answer [sectionQuestion]="sectionQuestion"></xm-r-claim-choice-answer>
-                </div>
-                <div *ngIf="participation.exam.executionType.type !== 'MATURITY'" class="make-inline padr30 mart20">
-                    <div class="points-title">
-                        <span class="text text-danger"
-                            >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
-                            <small
-                                >[{{ getMinimumOptionScore() }} &hellip;
-                                {{ sectionQuestion.maxScore || calculateWeightedMaxPoints() }}]</small
-                            ></span
-                        >
-                    </div>
-                    <form #forcedPoints="ngForm" name="forcedPoints">
-                        <input
-                            name="score"
-                            type="number"
-                            lang="en"
-                            class="form-control"
-                            xmFixedPrecision
-                            [(ngModel)]="scoreValue"
-                            (blur)="forcedPoints.valid && insertForcedScore()"
-                            onclick="this.focus()"
-                            [disabled]="!isScorable"
-                            [min]="getMinimumOptionScore()"
-                            [max]="sectionQuestion.maxScore || calculateWeightedMaxPoints()"
-                        />
-                        <small *ngIf="forcedPoints.invalid" class="alert-danger">
-                            <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_error_score_input' | translate }}
-                        </small>
-                    </form>
-                </div>
-            </div>
+            }
         </div>
     </div>
 </div>

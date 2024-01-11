@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
+import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
@@ -54,10 +54,8 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
     standalone: true,
     imports: [
         DatePickerComponent,
-        NgFor,
         FormsModule,
         NgbPopover,
-        NgIf,
         NgClass,
         ExamParticipantSelectorComponent,
         ExamPreParticipantSelectorComponent,

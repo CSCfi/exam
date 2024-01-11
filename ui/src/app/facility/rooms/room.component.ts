@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import type { OnInit } from '@angular/core';
 import { Component, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -32,7 +32,6 @@ import { RoomService } from './room.service';
     selector: 'xm-room',
     standalone: true,
     imports: [
-        NgIf,
         FormsModule,
         NgbPopover,
         AvailabilityComponent,

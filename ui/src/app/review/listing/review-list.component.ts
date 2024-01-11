@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -37,8 +37,6 @@ import { ReviewListService } from './review-list.service';
     templateUrl: './review-list.component.html',
     standalone: true,
     imports: [
-        NgFor,
-        NgIf,
         NgbPopover,
         InProgressReviewsComponent,
         InLanguageInspectionReviewsComponent,

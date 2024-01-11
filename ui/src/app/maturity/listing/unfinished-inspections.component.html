@@ -3,20 +3,22 @@
         <div class="review-list-title">
             {{ 'i18n_ongoing_language_inspections' | translate }}
             <span>{{ getInspectionAmounts() }}</span>
-            <a *ngIf="inspections.length > 0" (click)="hideItems = !hideItems" class="pointer marl10">
-                <img
-                    [hidden]="!hideItems"
-                    src="/assets/images/icon_list_show_right.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-                />
-                <img
-                    [hidden]="hideItems"
-                    src="/assets/images/icon_list_show_down.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-                />
-            </a>
+            @if (inspections.length > 0) {
+                <a (click)="hideItems = !hideItems" class="pointer marl10">
+                    <img
+                        [hidden]="!hideItems"
+                        src="/assets/images/icon_list_show_right.svg"
+                        alt=""
+                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
+                    />
+                    <img
+                        [hidden]="hideItems"
+                        src="/assets/images/icon_list_show_down.svg"
+                        alt=""
+                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
+                    />
+                </a>
+            }
         </div>
     </div>
 </div>
@@ -137,69 +139,85 @@
             </thead>
 
             <tbody>
-                <tr *ngFor="let inspection of filteredInspections | orderBy : sorting.predicate : sorting.reverse">
-                    <td>
-                        <xm-course-code
-                            *ngIf="inspection.exam.course"
-                            [course]="inspection.exam.course"
-                        ></xm-course-code>
-                    </td>
-                    <td>
-                        {{ inspection.answerLanguage }}
-                    </td>
-                    <td>
-                        <span class="exam-basic-title">
-                            {{ inspection.exam.name }}
-                        </span>
-                    </td>
-                    <td>
-                        <span>
-                            {{ inspection.ownerAggregate }}
-                        </span>
-                    </td>
-                    <td>{{ inspection.created | date : 'dd.MM.yyyy' }}</td>
-                    <td>
-                        <span>{{ inspection.studentName }}</span>
-                        <span *ngIf="inspection.exam.creator.userIdentifier"
-                            >&nbsp;({{ inspection.exam.creator.userIdentifier }})</span
-                        >
-                        <span>
-                            <br />
-                            <a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{
-                                inspection.exam.creator.email
-                            }}</a>
-                        </span>
-                    </td>
-                    <td>{{ inspection.exam.created | date : 'dd.MM.yyyy' }}</td>
-                    <td *ngIf="inspection.modifier">
-                        <span>{{ inspection.inspectorName }} </span>
-                        <span>
-                            <br />
-                            <a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{
-                                inspection.modifier.email
-                            }}</a>
-                        </span>
-                    </td>
-                    <td *ngIf="!inspection.modifier">
-                        <span class="text-danger">{{ 'i18n_undefined' | translate }}</span>
-                    </td>
-                    <td *ngIf="inspection.modifier">
-                        <a class="pointer" [routerLink]="['/staff/assessments', inspection.exam.id]">{{
-                            'i18n_view' | translate
-                        }}</a>
-                    </td>
-                    <td *ngIf="!inspection.modifier && !user.isAdmin">
-                        <a class="pointer" (click)="assignInspection(inspection)"
-                            >{{ 'i18n_assign_to_me' | translate }}
-                        </a>
-                    </td>
-                    <td *ngIf="!inspection.modifier && user.isAdmin">
-                        <span class="text-muted">{{ 'i18n_assign_to_me' | translate }}</span>
-                    </td>
-                </tr>
-                <tr *ngIf="filteredInspections.length === 0">
-                    <td colspan="9">{{ 'i18n_review_no_result' | translate }}</td>
-                </tr>
+                @for (
+                    inspection of filteredInspections | orderBy: sorting.predicate : sorting.reverse;
+                    track inspection
+                ) {
+                    <tr>
+                        <td>
+                            @if (inspection.exam.course) {
+                                <xm-course-code [course]="inspection.exam.course"></xm-course-code>
+                            }
+                        </td>
+                        <td>
+                            {{ inspection.answerLanguage }}
+                        </td>
+                        <td>
+                            <span class="exam-basic-title">
+                                {{ inspection.exam.name }}
+                            </span>
+                        </td>
+                        <td>
+                            <span>
+                                {{ inspection.ownerAggregate }}
+                            </span>
+                        </td>
+                        <td>{{ inspection.created | date: 'dd.MM.yyyy' }}</td>
+                        <td>
+                            <span>{{ inspection.studentName }}</span>
+                            @if (inspection.exam.creator.userIdentifier) {
+                                <span>&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
+                            }
+                            <span>
+                                <br />
+                                <a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{
+                                    inspection.exam.creator.email
+                                }}</a>
+                            </span>
+                        </td>
+                        <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
+                        @if (inspection.modifier) {
+                            <td>
+                                <span>{{ inspection.inspectorName }} </span>
+                                <span>
+                                    <br />
+                                    <a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{
+                                        inspection.modifier.email
+                                    }}</a>
+                                </span>
+                            </td>
+                        }
+                        @if (!inspection.modifier) {
+                            <td>
+                                <span class="text-danger">{{ 'i18n_undefined' | translate }}</span>
+                            </td>
+                        }
+                        @if (inspection.modifier) {
+                            <td>
+                                <a class="pointer" [routerLink]="['/staff/assessments', inspection.exam.id]">{{
+                                    'i18n_view' | translate
+                                }}</a>
+                            </td>
+                        }
+                        @if (!inspection.modifier && !user.isAdmin) {
+                            <td>
+                                <a class="pointer" (click)="assignInspection(inspection)"
+                                    >{{ 'i18n_assign_to_me' | translate }}
+                                </a>
+                            </td>
+                        }
+                        @if (!inspection.modifier && user.isAdmin) {
+                            <td>
+                                <span class="text-muted">{{ 'i18n_assign_to_me' | translate }}</span>
+                            </td>
+                        }
+                    </tr>
+                }
+                @if (filteredInspections.length === 0) {
+                    <tr>
+                        <td colspan="9">{{ 'i18n_review_no_result' | translate }}</td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>

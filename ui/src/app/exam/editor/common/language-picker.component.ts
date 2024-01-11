@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
@@ -30,19 +30,20 @@ import type { Exam, ExamLanguage } from '../../exam.model';
             <span class="caret"></span>
         </button>
         <div ngbDropdownMenu aria-labelledby="ddMenu">
-            <button
-                ngbDropdownItem
-                *ngFor="let language of examLanguages"
-                [ngClass]="isSelected(language) ? 'active' : ''"
-                (click)="updateExamLanguage(language)"
-                title="{{ language.name }}"
-            >
-                {{ language.name }}
-            </button>
+            @for (language of examLanguages; track language) {
+                <button
+                    ngbDropdownItem
+                    [ngClass]="isSelected(language) ? 'active' : ''"
+                    (click)="updateExamLanguage(language)"
+                    title="{{ language.name }}"
+                >
+                    {{ language.name }}
+                </button>
+            }
         </div>
-    </div> `,
+    </div>`,
     standalone: true,
-    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgFor, NgbDropdownItem, NgClass],
+    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass],
 })
 export class LanguageSelectorComponent implements OnInit {
     @Input() exam!: Exam;

@@ -57,20 +57,22 @@
         <div class="row">
             <div class="col-md-9 offset-md-3">
                 <ul class="list-inline mart10">
-                    <li *ngFor="let inspection of examInspections" class="list-inline-item">
-                        {{ inspection.user.firstName }} {{ inspection.user.lastName }} ({{ inspection.user.email }})
-                        <button
-                            class="reviewer-remove"
-                            (click)="removeInspector(inspection.id)"
-                            title="{{ 'i18n_remove' | translate }}"
-                        >
-                            <img
-                                src="/assets/images/icon_remove.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
-                            />
-                        </button>
-                    </li>
+                    @for (inspection of examInspections; track inspection) {
+                        <li class="list-inline-item">
+                            {{ inspection.user.firstName }} {{ inspection.user.lastName }} ({{ inspection.user.email }})
+                            <button
+                                class="reviewer-remove"
+                                (click)="removeInspector(inspection.id)"
+                                title="{{ 'i18n_remove' | translate }}"
+                            >
+                                <img
+                                    src="/assets/images/icon_remove.svg"
+                                    alt=""
+                                    onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
+                                />
+                            </button>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>

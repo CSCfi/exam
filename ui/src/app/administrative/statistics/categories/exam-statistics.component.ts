@@ -1,4 +1,3 @@
-import { NgFor, NgIf } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -18,39 +17,45 @@ import { StatisticsService } from '../statistics.service';
             </div>
         </div>
         <div class="detail-row">
-            <div class="col-md-12" *ngIf="exams.length > 0">
-                <table class="table table-striped table-sm">
-                    <thead>
-                        <tr>
-                            <th>{{ 'i18n_rank' | translate }}</th>
-                            <th>{{ 'i18n_exam' | translate }}</th>
-                            <th>{{ 'i18n_amount_exams' | translate }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let exam of exams; let i = index">
-                            <td>{{ getRank(i, exams) }}.</td>
-                            <td>{{ exam.name }}</td>
-                            <td>{{ exam.participations }}</td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="2">
-                                <b>{{ 'i18n_total' | translate }}</b>
-                            </td>
-                            <td>
-                                <b *ngIf="exams">{{ totalExams() }}</b>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+            @if (exams.length > 0) {
+                <div class="col-md-12">
+                    <table class="table table-striped table-sm">
+                        <thead>
+                            <tr>
+                                <th>{{ 'i18n_rank' | translate }}</th>
+                                <th>{{ 'i18n_exam' | translate }}</th>
+                                <th>{{ 'i18n_amount_exams' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (exam of exams; track exam; let i = $index) {
+                                <tr>
+                                    <td>{{ getRank(i, exams) }}.</td>
+                                    <td>{{ exam.name }}</td>
+                                    <td>{{ exam.participations }}</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2">
+                                    <b>{{ 'i18n_total' | translate }}</b>
+                                </td>
+                                <td>
+                                    @if (exams) {
+                                        <b>{{ totalExams() }}</b>
+                                    }
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
         </div>
     `,
     selector: 'xm-exam-statistics',
     standalone: true,
-    imports: [NgIf, NgFor, TranslateModule],
+    imports: [TranslateModule],
 })
 export class ExamStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};

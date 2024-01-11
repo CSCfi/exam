@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
@@ -30,7 +30,7 @@ import type { Exam, ExamInspection } from '../../exam.model';
     selector: 'xm-exam-inspector-picker',
     templateUrl: './exam-inspector-picker.component.html',
     standalone: true,
-    imports: [NgbPopover, FormsModule, NgbTypeahead, NgFor, TranslateModule],
+    imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
 })
 export class ExamInspectorSelectorComponent implements OnInit {
     @Input() exam!: Exam;
@@ -43,7 +43,10 @@ export class ExamInspectorSelectorComponent implements OnInit {
         email?: string;
     };
 
-    constructor(private http: HttpClient, private toast: ToastrService) {
+    constructor(
+        private http: HttpClient,
+        private toast: ToastrService,
+    ) {
         this.newInspector = {};
     }
 

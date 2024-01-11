@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
@@ -37,7 +37,7 @@ type Organisation = {
     selector: 'xm-library-transfer',
     templateUrl: './library-transfer-dialog.component.html',
     standalone: true,
-    imports: [NgIf, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgFor, NgbDropdownItem, TranslateModule],
+    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
 })
 export class LibraryTransferDialogComponent implements OnInit {
     @Input() selections: number[] = [];

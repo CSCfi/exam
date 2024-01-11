@@ -1,4 +1,4 @@
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -17,9 +17,11 @@ import { CalendarService } from '../calendar.service';
                         </h2>
                     </span>
                     <span class="col-md-1 col-3">
-                        <span class="calendar-phase-icon float-end" *ngIf="selectedOrganisation">
-                            <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
-                        </span>
+                        @if (selectedOrganisation) {
+                            <span class="calendar-phase-icon float-end">
+                                <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
+                            </span>
+                        }
                     </span>
                 </div>
                 <div class="row">
@@ -39,15 +41,16 @@ import { CalendarService } from '../calendar.service';
                                         {{ 'i18n_faculty_name' | translate }}&nbsp;
                                     </button>
                                     <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu21">
-                                        <li
-                                            ngbDropdownItem
-                                            *ngFor="let org of organisations"
-                                            [hidden]="org.filtered"
-                                            role="presentation"
-                                            (click)="setOrganisation(org)"
-                                        >
-                                            <a role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
-                                        </li>
+                                        @for (org of organisations; track org.code) {
+                                            <li
+                                                ngbDropdownItem
+                                                [hidden]="org.filtered"
+                                                role="presentation"
+                                                (click)="setOrganisation(org)"
+                                            >
+                                                <a role="menuitem">{{ org.code }}&nbsp;({{ org.name }})</a>
+                                            </li>
+                                        }
                                     </ul>
                                 </span>
                             </div>
@@ -62,18 +65,20 @@ import { CalendarService } from '../calendar.service';
                     </div>
                 </div>
                 <!-- Selected organisation  -->
-                <div class="row" *ngIf="selectedOrganisation">
-                    <div class="col-md-12">
-                        <div class="calendar-room-title">
-                            <span>{{ selectedOrganisation?.name }}&nbsp;({{ selectedOrganisation?.code }})</span>
+                @if (selectedOrganisation) {
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="calendar-room-title">
+                                <span>{{ selectedOrganisation?.name }}&nbsp;({{ selectedOrganisation?.code }})</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
             </div>
         </div>
     `,
     standalone: true,
-    imports: [NgClass, NgIf, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgFor, NgbDropdownItem, TranslateModule],
+    imports: [NgClass, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
 })
 export class OrganisationPickerComponent implements OnInit {
     @Input() sequenceNumber = 0;

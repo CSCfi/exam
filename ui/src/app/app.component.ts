@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgIf, registerLocaleData } from '@angular/common';
+import { NgClass, registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
@@ -29,18 +29,22 @@ import { SessionService } from './session/session.service';
 @Component({
     selector: 'xm-app',
     template: `
-        <div *ngIf="!user && devLoginRequired">
-            <xm-dev-login (loggedIn)="setUser($event)"></xm-dev-login>
-        </div>
-        <div *ngIf="user">
-            <xm-navigation [hidden]="hideNavBar"></xm-navigation>
-            <main id="mainView" class="container-fluid pad0 w-auto" [ngClass]="{ 'vmenu-on': !hideNavBar }">
-                <router-outlet></router-outlet>
-            </main>
-        </div>
+        @if (!user && devLoginRequired) {
+            <div>
+                <xm-dev-login (loggedIn)="setUser($event)"></xm-dev-login>
+            </div>
+        }
+        @if (user) {
+            <div>
+                <xm-navigation [hidden]="hideNavBar"></xm-navigation>
+                <main id="mainView" class="container-fluid pad0 w-auto" [ngClass]="{ 'vmenu-on': !hideNavBar }">
+                    <router-outlet></router-outlet>
+                </main>
+            </div>
+        }
     `,
     standalone: true,
-    imports: [NgIf, DevLoginComponent, NavigationComponent, NgClass, RouterOutlet],
+    imports: [DevLoginComponent, NavigationComponent, NgClass, RouterOutlet],
 })
 export class AppComponent implements OnInit, OnDestroy {
     user?: User;

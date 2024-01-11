@@ -402,7 +402,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
                     return 0.0;
                 }
                 DecimalFormat df = new DecimalFormat("#.##", new DecimalFormatSymbols(Locale.US));
-                double value = correct * maxScore / (correct + incorrect);
+                double value = (correct * maxScore) / (correct + incorrect);
                 return Double.valueOf(df.format(value));
             }
             case ClaimChoiceQuestion -> {

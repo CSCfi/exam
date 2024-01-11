@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { animate, query, stagger, style, transition, trigger } from '@angular/animations';
-import { NgFor, NgIf } from '@angular/common';
+
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -40,51 +40,61 @@ import { ExamSearchService } from './exam-search.service';
             <span class="col-md-12 mt-1 align-items-center">
                 <img class="nopad" src="/assets/images/icon_info.png" class="pe-1" alt="" />
                 &nbsp;
-                <span *ngIf="permissionCheck.active === false">
-                    {{ 'i18n_exam_search_description' | translate }}
-                </span>
-                <span *ngIf="permissionCheck.active === true">{{ 'i18n_search_restricted' | translate }}</span>
+                @if (permissionCheck.active === false) {
+                    <span>
+                        {{ 'i18n_exam_search_description' | translate }}
+                    </span>
+                }
+                @if (permissionCheck.active === true) {
+                    <span>{{ 'i18n_search_restricted' | translate }}</span>
+                }
             </span>
         </div>
-        <div class="detail-row ms-2 me-2 mt-2" *ngIf="permissionCheck.active === false">
-            <div class="col-md-12">
-                <div class="form-group input-group search">
-                    <input
-                        xmAutoFocus
-                        (ngModelChange)="search($event)"
-                        [(ngModel)]="filter.text"
-                        type="text"
-                        class="form-control search"
-                        [attr.aria-label]="'i18n_search' | translate"
-                        placeholder="{{ 'i18n_search' | translate }}"
-                    />
-                    <div class="input-group-append search" aria-hidden="true">
-                        <img
-                            class="nopad"
-                            src="/assets/images/icon_search.png"
-                            alt="search-icon"
-                            width="49"
-                            height="40"
+        @if (permissionCheck.active === false) {
+            <div class="detail-row ms-2 me-2 mt-2">
+                <div class="col-md-12">
+                    <div class="form-group input-group search">
+                        <input
+                            xmAutoFocus
+                            (ngModelChange)="search($event)"
+                            [(ngModel)]="filter.text"
+                            type="text"
+                            class="form-control search"
+                            [attr.aria-label]="'i18n_search' | translate"
+                            placeholder="{{ 'i18n_search' | translate }}"
                         />
+                        <div class="input-group-append search" aria-hidden="true">
+                            <img
+                                class="nopad"
+                                src="/assets/images/icon_search.png"
+                                alt="search-icon"
+                                width="49"
+                                height="40"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
 
-        <div class="row mt-2 me-2 ms-2" *ngIf="exams.length > 0">
-            <div class="col-md-12">
-                {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
-                {{ 'i18n_student_exam_search_result_continues' | translate }}
-                <b>"{{ filter.text }}"</b>
+        @if (exams.length > 0) {
+            <div class="row mt-2 me-2 ms-2">
+                <div class="col-md-12">
+                    {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
+                    {{ 'i18n_student_exam_search_result_continues' | translate }}
+                    <b>"{{ filter.text }}"</b>
+                </div>
             </div>
-        </div>
+        }
 
         <div [@listAnimation]="exams.length" class="search-list-wrapper">
-            <div class="" *ngFor="let exam of exams">
-                <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
-            </div>
+            @for (exam of exams; track exam) {
+                <div class="">
+                    <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
+                </div>
+            }
         </div>
-    </div> `,
+    </div>`,
     animations: [
         trigger('listAnimation', [
             transition('* <=> *', [
@@ -98,7 +108,7 @@ import { ExamSearchService } from './exam-search.service';
         ]),
     ],
     standalone: true,
-    imports: [NgIf, FormsModule, AutoFocusDirective, NgFor, ExamSearchResultComponent, TranslateModule],
+    imports: [FormsModule, AutoFocusDirective, ExamSearchResultComponent, TranslateModule],
 })
 export class ExamSearchComponent implements OnInit, OnDestroy {
     exams: EnrolmentInfo[] = [];
@@ -107,7 +117,10 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     filter = { text: '' };
     permissionCheck = { active: false };
 
-    constructor(private toast: ToastrService, private Search: ExamSearchService) {
+    constructor(
+        private toast: ToastrService,
+        private Search: ExamSearchService,
+    ) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe((txt) => {

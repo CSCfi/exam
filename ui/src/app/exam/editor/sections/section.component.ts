@@ -20,7 +20,7 @@ import {
     CdkDropList,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { NgFor, NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -56,10 +56,8 @@ import { SectionQuestionComponent } from './section-question.component';
         NgbDropdownMenu,
         NgbDropdownItem,
         FormsModule,
-        NgIf,
         NgbCollapse,
         CdkDropList,
-        NgFor,
         CdkDrag,
         CdkDragPlaceholder,
         CdkDragPreview,

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -31,7 +31,7 @@ import { QuestionBodyComponent } from './question-body.component';
     selector: 'xm-question',
     templateUrl: './question.component.html',
     standalone: true,
-    imports: [NgIf, FormsModule, QuestionBodyComponent, TranslateModule],
+    imports: [FormsModule, QuestionBodyComponent, TranslateModule],
 })
 export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactivate {
     @Input() newQuestion = false;

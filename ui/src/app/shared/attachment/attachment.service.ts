@@ -258,7 +258,7 @@ export class AttachmentService {
         return external
             ? url.replace('/app/', '/app/iop/')
             : collaborative
-            ? url.replace('/app/', '/app/iop/collab/')
-            : url;
+              ? url.replace('/app/', '/app/iop/collab/')
+              : url;
     }
 }

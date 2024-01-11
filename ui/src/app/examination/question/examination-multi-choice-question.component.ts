@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -25,35 +25,36 @@ import { ExaminationService } from '../examination.service';
         <div class="bottom-padding-2">
             <fieldset [attr.aria-label]="questionTitle">
                 <legend style="visibility: hidden;">answer options for multiple choice question</legend>
-                <div *ngFor="let sqo of sq.options" class="exam-answer-options">
-                    <label>
-                        <input
-                            name="option-{{ sqo.id }}"
-                            id="option-{{ sqo.id }}"
-                            type="radio"
-                            [checked]="sqo.answered"
-                            [value]="sqo.id"
-                            [(ngModel)]="sq.selectedOption"
-                            (change)="saveOption()"
-                        />
-                        {{ sqo.option.option }}
-                    </label>
-                </div>
+                @for (sqo of sq.options; track sqo) {
+                    <div class="exam-answer-options">
+                        <label>
+                            <input
+                                name="option-{{ sqo.id }}"
+                                id="option-{{ sqo.id }}"
+                                type="radio"
+                                [checked]="sqo.answered"
+                                [value]="sqo.id"
+                                [(ngModel)]="sq.selectedOption"
+                                (change)="saveOption()"
+                            />
+                            {{ sqo.option.option }}
+                        </label>
+                    </div>
+                }
             </fieldset>
         </div>
-        <div *ngIf="sq.question.type !== 'ClaimChoiceQuestion'" class="padl0 question-type-text">
-            {{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}
-        </div>
-        <div
-            *ngIf="sq.question.type === 'ClaimChoiceQuestion' && sq.derivedMinScore !== null"
-            class="padl0 question-type-text"
-        >
-            {{ 'i18n_max_points' | translate }} {{ sq.derivedMaxScore }} {{ 'i18n_min_points' | translate }}
-            {{ sq.derivedMinScore }}
-        </div>
+        @if (sq.question.type !== 'ClaimChoiceQuestion') {
+            <div class="padl0 question-type-text">{{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
+        }
+        @if (sq.question.type === 'ClaimChoiceQuestion' && sq.derivedMinScore !== null) {
+            <div class="padl0 question-type-text">
+                {{ 'i18n_max_points' | translate }} {{ sq.derivedMaxScore }} {{ 'i18n_min_points' | translate }}
+                {{ sq.derivedMinScore }}
+            </div>
+        }
     `,
     standalone: true,
-    imports: [NgFor, FormsModule, NgIf, TranslateModule],
+    imports: [FormsModule, TranslateModule],
 })
 export class ExaminationMultiChoiceComponent implements OnInit {
     @Input() sq!: ExaminationQuestion;

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -77,36 +77,33 @@ import type { Exam } from '../exam.model';
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let exam of printouts | orderBy : predicate : reverse">
-                                <td>{{ exam.examinationDatesAggregate }}</td>
-                                <td><xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code></td>
-                                <td>
-                                    <a
-                                        class="exams-info-title bold-button"
-                                        [routerLink]="['/staff/exams', exam.id, 'printout']"
-                                        >{{ exam.name }}</a
-                                    >
-                                </td>
-                                <td>
-                                    <xm-teacher-list [exam]="exam"></xm-teacher-list>
-                                </td>
-                            </tr>
+                            @for (exam of printouts | orderBy: predicate : reverse; track exam) {
+                                <tr>
+                                    <td>{{ exam.examinationDatesAggregate }}</td>
+                                    <td>
+                                        @if (exam.course) {
+                                            <xm-course-code [course]="exam.course"></xm-course-code>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a
+                                            class="exams-info-title bold-button"
+                                            [routerLink]="['/staff/exams', exam.id, 'printout']"
+                                            >{{ exam.name }}</a
+                                        >
+                                    </td>
+                                    <td>
+                                        <xm-teacher-list [exam]="exam"></xm-teacher-list>
+                                    </td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div> `,
+        </div>`,
     standalone: true,
-    imports: [
-        TableSortComponent,
-        NgFor,
-        NgIf,
-        CourseCodeComponent,
-        RouterLink,
-        TeacherListComponent,
-        TranslateModule,
-        OrderByPipe,
-    ],
+    imports: [TableSortComponent, CourseCodeComponent, RouterLink, TeacherListComponent, TranslateModule, OrderByPipe],
 })
 export class PrintoutListingComponent implements OnInit {
     printouts: (Exam & { examinationDatesAggregate: string })[] = [];

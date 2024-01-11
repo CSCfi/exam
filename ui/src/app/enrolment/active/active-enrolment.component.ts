@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, LowerCasePipe, NgFor, NgIf, SlicePipe, UpperCasePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
@@ -32,13 +32,11 @@ import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.co
     templateUrl: './active-enrolment.component.html',
     standalone: true,
     imports: [
-        NgIf,
         RouterLink,
         ActiveEnrolmentMenuComponent,
         CourseCodeComponent,
         TeacherListComponent,
         NgbCollapse,
-        NgFor,
         MathJaxDirective,
         UpperCasePipe,
         LowerCasePipe,
@@ -56,7 +54,11 @@ export class ActiveEnrolmentComponent {
     showInstructions = false;
     showMaterials = false;
 
-    constructor(private translate: TranslateService, private Enrolment: EnrolmentService, private Files: FileService) {}
+    constructor(
+        private translate: TranslateService,
+        private Enrolment: EnrolmentService,
+        private Files: FileService,
+    ) {}
 
     hasUpcomingAlternativeEvents = () => this.Enrolment.hasUpcomingAlternativeEvents(this.enrolment);
 

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -25,7 +25,7 @@ import { AccessibilityService } from './accessibility.service';
     templateUrl: './accessibility.component.html',
     selector: 'xm-accessibility',
     standalone: true,
-    imports: [FormsModule, NgFor, NgIf, TranslateModule],
+    imports: [FormsModule, TranslateModule],
 })
 export class AccessibilityComponent implements OnInit {
     newItem: { name: string } = { name: '' };

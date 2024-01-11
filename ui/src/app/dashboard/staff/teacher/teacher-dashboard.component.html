@@ -32,9 +32,11 @@
             <li [ngbNavItem]="1">
                 <a ngbNavLink>
                     <div class="make-inline marr10">{{ 'i18n_active_exams_title' | translate }}</div>
-                    <div *ngIf="activeExams" class="make-inline tab-number">
-                        {{ filteredActive.length }}
-                    </div>
+                    @if (activeExams) {
+                        <div class="make-inline tab-number">
+                            {{ filteredActive.length }}
+                        </div>
+                    }
                 </a>
                 <ng-template ngbNavContent>
                     <xm-exam-list-category

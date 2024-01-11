@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -28,16 +28,16 @@ import { ExaminationStatusService } from '../examination-status.service';
                     <div class="container-fluid py-5">
                         <h1 class="display-5 fw-bold">{{ 'i18n_end_of_exam' | translate }}</h1>
                         <p class="fs-4">{{ reasonPhrase | translate }}</p>
-                        <a *ngIf="quitLink" [href]="quitLink" class="btn btn-primary btn-lg"
-                            >{{ 'i18n_quit_seb' | translate }}
-                        </a>
+                        @if (quitLink) {
+                            <a [href]="quitLink" class="btn btn-primary btn-lg">{{ 'i18n_quit_seb' | translate }} </a>
+                        }
                     </div>
                 </div>
             </div>
         </div>
     `,
     standalone: true,
-    imports: [NgIf, TranslateModule],
+    imports: [TranslateModule],
 })
 export class ExaminationLogoutComponent implements OnInit {
     quitLinkEnabled = false;

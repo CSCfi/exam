@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, LowerCasePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe, NgClass, SlicePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -39,12 +39,10 @@ import { ReviewListService } from '../review-list.service';
     templateUrl: './in-progress.component.html',
     standalone: true,
     imports: [
-        NgIf,
         NgbPopover,
         FormsModule,
         RouterLink,
         TableSortComponent,
-        NgFor,
         NgClass,
         PaginatorComponent,
         LowerCasePipe,

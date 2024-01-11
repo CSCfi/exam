@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { LowerCasePipe, NgClass, NgIf } from '@angular/common';
+import { LowerCasePipe, NgClass } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
@@ -44,7 +44,6 @@ import { EssayAnswerListComponent } from './essay-answers.component';
     standalone: true,
     imports: [
         HistoryBackComponent,
-        NgIf,
         NgClass,
         MathJaxDirective,
         NgbNav,

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
@@ -21,63 +21,73 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-multi-choice-answer',
-    template: `<div
-        class="padl15 marb10"
-        [hidden]="!reviewExpanded"
-        *ngFor="let option of sectionQuestion.options | orderBy : 'id'"
-    >
-        <div *ngIf="option.answered">
-            <div *ngIf="option.option.correctOption" class="exam-answered-correct">
-                <div class="make-inline float-start">
-                    <img
-                        *ngIf="option.answered"
-                        src="/assets/images/icon_correct_answer_radio.svg"
-                        [attr.aria-label]="'i18n_correct_answer' | translate"
-                        alt=""
-                    />
+    template: `@for (option of sectionQuestion.options | orderBy: 'id'; track option) {
+        <div class="padl15 marb10" [hidden]="!reviewExpanded">
+            @if (option.answered) {
+                <div>
+                    @if (option.option.correctOption) {
+                        <div class="exam-answered-correct">
+                            <div class="make-inline float-start">
+                                @if (option.answered) {
+                                    <img
+                                        src="/assets/images/icon_correct_answer_radio.svg"
+                                        [attr.aria-label]="'i18n_correct_answer' | translate"
+                                        alt=""
+                                    />
+                                }
+                            </div>
+                            <div class="make-inline middle-column">
+                                <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
+                            </div>
+                        </div>
+                    }
+                    @if (!option.option.correctOption) {
+                        <div class="exam-answered-wrong">
+                            <div class="make-inline float-start">
+                                @if (option.answered) {
+                                    <img
+                                        src="/assets/images/icon_wrong_answer_radio.svg"
+                                        [attr.aria-label]="'i18n_incorrect_answer' | translate"
+                                        alt=""
+                                    />
+                                }
+                            </div>
+                            <div class="make-inline middle-column">
+                                <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
+                            </div>
+                        </div>
+                    }
                 </div>
-                <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
+            }
+            @if (!option.answered) {
+                <div>
+                    <div class="exam-not-answered">
+                        <div class="make-inline float-start">
+                            @if (option.option.correctOption) {
+                                <img
+                                    src="/assets/images/icon_correct_answer_radio.svg"
+                                    [attr.aria-label]="'i18n_correct_answer' | translate"
+                                    alt=""
+                                />
+                            }
+                            @if (!option.option.correctOption) {
+                                <img
+                                    src="/assets/images/icon_wrong_answer.png"
+                                    [attr.aria-label]="'i18n_incorrect_answer' | translate"
+                                    alt=""
+                                />
+                            }
+                        </div>
+                        <div class="make-inline middle-column">
+                            <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div *ngIf="!option.option.correctOption" class="exam-answered-wrong">
-                <div class="make-inline float-start">
-                    <img
-                        *ngIf="option.answered"
-                        src="/assets/images/icon_wrong_answer_radio.svg"
-                        [attr.aria-label]="'i18n_incorrect_answer' | translate"
-                        alt=""
-                    />
-                </div>
-                <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
-                </div>
-            </div>
+            }
         </div>
-        <div *ngIf="!option.answered">
-            <div class="exam-not-answered">
-                <div class="make-inline float-start">
-                    <img
-                        *ngIf="option.option.correctOption"
-                        src="/assets/images/icon_correct_answer_radio.svg"
-                        [attr.aria-label]="'i18n_correct_answer' | translate"
-                        alt=""
-                    />
-                    <img
-                        *ngIf="!option.option.correctOption"
-                        src="/assets/images/icon_wrong_answer.png"
-                        [attr.aria-label]="'i18n_incorrect_answer' | translate"
-                        alt=""
-                    />
-                </div>
-                <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
-                </div>
-            </div>
-        </div>
-    </div> `,
+    }`,
     standalone: true,
-    imports: [NgFor, NgIf, MathJaxDirective, TranslateModule, OrderByPipe],
+    imports: [MathJaxDirective, TranslateModule, OrderByPipe],
 })
 export class MultiChoiceAnswerComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;

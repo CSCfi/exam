@@ -14,7 +14,7 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { DatePipe, LowerCasePipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnChanges } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -38,8 +38,6 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
     standalone: true,
     imports: [
         TableSortComponent,
-        NgIf,
-        NgFor,
         RouterLink,
         CourseCodeComponent,
         TeacherListComponent,

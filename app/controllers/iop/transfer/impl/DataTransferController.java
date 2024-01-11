@@ -203,12 +203,8 @@ public class DataTransferController extends BaseController {
         Attachment attachment
     ) {
         Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(Path.of(attachment.getFilePath()));
-        Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart = new Http.MultipartFormData.FilePart<>(
-            "file",
-            attachment.getFileName(),
-            attachment.getMimeType(),
-            source
-        );
+        Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart =
+            new Http.MultipartFormData.FilePart<>("file", attachment.getFileName(), attachment.getMimeType(), source);
         return Source.from(Set.of(filePart));
     }
 

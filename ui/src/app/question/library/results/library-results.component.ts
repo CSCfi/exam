@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
+import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
@@ -46,8 +46,6 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
         FormsModule,
         NgbPopover,
         TableSortComponent,
-        NgIf,
-        NgFor,
         MathJaxDirective,
         RouterLink,
         PaginatorComponent,

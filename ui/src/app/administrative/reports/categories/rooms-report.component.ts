@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -33,13 +33,14 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
         <div class="bottom-row">
             <div class="col-lg-4 mb-2">
                 <label for="roomPick">{{ 'i18n_select_room' | translate }}</label>
-                <xm-dropdown-select
-                    id="roomPick"
-                    *ngIf="rooms"
-                    [options]="rooms"
-                    (optionSelected)="roomSelected($event)"
-                    placeholder="{{ 'i18n_select' | translate }}"
-                ></xm-dropdown-select>
+                @if (rooms) {
+                    <xm-dropdown-select
+                        id="roomPick"
+                        [options]="rooms"
+                        (optionSelected)="roomSelected($event)"
+                        placeholder="{{ 'i18n_select' | translate }}"
+                    ></xm-dropdown-select>
+                }
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="startAt">{{ 'i18n_start_time' | translate }}</label>
@@ -72,7 +73,7 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
     `,
     selector: 'xm-rooms-report',
     standalone: true,
-    imports: [NgIf, DropdownSelectComponent, DatePickerComponent, NgbPopover, TranslateModule],
+    imports: [DropdownSelectComponent, DatePickerComponent, NgbPopover, TranslateModule],
 })
 export class RoomsReportComponent {
     @Input() rooms: Option<ExamRoom, number>[] = [];
@@ -81,7 +82,11 @@ export class RoomsReportComponent {
     startDate: Date | null = null;
     endDate: Date | null = null;
 
-    constructor(private translate: TranslateService, private toast: ToastrService, private files: FileService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private files: FileService,
+    ) {}
 
     roomSelected = (event?: Option<ExamRoom, number>) => {
         this.room = event?.id;

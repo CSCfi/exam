@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,23 +28,25 @@ import { QuestionFlowCategoryComponent } from './question-flow-category.componen
                 <div class="question-flow-title">{{ 'i18n_question_flow' | translate }}</div>
             </div>
         </div>
-        <xm-question-flow-category
-            *ngIf="unfinished"
-            categoryTitle="i18n_in_progress"
-            [reviews]="unfinished"
-            (selected)="questionSelected($event)"
-        >
-        </xm-question-flow-category>
-        <xm-question-flow-category
-            *ngIf="finished"
-            categoryTitle="i18n_all_finished"
-            [reviews]="finished"
-            [allDone]="true"
-            (selected)="questionSelected($event)"
-        >
-        </xm-question-flow-category> `,
+        @if (unfinished) {
+            <xm-question-flow-category
+                categoryTitle="i18n_in_progress"
+                [reviews]="unfinished"
+                (selected)="questionSelected($event)"
+            >
+            </xm-question-flow-category>
+        }
+        @if (finished) {
+            <xm-question-flow-category
+                categoryTitle="i18n_all_finished"
+                [reviews]="finished"
+                [allDone]="true"
+                (selected)="questionSelected($event)"
+            >
+            </xm-question-flow-category>
+        }`,
     standalone: true,
-    imports: [NgIf, QuestionFlowCategoryComponent, TranslateModule],
+    imports: [QuestionFlowCategoryComponent, TranslateModule],
 })
 export class QuestionFlowComponent implements OnInit, OnChanges {
     @Input() reviews: QuestionReview[] = [];
@@ -53,7 +55,10 @@ export class QuestionFlowComponent implements OnInit, OnChanges {
     unfinished: QuestionReview[] = [];
     finished: QuestionReview[] = [];
 
-    constructor(private QuestionReview: QuestionReviewService, private Session: SessionService) {}
+    constructor(
+        private QuestionReview: QuestionReviewService,
+        private Session: SessionService,
+    ) {}
 
     getAssessedAnswerCount = (review: QuestionReview) =>
         this.QuestionReview.getProcessedAnswerCount(review, this.Session.getUser());

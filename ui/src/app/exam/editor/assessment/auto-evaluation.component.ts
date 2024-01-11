@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor, NgIf, NgStyle } from '@angular/common';
+import { NgClass, NgStyle } from '@angular/common';
 import type { OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -44,13 +44,11 @@ type AutoEvaluationConfigurationTemplate = {
     templateUrl: './auto-evaluation.component.html',
     standalone: true,
     imports: [
-        NgIf,
         NgbPopover,
         NgbCollapse,
         NgStyle,
         FormsModule,
         UniqueValuesValidatorDirective,
-        NgFor,
         NgbDropdown,
         NgbDropdownToggle,
         NgbDropdownMenu,
@@ -72,7 +70,10 @@ export class AutoEvaluationComponent implements OnInit, OnChanges {
     config?: AutoEvaluationConfig;
     autoevaluationDisplay: { visible: boolean };
 
-    constructor(private Exam: ExamService, private CommonExam: CommonExamService) {
+    constructor(
+        private Exam: ExamService,
+        private CommonExam: CommonExamService,
+    ) {
         this.autoevaluation = {
             enabled: false,
             releaseTypes: [

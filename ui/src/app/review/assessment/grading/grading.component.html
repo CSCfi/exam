@@ -3,15 +3,17 @@
     <div class="col-md-4 general-info-content">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
     <div class="col-md-2 general-info-title">{{ 'i18n_grading_inspector' | translate }}:</div>
     <div class="col-md-4 general-info-content">
-        <div *ngFor="let inspection of exam.examInspections">
-            <xm-r-inspection
-                [inspection]="inspection"
-                [user]="user"
-                [disabled]="isGraded() || isReadOnly()"
-                (inspected)="inspectionDone()"
-            >
-            </xm-r-inspection>
-        </div>
+        @for (inspection of exam.examInspections; track inspection) {
+            <div>
+                <xm-r-inspection
+                    [inspection]="inspection"
+                    [user]="user"
+                    [disabled]="isGraded() || isReadOnly()"
+                    (inspected)="inspectionDone()"
+                >
+                </xm-r-inspection>
+            </div>
+        }
     </div>
 </div>
 <div class="row ms-3">
@@ -25,31 +27,39 @@
 <div class="row ms-3 mt-3">
     <div class="col-md-2 general-info-title">{{ 'i18n_exam_owners' | translate }}:</div>
     <div class="col-md-4 general-info-content">
-        <div *ngIf="!collaborative">
-            <span *ngFor="let teacher of exam.parent?.examOwners">
-                {{ teacher.firstName }} {{ teacher.lastName }}
-            </span>
-        </div>
-        <div *ngIf="collaborative">
-            <span *ngFor="let teacher of exam.examOwners">
-                {{ teacher.email }}
-            </span>
-        </div>
+        @if (!collaborative) {
+            <div>
+                @for (teacher of exam.parent?.examOwners; track teacher) {
+                    <span> {{ teacher.firstName }} {{ teacher.lastName }} </span>
+                }
+            </div>
+        }
+        @if (collaborative) {
+            <div>
+                @for (teacher of exam.examOwners; track teacher) {
+                    <span>
+                        {{ teacher.email }}
+                    </span>
+                }
+            </div>
+        }
     </div>
     <div class="col-md-2 general-info-title">{{ 'i18n_exam_instructor' | translate }}:</div>
     <div class="col-md-4 general-info-content">
-        <span *ngFor="let inspection of exam.examInspections">
-            {{ inspection.user.firstName }} {{ inspection.user.lastName }}
-        </span>
+        @for (inspection of exam.examInspections; track inspection) {
+            <span> {{ inspection.user.firstName }} {{ inspection.user.lastName }} </span>
+        }
     </div>
 </div>
 
-<div class="row ms-3" *ngIf="exam.state === 'GRADED_LOGGED'">
-    <div class="col-md-4 general-info-title">{{ 'i18n_graded' | translate }}:</div>
-    <div class="col-md-8 general-info-content">
-        {{ exam.gradedTime | date : 'dd.MM.yyyy' }}
+@if (exam.state === 'GRADED_LOGGED') {
+    <div class="row ms-3">
+        <div class="col-md-4 general-info-title">{{ 'i18n_graded' | translate }}:</div>
+        <div class="col-md-8 general-info-content">
+            {{ exam.gradedTime | date: 'dd.MM.yyyy' }}
+        </div>
     </div>
-</div>
+}
 
 <div class="row ms-3 mt-3 me-2 align-items-center">
     <div class="col-md-2 general-info-title">
@@ -121,20 +131,28 @@
 <div class="row ms-3 mt-2" [hidden]="!isReadOnly()">
     <div class="col-md-2 general-info-title">
         {{ 'i18n_teachers_comment' | translate }}
-        <span *ngIf="!!isCommentRead()">({{ 'i18n_teachers_comment_read' | translate | lowercase }})</span>
-        <span *ngIf="!isCommentRead()">({{ 'i18n_teachers_comment_notread' | translate | lowercase }})</span>:
+        @if (!!isCommentRead()) {
+            <span>({{ 'i18n_teachers_comment_read' | translate | lowercase }})</span>
+        }
+        @if (!isCommentRead()) {
+            <span>({{ 'i18n_teachers_comment_notread' | translate | lowercase }})</span>
+        }
+        :
     </div>
-    <div
-        *ngIf="exam.examFeedback?.comment"
-        class="col-md-10"
-        [ngClass]="isCommentRead() ? 'general-info-content' : 'sitnet-text-alarm'"
-        [xmMathJax]="exam.examFeedback?.comment"
-    ></div>
-    <div *ngIf="exam.examFeedback?.attachment" class="col-md-offset-2 col-md-10 general-info-content">
-        <a class="pointer" (click)="downloadFeedbackAttachment()">
-            {{ exam.examFeedback.attachment?.fileName }}
-        </a>
-    </div>
+    @if (exam.examFeedback?.comment) {
+        <div
+            class="col-md-10"
+            [ngClass]="isCommentRead() ? 'general-info-content' : 'sitnet-text-alarm'"
+            [xmMathJax]="exam.examFeedback?.comment"
+        ></div>
+    }
+    @if (exam.examFeedback?.attachment) {
+        <div class="col-md-offset-2 col-md-10 general-info-content">
+            <a class="pointer" (click)="downloadFeedbackAttachment()">
+                {{ exam.examFeedback.attachment?.fileName }}
+            </a>
+        </div>
+    }
 </div>
 <div class="row ms-3 me-2 mt-3">
     <div class="col-md-12">
@@ -154,7 +172,9 @@
                         required
                     >
                         <option value="">{{ 'i18n_choose' | translate }}</option>
-                        <option *ngFor="let grade of grades" [ngValue]="grade">{{ grade.name }}</option>
+                        @for (grade of grades; track grade) {
+                            <option [ngValue]="grade">{{ grade.name }}</option>
+                        }
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -170,7 +190,9 @@
                         [disabled]="isReadOnly() || !isOwnerOrAdmin()"
                         required
                     >
-                        <option *ngFor="let type of creditTypes" [ngValue]="type">{{ type.name }}</option>
+                        @for (type of creditTypes; track type) {
+                            <option [ngValue]="type">{{ type.name }}</option>
+                        }
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -186,7 +208,9 @@
                         (ngModelChange)="setLanguage()"
                         required
                     >
-                        <option *ngFor="let lang of languages" [ngValue]="lang">{{ lang.name }}</option>
+                        @for (lang of languages; track lang) {
+                            <option [ngValue]="lang">{{ lang.name }}</option>
+                        }
                     </select>
                 </div>
                 <div class="col-md-3">

@@ -1,9 +1,11 @@
 <div id="dashboard">
-    <div *ngIf="collaborative" class="sitnet-header-alt">
-        <div class="col-md-12 header-wrapper">
-            <span class="header-text">{{ 'i18n_collaborative_exams' | translate }}</span>
+    @if (collaborative) {
+        <div class="sitnet-header-alt">
+            <div class="col-md-12 header-wrapper">
+                <span class="header-text">{{ 'i18n_collaborative_exams' | translate }}</span>
+            </div>
         </div>
-    </div>
+    }
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-details-title-wrap">
@@ -12,7 +14,9 @@
                 </a>
                 <div class="student-exam-details-title">{{ examInfo.title || 'loading' }}</div>
             </div>
-            <span *ngIf="exam?.state" class="exam-status">{{ 'i18n_' + exam.state | lowercase | translate }} </span>
+            @if (exam?.state) {
+                <span class="exam-status">{{ 'i18n_' + exam.state | lowercase | translate }} </span>
+            }
         </div>
     </div>
 
@@ -39,20 +43,16 @@
         <li [disabled]="exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="5">
             <a ngbNavLink>{{ 'i18n_exam_responses' | translate }}</a>
         </li>
-        <li
-            *ngIf="exam && !collaborative && !user.isAdmin"
-            [disabled]="exam.executionType?.type === 'PRINTOUT'"
-            [ngbNavItem]="6"
-        >
-            <a ngbNavLink>{{ 'i18n_question_review' | translate }}</a>
-        </li>
-        <li
-            *ngIf="exam && !collaborative"
-            [disabled]="(!isOwner() && !user.isAdmin) || exam.executionType?.type === 'PRINTOUT'"
-            [ngbNavItem]="7"
-        >
-            <a ngbNavLink>{{ 'i18n_exam_summary_tab' | translate }}</a>
-        </li>
+        @if (exam && !collaborative && !user.isAdmin) {
+            <li [disabled]="exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="6">
+                <a ngbNavLink>{{ 'i18n_question_review' | translate }}</a>
+            </li>
+        }
+        @if (exam && !collaborative) {
+            <li [disabled]="(!isOwner() && !user.isAdmin) || exam.executionType?.type === 'PRINTOUT'" [ngbNavItem]="7">
+                <a ngbNavLink>{{ 'i18n_exam_summary_tab' | translate }}</a>
+            </li>
+        }
     </ul>
 
     <div class="main-row">

@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -27,13 +27,15 @@ import { ExaminationQuestion } from '../../examination/examination.model';
         <div class="modal-header" aria-modal="true">
             <h4 class="modal-title">{{ 'i18n_preview_question' | translate }}</h4>
         </div>
-        <div class="modal-body" *ngIf="preview">
-            <xm-examination-question
-                [question]="preview"
-                [isPreview]="true"
-                [isCollaborative]="false"
-            ></xm-examination-question>
-        </div>
+        @if (preview) {
+            <div class="modal-body">
+                <xm-examination-question
+                    [question]="preview"
+                    [isPreview]="true"
+                    [isCollaborative]="false"
+                ></xm-examination-question>
+            </div>
+        }
         <div class="modal-footer">
             <div class="student-message-dialog-button-cancel">
                 <button class="btn btn-success" (click)="activeModal.dismiss()">
@@ -43,7 +45,7 @@ import { ExaminationQuestion } from '../../examination/examination.model';
         </div>
     `,
     standalone: true,
-    imports: [NgIf, ExaminationQuestionComponent, TranslateModule],
+    imports: [ExaminationQuestionComponent, TranslateModule],
 })
 export class QuestionPreviewDialogComponent implements OnInit {
     @Input() question!: ExaminationQuestion | Question;
@@ -51,7 +53,10 @@ export class QuestionPreviewDialogComponent implements OnInit {
 
     preview?: ExaminationQuestion;
 
-    constructor(public activeModal: NgbActiveModal, private http: HttpClient) {}
+    constructor(
+        public activeModal: NgbActiveModal,
+        private http: HttpClient,
+    ) {}
 
     ngOnInit() {
         const urlSuffix = this.isExamQuestion ? 'exam' : 'library';

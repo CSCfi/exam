@@ -1,4 +1,4 @@
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgbAccordionDirective, NgbAccordionItem, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -10,7 +10,7 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
 @Component({
     selector: 'xm-examination-type-selector',
     standalone: true,
-    imports: [TranslateModule, NgbAccordionDirective, NgbAccordionItem, NgFor, NgIf, NgClass],
+    imports: [TranslateModule, NgbAccordionDirective, NgbAccordionItem, NgClass],
     template: `
         <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">
@@ -27,24 +27,25 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
                         <div ngbAccordionCollapse>
                             <div ngbAccordionBody>
                                 <ng-template>
-                                    <div *ngFor="let type of executionTypes">
-                                        <a
-                                            class="pointer"
-                                            [ngClass]="{ 'selected-type': selectedType === type }"
-                                            *ngIf="type.examinationTypes.length > 0"
-                                            (click)="selectType(type)"
-                                            autofocus
-                                        >
-                                            {{ type.name | translate }}
-                                        </a>
-                                        <a
-                                            class="pointer"
-                                            *ngIf="type.examinationTypes.length === 0"
-                                            (click)="selectConfig(type.type)"
-                                        >
-                                            {{ type.name | translate }}
-                                        </a>
-                                    </div>
+                                    @for (type of executionTypes; track type) {
+                                        <div>
+                                            @if (type.examinationTypes.length > 0) {
+                                                <a
+                                                    class="pointer"
+                                                    [ngClass]="{ 'selected-type': selectedType === type }"
+                                                    (click)="selectType(type)"
+                                                    autofocus
+                                                >
+                                                    {{ type.name | translate }}
+                                                </a>
+                                            }
+                                            @if (type.examinationTypes.length === 0) {
+                                                <a class="pointer" (click)="selectConfig(type.type)">
+                                                    {{ type.name | translate }}
+                                                </a>
+                                            }
+                                        </div>
+                                    }
                                 </ng-template>
                             </div>
                         </div>
@@ -61,11 +62,13 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
                         <div ngbAccordionCollapse>
                             <div ngbAccordionBody>
                                 <ng-template>
-                                    <div *ngFor="let et of selectedType.examinationTypes">
-                                        <a class="pointer" (click)="selectConfig(selectedType.type, et.type)">
-                                            {{ et.name | translate }}
-                                        </a>
-                                    </div>
+                                    @for (et of selectedType.examinationTypes; track et) {
+                                        <div>
+                                            <a class="pointer" (click)="selectConfig(selectedType.type, et.type)">
+                                                {{ et.name | translate }}
+                                            </a>
+                                        </div>
+                                    }
                                 </ng-template>
                             </div>
                         </div>
@@ -94,7 +97,11 @@ export class ExaminationTypeSelectorComponent implements OnInit {
     executionTypes: ExamConfig[] = [];
     selectedType!: ExamConfig;
 
-    constructor(private http: HttpClient, private modal: NgbActiveModal, private Exam: ExamService) {}
+    constructor(
+        private http: HttpClient,
+        private modal: NgbActiveModal,
+        private Exam: ExamService,
+    ) {}
 
     ngOnInit() {
         this.http

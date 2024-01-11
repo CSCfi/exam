@@ -14,7 +14,7 @@
  *
  */
 
-import { DatePipe, NgFor, NgIf, UpperCasePipe } from '@angular/common';
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,7 +28,7 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
     selector: 'xm-exam-answers-dialog',
     templateUrl: './exam-answers-dialog.component.html',
     standalone: true,
-    imports: [NgIf, NgFor, TranslateModule, MathJaxDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
+    imports: [TranslateModule, MathJaxDirective, UpperCasePipe, DatePipe, CourseCodeComponent],
 })
 export class ExamAnswersDialogComponent implements OnInit {
     @Input() exam!: Exam;

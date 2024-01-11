@@ -136,12 +136,13 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                     return;
                 }
                 final Source<ByteString, CompletionStage<IOResult>> source = FileIO.fromPath(file.toPath());
-                final Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart = new Http.MultipartFormData.FilePart<>(
-                    "file",
-                    attachment.getFileName(),
-                    attachment.getMimeType(),
-                    source
-                );
+                final Http.MultipartFormData.FilePart<Source<ByteString, CompletionStage<IOResult>>> filePart =
+                    new Http.MultipartFormData.FilePart<>(
+                        "file",
+                        attachment.getFileName(),
+                        attachment.getMimeType(),
+                        source
+                    );
                 Http.MultipartFormData.DataPart dp = new Http.MultipartFormData.DataPart("key", "value");
 
                 updateRequest

@@ -27,11 +27,7 @@
                                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     ngbPopover="{{ 'i18n_new_exam_type_description' | translate }}"
                                 >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
+                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                                 </sup>
                             </label>
                             <select
@@ -43,61 +39,62 @@
                                 required
                             >
                                 <option [ngValue]="undefined">{{ 'i18n_choose' | translate }}</option>
-                                <option *ngFor="let type of executionTypes" [ngValue]="type">
-                                    {{ type.name | translate }}
-                                </option>
+                                @for (type of executionTypes; track type) {
+                                    <option [ngValue]="type">
+                                        {{ type.name | translate }}
+                                    </option>
+                                }
                             </select>
                         </div>
-                        <div
-                            class="mb-3"
-                            *ngIf="
-                                (homeExaminationSupported || sebExaminationSupported) &&
-                                type &&
-                                type?.type !== 'PRINTOUT'
-                            "
-                        >
-                            <label class="form-label" for="examinationType"
-                                >{{ 'i18n_examination_type' | translate }}
-                                <sup
-                                    triggers="mouseenter:mouseleave"
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    ngbPopover="{{ 'i18n_examination_type_description' | translate }}"
+                        @if (
+                            (homeExaminationSupported || sebExaminationSupported) && type && type?.type !== 'PRINTOUT'
+                        ) {
+                            <div class="mb-3">
+                                <label class="form-label" for="examinationType"
+                                    >{{ 'i18n_examination_type' | translate }}
+                                    <sup
+                                        triggers="mouseenter:mouseleave"
+                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                        ngbPopover="{{ 'i18n_examination_type_description' | translate }}"
+                                    >
+                                        <img src="/assets/images/icon_tooltip.svg" alt="" />
+                                    </sup>
+                                </label>
+                                <select
+                                    class="form-select"
+                                    name="examinationType"
+                                    id="examinationType"
+                                    [(ngModel)]="examinationType"
+                                    required
                                 >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
-                                </sup>
-                            </label>
-                            <select
-                                class="form-select"
-                                name="examinationType"
-                                id="examinationType"
-                                [(ngModel)]="examinationType"
-                                required
-                            >
-                                <option value="AQUARIUM">{{ 'i18n_examination_type_aquarium' | translate }}</option>
-                                <option *ngIf="sebExaminationSupported" value="CLIENT_AUTH">
-                                    {{ 'i18n_examination_type_seb' | translate }}
-                                </option>
-                                <option *ngIf="homeExaminationSupported" value="WHATEVER">
-                                    {{ 'i18n_examination_type_home_exam' | translate }}
-                                </option>
-                            </select>
-                        </div>
+                                    <option value="AQUARIUM">{{ 'i18n_examination_type_aquarium' | translate }}</option>
+                                    @if (sebExaminationSupported) {
+                                        <option value="CLIENT_AUTH">
+                                            {{ 'i18n_examination_type_seb' | translate }}
+                                        </option>
+                                    }
+                                    @if (homeExaminationSupported) {
+                                        <option value="WHATEVER">
+                                            {{ 'i18n_examination_type_home_exam' | translate }}
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        }
                     </form>
                 </div>
             </div>
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12" *ngIf="homeExaminationSupported || sebExaminationSupported">
-            <div class="marl50 mart40">
-                <button class="btn btn-success" (click)="createExam()" [disabled]="!type">
-                    {{ 'i18n_create_new' | translate }}
-                </button>
+        @if (homeExaminationSupported || sebExaminationSupported) {
+            <div class="col-md-12">
+                <div class="marl50 mart40">
+                    <button class="btn btn-success" (click)="createExam()" [disabled]="!type">
+                        {{ 'i18n_create_new' | translate }}
+                    </button>
+                </div>
             </div>
-        </div>
+        }
     </div>
 </div>

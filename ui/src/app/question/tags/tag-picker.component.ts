@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -65,26 +65,28 @@ import { QuestionDraft } from '../question.service';
                 </div>
                 <div class="col">
                     <ul class="list-inline mart10">
-                        <li *ngFor="let tag of ownTags" class="list-inline-item">
-                            {{ tag.name }}
-                            <button
-                                class="reviewer-remove"
-                                ngbPopover="{{ 'i18n_remove' | translate }}"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                                (click)="removeTag(tag)"
-                                title="{{ 'i18n_remove' | translate }}"
-                            >
-                                <img src="/assets/images/icon_remove.svg" alt="" />
-                            </button>
-                        </li>
+                        @for (tag of ownTags; track tag) {
+                            <li class="list-inline-item">
+                                {{ tag.name }}
+                                <button
+                                    class="reviewer-remove"
+                                    ngbPopover="{{ 'i18n_remove' | translate }}"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                    (click)="removeTag(tag)"
+                                    title="{{ 'i18n_remove' | translate }}"
+                                >
+                                    <img src="/assets/images/icon_remove.svg" alt="" />
+                                </button>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
         </form>
     `,
     standalone: true,
-    imports: [FormsModule, NgbPopover, NgbTypeahead, NgFor, TranslateModule],
+    imports: [FormsModule, NgbPopover, NgbTypeahead, TranslateModule],
 })
 export class TagPickerComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;
@@ -92,7 +94,10 @@ export class TagPickerComponent implements OnInit {
     newTag: Tag = { name: '', questions: [] };
     ownTags: Tag[] = [];
 
-    constructor(private http: HttpClient, private Session: SessionService) {}
+    constructor(
+        private http: HttpClient,
+        private Session: SessionService,
+    ) {}
 
     ngOnInit() {
         this.ownTags = this.question.tags.filter((t) => t.creator?.id === this.Session.getUser().id);

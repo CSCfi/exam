@@ -19,7 +19,7 @@ import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
 
 @Component({
     selector: 'xm-r-no-show',
-    template: ` <div class="col-md-2 general-info-title">{{ started | date : 'dd.MM.yyyy' }}</div>
+    template: ` <div class="col-md-2 general-info-title">{{ started | date: 'dd.MM.yyyy' }}</div>
         <div class="col-md-10 general-info-content" [ngStyle]="{ color: '#F35D6C' }">
             {{ 'i18n_exam_status_no_show' | translate }}
         </div>`,

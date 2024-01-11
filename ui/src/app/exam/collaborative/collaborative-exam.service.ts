@@ -31,7 +31,10 @@ export type CollaborativeParticipation = Omit<ExamParticipation, 'exam'> & { exa
 export class CollaborativeExamService {
     exams: CollaborativeExam[] = [];
 
-    constructor(private http: HttpClient, private Session: SessionService) {}
+    constructor(
+        private http: HttpClient,
+        private Session: SessionService,
+    ) {}
 
     listExams$ = (): Observable<CollaborativeExam[]> => {
         const path = this.Session.getUser().isStudent ? '/app/iop/enrolments' : '/app/iop/exams';

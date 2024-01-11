@@ -20,7 +20,10 @@ import { ToastrService } from 'ngx-toastr';
 
 @Injectable({ providedIn: 'root' })
 export class WrongLocationService {
-    constructor(private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     display = (data: string[]) => {
         const [campus, building, room, machine, start, zone] = data;

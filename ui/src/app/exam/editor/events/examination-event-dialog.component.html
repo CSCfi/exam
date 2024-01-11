@@ -2,21 +2,32 @@
     <div class="student-message-dialog-wrapper-padding">
         <div class="student-enroll-dialog-wrap">
             <h1 class="student-enroll-title">
-                <span *ngIf="!config">{{ 'i18n_add_examination_event' | translate }}</span>
-                <span *ngIf="config">{{ 'i18n_update_examination_event' | translate }}</span>
+                @if (!config) {
+                    <span>{{ 'i18n_add_examination_event' | translate }}</span>
+                }
+                @if (config) {
+                    <span>{{ 'i18n_update_examination_event' | translate }}</span>
+                }
             </h1>
         </div>
         <form class="modal-body" #eventForm="ngForm" name="eventForm">
-            <div *ngIf="hasEnrolments" class="alert alert-warning form-text">
-                {{ 'i18n_enrolments_exist_for_examination_event' | translate }}
-            </div>
-            <div *ngIf="maintenancePeriods.length > 0" class="alert alert-warning form-text mb-2">
-                {{ 'i18n_maintenance_periods' | translate }}
-                <div *ngFor="let period of maintenancePeriods | orderBy : 'startsAt'">
-                    {{ period.startsAt | date : 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date : 'dd.MM.yyyy HH:mm' }}
-                    {{ period.description }}
+            @if (hasEnrolments) {
+                <div class="alert alert-warning form-text">
+                    {{ 'i18n_enrolments_exist_for_examination_event' | translate }}
                 </div>
-            </div>
+            }
+            @if (maintenancePeriods.length > 0) {
+                <div class="alert alert-warning form-text mb-2">
+                    {{ 'i18n_maintenance_periods' | translate }}
+                    @for (period of maintenancePeriods | orderBy: 'startsAt'; track period) {
+                        <div>
+                            {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} -
+                            {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
+                            {{ period.description }}
+                        </div>
+                    }
+                </div>
+            }
             <label for="dtpicker">{{ 'i18n_begin' | translate }}:</label>
             <xm-date-time-picker
                 id="dtpicker"
@@ -52,42 +63,48 @@
                     [(ngModel)]="capacity"
                 />
             </div>
-            <div *ngIf="requiresPassword" class="form-group">
-                <label for="settings-password">{{ 'i18n_settings_password' | translate }}:</label>
-                <div id="settings-password" class="input-group wdth-30">
-                    <input
-                        type="{{ settingsPasswordInputType }}"
-                        name="settingsPassword"
-                        class="form-control"
-                        [(ngModel)]="settingsPassword"
-                        [disabled]="hasEnrolments"
-                        required
-                    />
-                    <div class="input-group-append">
-                        <button class="btn btn-primary green" type="button" (click)="toggleSettingsPasswordInputType()">
-                            <i [ngClass]="settingsPasswordInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
-                        </button>
+            @if (requiresPassword) {
+                <div class="form-group">
+                    <label for="settings-password">{{ 'i18n_settings_password' | translate }}:</label>
+                    <div id="settings-password" class="input-group wdth-30">
+                        <input
+                            type="{{ settingsPasswordInputType }}"
+                            name="settingsPassword"
+                            class="form-control"
+                            [(ngModel)]="settingsPassword"
+                            [disabled]="hasEnrolments"
+                            required
+                        />
+                        <div class="input-group-append">
+                            <button
+                                class="btn btn-primary green"
+                                type="button"
+                                (click)="toggleSettingsPasswordInputType()"
+                            >
+                                <i [ngClass]="settingsPasswordInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div *ngIf="requiresPassword" class="form-group">
-                <label for="quit-password">{{ 'i18n_quit_password' | translate }}:</label>
-                <div id="quit-password" class="input-group wdth-30">
-                    <input
-                        type="{{ quitPasswordInputType }}"
-                        name="quitPassword"
-                        class="form-control"
-                        [(ngModel)]="quitPassword"
-                        [disabled]="hasEnrolments"
-                        required
-                    />
-                    <div class="input-group-append">
-                        <button class="btn btn-primary green" type="button" (click)="toggleQuitPasswordInputType()">
-                            <i [ngClass]="quitPasswordInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
-                        </button>
+                <div class="form-group">
+                    <label for="quit-password">{{ 'i18n_quit_password' | translate }}:</label>
+                    <div id="quit-password" class="input-group wdth-30">
+                        <input
+                            type="{{ quitPasswordInputType }}"
+                            name="quitPassword"
+                            class="form-control"
+                            [(ngModel)]="quitPassword"
+                            [disabled]="hasEnrolments"
+                            required
+                        />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary green" type="button" (click)="toggleQuitPasswordInputType()">
+                                <i [ngClass]="quitPasswordInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         </form>
         <div class="modal-footer">
             <div class="student-message-dialog-button-save">

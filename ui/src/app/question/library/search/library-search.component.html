@@ -26,15 +26,11 @@
                         </div>
                     </div>
                 </li>
-                <li
-                    *ngFor="let course of filteredCourses"
-                    [hidden]="course.filtered"
-                    role="presentation"
-                    (click)="applyFilter(course)"
-                    ngbDropdownItem
-                >
-                    <a role="menuitem">{{ formatCourse(course) }} {{ course.name }}</a>
-                </li>
+                @for (course of filteredCourses; track course) {
+                    <li [hidden]="course.filtered" role="presentation" (click)="applyFilter(course)" ngbDropdownItem>
+                        <a role="menuitem">{{ formatCourse(course) }} {{ course.name }}</a>
+                    </li>
+                }
             </ul>
         </span>
         <span class="m-1" ngbDropdown [autoClose]="'outside'">
@@ -62,18 +58,16 @@
                         </div>
                     </div>
                 </li>
-                <li
-                    *ngFor="let exam of filteredExams"
-                    [hidden]="exam.filtered"
-                    role="presentation"
-                    (click)="applyFilter(exam)"
-                    ngbDropdownItem
-                >
-                    <a role="menuitem"
-                        >{{ formatCourse(exam) }} {{ exam.name }}
-                        <small *ngIf="exam.period" class="text-muted">({{ exam.period }})</small></a
-                    >
-                </li>
+                @for (exam of filteredExams; track exam) {
+                    <li [hidden]="exam.filtered" role="presentation" (click)="applyFilter(exam)" ngbDropdownItem>
+                        <a role="menuitem"
+                            >{{ formatCourse(exam) }} {{ exam.name }}
+                            @if (exam.period) {
+                                <small class="text-muted">({{ exam.period }})</small>
+                            }
+                        </a>
+                    </li>
+                }
             </ul>
         </span>
 
@@ -103,22 +97,15 @@
                         </div>
                     </div>
                 </li>
-                <li
-                    *ngFor="let tag of filteredTags"
-                    [hidden]="tag.filtered"
-                    role="presentation"
-                    (click)="applyFilter(tag)"
-                    ngbDropdownItem
-                >
-                    <div
-                        role="menuitem"
-                        class="text"
-                        title="{{ 'i18n_category' | translate }}"
-                        *ngIf="tag.usage && tag.usage > 0"
-                    >
-                        {{ tag.name }} <small class="text-muted">({{ tag.usage }})</small>
-                    </div>
-                </li>
+                @for (tag of filteredTags; track tag) {
+                    <li [hidden]="tag.filtered" role="presentation" (click)="applyFilter(tag)" ngbDropdownItem>
+                        @if (tag.usage && tag.usage > 0) {
+                            <div role="menuitem" class="text" title="{{ 'i18n_category' | translate }}">
+                                {{ tag.name }} <small class="text-muted">({{ tag.usage }})</small>
+                            </div>
+                        }
+                    </li>
+                }
             </ul>
         </span>
 
@@ -148,20 +135,18 @@
                         </div>
                     </div>
                 </li>
-                <li
-                    *ngFor="let section of filteredSections"
-                    [hidden]="section.filtered"
-                    role="presentation"
-                    (click)="applyFilter(section)"
-                    ngbDropdownItem
-                >
-                    <div role="menuitem" class="text" title="{{ 'i18n_exam_section' | translate }}">
-                        {{ section.name }}
-                    </div>
-                </li>
+                @for (section of filteredSections; track section) {
+                    <li [hidden]="section.filtered" role="presentation" (click)="applyFilter(section)" ngbDropdownItem>
+                        <div role="menuitem" class="text" title="{{ 'i18n_exam_section' | translate }}">
+                            {{ section.name }}
+                        </div>
+                    </li>
+                }
             </ul>
         </span>
-        <span class="ms-2 text-muted" *ngIf="user.isAdmin">{{ 'i18n_choose_atleast_one' | translate }}</span>
+        @if (user.isAdmin) {
+            <span class="ms-2 text-muted">{{ 'i18n_choose_atleast_one' | translate }}</span>
+        }
     </div>
     <div class="col-md-6">
         <div class="row">
@@ -181,38 +166,46 @@
                     </div>
                 </form>
             </div>
-            <div class="col-md-6" *ngIf="user.isAdmin">
-                <form>
-                    <div class="input-group">
-                        <input
-                            class="form-control"
-                            name="ownerSearch"
-                            (input)="applySearchFilter()"
-                            [(ngModel)]="filter.owner"
-                            placeholder="{{ 'i18n_search_by_owner' | translate }}"
-                        />
-                        <div class="input-group-text p-0">
-                            <img src="/assets/images/icon_search.png" width="46" height="38" />
+            @if (user.isAdmin) {
+                <div class="col-md-6">
+                    <form>
+                        <div class="input-group">
+                            <input
+                                class="form-control"
+                                name="ownerSearch"
+                                (input)="applySearchFilter()"
+                                [(ngModel)]="filter.owner"
+                                placeholder="{{ 'i18n_search_by_owner' | translate }}"
+                            />
+                            <div class="input-group-text p-0">
+                                <img src="/assets/images/icon_search.png" width="46" height="38" />
+                            </div>
                         </div>
-                    </div>
-                </form>
-            </div>
+                    </form>
+                </div>
+            }
         </div>
     </div>
 </div>
 <div class="row ms-3">
     <div class="col-md-12">
         <ul class="inline-list ps-1">
-            <li *ngFor="let filter of getFilters()">
-                {{ filter.name }}
-                <button class="reviewer-remove" (click)="applyFilter(filter)" title="{{ 'i18n_remove' | translate }}">
-                    <img
-                        src="/assets/images/icon_remove.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
-                    />
-                </button>
-            </li>
+            @for (filter of getFilters(); track filter) {
+                <li>
+                    {{ filter.name }}
+                    <button
+                        class="reviewer-remove"
+                        (click)="applyFilter(filter)"
+                        title="{{ 'i18n_remove' | translate }}"
+                    >
+                        <img
+                            src="/assets/images/icon_remove.svg"
+                            alt=""
+                            onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
+                        />
+                    </button>
+                </li>
+            }
         </ul>
     </div>
 </div>

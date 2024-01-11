@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf, NgStyle, UpperCasePipe } from '@angular/common';
+import { NgStyle, UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -35,7 +35,6 @@ import { WeightedMultiChoiceAnswerComponent } from './weighted-multi-choice-answ
     standalone: true,
     imports: [
         MathJaxDirective,
-        NgIf,
         NgStyle,
         MultiChoiceAnswerComponent,
         WeightedMultiChoiceAnswerComponent,

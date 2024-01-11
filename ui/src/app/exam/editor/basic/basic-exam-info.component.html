@@ -1,15 +1,19 @@
 <div class="row ms-2 me-2">
     <div class="col-md-12">
         <div class="row marr30">
-            <div class="col-md-12 padt40" *ngIf="!collaborative">
-                <div class="review-list-title">{{ 'i18n_course_info' | translate }}</div>
-            </div>
+            @if (!collaborative) {
+                <div class="col-md-12 padt40">
+                    <div class="review-list-title">{{ 'i18n_course_info' | translate }}</div>
+                </div>
+            }
         </div>
         <div class="row">
             <!-- General info section container -->
             <div class="col-md-12">
                 <!-- Course data -->
-                <xm-exam-course *ngIf="!collaborative" [exam]="exam" (updated)="onCourseChange()"></xm-exam-course>
+                @if (!collaborative) {
+                    <xm-exam-course [exam]="exam" (updated)="onCourseChange()"></xm-exam-course>
+                }
                 <!-- Exam name and language -->
                 <div class="row marr30">
                     <div class="col-md-12 margin-20">
@@ -26,11 +30,7 @@
                                     triggers="mouseenter:mouseleave"
                                     ngbPopover="{{ 'i18n_exam_title_description' | translate }}"
                                 >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
+                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                                 </sup>
                             </div>
                             <div class="col-md-9">
@@ -53,11 +53,7 @@
                                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
                                 >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
+                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                                 </sup>
                             </div>
                             <div class="col">
@@ -82,14 +78,16 @@
                 </div>
 
                 <!-- EXAMINATION TYPE -->
-                <div class="row" *ngIf="byodExaminationSupported">
-                    <div class="col-md-12 margin-20">
-                        <div class="row">
-                            <div class="col-md-3 exam-basic-title">{{ 'i18n_examination_type' | translate }}</div>
-                            <div class="col-md-9">{{ getExaminationTypeName() | translate }}</div>
+                @if (byodExaminationSupported) {
+                    <div class="row">
+                        <div class="col-md-12 margin-20">
+                            <div class="row">
+                                <div class="col-md-3 exam-basic-title">{{ 'i18n_examination_type' | translate }}</div>
+                                <div class="col-md-9">{{ getExaminationTypeName() | translate }}</div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
 
                 <!-- ANONYMOUS REVIEW -->
                 <div class="row" [hidden]="!showAnonymousReview()">
@@ -132,7 +130,9 @@
                 <!-- Exam owners -->
                 <div class="row">
                     <div class="col-md-12">
-                        <xm-exam-owner-picker *ngIf="!collaborative" [exam]="exam"></xm-exam-owner-picker>
+                        @if (!collaborative) {
+                            <xm-exam-owner-picker [exam]="exam"></xm-exam-owner-picker>
+                        }
                     </div>
                 </div>
 
@@ -168,11 +168,9 @@
                 <!-- Exam inspectors -->
                 <div class="row">
                     <div class="col-md-12">
-                        <xm-exam-inspector-picker
-                            [exam]="exam"
-                            *ngIf="exam.executionType.type !== 'MATURITY' && !collaborative"
-                        >
-                        </xm-exam-inspector-picker>
+                        @if (exam.executionType.type !== 'MATURITY' && !collaborative) {
+                            <xm-exam-inspector-picker [exam]="exam"> </xm-exam-inspector-picker>
+                        }
                     </div>
                 </div>
 
@@ -186,46 +184,48 @@
                         </div>
                     </div>
                 </div>
-                <xm-software-picker [exam]="exam" *ngIf="exam && !collaborative"></xm-software-picker>
+                @if (exam && !collaborative) {
+                    <xm-software-picker [exam]="exam"></xm-software-picker>
+                }
 
                 <!-- EXAM ATTACHMENT -->
-                <div class="row" *ngIf="exam.implementation !== 'CLIENT_AUTH'">
-                    <div class="col-md-12 margin-20">
-                        <div class="row">
-                            <div class="col-md-3 exam-basic-title">
-                                {{ 'i18n_exam_attachment' | translate }}
-                                <sup
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'i18n_attachment_description' | translate }}"
-                                >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
-                                </sup>
-                            </div>
-                            <div class="col-md-9">
-                                <button type="button" class="btn btn-primary green" (click)="selectAttachmentFile()">
-                                    {{ 'i18n_attach_file' | translate }}
-                                </button>
-                                <div *ngIf="exam.attachment" class="make-inline student-enrolment-exam">
-                                    <a class="pointer" (click)="downloadExamAttachment()">
-                                        <i class="bi-paperclip padl10"></i> {{ exam.attachment?.fileName }}
-                                    </a>
-                                    <span class="sitnet-red pointer" (click)="removeExamAttachment()">
-                                        <img
-                                            src="/assets/images/icon_remove.svg"
-                                            alt=""
-                                            onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
-                                        />
-                                    </span>
+                @if (exam.implementation !== 'CLIENT_AUTH') {
+                    <div class="row">
+                        <div class="col-md-12 margin-20">
+                            <div class="row">
+                                <div class="col-md-3 exam-basic-title">
+                                    {{ 'i18n_exam_attachment' | translate }}
+                                    <sup
+                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                        triggers="mouseenter:mouseleave"
+                                        ngbPopover="{{ 'i18n_attachment_description' | translate }}"
+                                    >
+                                        <img src="/assets/images/icon_tooltip.svg" alt="" />
+                                    </sup>
+                                </div>
+                                <div class="col-md-9">
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary green"
+                                        (click)="selectAttachmentFile()"
+                                    >
+                                        {{ 'i18n_attach_file' | translate }}
+                                    </button>
+                                    @if (exam.attachment) {
+                                        <div class="make-inline student-enrolment-exam">
+                                            <a class="pointer" (click)="downloadExamAttachment()">
+                                                <i class="bi-paperclip padl10"></i> {{ exam.attachment?.fileName }}
+                                            </a>
+                                            <span class="sitnet-red pointer" (click)="removeExamAttachment()">
+                                                <img src="/assets/images/icon_remove.svg" alt="" />
+                                            </span>
+                                        </div>
+                                    }
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                }
 
                 <!-- INSTRUCTIONS -->
                 <div class="row" [hidden]="exam.executionType.type === 'MATURITY'">
@@ -247,11 +247,7 @@
                                     triggers="mouseenter:mouseleave"
                                     ngbPopover="{{ 'i18n_exam_instruction_description' | translate }}"
                                 >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
+                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                                 </sup>
                             </div>
                             <div class="col-md-9">
@@ -271,24 +267,24 @@
                 <div class="row" [hidden]="exam.executionType.type === 'MATURITY'">
                     <div class="col-md-12 margin-20">
                         <div class="row marr30">
-                            <div *ngIf="exam.executionType.type !== 'PRINTOUT'" class="col-md-3 exam-basic-title">
-                                {{ 'i18n_enroll_instruction' | translate }}
-                                <sup
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'i18n_exam_enroll_instruction_description' | translate }}"
-                                >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
-                                </sup>
-                            </div>
+                            @if (exam.executionType.type !== 'PRINTOUT') {
+                                <div class="col-md-3 exam-basic-title">
+                                    {{ 'i18n_enroll_instruction' | translate }}
+                                    <sup
+                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                        triggers="mouseenter:mouseleave"
+                                        ngbPopover="{{ 'i18n_exam_enroll_instruction_description' | translate }}"
+                                    >
+                                        <img src="/assets/images/icon_tooltip.svg" alt="" />
+                                    </sup>
+                                </div>
+                            }
                             <!-- Map these instructions to allowed tools in case of printout -->
-                            <div *ngIf="exam.executionType.type === 'PRINTOUT'" class="col-md-3 exam-basic-title">
-                                {{ 'i18n_allowed_tools' | translate }}
-                            </div>
+                            @if (exam.executionType.type === 'PRINTOUT') {
+                                <div class="col-md-3 exam-basic-title">
+                                    {{ 'i18n_allowed_tools' | translate }}
+                                </div>
+                            }
                             <div class="col-md-9">
                                 <xm-ckeditor
                                     rows="4"
@@ -318,9 +314,11 @@
         </div>
     </div>
     <div class="col-auto p1">
-        <div *ngIf="showDelete()" class="review-attachment-button exam-questions-buttons">
-            <a class="pointer warning" (click)="removeExam()"> {{ 'i18n_exam_remove' | translate }}</a>
-        </div>
+        @if (showDelete()) {
+            <div class="review-attachment-button exam-questions-buttons">
+                <a class="pointer warning" (click)="removeExam()"> {{ 'i18n_exam_remove' | translate }}</a>
+            </div>
+        }
     </div>
 </div>
 <div class="row mt-3">

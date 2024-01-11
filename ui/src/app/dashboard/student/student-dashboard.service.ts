@@ -34,7 +34,10 @@ export interface DashboardEnrolment extends ExamEnrolment {
 
 @Injectable({ providedIn: 'root' })
 export class StudentDashboardService {
-    constructor(private http: HttpClient, private DateTime: DateTimeService) {}
+    constructor(
+        private http: HttpClient,
+        private DateTime: DateTimeService,
+    ) {}
 
     listEnrolments = (): Observable<DashboardEnrolment[]> =>
         this.http.get<ExamEnrolment[]>('/app/student/enrolments').pipe(

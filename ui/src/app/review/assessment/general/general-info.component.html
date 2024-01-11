@@ -2,84 +2,117 @@
     <div class="col-md-2 general-info-title">{{ 'i18n_name' | translate }}:</div>
     <div class="col-md-4 general-info-content">
         {{ studentName }}
-        <span *ngIf="student?.userIdentifier">&nbsp;({{ student?.userIdentifier }})</span>
+        @if (student?.userIdentifier) {
+            <span>&nbsp;({{ student?.userIdentifier }})</span>
+        }
     </div>
     <div class="col-md-2 general-info-title">{{ 'i18n_email' | translate }}:</div>
     <div class="col-md-4 general-info-link-bold">
-        <a *ngIf="student?.email" href="mailto:{{ student?.email }}">{{ student?.email }}</a>
+        @if (student?.email) {
+            <a href="mailto:{{ student?.email }}">{{ student?.email }}</a>
+        }
     </div>
 </div>
 <div class="row ms-3">
     <div class="col-md-2 general-info-title">{{ 'i18n_exam_reservation' | translate }}:</div>
-    <div *ngIf="!participation.examinationEvent" class="col-md-4 general-info-content">
-        {{ participation.started | applyDst | date : 'dd.MM.yyyy HH:mm' }} -
-        {{ participation.ended | applyDst | date : 'HH:mm' }}
-    </div>
-    <div *ngIf="participation.examinationEvent" class="col-md-4 general-info-content">
-        {{ participation.started | date : 'dd.MM.yyyy HH:mm' }} - {{ participation.ended | date : 'HH:mm' }}
-    </div>
+    @if (!participation.examinationEvent) {
+        <div class="col-md-4 general-info-content">
+            {{ participation.started | applyDst | date: 'dd.MM.yyyy HH:mm' }} -
+            {{ participation.ended | applyDst | date: 'HH:mm' }}
+        </div>
+    }
+    @if (participation.examinationEvent) {
+        <div class="col-md-4 general-info-content">
+            {{ participation.started | date: 'dd.MM.yyyy HH:mm' }} - {{ participation.ended | date: 'HH:mm' }}
+        </div>
+    }
     <div class="col-md-2 general-info-title">{{ 'i18n_time_of_exam_participation' | translate }}:</div>
-    <div class="col-md-4 general-info-content">{{ participation.duration | date : 'HH:mm' : 'UTC' }}</div>
+    <div class="col-md-4 general-info-content">{{ participation.duration | date: 'HH:mm' : 'UTC' }}</div>
 </div>
-<div class="row ms-3" *ngIf="enrolment?.information">
-    <div class="col-md-2 general-info-title">{{ 'i18n_student_enrolment_info' | translate }}:</div>
-    <div class="col-md-10 general-info-content">{{ enrolment?.information }}</div>
-</div>
-<div class="row ms-3" *ngIf="reservation">
-    <div class="col-md-2 general-info-title">{{ 'i18n_examination_location' | translate }}:</div>
-    <div class="col-md-4 general-info-content" *ngIf="reservation.machine?.room">
-        {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
+@if (enrolment?.information) {
+    <div class="row ms-3">
+        <div class="col-md-2 general-info-title">{{ 'i18n_student_enrolment_info' | translate }}:</div>
+        <div class="col-md-10 general-info-content">{{ enrolment?.information }}</div>
     </div>
-    <div class="col-md-4 general-info-content" *ngIf="!reservation?.machine?.room">N/A</div>
+}
+@if (reservation) {
+    <div class="row ms-3">
+        <div class="col-md-2 general-info-title">{{ 'i18n_examination_location' | translate }}:</div>
+        @if (reservation.machine?.room) {
+            <div class="col-md-4 general-info-content">
+                {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
+            </div>
+        }
+        @if (!reservation?.machine?.room) {
+            <div class="col-md-4 general-info-content">N/A</div>
+        }
+        <div class="col-md-2 general-info-title">{{ 'i18n_exam_machine' | translate }}:</div>
+        @if (reservation?.machine) {
+            <div class="col-md-4 general-info-content">
+                {{ reservation.machine.name }}
+            </div>
+        }
+        @if (!reservation?.machine) {
+            <div class="col-md-4 general-info-content">N/A</div>
+        }
+    </div>
+}
+@if (enrolment?.examinationEventConfiguration) {
+    <div class="row ms-3">
+        <div class="col-md-2 general-info-title">{{ 'i18n_examination_event' | translate }}:</div>
+        <div class="col-md-4 general-info-content">
+            {{ enrolment?.examinationEventConfiguration?.examinationEvent?.start | date }}
+        </div>
+        <div class="col-md-2 general-info-title">{{ 'i18n_instructions' | translate }}:</div>
+        <div class="col-md-4 general-info-content">
+            {{ enrolment?.examinationEventConfiguration?.examinationEvent?.description }}
+        </div>
+    </div>
+}
+@if (participations.length === 0 && noShows.length === 0) {
+    <div class="row ms-3 mt-2">
+        <div class="col-md-2 general-info-title">{{ 'i18n_previous_exam_participations' | translate }}:</div>
+        <div class="col-md-10 general-info-title">
+            {{ 'i18n_exam_no_previous_participations' | translate }}
+        </div>
+    </div>
+}
+@if (participations.length > 0 || noShows.length > 0) {
+    <div class="row ms-3 mt-2">
+        <div class="col-md-12 general-info-title">{{ 'i18n_previous_exam_participations' | translate }}:</div>
+    </div>
+}
+@for (participation of participations; track participation) {
+    <div [hidden]="participations.length === 0">
+        <xm-r-participation
+            class="row ms-3"
+            [participation]="participation"
+            [collaborative]="collaborative"
+        ></xm-r-participation>
+    </div>
+}
+@for (noShow of noShows; track noShow) {
+    <div [hidden]="noShows.length === 0">
+        <xm-r-no-show class="row ms-3" [enrolment]="noShow" [collaborative]="collaborative"></xm-r-no-show>
+    </div>
+}
 
-    <div class="col-md-2 general-info-title">{{ 'i18n_exam_machine' | translate }}:</div>
-    <div class="col-md-4 general-info-content" *ngIf="reservation?.machine">
-        {{ reservation.machine.name }}
+@if (exam.instruction) {
+    <div class="row ms-3 mt-3">
+        <div class="col-md-2 general-info-title" role="note">
+            <img src="/assets/images/icon_info.svg" alt="" />
+            <span class="padl10 notice-text">{{ 'i18n_exam_instruction' | translate }}:</span>
+        </div>
+        <div class="col-md-10 general-info-content">
+            <p [xmMathJax]="exam.instruction"></p>
+        </div>
     </div>
-    <div class="col-md-4 general-info-content" *ngIf="!reservation?.machine">N/A</div>
-</div>
-<div class="row ms-3" *ngIf="enrolment?.examinationEventConfiguration">
-    <div class="col-md-2 general-info-title">{{ 'i18n_examination_event' | translate }}:</div>
-    <div class="col-md-4 general-info-content">
-        {{ enrolment?.examinationEventConfiguration?.examinationEvent?.start | date }}
+}
+@if (exam.attachment) {
+    <div class="row ms-3 mt-3">
+        <div class="col-md-2 general-info-title">{{ 'i18n_exam_attachment' | translate }}:</div>
+        <div class="col-md-10 general-info-link-bold">
+            <a class="pointer" (click)="downloadExamAttachment()">{{ exam.attachment?.fileName }}</a>
+        </div>
     </div>
-    <div class="col-md-2 general-info-title">{{ 'i18n_instructions' | translate }}:</div>
-    <div class="col-md-4 general-info-content">
-        {{ enrolment?.examinationEventConfiguration?.examinationEvent?.description }}
-    </div>
-</div>
-<div class="row ms-3 mt-2" *ngIf="participations.length === 0 && noShows.length === 0">
-    <div class="col-md-2 general-info-title">{{ 'i18n_previous_exam_participations' | translate }}:</div>
-    <div class="col-md-10 general-info-title">
-        {{ 'i18n_exam_no_previous_participations' | translate }}
-    </div>
-</div>
-<div class="row ms-3 mt-2" *ngIf="participations.length > 0 || noShows.length > 0">
-    <div class="col-md-12 general-info-title">{{ 'i18n_previous_exam_participations' | translate }}:</div>
-</div>
-<div [hidden]="participations.length === 0" *ngFor="let participation of participations">
-    <xm-r-participation
-        class="row ms-3"
-        [participation]="participation"
-        [collaborative]="collaborative"
-    ></xm-r-participation>
-</div>
-<div [hidden]="noShows.length === 0" *ngFor="let noShow of noShows">
-    <xm-r-no-show class="row ms-3" [enrolment]="noShow" [collaborative]="collaborative"></xm-r-no-show>
-</div>
-
-<div class="row ms-3 mt-3" *ngIf="exam.instruction">
-    <div class="col-md-2 general-info-title" role="note">
-        <img src="/assets/images/icon_info.svg" alt="" />
-        <span class="padl10 notice-text">{{ 'i18n_exam_instruction' | translate }}:</span>
-    </div>
-    <div class="col-md-10 general-info-content">
-        <p [xmMathJax]="exam.instruction"></p>
-    </div>
-</div>
-<div class="row ms-3 mt-3" *ngIf="exam.attachment">
-    <div class="col-md-2 general-info-title">{{ 'i18n_exam_attachment' | translate }}:</div>
-    <div class="col-md-10 general-info-link-bold">
-        <a class="pointer" (click)="downloadExamAttachment()">{{ exam.attachment?.fileName }}</a>
-    </div>
-</div>
+}

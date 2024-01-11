@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -50,33 +50,40 @@ import type { Exam, ExamParticipation } from '../../exam.model';
             <div class="col-md-9 offset-md-3">
                 <ul class="muted-list mart10">
                     <!-- Students not having finished the exam -->
-                    <li class="marl10" *ngFor="let enrolment of exam.examEnrolments">
-                        {{ renderParticipantLabel(enrolment) }}
-                        <span *ngIf="enrolment.user?.userIdentifier">({{ enrolment.user.userIdentifier }})</span>
-                        <button
-                            class="reviewer-remove"
-                            [disabled]="exam.state === 'PUBLISHED'"
-                            (click)="removeParticipant(enrolment.id)"
-                            title="{{ 'i18n_remove' | translate }}"
-                        >
-                            <img
-                                [hidden]="exam.state === 'PUBLISHED'"
-                                src="/assets/images/icon_remove.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
-                            />
-                        </button>
-                    </li>
+                    @for (enrolment of exam.examEnrolments; track enrolment) {
+                        <li class="marl10">
+                            {{ renderParticipantLabel(enrolment) }}
+                            @if (enrolment.user?.userIdentifier) {
+                                <span>({{ enrolment.user.userIdentifier }})</span>
+                            }
+                            <button
+                                class="reviewer-remove"
+                                [disabled]="exam.state === 'PUBLISHED'"
+                                (click)="removeParticipant(enrolment.id)"
+                                title="{{ 'i18n_remove' | translate }}"
+                            >
+                                <img
+                                    [hidden]="exam.state === 'PUBLISHED'"
+                                    src="/assets/images/icon_remove.svg"
+                                    alt=""
+                                />
+                            </button>
+                        </li>
+                    }
                     <!-- Students that have finished the exam -->
-                    <li class="marl10 text-muted" *ngFor="let participant of participants">
-                        {{ participant.firstName }} {{ participant.lastName }}
-                        <span *ngIf="participant.userIdentifier">({{ participant.userIdentifier }})</span>
-                    </li>
+                    @for (participant of participants; track participant) {
+                        <li class="marl10 text-muted">
+                            {{ participant.firstName }} {{ participant.lastName }}
+                            @if (participant.userIdentifier) {
+                                <span>({{ participant.userIdentifier }})</span>
+                            }
+                        </li>
+                    }
                 </ul>
             </div>
-        </div> `,
+        </div>`,
     standalone: true,
-    imports: [FormsModule, NgFor, NgIf, TranslateModule],
+    imports: [FormsModule, TranslateModule],
 })
 export class ExamPreParticipantSelectorComponent implements OnInit {
     @Input() exam!: Exam;

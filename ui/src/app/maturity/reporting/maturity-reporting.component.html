@@ -5,7 +5,7 @@
                 <span class="student-enroll-title marl20">{{
                     'i18n_monthly_language_inspection_report' | translate
                 }}</span>
-                <span class="print-only compact-header-text">{{ month | date : 'MM/yyyy' }}</span>
+                <span class="print-only compact-header-text">{{ month | date: 'MM/yyyy' }}</span>
             </div>
             <div class="review-attachment-button print-button float-end marr20 no-print">
                 <a (click)="printReport()" class="pointer"> {{ 'i18n_print' | translate }}&nbsp;&nbsp; </a>
@@ -70,55 +70,60 @@
                     </thead>
 
                     <tbody>
-                        <tr *ngFor="let inspection of processedInspections | orderBy : 'finishedAt'">
-                            <td>
-                                <xm-course-code
-                                    *ngIf="inspection.exam.course"
-                                    [course]="inspection.exam.course"
-                                ></xm-course-code>
-                            </td>
-                            <td>{{ inspection.exam.name }}</td>
-                            <td>
-                                <span *ngFor="let owner of inspection.exam.parent?.examOwners">
-                                    {{ owner.firstName }} {{ owner.lastName }}
-                                </span>
-                            </td>
-                            <td>{{ inspection.created | date : 'dd.MM.yyyy' }}</td>
-                            <td>
-                                <span
-                                    >{{ inspection.exam.creator.firstName }}
-                                    {{ inspection.exam.creator.lastName }}</span
-                                >
-                                <span *ngIf="inspection.exam.creator.userIdentifier"
-                                    >&nbsp;({{ inspection.exam.creator.userIdentifier }})</span
-                                >
-                                <span
-                                    ><br /><a href="mailto:{{ inspection.exam.creator.email }}">{{
-                                        inspection.exam.creator.email
-                                    }}</a></span
-                                >
-                            </td>
-                            <td>{{ inspection.exam.created | date : 'dd.MM.yyyy' }}</td>
-                            <td *ngIf="inspection.assignee">
-                                <span>{{ inspection.assignee.firstName }} {{ inspection.assignee.lastName }} </span>
-                                <span
-                                    ><br /><a href="mailto:{{ inspection.assignee.email }}">{{
-                                        inspection.assignee.email
-                                    }}</a></span
-                                >
-                            </td>
-                            <td>{{ inspection.finishedAt | date : 'dd.MM.yyyy' }}</td>
-                            <td [ngClass]="inspection.approved ? 'text-success' : 'text-danger'">
-                                <strong>{{
-                                    (inspection.approved ? 'i18n_approved' : 'i18n_rejected') | translate
-                                }}</strong>
-                            </td>
-                            <td class="no-print">
-                                <a class="pointer" (click)="showStatement(inspection.statement)">{{
-                                    'i18n_view' | translate
-                                }}</a>
-                            </td>
-                        </tr>
+                        @for (inspection of processedInspections | orderBy: 'finishedAt'; track inspection) {
+                            <tr>
+                                <td>
+                                    @if (inspection.exam.course) {
+                                        <xm-course-code [course]="inspection.exam.course"></xm-course-code>
+                                    }
+                                </td>
+                                <td>{{ inspection.exam.name }}</td>
+                                <td>
+                                    @for (owner of inspection.exam.parent?.examOwners; track owner) {
+                                        <span> {{ owner.firstName }} {{ owner.lastName }} </span>
+                                    }
+                                </td>
+                                <td>{{ inspection.created | date: 'dd.MM.yyyy' }}</td>
+                                <td>
+                                    <span
+                                        >{{ inspection.exam.creator.firstName }}
+                                        {{ inspection.exam.creator.lastName }}</span
+                                    >
+                                    @if (inspection.exam.creator.userIdentifier) {
+                                        <span>&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
+                                    }
+                                    <span
+                                        ><br /><a href="mailto:{{ inspection.exam.creator.email }}">{{
+                                            inspection.exam.creator.email
+                                        }}</a></span
+                                    >
+                                </td>
+                                <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
+                                @if (inspection.assignee) {
+                                    <td>
+                                        <span
+                                            >{{ inspection.assignee.firstName }} {{ inspection.assignee.lastName }}
+                                        </span>
+                                        <span
+                                            ><br /><a href="mailto:{{ inspection.assignee.email }}">{{
+                                                inspection.assignee.email
+                                            }}</a></span
+                                        >
+                                    </td>
+                                }
+                                <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
+                                <td [ngClass]="inspection.approved ? 'text-success' : 'text-danger'">
+                                    <strong>{{
+                                        (inspection.approved ? 'i18n_approved' : 'i18n_rejected') | translate
+                                    }}</strong>
+                                </td>
+                                <td class="no-print">
+                                    <a class="pointer" (click)="showStatement(inspection.statement)">{{
+                                        'i18n_view' | translate
+                                    }}</a>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>

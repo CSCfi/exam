@@ -13,97 +13,124 @@
     </div>
 </div>
 
-<div class="row student-enrolment-wrapper waitingroom marl20" id="dashboard" *ngIf="isUpcoming">
-    <div class="col-md-12">
-        <div class="row">
-            <div class="col-md-12">
-                <!-- calendar box -->
-                <div *ngIf="enrolment?.reservation" class="student-enrolment-date-box">
-                    {{ enrolment.reservation.startAt | date : 'dd' }}
-                    <span class="month-name">{{
-                        enrolment.reservation.startAt | date : 'MMM' | slice : 0 : 3 | uppercase
-                    }}</span>
-                </div>
-                <div *ngIf="enrolment?.examinationEventConfiguration" class="student-enrolment-date-box">
-                    {{ enrolment.examinationEventConfiguration?.examinationEvent?.start | date : 'dd' }}
-                    <span class="month-name">{{
-                        enrolment.examinationEventConfiguration?.examinationEvent?.start
-                            | date : 'MMM'
-                            | slice : 0 : 3
-                            | uppercase
-                    }}</span>
-                </div>
-
-                <!-- exam title n stuff -->
-                <div class="student-enrolment-exam">
-                    {{ enrolment?.exam?.name }}
-                    <span *ngIf="enrolment?.exam?.anonymous">({{ 'i18n_anonymous_review' | translate }})</span>
-                    <br />
-                    <span class="exam-ready">{{ 'i18n_state_ready' | translate }}</span>
-                </div>
-            </div>
-        </div>
-        <div class="row mart10">
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_course_name' | translate }}:</div>
-            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3" *ngIf="enrolment && enrolment.exam.course">
-                <xm-course-code [course]="enrolment.exam.course"></xm-course-code>
-                {{ enrolment?.exam?.course?.name }}
-            </div>
-            <div class="clearfix visible-xs"></div>
-            <div class="clearfix visible-sm"></div>
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_teachers' | translate }}:</div>
-            <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                <div>
-                    <xm-teacher-list *ngIf="enrolment" [exam]="enrolment.exam"></xm-teacher-list>
+@if (isUpcoming) {
+    <div class="row student-enrolment-wrapper waitingroom marl20" id="dashboard">
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- calendar box -->
+                    @if (enrolment?.reservation) {
+                        <div class="student-enrolment-date-box">
+                            {{ enrolment.reservation.startAt | date: 'dd' }}
+                            <span class="month-name">{{
+                                enrolment.reservation.startAt | date: 'MMM' | slice: 0 : 3 | uppercase
+                            }}</span>
+                        </div>
+                    }
+                    @if (enrolment?.examinationEventConfiguration) {
+                        <div class="student-enrolment-date-box">
+                            {{ enrolment.examinationEventConfiguration?.examinationEvent?.start | date: 'dd' }}
+                            <span class="month-name">{{
+                                enrolment.examinationEventConfiguration?.examinationEvent?.start
+                                    | date: 'MMM'
+                                    | slice: 0 : 3
+                                    | uppercase
+                            }}</span>
+                        </div>
+                    }
+                    <!-- exam title n stuff -->
+                    <div class="student-enrolment-exam">
+                        {{ enrolment?.exam?.name }}
+                        @if (enrolment?.exam?.anonymous) {
+                            <span>({{ 'i18n_anonymous_review' | translate }})</span>
+                        }
+                        <br />
+                        <span class="exam-ready">{{ 'i18n_state_ready' | translate }}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="row" *ngIf="enrolment?.reservation">
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_exam_room' | translate }}:</div>
-            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                {{ enrolment.reservation.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-                {{ enrolment.reservation.machine.room.name }}
-                ({{ enrolment.reservation.machine.room.roomCode }})
+            <div class="row mart10">
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_course_name' | translate }}:</div>
+                @if (enrolment && enrolment.exam.course) {
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        <xm-course-code [course]="enrolment.exam.course"></xm-course-code>
+                        {{ enrolment?.exam?.course?.name }}
+                    </div>
+                }
+                <div class="clearfix visible-xs"></div>
+                <div class="clearfix visible-sm"></div>
+                <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_teachers' | translate }}:</div>
+                <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                    <div>
+                        @if (enrolment) {
+                            <xm-teacher-list [exam]="enrolment.exam"></xm-teacher-list>
+                        }
+                    </div>
+                </div>
             </div>
-            <div class="clearfix visible-xs"></div>
-            <div class="clearfix visible-sm"></div>
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_reservation' | translate }}:</div>
-            <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                {{ enrolment.reservation.startAt | applyDst | date : 'dd.MM.yyyy' }}
-                {{ enrolment.reservation.occasion.startAt }}
-                - {{ enrolment.reservation.occasion.endAt }}
-            </div>
-        </div>
-        <div class="row" *ngIf="enrolment?.examinationEventConfiguration">
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_examination_event' | translate }}:</div>
-            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
-                {{ enrolment.examinationEventConfiguration?.examinationEvent?.description }}
-            </div>
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_begin' | translate }}:</div>
-            <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                {{ enrolment.examinationEventConfiguration?.examinationEvent?.start | date : 'dd.MM.yyyy HH:mm' }}
-            </div>
-            <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_exam_duration' | translate }}:</div>
-            <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
-                {{ enrolment.exam.duration }} {{ 'i18n_minutes' | translate }}
-            </div>
-        </div>
-        <div class="row" *ngIf="roomInstructions">
-            <div class="col-md-12 student-exam-row-infolink">
-                <strong>{{ 'i18n_room_guidance' | translate }}: </strong>
-            </div>
-        </div>
-        <div class="row" *ngIf="roomInstructions">
-            <div class="col-md-12 student-exam-row-infobox">{{ roomInstructions }}</div>
-        </div>
-
-        <div class="row" *ngIf="enrolment?.exam?.enrollInstruction">
-            <div class="col-md-12 student-exam-row-infolink">
-                <strong>{{ 'i18n_view_instructions' | translate }}:</strong>
-            </div>
-        </div>
-        <div class="row" *ngIf="enrolment?.exam?.enrollInstruction">
-            <div class="col-md-12 student-exam-row-infobox" [xmMathJax]="enrolment.exam.enrollInstruction"></div>
+            @if (enrolment?.reservation) {
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_exam_room' | translate }}:</div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{ enrolment.reservation.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+                        {{ enrolment.reservation.machine.room.name }}
+                        ({{ enrolment.reservation.machine.room.roomCode }})
+                    </div>
+                    <div class="clearfix visible-xs"></div>
+                    <div class="clearfix visible-sm"></div>
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_reservation' | translate }}:</div>
+                    <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                        {{ enrolment.reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
+                        {{ enrolment.reservation.occasion.startAt }}
+                        - {{ enrolment.reservation.occasion.endAt }}
+                    </div>
+                </div>
+            }
+            @if (enrolment?.examinationEventConfiguration) {
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_examination_event' | translate }}:</div>
+                    <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        {{ enrolment.examinationEventConfiguration?.examinationEvent?.description }}
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_begin' | translate }}:</div>
+                    <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                        {{
+                            enrolment.examinationEventConfiguration?.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm'
+                        }}
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_exam_duration' | translate }}:</div>
+                    <div class="col-xs-6 col-sm-6 col-md-5 col-lg-5">
+                        {{ enrolment.exam.duration }} {{ 'i18n_minutes' | translate }}
+                    </div>
+                </div>
+            }
+            @if (roomInstructions) {
+                <div class="row">
+                    <div class="col-md-12 student-exam-row-infolink">
+                        <strong>{{ 'i18n_room_guidance' | translate }}: </strong>
+                    </div>
+                </div>
+            }
+            @if (roomInstructions) {
+                <div class="row">
+                    <div class="col-md-12 student-exam-row-infobox">{{ roomInstructions }}</div>
+                </div>
+            }
+            @if (enrolment?.exam?.enrollInstruction) {
+                <div class="row">
+                    <div class="col-md-12 student-exam-row-infolink">
+                        <strong>{{ 'i18n_view_instructions' | translate }}:</strong>
+                    </div>
+                </div>
+            }
+            @if (enrolment?.exam?.enrollInstruction) {
+                <div class="row">
+                    <div
+                        class="col-md-12 student-exam-row-infobox"
+                        [xmMathJax]="enrolment.exam.enrollInstruction"
+                    ></div>
+                </div>
+            }
         </div>
     </div>
-</div>
+}

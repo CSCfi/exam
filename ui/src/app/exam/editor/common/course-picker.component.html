@@ -21,13 +21,14 @@
                     <p>{{ r.name }}</p>
                 </ng-template>
                 <span class="input-group-text">
-                    <i
-                        *ngIf="!loader.code.isOn"
-                        class="bi-question-circle"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        ngbPopover="{{ 'i18n_course_unique_code' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                    ></i>
+                    @if (!loader.code.isOn) {
+                        <i
+                            class="bi-question-circle"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            ngbPopover="{{ 'i18n_course_unique_code' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        ></i>
+                    }
                     <div class="spinner-border spinner-border-sm" role="status" [hidden]="!loader.code.isOn">
                         <span class="visually-hidden">Loading...</span>
                     </div>
@@ -55,13 +56,14 @@
                     <p>{{ r.code }}</p>
                 </ng-template>
                 <span class="input-group-text">
-                    <i
-                        *ngIf="!loader.name.isOn"
-                        class="bi-question-circle"
-                        ngbPopover="{{ 'i18n_course_name' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                    ></i>
+                    @if (!loader.name.isOn) {
+                        <i
+                            class="bi-question-circle"
+                            ngbPopover="{{ 'i18n_course_name' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        ></i>
+                    }
                     <div class="spinner-border spinner-border-sm" role="status" [hidden]="!loader.name.isOn">
                         <span class="visually-hidden">Loading...</span>
                     </div>

@@ -89,10 +89,10 @@
       "prettier --write"
     ],
     "../app/**/*.java": [
-      "prettier --write --print-width=120 --tab-width=4"
+      "prettier --write --plugin=prettier-plugin-java --print-width=120 --tab-width=4"
     ],
     "../test/**/*.java": [
-      "prettier --write --print-width=120 --tab-width=4"
+      "prettier --write --plugin=prettier-plugin-java --print-width=120 --tab-width=4"
     ],
     "src/app/**/*.ts": [
       "eslint --fix"

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
@@ -44,7 +44,6 @@ import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Quest
     templateUrl: './section-question.component.html',
     standalone: true,
     imports: [
-        NgIf,
         NgbPopover,
         NgbDropdown,
         NgbDropdownToggle,
@@ -52,7 +51,6 @@ import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Quest
         NgbDropdownItem,
         MathJaxDirective,
         NgbCollapse,
-        NgFor,
         TranslateModule,
         OrderByPipe,
     ],

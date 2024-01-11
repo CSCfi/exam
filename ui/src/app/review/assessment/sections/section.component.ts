@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamService } from 'src/app/exam/exam.service';
@@ -27,15 +27,7 @@ import { MultiChoiceQuestionComponent } from '../questions/multi-choice-question
     selector: 'xm-r-section',
     templateUrl: './section.component.html',
     standalone: true,
-    imports: [
-        NgIf,
-        NgFor,
-        MultiChoiceQuestionComponent,
-        EssayQuestionComponent,
-        ClozeTestComponent,
-        TranslateModule,
-        OrderByPipe,
-    ],
+    imports: [MultiChoiceQuestionComponent, EssayQuestionComponent, ClozeTestComponent, TranslateModule, OrderByPipe],
 })
 export class ExamSectionComponent implements OnInit, AfterViewInit {
     @Input() section!: ExamSection;
@@ -49,7 +41,11 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
     selectionEvaluatedAmounts: { accepted: number; rejected: number } = { accepted: 0, rejected: 0 };
     selectionEssays?: QuestionAmounts;
 
-    constructor(private Exam: ExamService, private Question: QuestionService, private cdr: ChangeDetectorRef) {}
+    constructor(
+        private Exam: ExamService,
+        private Question: QuestionService,
+        private cdr: ChangeDetectorRef,
+    ) {}
 
     ngOnInit() {
         this.selectionEssays = this.Question.getQuestionAmounts(this.exam);

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -24,61 +24,75 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
 @Component({
     selector: 'xm-multiple-choice-editor',
     template: `
-        <div class="row mt-2" *ngIf="question.type === 'WeightedMultipleChoiceQuestion'">
-            <div class="col-md-6">
-                <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
-                <br /><span>
-                    <div *ngIf="showWarning" class="edit-warning-container">
-                        <i class="bi-exclamation-circle reddish"></i>
-                        <small class="ps-2">{{ 'i18n_shared_question_property_info' | translate }}</small>
-                    </div>
-                </span>
-            </div>
-            <div class="col-md-6 question-option-title">
-                {{ 'i18n_word_points' | translate | uppercase }}
-            </div>
-        </div>
-        <div class="row mt-2" *ngIf="question.type === 'MultipleChoiceQuestion'">
-            <div class="col-md-6">
-                <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
-                <br /><span>
-                    <div *ngIf="showWarning" class="edit-warning-container">
-                        <i class="bi-exclamation-circle reddish"></i>
-                        <small class="ps-2">{{ 'i18n_shared_question_property_info' | translate }}</small>
-                    </div>
-                </span>
-            </div>
-            <div class="col-md-6">
-                <div class="question-option-title make-inline">
-                    {{ 'i18n_multiplechoice_question_correct' | translate | uppercase }}
+        @if (question.type === 'WeightedMultipleChoiceQuestion') {
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
+                    <br /><span>
+                        @if (showWarning) {
+                            <div class="edit-warning-container">
+                                <i class="bi-exclamation-circle reddish"></i>
+                                <small class="ps-2">{{ 'i18n_shared_question_property_info' | translate }}</small>
+                            </div>
+                        }
+                    </span>
+                </div>
+                <div class="col-md-6 question-option-title">
+                    {{ 'i18n_word_points' | translate | uppercase }}
                 </div>
             </div>
-        </div>
-        <div class="row" id="question-editor" *ngFor="let option of question.options; let i = index">
-            <div class="col-md-12">
-                <xm-mc-option-editor
-                    *ngIf="question.type === 'MultipleChoiceQuestion'"
-                    [option]="option"
-                    [question]="question"
-                    [index]="i"
-                    [allowRemoval]="!lotteryOn && allowOptionRemoval"
-                >
-                </xm-mc-option-editor>
-                <xm-wmc-option-editor
-                    *ngIf="question.type === 'WeightedMultipleChoiceQuestion'"
-                    [option]="option"
-                    [index]="i"
-                    [question]="question"
-                    [lotteryOn]="lotteryOn"
-                ></xm-wmc-option-editor>
+        }
+        @if (question.type === 'MultipleChoiceQuestion') {
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
+                    <br /><span>
+                        @if (showWarning) {
+                            <div class="edit-warning-container">
+                                <i class="bi-exclamation-circle reddish"></i>
+                                <small class="ps-2">{{ 'i18n_shared_question_property_info' | translate }}</small>
+                            </div>
+                        }
+                    </span>
+                </div>
+                <div class="col-md-6">
+                    <div class="question-option-title make-inline">
+                        {{ 'i18n_multiplechoice_question_correct' | translate | uppercase }}
+                    </div>
+                </div>
             </div>
-        </div>
-        <div *ngIf="question.type === 'WeightedMultipleChoiceQuestion'" class="row mt-3">
-            <div class="col-md-12 question-option-title">
-                {{ 'i18n_max_score' | translate | uppercase }}:
-                {{ calculateDefaultMaxPoints() }}
+        }
+        @for (option of question.options; track option.id; let i = $index) {
+            <div class="row" id="question-editor">
+                <div class="col-md-12">
+                    @if (question.type === 'MultipleChoiceQuestion') {
+                        <xm-mc-option-editor
+                            [option]="option"
+                            [question]="question"
+                            [index]="i"
+                            [allowRemoval]="!lotteryOn && allowOptionRemoval"
+                        >
+                        </xm-mc-option-editor>
+                    }
+                    @if (question.type === 'WeightedMultipleChoiceQuestion') {
+                        <xm-wmc-option-editor
+                            [option]="option"
+                            [index]="i"
+                            [question]="question"
+                            [lotteryOn]="lotteryOn"
+                        ></xm-wmc-option-editor>
+                    }
+                </div>
             </div>
-        </div>
+        }
+        @if (question.type === 'WeightedMultipleChoiceQuestion') {
+            <div class="row mt-3">
+                <div class="col-md-12 question-option-title">
+                    {{ 'i18n_max_score' | translate | uppercase }}:
+                    {{ calculateDefaultMaxPoints() }}
+                </div>
+            </div>
+        }
         <div class="row mt-3">
             <div class="col-md-12">
                 <a (click)="addNewOption()" class="attachment-link pointer">
@@ -90,8 +104,6 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
     `,
     standalone: true,
     imports: [
-        NgIf,
-        NgFor,
         MultipleChoiceOptionEditorComponent,
         WeightedMultipleChoiceOptionEditorComponent,
         UpperCasePipe,
@@ -104,7 +116,11 @@ export class MultipleChoiceEditorComponent implements OnInit {
     @Input() lotteryOn = false;
     @Input() allowOptionRemoval = false;
 
-    constructor(private translate: TranslateService, private toast: ToastrService, private Question: QuestionService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Question: QuestionService,
+    ) {}
 
     ngOnInit() {
         if (this.question.type === 'WeightedMultipleChoiceQuestion') {

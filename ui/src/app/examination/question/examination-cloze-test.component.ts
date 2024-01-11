@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExaminationQuestion } from '../examination.model';
@@ -20,14 +20,20 @@ import { ExaminationService } from '../examination.service';
 
 @Component({
     selector: 'xm-examination-cloze-test',
-    template: `<div class="row" *ngIf="!isPreview">
-            <div class="col-md-12">
-                <small class="sitnet-info-text" *ngIf="sq.autosaved">
-                    {{ 'i18n_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date : 'HH:mm' }}
-                </small>
-                <small class="sitnet-info-text" *ngIf="!sq.autosaved"> &nbsp; </small>
+    template: `@if (!isPreview) {
+            <div class="row">
+                <div class="col-md-12">
+                    @if (sq.autosaved) {
+                        <small class="sitnet-info-text">
+                            {{ 'i18n_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date: 'HH:mm' }}
+                        </small>
+                    }
+                    @if (!sq.autosaved) {
+                        <small class="sitnet-info-text"> &nbsp; </small>
+                    }
+                </div>
             </div>
-        </div>
+        }
         <div class="row">
             <div class="col-12">{{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
         </div>
@@ -37,9 +43,9 @@ import { ExaminationService } from '../examination.service';
                     {{ 'i18n_save' | translate }}
                 </button>
             </div>
-        </div> `,
+        </div>`,
     standalone: true,
-    imports: [NgIf, DatePipe, TranslateModule],
+    imports: [DatePipe, TranslateModule],
 })
 export class ExaminationClozeTestComponent {
     @Input() sq!: ExaminationQuestion;

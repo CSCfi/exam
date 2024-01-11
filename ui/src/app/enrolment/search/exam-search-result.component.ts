@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgClass, NgIf } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,29 +31,34 @@ import { EnrolmentService } from '../enrolment.service';
         <div class="row">
             <div class="col">
                 <h2 class="student-exam-row-title-blue">
-                    <a
-                        *ngIf="!collaborative"
-                        class="infolink"
-                        [routerLink]="['/enrolments', exam.id]"
-                        [queryParams]="{ code: exam.course?.code }"
-                    >
-                        {{ exam.name }}
-                    </a>
-                    <span *ngIf="collaborative">{{ exam.name }}</span>
+                    @if (!collaborative) {
+                        <a
+                            class="infolink"
+                            [routerLink]="['/enrolments', exam.id]"
+                            [queryParams]="{ code: exam.course?.code }"
+                        >
+                            {{ exam.name }}
+                        </a>
+                    }
+                    @if (collaborative) {
+                        <span>{{ exam.name }}</span>
+                    }
                 </h2>
             </div>
         </div>
         <div class="row mt-1">
-            <span *ngIf="exam.alreadyEnrolled && !exam.reservationMade" class="mt-1 student-exam-needs-reservation">
-                {{ 'i18n_state_needs_reservation_title' | translate }}
-            </span>
+            @if (exam.alreadyEnrolled && !exam.reservationMade) {
+                <span class="mt-1 student-exam-needs-reservation">
+                    {{ 'i18n_state_needs_reservation_title' | translate }}
+                </span>
+            }
         </div>
         <div class="row mt-3">
             <div class="col-md">
                 <span [hidden]="collaborative">{{ 'i18n_course_name' | translate }}:</span>
-                <div *ngIf="!collaborative && exam.course">
-                    <xm-course-code [course]="exam.course"></xm-course-code> {{ exam.course.name }}
-                </div>
+                @if (!collaborative && exam.course) {
+                    <div><xm-course-code [course]="exam.course"></xm-course-code> {{ exam.course.name }}</div>
+                }
             </div>
             <div class="col">
                 <span [hidden]="collaborative">{{ 'i18n_teachers' | translate }}: </span>
@@ -66,8 +71,7 @@ import { EnrolmentService } from '../enrolment.service';
             <div class="col">
                 <span>{{ 'i18n_exam_validity' | translate }}: </span>
                 <span
-                    >{{ exam.periodStart | date : 'dd.MM.yyyy' }} &ndash;
-                    {{ exam.periodEnd | date : 'dd.MM.yyyy' }}</span
+                    >{{ exam.periodStart | date: 'dd.MM.yyyy' }} &ndash; {{ exam.periodEnd | date: 'dd.MM.yyyy' }}</span
                 >
             </div>
         </div>
@@ -79,31 +83,28 @@ import { EnrolmentService } from '../enrolment.service';
         </div>
         <div class="row mt-3">
             <div class="col flex justify-content-end">
-                <button
-                    class="btn btn-success text-nowrap important-clear-focus"
-                    (click)="enrollForExam()"
-                    *ngIf="!exam.alreadyEnrolled"
-                    [disabled]="enrolling"
-                >
-                    {{ 'i18n_enroll_to_exam' | translate }}
-                </button>
-                <button
-                    class="btn btn-success text-nowrap important-clear-focus"
-                    (click)="makeReservation()"
-                    *ngIf="exam.alreadyEnrolled && !exam.reservationMade"
-                >
-                    {{ 'i18n_student_new_reservation' | translate }}
-                </button>
-                <span
-                    class="student-exam-all-required text-nowrap"
-                    *ngIf="exam.alreadyEnrolled && exam.reservationMade"
-                    >{{ 'i18n_enrolled_to_exam' | translate }}</span
-                >
+                @if (!exam.alreadyEnrolled) {
+                    <button
+                        class="btn btn-success text-nowrap important-clear-focus"
+                        (click)="enrollForExam()"
+                        [disabled]="enrolling"
+                    >
+                        {{ 'i18n_enroll_to_exam' | translate }}
+                    </button>
+                }
+                @if (exam.alreadyEnrolled && !exam.reservationMade) {
+                    <button class="btn btn-success text-nowrap important-clear-focus" (click)="makeReservation()">
+                        {{ 'i18n_student_new_reservation' | translate }}
+                    </button>
+                }
+                @if (exam.alreadyEnrolled && exam.reservationMade) {
+                    <span class="student-exam-all-required text-nowrap">{{ 'i18n_enrolled_to_exam' | translate }}</span>
+                }
             </div>
         </div>
-    </div> `,
+    </div>`,
     standalone: true,
-    imports: [NgClass, NgIf, RouterLink, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
+    imports: [NgClass, RouterLink, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
 export class ExamSearchResultComponent {
     @Input() exam!: EnrolmentInfo | CollaborativeExamInfo;
@@ -111,7 +112,10 @@ export class ExamSearchResultComponent {
 
     enrolling = false; // DO WE NEED THIS?
 
-    constructor(private router: Router, private Enrolment: EnrolmentService) {}
+    constructor(
+        private router: Router,
+        private Enrolment: EnrolmentService,
+    ) {}
 
     enrollForExam = () => {
         if (this.enrolling) {

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import { Component, Input, OnInit } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -46,16 +46,18 @@ import { QuestionDraft } from '../question.service';
                             {{ 'i18n_characters' | translate }}
                         </span>
                     </div>
-                    <div *ngIf="wc.invalid" class="warning-text-small margin-10 edit-warning-container">
-                        <i class="bi-exclamation-circle reddish me-2"></i>
-                        {{ 'i18n_essay_length_recommendation_bounds' | translate }}
-                    </div>
+                    @if (wc.invalid) {
+                        <div class="warning-text-small margin-10 edit-warning-container">
+                            <i class="bi-exclamation-circle reddish me-2"></i>
+                            {{ 'i18n_essay_length_recommendation_bounds' | translate }}
+                        </div>
+                    }
                 </div>
             </div>
         </div>
     `,
     standalone: true,
-    imports: [FormsModule, NgIf, TranslateModule],
+    imports: [FormsModule, TranslateModule],
 })
 export class EssayEditorComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;

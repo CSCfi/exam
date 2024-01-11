@@ -1,108 +1,148 @@
-<nav aria-label="side navigation" *ngIf="user" id="vmenu" class="hidden-print">
-    <a class="skip-main" id="skip-button-main" [href]="getSkipLinkPath('#mainView')">{{
-        'i18n_skip_to_content' | translate
-    }}</a>
-    <div class="nav-container">
-        <div class="nav-header">
-            <div class="logo">
-                <div class="hidden-mobile">
-                    <img
-                        src="/assets/images/exam-logo-new.svg"
-                        alt="{{ 'i18n_exam_logo' | translate }}"
-                        onerror="this.onerror = null;
-                            this.src = '/assets/images/exam-logo-new.png'"
-                    />
-                </div>
-                <div class="visible-mobile">
-                    <img
-                        src="/assets/images/exam-logo-mobile.svg"
-                        alt="{{ 'i18n_exam_logo' | translate }}"
-                        onerror="this.onerror = null;
-                            this.src = '/assets/images/exam-logo-mobile.png'"
-                    />
-                    <button class="mobile-menu" (click)="openMenu()" [hidden]="!user" [attr.aria-open]="mobileMenuOpen">
+@if (user) {
+    <nav aria-label="side navigation" id="vmenu" class="hidden-print">
+        <a class="skip-main" id="skip-button-main" [href]="getSkipLinkPath('#mainView')">{{
+            'i18n_skip_to_content' | translate
+        }}</a>
+        <div class="nav-container">
+            <div class="nav-header">
+                <div class="logo">
+                    <div class="hidden-mobile">
                         <img
-                            src="/assets/images/icon_menu_mobile.svg"
-                            alt="{{ 'i18n_mobile_menu' | translate }}"
+                            src="/assets/images/exam-logo-new.svg"
+                            alt="{{ 'i18n_exam_logo' | translate }}"
                             onerror="this.onerror = null;
-                                this.src = '/assets/images/icon_menu_mobile.png'"
+                            this.src = '/assets/images/exam-logo-new.png'"
                         />
-                    </button>
+                    </div>
+                    <div class="visible-mobile">
+                        <img
+                            src="/assets/images/exam-logo-mobile.svg"
+                            alt="{{ 'i18n_exam_logo' | translate }}"
+                            onerror="this.onerror = null;
+                            this.src = '/assets/images/exam-logo-mobile.png'"
+                        />
+                        <button
+                            class="mobile-menu"
+                            (click)="openMenu()"
+                            [hidden]="!user"
+                            [attr.aria-open]="mobileMenuOpen"
+                        >
+                            <img
+                                src="/assets/images/icon_menu_mobile.svg"
+                                alt="{{ 'i18n_mobile_menu' | translate }}"
+                                onerror="this.onerror = null;
+                                this.src = '/assets/images/icon_menu_mobile.png'"
+                            />
+                        </button>
+                    </div>
+                </div>
+                <div [hidden]="!appVersion">
+                    <div class="app-version">v. {{ appVersion }}</div>
                 </div>
             </div>
-            <div [hidden]="!appVersion">
-                <div class="app-version">v. {{ appVersion }}</div>
+            <div class="nav-body">
+                <ul class="links">
+                    @for (link of links; track link.name) {
+                        <li [hidden]="!link.visible">
+                            <a [routerLink]="link.route" routerLinkActive="selected">
+                                <img aria-hidden="true" width="18" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
+                                <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{
+                                    link.name | translate
+                                }}</span>
+                            </a>
+                            @if (isActive(link)) {
+                                <a class="skip" id="skip-button" [href]="getSkipLinkPath('#mainView')">{{
+                                    'i18n_skip_to_content' | translate
+                                }}</a>
+                            }
+                            <ul class="submenu" [ngbCollapse]="link.submenu.hidden && link.submenu.items.length > 0">
+                                @for (subitem of link.submenu.items; track subitem.name) {
+                                    <li [hidden]="!subitem.visible">
+                                        <a [routerLink]="subitem.route" routerLinkActive="selected">
+                                            <div>
+                                                <img
+                                                    aria-hidden="true"
+                                                    width="18"
+                                                    src="/assets/images/nav/{{ subitem.iconPng }}"
+                                                    alt=""
+                                                />
+                                                {{ subitem.name | translate }}
+                                            </div>
+                                        </a>
+                                        @if (isActive(link)) {
+                                            <a
+                                                class="skip"
+                                                id="skip-button-sub"
+                                                [href]="getSkipLinkPath('#mainView')"
+                                                >{{ 'i18n_skip_to_content' | translate }}</a
+                                            >
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                </ul>
             </div>
-        </div>
-
-        <div class="nav-body">
-            <ul class="links">
-                <li *ngFor="let link of links" [hidden]="!link.visible">
-                    <a [routerLink]="link.route" routerLinkActive="selected">
-                        <img aria-hidden="true" width="18" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
-                        <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{
-                            link.name | translate
-                        }}</span>
-                    </a>
-
-                    <a class="skip" id="skip-button" *ngIf="isActive(link)" [href]="getSkipLinkPath('#mainView')">{{
-                        'i18n_skip_to_content' | translate
-                    }}</a>
-                    <ul class="submenu" [ngbCollapse]="link.submenu.hidden && link.submenu.items.length > 0">
-                        <li *ngFor="let subitem of link.submenu.items" [hidden]="!subitem.visible">
-                            <a [routerLink]="subitem.route" routerLinkActive="selected">
-                                <div>
-                                    <img
-                                        aria-hidden="true"
-                                        width="18"
-                                        src="/assets/images/nav/{{ subitem.iconPng }}"
-                                        alt=""
-                                    />
-                                    {{ subitem.name | translate }}
-                                </div>
-                            </a>
+            <div class="nav-body-mobile pt-2 pb-2" [ngbCollapse]="!mobileMenuOpen">
+                <ul class="links">
+                    @for (link of links; track link.name) {
+                        <li [hidden]="!link.visible">
                             <a
-                                class="skip"
-                                id="skip-button-sub"
-                                *ngIf="isActive(link)"
-                                [href]="getSkipLinkPath('#mainView')"
-                                >{{ 'i18n_skip_to_content' | translate }}</a
+                                [routerLink]="link.route"
+                                routerLinkActive="selected"
+                                (click)="link.submenu.hidden = !link.submenu.hidden"
                             >
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-
-        <div class="nav-body-mobile pt-2 pb-2" [ngbCollapse]="!mobileMenuOpen">
-            <ul class="links">
-                <li *ngFor="let link of links" [hidden]="!link.visible">
-                    <a
-                        [routerLink]="link.route"
-                        routerLinkActive="selected"
-                        (click)="link.submenu.hidden = !link.submenu.hidden"
-                    >
-                        <img aria-hidden="true" width="18" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
-                        <span class="menu-item">{{ link.name | translate }}</span>
-                    </a>
-                    <ul class="submenu" [ngbCollapse]="!link.submenu.hidden && link.submenu.items.length > 0">
-                        <li *ngFor="let subitem of link.submenu.items" [hidden]="!subitem.visible">
-                            <a [routerLink]="subitem.route" routerLinkActive="selected">
-                                <div>
-                                    <img
-                                        aria-hidden="true"
-                                        width="18"
-                                        src="/assets/images/nav/{{ subitem.iconPng }}"
-                                        alt=""
-                                    />
-                                    {{ subitem.name | translate }}
-                                </div>
+                                <img aria-hidden="true" width="18" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
+                                <span class="menu-item">{{ link.name | translate }}</span>
                             </a>
+                            <ul class="submenu" [ngbCollapse]="!link.submenu.hidden && link.submenu.items.length > 0">
+                                @for (subitem of link.submenu.items; track subitem.name) {
+                                    <li [hidden]="!subitem.visible">
+                                        <a [routerLink]="subitem.route" routerLinkActive="selected">
+                                            <div>
+                                                <img
+                                                    aria-hidden="true"
+                                                    width="18"
+                                                    src="/assets/images/nav/{{ subitem.iconPng }}"
+                                                    alt=""
+                                                />
+                                                {{ subitem.name | translate }}
+                                            </div>
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
                         </li>
-                    </ul>
-                </li>
-                <li>
-                    <div class="user-name pb-1 pt-2">
+                    }
+                    <li>
+                        <div class="user-name pb-1 pt-2">
+                            <div class="user-logo">
+                                <img src="/assets/images/icon_menu_user.png" alt="User logo" />
+                            </div>
+                            <div class="user-data">
+                                {{ user.firstName }}&nbsp;{{ user.lastName }}
+                                <br />
+                                <span [hidden]="!user.isStudent">{{ 'i18n_student' | translate }} </span>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <button class="locale-item border-none background-none" (click)="switchLanguage('fi')">
+                            FI
+                        </button>
+                        <button class="locale-item border-none background-none" (click)="switchLanguage('sv')">
+                            SV
+                        </button>
+                        <button class="locale-item border-none background-none" (click)="switchLanguage('en')">
+                            EN
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="nav-footer">
+                <div class="user" [hidden]="!user">
+                    <div class="user-name">
                         <div class="user-logo">
                             <img src="/assets/images/icon_menu_user.png" alt="User logo" />
                         </div>
@@ -112,33 +152,13 @@
                             <span [hidden]="!user.isStudent">{{ 'i18n_student' | translate }} </span>
                         </div>
                     </div>
-                </li>
-                <li>
+                </div>
+                <div class="locale-bar">
                     <button class="locale-item border-none background-none" (click)="switchLanguage('fi')">FI</button>
                     <button class="locale-item border-none background-none" (click)="switchLanguage('sv')">SV</button>
                     <button class="locale-item border-none background-none" (click)="switchLanguage('en')">EN</button>
-                </li>
-            </ul>
-        </div>
-
-        <div class="nav-footer">
-            <div class="user" [hidden]="!user">
-                <div class="user-name">
-                    <div class="user-logo">
-                        <img src="/assets/images/icon_menu_user.png" alt="User logo" />
-                    </div>
-                    <div class="user-data">
-                        {{ user.firstName }}&nbsp;{{ user.lastName }}
-                        <br />
-                        <span [hidden]="!user.isStudent">{{ 'i18n_student' | translate }} </span>
-                    </div>
                 </div>
             </div>
-            <div class="locale-bar">
-                <button class="locale-item border-none background-none" (click)="switchLanguage('fi')">FI</button>
-                <button class="locale-item border-none background-none" (click)="switchLanguage('sv')">SV</button>
-                <button class="locale-item border-none background-none" (click)="switchLanguage('en')">EN</button>
-            </div>
         </div>
-    </div>
-</nav>
+    </nav>
+}

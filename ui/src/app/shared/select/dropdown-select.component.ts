@@ -14,7 +14,7 @@
  *  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
+import { NgClass, SlicePipe } from '@angular/common';
 import type { OnChanges, OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -43,48 +43,49 @@ export interface Option<V, I> {
             {{ selected?.label || placeholder | translate }}
         </button>
         <div ngbDropdownMenu class="scrollable-menu" role="menu" aria-labelledby="dd1">
-            <button ngbDropdownItem *ngIf="!noSearch">
-                <div class="input-group">
-                    <input
-                        [(ngModel)]="searchFilter"
-                        class="form-control"
-                        (input)="filterOptions()"
-                        (click)="$event.stopPropagation()"
-                        placeholder="{{ 'i18n_search' | translate }}"
-                    />
-                    <div class="input-group-append">
-                        <span class="input-group-text">
-                            <i class="bi-search"></i>
-                        </span>
+            @if (!noSearch) {
+                <button ngbDropdownItem>
+                    <div class="input-group">
+                        <input
+                            [(ngModel)]="searchFilter"
+                            class="form-control"
+                            (input)="filterOptions()"
+                            (click)="$event.stopPropagation()"
+                            placeholder="{{ 'i18n_search' | translate }}"
+                        />
+                        <div class="input-group-append">
+                            <span class="input-group-text">
+                                <i class="bi-search"></i>
+                            </span>
+                        </div>
                     </div>
-                </div>
-            </button>
+                </button>
+            }
             <button ngbDropdownItem (click)="clearSelection()">
                 <i class="bi-x text text-danger"></i>
             </button>
-            <button
-                ngbDropdownItem
-                *ngFor="let opt of filteredOptions"
-                [ngClass]="getClasses(opt)"
-                (click)="selectOption(opt)"
-            >
-                <span *ngIf="!opt.isHeader">
-                    {{ opt.label || '' | translate | slice : 0 : 40 }}
-                </span>
-                <span *ngIf="opt.isHeader">{{ opt.label }}</span>
-            </button>
+            @for (opt of filteredOptions; track $index) {
+                <button ngbDropdownItem [ngClass]="getClasses(opt)" (click)="selectOption(opt)">
+                    @if (!opt.isHeader) {
+                        <span>
+                            {{ opt.label || '' | translate | slice: 0 : 40 }}
+                        </span>
+                    }
+                    @if (opt.isHeader) {
+                        <span>{{ opt.label }}</span>
+                    }
+                </button>
+            }
         </div>
-    </div> `,
+    </div>`,
     standalone: true,
     imports: [
         NgbDropdown,
         NgbDropdownToggle,
         NgClass,
         NgbDropdownMenu,
-        NgIf,
         FormsModule,
         NgbDropdownItem,
-        NgFor,
         SlicePipe,
         TranslateModule,
     ],

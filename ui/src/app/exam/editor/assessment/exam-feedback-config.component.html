@@ -3,26 +3,24 @@
         <div class="review-list-title">
             <span class="pointer" (click)="examFeedbackConfigDisplay.visible = !examFeedbackConfigDisplay.visible">
                 {{ 'i18n_exam_feedback_config' | translate }}
-                <span *ngIf="examFeedbackConfig.enabled">({{ 'i18n_in_use' | translate }})</span>
-                <span *ngIf="!examFeedbackConfig.enabled">({{ 'i18n_not_in_use' | translate }})</span>
+                @if (examFeedbackConfig.enabled) {
+                    <span>({{ 'i18n_in_use' | translate }})</span>
+                }
+                @if (!examFeedbackConfig.enabled) {
+                    <span>({{ 'i18n_not_in_use' | translate }})</span>
+                }
                 <span
                     ngbPopover="{{ 'i18n_show' | translate }} / {{ 'i18n_hide' | translate }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     class="ms-2"
                     triggers="mouseenter:mouseleave"
                 >
-                    <img
-                        *ngIf="!examFeedbackConfigDisplay.visible"
-                        src="/assets/images/icon_list_show_right.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
-                    />
-                    <img
-                        *ngIf="examFeedbackConfigDisplay.visible"
-                        src="/assets/images/icon_list_show_down.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
-                    />
+                    @if (!examFeedbackConfigDisplay.visible) {
+                        <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                    }
+                    @if (examFeedbackConfigDisplay.visible) {
+                        <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                    }
                 </span>
             </span>
         </div>
@@ -35,24 +33,26 @@
             {{ 'i18n_exam_feedback_config_instructions' | translate }}
         </span>
         <div class="review-attachment-button autoeval-button">
-            <a
-                class="pointer"
-                [ngClass]="{ notinuse: modifiable !== 'everything' }"
-                *ngIf="!examFeedbackConfig.enabled"
-                name="enableExamFeedbackConfig"
-                (click)="enable()"
-            >
-                {{ 'i18n_use' | translate }}</a
-            >
-            <a
-                class="pointer"
-                *ngIf="examFeedbackConfig.enabled"
-                [ngClass]="{ notinuse: modifiable !== 'everything' }"
-                name="disableExamFeedbackConfig"
-                (click)="disable()"
-            >
-                {{ 'i18n_do_not_use' | translate }}</a
-            >
+            @if (!examFeedbackConfig.enabled) {
+                <a
+                    class="pointer"
+                    [ngClass]="{ notinuse: modifiable !== 'everything' }"
+                    name="enableExamFeedbackConfig"
+                    (click)="enable()"
+                >
+                    {{ 'i18n_use' | translate }}</a
+                >
+            }
+            @if (examFeedbackConfig.enabled) {
+                <a
+                    class="pointer"
+                    [ngClass]="{ notinuse: modifiable !== 'everything' }"
+                    name="disableExamFeedbackConfig"
+                    (click)="disable()"
+                >
+                    {{ 'i18n_do_not_use' | translate }}</a
+                >
+            }
         </div>
     </div>
 </div>
@@ -65,26 +65,24 @@
                 {{ selectedReleaseType()?.translation || '' | translate }}&nbsp;<span class="caret"></span>
             </button>
             <ul ngbDropdownMenu role="menu">
-                <li
-                    *ngFor="let type of availableReleaseTypes()"
-                    role="presentation"
-                    [ngClass]="type.filtered ? 'active' : ''"
-                    (click)="applyFilter(type)"
-                >
-                    <a ngbDropdownItem class="pointer">
-                        {{ type.translation | translate }}
-                    </a>
-                </li>
+                @for (type of availableReleaseTypes(); track type) {
+                    <li role="presentation" [ngClass]="type.filtered ? 'active' : ''" (click)="applyFilter(type)">
+                        <a ngbDropdownItem class="pointer">
+                            {{ type.translation | translate }}
+                        </a>
+                    </li>
+                }
             </ul>
         </div>
     </div>
 
     <div class="col-6" [hidden]="!examFeedbackConfigDisplay.visible">
-        <xm-date-picker
-            *ngIf="selectedReleaseType()?.name === 'GIVEN_DATE'"
-            (updated)="releaseDateChanged($event)"
-            [disabled]="modifiable === 'nothing'"
-            [initialDate]="config ? config.releaseDate : null"
-        ></xm-date-picker>
+        @if (selectedReleaseType()?.name === 'GIVEN_DATE') {
+            <xm-date-picker
+                (updated)="releaseDateChanged($event)"
+                [disabled]="modifiable === 'nothing'"
+                [initialDate]="config ? config.releaseDate : null"
+            ></xm-date-picker>
+        }
     </div>
 </div>

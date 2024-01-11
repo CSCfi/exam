@@ -32,12 +32,7 @@ import { CoursePickerComponent } from '../common/course-picker.component';
                         ngbPopover="{{ 'i18n_select_exam_course_description' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
-                        <img
-                            src="/assets/images/icon_tooltip.svg"
-                            alt=""
-                            placement="top"
-                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                        />
+                        <img src="/assets/images/icon_tooltip.svg" alt="" placement="top" />
                     </sup>
                 </div>
             </div>

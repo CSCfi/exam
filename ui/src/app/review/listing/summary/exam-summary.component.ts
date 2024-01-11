@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, DecimalPipe, KeyValuePipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe, DecimalPipe, KeyValuePipe } from '@angular/common';
 import { Component, OnChanges, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -33,7 +33,7 @@ import { ExamSummaryService } from './exam-summary.service';
     selector: 'xm-exam-summary',
     templateUrl: './exam-summary.component.html',
     standalone: true,
-    imports: [NgIf, NgbPopover, NgFor, DecimalPipe, DatePipe, KeyValuePipe, TranslateModule],
+    imports: [NgbPopover, DecimalPipe, DatePipe, KeyValuePipe, TranslateModule],
 })
 export class ExamSummaryComponent implements OnInit, OnChanges {
     exam!: Exam;

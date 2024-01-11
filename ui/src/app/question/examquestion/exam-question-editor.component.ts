@@ -27,14 +27,15 @@ import { ExamQuestionComponent } from './exam-question.component';
     template: `
         <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-body">
-                <xm-exam-question
-                    *ngIf="examQuestion"
-                    [examQuestion]="examQuestion"
-                    (saved)="save($event)"
-                    (cancelled)="cancel($event)"
-                    [lotteryOn]="lotteryOn"
-                    autofocus
-                ></xm-exam-question>
+                @if (examQuestion) {
+                    <xm-exam-question
+                        [examQuestion]="examQuestion"
+                        (saved)="save($event)"
+                        (cancelled)="cancel($event)"
+                        [lotteryOn]="lotteryOn"
+                        autofocus
+                    ></xm-exam-question>
+                }
             </div>
             <div class="modal-footer"></div>
         </div>

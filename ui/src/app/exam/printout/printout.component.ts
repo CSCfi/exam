@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -31,16 +31,7 @@ type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & {
     selector: 'xm-printout',
     templateUrl: './printout.component.html',
     standalone: true,
-    imports: [
-        NgIf,
-        CourseCodeComponent,
-        NgFor,
-        TeacherListComponent,
-        MathJaxDirective,
-        DatePipe,
-        TranslateModule,
-        OrderByPipe,
-    ],
+    imports: [CourseCodeComponent, TeacherListComponent, MathJaxDirective, DatePipe, TranslateModule, OrderByPipe],
 })
 export class PrintoutComponent implements OnInit {
     exam!: Printout;

@@ -1,129 +1,121 @@
-<div id="dashboard" *ngIf="exam">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="student-details-title-wrap">
-                <a (click)="goToAssessment()">
-                    <img class="pointer arrow_icon" src="/assets/images/icon_history.png" alt="go back" />
-                </a>
-                <div class="student-exam-details-title">{{ 'i18n_exam_review' | translate }}</div>
-            </div>
-
-            <div class="review-attachment-button print-button">
-                <a (click)="print()" class="pointer"> {{ 'i18n_print' | translate }}&nbsp;&nbsp; </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="tab-wrapper-exams review">
-        <div class="review-border">
-            <div class="padt50 padl30 padr30">
-                <h3>
-                    <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code> - {{ exam.name }}
-                    <a class="pointer" (click)="hideGeneralInfo = !hideGeneralInfo">
-                        <img
-                            *ngIf="hideGeneralInfo"
-                            src="/assets/images/icon_list_show_right.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
-                        />
-                        <img
-                            *ngIf="!hideGeneralInfo"
-                            src="/assets/images/icon_list_show_down.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
-                        />
+@if (exam) {
+    <div id="dashboard">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="student-details-title-wrap">
+                    <a (click)="goToAssessment()">
+                        <img class="pointer arrow_icon" src="/assets/images/icon_history.png" alt="go back" />
                     </a>
-                </h3>
-            </div>
-            <!-- General Information -->
-            <div class="row" [ngbCollapse]="hideGeneralInfo">
-                <div class="col-12">
-                    <xm-r-general-info
-                        [participation]="participation"
-                        [exam]="exam"
-                        [collaborative]="collaborative"
-                    ></xm-r-general-info>
+                    <div class="student-exam-details-title">{{ 'i18n_exam_review' | translate }}</div>
+                </div>
+                <div class="review-attachment-button print-button">
+                    <a (click)="print()" class="pointer"> {{ 'i18n_print' | translate }}&nbsp;&nbsp; </a>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Sections -->
-    <div *ngFor="let section of exam.examSections | orderBy : 'sequenceNumber'; let index = index">
-        <xm-r-section
-            [section]="section"
-            [participation]="participation"
-            [exam]="exam"
-            [collaborative]="collaborative"
-            (scored)="scoreSet($event)"
-            [index]="index + 1"
-            [isScorable]="(!isGraded() || isOwnerOrAdmin()) && !isReadOnly()"
-        >
-        </xm-r-section>
-    </div>
-
-    <div class="tab-wrapper-exams review">
-        <div class="review-border">
-            <div class="padt50 padl30 padr30">
-                <h4 class="d-flex justify-content-between">
-                    {{ 'i18n_grading_info' | translate }}
-                    <a (click)="hideGradeInfo = !hideGradeInfo">
-                        <img
-                            *ngIf="hideGradeInfo"
-                            src="/assets/images/icon_list_show_right.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png'"
-                        />
-                        <img
-                            [hidden]="hideGradeInfo"
-                            src="/assets/images/icon_list_show_down.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png'"
-                        />
-                    </a>
-                </h4>
-            </div>
-
-            <!-- Grading -->
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="row" [ngbCollapse]="hideGradeInfo">
-                        <div class="col-12 padl15 padr15">
-                            <xm-r-grading
-                                [exam]="exam"
-                                [questionSummary]="questionSummary"
-                                [participation]="participation"
-                                [collaborative]="collaborative"
-                                [user]="user"
-                                *ngIf="exam && !exam.subjectToLanguageInspection"
-                                (updated)="gradingUpdated()"
-                            >
-                            </xm-r-grading>
-                            <xm-r-maturity-grading
-                                *ngIf="
-                                    exam && exam.executionType.type === 'MATURITY' && exam.subjectToLanguageInspection
-                                "
-                                (updated)="gradingUpdated()"
-                                [user]="user"
-                                [exam]="exam"
-                                [questionSummary]="questionSummary"
-                            >
-                            </xm-r-maturity-grading>
-                        </div>
+        <div class="tab-wrapper-exams review">
+            <div class="review-border">
+                <div class="padt50 padl30 padr30">
+                    <h3>
+                        @if (exam.course) {
+                            <xm-course-code [course]="exam.course"></xm-course-code>
+                        }
+                        - {{ exam.name }}
+                        <a class="pointer" (click)="hideGeneralInfo = !hideGeneralInfo">
+                            @if (hideGeneralInfo) {
+                                <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                            }
+                            @if (!hideGeneralInfo) {
+                                <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                            }
+                        </a>
+                    </h3>
+                </div>
+                <!-- General Information -->
+                <div class="row" [ngbCollapse]="hideGeneralInfo">
+                    <div class="col-12">
+                        <xm-r-general-info
+                            [participation]="participation"
+                            [exam]="exam"
+                            [collaborative]="collaborative"
+                        ></xm-r-general-info>
                     </div>
                 </div>
             </div>
-
-            <!-- Floating feedback window -->
-            <xm-r-feedback
-                *ngIf="exam.examFeedback && !isUnderLanguageInspection()"
-                [exam]="exam"
-                [collaborative]="collaborative"
-                [participation]="participation"
-                [hidden]="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
-            >
-            </xm-r-feedback>
-            <xm-r-statement *ngIf="exam && isUnderLanguageInspection()" [exam]="exam"></xm-r-statement>
+        </div>
+        <!-- Sections -->
+        @for (section of exam.examSections | orderBy: 'sequenceNumber'; track section; let index = $index) {
+            <div>
+                <xm-r-section
+                    [section]="section"
+                    [participation]="participation"
+                    [exam]="exam"
+                    [collaborative]="collaborative"
+                    (scored)="scoreSet($event)"
+                    [index]="index + 1"
+                    [isScorable]="(!isGraded() || isOwnerOrAdmin()) && !isReadOnly()"
+                >
+                </xm-r-section>
+            </div>
+        }
+        <div class="tab-wrapper-exams review">
+            <div class="review-border">
+                <div class="padt50 padl30 padr30">
+                    <h4 class="d-flex justify-content-between">
+                        {{ 'i18n_grading_info' | translate }}
+                        <a (click)="hideGradeInfo = !hideGradeInfo">
+                            @if (hideGradeInfo) {
+                                <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                            }
+                            <img [hidden]="hideGradeInfo" src="/assets/images/icon_list_show_down.svg" alt="" />
+                        </a>
+                    </h4>
+                </div>
+                <!-- Grading -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="row" [ngbCollapse]="hideGradeInfo">
+                            <div class="col-12 padl15 padr15">
+                                @if (exam && !exam.subjectToLanguageInspection) {
+                                    <xm-r-grading
+                                        [exam]="exam"
+                                        [questionSummary]="questionSummary"
+                                        [participation]="participation"
+                                        [collaborative]="collaborative"
+                                        [user]="user"
+                                        (updated)="gradingUpdated()"
+                                    >
+                                    </xm-r-grading>
+                                }
+                                @if (
+                                    exam && exam.executionType.type === 'MATURITY' && exam.subjectToLanguageInspection
+                                ) {
+                                    <xm-r-maturity-grading
+                                        (updated)="gradingUpdated()"
+                                        [user]="user"
+                                        [exam]="exam"
+                                        [questionSummary]="questionSummary"
+                                    >
+                                    </xm-r-maturity-grading>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Floating feedback window -->
+                @if (exam.examFeedback && !isUnderLanguageInspection()) {
+                    <xm-r-feedback
+                        [exam]="exam"
+                        [collaborative]="collaborative"
+                        [participation]="participation"
+                        [hidden]="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
+                    >
+                    </xm-r-feedback>
+                }
+                @if (exam && isUnderLanguageInspection()) {
+                    <xm-r-statement [exam]="exam"></xm-r-statement>
+                }
+            </div>
         </div>
     </div>
-</div>
+}

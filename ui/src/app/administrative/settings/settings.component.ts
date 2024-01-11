@@ -1,4 +1,4 @@
-import { KeyValuePipe, NgFor, NgIf } from '@angular/common';
+import { KeyValuePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -12,13 +12,17 @@ import { AppConfig, SettingsService } from './settings.service';
     templateUrl: './settings.component.html',
     selector: 'xm-settings',
     standalone: true,
-    imports: [NgIf, CKEditorComponent, FormsModule, NgbPopover, NgFor, KeyValuePipe, TranslateModule],
+    imports: [CKEditorComponent, FormsModule, NgbPopover, KeyValuePipe, TranslateModule],
 })
 export class SettingsComponent implements OnInit {
     config!: AppConfig;
     attributes: string[] = [];
 
-    constructor(private Settings: SettingsService, private toast: ToastrService, private translate: TranslateService) {}
+    constructor(
+        private Settings: SettingsService,
+        private toast: ToastrService,
+        private translate: TranslateService,
+    ) {}
 
     ngOnInit() {
         this.Settings.getConfig$().subscribe((resp) => (this.config = resp));
