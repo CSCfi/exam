@@ -73,31 +73,35 @@
     </div>
 
     <!-- List of finished exams -->
-    <div
-        class="row mart10"
-        *ngFor="
-            let participation of participations
-                | orderBy : filter.ordering : filter.reverse
-                | slice : currentPage * pageSize : currentPage * pageSize + pageSize
-        "
-    >
-        <div class="col-md-12">
-            <xm-exam-participation
-                [participation]="participation"
-                [collaborative]="collaborative"
-            ></xm-exam-participation>
+    @for (
+        participation of participations
+            | orderBy: filter.ordering : filter.reverse
+            | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
+        track participation
+    ) {
+        <div class="row mart10">
+            <div class="col-md-12">
+                <xm-exam-participation
+                    [participation]="participation"
+                    [collaborative]="collaborative"
+                ></xm-exam-participation>
+            </div>
         </div>
-    </div>
+    }
 
-    <div class="row mt-2" *ngIf="participations">
-        <div class="col-md-12" *ngIf="participations.length > pageSize">
-            <xm-paginator
-                [items]="participations"
-                (pageSelected)="pageSelected($event)"
-                [pageSize]="pageSize"
-                [currentPage]="currentPage"
-            >
-            </xm-paginator>
+    @if (participations) {
+        <div class="row mt-2">
+            @if (participations.length > pageSize) {
+                <div class="col-md-12">
+                    <xm-paginator
+                        [items]="participations"
+                        (pageSelected)="pageSelected($event)"
+                        [pageSize]="pageSize"
+                        [currentPage]="currentPage"
+                    >
+                    </xm-paginator>
+                </div>
+            }
         </div>
-    </div>
+    }
 </div>

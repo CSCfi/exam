@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
@@ -31,7 +31,7 @@ import { EnrolmentService } from '../enrolment.service';
     selector: 'xm-wrong-location',
     templateUrl: './wrong-location.component.html',
     standalone: true,
-    imports: [NgIf, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
+    imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
 })
 export class WrongLocationComponent implements OnInit {
     cause = '';

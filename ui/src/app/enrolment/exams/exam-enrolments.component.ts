@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -28,28 +28,36 @@ import { EnrolmentDetailsComponent } from './exam-enrolment-details.component';
     selector: 'xm-exam-enrolments',
     template: `
         <div id="dashboard">
-            <div class="row mt-2 ms-2 me-2" *ngIf="exam?.noTrialsLeft">
-                <div class="col-md-12 alert-danger">
-                    <h1>{{ 'i18n_no_trials_left' | translate }}</h1>
-                </div>
-            </div>
-            <xm-enrolment-details *ngIf="exam" [exam]="exam"></xm-enrolment-details>
-            <div *ngIf="exams.length > 0">
-                <div class="row mt-2 ms-4 me-4">
-                    <div class="col-md-12 mt-2 ms-4 me-4">
-                        <h3>{{ 'i18n_student_exams' | translate }}</h3>
+            @if (exam?.noTrialsLeft) {
+                <div class="row mt-2 ms-2 me-2">
+                    <div class="col-md-12 alert-danger">
+                        <h1>{{ 'i18n_no_trials_left' | translate }}</h1>
                     </div>
                 </div>
-                <div class="row mt-2 ms-4 me-4 " *ngFor="let exam of exams">
-                    <div class="col-md-12">
-                        <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
+            }
+            @if (exam) {
+                <xm-enrolment-details [exam]="exam"></xm-enrolment-details>
+            }
+            @if (exams.length > 0) {
+                <div>
+                    <div class="row mt-2 ms-4 me-4">
+                        <div class="col-md-12 mt-2 ms-4 me-4">
+                            <h3>{{ 'i18n_student_exams' | translate }}</h3>
+                        </div>
                     </div>
+                    @for (exam of exams; track exam) {
+                        <div class="row mt-2 ms-4 me-4 ">
+                            <div class="col-md-12">
+                                <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
+                            </div>
+                        </div>
+                    }
                 </div>
-            </div>
+            }
         </div>
     `,
     standalone: true,
-    imports: [NgIf, EnrolmentDetailsComponent, NgFor, ExamSearchResultComponent, TranslateModule],
+    imports: [EnrolmentDetailsComponent, ExamSearchResultComponent, TranslateModule],
 })
 export class ExamEnrolmentsComponent implements OnInit {
     exam!: EnrolmentInfo;

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
+import { NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -39,8 +39,6 @@ import { QuestionService } from '../question.service';
     standalone: true,
     imports: [
         FormsModule,
-        NgIf,
-        NgFor,
         NgbPopover,
         CKEditorComponent,
         NgClass,

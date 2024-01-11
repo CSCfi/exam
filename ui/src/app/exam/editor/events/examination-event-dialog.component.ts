@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { DatePipe, NgClass, NgFor, NgIf } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -29,7 +29,7 @@ import { ExamService } from '../../exam.service';
 @Component({
     selector: 'xm-examination-event-dialog',
     standalone: true,
-    imports: [NgClass, NgIf, NgFor, FormsModule, DatePipe, TranslateModule, DateTimePickerComponent, OrderByPipe],
+    imports: [NgClass, FormsModule, DatePipe, TranslateModule, DateTimePickerComponent, OrderByPipe],
     templateUrl: './examination-event-dialog.component.html',
 })
 export class ExaminationEventDialogComponent implements OnInit {

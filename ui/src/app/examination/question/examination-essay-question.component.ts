@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgIf, UpperCasePipe } from '@angular/common';
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -28,7 +28,7 @@ import { ExaminationService } from '../examination.service';
     selector: 'xm-examination-essay-question',
     templateUrl: './examination-essay-question.component.html',
     standalone: true,
-    imports: [NgIf, CKEditorComponent, FormsModule, UpperCasePipe, DatePipe, TranslateModule],
+    imports: [CKEditorComponent, FormsModule, UpperCasePipe, DatePipe, TranslateModule],
 })
 export class ExaminationEssayQuestionComponent implements OnInit {
     @Input() sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -25,13 +25,17 @@ import { OrderByPipe } from '../shared/sorting/order-by.pipe';
     selector: 'xm-software',
     templateUrl: './software.component.html',
     standalone: true,
-    imports: [FormsModule, NgFor, NgIf, TranslateModule, OrderByPipe],
+    imports: [FormsModule, TranslateModule, OrderByPipe],
 })
 export class SoftwareComponent implements OnInit {
     software: (Software & { showName: boolean })[] = [];
     newSoftware = { name: '' };
 
-    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     ngOnInit() {
         this.http

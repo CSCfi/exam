@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -63,14 +63,16 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                         ></xm-ckeditor>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end" *ngIf="exam.examFeedback?.attachment">
-                    <a class="pointer" (click)="downloadFeedbackAttachment()">{{
-                        exam.examFeedback?.attachment?.fileName
-                    }}</a>
-                    <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
-                        <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
-                    </span>
-                </div>
+                @if (exam.examFeedback?.attachment) {
+                    <div class="d-flex justify-content-end">
+                        <a class="pointer" (click)="downloadFeedbackAttachment()">{{
+                            exam.examFeedback?.attachment?.fileName
+                        }}</a>
+                        <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
+                            <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
+                        </span>
+                    </div>
+                }
                 <div class="d-flex justify-content-between mt-2">
                     <button class="btn btn-outline-secondary" (click)="saveFeedback()">
                         {{ 'i18n_save' | translate }}
@@ -81,9 +83,9 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                 </div>
             </div>
         </div>
-    </div> `,
+    </div>`,
     standalone: true,
-    imports: [CdkDrag, NgbPopover, NgClass, NgbCollapse, CKEditorComponent, FormsModule, NgIf, TranslateModule],
+    imports: [CdkDrag, NgbPopover, NgClass, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
 })
 export class FeedbackComponent implements OnInit {
     @Input() exam!: Examination;

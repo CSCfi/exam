@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgClass, NgFor, NgIf, UpperCasePipe } from '@angular/common';
+import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
@@ -47,14 +47,12 @@ interface ListedCollaborativeExam extends CollaborativeExam {
     templateUrl: './collaborative-exam-listing.component.html',
     standalone: true,
     imports: [
-        NgIf,
         NgbNav,
         NgbNavItem,
         NgbNavItemRole,
         NgbNavLink,
         NgbPopover,
         TableSortComponent,
-        NgFor,
         RouterLink,
         NgClass,
         UpperCasePipe,

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
@@ -32,7 +32,6 @@ import { ExaminationSectionComponent } from './section/examination-section.compo
     templateUrl: './examination.component.html',
     standalone: true,
     imports: [
-        NgIf,
         ExaminationHeaderComponent,
         ExaminationSectionComponent,
         AnswerInstructionsComponent,

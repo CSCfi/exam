@@ -316,21 +316,15 @@ public class Question extends OwnedModel implements AttachmentContainer {
                     }
 
                     return (
-                        (
-                            type == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption &&
+                        (type == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption &&
                             defaultScore > 0 &&
-                            !option.isEmpty()
-                        ) ||
-                        (
-                            type == MultipleChoiceOption.ClaimChoiceOptionType.IncorrectOption &&
+                            !option.isEmpty()) ||
+                        (type == MultipleChoiceOption.ClaimChoiceOptionType.IncorrectOption &&
                             defaultScore <= 0 &&
-                            !option.isEmpty()
-                        ) ||
-                        (
-                            type == MultipleChoiceOption.ClaimChoiceOptionType.SkipOption &&
+                            !option.isEmpty()) ||
+                        (type == MultipleChoiceOption.ClaimChoiceOptionType.SkipOption &&
                             defaultScore == 0 &&
-                            !option.isEmpty()
-                        )
+                            !option.isEmpty())
                     );
                 })
                 .map(n ->

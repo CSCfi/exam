@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
@@ -40,14 +40,12 @@ type ExamFeedbackConfigTemplate = {
     styleUrls: ['./exam-feedback-config.component.css'],
     standalone: true,
     imports: [
-        NgIf,
         NgbPopover,
         NgbCollapse,
         NgClass,
         NgbDropdown,
         NgbDropdownToggle,
         NgbDropdownMenu,
-        NgFor,
         NgbDropdownItem,
         DatePickerComponent,
         TranslateModule,

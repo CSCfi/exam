@@ -1,231 +1,269 @@
-<div id="exam-print" *ngIf="exam" class="py-3">
-    <div class="row">
-        <div class="col-md-12">
-            <h3>
-                <xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code> - {{ exam.name }},
-                <small>{{ exam.course?.credits }} op</small>
-            </h3>
+@if (exam) {
+    <div id="exam-print" class="py-3">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+                    @if (exam.course) {
+                        <xm-course-code [course]="exam.course"></xm-course-code>
+                    }
+                    - {{ exam.name }},
+                    <small>{{ exam.course?.credits }} op</small>
+                </h3>
+            </div>
         </div>
-    </div>
-
-    <!-- General Information -->
-    <div class="row mt-3">
-        <div class="col-md-12">
-            <h4>
-                {{ 'i18n_student_and_exam_info' | translate }}
-            </h4>
+        <!-- General Information -->
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <h4>
+                    {{ 'i18n_student_and_exam_info' | translate }}
+                </h4>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-2">
-            <strong>{{ 'i18n_name' | translate }}:</strong>
+        <div class="row">
+            <div class="col-md-2">
+                <strong>{{ 'i18n_name' | translate }}:</strong>
+            </div>
+            <div class="col-md-4">{{ student?.firstName }} {{ student?.lastName }}</div>
+            <div class="col-md-2">
+                <strong>{{ 'i18n_email' | translate }}:</strong>
+            </div>
+            <div class="col-md-4">{{ student?.email }}</div>
         </div>
-        <div class="col-md-4">{{ student?.firstName }} {{ student?.lastName }}</div>
-        <div class="col-md-2">
-            <strong>{{ 'i18n_email' | translate }}:</strong>
+        <div class="row">
+            <div class="col-md-2">
+                <strong>{{ 'i18n_time_of_exam_participation' | translate }}:</strong>
+            </div>
+            <div class="col-md-4">
+                {{ participation?.started | applyDst | date: 'dd.MM.yyyy HH:mm' }} -
+                {{ participation?.ended | applyDst | date: 'dd.MM.yyyy HH:mm' }}
+            </div>
+            <div class="col-md-2">
+                <strong>{{ 'i18n_exam_duration' | translate }}:</strong>
+            </div>
+            <div class="col-md-4">{{ participation?.duration | date: 'HH:mm' }}</div>
         </div>
-        <div class="col-md-4">{{ student?.email }}</div>
-    </div>
-    <div class="row">
-        <div class="col-md-2">
-            <strong>{{ 'i18n_time_of_exam_participation' | translate }}:</strong>
+        @if (enrolment?.information) {
+            <div class="row">
+                <div class="col-md-2">
+                    <strong>{{ 'i18n_student_enrolment_info' | translate }}:</strong>
+                </div>
+                <div class="col-md-10">{{ enrolment?.information }}</div>
+            </div>
+        }
+        <div class="row">
+            <div class="col-md-2">
+                <strong>{{ 'i18n_examination_location' | translate }}:</strong>
+            </div>
+            @if (reservation?.machine?.room) {
+                <div class="col-md-4">
+                    {{ reservation?.machine?.room?.name }} ({{ reservation?.machine?.room?.roomCode }})
+                </div>
+            }
+            @if (!reservation?.machine?.room) {
+                <div class="col-md-4">N/A</div>
+            }
+            <div class="col-md-2">
+                <strong>{{ 'i18n_exam_machine' | translate }}:</strong>
+            </div>
+            @if (reservation?.machine) {
+                <div class="col-md-4">{{ reservation?.machine?.name }}</div>
+            }
+            @if (!reservation?.machine) {
+                <div class="col-md-4">N/A</div>
+            }
         </div>
-        <div class="col-md-4">
-            {{ participation?.started | applyDst | date : 'dd.MM.yyyy HH:mm' }} -
-            {{ participation?.ended | applyDst | date : 'dd.MM.yyyy HH:mm' }}
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <h4>
+                    {{ 'i18n_previous_exam_participations' | translate }}
+                </h4>
+            </div>
         </div>
-        <div class="col-md-2">
-            <strong>{{ 'i18n_exam_duration' | translate }}:</strong>
+        @for (participation of previousParticipations; track participation) {
+            <div class="row">
+                <div class="col-md-2">{{ participation.started | applyDst | date: 'dd.MM.yyyy' }}</div>
+                <div class="col-md-4">
+                    <strong>{{ 'i18n_exam_state' | translate }}:</strong>&nbsp;&nbsp;&nbsp;
+                    {{ translateState(participation) | lowercase | translate }}
+                </div>
+                <div class="col-md-6">
+                    {{ 'i18n_grade' | translate }}:&nbsp;&nbsp;&nbsp;{{ translateGrade(participation) }}
+                </div>
+            </div>
+        }
+        <div class="row" [hidden]="previousParticipations && previousParticipations.length > 0">
+            <div class="col-md-12">N/A</div>
         </div>
-        <div class="col-md-4">{{ participation?.duration | date : 'HH:mm' }}</div>
-    </div>
-    <div class="row" *ngIf="enrolment?.information">
-        <div class="col-md-2">
-            <strong>{{ 'i18n_student_enrolment_info' | translate }}:</strong>
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <h4>
+                    {{ 'i18n_exam_instruction' | translate }}
+                </h4>
+            </div>
         </div>
-        <div class="col-md-10">{{ enrolment?.information }}</div>
-    </div>
-    <div class="row">
-        <div class="col-md-2">
-            <strong>{{ 'i18n_examination_location' | translate }}:</strong>
+        <div class="row">
+            <div class="col-md-12" [hidden]="exam.instruction">N/A</div>
+            @if (exam.instruction) {
+                <div class="col-md-12">
+                    <div [xmMathJax]="exam.instruction"></div>
+                </div>
+            }
         </div>
-        <div class="col-md-4" *ngIf="reservation?.machine?.room">
-            {{ reservation?.machine?.room?.name }} ({{ reservation?.machine?.room?.roomCode }})
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <h4>
+                    {{ 'i18n_exam_attachment' | translate }}
+                </h4>
+            </div>
         </div>
-        <div class="col-md-4" *ngIf="!reservation?.machine?.room">N/A</div>
-        <div class="col-md-2">
-            <strong>{{ 'i18n_exam_machine' | translate }}:</strong>
+        <div class="row">
+            <div class="col-md-12" [hidden]="exam.attachment">N/A</div>
+            @if (exam.attachment) {
+                <div class="col-md-12">
+                    {{ exam.attachment?.fileName }}
+                </div>
+            }
         </div>
-        <div class="col-md-4" *ngIf="reservation?.machine">{{ reservation?.machine?.name }}</div>
-        <div class="col-md-4" *ngIf="!reservation?.machine">N/A</div>
-    </div>
-
-    <div class="row mt-3">
-        <div class="col-md-12">
-            <h4>
-                {{ 'i18n_previous_exam_participations' | translate }}
-            </h4>
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <h4>
+                    {{ 'i18n_questions' | translate }}
+                </h4>
+            </div>
         </div>
-    </div>
-    <div class="row" *ngFor="let participation of previousParticipations">
-        <div class="col-md-2">{{ participation.started | applyDst | date : 'dd.MM.yyyy' }}</div>
-        <div class="col-md-4">
-            <strong>{{ 'i18n_exam_state' | translate }}:</strong>&nbsp;&nbsp;&nbsp;
-            {{ translateState(participation) | lowercase | translate }}
+        <!-- Sections -->
+        <div class="row firefox-print-fix">
+            @for (section of exam.examSections | orderBy: 'sequenceNumber'; track section; let index = $index) {
+                <div class="top-margin-1 col-md-12">
+                    <xm-printed-section [section]="section" [index]="index"></xm-printed-section>
+                </div>
+            }
         </div>
-        <div class="col-md-6">{{ 'i18n_grade' | translate }}:&nbsp;&nbsp;&nbsp;{{ translateGrade(participation) }}</div>
-    </div>
-    <div class="row" [hidden]="previousParticipations && previousParticipations.length > 0">
-        <div class="col-md-12">N/A</div>
-    </div>
-
-    <div class="row mt-3">
-        <div class="col-md-12">
-            <h4>
-                {{ 'i18n_exam_instruction' | translate }}
-            </h4>
+        <!-- Grading -->
+        <div class="row firefox-print-fix mt-3">
+            <div class="col-md-12">
+                <h4>
+                    {{ 'i18n_comments' | translate }}
+                </h4>
+            </div>
         </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12" [hidden]="exam.instruction">N/A</div>
-        <div class="col-md-12" *ngIf="exam.instruction">
-            <div [xmMathJax]="exam.instruction"></div>
-        </div>
-    </div>
-
-    <div class="row mt-3">
-        <div class="col-md-12">
-            <h4>
-                {{ 'i18n_exam_attachment' | translate }}
-            </h4>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12" [hidden]="exam.attachment">N/A</div>
-        <div class="col-md-12" *ngIf="exam.attachment">
-            {{ exam.attachment?.fileName }}
-        </div>
-    </div>
-
-    <div class="row mt-3">
-        <div class="col-md-12">
-            <h4>
-                {{ 'i18n_questions' | translate }}
-            </h4>
-        </div>
-    </div>
-
-    <!-- Sections -->
-    <div class="row firefox-print-fix">
-        <div
-            class="top-margin-1 col-md-12"
-            *ngFor="let section of exam.examSections | orderBy : 'sequenceNumber'; let index = index"
-        >
-            <xm-printed-section [section]="section" [index]="index"></xm-printed-section>
-        </div>
-    </div>
-
-    <!-- Grading -->
-    <div class="row firefox-print-fix mt-3">
-        <div class="col-md-12">
-            <h4>
-                {{ 'i18n_comments' | translate }}
-            </h4>
-        </div>
-    </div>
-    <!-- Total score -->
-    <div class="row firefox-print-fix">
-        <div class="col-md-3">
-            <strong>{{ 'i18n_total_score' | translate }}:</strong>
-        </div>
-        <div class="col-md-9">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
-    </div>
-
-    <div class="row firefox-print-fix" *ngIf="questionSummary?.accepted && questionSummary.accepted > 0">
-        <div class="col-md-3">
-            <strong>{{ 'i18n_approved' | translate }}:</strong>
-        </div>
-        <div class="col-md-9">{{ questionSummary?.accepted }}</div>
-    </div>
-
-    <div class="row firefox-print-fix" *ngIf="questionSummary?.accepted && questionSummary.rejected > 0">
-        <div class="col-md-3">
-            <strong>{{ 'i18n_rejected' | translate }}:</strong>
-        </div>
-        <div class="col-md-9">{{ questionSummary?.rejected }}</div>
-    </div>
-
-    <div class="row firefox-print-fix">
-        <div class="col-md-3">
-            <strong>{{ 'i18n_teachers_comment' | translate }}:</strong>
-        </div>
-        <div class="col-md-9" [xmMathJax]="exam.examFeedback?.comment"></div>
-    </div>
-    <div class="row firefox-print-fix" *ngIf="exam.examFeedback?.attachment">
-        <div class="col-md-3">
-            <strong>{{ 'i18n_feedback_attachment' | translate }}:</strong>
-        </div>
-        <div class="col-md-9" *ngIf="exam.examFeedback?.attachment">
-            {{ exam.examFeedback?.attachment?.fileName }}
-        </div>
-    </div>
-
-    <div *ngIf="getTeacherCount() > 0">
+        <!-- Total score -->
         <div class="row firefox-print-fix">
             <div class="col-md-3">
-                <strong>{{ 'i18n_exam_owners' | translate }}:</strong>
+                <strong>{{ 'i18n_total_score' | translate }}:</strong>
             </div>
-            <div class="col-md-9">
-                <span *ngFor="let teacher of exam.parent?.examOwners; last as isLast">
-                    {{ teacher.firstName }} {{ teacher.lastName }}<span *ngIf="!isLast">,&nbsp;</span>
-                </span>
+            <div class="col-md-9">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
+        </div>
+        @if (questionSummary?.accepted && questionSummary.accepted > 0) {
+            <div class="row firefox-print-fix">
+                <div class="col-md-3">
+                    <strong>{{ 'i18n_approved' | translate }}:</strong>
+                </div>
+                <div class="col-md-9">{{ questionSummary?.accepted }}</div>
+            </div>
+        }
+        @if (questionSummary?.accepted && questionSummary.rejected > 0) {
+            <div class="row firefox-print-fix">
+                <div class="col-md-3">
+                    <strong>{{ 'i18n_rejected' | translate }}:</strong>
+                </div>
+                <div class="col-md-9">{{ questionSummary?.rejected }}</div>
+            </div>
+        }
+        <div class="row firefox-print-fix">
+            <div class="col-md-3">
+                <strong>{{ 'i18n_teachers_comment' | translate }}:</strong>
+            </div>
+            <div class="col-md-9" [xmMathJax]="exam.examFeedback?.comment"></div>
+        </div>
+        @if (exam.examFeedback?.attachment) {
+            <div class="row firefox-print-fix">
+                <div class="col-md-3">
+                    <strong>{{ 'i18n_feedback_attachment' | translate }}:</strong>
+                </div>
+                @if (exam.examFeedback?.attachment) {
+                    <div class="col-md-9">
+                        {{ exam.examFeedback?.attachment?.fileName }}
+                    </div>
+                }
+            </div>
+        }
+        @if (getTeacherCount() > 0) {
+            <div>
+                <div class="row firefox-print-fix">
+                    <div class="col-md-3">
+                        <strong>{{ 'i18n_exam_owners' | translate }}:</strong>
+                    </div>
+                    <div class="col-md-9">
+                        @for (teacher of exam.parent?.examOwners; track teacher; let isLast = $last) {
+                            <span>
+                                {{ teacher.firstName }} {{ teacher.lastName }}
+                                @if (!isLast) {
+                                    <span>,&nbsp;</span>
+                                }
+                            </span>
+                        }
+                    </div>
+                </div>
+                <div class="row firefox-print-fix">
+                    <div class="col-md-3">
+                        <strong
+                            >{{ 'i18n_exam_instructor' | translate }} ({{
+                                'i18n_inspection_status' | translate
+                            }}):</strong
+                        >
+                    </div>
+                    <div class="col-md-9">
+                        @for (inspection of exam.examInspections; track inspection; let isLast = $last) {
+                            <span>
+                                <span>{{ inspection.user?.firstName }} {{ inspection.user?.lastName }}</span>
+                                @if (inspection.ready) {
+                                    <span>({{ 'i18n_ready' | translate }})</span>
+                                }
+                                @if (!inspection.ready) {
+                                    <span>({{ 'i18n_in_progress' | translate }})</span>
+                                }
+                                @if (!isLast) {
+                                    <span>,&nbsp;</span>
+                                }
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="row firefox-print-fix mt-3">
+            <div class="col-md-12">
+                <h4>
+                    {{ 'i18n_grading_info' | translate }}
+                </h4>
             </div>
         </div>
         <div class="row firefox-print-fix">
             <div class="col-md-3">
-                <strong>{{ 'i18n_exam_instructor' | translate }} ({{ 'i18n_inspection_status' | translate }}):</strong>
+                <strong>{{ 'i18n_exam_grade' | translate }}:</strong>
+            </div>
+            <div class="col-md-9">{{ getGrade() }}</div>
+        </div>
+        <div class="row firefox-print-fix">
+            <div class="col-md-3">
+                <strong>{{ 'i18n_exam_choose_credit_type' | translate }}:</strong>
+            </div>
+            <div class="col-md-9">{{ getCreditType() }}</div>
+        </div>
+        <div class="row firefox-print-fix">
+            <div class="col-md-3">
+                <strong>{{ 'i18n_exam_record_language' | translate }}:</strong>
+            </div>
+            <div class="col-md-9">{{ getLanguage() }}</div>
+        </div>
+        <div class="row firefox-print-fix">
+            <div class="col-md-3">
+                <strong>{{ 'i18n_exam_credit' | translate }} (op):</strong>
             </div>
             <div class="col-md-9">
-                <span *ngFor="let inspection of exam.examInspections; last as isLast">
-                    <span>{{ inspection.user?.firstName }} {{ inspection.user?.lastName }}</span>
-                    <span *ngIf="inspection.ready">({{ 'i18n_ready' | translate }})</span>
-                    <span *ngIf="!inspection.ready">({{ 'i18n_in_progress' | translate }})</span>
-                    <span *ngIf="!isLast">,&nbsp;</span>
-                </span>
+                {{ exam.customCredit || exam.course?.credits }}
             </div>
         </div>
     </div>
-    <div class="row firefox-print-fix mt-3">
-        <div class="col-md-12">
-            <h4>
-                {{ 'i18n_grading_info' | translate }}
-            </h4>
-        </div>
-    </div>
-    <div class="row firefox-print-fix">
-        <div class="col-md-3">
-            <strong>{{ 'i18n_exam_grade' | translate }}:</strong>
-        </div>
-        <div class="col-md-9">{{ getGrade() }}</div>
-    </div>
-    <div class="row firefox-print-fix">
-        <div class="col-md-3">
-            <strong>{{ 'i18n_exam_choose_credit_type' | translate }}:</strong>
-        </div>
-        <div class="col-md-9">{{ getCreditType() }}</div>
-    </div>
-    <div class="row firefox-print-fix">
-        <div class="col-md-3">
-            <strong>{{ 'i18n_exam_record_language' | translate }}:</strong>
-        </div>
-        <div class="col-md-9">{{ getLanguage() }}</div>
-    </div>
-    <div class="row firefox-print-fix">
-        <div class="col-md-3">
-            <strong>{{ 'i18n_exam_credit' | translate }} (op):</strong>
-        </div>
-        <div class="col-md-9">
-            {{ exam.customCredit || exam.course?.credits }}
-        </div>
-    </div>
-</div>
+}

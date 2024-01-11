@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -43,7 +43,6 @@ import { TeacherDashboardService } from './teacher-dashboard.service';
         NgbNavItem,
         NgbNavItemRole,
         NgbNavLink,
-        NgIf,
         NgbNavContent,
         ExamListCategoryComponent,
         NgbNavOutlet,
@@ -66,7 +65,10 @@ export class TeacherDashboardComponent implements OnInit {
     draftExams: DashboardExam[] = [];
     filteredDrafts: DashboardExam[] = [];
 
-    constructor(private TeacherDashboard: TeacherDashboardService, private Session: SessionService) {
+    constructor(
+        private TeacherDashboard: TeacherDashboardService,
+        private Session: SessionService,
+    ) {
         this.activeExtraData = [
             {
                 text: 'i18n_participation_unreviewed',

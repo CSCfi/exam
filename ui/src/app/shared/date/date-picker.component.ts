@@ -46,7 +46,10 @@ export class DatePickerFormatter extends NgbDateParserFormatter {
 
 @Injectable({ providedIn: 'root' })
 export class DatePickerI18n extends NgbDatepickerI18n {
-    constructor(private translate: TranslateService, private DateTime: DateTimeService) {
+    constructor(
+        private translate: TranslateService,
+        private DateTime: DateTimeService,
+    ) {
         super();
     }
 

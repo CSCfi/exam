@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -32,62 +32,66 @@ import { QuestionReviewComponent } from './question-review.component';
             {{ 'i18n_question_review_info_detailed' | translate }}
         </div>
 
-        <div *ngIf="reviews.length === 0">
-            <div class="mart20">
-                <h3>{{ 'i18n_no_questions_to_review' | translate }}</h3>
-            </div>
-        </div>
-        <div *ngIf="reviews.length > 0">
-            <div class="mart20 d-flex justify-content-between">
-                <div>
-                    <strong class="question-review-toolbar-text"
-                        >{{ selectedReviews.length }} {{ 'i18n_questions_selected' | translate }}</strong
-                    >
-                </div>
-                <div>
-                    <button
-                        [disabled]="selectedReviews.length === 0"
-                        class="btn btn-success float-end"
-                        (click)="startReview()"
-                    >
-                        {{ 'i18n_review_selected' | translate }} ({{ selectedReviews.length }})
-                    </button>
-                </div>
-            </div>
-
-            <span class="mart20 marb10 d-flex justify-content-between">
-                <span class="question-review-title">{{ 'i18n_select_question_reviews' | translate }}</span>
-                <span class="form-group">
-                    <label class="me-2" for="select-all">{{ 'i18n_check_uncheck_all' | translate }}</label>
-                    <input id="select-all" type="checkbox" (change)="selectAll()" [(ngModel)]="selectionToggle" />
-                </span>
-            </span>
+        @if (reviews.length === 0) {
             <div>
-                <xm-question-review
-                    *ngFor="let review of reviews"
-                    [review]="review"
-                    (selected)="onReviewSelection($event)"
-                >
-                </xm-question-review>
-            </div>
-
-            <div class="mart20 d-flex justify-content-between">
-                <!-- Might make sense to make this a separate component as it is used twice here-->
-                <span>
-                    <strong class="question-review-toolbar-text"
-                        >{{ selectedReviews.length }} {{ 'i18n_questions_selected' | translate }}</strong
-                    >
-                </span>
-                <div>
-                    <button [disabled]="selectedReviews.length === 0" class="btn btn-success" (click)="startReview()">
-                        {{ 'i18n_review_selected' | translate }} ({{ selectedReviews.length }})
-                    </button>
+                <div class="mart20">
+                    <h3>{{ 'i18n_no_questions_to_review' | translate }}</h3>
                 </div>
             </div>
-        </div>
-    </div> `,
+        }
+        @if (reviews.length > 0) {
+            <div>
+                <div class="mart20 d-flex justify-content-between">
+                    <div>
+                        <strong class="question-review-toolbar-text"
+                            >{{ selectedReviews.length }} {{ 'i18n_questions_selected' | translate }}</strong
+                        >
+                    </div>
+                    <div>
+                        <button
+                            [disabled]="selectedReviews.length === 0"
+                            class="btn btn-success float-end"
+                            (click)="startReview()"
+                        >
+                            {{ 'i18n_review_selected' | translate }} ({{ selectedReviews.length }})
+                        </button>
+                    </div>
+                </div>
+                <span class="mart20 marb10 d-flex justify-content-between">
+                    <span class="question-review-title">{{ 'i18n_select_question_reviews' | translate }}</span>
+                    <span class="form-group">
+                        <label class="me-2" for="select-all">{{ 'i18n_check_uncheck_all' | translate }}</label>
+                        <input id="select-all" type="checkbox" (change)="selectAll()" [(ngModel)]="selectionToggle" />
+                    </span>
+                </span>
+                <div>
+                    @for (review of reviews; track review) {
+                        <xm-question-review [review]="review" (selected)="onReviewSelection($event)">
+                        </xm-question-review>
+                    }
+                </div>
+                <div class="mart20 d-flex justify-content-between">
+                    <!-- Might make sense to make this a separate component as it is used twice here-->
+                    <span>
+                        <strong class="question-review-toolbar-text"
+                            >{{ selectedReviews.length }} {{ 'i18n_questions_selected' | translate }}</strong
+                        >
+                    </span>
+                    <div>
+                        <button
+                            [disabled]="selectedReviews.length === 0"
+                            class="btn btn-success"
+                            (click)="startReview()"
+                        >
+                            {{ 'i18n_review_selected' | translate }} ({{ selectedReviews.length }})
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>`,
     standalone: true,
-    imports: [NgIf, FormsModule, NgFor, QuestionReviewComponent, TranslateModule],
+    imports: [FormsModule, QuestionReviewComponent, TranslateModule],
 })
 export class QuestionReviewsComponent implements OnInit {
     examId = 0;

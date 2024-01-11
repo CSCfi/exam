@@ -22,7 +22,10 @@ import { catchError } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class ErrorInterceptor implements HttpInterceptor {
-    constructor(private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
     intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
         return next.handle(req).pipe(
             catchError((response: HttpErrorResponse) => {

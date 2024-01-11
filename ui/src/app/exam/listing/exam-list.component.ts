@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgFor, NgIf, UpperCasePipe } from '@angular/common';
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
@@ -42,9 +42,7 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
         NgbNavItemRole,
         NgbNavLink,
         NgbPopover,
-        NgIf,
         TableSortComponent,
-        NgFor,
         CourseCodeComponent,
         RouterLink,
         TeacherListComponent,

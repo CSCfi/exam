@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, LowerCasePipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe, LowerCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -42,9 +42,7 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
     templateUrl: './printed-assessment.component.html',
     standalone: true,
     imports: [
-        NgIf,
         CourseCodeComponent,
-        NgFor,
         MathJaxDirective,
         PrintedSectionComponent,
         LowerCasePipe,

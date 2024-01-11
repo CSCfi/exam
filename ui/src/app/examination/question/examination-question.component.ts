@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgIf, NgSwitch, NgSwitchCase, SlicePipe, UpperCasePipe } from '@angular/common';
+import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
 import type { AfterViewInit } from '@angular/core';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -35,11 +35,8 @@ type ClozeTestAnswer = { [key: string]: string };
     standalone: true,
     imports: [
         NgClass,
-        NgIf,
         MathJaxDirective,
         DynamicClozeTestComponent,
-        NgSwitch,
-        NgSwitchCase,
         ExaminationEssayQuestionComponent,
         ExaminationClozeTestComponent,
         ExaminationMultiChoiceComponent,

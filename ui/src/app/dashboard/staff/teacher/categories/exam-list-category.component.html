@@ -56,15 +56,17 @@
                         ></xm-table-sort>
                     </th>
 
-                    <th *ngFor="let column of extraData" class="with-top with-space">
-                        <xm-table-sort
-                            by="{{ column.property }}"
-                            text="{{ column.text }}"
-                            [predicate]="sorting.predicate"
-                            [reverse]="sorting.reverse"
-                            (click)="setPredicate(column.property)"
-                        ></xm-table-sort>
-                    </th>
+                    @for (column of extraData; track column) {
+                        <th class="with-top with-space">
+                            <xm-table-sort
+                                by="{{ column.property }}"
+                                text="{{ column.text }}"
+                                [predicate]="sorting.predicate"
+                                [reverse]="sorting.reverse"
+                                (click)="setPredicate(column.property)"
+                            ></xm-table-sort>
+                        </th>
+                    }
                     <th class="with-top">
                         <xm-table-sort
                             by="ownerAggregate"
@@ -80,88 +82,109 @@
             </thead>
 
             <tbody>
-                <tr *ngFor="let exam of items | orderBy : sorting.predicate : sorting.reverse">
-                    <td *ngIf="exam.name" class="table-column-examname">
-                        <a
-                            *ngIf="isOwner(exam)"
-                            [routerLink]="['/staff/exams', exam.id, '1']"
-                            [state]="{ collaborative: false }"
-                            >{{ exam.name }}</a
-                        >
-                        <span *ngIf="!isOwner(exam)">{{ exam.name }}</span>
-                    </td>
-                    <td *ngIf="!exam.name" class="table-column-examname">
-                        <a
-                            class="text-danger"
-                            *ngIf="isOwner(exam)"
-                            [routerLink]="['/staff/exams', exam.id, '1']"
-                            [state]="{ collaborative: false }"
-                            >{{ 'i18n_no_name' | translate }}</a
-                        >
-                        <span class="text-danger" *ngIf="!isOwner(exam)">{{ 'i18n_no_name' | translate }}</span>
-                    </td>
-                    <td>
-                        <xm-course-code class="exam-code" *ngIf="exam.course" [course]="exam.course"></xm-course-code>
-                    </td>
-                    <td>
-                        <span class="exam-type">{{ getExecutionTypeTranslation(exam) }}</span>
-                    </td>
-                    <td class="table-column-open-until">
-                        <span *ngIf="exam.periodStart && exam.periodEnd">
-                            {{ exam.periodStart | date : 'dd.MM.yyyy' }} -
-                            {{ exam.periodEnd | date : 'dd.MM.yyyy' }}
-                        </span>
-                    </td>
-
-                    <td *ngFor="let column of extraData" class="table-column-enroll-participation">
-                        <span class="exam-count">
-                            <a
-                                *ngIf="
-                                    (!column.checkOwnership || isOwner(exam)) && exam.executionType.type !== 'PRINTOUT'
-                                "
-                                [routerLink]="getLink(column, exam)"
-                                >{{ exam[column.property] }}</a
-                            >
-                            <span
-                                *ngIf="
-                                    !isOwner(exam) && column.checkOwnership && exam.executionType.type !== 'PRINTOUT'
-                                "
-                                class="exam-count-not-active"
-                                >{{ exam[column.property] }}</span
-                            >
-                        </span>
-                        <div *ngIf="exam.executionType.type === 'PRINTOUT'">&ndash;</div>
-                    </td>
-
-                    <td class="table-column-teachers">
-                        <xm-teacher-list [exam]="exam"></xm-teacher-list>
-                    </td>
-                    <td class="text-center">
-                        <a *ngIf="isOwner(exam)" (click)="deleteExam(exam)" class="pointer">
-                            <i
-                                class="bi-trash text-dark"
-                                ngbPopover="{{ 'i18n_exam_remove' | translate }}"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                            ></i>
-                        </a>
-                    </td>
-                    <td class="text-center">
-                        <a class="pointer" (click)="copyExam(exam)">
-                            <i
-                                class="bi-files text-dark"
-                                ngbPopover="{{ 'i18n_copy' | translate }}"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                            ></i>
-                        </a>
-                    </td>
-                </tr>
-                <tr *ngIf="items?.length === 0">
-                    <td [attr.colspan]="7 + extraData.length">
-                        {{ 'i18n_exam_no_result' | translate }}
-                    </td>
-                </tr>
+                @for (exam of items | orderBy: sorting.predicate : sorting.reverse; track exam) {
+                    <tr>
+                        @if (exam.name) {
+                            <td class="table-column-examname">
+                                @if (isOwner(exam)) {
+                                    <a
+                                        [routerLink]="['/staff/exams', exam.id, '1']"
+                                        [state]="{ collaborative: false }"
+                                        >{{ exam.name }}</a
+                                    >
+                                }
+                                @if (!isOwner(exam)) {
+                                    <span>{{ exam.name }}</span>
+                                }
+                            </td>
+                        }
+                        @if (!exam.name) {
+                            <td class="table-column-examname">
+                                @if (isOwner(exam)) {
+                                    <a
+                                        class="text-danger"
+                                        [routerLink]="['/staff/exams', exam.id, '1']"
+                                        [state]="{ collaborative: false }"
+                                        >{{ 'i18n_no_name' | translate }}</a
+                                    >
+                                }
+                                @if (!isOwner(exam)) {
+                                    <span class="text-danger">{{ 'i18n_no_name' | translate }}</span>
+                                }
+                            </td>
+                        }
+                        <td>
+                            @if (exam.course) {
+                                <xm-course-code class="exam-code" [course]="exam.course"></xm-course-code>
+                            }
+                        </td>
+                        <td>
+                            <span class="exam-type">{{ getExecutionTypeTranslation(exam) }}</span>
+                        </td>
+                        <td class="table-column-open-until">
+                            @if (exam.periodStart && exam.periodEnd) {
+                                <span>
+                                    {{ exam.periodStart | date: 'dd.MM.yyyy' }} -
+                                    {{ exam.periodEnd | date: 'dd.MM.yyyy' }}
+                                </span>
+                            }
+                        </td>
+                        @for (column of extraData; track column) {
+                            <td class="table-column-enroll-participation">
+                                <span class="exam-count">
+                                    @if (
+                                        (!column.checkOwnership || isOwner(exam)) &&
+                                        exam.executionType.type !== 'PRINTOUT'
+                                    ) {
+                                        <a [routerLink]="getLink(column, exam)">{{ exam[column.property] }}</a>
+                                    }
+                                    @if (
+                                        !isOwner(exam) &&
+                                        column.checkOwnership &&
+                                        exam.executionType.type !== 'PRINTOUT'
+                                    ) {
+                                        <span class="exam-count-not-active">{{ exam[column.property] }}</span>
+                                    }
+                                </span>
+                                @if (exam.executionType.type === 'PRINTOUT') {
+                                    <div>&ndash;</div>
+                                }
+                            </td>
+                        }
+                        <td class="table-column-teachers">
+                            <xm-teacher-list [exam]="exam"></xm-teacher-list>
+                        </td>
+                        <td class="text-center">
+                            @if (isOwner(exam)) {
+                                <a (click)="deleteExam(exam)" class="pointer">
+                                    <i
+                                        class="bi-trash text-dark"
+                                        ngbPopover="{{ 'i18n_exam_remove' | translate }}"
+                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                        triggers="mouseenter:mouseleave"
+                                    ></i>
+                                </a>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <a class="pointer" (click)="copyExam(exam)">
+                                <i
+                                    class="bi-files text-dark"
+                                    ngbPopover="{{ 'i18n_copy' | translate }}"
+                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                    triggers="mouseenter:mouseleave"
+                                ></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+                @if (items?.length === 0) {
+                    <tr>
+                        <td [attr.colspan]="7 + extraData.length">
+                            {{ 'i18n_exam_no_result' | translate }}
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>

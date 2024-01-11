@@ -37,41 +37,45 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let sw of software | orderBy : 'name'" scope="row">
-                        <td>
-                            <div [hidden]="sw.showName">
-                                {{ sw.name }}
-                            </div>
-                            <div *ngIf="sw.showName">
-                                <form role="form">
-                                    <div class="input-group">
-                                        <input
-                                            type="text"
-                                            class="form-control input-sm"
-                                            name="accessibility-name"
-                                            [(ngModel)]="sw.name"
-                                            autofocus
-                                        />
-                                        <span
-                                            class="input-group-text pointer"
-                                            (click)="sw.showName = !sw.showName; updateSoftware(sw)"
-                                            >{{ 'i18n_add' | translate }}</span
-                                        >
+                    @for (sw of software | orderBy: 'name'; track sw.id) {
+                        <tr scope="row">
+                            <td>
+                                <div [hidden]="sw.showName">
+                                    {{ sw.name }}
+                                </div>
+                                @if (sw.showName) {
+                                    <div>
+                                        <form role="form">
+                                            <div class="input-group">
+                                                <input
+                                                    type="text"
+                                                    class="form-control input-sm"
+                                                    name="accessibility-name"
+                                                    [(ngModel)]="sw.name"
+                                                    autofocus
+                                                />
+                                                <span
+                                                    class="input-group-text pointer"
+                                                    (click)="sw.showName = !sw.showName; updateSoftware(sw)"
+                                                    >{{ 'i18n_add' | translate }}</span
+                                                >
+                                            </div>
+                                        </form>
                                     </div>
-                                </form>
-                            </div>
-                        </td>
-                        <td>
-                            <a (click)="sw.showName = !sw.showName">
-                                <i class="bi-pencil"></i>
-                            </a>
-                        </td>
-                        <td>
-                            <a (click)="removeSoftware(sw)">
-                                <i class="sitnet-red bi-x"></i>
-                            </a>
-                        </td>
-                    </tr>
+                                }
+                            </td>
+                            <td>
+                                <a (click)="sw.showName = !sw.showName">
+                                    <i class="bi-pencil"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <a (click)="removeSoftware(sw)">
+                                    <i class="sitnet-red bi-x"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>

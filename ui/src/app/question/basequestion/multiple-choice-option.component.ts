@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -54,14 +54,16 @@ import { QuestionDraft, QuestionService } from '../question.service';
                     />
                 </div>
 
-                <div *ngIf="allowRemoval" (click)="removeOption()" class="col-md-1 question-option-trash">
-                    <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
-                </div>
+                @if (allowRemoval) {
+                    <div (click)="removeOption()" class="col-md-1 question-option-trash">
+                        <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
+                    </div>
+                }
             </div>
         </div>
     `,
     standalone: true,
-    imports: [FormsModule, NgClass, NgIf, TranslateModule],
+    imports: [FormsModule, NgClass, TranslateModule],
 })
 export class MultipleChoiceOptionEditorComponent {
     @Input() option!: MultipleChoiceOption;
@@ -69,7 +71,11 @@ export class MultipleChoiceOptionEditorComponent {
     @Input() question!: Question | QuestionDraft;
     @Input() allowRemoval = false;
 
-    constructor(private translate: TranslateService, private toast: ToastrService, private Question: QuestionService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private Question: QuestionService,
+    ) {}
 
     correctAnswerToggled = () => this.Question.toggleCorrectOption(this.option, this.question.options);
 

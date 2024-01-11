@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
@@ -37,7 +37,7 @@ import { RoomService } from './room.service';
         `,
     ],
     standalone: true,
-    imports: [NgIf, NgFor, NgClass, BookingCalendarComponent, TranslateModule],
+    imports: [NgClass, BookingCalendarComponent, TranslateModule],
 })
 export class AvailabilityComponent implements OnInit {
     @Input() room!: ExamRoom;
@@ -46,7 +46,11 @@ export class AvailabilityComponent implements OnInit {
     newExceptions: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
     oldExceptionsHidden = true;
 
-    constructor(private toast: ToastrService, private roomService: RoomService, private calendar: CalendarService) {}
+    constructor(
+        private toast: ToastrService,
+        private roomService: RoomService,
+        private calendar: CalendarService,
+    ) {}
 
     ngOnInit() {
         if (!this.room) {

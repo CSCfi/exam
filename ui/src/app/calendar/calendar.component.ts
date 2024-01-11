@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgClass, NgIf } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -40,7 +40,6 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
     imports: [
         HistoryBackComponent,
         AutoFocusDirective,
-        NgIf,
         CalendarExamInfoComponent,
         OptionalSectionsComponent,
         OrganisationPickerComponent,

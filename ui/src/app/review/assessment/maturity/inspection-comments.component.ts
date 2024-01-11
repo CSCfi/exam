@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -29,24 +29,28 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
             <div class="col-md-12 general-info-title">{{ 'i18n_inspector_comments' | translate }}:</div>
         </div>
 
-        <div *ngFor="let comment of exam.inspectionComments" class="col-md-12 padl0 marb20">
-            <div class="col-md-4">
-                {{ comment.creator.firstName }} {{ comment.creator.lastName }}
-                <small>({{ comment.creator.email }})</small>
-                <br />
-                {{ comment.created | date : 'dd.MM.yyyy HH:mm' }}
+        @for (comment of exam.inspectionComments; track comment) {
+            <div class="col-md-12 padl0 marb20">
+                <div class="col-md-4">
+                    {{ comment.creator.firstName }} {{ comment.creator.lastName }}
+                    <small>({{ comment.creator.email }})</small>
+                    <br />
+                    {{ comment.created | date: 'dd.MM.yyyy HH:mm' }}
+                </div>
+                <div class="col-md-8">
+                    {{ comment.comment }}
+                </div>
             </div>
-            <div class="col-md-8">
-                {{ comment.comment }}
-            </div>
-        </div>
+        }
 
         <div class="main-row">
             <span class="col-md-12">
                 <div class="review-attachment-button exam-questions-buttons me-2">
-                    <button class="btn btn-link" *ngIf="addingVisible" (click)="addInspectionComment()">
-                        {{ 'i18n_inspection_comment_title' | translate }}
-                    </button>
+                    @if (addingVisible) {
+                        <button class="btn btn-link" (click)="addInspectionComment()">
+                            {{ 'i18n_inspection_comment_title' | translate }}
+                        </button>
+                    }
                 </div>
                 <sup
                     ngbPopover="{{ 'i18n_inspection_comment_info' | translate }}"
@@ -60,15 +64,18 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
                     />
                 </sup>
             </span>
-        </div> `,
+        </div>`,
     standalone: true,
-    imports: [NgFor, NgIf, NgbPopover, DatePipe, TranslateModule],
+    imports: [NgbPopover, DatePipe, TranslateModule],
 })
 export class InspectionCommentsComponent {
     @Input() exam!: Exam;
     @Input() addingVisible = false;
 
-    constructor(private modal: NgbModal, private http: HttpClient) {}
+    constructor(
+        private modal: NgbModal,
+        private http: HttpClient,
+    ) {}
 
     addInspectionComment = () =>
         from(

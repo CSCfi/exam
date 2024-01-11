@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -27,44 +27,48 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
 @Component({
     selector: 'xm-exceptions',
     template: `
-        <div class="row" *ngIf="!hideTitle">
-            <div class="col-md-12 header-text">
-                <strong>{{ 'i18n_exception_datetimes' | translate }}:</strong>
+        @if (!hideTitle) {
+            <div class="row">
+                <div class="col-md-12 header-text">
+                    <strong>{{ 'i18n_exception_datetimes' | translate }}:</strong>
+                </div>
             </div>
-        </div>
-        <div class="row" *ngIf="!hideInfo">
-            <div class="col-md-12 header-text">{{ 'i18n_exception_datetimes_info' | translate }}</div>
-        </div>
+        }
+        @if (!hideInfo) {
+            <div class="row">
+                <div class="col-md-12 header-text">{{ 'i18n_exception_datetimes_info' | translate }}</div>
+            </div>
+        }
 
-        <div
-            class="row"
-            *ngFor="let exception of orderedExceptions | filterBy : filter; let i = index"
-            [class]="i % 2 === 0 ? 'background-light-blue' : ''"
-        >
-            <div class="col">
-                {{ formatDate(exception) }}
+        @for (exception of orderedExceptions | filterBy: filter; track exception; let i = $index) {
+            <div class="row" [class]="i % 2 === 0 ? 'background-light-blue' : ''">
+                <div class="col">
+                    {{ formatDate(exception) }}
+                </div>
+                <div class="col">
+                    {{ !exception.outOfService ? ('i18n_room_in_service' | translate) : '' }}
+                    {{ exception.outOfService ? ('i18n_room_out_of_service' | translate) : '' }}
+                </div>
+                <div class="col-3">
+                    <a class="pointer" (click)="deleteException(exception)">{{ 'i18n_exam_remove' | translate }}</a>
+                </div>
             </div>
-            <div class="col">
-                {{ !exception.outOfService ? ('i18n_room_in_service' | translate) : '' }}
-                {{ exception.outOfService ? ('i18n_room_out_of_service' | translate) : '' }}
+        }
+        @if (!hideButton) {
+            <div class="row mt-2">
+                <div class="col-12">
+                    <button (click)="addExceptionClosed()" class="btn btn-sm btn-outline-dark marr20 marb10">
+                        {{ 'i18n_add_out_of_service_time' | translate }}
+                    </button>
+                    <button (click)="addExceptionOpen()" class="btn btn-sm btn-outline-success marb10">
+                        {{ 'i18n_add_extra_working_hour' | translate }}
+                    </button>
+                </div>
             </div>
-            <div class="col-3">
-                <a class="pointer" (click)="deleteException(exception)">{{ 'i18n_exam_remove' | translate }}</a>
-            </div>
-        </div>
-        <div class="row mt-2" *ngIf="!hideButton">
-            <div class="col-12">
-                <button (click)="addExceptionClosed()" class="btn btn-sm btn-outline-dark marr20 marb10">
-                    {{ 'i18n_add_out_of_service_time' | translate }}
-                </button>
-                <button (click)="addExceptionOpen()" class="btn btn-sm btn-outline-success marb10">
-                    {{ 'i18n_add_extra_working_hour' | translate }}
-                </button>
-            </div>
-        </div>
+        }
     `,
     standalone: true,
-    imports: [NgIf, NgFor, TranslateModule, FilterByPipe],
+    imports: [TranslateModule, FilterByPipe],
 })
 export class ExceptionListComponent implements OnInit, OnChanges {
     @Input() exceptions: ExceptionWorkingHours[] = [];

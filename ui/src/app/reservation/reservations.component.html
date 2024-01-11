@@ -2,12 +2,16 @@
     <div class="top-row">
         <div class="col-md-12">
             <div class="student-enroll-title-wrap">
-                <div *ngIf="isAdminView()" class="student-enroll-title">
-                    {{ 'i18n_reservations_administration' | translate }}
-                </div>
-                <div *ngIf="!isAdminView()" class="student-enroll-title">
-                    {{ 'i18n_reservations_new' | translate }}
-                </div>
+                @if (isAdminView()) {
+                    <div class="student-enroll-title">
+                        {{ 'i18n_reservations_administration' | translate }}
+                    </div>
+                }
+                @if (!isAdminView()) {
+                    <div class="student-enroll-title">
+                        {{ 'i18n_reservations_new' | translate }}
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -85,81 +89,87 @@
             </div>
         </div>
         <!-- 2nd row of controls for admin only -->
-        <div *ngIf="isAdminView()" class="row ps-4 pe-4 align-items-center">
-            <div class="col-md-3">
-                <label for="owner-search" class="reservation-search-titles form-label">{{
-                    'i18n_exam_owners' | translate
-                }}</label>
-                <div class="input-group">
-                    <input
-                        #ownerInput
-                        id="owner-search"
-                        type="text"
-                        class="form-control"
-                        [ngbTypeahead]="searchOwners$"
-                        [resultFormatter]="nameFormatter"
-                        [inputFormatter]="nameFormatter"
-                        (selectItem)="ownerSelected($event)"
-                        [disabled]="owner"
-                        placeholder="{{ 'i18n_search' | translate }}"
-                    />
-                    <button class="btn btn-outline-secondary" type="reset" (click)="clearOwner()">
-                        {{ 'i18n_remove' | translate }}
-                    </button>
+        @if (isAdminView()) {
+            <div class="row ps-4 pe-4 align-items-center">
+                <div class="col-md-3">
+                    <label for="owner-search" class="reservation-search-titles form-label">{{
+                        'i18n_exam_owners' | translate
+                    }}</label>
+                    <div class="input-group">
+                        <input
+                            #ownerInput
+                            id="owner-search"
+                            type="text"
+                            class="form-control"
+                            [ngbTypeahead]="searchOwners$"
+                            [resultFormatter]="nameFormatter"
+                            [inputFormatter]="nameFormatter"
+                            (selectItem)="ownerSelected($event)"
+                            [disabled]="owner"
+                            placeholder="{{ 'i18n_search' | translate }}"
+                        />
+                        <button class="btn btn-outline-secondary" type="reset" (click)="clearOwner()">
+                            {{ 'i18n_remove' | translate }}
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <label for="room-search" class="reservation-search-titles form-label">{{
+                        'i18n_room' | translate
+                    }}</label>
+                    @if (roomOptions) {
+                        <xm-dropdown-select
+                            id="room-search"
+                            [options]="roomOptions"
+                            (optionSelected)="roomChanged($event)"
+                            [limitTo]="0"
+                            [fullWidth]="true"
+                            placeholder="{{ 'i18n_select' | translate }}"
+                        >
+                        </xm-dropdown-select>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <label for="machine-search" class="reservation-search-titles form-label">{{
+                        'i18n_exam_machine' | translate
+                    }}</label>
+                    @if (machineOptions) {
+                        <xm-dropdown-select
+                            id="machine-search"
+                            [options]="machineOptions"
+                            (optionSelected)="machineChanged($event)"
+                            [limitTo]="0"
+                            [fullWidth]="true"
+                            placeholder="{{ 'i18n_select' | translate }}"
+                        >
+                        </xm-dropdown-select>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" value="" [(ngModel)]="externalReservationsOnly" (change)="query()" />
+                            <strong class="reservation-search-titles">
+                                {{ 'i18n_external_reservations_only' | translate }}
+                            </strong>
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" value="" [(ngModel)]="byodExamsOnly" (change)="query()" />
+                            <strong class="reservation-search-titles">
+                                {{ 'i18n_byod_only' | translate }}
+                            </strong>
+                        </label>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <label for="room-search" class="reservation-search-titles form-label">{{
-                    'i18n_room' | translate
-                }}</label>
-                <xm-dropdown-select
-                    id="room-search"
-                    *ngIf="roomOptions"
-                    [options]="roomOptions"
-                    (optionSelected)="roomChanged($event)"
-                    [limitTo]="0"
-                    [fullWidth]="true"
-                    placeholder="{{ 'i18n_select' | translate }}"
-                >
-                </xm-dropdown-select>
-            </div>
-            <div class="col-md-3">
-                <label for="machine-search" class="reservation-search-titles form-label">{{
-                    'i18n_exam_machine' | translate
-                }}</label>
-                <xm-dropdown-select
-                    id="machine-search"
-                    *ngIf="machineOptions"
-                    [options]="machineOptions"
-                    (optionSelected)="machineChanged($event)"
-                    [limitTo]="0"
-                    [fullWidth]="true"
-                    placeholder="{{ 'i18n_select' | translate }}"
-                >
-                </xm-dropdown-select>
-            </div>
-            <div class="col-md-3">
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" value="" [(ngModel)]="externalReservationsOnly" (change)="query()" />
-                        <strong class="reservation-search-titles">
-                            {{ 'i18n_external_reservations_only' | translate }}
-                        </strong>
-                    </label>
-                </div>
-                <div class="checkbox">
-                    <label>
-                        <input type="checkbox" value="" [(ngModel)]="byodExamsOnly" (change)="query()" />
-                        <strong class="reservation-search-titles">
-                            {{ 'i18n_byod_only' | translate }}
-                        </strong>
-                    </label>
-                </div>
-            </div>
-        </div>
+        }
         <div class="overflow-x-auto">
-            <xm-reservation-details *ngIf="reservations" [reservations]="reservations" [isAdminView]="isAdminView()">
-            </xm-reservation-details>
+            @if (reservations) {
+                <xm-reservation-details [reservations]="reservations" [isAdminView]="isAdminView()">
+                </xm-reservation-details>
+            }
         </div>
     </div>
 </div>

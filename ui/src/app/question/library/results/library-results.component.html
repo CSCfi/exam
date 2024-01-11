@@ -66,15 +66,16 @@
                     </th>
                     <th>{{ 'i18n_categories' | translate }}</th>
                     <th>
-                        <xm-table-sort
-                            *ngIf="user.isAdmin"
-                            by="ownerAggregate"
-                            text="i18n_owner"
-                            [predicate]="questionsPredicate"
-                            [reverse]="reverse"
-                            (click)="setPredicate('ownerAggregate')"
-                        >
-                        </xm-table-sort>
+                        @if (user.isAdmin) {
+                            <xm-table-sort
+                                by="ownerAggregate"
+                                text="i18n_owner"
+                                [predicate]="questionsPredicate"
+                                [reverse]="reverse"
+                                (click)="setPredicate('ownerAggregate')"
+                            >
+                            </xm-table-sort>
+                        }
                     </th>
                     <th>{{ 'i18n_remove' | translate }}</th>
                     <th>{{ 'i18n_copy' | translate }}</th>
@@ -82,128 +83,161 @@
                 </tr>
             </thead>
             <tbody>
-                <tr
-                    *ngFor="
-                        let question of fixedQuestions
-                            | orderBy : questionsPredicate : reverse
-                            | slice : currentPage * pageSize : currentPage * pageSize + pageSize
-                    "
-                >
-                    <td class="question-table-checkbox">
-                        <input
-                            type="checkbox"
-                            [(ngModel)]="question.selected"
-                            (change)="questionSelected()"
-                            class="questionToUpdate"
-                            value="{{ question.id }}"
-                        />
-                    </td>
-                    <td class="question-table-name">
-                        <span *ngIf="question.question" [xmMathJax]="question.question | slice : 0 : 360"> </span>
-                        <span *ngIf="!question.question" class="text-danger">
-                            {{ 'i18n_no_name' | translate }}
-                        </span>
-                        <div>
-                            <span>
-                                <a
-                                    *ngIf="!disableLinks"
-                                    class="pointer"
-                                    [routerLink]="[question.id, 'edit']"
-                                    [queryParams]="{ nextState: 'questions' }"
-                                    >{{ question.id }}</a
-                                >
-                                <span *ngIf="disableLinks">#{{ question.id }}</span>
+                @for (
+                    question of fixedQuestions
+                        | orderBy: questionsPredicate : reverse
+                        | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
+                    track question
+                ) {
+                    <tr>
+                        <td class="question-table-checkbox">
+                            <input
+                                type="checkbox"
+                                [(ngModel)]="question.selected"
+                                (change)="questionSelected()"
+                                class="questionToUpdate"
+                                value="{{ question.id }}"
+                            />
+                        </td>
+                        <td class="question-table-name">
+                            @if (question.question) {
+                                <span [xmMathJax]="question.question | slice: 0 : 360"> </span>
+                            }
+                            @if (!question.question) {
+                                <span class="text-danger">
+                                    {{ 'i18n_no_name' | translate }}
+                                </span>
+                            }
+                            <div>
+                                <span>
+                                    @if (!disableLinks) {
+                                        <a
+                                            class="pointer"
+                                            [routerLink]="[question.id, 'edit']"
+                                            [queryParams]="{ nextState: 'questions' }"
+                                            >{{ question.id }}</a
+                                        >
+                                    }
+                                    @if (disableLinks) {
+                                        <span>#{{ question.id }}</span>
+                                    }
+                                    @if (question.questionOwners.length > 1) {
+                                        <i
+                                            class="bi-people ps-2 text-primary"
+                                            ngbPopover="{{ 'i18n_question_owners' | translate }}: {{
+                                                printOwners(question)
+                                            }}"
+                                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                            triggers="mouseenter:mouseleave"
+                                        ></i>
+                                    }
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            @if (question.modified) {
+                                <span class="timestamp">
+                                    {{ question.modified | date: 'dd.MM.yyyy HH:mm' }}
+                                    <br />
+                                    <small>{{ question.modifier?.firstName }} {{ question.modifier?.lastName }}</small>
+                                </span>
+                            }
+                        </td>
+                        <td>{{ showDisplayedScoreOrTranslate(question.displayedMaxScore) }}</td>
+                        <td>
+                            @if (question.type === 'MultipleChoiceQuestion') {
+                                <span>{{ 'i18n_question_mc' | translate }}</span>
+                            }
+                            @if (question.type === 'EssayQuestion') {
+                                <span>{{ 'i18n_essay' | translate }}</span>
+                            }
+                            @if (question.type === 'WeightedMultipleChoiceQuestion') {
+                                <span>{{ 'i18n_question_weighted_mc' | translate }} </span>
+                            }
+                            @if (question.type === 'ClozeTestQuestion') {
+                                <span>{{ 'i18n_toolbar_cloze_test_question' | translate }} </span>
+                            }
+                            @if (question.type === 'ClaimChoiceQuestion') {
+                                <span>
+                                    {{ 'i18n_toolbar_claim_choice_question' | translate }}
+                                </span>
+                            }
+                        </td>
+                        <td class="question-table-name">
+                            @if (question.attachment) {
+                                <a class="pointer" (click)="downloadQuestionAttachment(question)">
+                                    <i class="bi-paperclip"></i>{{ question.attachment.fileName }}
+                                </a>
+                            }
+                        </td>
+                        <td>{{ printTags(question) }}</td>
+                        <td class="question-table-name">
+                            @if (user.isAdmin) {
+                                <span>
+                                    @for (owner of question.questionOwners; track owner; let isLast = $last) {
+                                        <a [href]="renderMailTo(owner)"
+                                            >{{ printOwner(owner, true) }}{{ isLast ? '' : ', ' }}</a
+                                        >
+                                    }
+                                </span>
+                            }
+                        </td>
+                        <td class="padl20">
+                            @if (question.allowedToRemove) {
+                                <a (click)="deleteQuestion(question)" class="pointer">
+                                    <i
+                                        class="bi-trash"
+                                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                        triggers="mouseenter:mouseleave"
+                                        ngbPopover="{{ 'i18n_exam_remove' | translate }}"
+                                    ></i>
+                                </a>
+                            }
+                        </td>
+                        <td class="padl20 padr10">
+                            <a (click)="copyQuestion(question)">
                                 <i
-                                    *ngIf="question.questionOwners.length > 1"
-                                    class="bi-people ps-2 text-primary"
-                                    ngbPopover="{{ 'i18n_question_owners' | translate }}: {{ printOwners(question) }}"
+                                    class="bi-files"
                                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                                     triggers="mouseenter:mouseleave"
+                                    ngbPopover="{{ 'i18n_copy' | translate }}"
                                 ></i>
-                            </span>
-                        </div>
-                    </td>
-                    <td>
-                        <span *ngIf="question.modified" class="timestamp">
-                            {{ question.modified | date : 'dd.MM.yyyy HH:mm' }}
-                            <br />
-                            <small>{{ question.modifier?.firstName }} {{ question.modifier?.lastName }}</small>
-                        </span>
-                    </td>
-                    <td>{{ showDisplayedScoreOrTranslate(question.displayedMaxScore) }}</td>
-                    <td>
-                        <span *ngIf="question.type === 'MultipleChoiceQuestion'">{{
-                            'i18n_question_mc' | translate
-                        }}</span>
-                        <span *ngIf="question.type === 'EssayQuestion'">{{ 'i18n_essay' | translate }}</span>
-                        <span *ngIf="question.type === 'WeightedMultipleChoiceQuestion'"
-                            >{{ 'i18n_question_weighted_mc' | translate }}
-                        </span>
-                        <span *ngIf="question.type === 'ClozeTestQuestion'"
-                            >{{ 'i18n_toolbar_cloze_test_question' | translate }}
-                        </span>
-                        <span *ngIf="question.type === 'ClaimChoiceQuestion'">
-                            {{ 'i18n_toolbar_claim_choice_question' | translate }}
-                        </span>
-                    </td>
-                    <td class="question-table-name">
-                        <a *ngIf="question.attachment" class="pointer" (click)="downloadQuestionAttachment(question)">
-                            <i class="bi-paperclip"></i>{{ question.attachment.fileName }}
-                        </a>
-                    </td>
-                    <td>{{ printTags(question) }}</td>
-                    <td class="question-table-name">
-                        <span *ngIf="user.isAdmin">
-                            <a
-                                *ngFor="let owner of question.questionOwners; let isLast = last"
-                                [href]="renderMailTo(owner)"
-                                >{{ printOwner(owner, true) }}{{ isLast ? '' : ', ' }}</a
-                            >
-                        </span>
-                    </td>
-                    <td class="padl20">
-                        <a *ngIf="question.allowedToRemove" (click)="deleteQuestion(question)" class="pointer">
-                            <i
-                                class="bi-trash"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                                ngbPopover="{{ 'i18n_exam_remove' | translate }}"
-                            ></i>
-                        </a>
-                    </td>
-                    <td class="padl20 padr10">
-                        <a (click)="copyQuestion(question)">
-                            <i
-                                class="bi-files"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                                ngbPopover="{{ 'i18n_copy' | translate }}"
-                            ></i>
-                        </a>
-                    </td>
-                    <td>
-                        {{ examSectionQuestionsLength(question) }}
-                    </td>
-                </tr>
+                            </a>
+                        </td>
+                        <td>
+                            {{ examSectionQuestionsLength(question) }}
+                        </td>
+                    </tr>
+                }
                 <!--Fill if page not full-->
-                <tr *ngFor="let r of [] | pageFill : questions.length : currentPage : pageSize">
-                    <td colspan="11">&nbsp;</td>
-                    <td *ngIf="user.isAdmin"></td>
-                </tr>
-                <tr *ngIf="questions.length === 0">
-                    <td colspan="11">{{ 'i18n_exam_library_no_results' | translate }}</td>
-                    <td *ngIf="user.isAdmin"></td>
-                </tr>
+                @for (r of [] | pageFill: questions.length : currentPage : pageSize; track r) {
+                    <tr>
+                        <td colspan="11">&nbsp;</td>
+                        @if (user.isAdmin) {
+                            <td></td>
+                        }
+                    </tr>
+                }
+                @if (questions.length === 0) {
+                    <tr>
+                        <td colspan="11">{{ 'i18n_exam_library_no_results' | translate }}</td>
+                        @if (user.isAdmin) {
+                            <td></td>
+                        }
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
-    <div class="col-md-12" *ngIf="questions.length > pageSize">
-        <xm-paginator
-            [items]="questions"
-            (pageSelected)="pageSelected($event)"
-            [pageSize]="pageSize"
-            [currentPage]="currentPage"
-        >
-        </xm-paginator>
-    </div>
+    @if (questions.length > pageSize) {
+        <div class="col-md-12">
+            <xm-paginator
+                [items]="questions"
+                (pageSelected)="pageSelected($event)"
+                [pageSize]="pageSize"
+                [currentPage]="currentPage"
+            >
+            </xm-paginator>
+        </div>
+    }
 </div>

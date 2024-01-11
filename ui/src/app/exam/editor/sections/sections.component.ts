@@ -21,7 +21,7 @@ import {
     CdkDropList,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { NgFor, NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
@@ -42,9 +42,7 @@ import { SectionComponent } from './section.component';
     templateUrl: './sections.component.html',
     standalone: true,
     imports: [
-        NgIf,
         CdkDropList,
-        NgFor,
         CdkDrag,
         CdkDragPlaceholder,
         CdkDragPreview,

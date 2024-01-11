@@ -39,7 +39,11 @@ export class Dashboard {
 
 @Injectable({ providedIn: 'root' })
 export class TeacherDashboardService {
-    constructor(private http: HttpClient, private Exam: ExamService, private Reservation: ReservationService) {}
+    constructor(
+        private http: HttpClient,
+        private Exam: ExamService,
+        private Reservation: ReservationService,
+    ) {}
 
     populate$ = (): Observable<Dashboard> =>
         forkJoin([this.Exam.listExecutionTypes$(), this.http.get<Exam[]>('/app/reviewerexams')]).pipe(

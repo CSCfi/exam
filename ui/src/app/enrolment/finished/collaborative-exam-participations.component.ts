@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { NgFor, NgIf, SlicePipe } from '@angular/common';
+import { SlicePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -38,9 +38,7 @@ import { ExamParticipationComponent } from './exam-participation.component';
         NgbDropdownToggle,
         NgbDropdownMenu,
         NgbDropdownItem,
-        NgFor,
         ExamParticipationComponent,
-        NgIf,
         PaginatorComponent,
         SlicePipe,
         TranslateModule,

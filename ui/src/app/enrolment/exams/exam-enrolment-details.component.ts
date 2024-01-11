@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,7 +31,6 @@ import { EnrolmentService } from '../enrolment.service';
     standalone: true,
     imports: [
         HistoryBackComponent,
-        NgIf,
         CourseCodeComponent,
         TeacherListComponent,
         MathJaxDirective,

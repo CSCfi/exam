@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -77,7 +77,6 @@ export type AnyReservation =
         FormsModule,
         TranslateModule,
         NgbTypeaheadModule,
-        NgIf,
         DatePickerComponent,
         DropdownSelectComponent,
         ReservationDetailsComponent,
@@ -175,10 +174,10 @@ export class ReservationsComponent implements OnInit {
                             userAggregate: r.user
                                 ? `${r.user.lastName}  ${r.user.firstName}`
                                 : r.externalUserRef
-                                ? r.externalUserRef
-                                : r.enrolment?.exam
-                                ? r.enrolment.exam.id.toString()
-                                : '',
+                                  ? r.externalUserRef
+                                  : r.enrolment?.exam
+                                    ? r.enrolment.exam.id.toString()
+                                    : '',
                             org: '',
                             stateOrd: 0,
                             enrolment: r.enrolment ? { ...r.enrolment, teacherAggregate: '' } : r.enrolment,

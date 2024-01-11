@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor } from '@angular/common';
+import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -54,14 +54,15 @@ import { RoomService } from '../rooms/room.service';
         </div>
         <div class="row mt-2">
             <div class="col-12">
-                <span
-                    *ngFor="let hour of examStartingHours"
-                    class="badge pointer"
-                    [ngClass]="hour.selected ? 'bg-success' : 'bg-secondary'"
-                    (click)="hour.selected = !hour.selected"
-                    style="margin: 0.2em"
-                    >{{ hour.startingHour }}</span
-                >
+                @for (hour of examStartingHours; track hour) {
+                    <span
+                        class="badge pointer"
+                        [ngClass]="hour.selected ? 'bg-success' : 'bg-secondary'"
+                        (click)="hour.selected = !hour.selected"
+                        style="margin: 0.2em"
+                        >{{ hour.startingHour }}</span
+                    >
+                }
             </div>
         </div>
         <div class="row mt-2">
@@ -79,9 +80,9 @@ import { RoomService } from '../rooms/room.service';
                     'i18n_add_remove_all' | translate
                 }}</a>
             </div>
-        </div> `,
+        </div>`,
     standalone: true,
-    imports: [FormsModule, NgFor, NgClass, TranslateModule],
+    imports: [FormsModule, NgClass, TranslateModule],
 })
 export class StartingTimeComponent implements OnInit {
     @Input() roomIds: number[] = [];

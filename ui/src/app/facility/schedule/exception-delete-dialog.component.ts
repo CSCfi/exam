@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { NgIf } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -31,12 +31,16 @@ import { ExceptionWorkingHours } from '../../reservation/reservation.model';
                     <div class="min-width-300 marr10">
                         {{ message }}
                     </div>
-                    <div class="text-danger" *ngIf="exception?.outOfService">
-                        {{ 'i18n_room_out_of_service' | translate }}
-                    </div>
-                    <div class="text-info" *ngIf="!exception?.outOfService">
-                        {{ 'i18n_room_in_service' | translate }}
-                    </div>
+                    @if (exception?.outOfService) {
+                        <div class="text-danger">
+                            {{ 'i18n_room_out_of_service' | translate }}
+                        </div>
+                    }
+                    @if (!exception?.outOfService) {
+                        <div class="text-info">
+                            {{ 'i18n_room_in_service' | translate }}
+                        </div>
+                    }
                 </div>
             </div>
             <div class="modal-footer">
@@ -52,9 +56,9 @@ import { ExceptionWorkingHours } from '../../reservation/reservation.model';
                 </div>
             </div>
         </div>
-    </div> `,
+    </div>`,
     standalone: true,
-    imports: [NgIf, TranslateModule],
+    imports: [TranslateModule],
 })
 export class ExceptionDeleteDialogComponent {
     @Input() message?: string;

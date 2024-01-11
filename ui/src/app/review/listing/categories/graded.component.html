@@ -2,18 +2,20 @@
     <div class="review-list-title">
         {{ 'i18n_exam_reviewed' | translate }}
         <a (click)="view.toggle = !view.toggle" class="pointer">
-            <img
-                *ngIf="!view.toggle"
-                src="/assets/images/icon_list_show_right.svg"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-            />
-            <img
-                *ngIf="view.toggle"
-                src="/assets/images/icon_list_show_down.svg"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-            />
+            @if (!view.toggle) {
+                <img
+                    src="/assets/images/icon_list_show_right.svg"
+                    alt=""
+                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
+                />
+            }
+            @if (view.toggle) {
+                <img
+                    src="/assets/images/icon_list_show_down.svg"
+                    alt=""
+                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
+                />
+            }
         </a>
         <sup
             class="padl05"
@@ -30,246 +32,282 @@
     </div>
 </div>
 
-<div *ngIf="view.items.length === 0">
-    <div class="review-no-results">
-        <i class="bi-exclamation-circle grayish"></i>
-        {{ 'i18n_exam_no_logged' | translate }}
-    </div>
-</div>
-
-<div *ngIf="view.toggle && view.items.length > 0">
-    <div class="pt-3 d-flex flex-wrap justify-content-between">
-        <div class="input-group mt-2 max-w-350">
-            <input
-                (input)="applyFreeSearchFilter()"
-                [(ngModel)]="view.filter"
-                class="form-control"
-                placeholder="{{ 'i18n_search' | translate }}"
-            />
-            <i class="input-group-text bi-search"></i>
-        </div>
-
-        <div class="review-attachment-button my-2" *ngIf="view.toggle && view.filtered.length > 0">
-            <a class="pointer" (click)="sendSelectedToRegistry()">
-                {{ 'i18n_send_results_to_registry' | translate }}
-            </a>
+@if (view.items.length === 0) {
+    <div>
+        <div class="review-no-results">
+            <i class="bi-exclamation-circle grayish"></i>
+            {{ 'i18n_exam_no_logged' | translate }}
         </div>
     </div>
+}
 
-    <div class="overflow-x-scroll">
-        <table class="table table-striped exams-table">
-            <thead>
-                <tr>
-                    <th class="dropdown" ngbDropdown>
-                        <button class="btn btn-sm btn-outline-secondary font-sm align-items-center" ngbDropdownToggle>
-                            <i class="bi-square"></i>
-                        </button>
-                        <ul ngbDropdownMenu role="menu">
-                            <li ngbDropdownItem role="presentation" [ngClass]="selections.page ? 'active' : ''">
-                                <a role="menuitem" class="unstyled-link pointer" (click)="selectPage('selectionBox')">
-                                    {{ 'i18n_choose_visible' | translate }}
-                                </a>
-                            </li>
-                            <li ngbDropdownItem role="presentation" [ngClass]="selections.all ? 'active' : ''">
-                                <a role="menuitem" class="unstyled-link pointer" (click)="selectAll()">
-                                    {{ 'i18n_choose_all' | translate }}
-                                </a>
-                            </li>
-                        </ul>
-                    </th>
-                    <th *ngIf="showId()" class="with-top">Id</th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="displayName"
-                            text="i18n_student"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('displayName')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="examParticipation.user.email"
-                            text="i18n_email"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('examParticipation.user.email')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="duration"
-                            text="i18n_exam_duration"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('duration')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="examParticipation.started"
-                            text="i18n_exam_time"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('examParticipation.started')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="examParticipation.deadline"
-                            text="i18n_review_deadline"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('examParticipation.deadline')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="examParticipation.exan.totalScore"
-                            text="i18n_total_score"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('examParticipation.exam.totalScore')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="displayedGrade"
-                            text="i18n_grade"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('displayedGrade')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="displayedCredit"
-                            text="i18n_exam_credit"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('displayedCredit')"
-                        ></xm-table-sort>
-                    </th>
-                    <th class="with-top">
-                        <xm-table-sort
-                            by="displayedGradingTime"
-                            text="i18n_graded"
-                            [predicate]="view.predicate"
-                            [reverse]="view.reverse"
-                            (click)="setPredicate('displayedGradingTime')"
-                        ></xm-table-sort>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    *ngFor="
-                        let review of view.filtered
-                            | orderBy : view.predicate : view.reverse
-                            | slice : view.page * view.pageSize : view.page * view.pageSize + view.pageSize
-                    "
+@if (view.toggle && view.items.length > 0) {
+    <div>
+        <div class="pt-3 d-flex flex-wrap justify-content-between">
+            <div class="input-group mt-2 max-w-350">
+                <input
+                    (input)="applyFreeSearchFilter()"
+                    [(ngModel)]="view.filter"
+                    class="form-control"
+                    placeholder="{{ 'i18n_search' | translate }}"
+                />
+                <i class="input-group-text bi-search"></i>
+            </div>
+            @if (view.toggle && view.filtered.length > 0) {
+                <div class="review-attachment-button my-2">
+                    <a class="pointer" (click)="sendSelectedToRegistry()">
+                        {{ 'i18n_send_results_to_registry' | translate }}
+                    </a>
+                </div>
+            }
+        </div>
+        <div class="overflow-x-scroll">
+            <table class="table table-striped exams-table">
+                <thead>
+                    <tr>
+                        <th class="dropdown" ngbDropdown>
+                            <button
+                                class="btn btn-sm btn-outline-secondary font-sm align-items-center"
+                                ngbDropdownToggle
+                            >
+                                <i class="bi-square"></i>
+                            </button>
+                            <ul ngbDropdownMenu role="menu">
+                                <li ngbDropdownItem role="presentation" [ngClass]="selections.page ? 'active' : ''">
+                                    <a
+                                        role="menuitem"
+                                        class="unstyled-link pointer"
+                                        (click)="selectPage('selectionBox')"
+                                    >
+                                        {{ 'i18n_choose_visible' | translate }}
+                                    </a>
+                                </li>
+                                <li ngbDropdownItem role="presentation" [ngClass]="selections.all ? 'active' : ''">
+                                    <a role="menuitem" class="unstyled-link pointer" (click)="selectAll()">
+                                        {{ 'i18n_choose_all' | translate }}
+                                    </a>
+                                </li>
+                            </ul>
+                        </th>
+                        @if (showId()) {
+                            <th class="with-top">Id</th>
+                        }
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="displayName"
+                                text="i18n_student"
+                                [predicate]="view.predicate"
+                                [reverse]="view.reverse"
+                                (click)="setPredicate('displayName')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="examParticipation.user.email"
+                                text="i18n_email"
+                                [predicate]="view.predicate"
+                                [reverse]="view.reverse"
+                                (click)="setPredicate('examParticipation.user.email')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="duration"
+                                text="i18n_exam_duration"
+                                [predicate]="view.predicate"
+                                [reverse]="view.reverse"
+                                (click)="setPredicate('duration')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="examParticipation.started"
+                                text="i18n_exam_time"
+                                [predicate]="view.predicate"
+                                [reverse]="view.reverse"
+                                (click)="setPredicate('examParticipation.started')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="examParticipation.deadline"
+                                text="i18n_review_deadline"
+                                [predicate]="view.predicate"
+                                [reverse]="view.reverse"
+                                (click)="setPredicate('examParticipation.deadline')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="examParticipation.exan.totalScore"
+                                text="i18n_total_score"
+                                [predicate]="view.predicate"
+                                [reverse]="view.reverse"
+                                (click)="setPredicate('examParticipation.exam.totalScore')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="displayedGrade"
+                                text="i18n_grade"
+                                [predicate]="view.predicate"
+                                [reverse]="view.reverse"
+                                (click)="setPredicate('displayedGrade')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="displayedCredit"
+                                text="i18n_exam_credit"
+                                [predicate]="view.predicate"
+                                [reverse]="view.reverse"
+                                (click)="setPredicate('displayedCredit')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="displayedGradingTime"
+                                text="i18n_graded"
+                                [predicate]="view.predicate"
+                                [reverse]="view.reverse"
+                                (click)="setPredicate('displayedGradingTime')"
+                            ></xm-table-sort>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (
+                        review of view.filtered
+                            | orderBy: view.predicate : view.reverse
+                            | slice: view.page * view.pageSize : view.page * view.pageSize + view.pageSize;
+                        track review
+                    ) {
+                        <tr>
+                            <td class="table-column-checkbox">
+                                <input
+                                    type="checkbox"
+                                    [(ngModel)]="review.selected"
+                                    class="selectionBox"
+                                    [value]="review.examParticipation.id || review.examParticipation._id"
+                                />
+                            </td>
+                            @if (showId()) {
+                                <td>{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
+                            }
+                            <td class="table-column-13 table-column-bold">
+                                @if (collaborative) {
+                                    <a
+                                        class="pointer"
+                                        [routerLink]="[
+                                            '/staff/assessments',
+                                            exam.id,
+                                            'collaborative',
+                                            review.examParticipation._id
+                                        ]"
+                                    >
+                                        {{ review.displayName }}
+                                        @if (review.examParticipation.user?.userIdentifier) {
+                                            <span> <br />({{ review.examParticipation.user.userIdentifier }})</span>
+                                        }
+                                    </a>
+                                }
+                                @if (!collaborative) {
+                                    <a
+                                        class="pointer"
+                                        [routerLink]="['/staff/assessments', review.examParticipation.exam.id]"
+                                    >
+                                        {{ review.displayName }}
+                                        @if (review.examParticipation.user?.userIdentifier) {
+                                            <span> <br />({{ review.examParticipation.user.userIdentifier }})</span>
+                                        }
+                                    </a>
+                                }
+                            </td>
+                            <td class="table-column-15">
+                                @if (review.examParticipation.user) {
+                                    <a
+                                        class="pointer smaller"
+                                        href="mailto:{{ review.examParticipation.user.email }}"
+                                        >{{ review.examParticipation.user.email }}</a
+                                    >
+                                }
+                            </td>
+                            <td class="table-column-10">{{ review.duration + ' min' }}</td>
+                            <td class="table-column-10">
+                                {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                                {{ 'i18n_clock_short' | translate }}
+                                {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
+                                {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
+                            </td>
+                            <td class="table-column-10">
+                                {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (<span
+                                    [innerHtml]="review.examParticipation.deadline | dayDiff"
+                                ></span
+                                >)
+                            </td>
+                            <td class="table-column-10">
+                                {{ review.examParticipation.exam.totalScore }} /
+                                {{ review.examParticipation.exam.maxScore }}
+                                @if (
+                                    review.examParticipation.exam.rejectedAnswerCount > 0 ||
+                                    review.examParticipation.exam.approvedAnswerCount > 0
+                                ) {
+                                    <span>
+                                        <br />{{ 'i18n_approved' | translate }}:
+                                        {{ review.examParticipation.exam.approvedAnswerCount }} <br />{{
+                                            'i18n_rejected' | translate
+                                        }}: {{ review.examParticipation.exam.rejectedAnswerCount }}
+                                    </span>
+                                }
+                            </td>
+                            <td class="table-column-10">{{ review.displayedGrade }}</td>
+                            <td class="table-column-10">
+                                {{ review.displayedCredit }}
+                            </td>
+                            <td class="table-column-10">
+                                {{ review.examParticipation.exam.gradedTime | date: 'dd.MM.yyyy' }}
+                            </td>
+                        </tr>
+                    }
+                    @if (view.filtered.length === 0) {
+                        <tr>
+                            @if (showId()) {
+                                <td colspan="11">{{ 'i18n_review_no_result' | translate }}</td>
+                            }
+                            @if (!showId()) {
+                                <td colspan="10">{{ 'i18n_review_no_result' | translate }}</td>
+                            }
+                        </tr>
+                    }
+                    <!--Fill if page not full-->
+                    @for (r of [] | pageFill: view.filtered.length : view.page : view.pageSize; track r) {
+                        <tr>
+                            @if (showId()) {
+                                <td colspan="11">&nbsp;</td>
+                            }
+                            @if (!showId()) {
+                                <td colspan="10">&nbsp;</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@if (view.toggle) {
+    <div class="detail-row">
+        @if (view.filtered.length > view.pageSize) {
+            <div class="col-md-12">
+                <xm-paginator
+                    [items]="view.filtered"
+                    (pageSelected)="pageSelected($event)"
+                    [pageSize]="view.pageSize"
+                    [currentPage]="view.page"
                 >
-                    <td class="table-column-checkbox">
-                        <input
-                            type="checkbox"
-                            [(ngModel)]="review.selected"
-                            class="selectionBox"
-                            [value]="review.examParticipation.id || review.examParticipation._id"
-                        />
-                    </td>
-                    <td *ngIf="showId()">{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
-                    <td class="table-column-13 table-column-bold">
-                        <a
-                            *ngIf="collaborative"
-                            class="pointer"
-                            [routerLink]="[
-                                '/staff/assessments',
-                                exam.id,
-                                'collaborative',
-                                review.examParticipation._id
-                            ]"
-                        >
-                            {{ review.displayName }}
-                            <span *ngIf="review.examParticipation.user?.userIdentifier">
-                                <br />({{ review.examParticipation.user.userIdentifier }})</span
-                            >
-                        </a>
-                        <a
-                            *ngIf="!collaborative"
-                            class="pointer"
-                            [routerLink]="['/staff/assessments', review.examParticipation.exam.id]"
-                        >
-                            {{ review.displayName }}
-                            <span *ngIf="review.examParticipation.user?.userIdentifier">
-                                <br />({{ review.examParticipation.user.userIdentifier }})</span
-                            >
-                        </a>
-                    </td>
-                    <td class="table-column-15">
-                        <a
-                            class="pointer smaller"
-                            *ngIf="review.examParticipation.user"
-                            href="mailto:{{ review.examParticipation.user.email }}"
-                            >{{ review.examParticipation.user.email }}</a
-                        >
-                    </td>
-                    <td class="table-column-10">{{ review.duration + ' min' }}</td>
-                    <td class="table-column-10">
-                        {{ review.examParticipation.started | applyDst | date : 'dd.MM.yyyy' }}
-                        {{ 'i18n_clock_short' | translate }}
-                        {{ review.examParticipation.started | applyDst | date : 'HH:mm' }} -
-                        {{ review.examParticipation.ended | applyDst | date : 'HH:mm' }}
-                    </td>
-                    <td class="table-column-10">
-                        {{ review.examParticipation.deadline | date : 'dd.MM.yyyy' }} (<span
-                            [innerHtml]="review.examParticipation.deadline | dayDiff"
-                        ></span
-                        >)
-                    </td>
-                    <td class="table-column-10">
-                        {{ review.examParticipation.exam.totalScore }} / {{ review.examParticipation.exam.maxScore }}
-                        <span
-                            *ngIf="
-                                review.examParticipation.exam.rejectedAnswerCount > 0 ||
-                                review.examParticipation.exam.approvedAnswerCount > 0
-                            "
-                        >
-                            <br />{{ 'i18n_approved' | translate }}:
-                            {{ review.examParticipation.exam.approvedAnswerCount }} <br />{{
-                                'i18n_rejected' | translate
-                            }}: {{ review.examParticipation.exam.rejectedAnswerCount }}
-                        </span>
-                    </td>
-                    <td class="table-column-10">{{ review.displayedGrade }}</td>
-                    <td class="table-column-10">
-                        {{ review.displayedCredit }}
-                    </td>
-                    <td class="table-column-10">
-                        {{ review.examParticipation.exam.gradedTime | date : 'dd.MM.yyyy' }}
-                    </td>
-                </tr>
-                <tr *ngIf="view.filtered.length === 0">
-                    <td *ngIf="showId()" colspan="11">{{ 'i18n_review_no_result' | translate }}</td>
-                    <td *ngIf="!showId()" colspan="10">{{ 'i18n_review_no_result' | translate }}</td>
-                </tr>
-                <!--Fill if page not full-->
-                <tr *ngFor="let r of [] | pageFill : view.filtered.length : view.page : view.pageSize">
-                    <td *ngIf="showId()" colspan="11">&nbsp;</td>
-                    <td *ngIf="!showId()" colspan="10">&nbsp;</td>
-                </tr>
-            </tbody>
-        </table>
+                </xm-paginator>
+            </div>
+        }
     </div>
-</div>
-
-<div class="detail-row" *ngIf="view.toggle">
-    <div class="col-md-12" *ngIf="view.filtered.length > view.pageSize">
-        <xm-paginator
-            [items]="view.filtered"
-            (pageSelected)="pageSelected($event)"
-            [pageSize]="view.pageSize"
-            [currentPage]="view.page"
-        >
-        </xm-paginator>
-    </div>
-</div>
+}

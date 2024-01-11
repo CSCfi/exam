@@ -1,4 +1,4 @@
-import { DatePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
+import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -49,10 +49,8 @@ interface UserWithOptions extends User {
         NgbDropdown,
         NgbDropdownToggle,
         NgbDropdownMenu,
-        NgFor,
         NgbDropdownItem,
         NgClass,
-        NgIf,
         PaginatorComponent,
         SlicePipe,
         DatePipe,

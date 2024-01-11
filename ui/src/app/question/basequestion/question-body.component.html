@@ -1,10 +1,10 @@
 <!-- SIT-1548 disable at least for now --->
 <!-- Shared -->
 <!--div class="row">
-    <div class="checkbox">
-        <label><input type="checkbox" [(ngModel)]="newQuestion.shared">
-            <strong class="sitnet-info-text">{{ 'i18n_public_question' | translate }}</strong></label>
-    </div>
+<div class="checkbox">
+  <label><input type="checkbox" [(ngModel)]="newQuestion.shared">
+    <strong class="sitnet-info-text">{{ 'i18n_public_question' | translate }}</strong></label>
+  </div>
 </div-->
 <style>
     #questionBody.ng-invalid {
@@ -30,9 +30,11 @@
                     {{ 'i18n_exam_question_edit_instructions' | translate }}
                     <ul class="list-inline margin-10">
                         <li class="list-inline-item">
-                            <span *ngFor="let name of examNames" class="exists-text">
-                                <span class="padr10">{{ name }}</span>
-                            </span>
+                            @for (name of examNames; track $index) {
+                                <span class="exists-text">
+                                    <span class="padr10">{{ name }}</span>
+                                </span>
+                            }
                         </li>
                     </ul>
                 </div>
@@ -285,21 +287,23 @@
             <div class="col-md-3">
                 @if (isUserAllowedToModifyOwners()) {
                     <ul class="list-inline mart10 padl10">
-                        <li *ngFor="let user of currentOwners" class="list-inline-item">
-                            {{ user.firstName }} {{ user.lastName }}
-                            <button
-                                class="reviewer-remove"
-                                [disabled]="removeOwnerDisabled(user)"
-                                (click)="removeOwner(user)"
-                                title="{{ 'i18n_remove' | translate }}"
-                            >
-                                <img
-                                    src="/assets/images/icon_remove.svg"
-                                    alt=""
-                                    onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
-                                />
-                            </button>
-                        </li>
+                        @for (user of currentOwners; track user.id) {
+                            <li class="list-inline-item">
+                                {{ user.firstName }} {{ user.lastName }}
+                                <button
+                                    class="reviewer-remove"
+                                    [disabled]="removeOwnerDisabled(user)"
+                                    (click)="removeOwner(user)"
+                                    title="{{ 'i18n_remove' | translate }}"
+                                >
+                                    <img
+                                        src="/assets/images/icon_remove.svg"
+                                        alt=""
+                                        onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
+                                    />
+                                </button>
+                            </li>
+                        }
                     </ul>
                 }
                 @if (isUserAllowedToModifyOwners()) {

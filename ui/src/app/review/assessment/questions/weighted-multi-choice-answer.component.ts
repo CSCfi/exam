@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExamSectionQuestion } from '../../../exam/exam.model';
@@ -21,56 +21,70 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-weighted-multi-choice-answer',
-    template: `<div
-        class="padl15 marb10"
-        [hidden]="!reviewExpanded"
-        *ngFor="let option of sectionQuestion.options | orderBy : 'id'"
-    >
-        <div *ngIf="option.answered">
-            <div *ngIf="option.score >= 0" class="exam-answered-correct">
-                <div class="make-inline float-start">
-                    <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
+    template: `@for (option of sectionQuestion.options | orderBy: 'id'; track option) {
+        <div class="padl15 marb10" [hidden]="!reviewExpanded">
+            @if (option.answered) {
+                <div>
+                    @if (option.score >= 0) {
+                        <div class="exam-answered-correct">
+                            <div class="make-inline float-start">
+                                <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
+                            </div>
+                            <div class="make-inline middle-column">
+                                <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
+                            </div>
+                            <div class="make-inline float-end">
+                                <span class="text-success">
+                                    {{ option.score }} {{ 'i18n_unit_points' | translate }}</span
+                                >
+                            </div>
+                        </div>
+                    }
+                    @if (option.score < 0) {
+                        <div class="exam-answered-wrong">
+                            <div class="make-inline float-start">
+                                <img src="/assets/images/icon_wrong_answer_checkbox_red.svg" alt="" />
+                            </div>
+                            <div class="make-inline middle-column">
+                                <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
+                            </div>
+                            <div class="make-inline float-end">
+                                <span class="text-danger">
+                                    {{ option.score }} {{ 'i18n_unit_points' | translate }}</span
+                                >
+                            </div>
+                        </div>
+                    }
                 </div>
-                <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
-                </div>
-                <div class="make-inline float-end">
-                    <span class="text-success"> {{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
-                </div>
-            </div>
-            <div *ngIf="option.score < 0" class="exam-answered-wrong">
-                <div class="make-inline float-start">
-                    <img src="/assets/images/icon_wrong_answer_checkbox_red.svg" alt="" />
-                </div>
-                <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
-                </div>
-                <div class="make-inline float-end">
-                    <span class="text-danger"> {{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
-                </div>
-            </div>
-        </div>
-        <div *ngIf="!option.answered">
-            <div class="exam-not-answered">
-                <div class="make-inline float-start">
-                    <div *ngIf="option.score >= 0">
-                        <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
+            }
+            @if (!option.answered) {
+                <div>
+                    <div class="exam-not-answered">
+                        <div class="make-inline float-start">
+                            @if (option.score >= 0) {
+                                <div>
+                                    <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
+                                </div>
+                            }
+                            @if (option.score < 0) {
+                                <img src="/assets/images/icon_wrong_answer_checkbox.png" alt="" />
+                            }
+                        </div>
+                        <div class="make-inline middle-column">
+                            <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
+                        </div>
+                        <div class="make-inline float-end">
+                            <span [ngClass]="option.score >= 0 ? 'text-success' : 'text-danger'">
+                                {{ option.score }} {{ 'i18n_unit_points' | translate }}</span
+                            >
+                        </div>
                     </div>
-                    <img *ngIf="option.score < 0" src="/assets/images/icon_wrong_answer_checkbox.png" alt="" />
                 </div>
-                <div class="make-inline middle-column">
-                    <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
-                </div>
-                <div class="make-inline float-end">
-                    <span [ngClass]="option.score >= 0 ? 'text-success' : 'text-danger'">
-                        {{ option.score }} {{ 'i18n_unit_points' | translate }}</span
-                    >
-                </div>
-            </div>
+            }
         </div>
-    </div> `,
+    }`,
     standalone: true,
-    imports: [NgFor, NgIf, MathJaxDirective, NgClass, TranslateModule, OrderByPipe],
+    imports: [MathJaxDirective, NgClass, TranslateModule, OrderByPipe],
 })
 export class WeightedMultiChoiceAnswerComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;

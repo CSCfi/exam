@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -51,11 +51,9 @@ export interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
     selector: 'xm-rooms',
     standalone: true,
     imports: [
-        NgFor,
         NgClass,
         NgbPopover,
         RouterLink,
-        NgIf,
         OpenHoursComponent,
         ExceptionListComponent,
         StartingTimeComponent,

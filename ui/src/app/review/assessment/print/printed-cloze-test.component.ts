@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf, NgStyle } from '@angular/common';
+import { NgStyle } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
@@ -23,7 +23,7 @@ import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
     selector: 'xm-printed-cloze-test',
     templateUrl: './templates/cloze-test.component.html',
     standalone: true,
-    imports: [MathJaxDirective, NgIf, NgStyle, TranslateModule],
+    imports: [MathJaxDirective, NgStyle, TranslateModule],
 })
 export class PrintedClozeTestComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -42,17 +42,7 @@ interface Filterable<T> {
     selector: 'xm-library-search',
     templateUrl: './library-search.component.html',
     standalone: true,
-    imports: [
-        NgIf,
-        NgClass,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgbDropdownItem,
-        FormsModule,
-        NgFor,
-        TranslateModule,
-    ],
+    imports: [NgClass, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, FormsModule, TranslateModule],
 })
 export class LibrarySearchComponent implements OnInit {
     @Output() updated: EventEmitter<LibraryQuestion[]> = new EventEmitter<LibraryQuestion[]>();

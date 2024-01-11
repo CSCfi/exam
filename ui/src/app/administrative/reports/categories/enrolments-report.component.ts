@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -30,13 +30,14 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
         <div class="bottom-row d-flex justify-content-between">
             <div class="col-lg-10 mb-4">
                 <label for="enrolment">{{ 'i18n_select_exam' | translate }}</label>
-                <xm-dropdown-select
-                    id="enrolment"
-                    *ngIf="examNames"
-                    [options]="examNames"
-                    (optionSelected)="enrolmentSelected($event)"
-                    placeholder="{{ 'i18n_select' | translate }}"
-                ></xm-dropdown-select>
+                @if (examNames) {
+                    <xm-dropdown-select
+                        id="enrolment"
+                        [options]="examNames"
+                        (optionSelected)="enrolmentSelected($event)"
+                        placeholder="{{ 'i18n_select' | translate }}"
+                    ></xm-dropdown-select>
+                }
             </div>
             <div class="col-lg-2 mb-2">
                 <label for="link"></label>
@@ -57,13 +58,17 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
     `,
     selector: 'xm-enrolments-report',
     standalone: true,
-    imports: [NgIf, DropdownSelectComponent, NgbPopover, TranslateModule],
+    imports: [DropdownSelectComponent, NgbPopover, TranslateModule],
 })
 export class EnrolmentsReportComponent {
     @Input() examNames: Option<string, number>[] = [];
     enrolment?: number;
 
-    constructor(private translate: TranslateService, private toast: ToastrService, private files: FileService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+        private files: FileService,
+    ) {}
 
     getExamEnrolments = () => {
         if (this.enrolment) {

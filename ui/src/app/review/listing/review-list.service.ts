@@ -37,7 +37,11 @@ export type ReviewListView = {
 
 @Injectable({ providedIn: 'root' })
 export class ReviewListService {
-    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     getDisplayName = (review: ExamParticipation, collaborative = false): string => {
         if (review.user) return `${review.user.lastName} ${review.user.firstName}`;

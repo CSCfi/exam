@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, LowerCasePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -59,8 +59,6 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
     standalone: true,
     imports: [
         HistoryBackComponent,
-        NgIf,
-        NgFor,
         TableSortComponent,
         RouterLink,
         NgClass,

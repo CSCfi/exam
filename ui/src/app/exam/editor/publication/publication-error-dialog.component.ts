@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  *
  */
-import { NgFor } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -21,14 +21,16 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
     selector: 'xm-publication-error-dialog',
     standalone: true,
-    imports: [TranslateModule, NgFor],
+    imports: [TranslateModule],
     template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
         <div class="student-message-dialog-wrapper-padding">
             <div class="student-enroll-dialog-wrap">
                 <div class="student-enroll-title">{{ 'i18n_please_check_following_infos' | translate }}</div>
             </div>
             <div class="modal-body">
-                <p *ngFor="let error of errors">{{ error | translate }}</p>
+                @for (error of errors; track error) {
+                    <p>{{ error | translate }}</p>
+                }
             </div>
             <div class="modal-footer">
                 <div class="student-message-dialog-button-save">
@@ -38,7 +40,7 @@ import { TranslateModule } from '@ngx-translate/core';
                 </div>
             </div>
         </div>
-    </div> `,
+    </div>`,
 })
 export class PublicationErrorDialogComponent {
     @Input() errors: string[] = [];

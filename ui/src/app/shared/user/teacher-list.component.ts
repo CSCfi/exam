@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import type { ExamInspection } from '../../exam/exam.model';
@@ -23,12 +23,14 @@ type Personnel = { examInspections: ExamInspection[]; examOwners: User[] };
     selector: 'xm-teacher-list',
     template: `
         <span>
-            <strong>{{ owners }}</strong
-            ><span *ngIf="inspectors">, {{ inspectors }}</span>
+            <strong>{{ owners }}</strong>
+            @if (inspectors) {
+                <span>, {{ inspectors }}</span>
+            }
         </span>
     `,
     standalone: true,
-    imports: [NgIf],
+    imports: [],
 })
 export class TeacherListComponent implements OnInit {
     @Input() exam!: Personnel & { parent: Personnel | null };

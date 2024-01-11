@@ -13,7 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 import { CdkDrag } from '@angular/cdk/drag-drop';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -71,14 +71,16 @@ import { MaturityService } from '../maturity/maturity.service';
                         </button>
                     </div>
                     <div>
-                        <span *ngIf="exam.languageInspection?.statement?.attachment">
-                            <a class="pointer" (click)="downloadStatementAttachment()">{{
-                                exam.languageInspection?.statement?.attachment?.fileName
-                            }}</a>
-                            <span class="sitnet-red pointer" (click)="removeStatementAttachment()">
-                                <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
+                        @if (exam.languageInspection?.statement?.attachment) {
+                            <span>
+                                <a class="pointer" (click)="downloadStatementAttachment()">{{
+                                    exam.languageInspection?.statement?.attachment?.fileName
+                                }}</a>
+                                <span class="sitnet-red pointer" (click)="removeStatementAttachment()">
+                                    <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
+                                </span>
                             </span>
-                        </span>
+                        }
                         <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
                             {{ 'i18n_attach_file' | translate }}
                         </button>
@@ -86,15 +88,19 @@ import { MaturityService } from '../maturity/maturity.service';
                 </div>
             </div>
         </div>
-    </div> `,
+    </div>`,
     standalone: true,
-    imports: [CdkDrag, NgbPopover, NgClass, CKEditorComponent, FormsModule, NgIf, TranslateModule],
+    imports: [CdkDrag, NgbPopover, NgClass, CKEditorComponent, FormsModule, TranslateModule],
 })
 export class StatementComponent {
     @Input() exam!: Exam;
     hideEditor = false;
 
-    constructor(private Attachment: AttachmentService, private Files: FileService, private Maturity: MaturityService) {}
+    constructor(
+        private Attachment: AttachmentService,
+        private Files: FileService,
+        private Maturity: MaturityService,
+    ) {}
 
     hasGoneThroughLanguageInspection = () => this.exam.languageInspection?.finishedAt;
 

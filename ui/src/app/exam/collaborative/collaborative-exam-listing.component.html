@@ -5,13 +5,15 @@
 </div>
 <div id="dashboard">
     <!-- toolbar -->
-    <div class="top-row" *ngIf="user.isAdmin">
-        <div class="col-md-12">
-            <a class="float-end btn btn-success" (click)="createExam()">
-                {{ 'i18n_toolbar_new_exam' | translate }}
-            </a>
+    @if (user.isAdmin) {
+        <div class="top-row">
+            <div class="col-md-12">
+                <a class="float-end btn btn-success" (click)="createExam()">
+                    {{ 'i18n_toolbar_new_exam' | translate }}
+                </a>
+            </div>
         </div>
-    </div>
+    }
 
     <div class="main-row">
         <div class="col-md-12">
@@ -116,41 +118,53 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let exam of filterByView(view) | orderBy : examsPredicate : reverse">
-                        <td>
-                            <a
-                                class="exams-info-title bold-button"
-                                [routerLink]="['/staff/exams', exam.id, '1']"
-                                [queryParams]="{ collaborative: true }"
+                    @for (exam of filterByView(view) | orderBy: examsPredicate : reverse; track exam) {
+                        <tr>
+                            <td>
+                                <a
+                                    class="exams-info-title bold-button"
+                                    [routerLink]="['/staff/exams', exam.id, '1']"
+                                    [queryParams]="{ collaborative: true }"
+                                >
+                                    @if (exam.name) {
+                                        <span>{{ exam.name }}</span>
+                                    }
+                                    @if (!exam.name) {
+                                        <span class="text-danger">
+                                            {{ 'i18n_no_name' | translate | uppercase }}
+                                        </span>
+                                    }
+                                </a>
+                            </td>
+                            <td
+                                [ngClass]="{
+                                    'sitnet-medium-green-new': exam.state === 'PUBLISHED',
+                                    'sitnet-red': exam.state === 'PRE_PUBLISHED'
+                                }"
                             >
-                                <span *ngIf="exam.name">{{ exam.name }}</span>
-                                <span *ngIf="!exam.name" class="text-danger">
-                                    {{ 'i18n_no_name' | translate | uppercase }}
-                                </span>
-                            </a>
-                        </td>
-                        <td
-                            [ngClass]="{
-                                'sitnet-medium-green-new': exam.state === 'PUBLISHED',
-                                'sitnet-red': exam.state === 'PRE_PUBLISHED'
-                            }"
-                        >
-                            {{ getStateTranslation(exam) }}
-                        </td>
-                        <td>
-                            <p *ngFor="let o of exam.examOwners">{{ o.email }}</p>
-                        </td>
-                        <td>
-                            <span *ngIf="exam.periodStart">
-                                {{ exam.periodStart | date : 'dd.MM.yyyy' }}
-                            </span>
-                        </td>
-                        <td>
-                            <span *ngIf="exam.periodEnd">
-                                {{ exam.periodEnd | date : 'dd.MM.yyyy' }}
-                            </span>
-                        </td>
-                    </tr>
+                                {{ getStateTranslation(exam) }}
+                            </td>
+                            <td>
+                                @for (o of exam.examOwners; track o) {
+                                    <p>{{ o.email }}</p>
+                                }
+                            </td>
+                            <td>
+                                @if (exam.periodStart) {
+                                    <span>
+                                        {{ exam.periodStart | date: 'dd.MM.yyyy' }}
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                @if (exam.periodEnd) {
+                                    <span>
+                                        {{ exam.periodEnd | date: 'dd.MM.yyyy' }}
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>

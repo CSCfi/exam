@@ -70,14 +70,16 @@
         </div>
     </div>
 
-    <div class="main-row" *ngIf="loader.loading">
-        <div class="col-md-12">
-            <button class="btn btn-success" type="button" disabled>
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                {{ 'i18n_searching' | translate }}...
-            </button>
+    @if (loader.loading) {
+        <div class="main-row">
+            <div class="col-md-12">
+                <button class="btn btn-success" type="button" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    {{ 'i18n_searching' | translate }}...
+                </button>
+            </div>
         </div>
-    </div>
+    }
 
     <div [hidden]="exams.length === 0 || loader.loading" style="min-height: 700px">
         <div class="detail-row">
@@ -144,77 +146,91 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr
-                            *ngFor="
-                                let exam of filterByStateAndExpiration(
-                                    views[activeId].view,
-                                    views[activeId].showExpired
-                                ) | orderBy : examsPredicate : reverse
-                            "
-                        >
-                            <td><xm-course-code *ngIf="exam.course" [course]="exam.course"></xm-course-code></td>
-                            <td>
-                                <a
-                                    *ngIf="exam.name"
-                                    class="exams-info-title bold-button"
-                                    [routerLink]="['/staff/exams', exam.id, '1']"
-                                    >{{ exam.name }}</a
-                                >
-                                <a
-                                    *ngIf="!exam.name"
-                                    class="exams-info-title bold-button text-danger"
-                                    [routerLink]="['/staff/exams', exam.id, '1']"
-                                    >{{ 'i18n_no_name' | translate }}
-                                </a>
-                            </td>
-                            <td>
-                                {{ getExecutionTypeTranslation(exam) | translate | uppercase }}
-                            </td>
-                            <td>
-                                <xm-teacher-list [exam]="exam"></xm-teacher-list>
-                            </td>
-                            <td>
-                                <span *ngIf="exam.periodStart">
-                                    {{ exam.periodStart | date : 'dd.MM.yyyy' }}
-                                </span>
-                            </td>
-                            <td>
-                                <span *ngIf="exam.periodEnd">
-                                    {{ exam.periodEnd | date : 'dd.MM.yyyy' }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <!-- todo: make a modal component out of this -->
-                                <a (click)="copyExam(exam)" class="pointer">
-                                    <i class="bi-files"></i>
-                                </a>
-                            </td>
-                            <td class="text-center">
-                                <a (click)="deleteExam(exam)" class="pointer">
-                                    <i class="bi-x sitnet-red"></i>
-                                </a>
-                            </td>
-                        </tr>
+                        @for (
+                            exam of filterByStateAndExpiration(views[activeId].view, views[activeId].showExpired)
+                                | orderBy: examsPredicate : reverse;
+                            track exam
+                        ) {
+                            <tr>
+                                <td>
+                                    @if (exam.course) {
+                                        <xm-course-code [course]="exam.course"></xm-course-code>
+                                    }
+                                </td>
+                                <td>
+                                    @if (exam.name) {
+                                        <a
+                                            class="exams-info-title bold-button"
+                                            [routerLink]="['/staff/exams', exam.id, '1']"
+                                            >{{ exam.name }}</a
+                                        >
+                                    }
+                                    @if (!exam.name) {
+                                        <a
+                                            class="exams-info-title bold-button text-danger"
+                                            [routerLink]="['/staff/exams', exam.id, '1']"
+                                            >{{ 'i18n_no_name' | translate }}
+                                        </a>
+                                    }
+                                </td>
+                                <td>
+                                    {{ getExecutionTypeTranslation(exam) | translate | uppercase }}
+                                </td>
+                                <td>
+                                    <xm-teacher-list [exam]="exam"></xm-teacher-list>
+                                </td>
+                                <td>
+                                    @if (exam.periodStart) {
+                                        <span>
+                                            {{ exam.periodStart | date: 'dd.MM.yyyy' }}
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (exam.periodEnd) {
+                                        <span>
+                                            {{ exam.periodEnd | date: 'dd.MM.yyyy' }}
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <!-- todo: make a modal component out of this -->
+                                    <a (click)="copyExam(exam)" class="pointer">
+                                        <i class="bi-files"></i>
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <a (click)="deleteExam(exam)" class="pointer">
+                                        <i class="bi-x sitnet-red"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
             </div>
         </div>
-        <div class="detail-row" *ngIf="views[activeId].view === 'PUBLISHED' && !views[activeId].showExpired">
-            <div class="col-md-12">
-                <strong>{{ 'i18n_published_exams' | translate }}: </strong>
-                <em class="sitnet-text-medium"
-                    >{{ 'i18n_published_exams_info_main' | translate }}
-                    {{ 'i18n_published_exams_info_other' | translate }}</em
-                >
+        @if (views[activeId].view === 'PUBLISHED' && !views[activeId].showExpired) {
+            <div class="detail-row">
+                <div class="col-md-12">
+                    <strong>{{ 'i18n_published_exams' | translate }}: </strong>
+                    <em class="sitnet-text-medium"
+                        >{{ 'i18n_published_exams_info_main' | translate }}
+                        {{ 'i18n_published_exams_info_other' | translate }}</em
+                    >
+                </div>
             </div>
-        </div>
-        <div class="bottom-row" *ngIf="views[activeId].view === 'SAVED'">
-            <div class="col-md-12">
-                <strong>{{ 'i18n_saved_exams' | translate }}: </strong>
-                <em class="sitnet-text-medium"
-                    >{{ 'i18n_saved_exams_info_main' | translate }} {{ 'i18n_saved_exams_info_other' | translate }}</em
-                >
+        }
+        @if (views[activeId].view === 'SAVED') {
+            <div class="bottom-row">
+                <div class="col-md-12">
+                    <strong>{{ 'i18n_saved_exams' | translate }}: </strong>
+                    <em class="sitnet-text-medium"
+                        >{{ 'i18n_saved_exams_info_main' | translate }}
+                        {{ 'i18n_saved_exams_info_other' | translate }}</em
+                    >
+                </div>
             </div>
-        </div>
+        }
     </div>
 </div>

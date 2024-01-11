@@ -7,84 +7,97 @@
         </div>
     </div>
 
-    <div class="row mart40 padl30" *ngIf="noShows.length === 0">
-        <div class="review-no-results">
-            <i class="bi-exclamation-circle padl20 grayish"></i> {{ 'i18n_exam_no_shows' | translate }}
+    @if (noShows.length === 0) {
+        <div class="row mart40 padl30">
+            <div class="review-no-results">
+                <i class="bi-exclamation-circle padl20 grayish"></i> {{ 'i18n_exam_no_shows' | translate }}
+            </div>
         </div>
-    </div>
+    }
 
-    <div class="row review-no-show" *ngIf="noShows.length > 0">
-        <table class="table table-striped exams-table">
-            <thead>
-                <tr>
-                    <th>
-                        <xm-table-sort
-                            [reverse]="reverse"
-                            [predicate]="noShowPredicate"
-                            by="displayName"
-                            text="i18n_student"
-                            (click)="setPredicate('displayName')"
-                        ></xm-table-sort>
-                    </th>
-                    <th>
-                        <xm-table-sort
-                            [reverse]="reverse"
-                            [predicate]="noShowPredicate"
-                            by="user.email"
-                            text="i18n_email"
-                            (click)="setPredicate('user.email')"
-                        ></xm-table-sort>
-                    </th>
-                    <th>
-                        <!-- reservation vs eventconfig-->
-                        <xm-table-sort
-                            [reverse]="reverse"
-                            [predicate]="noShowPredicate"
-                            by="reservation.startAt"
-                            text="i18n_reservation"
-                            (click)="setPredicate('reservation.startAt')"
-                        ></xm-table-sort>
-                    </th>
-                    <th>{{ 'i18n_exam_state' | translate }}</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr *ngFor="let noShow of noShows | orderBy : noShowPredicate : reverse">
-                    <td class="table-column-examname">
-                        {{ noShow.displayName }}
-                        <span *ngIf="noShow.user?.userIdentifier"><br />({{ noShow.user?.userIdentifier }})</span>
-                    </td>
-                    <td class="table-column-25">
-                        <a class="pointer" href="mailto:{{ noShow.user?.email }}"> {{ noShow.user?.email }}</a>
-                    </td>
-                    <td class="table-column-25" *ngIf="noShow.reservation">
-                        {{ noShow.reservation.startAt | applyDst | date : 'dd.MM.yyyy' }}
-                        {{ 'i18n_clock_short' | translate }}
-                        {{ noShow.reservation.startAt | applyDst | date : 'HH:mm' }} -
-                        {{ noShow.reservation.endAt | applyDst | date : 'HH:mm' }}
-                    </td>
-                    <td
-                        class="table-column-25"
-                        *ngIf="!noShow.reservation && !noShow.examinationEventConfiguration"
-                    ></td>
-                    <td class="table-column-25" *ngIf="noShow.examinationEventConfiguration">
-                        {{ noShow.examinationEventConfiguration.examinationEvent.start | date : 'dd.MM.yyyy' }}
-                        {{ 'i18n_clock_short' | translate }}
-                        {{ noShow.examinationEventConfiguration.examinationEvent.start | date : 'HH:mm' }} -
-                        {{
-                            noShow.examinationEventConfiguration.examinationEvent.start + noShow.exam.duration
-                                | applyDst
-                                | date : 'HH:mm'
-                        }}
-                    </td>
-                    <td class="table-column-15" class="sitnet-text-aborted">
-                        {{ 'i18n_exam_status_no_show' | translate }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    @if (noShows.length > 0) {
+        <div class="row review-no-show">
+            <table class="table table-striped exams-table">
+                <thead>
+                    <tr>
+                        <th>
+                            <xm-table-sort
+                                [reverse]="reverse"
+                                [predicate]="noShowPredicate"
+                                by="displayName"
+                                text="i18n_student"
+                                (click)="setPredicate('displayName')"
+                            ></xm-table-sort>
+                        </th>
+                        <th>
+                            <xm-table-sort
+                                [reverse]="reverse"
+                                [predicate]="noShowPredicate"
+                                by="user.email"
+                                text="i18n_email"
+                                (click)="setPredicate('user.email')"
+                            ></xm-table-sort>
+                        </th>
+                        <th>
+                            <!-- reservation vs eventconfig-->
+                            <xm-table-sort
+                                [reverse]="reverse"
+                                [predicate]="noShowPredicate"
+                                by="reservation.startAt"
+                                text="i18n_reservation"
+                                (click)="setPredicate('reservation.startAt')"
+                            ></xm-table-sort>
+                        </th>
+                        <th>{{ 'i18n_exam_state' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (noShow of noShows | orderBy: noShowPredicate : reverse; track noShow) {
+                        <tr>
+                            <td class="table-column-examname">
+                                {{ noShow.displayName }}
+                                @if (noShow.user?.userIdentifier) {
+                                    <span><br />({{ noShow.user?.userIdentifier }})</span>
+                                }
+                            </td>
+                            <td class="table-column-25">
+                                <a class="pointer" href="mailto:{{ noShow.user?.email }}"> {{ noShow.user?.email }}</a>
+                            </td>
+                            @if (noShow.reservation) {
+                                <td class="table-column-25">
+                                    {{ noShow.reservation.startAt | applyDst | date: 'dd.MM.yyyy' }}
+                                    {{ 'i18n_clock_short' | translate }}
+                                    {{ noShow.reservation.startAt | applyDst | date: 'HH:mm' }} -
+                                    {{ noShow.reservation.endAt | applyDst | date: 'HH:mm' }}
+                                </td>
+                            }
+                            @if (!noShow.reservation && !noShow.examinationEventConfiguration) {
+                                <td class="table-column-25"></td>
+                            }
+                            @if (noShow.examinationEventConfiguration) {
+                                <td class="table-column-25">
+                                    {{
+                                        noShow.examinationEventConfiguration.examinationEvent.start | date: 'dd.MM.yyyy'
+                                    }}
+                                    {{ 'i18n_clock_short' | translate }}
+                                    {{ noShow.examinationEventConfiguration.examinationEvent.start | date: 'HH:mm' }} -
+                                    {{
+                                        noShow.examinationEventConfiguration.examinationEvent.start +
+                                            noShow.exam.duration
+                                            | applyDst
+                                            | date: 'HH:mm'
+                                    }}
+                                </td>
+                            }
+                            <td class="table-column-15" class="sitnet-text-aborted">
+                                {{ 'i18n_exam_status_no_show' | translate }}
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 
     <!-- Buttons -->
     <div class="flex justify-content-end">

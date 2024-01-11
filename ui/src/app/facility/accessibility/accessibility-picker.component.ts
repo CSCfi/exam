@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor } from '@angular/common';
+import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
@@ -42,23 +42,24 @@ import { AccessibilityService } from './accessibility.service';
                     role="menu"
                     aria-labelledby="dropDownMenu1"
                 >
-                    <button
-                        ngbDropdownItem
-                        *ngFor="let ac of accessibilities"
-                        role="presentation"
-                        class="pointer"
-                        [ngClass]="isSelected(ac) ? 'active' : ''"
-                        (click)="updateAccessibility(ac)"
-                        (keydown.enter)="updateAccessibility(ac)"
-                    >
-                        {{ ac.name }}
-                    </button>
+                    @for (ac of accessibilities; track ac) {
+                        <button
+                            ngbDropdownItem
+                            role="presentation"
+                            class="pointer"
+                            [ngClass]="isSelected(ac) ? 'active' : ''"
+                            (click)="updateAccessibility(ac)"
+                            (keydown.enter)="updateAccessibility(ac)"
+                        >
+                            {{ ac.name }}
+                        </button>
+                    }
                 </div>
             </span>
         </div>
-    </div> `,
+    </div>`,
     standalone: true,
-    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgFor, NgbDropdownItem, NgClass, TranslateModule],
+    imports: [NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass, TranslateModule],
 })
 export class AccessibilitySelectorComponent implements OnInit {
     @Input() room!: ExamRoom;

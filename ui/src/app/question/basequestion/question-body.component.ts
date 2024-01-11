@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor, NgIf, NgSwitch, NgSwitchCase } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
@@ -40,13 +40,9 @@ import { MultipleChoiceEditorComponent } from './multiple-choice.component';
     standalone: true,
     imports: [
         FormsModule,
-        NgIf,
-        NgFor,
         NgbPopover,
         NgClass,
         CKEditorComponent,
-        NgSwitch,
-        NgSwitchCase,
         EssayEditorComponent,
         MultipleChoiceEditorComponent,
         ClaimChoiceEditorComponent,

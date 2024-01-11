@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -47,24 +47,26 @@ export interface LanguageInspectionData extends LanguageInspection {
         <div class="tab-wrapper-exams">
             <div class="review-border">
                 <!-- Under review language inspection -->
-                <xm-unfinished-inspections *ngIf="ongoingInspections" [inspections]="ongoingInspections">
-                </xm-unfinished-inspections>
+                @if (ongoingInspections) {
+                    <xm-unfinished-inspections [inspections]="ongoingInspections"> </xm-unfinished-inspections>
+                }
             </div>
 
             <div class="review-border">
                 <!-- Reviewed language inspection -->
-                <xm-reviewed-inspections
-                    *ngIf="processedInspections"
-                    [inspections]="processedInspections"
-                    (endDateChanged)="endDateChanged($event)"
-                    (startDateChanged)="startDateChanged($event)"
-                >
-                </xm-reviewed-inspections>
+                @if (processedInspections) {
+                    <xm-reviewed-inspections
+                        [inspections]="processedInspections"
+                        (endDateChanged)="endDateChanged($event)"
+                        (startDateChanged)="startDateChanged($event)"
+                    >
+                    </xm-reviewed-inspections>
+                }
             </div>
         </div>
-    </div> `,
+    </div>`,
     standalone: true,
-    imports: [NgIf, UnfinishedInspectionsComponent, ReviewedInspectionsComponent, TranslateModule],
+    imports: [UnfinishedInspectionsComponent, ReviewedInspectionsComponent, TranslateModule],
 })
 export class LanguageInspectionsComponent implements OnInit {
     ongoingInspections: LanguageInspectionData[] = [];
@@ -72,7 +74,10 @@ export class LanguageInspectionsComponent implements OnInit {
     private startDate: Date | null = null;
     private endDate: Date | null = null;
 
-    constructor(private Language: LanguageService, private LanguageInspection: LanguageInspectionService) {}
+    constructor(
+        private Language: LanguageService,
+        private LanguageInspection: LanguageInspectionService,
+    ) {}
 
     ngOnInit() {
         this.query();

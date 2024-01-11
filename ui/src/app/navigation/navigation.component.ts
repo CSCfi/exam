@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import type { OnDestroy, OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -31,7 +31,7 @@ import { NavigationService } from './navigation.service';
     selector: 'xm-navigation',
     templateUrl: './navigation.component.html',
     standalone: true,
-    imports: [NgIf, NgFor, RouterLinkActive, RouterLink, NgbCollapse, TranslateModule],
+    imports: [RouterLinkActive, RouterLink, NgbCollapse, TranslateModule],
 })
 export class NavigationComponent implements OnInit, OnDestroy {
     appVersion = '';

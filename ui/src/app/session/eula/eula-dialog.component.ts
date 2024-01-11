@@ -50,7 +50,10 @@ import { TranslateModule } from '@ngx-translate/core';
 export class EulaDialogComponent implements OnInit {
     settings = { eula: { value: '' } };
 
-    constructor(public activeModal: NgbActiveModal, private http: HttpClient) {}
+    constructor(
+        public activeModal: NgbActiveModal,
+        private http: HttpClient,
+    ) {}
 
     ngOnInit() {
         this.http

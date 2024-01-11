@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTimeService } from '../../shared/date/date.service';
@@ -33,14 +33,18 @@ import type { Examination } from '../examination.model';
         </div>
         <div class="row ms-2 guide-wrapper">
             <div class="col-md-12">
-                <div class="row" *ngIf="exam.course">
-                    <div class="header col-md-4">{{ 'i18n_course_name' | translate }}:</div>
-                    <div class="text col-md-8">{{ exam.course.name }}</div>
-                </div>
-                <div class="row" *ngIf="exam.course">
-                    <div class="header col-md-4">{{ 'i18n_course_code' | translate }}:</div>
-                    <div class="text col-md-8"><xm-course-code [course]="exam.course"></xm-course-code></div>
-                </div>
+                @if (exam.course) {
+                    <div class="row">
+                        <div class="header col-md-4">{{ 'i18n_course_name' | translate }}:</div>
+                        <div class="text col-md-8">{{ exam.course.name }}</div>
+                    </div>
+                }
+                @if (exam.course) {
+                    <div class="row">
+                        <div class="header col-md-4">{{ 'i18n_course_code' | translate }}:</div>
+                        <div class="text col-md-8"><xm-course-code [course]="exam.course"></xm-course-code></div>
+                    </div>
+                }
                 <div class="row">
                     <div class="header col-md-4">{{ 'i18n_exam_name' | translate }}:</div>
                     <div class="text col-md-8">{{ exam.name }}</div>
@@ -57,7 +61,7 @@ import type { Examination } from '../examination.model';
         </div>
     `,
     standalone: true,
-    imports: [NgIf, CourseCodeComponent, MathJaxDirective, TranslateModule],
+    imports: [CourseCodeComponent, MathJaxDirective, TranslateModule],
 })
 export class AnswerInstructionsComponent {
     @Input() exam!: Examination;

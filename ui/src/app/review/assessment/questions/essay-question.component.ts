@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -34,7 +34,6 @@ import { AssessmentService } from '../assessment.service';
     standalone: true,
     imports: [
         MathJaxDirective,
-        NgIf,
         NgbCollapse,
         FormsModule,
         FixedPrecisionValidatorDirective,

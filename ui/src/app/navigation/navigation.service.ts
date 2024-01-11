@@ -29,7 +29,11 @@ export interface Link {
 
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
-    constructor(private http: HttpClient, private router: Router, private Session: SessionService) {}
+    constructor(
+        private http: HttpClient,
+        private router: Router,
+        private Session: SessionService,
+    ) {}
 
     getAppVersion$ = () => this.http.get<{ appVersion: string }>('/app/settings/appVersion');
 

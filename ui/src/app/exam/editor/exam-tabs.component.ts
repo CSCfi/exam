@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { LowerCasePipe, NgIf } from '@angular/common';
+import { LowerCasePipe } from '@angular/common';
 import type { OnDestroy, OnInit } from '@angular/core';
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink, RouterOutlet } from '@angular/router';
@@ -31,17 +31,7 @@ import { ExamTabService } from './exam-tabs.service';
     selector: 'xm-exam-tabs',
     templateUrl: './exam-tabs.component.html',
     standalone: true,
-    imports: [
-        NgIf,
-        RouterLink,
-        NgbNav,
-        NgbNavItem,
-        NgbNavItemRole,
-        NgbNavLink,
-        RouterOutlet,
-        LowerCasePipe,
-        TranslateModule,
-    ],
+    imports: [RouterLink, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, RouterOutlet, LowerCasePipe, TranslateModule],
 })
 export class ExamTabsComponent implements OnInit, OnDestroy {
     exam!: Exam;

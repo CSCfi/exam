@@ -72,7 +72,10 @@ export class WeightedMultipleChoiceOptionEditorComponent {
     @Input() question!: Question | QuestionDraft;
     @Input() lotteryOn = false;
 
-    constructor(private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     removeOption = () => {
         const hasCorrectAnswer = this.question.options.some((o) => o !== this.option && o.defaultScore > 0);

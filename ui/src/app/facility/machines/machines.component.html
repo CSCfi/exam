@@ -49,37 +49,46 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let machine of sortAlphabeticalMachineList(room.examMachines)">
-                        <td>
-                            <a
-                                [ngClass]="{ 'text-danger': !machine.name }"
-                                class="exams-info-title bold-button"
-                                [routerLink]="['/staff/machines', machine.id]"
-                            >
-                                {{ !machine.name ? ('i18n_no_name' | translate) : machine.name }}
-                            </a>
-                        </td>
-                        <td>{{ machine.otherIdentifier }}</td>
-                        <td>{{ machine.accessibilityInfo }}</td>
-                        <td>
-                            <ul>
-                                <li *ngFor="let software of machine.softwareInfo; let l = last" class="float-start">
-                                    <span *ngIf="software.status !== 'DISABLED'">
-                                        {{ software.name }}<span *ngIf="!l">, </span>
-                                    </span>
-                                </li>
-                            </ul>
-                        </td>
-                        <td>
-                            <span class="status_red" *ngIf="machine.outOfService">{{
-                                'i18n_status_inactive' | translate
-                            }}</span>
-                            <span class="status_green" *ngIf="!machine.outOfService">{{
-                                'i18n_status_active' | translate
-                            }}</span>
-                            <span class="ms-2">{{ machine.statusComment }}</span>
-                        </td>
-                    </tr>
+                    @for (machine of sortAlphabeticalMachineList(room.examMachines); track machine) {
+                        <tr>
+                            <td>
+                                <a
+                                    [ngClass]="{ 'text-danger': !machine.name }"
+                                    class="exams-info-title bold-button"
+                                    [routerLink]="['/staff/machines', machine.id]"
+                                >
+                                    {{ !machine.name ? ('i18n_no_name' | translate) : machine.name }}
+                                </a>
+                            </td>
+                            <td>{{ machine.otherIdentifier }}</td>
+                            <td>{{ machine.accessibilityInfo }}</td>
+                            <td>
+                                <ul>
+                                    @for (software of machine.softwareInfo; track software; let l = $last) {
+                                        <li class="float-start">
+                                            @if (software.status !== 'DISABLED') {
+                                                <span>
+                                                    {{ software.name }}
+                                                    @if (!l) {
+                                                        <span>, </span>
+                                                    }
+                                                </span>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </td>
+                            <td>
+                                @if (machine.outOfService) {
+                                    <span class="status_red">{{ 'i18n_status_inactive' | translate }}</span>
+                                }
+                                @if (!machine.outOfService) {
+                                    <span class="status_green">{{ 'i18n_status_active' | translate }}</span>
+                                }
+                                <span class="ms-2">{{ machine.statusComment }}</span>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>

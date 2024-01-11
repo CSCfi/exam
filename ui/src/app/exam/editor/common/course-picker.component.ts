@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbHighlight, NgbPopover, NgbTypeahead, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/ng-bootstrap';
@@ -29,7 +29,7 @@ import { CoursePickerService } from './course-picker.service';
     selector: 'xm-course-picker',
     templateUrl: './course-picker.component.html',
     standalone: true,
-    imports: [FormsModule, NgbTypeahead, NgbHighlight, NgIf, NgbPopover, TranslateModule],
+    imports: [FormsModule, NgbTypeahead, NgbHighlight, NgbPopover, TranslateModule],
 })
 export class CoursePickerComponent implements OnInit {
     @Input() course?: Course;

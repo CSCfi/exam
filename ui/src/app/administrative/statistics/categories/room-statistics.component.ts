@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgFor } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import type { ExamParticipation } from '../../../exam/exam.model';
@@ -34,23 +34,31 @@ import { StatisticsService } from '../statistics.service';
                     <thead>
                         <th class="warning">{{ 'i18n_year' | translate }}</th>
                         <th class="warning">{{ 'i18n_month' | translate }}</th>
-                        <th *ngFor="let room of rooms">{{ room.split('___')[1] }}</th>
+                        @for (room of rooms; track room) {
+                            <th>{{ room.split('___')[1] }}</th>
+                        }
                         <th class="success">{{ 'i18n_total' | translate }}</th>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let month of months">
-                            <td class="warning">{{ month | date : 'yyyy' }}</td>
-                            <td class="warning">{{ month | date : 'M' }}</td>
-                            <td *ngFor="let room of rooms">{{ totalParticipations(month, room) }}</td>
-                            <td class="success">{{ totalParticipations(month) }}</td>
-                        </tr>
+                        @for (month of months; track month) {
+                            <tr>
+                                <td class="warning">{{ month | date: 'yyyy' }}</td>
+                                <td class="warning">{{ month | date: 'M' }}</td>
+                                @for (room of rooms; track room) {
+                                    <td>{{ totalParticipations(month, room) }}</td>
+                                }
+                                <td class="success">{{ totalParticipations(month) }}</td>
+                            </tr>
+                        }
                     </tbody>
                     <tfoot>
                         <tr class="success">
                             <td colspan="2">
                                 <b>{{ 'i18n_total' | translate }}</b>
                             </td>
-                            <td *ngFor="let room of rooms">{{ totalParticipations(undefined, room) }}</td>
+                            @for (room of rooms; track room) {
+                                <td>{{ totalParticipations(undefined, room) }}</td>
+                            }
                             <td>
                                 <b>{{ totalParticipations() }}</b>
                             </td>
@@ -62,7 +70,7 @@ import { StatisticsService } from '../statistics.service';
     `,
     selector: 'xm-room-statistics',
     standalone: true,
-    imports: [NgFor, DatePipe, TranslateModule],
+    imports: [DatePipe, TranslateModule],
 })
 export class RoomStatisticsComponent {
     @Input() queryParams: QueryParams = {};

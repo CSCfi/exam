@@ -21,7 +21,10 @@ import { isNumber } from './helpers';
 
 @Injectable({ providedIn: 'root' })
 export class CommonExamService {
-    constructor(@Inject(DOCUMENT) private document: Document, private translate: TranslateService) {}
+    constructor(
+        @Inject(DOCUMENT) private document: Document,
+        private translate: TranslateService,
+    ) {}
 
     getExamTypeDisplayName = (type: string): string => {
         let name = '';

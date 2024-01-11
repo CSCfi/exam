@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf, UpperCasePipe } from '@angular/common';
+import { UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -26,7 +26,7 @@ import type { ReviewQuestion } from '../../review.model';
     selector: 'xm-essay-answer',
     templateUrl: './essay-answer.component.html',
     standalone: true,
-    imports: [NgIf, RouterLink, MathJaxDirective, FormsModule, UpperCasePipe, TranslateModule],
+    imports: [RouterLink, MathJaxDirective, FormsModule, UpperCasePipe, TranslateModule],
 })
 export class EssayAnswerComponent implements OnInit {
     @Input() answer!: ReviewQuestion;
@@ -36,7 +36,10 @@ export class EssayAnswerComponent implements OnInit {
 
     name = '';
 
-    constructor(private CommonExam: CommonExamService, private Attachment: AttachmentService) {}
+    constructor(
+        private CommonExam: CommonExamService,
+        private Attachment: AttachmentService,
+    ) {}
 
     ngOnInit() {
         this.name = this.answer.examSection.exam.creator

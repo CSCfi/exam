@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
@@ -24,30 +24,41 @@ import type { User } from '../../../session/session.service';
 
 @Component({
     selector: 'xm-r-inspection',
-    template: `<span *ngIf="inspection.user?.id !== user.id">
-            <span class="sitnet-text-ready" *ngIf="inspection.ready">
-                {{ inspection.user.firstName }} {{ inspection.user.lastName }} {{ 'i18n_ready' | translate }}</span
-            >
-            <span class="sitnet-text-alarm" *ngIf="!inspection.ready">
-                {{ inspection.user.firstName }} {{ inspection.user.lastName }}
-                {{ 'i18n_in_progress' | translate }}</span
-            >
-        </span>
-        <div class="input-group-sm make-inline" *ngIf="inspection.user?.id === user.id">
-            <div class="make-inline">{{ inspection.user.firstName }} {{ inspection.user.lastName }}</div>
-            <div class="make-inline padl10">
-                <select
-                    [(ngModel)]="inspection.ready"
-                    class="form-select"
-                    [disabled]="disabled"
-                    (change)="setInspectionStatus()"
-                >
-                    <option *ngFor="let rs of reviewStatuses" [ngValue]="rs.key">{{ rs.value }}</option>
-                </select>
+    template: `@if (inspection.user?.id !== user.id) {
+            <span>
+                @if (inspection.ready) {
+                    <span class="sitnet-text-ready">
+                        {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                        {{ 'i18n_ready' | translate }}</span
+                    >
+                }
+                @if (!inspection.ready) {
+                    <span class="sitnet-text-alarm">
+                        {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                        {{ 'i18n_in_progress' | translate }}</span
+                    >
+                }
+            </span>
+        }
+        @if (inspection.user?.id === user.id) {
+            <div class="input-group-sm make-inline">
+                <div class="make-inline">{{ inspection.user.firstName }} {{ inspection.user.lastName }}</div>
+                <div class="make-inline padl10">
+                    <select
+                        [(ngModel)]="inspection.ready"
+                        class="form-select"
+                        [disabled]="disabled"
+                        (change)="setInspectionStatus()"
+                    >
+                        @for (rs of reviewStatuses; track rs) {
+                            <option [ngValue]="rs.key">{{ rs.value }}</option>
+                        }
+                    </select>
+                </div>
             </div>
-        </div> `,
+        }`,
     standalone: true,
-    imports: [NgIf, FormsModule, NgFor, TranslateModule],
+    imports: [FormsModule, TranslateModule],
 })
 export class InspectionComponent implements OnInit {
     @Input() inspection!: ExamInspection;
@@ -57,7 +68,11 @@ export class InspectionComponent implements OnInit {
 
     reviewStatuses: { key: boolean; value: string }[] = [];
 
-    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     ngOnInit() {
         this.reviewStatuses = [

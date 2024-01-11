@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgFor, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -35,16 +35,7 @@ export type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Ex
     selector: 'xm-r-general-info',
     templateUrl: './general-info.component.html',
     standalone: true,
-    imports: [
-        NgIf,
-        NgFor,
-        ParticipationComponent,
-        NoShowComponent,
-        MathJaxDirective,
-        DatePipe,
-        TranslateModule,
-        ApplyDstPipe,
-    ],
+    imports: [ParticipationComponent, NoShowComponent, MathJaxDirective, DatePipe, TranslateModule, ApplyDstPipe],
 })
 export class GeneralInfoComponent implements OnInit {
     @Input() exam!: Exam;
@@ -72,8 +63,8 @@ export class GeneralInfoComponent implements OnInit {
         this.studentName = this.student
             ? `${this.student.lastName} ${this.student.firstName}`
             : this.collaborative
-            ? (this.participation._id as string)
-            : this.exam.id.toString();
+              ? (this.participation._id as string)
+              : this.exam.id.toString();
         this.enrolment = this.exam.examEnrolments.length > 0 ? this.exam.examEnrolments[0] : undefined;
         this.reservation = this.enrolment?.reservation;
         if (this.collaborative) {

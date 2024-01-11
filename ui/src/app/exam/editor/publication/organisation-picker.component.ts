@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import {
@@ -44,11 +44,7 @@ type Organisation = {
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
-                    <img
-                        src="/assets/images/icon_tooltip.svg"
-                        alt="exam organisations"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                    />
+                    <img src="/assets/images/icon_tooltip.svg" alt="exam organisations" />
                 </sup>
             </div>
             <div class="col-md-9" ngbDropdown>
@@ -64,51 +60,47 @@ type Organisation = {
                     {{ 'i18n_faculty_name' | translate }}&nbsp;
                 </button>
                 <ul ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu21">
-                    <li *ngFor="let org of organisations" role="presentation">
-                        <button
-                            [disabled]="org.filtered"
-                            ngbDropdownItem
-                            (click)="addOrganisation(org)"
-                            role="menuitem"
-                        >
-                            {{ org.code }} ({{ org.name }})
-                        </button>
-                    </li>
+                    @for (org of organisations; track org) {
+                        <li role="presentation">
+                            <button
+                                [disabled]="org.filtered"
+                                ngbDropdownItem
+                                (click)="addOrganisation(org)"
+                                role="menuitem"
+                            >
+                                {{ org.code }} ({{ org.name }})
+                            </button>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>
-        <div class="row mt-2" *ngIf="selectedOrganisations.length > 0">
-            <div class="col-md-9 offset-md-3">
-                <ul class="list-group list-group-horizontal">
-                    <li class="list-group-item" *ngFor="let org of selectedOrganisations">
-                        {{ org.name }} ({{ org.code }})
-                        <button
-                            class="reviewer-remove"
-                            [disabled]="exam.state === 'PUBLISHED'"
-                            (click)="removeOrganisation(org)"
-                        >
-                            <img
-                                [hidden]="exam.state === 'PUBLISHED'"
-                                src="/assets/images/icon_remove.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
-                            />
-                        </button>
-                    </li>
-                </ul>
+        @if (selectedOrganisations.length > 0) {
+            <div class="row mt-2">
+                <div class="col-md-9 offset-md-3">
+                    <ul class="list-group list-group-horizontal">
+                        @for (org of selectedOrganisations; track org) {
+                            <li class="list-group-item">
+                                {{ org.name }} ({{ org.code }})
+                                <button
+                                    class="reviewer-remove"
+                                    [disabled]="exam.state === 'PUBLISHED'"
+                                    (click)="removeOrganisation(org)"
+                                >
+                                    <img
+                                        [hidden]="exam.state === 'PUBLISHED'"
+                                        src="/assets/images/icon_remove.svg"
+                                        alt=""
+                                    />
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                </div>
             </div>
-        </div> `,
+        }`,
     standalone: true,
-    imports: [
-        NgbPopover,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgFor,
-        NgbDropdownItem,
-        NgIf,
-        TranslateModule,
-    ],
+    imports: [NgbPopover, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
 })
 export class OrganisationSelectorComponent implements OnInit {
     @Input() exam!: Exam;
@@ -116,7 +108,10 @@ export class OrganisationSelectorComponent implements OnInit {
     organisations: Organisation[] = [];
     selectedOrganisations: Organisation[] = [];
 
-    constructor(private http: HttpClient, private Exam: ExamService) {}
+    constructor(
+        private http: HttpClient,
+        private Exam: ExamService,
+    ) {}
 
     ngOnInit() {
         this.http.get<Organisation[]>('/app/iop/organisations').subscribe((resp) => {

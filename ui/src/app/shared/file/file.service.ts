@@ -25,7 +25,11 @@ type Container = { attachment?: Attachment; objectVersion?: number };
 @Injectable({ providedIn: 'root' })
 export class FileService {
     maxFileSize = 0;
-    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     download(url: string, filename: string, params?: Record<string, string | string[]>, post?: boolean) {
         const method = post ? 'POST' : 'GET';

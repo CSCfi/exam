@@ -100,7 +100,11 @@ export class AddressComponent {
     @Input() address!: Address;
     @ViewChild('addressForm', { static: false }) addressForm?: NgForm;
 
-    constructor(private room: RoomService, private toast: ToastrService, private translate: TranslateService) {}
+    constructor(
+        private room: RoomService,
+        private toast: ToastrService,
+        private translate: TranslateService,
+    ) {}
 
     validateAndUpdateAddress = () => {
         if (this.addressForm?.valid) {

@@ -1,4 +1,4 @@
-import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -30,7 +30,7 @@ import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
     selector: 'xm-exam-assessment',
     templateUrl: './exam-assessment.component.html',
     standalone: true,
-    imports: [NgbPopover, NgFor, NgClass, NgIf, AutoEvaluationComponent, ExamFeedbackConfigComponent, TranslateModule],
+    imports: [NgbPopover, NgClass, AutoEvaluationComponent, ExamFeedbackConfigComponent, TranslateModule],
 })
 export class ExamAssessmentComponent implements OnInit, OnDestroy {
     exam!: Exam;

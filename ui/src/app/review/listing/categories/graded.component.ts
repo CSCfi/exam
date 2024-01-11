@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgClass, NgFor, NgIf, SlicePipe } from '@angular/common';
+import { DatePipe, NgClass, SlicePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
@@ -48,7 +48,6 @@ import { ReviewListService } from '../review-list.service';
     templateUrl: './graded.component.html',
     standalone: true,
     imports: [
-        NgIf,
         NgbPopover,
         FormsModule,
         NgbDropdown,
@@ -57,7 +56,6 @@ import { ReviewListService } from '../review-list.service';
         NgbDropdownItem,
         NgClass,
         TableSortComponent,
-        NgFor,
         RouterLink,
         PaginatorComponent,
         SlicePipe,

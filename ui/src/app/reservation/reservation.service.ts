@@ -31,8 +31,8 @@ export class ReservationService {
         reservation.enrolment.noShow
             ? 'NO_SHOW'
             : reservation.enrolment.exam
-            ? reservation.enrolment.exam.state
-            : reservation.enrolment.collaborativeExam.state;
+              ? reservation.enrolment.exam.state
+              : reservation.enrolment.collaborativeExam.state;
 
     getReservationCount = (exam: Exam) =>
         exam.examEnrolments.filter(

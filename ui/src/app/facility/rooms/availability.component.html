@@ -1,61 +1,73 @@
 <div>
     <div class="student-exam-row">
         <!-- ROOM  -->
-        <div class="calendar-room-title" *ngIf="room">
-            <span
-                >{{ room.name }}&nbsp;
-                <small> ({{ room.localTimezone }})</small>
-                <small class="text-muted"
-                    >{{ room.mailAddress.street }} {{ room.mailAddress.zip }} {{ room.mailAddress.city }}
-                </small>
-            </span>
-        </div>
-
-        <div class="calendar-room-info" *ngIf="room">
-            <div class="calendar-room-info-title">{{ 'i18n_room_default_working_hours' | translate }}</div>
-            <div class="calendar-room-info-content">
-                <div *ngFor="let oh of openingHours">{{ oh.name }}: {{ oh.periodText }}</div>
+        @if (room) {
+            <div class="calendar-room-title">
+                <span
+                    >{{ room.name }}&nbsp;
+                    <small> ({{ room.localTimezone }})</small>
+                    <small class="text-muted"
+                        >{{ room.mailAddress.street }} {{ room.mailAddress.zip }} {{ room.mailAddress.city }}
+                    </small>
+                </span>
             </div>
-        </div>
+        }
 
-        <div class="calendar-room-info" *ngIf="exceptionHours && exceptionHours.length > 0">
-            <div class="calendar-room-info-title">{{ 'i18n_exception_datetimes' | translate }}:</div>
-            <button (click)="oldExceptionsHidden = !oldExceptionsHidden" class="btn btn-secondary marb20">
-                {{ 'i18n_hide_over_year_old' | translate }} ({{
-                    oldExceptionsHidden ? ('i18n_on' | translate) : ('i18n_off' | translate)
-                }})
-            </button>
-            <div class="calendar-room-info-content">
-                <div *ngFor="let eh of !oldExceptionsHidden ? exceptionHours : newExceptions">
-                    <span [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'">
-                        {{ eh.start }} - {{ eh.end }}
-                        <small>({{ eh.description | translate }})</small>
-                        <i
-                            class="bi-dot"
-                            *ngIf="isInFuture(eh.startDate)"
-                            [attr.aria-label]="'i18n_coming_exception' | translate"
-                        ></i>
-                        <i
-                            class="bi-exclamation-circle"
-                            *ngIf="isNow(eh.startDate, eh.endDate)"
-                            [attr.aria-label]="'i18n_ongoing_exception' | translate"
-                        ></i>
-                    </span>
+        @if (room) {
+            <div class="calendar-room-info">
+                <div class="calendar-room-info-title">{{ 'i18n_room_default_working_hours' | translate }}</div>
+                <div class="calendar-room-info-content">
+                    @for (oh of openingHours; track oh) {
+                        <div>{{ oh.name }}: {{ oh.periodText }}</div>
+                    }
                 </div>
             </div>
-        </div>
+        }
 
-        <hr *ngIf="room" />
+        @if (exceptionHours && exceptionHours.length > 0) {
+            <div class="calendar-room-info">
+                <div class="calendar-room-info-title">{{ 'i18n_exception_datetimes' | translate }}:</div>
+                <button (click)="oldExceptionsHidden = !oldExceptionsHidden" class="btn btn-secondary marb20">
+                    {{ 'i18n_hide_over_year_old' | translate }} ({{
+                        oldExceptionsHidden ? ('i18n_on' | translate) : ('i18n_off' | translate)
+                    }})
+                </button>
+                <div class="calendar-room-info-content">
+                    @for (eh of !oldExceptionsHidden ? exceptionHours : newExceptions; track eh) {
+                        <div>
+                            <span [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'">
+                                {{ eh.start }} - {{ eh.end }}
+                                <small>({{ eh.description | translate }})</small>
+                                @if (isInFuture(eh.startDate)) {
+                                    <i class="bi-dot" [attr.aria-label]="'i18n_coming_exception' | translate"></i>
+                                }
+                                @if (isNow(eh.startDate, eh.endDate)) {
+                                    <i
+                                        class="bi-exclamation-circle"
+                                        [attr.aria-label]="'i18n_ongoing_exception' | translate"
+                                    ></i>
+                                }
+                            </span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (room) {
+            <hr />
+        }
     </div>
 
     <div class="student-exam-row bottom-row">
         <div class="col-md-12">
-            <xm-booking-calendar
-                *ngIf="room"
-                (moreEventsNeeded)="refresh($event)"
-                [room]="room"
-                [visible]="true"
-            ></xm-booking-calendar>
+            @if (room) {
+                <xm-booking-calendar
+                    (moreEventsNeeded)="refresh($event)"
+                    [room]="room"
+                    [visible]="true"
+                ></xm-booking-calendar>
+            }
         </div>
     </div>
 </div>

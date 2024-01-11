@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor } from '@angular/common';
+
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -33,11 +33,7 @@ import type { Exam } from '../../exam.model';
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
-                    <img
-                        src="/assets/images/icon_tooltip.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                    />
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                 </sup>
             </div>
             <div class="col-md-9">
@@ -65,27 +61,28 @@ import type { Exam } from '../../exam.model';
             <div class="col-md-9">
                 <ul class="list-group list-group-horizontal">
                     <!-- Owners for the exam -->
-                    <li class="list-group-item" *ngFor="let owner of exam.examOwners">
-                        {{ owner.email }}
-                        <button
-                            class="reviewer-remove"
-                            [disabled]="!user.isAdmin"
-                            (click)="removeOwner(owner.id)"
-                            title="{{ 'i18n_remove' | translate }}"
-                        >
-                            <img
-                                [hidden]="exam.state === 'PUBLISHED'"
-                                src="/assets/images/icon_remove.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
-                            />
-                        </button>
-                    </li>
+                    @for (owner of exam.examOwners; track owner) {
+                        <li class="list-group-item">
+                            {{ owner.email }}
+                            <button
+                                class="reviewer-remove"
+                                [disabled]="!user.isAdmin"
+                                (click)="removeOwner(owner.id)"
+                                title="{{ 'i18n_remove' | translate }}"
+                            >
+                                <img
+                                    [hidden]="exam.state === 'PUBLISHED'"
+                                    src="/assets/images/icon_remove.svg"
+                                    alt=""
+                                />
+                            </button>
+                        </li>
+                    }
                 </ul>
             </div>
-        </div> `,
+        </div>`,
     standalone: true,
-    imports: [NgbPopover, FormsModule, NgFor, TranslateModule],
+    imports: [NgbPopover, FormsModule, TranslateModule],
 })
 export class CollaborativeExamOwnerSelectorComponent {
     @Input() exam!: Exam;
@@ -93,7 +90,11 @@ export class CollaborativeExamOwnerSelectorComponent {
     user: User;
     newOwner: { email: string | undefined } = { email: undefined };
 
-    constructor(private http: HttpClient, private toast: ToastrService, private Session: SessionService) {
+    constructor(
+        private http: HttpClient,
+        private toast: ToastrService,
+        private Session: SessionService,
+    ) {
         this.user = this.Session.getUser();
     }
 

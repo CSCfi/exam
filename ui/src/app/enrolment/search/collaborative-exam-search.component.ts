@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgFor, NgIf } from '@angular/common';
+
 import type { OnInit } from '@angular/core';
 import { Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -54,11 +54,13 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
             </div>
         </div>
 
-        <div *ngIf="exams.length > 0 && filter.text.length > 2" class="student-details-title-wrap padleft">
-            {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
-            {{ 'i18n_student_exam_search_result_continues' | translate }}
-            <b>"{{ filter.text }}"</b>
-        </div>
+        @if (exams.length > 0 && filter.text.length > 2) {
+            <div class="student-details-title-wrap padleft">
+                {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
+                {{ 'i18n_student_exam_search_result_continues' | translate }}
+                <b>"{{ filter.text }}"</b>
+            </div>
+        }
         <div class="student-details-title-wrap padleft">
             <div class="col" [hidden]="!loader.loading">
                 <button class="btn btn-success" type="button" disabled>
@@ -70,14 +72,16 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
 
         <div class="row">
             <div class="col-12 ms-4">
-                <div class="exams-list list-item" [hidden]="loader.loading" *ngFor="let exam of exams">
-                    <xm-exam-search-result [exam]="exam" [collaborative]="true"></xm-exam-search-result>
-                </div>
+                @for (exam of exams; track exam) {
+                    <div class="exams-list list-item" [hidden]="loader.loading">
+                        <xm-exam-search-result [exam]="exam" [collaborative]="true"></xm-exam-search-result>
+                    </div>
+                }
             </div>
         </div>
-    </div> `,
+    </div>`,
     standalone: true,
-    imports: [FormsModule, NgIf, NgFor, ExamSearchResultComponent, TranslateModule],
+    imports: [FormsModule, ExamSearchResultComponent, TranslateModule],
 })
 export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
     exams: CollaborativeExamInfo[] = [];

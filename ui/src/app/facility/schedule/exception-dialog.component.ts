@@ -1,4 +1,4 @@
-import { formatDate, NgClass, NgFor, NgIf } from '@angular/common';
+import { formatDate, NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
@@ -22,16 +22,7 @@ enum ORDINAL {
 
 @Component({
     standalone: true,
-    imports: [
-        FormsModule,
-        TranslateModule,
-        NgClass,
-        NgFor,
-        NgIf,
-        DateTimePickerComponent,
-        DatePickerComponent,
-        NgbTimepickerModule,
-    ],
+    imports: [FormsModule, TranslateModule, NgClass, DateTimePickerComponent, DatePickerComponent, NgbTimepickerModule],
     templateUrl: './exception-dialog.component.html',
 })
 export class ExceptionDialogComponent {

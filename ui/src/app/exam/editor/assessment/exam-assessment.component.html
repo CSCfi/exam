@@ -24,24 +24,22 @@
                                     triggers="mouseenter:mouseleave"
                                     ngbPopover="{{ 'i18n_exam_credit_type_description' | translate }}"
                                 >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                                    />
+                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                                 </sup>
                             </div>
                             <div class="col-md-9">
-                                <span *ngFor="let examType of examTypes">
-                                    <button
-                                        [disabled]="examTypes.length < 2"
-                                        class="btn btn-review"
-                                        [ngClass]="checkExamType(examType.type)"
-                                        (click)="setExamType(examType.type)"
-                                    >
-                                        {{ examType.name }}</button
-                                    >&nbsp;
-                                </span>
+                                @for (examType of examTypes; track examType) {
+                                    <span>
+                                        <button
+                                            [disabled]="examTypes.length < 2"
+                                            class="btn btn-review"
+                                            [ngClass]="checkExamType(examType.type)"
+                                            (click)="setExamType(examType.type)"
+                                        >
+                                            {{ examType.name }}</button
+                                        >&nbsp;
+                                    </span>
+                                }
                             </div>
                         </div>
                     </div>
@@ -58,47 +56,49 @@
                                     triggers="mouseenter:mouseleave"
                                     ngbPopover="{{ 'i18n_exam_grade_scale_description' | translate }}"
                                 >
-                                    <img
-                                        src="/assets/images/icon_tooltip.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/image/icon_tooltip.png'"
-                                    />
+                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                                 </sup>
                             </div>
                             <div class="col-md-9">
-                                <span *ngFor="let gradeScale of getSelectableScales()">
-                                    <button
-                                        class="btn btn-review"
-                                        [ngClass]="checkScale(gradeScale)"
-                                        (click)="setScale(gradeScale)"
-                                        [disabled]="checkScaleDisabled(gradeScale)"
+                                @for (gradeScale of getSelectableScales(); track gradeScale) {
+                                    <span>
+                                        <button
+                                            class="btn btn-review"
+                                            [ngClass]="checkScale(gradeScale)"
+                                            (click)="setScale(gradeScale)"
+                                            [disabled]="checkScaleDisabled(gradeScale)"
+                                        >
+                                            {{ gradeScale.name }}</button
+                                        >&nbsp;</span
                                     >
-                                        {{ gradeScale.name }}</button
-                                    >&nbsp;</span
-                                >
+                                }
                             </div>
                         </div>
                     </div>
                 </div>
                 <!-- Autoevaluation -->
-                <div *ngIf="canBeAutoEvaluated()">
-                    <xm-auto-evaluation
-                        [exam]="exam"
-                        (updated)="autoEvaluationConfigChanged($event)"
-                        (disabled)="autoEvaluationDisabled()"
-                        (enabled)="autoEvaluationEnabled()"
-                    >
-                    </xm-auto-evaluation>
-                </div>
-                <div *ngIf="!collaborative && exam.executionType?.type !== 'MATURITY'" class="">
-                    <xm-exam-feedback-config
-                        [exam]="exam"
-                        [modifiable]="isAllowedToUpdateFeedbackConfig"
-                        (updated)="feedbackConfigChanged($event)"
-                        (disabled)="feedbackConfigDisabled()"
-                        (enabled)="feedbackConfigEnabled()"
-                    ></xm-exam-feedback-config>
-                </div>
+                @if (canBeAutoEvaluated()) {
+                    <div>
+                        <xm-auto-evaluation
+                            [exam]="exam"
+                            (updated)="autoEvaluationConfigChanged($event)"
+                            (disabled)="autoEvaluationDisabled()"
+                            (enabled)="autoEvaluationEnabled()"
+                        >
+                        </xm-auto-evaluation>
+                    </div>
+                }
+                @if (!collaborative && exam.executionType?.type !== 'MATURITY') {
+                    <div class="">
+                        <xm-exam-feedback-config
+                            [exam]="exam"
+                            [modifiable]="isAllowedToUpdateFeedbackConfig"
+                            (updated)="feedbackConfigChanged($event)"
+                            (disabled)="feedbackConfigDisabled()"
+                            (enabled)="feedbackConfigEnabled()"
+                        ></xm-exam-feedback-config>
+                    </div>
+                }
             </div>
         </div>
     </div>

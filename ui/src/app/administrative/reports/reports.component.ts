@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -42,28 +42,37 @@ import { ReportsService, UserRole } from './reports.service';
             </div>
 
             <div id="dashboard">
-                <div class="report-category" *ngIf="rooms"><xm-rooms-report [rooms]="rooms"></xm-rooms-report></div>
-                <div class="report-category" *ngIf="examNames">
-                    <xm-exams-report [examNames]="examNames" fileType="xlsx"></xm-exams-report>
-                </div>
-                <div class="report-category" *ngIf="students">
-                    <xm-students-report [students]="students"></xm-students-report>
-                </div>
-                <div class="report-category" *ngIf="examNames">
-                    <xm-enrolments-report [examNames]="examNames"></xm-enrolments-report>
-                </div>
+                @if (rooms) {
+                    <div class="report-category"><xm-rooms-report [rooms]="rooms"></xm-rooms-report></div>
+                }
+                @if (examNames) {
+                    <div class="report-category">
+                        <xm-exams-report [examNames]="examNames" fileType="xlsx"></xm-exams-report>
+                    </div>
+                }
+                @if (students) {
+                    <div class="report-category">
+                        <xm-students-report [students]="students"></xm-students-report>
+                    </div>
+                }
+                @if (examNames) {
+                    <div class="report-category">
+                        <xm-enrolments-report [examNames]="examNames"></xm-enrolments-report>
+                    </div>
+                }
                 <div class="report-category"><xm-answers-report></xm-answers-report></div>
                 <div class="report-category"><xm-reviews-report></xm-reviews-report></div>
                 <div class="report-category"><xm-records-report></xm-records-report></div>
-                <div class="report-category" *ngIf="teachers">
-                    <xm-teachers-report [teachers]="teachers"></xm-teachers-report>
-                </div>
+                @if (teachers) {
+                    <div class="report-category">
+                        <xm-teachers-report [teachers]="teachers"></xm-teachers-report>
+                    </div>
+                }
             </div>
         </div>
     `,
     standalone: true,
     imports: [
-        NgIf,
         RoomsReportComponent,
         ExamsReportComponent,
         StudentsReportComponent,
@@ -81,7 +90,11 @@ export class ReportsComponent implements OnInit {
     teachers: Option<User, number>[] = [];
     students: Option<User, number>[] = [];
 
-    constructor(private Users: UserService, private Reports: ReportsService, private Room: RoomService) {}
+    constructor(
+        private Users: UserService,
+        private Reports: ReportsService,
+        private Room: RoomService,
+    ) {}
 
     ngOnInit() {
         this.Room.getRooms$().subscribe((resp) => {

@@ -1,73 +1,81 @@
-<div id="dashboard" *ngIf="currentMachine && enrolment">
-    <div class="row">
-        <div class="col-md-12 alert alert-danger">
-            <h4 class="alert-heading">{{ 'i18n_logged_on_wrong_machine' | translate }}</h4>
-            {{ 'i18n_current_wrong_machine_title' | translate }}: {{ currentMachine.name }}<br />
-            {{ 'i18n_reserved_machine' | translate }}: {{ reservation.machine.name }}
+@if (currentMachine && enrolment) {
+    <div id="dashboard">
+        <div class="row">
+            <div class="col-md-12 alert alert-danger">
+                <h4 class="alert-heading">{{ 'i18n_logged_on_wrong_machine' | translate }}</h4>
+                {{ 'i18n_current_wrong_machine_title' | translate }}: {{ currentMachine.name }}<br />
+                {{ 'i18n_reserved_machine' | translate }}: {{ reservation.machine.name }}
+            </div>
+        </div>
+        @if (cause === 'room') {
+            <div class="detail-row">
+                <div class="col-md-3 text">{{ 'i18n_current_wrong_room_title' | translate }}:</div>
+                <div class="col-md-9 light-text sitnet-text-alarm">
+                    {{ currentMachine.room.name }} ({{ currentMachine.room.buildingName }})
+                </div>
+            </div>
+        }
+        @if (cause === 'room') {
+            <div class="detail-row">
+                <div class="col-md-3 text">{{ 'i18n_reserved_room' | translate }}:</div>
+                <div class="col-md-9 light-text sitnet-text-ready">
+                    {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
+                </div>
+            </div>
+        }
+        <div class="main-row">
+            <div class="col-md-12">
+                <span class="exams-list-title-text"
+                    >{{ 'i18n_reserved_exam' | translate }}:&nbsp; {{ enrolment.exam.name }} -
+                    @if (enrolment.exam.course) {
+                        <xm-course-code [course]="enrolment.exam.course"></xm-course-code>
+                    }
+                </span>
+            </div>
+        </div>
+        <div class="detail-row">
+            <div class="col-md-3 header text">{{ 'i18n_course_name' | translate }}:</div>
+            <strong class="col-md-9 text">{{ enrolment.exam.course?.name }}</strong>
+        </div>
+        <div class="detail-row">
+            <div class="col-md-3 header text">{{ 'i18n_exam_duration' | translate }}:</div>
+            <strong class="col-md-9 text">{{ printExamDuration() }}</strong>
+        </div>
+        <div class="detail-row">
+            <div class="col-md-3 header text">{{ 'i18n_exam_room' | translate }}:</div>
+            <strong class="col-md-9 text"
+                >{{ reservation.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+                {{ reservation.machine.room.name }}({{ reservation.machine.room.roomCode }})</strong
+            >
+        </div>
+        <div class="detail-row">
+            <div class="col-md-3 header text">{{ 'i18n_reservation_time' | translate }}:</div>
+            <strong class="col-md-9 text"
+                >{{ reservation.startAt | date: 'dd.MM.yyyy' }} {{ occasion.startAt }} - {{ occasion.endAt }} ({{
+                    reservation.machine.room.localTimezone
+                }})
+            </strong>
+        </div>
+        @if (enrolment.exam.enrollInstruction) {
+            <div class="detail-row">
+                <div class="col-md-3 header text">{{ 'i18n_instructions' | translate }}:</div>
+                <div class="col-md-9 text">
+                    <a class="infolink pointer" (click)="showInstructions()">{{ 'i18n_view' | translate }}</a>
+                </div>
+            </div>
+        }
+        <div class="bottom-row">
+            <div class="col-md-3 header text">{{ 'i18n_teachers' | translate }}:</div>
+            <div class="col-md-9 light-text">
+                @if (enrolment.exam) {
+                    <xm-teacher-list [exam]="enrolment.exam"></xm-teacher-list>
+                }
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 alert alert-info">
+                {{ 'i18n_logout_and_login_elsewhere' | translate }}
+            </div>
         </div>
     </div>
-    <div class="detail-row" *ngIf="cause === 'room'">
-        <div class="col-md-3 text">{{ 'i18n_current_wrong_room_title' | translate }}:</div>
-        <div class="col-md-9 light-text sitnet-text-alarm">
-            {{ currentMachine.room.name }} ({{ currentMachine.room.buildingName }})
-        </div>
-    </div>
-    <div class="detail-row" *ngIf="cause === 'room'">
-        <div class="col-md-3 text">{{ 'i18n_reserved_room' | translate }}:</div>
-        <div class="col-md-9 light-text sitnet-text-ready">
-            {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
-        </div>
-    </div>
-
-    <div class="main-row">
-        <div class="col-md-12">
-            <span class="exams-list-title-text"
-                >{{ 'i18n_reserved_exam' | translate }}:&nbsp; {{ enrolment.exam.name }} -
-                <xm-course-code *ngIf="enrolment.exam.course" [course]="enrolment.exam.course"></xm-course-code>
-            </span>
-        </div>
-    </div>
-
-    <div class="detail-row">
-        <div class="col-md-3 header text">{{ 'i18n_course_name' | translate }}:</div>
-        <strong class="col-md-9 text">{{ enrolment.exam.course?.name }}</strong>
-    </div>
-    <div class="detail-row">
-        <div class="col-md-3 header text">{{ 'i18n_exam_duration' | translate }}:</div>
-        <strong class="col-md-9 text">{{ printExamDuration() }}</strong>
-    </div>
-    <div class="detail-row">
-        <div class="col-md-3 header text">{{ 'i18n_exam_room' | translate }}:</div>
-        <strong class="col-md-9 text"
-            >{{ reservation.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; {{ reservation.machine.room.name }}({{
-                reservation.machine.room.roomCode
-            }})</strong
-        >
-    </div>
-    <div class="detail-row">
-        <div class="col-md-3 header text">{{ 'i18n_reservation_time' | translate }}:</div>
-        <strong class="col-md-9 text"
-            >{{ reservation.startAt | date : 'dd.MM.yyyy' }} {{ occasion.startAt }} - {{ occasion.endAt }} ({{
-                reservation.machine.room.localTimezone
-            }})
-        </strong>
-    </div>
-    <div class="detail-row" *ngIf="enrolment.exam.enrollInstruction">
-        <div class="col-md-3 header text">{{ 'i18n_instructions' | translate }}:</div>
-        <div class="col-md-9 text">
-            <a class="infolink pointer" (click)="showInstructions()">{{ 'i18n_view' | translate }}</a>
-        </div>
-    </div>
-    <div class="bottom-row">
-        <div class="col-md-3 header text">{{ 'i18n_teachers' | translate }}:</div>
-        <div class="col-md-9 light-text">
-            <xm-teacher-list *ngIf="enrolment.exam" [exam]="enrolment.exam"></xm-teacher-list>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-12 alert alert-info">
-            {{ 'i18n_logout_and_login_elsewhere' | translate }}
-        </div>
-    </div>
-</div>
+}

@@ -1,9 +1,11 @@
 <div class="essay-answer-wrapper">
-    <div class="detail-row p-0" *ngIf="answer.question.question !== answer.question.parent?.question">
-        <span class="col-md-12 alert alert-warning essay-answer-warning" role="alert">
-            <i class="bi-exclamation-triangle"></i>&nbsp;{{ 'i18n_question_differs' | translate }}
-        </span>
-    </div>
+    @if (answer.question.question !== answer.question.parent?.question) {
+        <div class="detail-row p-0">
+            <span class="col-md-12 alert alert-warning essay-answer-warning" role="alert">
+                <i class="bi-exclamation-triangle"></i>&nbsp;{{ 'i18n_question_differs' | translate }}
+            </span>
+        </div>
+    }
     <div class="main-row">
         <strong>{{ 'i18n_assessee_information' | translate | uppercase }}</strong>
     </div>
@@ -12,133 +14,146 @@
             <a [routerLink]="['/staff/assessments', answer.examSection.exam.id]" target="_blank">
                 <strong>
                     {{ name }}
-                    <span *ngIf="answer.examSection.exam.creator?.userIdentifier">
-                        ({{ answer.examSection.exam.creator.userIdentifier }})
-                    </span>
+                    @if (answer.examSection.exam.creator?.userIdentifier) {
+                        <span> ({{ answer.examSection.exam.creator.userIdentifier }}) </span>
+                    }
                 </strong>
             </a>
         </div>
         <div>
             <a class="pointer-hand" (click)="answer.expanded = !answer.expanded">
-                <img
-                    *ngIf="!answer.expanded"
-                    src="/assets/images/icon_list_show_right.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-                />
-                <img
-                    *ngIf="answer.expanded"
-                    src="/assets/images/icon_list_show_down.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-                />
+                @if (!answer.expanded) {
+                    <img
+                        src="/assets/images/icon_list_show_right.svg"
+                        alt=""
+                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
+                    />
+                }
+                @if (answer.expanded) {
+                    <img
+                        src="/assets/images/icon_list_show_down.svg"
+                        alt=""
+                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
+                    />
+                }
             </a>
         </div>
     </div>
-    <div class="main-row" *ngIf="!answer.expanded">
+    @if (!answer.expanded) {
+        <div class="main-row">
+            <div>
+                <strong>&hellip;</strong>
+            </div>
+        </div>
+    }
+    @if (answer.expanded) {
         <div>
-            <strong>&hellip;</strong>
-        </div>
-    </div>
-    <div *ngIf="answer.expanded">
-        <div class="main-row">
-            <strong>{{ 'i18n_exam_answer' | translate | uppercase }}</strong>
-        </div>
-        <div class="main-row p-0">
-            <div class="col-md-12 essay-answer-item" [xmMathJax]="answer.essayAnswer.answer || ''"></div>
-        </div>
-
-        <div class="detail-row p-0" *ngIf="answer.essayAnswer.attachment">
-            <div class="detail-row">
-                <div class="col-md-12">
-                    <strong>{{ 'i18n_answer_attachment' | translate | uppercase }}</strong>
-                </div>
+            <div class="main-row">
+                <strong>{{ 'i18n_exam_answer' | translate | uppercase }}</strong>
             </div>
-            <div>
-                <div class="main-row">
-                    <div class="col-md-12 essay-answer-item">
-                        <a class="pointer" (click)="downloadAttachment()">
-                            {{ answer.essayAnswer.attachment.fileName | uppercase }}
-                        </a>
+            <div class="main-row p-0">
+                <div class="col-md-12 essay-answer-item" [xmMathJax]="answer.essayAnswer.answer || ''"></div>
+            </div>
+            @if (answer.essayAnswer.attachment) {
+                <div class="detail-row p-0">
+                    <div class="detail-row">
+                        <div class="col-md-12">
+                            <strong>{{ 'i18n_answer_attachment' | translate | uppercase }}</strong>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="main-row">
+                            <div class="col-md-12 essay-answer-item">
+                                <a class="pointer" (click)="downloadAttachment()">
+                                    {{ answer.essayAnswer.attachment.fileName | uppercase }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="detail-row px-0 d-flex justify-content-between essay-answer-item">
+                <div>
+                    <div class="main-row">
+                        <strong>{{ 'i18n_answer_length' | translate | uppercase }}</strong>
+                    </div>
+                    <div class="detail-row">
+                        {{ getWordCount() }} {{ 'i18n_words' | translate }}, {{ 'i18n_approximately' | translate }}
+                        {{ getCharacterCount() }} {{ 'i18n_characters' | translate }}
+                    </div>
+                    @if ((answer.expectedWordCount || 0) > 0) {
+                        <div class="detail-row">
+                            {{ 'i18n_essay_length_recommendation' | translate }}: {{ answer.expectedWordCount }} ({{
+                                'i18n_approximately' | translate
+                            }}
+                            {{ (answer.expectedWordCount || 0) * 8 }} {{ 'i18n_characters' | translate }})
+                        </div>
+                    }
+                </div>
+                <div>
+                    <div class="main-row">
+                        <strong
+                            >{{ 'i18n_word_points' | translate | uppercase }} &nbsp;<small
+                                >[{{ 0 }}-{{ displayMaxScore() }}]</small
+                            >
+                        </strong>
+                    </div>
+                    <div class="detail-row">
+                        @if (answer.evaluationType === 'Points') {
+                            <div>
+                                <form #essayPoints="ngForm" name="essayPoints">
+                                    <input
+                                        name="score"
+                                        type="number"
+                                        lang="en"
+                                        class="form-control"
+                                        [(ngModel)]="answer.essayAnswer.temporaryScore"
+                                        size="5"
+                                        onclick="this.focus();"
+                                        [disabled]="!editable"
+                                        [min]="0"
+                                        [max]="answer.maxScore"
+                                    />
+                                    @if (essayPoints.invalid) {
+                                        <small class="alert-danger">
+                                            <i class="bi-exclamation-circle"></i>&nbsp;{{
+                                                'i18n_error_score_input' | translate
+                                            }}
+                                        </small>
+                                    }
+                                </form>
+                            </div>
+                        }
+                        @if (answer.evaluationType === 'Selection') {
+                            <div>
+                                <select
+                                    class="form-select"
+                                    [(ngModel)]="answer.essayAnswer.temporaryScore"
+                                    [disabled]="!editable"
+                                >
+                                    <option [ngValue]="1">
+                                        {{ 'i18n_approved' | translate }}
+                                    </option>
+                                    <option [ngValue]="0">
+                                        {{ 'i18n_rejected' | translate }}
+                                    </option>
+                                </select>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="detail-row px-0 d-flex justify-content-between essay-answer-item">
-            <div>
-                <div class="main-row">
-                    <strong>{{ 'i18n_answer_length' | translate | uppercase }}</strong>
-                </div>
-                <div class="detail-row">
-                    {{ getWordCount() }} {{ 'i18n_words' | translate }}, {{ 'i18n_approximately' | translate }}
-                    {{ getCharacterCount() }} {{ 'i18n_characters' | translate }}
-                </div>
-                <div class="detail-row" *ngIf="(answer.expectedWordCount || 0) > 0">
-                    {{ 'i18n_essay_length_recommendation' | translate }}: {{ answer.expectedWordCount }} ({{
-                        'i18n_approximately' | translate
-                    }}
-                    {{ (answer.expectedWordCount || 0) * 8 }} {{ 'i18n_characters' | translate }})
-                </div>
-            </div>
-            <div>
-                <div class="main-row">
-                    <strong
-                        >{{ 'i18n_word_points' | translate | uppercase }} &nbsp;<small
-                            >[{{ 0 }}-{{ displayMaxScore() }}]</small
-                        >
-                    </strong>
-                </div>
-                <div class="detail-row">
-                    <div *ngIf="answer.evaluationType === 'Points'">
-                        <form #essayPoints="ngForm" name="essayPoints">
-                            <input
-                                name="score"
-                                type="number"
-                                lang="en"
-                                class="form-control"
-                                [(ngModel)]="answer.essayAnswer.temporaryScore"
-                                size="5"
-                                onclick="this.focus();"
-                                [disabled]="!editable"
-                                [min]="0"
-                                [max]="answer.maxScore"
-                            />
-                            <small *ngIf="essayPoints.invalid" class="alert-danger">
-                                <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_error_score_input' | translate }}
-                            </small>
-                        </form>
-                    </div>
-                    <div *ngIf="answer.evaluationType === 'Selection'">
-                        <select
-                            class="form-select"
-                            [(ngModel)]="answer.essayAnswer.temporaryScore"
-                            [disabled]="!editable"
-                        >
-                            <option [ngValue]="1">
-                                {{ 'i18n_approved' | translate }}
-                            </option>
-                            <option [ngValue]="0">
-                                {{ 'i18n_rejected' | translate }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
+            <div class="main-row">
+                <span class="checkbox">
+                    <label>
+                        <input type="checkbox" [(ngModel)]="answer.selected" [disabled]="!editable || !isAssessed()" />
+                        {{ action | translate }}
+                    </label>
+                    @if (editable && isAssessed() && answer.selected) {
+                        <i class="marl10 pointer bi bi-arrow-return-right text-success" (click)="saveScore()"></i>
+                    }
+                </span>
             </div>
         </div>
-
-        <div class="main-row">
-            <span class="checkbox">
-                <label>
-                    <input type="checkbox" [(ngModel)]="answer.selected" [disabled]="!editable || !isAssessed()" />
-                    {{ action | translate }}
-                </label>
-                <i
-                    *ngIf="editable && isAssessed() && answer.selected"
-                    class="marl10 pointer bi bi-arrow-return-right text-success"
-                    (click)="saveScore()"
-                ></i>
-            </span>
-        </div>
-    </div>
+    }
 </div>

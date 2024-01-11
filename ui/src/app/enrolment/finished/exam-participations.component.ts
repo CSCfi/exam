@@ -57,7 +57,10 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
 
-    constructor(private toast: ToastrService, private Enrolment: EnrolmentService) {
+    constructor(
+        private toast: ToastrService,
+        private Enrolment: EnrolmentService,
+    ) {
         this.filterChanged
             .pipe(debounceTime(500), distinctUntilChanged(), takeUntil(this.ngUnsubscribe))
             .subscribe(this._search);

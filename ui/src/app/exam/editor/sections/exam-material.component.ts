@@ -29,7 +29,11 @@ export class ExamMaterialComponent implements OnInit {
     filter = '';
     materialsChanged = false;
 
-    constructor(private activeModal: NgbActiveModal, private http: HttpClient, private toast: ToastrService) {}
+    constructor(
+        private activeModal: NgbActiveModal,
+        private http: HttpClient,
+        private toast: ToastrService,
+    ) {}
 
     ngOnInit() {
         this.http

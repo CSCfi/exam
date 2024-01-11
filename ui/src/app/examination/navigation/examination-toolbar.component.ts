@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor, NgIf, SlicePipe, UpperCasePipe } from '@angular/common';
+import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -34,7 +34,7 @@ import { ExaminationService } from '../examination.service';
     selector: 'xm-examination-toolbar',
     templateUrl: './examination-toolbar.component.html',
     standalone: true,
-    imports: [NgIf, NgClass, NgFor, NgbPopover, UpperCasePipe, SlicePipe, TranslateModule, OrderByPipe],
+    imports: [NgClass, NgbPopover, UpperCasePipe, SlicePipe, TranslateModule, OrderByPipe],
 })
 export class ExaminationToolbarComponent implements OnInit {
     @Input() exam!: Examination;

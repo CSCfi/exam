@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import {
     AfterViewInit,
     ChangeDetectionStrategy,
@@ -41,16 +41,20 @@ import { CalendarService } from './calendar.service';
     selector: 'xm-booking-calendar',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <div *ngIf="visible">
-            <div class="row mart20 marb10" id="calendarBlock">
-                <div *ngIf="visible" class="col-md-12">
-                    <full-calendar #fc [options]="calendarOptions"></full-calendar>
+        @if (visible) {
+            <div>
+                <div class="row mart20 marb10" id="calendarBlock">
+                    @if (visible) {
+                        <div class="col-md-12">
+                            <full-calendar #fc [options]="calendarOptions"></full-calendar>
+                        </div>
+                    }
                 </div>
             </div>
-        </div>
+        }
     `,
     standalone: true,
-    imports: [NgIf, FullCalendarModule],
+    imports: [FullCalendarModule],
 })
 export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewInit {
     @Output() eventSelected = new EventEmitter<EventApi>();
@@ -70,7 +74,10 @@ export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewIni
 
     calendarOptions: CalendarOptions;
 
-    constructor(private translate: TranslateService, private Calendar: CalendarService) {
+    constructor(
+        private translate: TranslateService,
+        private Calendar: CalendarService,
+    ) {
         this.calendarOptions = {
             plugins: [luxon2Plugin, timeGridPlugin],
             initialView: 'timeGridWeek',

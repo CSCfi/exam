@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgClass, NgFor } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
@@ -39,11 +39,7 @@ import type { Exam, Software } from '../../exam.model';
                         popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
-                        <img
-                            src="/assets/images/icon_tooltip.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
-                        />
+                        <img src="/assets/images/icon_tooltip.svg" alt="" />
                     </sup>
                 </div>
                 <div class="col-md-9">
@@ -58,40 +54,36 @@ import type { Exam, Software } from '../../exam.model';
                             {{ selectedSoftware() }}&nbsp;<span class="caret"></span>
                         </button>
                         <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1">
-                            <button
-                                ngbDropdownItem
-                                *ngFor="let sw of software"
-                                role="presentation"
-                                [ngClass]="isSelected(sw) ? 'active' : ''"
-                                (click)="updateExamSoftware(sw)"
-                                title="{{ sw.name }}"
-                            >
-                                {{ sw.name }}
-                            </button>
+                            @for (sw of software; track sw) {
+                                <button
+                                    ngbDropdownItem
+                                    role="presentation"
+                                    [ngClass]="isSelected(sw) ? 'active' : ''"
+                                    (click)="updateExamSoftware(sw)"
+                                    title="{{ sw.name }}"
+                                >
+                                    {{ sw.name }}
+                                </button>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div> `,
+    </div>`,
     standalone: true,
-    imports: [
-        NgbPopover,
-        NgbDropdown,
-        NgbDropdownToggle,
-        NgbDropdownMenu,
-        NgFor,
-        NgbDropdownItem,
-        NgClass,
-        TranslateModule,
-    ],
+    imports: [NgbPopover, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, NgClass, TranslateModule],
 })
 export class SoftwareSelectorComponent implements OnInit {
     @Input() exam!: Exam;
 
     software: Software[] = [];
 
-    constructor(private http: HttpClient, private translate: TranslateService, private toast: ToastrService) {}
+    constructor(
+        private http: HttpClient,
+        private translate: TranslateService,
+        private toast: ToastrService,
+    ) {}
 
     ngOnInit() {
         this.exam.softwares ||= [];

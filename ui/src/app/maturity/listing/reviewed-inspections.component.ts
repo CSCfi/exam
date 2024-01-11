@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgFor, NgIf, SlicePipe } from '@angular/common';
+import { DatePipe, SlicePipe } from '@angular/common';
 import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -34,12 +34,10 @@ import { LanguageInspectionService } from '../language-inspections.service';
     standalone: true,
     imports: [
         RouterLink,
-        NgIf,
         FormsModule,
         NgbPopover,
         DatePickerComponent,
         TableSortComponent,
-        NgFor,
         CourseCodeComponent,
         PaginatorComponent,
         SlicePipe,

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
@@ -40,14 +40,15 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
             </div>
 
             <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons">
-                <button
-                    class="pointer warning-filled"
-                    *ngIf="isMaturityRejection()"
-                    [disabled]="!isOwnerOrAdmin() || !valid"
-                    (click)="rejectMaturity()"
-                >
-                    {{ 'i18n_reject_maturity' | translate }}
-                </button>
+                @if (isMaturityRejection()) {
+                    <button
+                        class="pointer warning-filled"
+                        [disabled]="!isOwnerOrAdmin() || !valid"
+                        (click)="rejectMaturity()"
+                    >
+                        {{ 'i18n_reject_maturity' | translate }}
+                    </button>
+                }
             </div>
 
             <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
@@ -69,19 +70,16 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
-                    <button
-                        class="pointer"
-                        *ngIf="!isMaturityRejection()"
-                        [disabled]="!isOwnerOrAdmin() || !valid"
-                        (click)="createExamRecord()"
-                    >
-                        {{ 'i18n_send_result_to_registry' | translate }}
-                    </button>
+                    @if (!isMaturityRejection()) {
+                        <button class="pointer" [disabled]="!isOwnerOrAdmin() || !valid" (click)="createExamRecord()">
+                            {{ 'i18n_send_result_to_registry' | translate }}
+                        </button>
+                    }
                 </span>
             </div>
-        </div> `,
+        </div>`,
     standalone: true,
-    imports: [RouterLink, NgIf, NgbPopover, TranslateModule],
+    imports: [RouterLink, NgbPopover, TranslateModule],
 })
 export class ToolbarComponent implements OnInit {
     @Input() valid = false;

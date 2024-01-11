@@ -7,10 +7,7 @@
                     ngbPopover="{{ 'i18n_exam_owner_description' | translate }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
-                    ><img
-                        src="/assets/images/icon_tooltip.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png'"
+                    ><img src="/assets/images/icon_tooltip.svg" alt=""
                 /></sup>
             </div>
             <div class="col-md-6">
@@ -37,21 +34,19 @@
         <div class="row">
             <div class="col-md-9 offset-md-3">
                 <ul class="list-inline mart10">
-                    <li *ngFor="let user of examOwners" class="list-inline-item">
-                        {{ user.firstName }} {{ user.lastName }} ({{ user.email }})
-                        <button
-                            class="reviewer-remove"
-                            [disabled]="examOwners.length === 1"
-                            (click)="removeOwner(user.id)"
-                            title="{{ 'i18n_remove' | translate }}"
-                        >
-                            <img
-                                src="/assets/images/icon_remove.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_remove.png'"
-                            />
-                        </button>
-                    </li>
+                    @for (user of examOwners; track user) {
+                        <li class="list-inline-item">
+                            {{ user.firstName }} {{ user.lastName }} ({{ user.email }})
+                            <button
+                                class="reviewer-remove"
+                                [disabled]="examOwners.length === 1"
+                                (click)="removeOwner(user.id)"
+                                title="{{ 'i18n_remove' | translate }}"
+                            >
+                                <img src="/assets/images/icon_remove.svg" alt="" />
+                            </button>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>

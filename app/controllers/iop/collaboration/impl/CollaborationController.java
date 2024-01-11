@@ -142,30 +142,26 @@ public class CollaborationController extends BaseController {
         }
         return (
             user.getLoginRole() == Role.Name.ADMIN ||
-            (
-                exam
+            (exam
                     .getExamOwners()
                     .stream()
                     .anyMatch(u ->
                         u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn())
                     ) &&
-                exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED)
-            )
+                exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED))
         );
     }
 
     boolean isUnauthorizedToAssess(Exam exam, User user) {
         return (
             user.getLoginRole() != Role.Name.ADMIN &&
-            (
-                exam
+            (exam
                     .getExamOwners()
                     .stream()
                     .noneMatch(u ->
                         u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn())
                     ) ||
-                !exam.hasState(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED)
-            )
+                !exam.hasState(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED))
         );
     }
 

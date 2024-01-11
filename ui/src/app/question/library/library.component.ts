@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { NgIf } from '@angular/common';
+
 import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgbDropdownModule, NgbModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
@@ -133,12 +133,14 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                             </li>
                         </ul>
                     </span>
-                    <small class="ms-2 text-muted" *ngIf="selections.length === 0">{{
-                        'i18n_choose_atleast_one' | translate
-                    }}</small>
-                    <small class="ms-2" *ngIf="selections.length > 0">
-                        {{ selections.length }} {{ 'i18n_questions_selected' | translate }}
-                    </small>
+                    @if (selections.length === 0) {
+                        <small class="ms-2 text-muted">{{ 'i18n_choose_atleast_one' | translate }}</small>
+                    }
+                    @if (selections.length > 0) {
+                        <small class="ms-2">
+                            {{ selections.length }} {{ 'i18n_questions_selected' | translate }}
+                        </small>
+                    }
                 </div>
             </div>
 
@@ -151,10 +153,9 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                 </xm-library-results>
             </div>
         </div>
-    </div> `,
+    </div>`,
     standalone: true,
     imports: [
-        NgIf,
         RouterLink,
         NgbDropdownModule,
         NgbPopoverModule,

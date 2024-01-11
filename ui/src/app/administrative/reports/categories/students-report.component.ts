@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, NgIf } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -33,13 +33,14 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
         <div class="bottom-row d-flex justify-content-between">
             <div class="col-lg-4 mb-2">
                 <label for="student">{{ 'i18n_student' | translate }}</label>
-                <xm-dropdown-select
-                    id="student"
-                    *ngIf="students"
-                    [options]="students"
-                    (optionSelected)="studentSelected($event)"
-                    placeholder="{{ 'i18n_select' | translate }}"
-                ></xm-dropdown-select>
+                @if (students) {
+                    <xm-dropdown-select
+                        id="student"
+                        [options]="students"
+                        (optionSelected)="studentSelected($event)"
+                        placeholder="{{ 'i18n_select' | translate }}"
+                    ></xm-dropdown-select>
+                }
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="startAt">{{ 'i18n_start_time' | translate }}</label>
@@ -72,7 +73,7 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
     `,
     selector: 'xm-students-report',
     standalone: true,
-    imports: [NgIf, DropdownSelectComponent, DatePickerComponent, NgbPopover, TranslateModule],
+    imports: [DropdownSelectComponent, DatePickerComponent, NgbPopover, TranslateModule],
 })
 export class StudentsReportComponent {
     @Input() students: Option<User, number>[] = [];
