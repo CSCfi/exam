@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, computed, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { DateTimeService } from '../../shared/date/date.service';
@@ -71,10 +71,10 @@ import type { ExamInfo } from '../calendar.service';
                 </div>
                 <div class="row mart10">
                     <div class="col-md-12">
-                        @if (showReservationWindowInfo()) {
+                        @if (showReservationWindowDescription()) {
                             <span class="infolink" role="note">
                                 <img class="arrow_icon padr10" src="/assets/images/icon_info.png" alt="" />
-                                {{ getReservationWindowDescription() }}
+                                {{ reservationWindowDescription() }}
                             </span>
                         }
                     </div>
@@ -90,7 +90,18 @@ export class CalendarExamInfoComponent implements OnInit {
     @Input() reservationWindowSize = 0;
     @Input() collaborative = false;
 
-    reservationWindowEndDate = new Date();
+    reservationWindowEndDate = signal(new Date());
+    reservationWindowDescription = computed(() => {
+        const text = this.translate
+            .instant('i18n_description_reservation_window')
+            .replace('{}', this.reservationWindowSize.toString());
+        return `${text} (${DateTime.fromJSDate(this.reservationWindowEndDate()).toFormat('dd.MM.yyyy')})`;
+    });
+    showReservationWindowDescription = computed(
+        () =>
+            !!this.reservationWindowEndDate &&
+            DateTime.fromISO(this.examInfo.periodEnd as string).toJSDate() > this.reservationWindowEndDate(),
+    );
 
     constructor(
         private translate: TranslateService,
@@ -98,21 +109,10 @@ export class CalendarExamInfoComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.reservationWindowEndDate = DateTime.fromJSDate(this.reservationWindowEndDate)
-            .plus({ day: this.reservationWindowSize })
-            .toJSDate();
+        this.reservationWindowEndDate.set(
+            DateTime.fromJSDate(this.reservationWindowEndDate()).plus({ day: this.reservationWindowSize }).toJSDate(),
+        );
     }
 
     printExamDuration = (exam: { duration: number }) => this.DateTimeService.printExamDuration(exam);
-
-    getReservationWindowDescription(): string {
-        const text = this.translate
-            .instant('i18n_description_reservation_window')
-            .replace('{}', this.reservationWindowSize.toString());
-        return `${text} (${DateTime.fromJSDate(this.reservationWindowEndDate).toFormat('dd.MM.yyyy')})`;
-    }
-
-    showReservationWindowInfo = (): boolean =>
-        !!this.reservationWindowEndDate &&
-        DateTime.fromISO(this.examInfo.periodEnd as string).toJSDate() > this.reservationWindowEndDate;
 }

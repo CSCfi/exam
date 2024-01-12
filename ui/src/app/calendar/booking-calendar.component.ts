@@ -24,6 +24,7 @@ import {
     Output,
     SimpleChanges,
     ViewChild,
+    signal,
 } from '@angular/core';
 import { FullCalendarComponent, FullCalendarModule } from '@fullcalendar/angular';
 import { CalendarOptions, EventApi, EventClickArg, EventInput } from '@fullcalendar/core';
@@ -46,7 +47,7 @@ import { CalendarService } from './calendar.service';
                 <div class="row mart20 marb10" id="calendarBlock">
                     @if (visible) {
                         <div class="col-md-12">
-                            <full-calendar #fc [options]="calendarOptions"></full-calendar>
+                            <full-calendar #fc [options]="calendarOptions()"></full-calendar>
                         </div>
                     }
                 </div>
@@ -72,13 +73,13 @@ export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewIni
 
     @ViewChild('fc') calendar!: FullCalendarComponent;
 
-    calendarOptions: CalendarOptions;
+    calendarOptions = signal<CalendarOptions>({});
 
     constructor(
         private translate: TranslateService,
         private Calendar: CalendarService,
     ) {
-        this.calendarOptions = {
+        this.calendarOptions.set({
             plugins: [luxon2Plugin, timeGridPlugin],
             initialView: 'timeGridWeek',
             firstDay: 1,
@@ -92,9 +93,9 @@ export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewIni
             eventMinHeight: 45,
             events: this.refetch,
             eventClick: this.eventClicked.bind(this),
-        };
+        });
         this.translate.onLangChange.subscribe((event) => {
-            this.calendarOptions = { ...this.calendarOptions, locale: event.lang };
+            this.calendarOptions.set({ ...this.calendarOptions(), locale: event.lang });
             //this.calendar.getApi().destroy();
             //this.calendar.getApi().render();
         });
@@ -102,7 +103,7 @@ export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewIni
 
     ngOnInit() {
         if (this.minDate && this.maxDate) {
-            this.calendarOptions.validRange = {
+            this.calendarOptions().validRange = {
                 end: DateTime.fromJSDate(this.maxDate).endOf('week').plus({ hours: 1 }).toFormat('yyyy-MM-dd'),
                 start: DateTime.fromJSDate(this.minDate).startOf('week').toFormat('yyyy-MM-dd'),
             };
@@ -127,10 +128,13 @@ export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewIni
                 latestClosing.getHours() < 23
                     ? DateTime.fromJSDate(latestClosing).plus({ hour: 1 }).toJSDate()
                     : latestClosing;
-            this.calendarOptions.hiddenDays = this.Calendar.getClosedWeekdays(this.room);
-            this.calendarOptions.slotMinTime = DateTime.fromJSDate(minTime).toFormat('HH:mm:ss');
-            this.calendarOptions.slotMaxTime = DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss');
-            this.calendarOptions.timeZone = this.room.localTimezone;
+            this.calendarOptions.update((cos) => ({
+                ...cos,
+                hiddenDays: this.Calendar.getClosedWeekdays(this.room),
+                slotMinTime: DateTime.fromJSDate(minTime).toFormat('HH:mm:ss'),
+                slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
+                timeZone: this.room.localTimezone,
+            }));
             if (this.calendar) this.calendar.getApi().refetchEvents();
         }
         if (changes.accessibilities && this.calendar) {
