@@ -20,15 +20,15 @@
                         @if (!disabled) {
                             <button
                                 class="infolink pointer border rounded"
-                                (click)="showAccessibilityMenu = !showAccessibilityMenu"
-                                (keydown.enter)="showAccessibilityMenu = !showAccessibilityMenu"
-                                [attr.aria-expanded]="showAccessibilityMenu"
+                                (click)="showAccessibilityMenu.set(!showAccessibilityMenu())"
+                                (keydown.enter)="showAccessibilityMenu.set(!showAccessibilityMenu())"
+                                [attr.aria-expanded]="showAccessibilityMenu()"
                             >
                                 {{ 'i18n_calendar_room_accessibility_info' | translate }}
-                                @if (!showAccessibilityMenu) {
+                                @if (!showAccessibilityMenu()) {
                                     <img class="arrow_icon" aria-hidden="true" src="/assets/images/arrow_right.png" />
                                 }
-                                @if (showAccessibilityMenu) {
+                                @if (showAccessibilityMenu()) {
                                     <img class="arrow_icon" aria-hidden="true" src="/assets/images/arrow_down.png" />
                                 }
                             </button>
@@ -38,7 +38,7 @@
                                 {{ 'i18n_calendar_room_accessibility_info' | translate }}
                             </span>
                         }
-                        <div [ngbCollapse]="!showAccessibilityMenu">
+                        <div [ngbCollapse]="!showAccessibilityMenu()">
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="calendar-accs-title">
@@ -48,7 +48,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-12 calendar-accs-checkboxes">
-                                    @for (accessibility of accessibilities; track accessibility.id) {
+                                    @for (accessibility of accessibilities(); track accessibility.id) {
                                         <span class="marr10 accs-list">
                                             <label for="{{ accessibility.name }}">
                                                 <input
@@ -82,7 +82,7 @@
                     <span class="caret"></span>
                 </button>
                 <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1" class="scrollable-menu">
-                    @for (room of rooms; track room.id) {
+                    @for (room of rooms(); track room.id) {
                         <button ngbDropdownItem role="presentation" (click)="selectRoom(room)" title="{{ room.name }}">
                             <div ngbDropdownItem [disabled]="room.outOfService" role="menuitem">
                                 <a> {{ room.name }}</a>
@@ -104,8 +104,8 @@
                 <div class="col-md-12">
                     <xm-calendar-selected-room
                         [room]="selectedRoom"
-                        [viewStart]="currentWeek"
-                        [maintenancePeriods]="maintenancePeriods"
+                        [viewStart]="currentWeek()"
+                        [maintenancePeriods]="maintenancePeriods()"
                     ></xm-calendar-selected-room>
                 </div>
             </div>
@@ -119,7 +119,7 @@
                         [minDate]="minDate"
                         [maxDate]="maxDate"
                         [room]="selectedRoom"
-                        [accessibilities]="accessibilities"
+                        [accessibilities]="accessibilities()"
                         [visible]="selectedRoom !== undefined"
                     >
                     </xm-booking-calendar>

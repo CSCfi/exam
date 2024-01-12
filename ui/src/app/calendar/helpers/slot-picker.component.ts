@@ -1,7 +1,7 @@
 import { NgClass } from '@angular/common';
 import { HttpParams } from '@angular/common/http';
 import type { SimpleChanges } from '@angular/core';
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, ViewEncapsulation, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { EventApi, EventInput } from '@fullcalendar/core';
 import {
@@ -21,6 +21,7 @@ import { BookingCalendarComponent } from '../booking-calendar.component';
 import type { Organisation, Slot } from '../calendar.service';
 import { CalendarService } from '../calendar.service';
 import { SelectedRoomComponent } from './selected-room.component';
+import { updateList } from 'src/app/shared/miscellaneous/helpers';
 
 type FilterableAccessibility = Accessibility & { filtered: boolean };
 type FilterableRoom = ExamRoom & { filtered: boolean };
@@ -60,13 +61,13 @@ export class SlotPickerComponent implements OnInit, OnChanges {
         accessibilities: Accessibility[];
     }>();
 
-    rooms: FilterableRoom[] = [];
-    maintenancePeriods: MaintenancePeriod[] = [];
+    rooms = signal<FilterableRoom[]>([]);
+    maintenancePeriods = signal<MaintenancePeriod[]>([]);
     selectedRoom?: ExamRoom;
-    accessibilities: FilterableAccessibility[] = [];
-    showAccessibilityMenu = false;
-    currentWeek = DateTime.now();
-    examId = 0;
+    accessibilities = signal<FilterableAccessibility[]>([]);
+    showAccessibilityMenu = signal(false);
+    currentWeek = signal(DateTime.now());
+    examId = signal(0);
 
     constructor(
         private translate: TranslateService,
@@ -76,20 +77,20 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     ) {}
 
     ngOnInit() {
-        this.examId = Number(this.route.snapshot.paramMap.get('id'));
-        this.Calendar.listAccessibilityCriteria$().subscribe(
-            (resp) => (this.accessibilities = resp.map((a) => ({ ...a, filtered: false }))),
+        this.examId.set(Number(this.route.snapshot.paramMap.get('id')));
+        this.Calendar.listAccessibilityCriteria$().subscribe((resp) =>
+            this.accessibilities.set(resp.map((a) => ({ ...a, filtered: false }))),
         );
         this.Calendar.listRooms$().subscribe((resp) => {
             const rooms = resp.map((r: ExamRoom) => ({ ...r, filtered: false })).filter((r) => r.name);
-            this.rooms = rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1));
+            this.rooms.set(rooms.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1)));
         });
-        this.Calendar.listMaintenancePeriods$().subscribe((periods) => (this.maintenancePeriods = periods));
+        this.Calendar.listMaintenancePeriods$().subscribe((periods) => this.maintenancePeriods.set(periods));
     }
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.organisation && this.organisation) {
-            this.rooms = this.organisation.facilities.map((f) => ({ ...f, filtered: false }));
+            this.rooms.set(this.organisation.facilities.map((f) => ({ ...f, filtered: false })));
             delete this.selectedRoom;
         }
     }
@@ -99,7 +100,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
             start: $event.startStr,
             end: $event.endStr,
             room: this.selectedRoom as ExamRoom,
-            accessibilities: this.accessibilities.filter((i) => i.filtered),
+            accessibilities: this.accessibilities().filter((i) => i.filtered),
         });
 
     refresh($event: { date: string; timeZone: string; success: (events: EventInput[]) => void }) {
@@ -107,8 +108,10 @@ export class SlotPickerComponent implements OnInit, OnChanges {
             return;
         }
         const start = DateTime.fromISO($event.date, { zone: $event.timeZone }).startOf('week');
-        this.currentWeek = start as DateTime<true>;
-        const accessibilities = this.accessibilities.filter((i) => i.filtered).map((i) => i.id);
+        this.currentWeek.set(start as DateTime<true>);
+        const accessibilities = this.accessibilities()
+            .filter((i) => i.filtered)
+            .map((i) => i.id);
 
         const getColor = (slot: AvailableSlot) => {
             if (slot.availableMachines < 0) {
@@ -146,16 +149,19 @@ export class SlotPickerComponent implements OnInit, OnChanges {
         this.cancelled.emit();
     };
 
-    selectAccessibility = (accessibility: FilterableAccessibility) => {
-        accessibility.filtered = !accessibility.filtered;
-        this.accessibilities = [...this.accessibilities]; // copy to ignite change deteccttion
-    };
+    selectAccessibility = (accessibility: FilterableAccessibility) =>
+        this.accessibilities.update((accs) => {
+            const ud = updateList(accs, 'id', { ...accessibility, filtered: !accessibility.filtered });
+            return ud;
+        });
 
     selectRoom = (room: FilterableRoom) => {
         if (!room.outOfService) {
             this.selectedRoom = room;
-            this.rooms.forEach((r) => (r.filtered = false));
-            room.filtered = true;
+            this.rooms.update((rs) => {
+                const unfiltered = rs.map((r) => ({ ...r, filtered: false }));
+                return updateList(unfiltered, 'id', { ...room, filtered: true });
+            });
         }
     };
 
@@ -184,7 +190,7 @@ export class SlotPickerComponent implements OnInit, OnChanges {
                     ? { org: this.organisation._id, date: date }
                     : { day: date, aids: accessibilityIds.map((i) => i.toString()) },
         });
-        return this.Calendar.listSlots$(this.isExternal, this.isCollaborative, room, this.examId, params);
+        return this.Calendar.listSlots$(this.isExternal, this.isCollaborative, room, this.examId(), params);
     }
 
     private adjust = (date: string, tz: string): Date => {

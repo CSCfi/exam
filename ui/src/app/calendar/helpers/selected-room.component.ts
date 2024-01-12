@@ -1,5 +1,5 @@
 import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -29,7 +29,7 @@ import { CalendarService } from '../calendar.service';
                 </div>
             </div>
             <div class="col-md-10 col-12">
-                @for (oh of openingHours; track oh.ord) {
+                @for (oh of openingHours(); track oh.ord) {
                     <div class="row">
                         <div class="col-md-1 col-6">{{ oh.name | uppercase }}</div>
                         <div class="col-md-11 col-6">{{ oh.periodText }}</div>
@@ -55,7 +55,7 @@ import { CalendarService } from '../calendar.service';
             <div class="row mt-2">
                 <div class="col-md-2 col-12">{{ 'i18n_exception_datetimes' | translate }}:</div>
                 <div class="col-md-10 col-12">
-                    @for (eh of exceptionHours; track eh.id) {
+                    @for (eh of exceptionHours(); track eh.id) {
                         <div
                             [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'"
                             triggers="mouseenter:mouseleave"
@@ -89,8 +89,8 @@ export class SelectedRoomComponent implements OnInit, OnChanges {
     @Input() maintenancePeriods: MaintenancePeriod[] = [];
     @Input() viewStart = DateTime.now();
 
-    openingHours: OpeningHours[] = [];
-    exceptionHours: (ExceptionWorkingHours & { start: string; end: string; description: string })[] = [];
+    openingHours = signal<OpeningHours[]>([]);
+    exceptionHours = signal<(ExceptionWorkingHours & { start: string; end: string; description: string })[]>([]);
 
     constructor(
         private translate: TranslateService,
@@ -99,7 +99,7 @@ export class SelectedRoomComponent implements OnInit, OnChanges {
 
     ngOnInit() {
         this.translate.onLangChange.subscribe(() => {
-            this.openingHours = this.Calendar.processOpeningHours(this.room);
+            this.openingHours.set(this.Calendar.processOpeningHours(this.room));
         });
     }
 
@@ -123,11 +123,9 @@ export class SelectedRoomComponent implements OnInit, OnChanges {
         this.room.accessibilities ? this.room.accessibilities.map((a) => a.name).join(', ') : '';
 
     private init() {
-        this.openingHours = this.Calendar.processOpeningHours(this.room);
-        this.exceptionHours = this.Calendar.getExceptionHours(
-            this.room,
-            this.viewStart,
-            this.viewStart.plus({ week: 1 }),
+        this.openingHours.set(this.Calendar.processOpeningHours(this.room));
+        this.exceptionHours.set(
+            this.Calendar.getExceptionHours(this.room, this.viewStart, this.viewStart.plus({ week: 1 })),
         );
     }
 }

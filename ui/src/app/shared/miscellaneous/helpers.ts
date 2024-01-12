@@ -12,3 +12,9 @@ export const debounce = <F extends (...args: unknown[]) => ReturnType<F>>(func: 
             timeout = window.setTimeout(() => resolve(func(...args)), waitFor);
         });
 };
+
+export const updateList = <T>(items: T[], key: keyof T, value: T): T[] => {
+    const index = items.findIndex((item) => item[key] === value[key]);
+    items.splice(index, 1, value);
+    return items;
+};
