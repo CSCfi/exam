@@ -39,14 +39,13 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
   /* FIXME: have Apache provide us with X-Forwarded-Proto header so we can resolve this automatically */
   private val protocol = URI.create(configReader.getHostName).toURL.getProtocol
 
-  private def getTemplate(hash: String): String =
+  private def getTemplate(hash: String, quitPwdPlain: String): String =
     val path          = s"${env.rootPath.getAbsolutePath}/conf/seb.template.plist"
     val startUrl      = s"${configReader.getHostName}?exam=$hash"
     val quitLink      = configReader.getQuitExaminationLink
     val adminPwd      = DigestUtils.sha256Hex(configReader.getExaminationAdminPassword)
-    val quitPwdPlain  = configReader.getQuitPassword
     val quitPwd       = DigestUtils.sha256Hex(quitPwdPlain)
-    val allowQuitting = if (quitPwdPlain.isEmpty) "<false/>" else "<true/>"
+    val allowQuitting = if quitPwdPlain.isEmpty then "<false/>" else "<true/>"
     val source        = Source.fromFile(path)
     val template = source.mkString
       .replace(StartUrlPlaceholder, startUrl)
@@ -98,8 +97,8 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
         .sortBy(_._1.toLowerCase)
       Some(JsObject(json))
 
-  override def getExamConfig(hash: String, pwd: Array[Byte], salt: String): Array[Byte] =
-    val template   = getTemplate(hash)
+  override def getExamConfig(hash: String, pwd: Array[Byte], salt: String, quitPwd: String): Array[Byte] =
+    val template   = getTemplate(hash, quitPwd)
     val templateGz = compress(template.getBytes(StandardCharsets.UTF_8))
     // Decrypt user defined setting password
     val plaintextPwd = getPlaintextPassword(pwd, salt)
@@ -128,14 +127,14 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
             Some(Results.unauthorized("Wrong configuration key digest")).toJava
     }
 
-  override def calculateConfigKey(hash: String): String =
+  override def calculateConfigKey(hash: String, quitPwd: String): String =
     // Override the DTD setting. We need it with PLIST format and in order to integrate with SBT
     val parser = XML.withSAXParser {
       val factory = SAXParserFactory.newInstance()
       factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
       factory.newSAXParser()
     }
-    val plist: Node = parser.loadString(getTemplate(hash))
+    val plist: Node = parser.loadString(getTemplate(hash, quitPwd))
     // Construct a Json-like structure out of .plist and create a digest over it
     // See SEB documentation for details
     dictToJson((plist \ "dict").head) match

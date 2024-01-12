@@ -41,9 +41,11 @@ export class ExaminationEventDialogComponent implements OnInit {
     start = new Date(new Date().getTime() + 60 * 1000);
     description = '';
     capacity = 0;
-    password?: string;
+    quitPassword?: string;
+    settingsPassword?: string;
     hasEnrolments = false;
-    pwdInputType = 'password';
+    settingsPasswordInputType = 'password';
+    quitPasswordInputType = 'password';
     now = new Date();
     maxDateValidator?: Date;
 
@@ -59,7 +61,8 @@ export class ExaminationEventDialogComponent implements OnInit {
             this.start = new Date(this.config.examinationEvent.start);
             this.description = this.config.examinationEvent.description;
             this.capacity = this.config.examinationEvent.capacity;
-            this.password = this.config.settingsPassword;
+            this.quitPassword = this.config.quitPassword;
+            this.settingsPassword = this.config.settingsPassword;
             this.hasEnrolments = this.config.examEnrolments.length > 0;
         } else {
             this.start.setMinutes(60);
@@ -70,7 +73,11 @@ export class ExaminationEventDialogComponent implements OnInit {
         }
     }
 
-    togglePasswordInputType = () => (this.pwdInputType = this.pwdInputType === 'text' ? 'password' : 'text');
+    toggleSettingsPasswordInputType = () =>
+        (this.settingsPasswordInputType = this.settingsPasswordInputType === 'text' ? 'password' : 'text');
+    toggleQuitPasswordInputType = () =>
+        (this.quitPasswordInputType = this.quitPasswordInputType === 'text' ? 'password' : 'text');
+
     onStartDateChange = (event: { date: Date }) => {
         if (this.maxDateValidator && this.maxDateValidator < event.date) {
             this.toast.error(
@@ -100,7 +107,8 @@ export class ExaminationEventDialogComponent implements OnInit {
                     description: this.description,
                     capacity: this.capacity,
                 },
-                settingsPassword: this.password,
+                settingsPassword: this.settingsPassword,
+                quitPassword: this.quitPassword,
             },
         };
         if (!this.config) {

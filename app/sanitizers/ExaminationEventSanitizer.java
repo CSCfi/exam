@@ -26,7 +26,8 @@ public class ExaminationEventSanitizer extends BaseSanitizer {
     protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
         if (body.has("config")) {
             JsonNode configNode = body.get("config");
-            String pwd = configNode.path("settingsPassword").asText(null);
+            String settingsPassword = configNode.path("settingsPassword").asText(null);
+            String quitPassword = configNode.path("quitPassword").asText(null);
             JsonNode eventNode = configNode.get("examinationEvent");
             DateTime dateTime = DateTime.parse(eventNode.get("start").asText(), ISODateTimeFormat.dateTime());
             String description = eventNode.get("description").asText();
@@ -35,7 +36,8 @@ public class ExaminationEventSanitizer extends BaseSanitizer {
                 .addAttr(Attrs.START_DATE, dateTime)
                 .addAttr(Attrs.DESCRIPTION, description)
                 .addAttr(Attrs.CAPACITY, capacity)
-                .addAttr(Attrs.SETTINGS_PASSWORD, pwd);
+                .addAttr(Attrs.SETTINGS_PASSWORD, settingsPassword)
+                .addAttr(Attrs.QUIT_PASSWORD, quitPassword);
         } else {
             throw new SanitizingException("missing required data");
         }

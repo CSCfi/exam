@@ -1158,5 +1158,6 @@
   "i18n_preview_question": "Kysymyksen esikatselu",
   "i18n_button_preview": "Esikatsele kysymys",
   "i18n_no_preview_available": "Kysymyksen esikatselu ei ole saatavilla",
-  "i18n_used_in_exams": "Käytössä tenteissä"
+  "i18n_used_in_exams": "Käytössä tenteissä",
+  "i18n_quit_password": "SEB-poistumissalasana"
 }

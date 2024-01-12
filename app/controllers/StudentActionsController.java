@@ -344,6 +344,10 @@ public class StudentActionsController extends CollaborationController {
             String examName = oee.get().getExam().getName();
             ExaminationEventConfiguration eec = oee.get().getExaminationEventConfiguration();
             String fileName = examName.replace(" ", "-");
+            String quitPassword = byodConfigHandler.getPlaintextPassword(
+                eec.getEncryptedQuitPassword(),
+                eec.getQuitPasswordSalt()
+            );
             File file;
             try {
                 file = File.createTempFile(fileName, ".seb");
@@ -351,7 +355,8 @@ public class StudentActionsController extends CollaborationController {
                 byte[] data = byodConfigHandler.getExamConfig(
                     eec.getHash(),
                     eec.getEncryptedSettingsPassword(),
-                    eec.getSettingsPasswordSalt()
+                    eec.getSettingsPasswordSalt(),
+                    quitPassword
                 );
                 fos.write(data);
                 fos.close();

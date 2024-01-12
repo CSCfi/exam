@@ -48,8 +48,15 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
     @JsonIgnore
     private byte[] encryptedSettingsPassword;
 
+    @Lob
+    @JsonIgnore
+    private byte[] encryptedQuitPassword;
+
     @JsonIgnore
     private String settingsPasswordSalt;
+
+    @JsonIgnore
+    private String quitPasswordSalt;
 
     @JsonIgnore
     private String configKey;
@@ -59,6 +66,9 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
 
     @Transient
     private String settingsPassword;
+
+    @Transient
+    private String quitPassword;
 
     public Exam getExam() {
         return exam;
@@ -92,8 +102,24 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
         this.encryptedSettingsPassword = encryptedSettingsPassword;
     }
 
+    public byte[] getEncryptedQuitPassword() {
+        return encryptedQuitPassword;
+    }
+
+    public void setEncryptedQuitPassword(byte[] encryptedQuitPassword) {
+        this.encryptedQuitPassword = encryptedQuitPassword;
+    }
+
     public String getSettingsPasswordSalt() {
         return settingsPasswordSalt;
+    }
+
+    public String getQuitPasswordSalt() {
+        return quitPasswordSalt;
+    }
+
+    public void setQuitPasswordSalt(String quitPasswordSalt) {
+        this.quitPasswordSalt = quitPasswordSalt;
     }
 
     public void setSettingsPasswordSalt(String settingsPasswordSalt) {
@@ -122,6 +148,14 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
 
     public void setSettingsPassword(String settingsPassword) {
         this.settingsPassword = settingsPassword;
+    }
+
+    public String getQuitPassword() {
+        return quitPassword;
+    }
+
+    public void setQuitPassword(String quitPassword) {
+        this.quitPassword = quitPassword;
     }
 
     @Override
