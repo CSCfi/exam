@@ -24,6 +24,7 @@ import io.ebean.text.PathProperties;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.Exam;
 import models.ExaminationDate;
@@ -209,7 +210,7 @@ public class ExaminationEventController extends BaseController {
             return ok(eec);
         }
         if (!hasEnrolments) {
-            encryptQuitPassword(eec, settingsPassword);
+            encryptQuitPassword(eec, quitPassword);
             encryptSettingsPassword(eec, settingsPassword, quitPassword);
             eec.save();
             // Pass back the plaintext passwords, so they can be shown to user
@@ -320,5 +321,21 @@ public class ExaminationEventController extends BaseController {
         }
         Set<ExaminationEventConfiguration> exams = query.where().eq("exam.state", Exam.State.PUBLISHED).findSet();
         return ok(exams, pp);
+    }
+
+    @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
+    public Result listOverlappingExaminationEvents(String start, Integer duration) {
+        PathProperties pp = PathProperties.parse("(*, examinationEventConfiguration(exam(id, duration)))");
+        DateTime startDate = DateTime.parse(start, ISODateTimeFormat.dateTimeParser());
+        DateTime endDate = startDate.plusMinutes(duration);
+        Set<ExaminationEvent> events = DB
+            .find(ExaminationEvent.class)
+            .where()
+            .le("start", endDate)
+            .findSet()
+            .stream()
+            .filter(ee -> !getEventEnding(ee).isBefore(startDate))
+            .collect(Collectors.toSet());
+        return ok(events, pp);
     }
 }
