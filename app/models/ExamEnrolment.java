@@ -27,6 +27,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import java.util.Random;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import models.base.GeneratedIdentityModel;
@@ -40,6 +41,8 @@ import util.datetime.DateTimeAdapter;
 
 @Entity
 public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<ExamEnrolment> {
+
+    private static final int DELAY_MAX = 30;
 
     @ManyToOne
     @JsonManagedReference
@@ -84,6 +87,8 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
     private boolean noShow;
 
     private boolean retrialPermitted;
+
+    private int delay;
 
     public User getUser() {
         return user;
@@ -189,8 +194,20 @@ public class ExamEnrolment extends GeneratedIdentityModel implements Comparable<
         this.retrialPermitted = retrialPermitted;
     }
 
+    public int getDelay() {
+        return delay;
+    }
+
+    public void setDelay(int delay) {
+        this.delay = delay;
+    }
+
     public boolean isProcessed() {
         return (exam != null && exam.hasState(Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.DELETED));
+    }
+
+    public void setRandomDelay() {
+        this.setDelay(new Random().nextInt(DELAY_MAX));
     }
 
     @Override

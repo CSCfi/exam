@@ -7,13 +7,20 @@
     </div>
 </div>
 <div class="waitingroom-info">
-    <div [hidden]="!isUpcoming">
-        <img class="arrow_icon" alt="" role="note" src="/assets/images/icon_info.png" />
-        {{ 'i18n_redirect_to_exam_notice' | translate }}
-    </div>
+    @if (delayCounter$) {
+        <div class="alert alert-info me-4">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            {{ delayCounter$ | async }} {{ 'i18n_seconds_until_examination_starts' | translate }}
+        </div>
+    } @else if (isUpcoming()) {
+        <div class="alert alert-secondary me-4">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            {{ 'i18n_redirect_to_exam_notice' | translate }}
+        </div>
+    }
 </div>
 
-@if (isUpcoming) {
+@if (isUpcoming()) {
     <div class="row student-enrolment-wrapper waitingroom marl20" id="dashboard">
         <div class="col-md-12">
             <div class="row">
@@ -104,16 +111,14 @@
                     </div>
                 </div>
             }
-            @if (roomInstructions) {
+            @if (roomInstructions()) {
                 <div class="row">
                     <div class="col-md-12 student-exam-row-infolink">
                         <strong>{{ 'i18n_room_guidance' | translate }}: </strong>
                     </div>
                 </div>
-            }
-            @if (roomInstructions) {
                 <div class="row">
-                    <div class="col-md-12 student-exam-row-infobox">{{ roomInstructions }}</div>
+                    <div class="col-md-12 student-exam-row-infobox">{{ roomInstructions() }}</div>
                 </div>
             }
             @if (enrolment?.exam?.enrollInstruction) {
