@@ -45,32 +45,6 @@ import type { Examination } from '../examination.model';
                 }
             </div>
         </div>
-        <div class="padr0 padl0 visible-mobile">
-            @if (!isPreview) {
-                <xm-examination-clock [examHash]="exam.hash" (timedOut)="notifyTimeout()"> </xm-examination-clock>
-            }
-            <div class="exam-mobile-header padt40">
-                <div class="row">
-                    <h1 class="exam-header-title col marl20 marr20">
-                        {{ exam.course?.name }}
-                        @if (exam.course) {
-                            <xm-course-code [course]="exam.course"></xm-course-code>
-                        }
-                    </h1>
-                </div>
-                <div class="exam-header-title mobile-divider row"></div>
-                <div class="row">
-                    <div class="exam-header-img-wrap col">
-                        <img src="/assets/images//exam-logo-mobile.svg" alt="" />
-                    </div>
-                    <div class="language-selector col">
-                        <button class="green_button marl10" (click)="switchLanguage('fi')">FI</button>
-                        <button class="green_button marl10" (click)="switchLanguage('sv')">SV</button>
-                        <button class="green_button marl10" (click)="switchLanguage('en')">EN</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>`,
     standalone: true,
     imports: [CourseCodeComponent, ExaminationClockComponent],

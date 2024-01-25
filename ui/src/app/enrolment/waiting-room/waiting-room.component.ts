@@ -28,7 +28,7 @@ import { MathJaxDirective } from '../../shared/math/math-jax.directive';
 import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from '../../shared/user/teacher-list.component';
 import type { ExamEnrolment } from '../enrolment.model';
-import { Observable, interval, map, startWith, take } from 'rxjs';
+import { Observable, interval, map, startWith } from 'rxjs';
 
 type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
 type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
@@ -99,14 +99,13 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     private startScheduled = () => {
         window.clearTimeout(this.startTimerId);
-        const offset = Math.round(
+        const offset = Math.ceil(
             DateTime.fromJSDate(this.getStart()).plus({ seconds: this.enrolment.delay }).toSeconds() -
                 DateTime.now().toSeconds(),
         );
-        this.delayTimerId = window.setTimeout(this.Session.checkSession, offset);
+        this.delayTimerId = window.setTimeout(this.Session.checkSession, offset * 1000);
         this.delayCounter$ = interval(1000).pipe(
             startWith(0),
-            take(offset),
             map((n) => offset - n),
         );
     };
