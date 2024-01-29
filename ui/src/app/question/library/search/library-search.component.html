@@ -1,5 +1,5 @@
 <div class="row ms-3 me-3 align-items-center">
-    <div class="col-md-6">
+    <div class="col-md-6 marb10">
         <span class="m-1" ngbDropdown [autoClose]="'outside'">
             <button
                 class="btn btn-outline-secondary btn-sm"
@@ -144,38 +144,54 @@
                 }
             </ul>
         </span>
-        @if (user.isAdmin) {
-            <span class="ms-2 text-muted">{{ 'i18n_choose_atleast_one' | translate }}</span>
-        }
-    </div>
-    <div class="col-md-6">
-        <div class="row">
-            <div [ngClass]="user.isAdmin ? 'col-md-6' : 'col-md-12'">
-                <form>
-                    <div class="input-group">
-                        <input
-                            class="form-control"
-                            name="filterSearch"
-                            (input)="applySearchFilter()"
-                            [(ngModel)]="filter.text"
-                            placeholder="{{ 'i18n_search_by_question_text' | translate }}"
-                        />
-                        <div class="input-group-text p-0">
-                            <img src="/assets/images/icon_search.png" width="46" height="38" />
+      <span class="m-1" ngbDropdown [autoClose]="'outside'">
+            <button ngbDropdownToggle class="btn btn-outline-secondary btn-sm" type="button" id="dropDownMenu3" (click)="listAllOwners$()">
+                {{ 'i18n_owner' | translate }}&nbsp;
+                <span class="caret"></span>
+            </button>
+            <ul class="scrollable-menu max-w-1100" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
+                <li ngbDropdownItem role="presentation" class="important-flex min-width-300 max-w-1100">
+                    <input
+                      [(ngModel)]="limitations.owner"
+                      (ngModelChange)="filterOwners()"
+                      class="form-control"
+                      placeholder="{{ 'i18n_search' | translate }}"
+                      aria-describedby="search-icon-3"
+                    />
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <i id="search-icon-3" class="bi-search"></i>
                         </div>
                     </div>
-                </form>
-            </div>
-            @if (user.isAdmin) {
-                <div class="col-md-6">
+                </li>
+                <li
+                  *ngFor="let owner of filteredOwners"
+                  [hidden]="owner.filtered"
+                  role="presentation"
+                  (click)="applyFilter(owner)"
+                  ngbDropdownItem
+                >
+                    <div
+                      role="menuitem"
+                      class="text"
+                      title="{{'i18n_owner' | translate }}"
+                    >
+                        {{ owner.name }}
+                    </div>
+                </li>
+            </ul>
+        </span>
+    </div>
+    <div class="col-md-6">
+                <div class="col-md-12">
                     <form>
                         <div class="input-group">
                             <input
                                 class="form-control"
-                                name="ownerSearch"
+                                name="filterSearch"
                                 (input)="applySearchFilter()"
-                                [(ngModel)]="filter.owner"
-                                placeholder="{{ 'i18n_search_by_owner' | translate }}"
+                                [(ngModel)]="filter.text"
+                                placeholder="{{ 'i18n_search_by_question_text' | translate }}"
                             />
                             <div class="input-group-text p-0">
                                 <img src="/assets/images/icon_search.png" width="46" height="38" />
@@ -183,10 +199,8 @@
                         </div>
                     </form>
                 </div>
-            }
         </div>
     </div>
-</div>
 <div class="row ms-3">
     <div class="col-md-12">
         <ul class="inline-list ps-1">

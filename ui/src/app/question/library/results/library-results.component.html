@@ -26,6 +26,16 @@
                     </th>
                     <th>
                         <xm-table-sort
+                            by=""
+                            text="i18n_creator"
+                            [predicate]="questionsPredicate"
+                            [reverse]="reverse"
+                            (click)="setPredicate('creator')"
+                        >
+                        </xm-table-sort>
+                    </th>
+                    <th>
+                        <xm-table-sort
                             by="modified"
                             text="i18n_modified"
                             [predicate]="questionsPredicate"
@@ -135,6 +145,11 @@
                             </div>
                         </td>
                         <td>
+                          <span class="">
+                            <small>{{ question.creator?.firstName }} {{ question.creator?.lastName }}</small>
+                          </span>
+                        </td>
+                      <td>
                             @if (question.modified) {
                                 <span class="timestamp">
                                     {{ question.modified | date: 'dd.MM.yyyy HH:mm' }}

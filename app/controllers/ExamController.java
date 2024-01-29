@@ -154,12 +154,14 @@ public class ExamController extends BaseController {
         Optional<List<Long>> courseIds,
         Optional<List<Long>> sectionIds,
         Optional<List<Long>> tagIds,
+        Optional<List<Long>> ownerIds,
         Http.Request request
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         List<Long> courses = courseIds.orElse(Collections.emptyList());
         List<Long> sections = sectionIds.orElse(Collections.emptyList());
         List<Long> tags = tagIds.orElse(Collections.emptyList());
+        List<Long> owners = ownerIds.orElse(Collections.emptyList());
         PathProperties pp = PathProperties.parse(
             "(id, name, examActiveStartDate, examActiveEndDate, course(id, code), examSections(id, name))"
         );
@@ -177,6 +179,9 @@ public class ExamController extends BaseController {
         }
         if (!tags.isEmpty()) {
             el = el.in("examSections.sectionQuestions.question.parent.tags.id", tags);
+        }
+        if (!owners.isEmpty()) {
+            el = el.in("questionOwners.id", user);
         }
         return ok(el.findList(), pp);
     }

@@ -44,6 +44,7 @@ public class TagController extends BaseController {
         Optional<List<Long>> courseIds,
         Optional<List<Long>> examIds,
         Optional<List<Long>> sectionIds,
+        Optional<List<Long>> ownerIds,
         Http.Request request
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -63,6 +64,9 @@ public class TagController extends BaseController {
         }
         if (sectionIds.isPresent() && !sectionIds.get().isEmpty()) {
             query = query.in("questions.examSectionQuestions.examSection.id", sectionIds.get());
+        }
+        if (ownerIds.isPresent() && !ownerIds.get().isEmpty()) {
+            query = query.in("questions.questionOwners.id", ownerIds.get());
         }
         Set<Tag> tags = query.findSet();
         return ok(tags, PathProperties.parse("(*, creator(id), questions(id))"));
