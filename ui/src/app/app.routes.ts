@@ -1,39 +1,20 @@
-/*
- * Copyright (c) 2017 Exam Consortium
- *
- * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
- * versions of the EUPL (the "Licence");
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- *
- * https://joinup.ec.europa.eu/software/page/eupl/licence-eupl
- *
- * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
- * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and limitations under the Licence.
- */
 import { inject } from '@angular/core';
 import { Route } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { map, Observable } from 'rxjs';
 import { AppComponent } from './app.component';
-import { CalendarComponent } from './calendar/calendar.component';
-import { StudentDashboardComponent } from './dashboard/student/student-dashboard.component';
-import { ExamEnrolmentsComponent } from './enrolment/exams/exam-enrolments.component';
-import { CollaborativeParticipationsComponent } from './enrolment/finished/collaborative-exam-participations.component';
-import { ExamParticipationsComponent } from './enrolment/finished/exam-participations.component';
-import { CollaborativeExamSearchComponent } from './enrolment/search/collaborative-exam-search.component';
-import { ExamSearchComponent } from './enrolment/search/exam-search.component';
-import { WaitingRoomComponent } from './enrolment/waiting-room/waiting-room.component';
-import { WrongLocationComponent } from './enrolment/wrong-location/wrong-location.component';
-import { ExaminationComponent } from './examination/examination.component';
-import { ExaminationLogoutComponent } from './examination/logout/examination-logout.component';
 import { LogoutComponent } from './session/logout/logout.component';
 
 const buildTitle = (key: string, extraPart = ''): Observable<string> => {
     const tx = inject(TranslateService);
     const extra = extraPart ? ` ${extraPart}` : '';
-    return tx.get(key).pipe(map(() => `${tx.instant(key)}${extra} - EXAM`));
+    return tx.get(key).pipe(
+        map(
+            () =>
+                `${tx.instant(key)}${extra}
+     - EXAM`,
+        ),
+    );
 };
 
 export const APP_ROUTES: Route[] = [
@@ -45,7 +26,8 @@ export const APP_ROUTES: Route[] = [
     },
     {
         path: 'dashboard',
-        component: StudentDashboardComponent,
+        loadComponent: () =>
+            import('./dashboard/student/student-dashboard.component').then((mod) => mod.StudentDashboardComponent),
         title: () => buildTitle('i18n_enrolments_title'),
     },
     {
@@ -54,25 +36,28 @@ export const APP_ROUTES: Route[] = [
     },
     {
         path: 'exam/:hash',
-        component: ExaminationComponent,
         data: {
             isPreview: false,
         },
         title: () => buildTitle('i18n_examination_title'),
+        loadComponent: () => import('./examination/examination.component').then((mod) => mod.ExaminationComponent),
     },
     {
         path: 'waitingroom/:id/:hash',
-        component: WaitingRoomComponent,
+        loadComponent: () =>
+            import('./enrolment/waiting-room/waiting-room.component').then((mod) => mod.WaitingRoomComponent),
         title: () => buildTitle('i18n_waiting_room_title'),
     },
     {
         path: 'waitingroom',
-        component: WaitingRoomComponent,
+        loadComponent: () =>
+            import('./enrolment/waiting-room/waiting-room.component').then((mod) => mod.WaitingRoomComponent),
         title: () => buildTitle('i18n_waiting_room_title'),
     },
     {
         path: 'wrongroom/:eid/:mid',
-        component: WrongLocationComponent,
+        loadComponent: () =>
+            import('./enrolment/wrong-location/wrong-location.component').then((mod) => mod.WrongLocationComponent),
         data: {
             cause: 'room',
         },
@@ -80,7 +65,8 @@ export const APP_ROUTES: Route[] = [
     },
     {
         path: 'wrongmachine/:eid/:mid',
-        component: WrongLocationComponent,
+        loadComponent: () =>
+            import('./enrolment/wrong-location/wrong-location.component').then((mod) => mod.WrongLocationComponent),
         data: {
             cause: 'machine',
         },
@@ -88,37 +74,46 @@ export const APP_ROUTES: Route[] = [
     },
     {
         path: 'exams',
-        component: ExamSearchComponent,
+        loadComponent: () => import('./enrolment/search/exam-search.component').then((mod) => mod.ExamSearchComponent),
         title: () => buildTitle('i18n_exams_title'),
     },
     {
         path: 'exams/collaborative',
-        component: CollaborativeExamSearchComponent,
+        loadComponent: () =>
+            import('./enrolment/search/collaborative-exam-search.component').then(
+                (mod) => mod.CollaborativeExamSearchComponent,
+            ),
         title: () => buildTitle('i18n_collaborative_exams_title'),
     },
     {
         path: 'participations',
-        component: ExamParticipationsComponent,
+        loadComponent: () =>
+            import('./enrolment/finished/exam-participations.component').then((mod) => mod.ExamParticipationsComponent),
         title: () => buildTitle('i18n_participations_title'),
     },
     {
         path: 'participations/collaborative',
-        component: CollaborativeParticipationsComponent,
+        loadComponent: () =>
+            import('./enrolment/finished/collaborative-exam-participations.component').then(
+                (mod) => mod.CollaborativeParticipationsComponent,
+            ),
         title: () => buildTitle('i18n_collaborative_participations_title'),
     },
     {
         path: 'examination/logout',
-        component: ExaminationLogoutComponent,
+        loadComponent: () =>
+            import('./examination/logout/examination-logout.component').then((mod) => mod.ExaminationLogoutComponent),
         title: () => buildTitle('i18n_examination_logout_title'),
     },
     {
         path: 'enrolments/:id',
-        component: ExamEnrolmentsComponent,
+        loadComponent: () =>
+            import('./enrolment/exams/exam-enrolments.component').then((mod) => mod.ExamEnrolmentsComponent),
         title: (route) => buildTitle('i18n_enrolment_title', `#${route.params.id}`),
     },
     {
         path: 'calendar/:id',
-        component: CalendarComponent,
+        loadComponent: () => import('./calendar/calendar.component').then((mod) => mod.CalendarComponent),
         data: {
             isExternal: false,
             isCollaborative: false,
@@ -127,22 +122,21 @@ export const APP_ROUTES: Route[] = [
     },
     {
         path: 'calendar/:id/external',
-        component: CalendarComponent,
-        data: { isExternal: true },
+        loadComponent: () => import('./calendar/calendar.component').then((mod) => mod.CalendarComponent),
+        data: {
+            isExternal: true,
+        },
         title: (route) => buildTitle('i18n_external_reservation_title', `#${route.params.id}`),
     },
     {
         path: 'calendar/:id/collaborative',
-        component: CalendarComponent,
-        data: { isExternal: false, isCollaborative: true },
+        loadComponent: () => import('./calendar/calendar.component').then((mod) => mod.CalendarComponent),
+        data: {
+            isExternal: false,
+            isCollaborative: true,
+        },
         title: (route) => buildTitle('i18n_collaborative_reservation_title', `#${route.params.id}`),
     },
-    /*
-     { // this does not work apparently because admin code uses some of calendar dependencies
--        path: 'calendar',
--        loadChildren: () => import('./calendar/calendar.module').then((mod) => mod.CalendarModule),
--    },
-    */
     {
         path: 'staff',
         loadChildren: () => import('./dashboard/staff/staff.routes').then((mod) => mod.STAFF_ROUTES),

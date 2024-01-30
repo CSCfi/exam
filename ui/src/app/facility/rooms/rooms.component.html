@@ -1,6 +1,6 @@
 <div id="dashboard">
     @for (room of rooms; track room) {
-        <div class="row" id="room" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
+        <div class="row" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
             <div class="col-12">
                 <h2 class="room-name-title">{{ room.name || 'i18n_no_name' | translate }}</h2>
                 <a

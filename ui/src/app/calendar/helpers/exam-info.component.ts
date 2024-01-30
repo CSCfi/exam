@@ -30,7 +30,7 @@ import type { ExamInfo } from '../calendar.service';
                         </div>
                     </div>
                 </div>
-                <div class="row mart10">
+                <div class="row mt-2">
                     <div class="col-md-12">
                         <div class="row">
                             <div class="col-6 col-sm-6 col-md-4 col-lg-4">{{ 'i18n_course_name' | translate }}:</div>
@@ -61,7 +61,7 @@ import type { ExamInfo } from '../calendar.service';
                         </div>
                     </div>
                 </div>
-                <div class="row mart10">
+                <div class="row mt-2">
                     <div class="col-md-12">
                         <span class="student-exam-row-infolink" [hidden]="examInfo.executionType?.type === 'MATURITY'">
                             {{ 'i18n_calendar_instructions' | translate }}:
@@ -69,7 +69,7 @@ import type { ExamInfo } from '../calendar.service';
                         </span>
                     </div>
                 </div>
-                <div class="row mart10">
+                <div class="row mt-2">
                     <div class="col-md-12">
                         @if (showReservationWindowDescription()) {
                             <span class="infolink" role="note">

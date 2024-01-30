@@ -93,7 +93,6 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
                                             type="checkbox"
                                             class="form-check-input"
                                             name="select_room"
-                                            id="room"
                                             [(ngModel)]="room.selected"
                                         />
                                         <label class="form-check-label" for="room"
@@ -135,6 +134,7 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
     `,
     standalone: true,
     imports: [FormsModule, NgbPopover, NgClass, ExceptionListComponent, TranslateModule],
+    styleUrl: './rooms.component.scss',
 })
 export class MultiRoomComponent implements OnInit, OnChanges {
     @Output() selected = new EventEmitter<number[]>();
