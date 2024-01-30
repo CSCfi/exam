@@ -65,6 +65,7 @@ POST          /app/exam/:eid/examinationevents                          controll
 PUT           /app/exam/:eid/examinationevents/:eecid                   controllers.ExaminationEventController.updateExaminationEvent(eid: Long, eecid: Long, request: Request)
 DELETE        /app/exam/:eid/examinationevents/:eecid                   controllers.ExaminationEventController.removeExaminationEvent(eid: Long, eecid: Long)
 GET           /app/examinationevents                                    controllers.ExaminationEventController.listExaminationEvents(start: java.util.Optional[String], end: java.util.Optional[String])
+GET           /app/examinationevents/conflicting                        controllers.ExaminationEventController.listOverlappingExaminationEvents(start: String, duration: Int)
 
 ############### Question review interface ###############
 GET           /app/exam/:id/questions                                  controllers.QuestionReviewController.getEssays(id: Long, ids: java.util.Optional[LongList], request: Request)
@@ -438,6 +439,7 @@ GET           /app/settings/appVersion                                 controlle
 GET           /app/settings/maturityInstructions                       controllers.SettingsController.getMaturityInstructions(lang: String, ref: java.util.Optional[String])
 GET           /app/settings/examinationQuitLink                        controllers.SettingsController.getExaminationQuitLink
 GET           /app/settings/coursecodeprefix                           controllers.SettingsController.getCourseCodePrefix
+GET           /app/settings/byodmaxparticipants                        controllers.SettingsController.getByodMaxParticipants
 
 
 ################# Statistics interface ##################

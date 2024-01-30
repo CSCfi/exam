@@ -8,7 +8,7 @@
 </div>
 <div class="waitingroom-info">
     @if (delayCounter$) {
-        <div class="alert alert-info me-4">
+        <div class="alert alert-info me-4" [attr.aria-live]="'polite'">
             <i class="bi bi-exclamation-circle-fill me-4"></i>
             {{ delayCounter$ | async }} {{ 'i18n_seconds_until_examination_starts' | translate }}
         </div>

@@ -15,7 +15,7 @@
  */
 import { DatePipe, NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
-import { Component, Input } from '@angular/core';
+import { Component, Input, computed, effect, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -23,8 +23,10 @@ import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
-import type { ExaminationEventConfiguration, MaintenancePeriod } from '../../exam.model';
+import type { ExaminationEvent, ExaminationEventConfiguration, MaintenancePeriod } from '../../exam.model';
 import { ExamService } from '../../exam.service';
+import { HttpClient } from '@angular/common/http';
+import { map } from 'rxjs';
 
 @Component({
     selector: 'xm-examination-event-dialog',
@@ -34,49 +36,72 @@ import { ExamService } from '../../exam.service';
 })
 export class ExaminationEventDialogComponent implements OnInit {
     @Input() examId = 0;
+    @Input() duration = 0;
     @Input() config?: ExaminationEventConfiguration;
     @Input() maintenancePeriods: MaintenancePeriod[] = [];
     @Input() requiresPassword = false;
     @Input() examMaxDate?: string;
-    start = new Date(new Date().getTime() + 60 * 1000);
-    description = '';
-    capacity = 0;
-    quitPassword?: string;
-    settingsPassword?: string;
-    hasEnrolments = false;
-    settingsPasswordInputType = 'password';
-    quitPasswordInputType = 'password';
-    now = new Date();
+    start = signal(new Date(new Date().getTime() + 60 * 1000));
+    description = signal('');
+    capacity = signal(0);
+    maxSimultaneousCapacity = signal(0);
+    conflictingEvents = signal<ExaminationEvent[]>([]); // based on effect
+    availableCapacity = computed(
+        () => this.maxSimultaneousCapacity() - (this.conflictingEvents() || []).reduce((sum, e) => sum + e.capacity, 0),
+    );
+    quitPassword = signal<string | undefined>(undefined);
+    settingsPassword = signal<string | undefined>(undefined);
+    hasEnrolments = signal(false);
+    settingsPasswordInputType = signal('password');
+    quitPasswordInputType = signal('password');
     maxDateValidator?: Date;
+    private now = new Date();
 
     constructor(
         public activeModal: NgbActiveModal,
+        private http: HttpClient,
         private translate: TranslateService,
         private toast: ToastrService,
         private Exam: ExamService,
-    ) {}
+    ) {
+        effect(() =>
+            this.http
+                .get<ExaminationEvent[]>('/app/examinationevents/conflicting', {
+                    params: { start: this.start().toISOString(), duration: this.duration },
+                })
+                .pipe(map((events) => events.filter((e) => e.examinationEventConfiguration.exam.id !== this.examId)))
+                .subscribe((events) => this.conflictingEvents.set(events)),
+        );
+    }
 
     ngOnInit() {
         if (this.config) {
-            this.start = new Date(this.config.examinationEvent.start);
-            this.description = this.config.examinationEvent.description;
-            this.capacity = this.config.examinationEvent.capacity;
-            this.quitPassword = this.config.quitPassword;
-            this.settingsPassword = this.config.settingsPassword;
-            this.hasEnrolments = this.config.examEnrolments.length > 0;
+            this.start.set(new Date(this.config.examinationEvent.start));
+            this.description.set(this.config.examinationEvent.description);
+            this.capacity.set(this.config.examinationEvent.capacity);
+            this.quitPassword.set(this.config.quitPassword);
+            this.settingsPassword.set(this.config.settingsPassword);
+            this.hasEnrolments.set(this.config.examEnrolments.length > 0);
         } else {
-            this.start.setMinutes(60);
+            this.start.update((d) => {
+                const d2 = d;
+                d2.setMinutes(60);
+                return d;
+            });
         }
         if (this.examMaxDate) {
             const maxDate = new Date(Date.parse(this.examMaxDate)).getTime() - new Date(0).getTime();
             this.maxDateValidator = new Date(this.now.getTime() + maxDate);
         }
+        this.http
+            .get<{ max: number }>('/app/settings/byodmaxparticipants')
+            .subscribe((value) => this.maxSimultaneousCapacity.set(value.max));
     }
 
     toggleSettingsPasswordInputType = () =>
-        (this.settingsPasswordInputType = this.settingsPasswordInputType === 'text' ? 'password' : 'text');
+        this.settingsPasswordInputType.set(this.settingsPasswordInputType() === 'text' ? 'password' : 'text');
     toggleQuitPasswordInputType = () =>
-        (this.quitPasswordInputType = this.quitPasswordInputType === 'text' ? 'password' : 'text');
+        this.quitPasswordInputType.set(this.quitPasswordInputType() === 'text' ? 'password' : 'text');
 
     onStartDateChange = (event: { date: Date }) => {
         if (this.maxDateValidator && this.maxDateValidator < event.date) {
@@ -89,26 +114,26 @@ export class ExaminationEventDialogComponent implements OnInit {
         if (this.now > event.date) {
             this.toast.error(this.translate.instant('i18n_select_time_in_future'));
         }
-        this.start = event.date;
+        this.start.set(event.date);
     };
 
     ok() {
         if (!this.start) {
             this.toast.error(this.translate.instant('i18n_no_examination_start_date_picked'));
         }
-        if (this.maxDateValidator && this.maxDateValidator < this.start) {
+        if (this.maxDateValidator && this.maxDateValidator < this.start()) {
             this.toast.error(this.translate.instant('i18n_invalid_start_date_picked'));
             return;
         }
         const config = {
             config: {
                 examinationEvent: {
-                    start: this.start.toISOString(),
-                    description: this.description,
-                    capacity: this.capacity,
+                    start: this.start().toISOString(),
+                    description: this.description(),
+                    capacity: this.capacity(),
                 },
-                settingsPassword: this.settingsPassword,
-                quitPassword: this.quitPassword,
+                settingsPassword: this.settingsPassword(),
+                quitPassword: this.quitPassword(),
             },
         };
         if (!this.config) {
