@@ -1160,5 +1160,9 @@
   "i18n_no_preview_available": "No preview available",
   "i18n_used_in_exams": "Used in exams",
   "i18n_quit_password": "SEB-poistumissalasana EN",
+  "i18n_total_simultaneous_byod_capacity": "Järjestelmän samanaikainen maksimiosallistujamäärä EN",
+  "i18n_simultaneous_events": "Samanaikaisesti järjestettävät tenttitilaisuudet maksimiosallistujamäärineen EN",
+  "i18n_available_capacity": "Maksimimiosallistujamäärä tälle tilaisuudelle (arvio) EN",
+  "i18n_no_events": "Ei tapahtumia EN",
   "i18n_can_create_byod_exam": "Voi luoda omakonetentin EN"
 }
