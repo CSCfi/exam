@@ -32,6 +32,7 @@ import { NavigationService } from './navigation.service';
     templateUrl: './navigation.component.html',
     standalone: true,
     imports: [RouterLinkActive, RouterLink, NgbCollapse, TranslateModule],
+    styleUrl: './navigation.component.scss',
 })
 export class NavigationComponent implements OnInit, OnDestroy {
     appVersion = '';

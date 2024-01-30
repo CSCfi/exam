@@ -60,6 +60,7 @@ export interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
         MachineListComponent,
         TranslateModule,
     ],
+    styleUrl: './rooms.component.scss',
 })
 export class RoomListComponent implements OnInit {
     user: User;

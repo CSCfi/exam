@@ -1,0 +1,371 @@
+@import '../shared/styles.scss';
+
+#nav {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: 0;
+    position: fixed;
+
+    @media (max-width: $mobile-width) {
+        position: relative;
+        z-index: 1;
+    }
+
+    i {
+        vertical-align: middle;
+    }
+
+    .logo {
+        img {
+            margin-left: 3.57em;
+            margin-right: 3.57em;
+            margin-top: 1.07em;
+
+            @media (max-width: $mobile-width) {
+                margin-top: 0em;
+                margin-left: 20px;
+                padding-top: 15px;
+            }
+        }
+    }
+
+    a {
+        display: flex;
+        background-color: black;
+        text-decoration: none;
+        padding-left: 1.5em;
+        border-left: 3px solid black;
+        font-family: $family-helvetica;
+        font-size: 16px;
+        color: #e7e7e7;
+        letter-spacing: 0.27px;
+        line-height: 18px;
+        text-align: left;
+        align-items: center;
+        @media (max-width: $mobile-width) {
+            border: 3px solid black;
+            border-radius: 50px;
+        }
+    }
+
+    a:hover {
+        text-decoration: none;
+        color: white;
+        border-left: 3px solid $exam-dark-green;
+        @media (max-width: $mobile-width) {
+            border: 3px solid white;
+            border-radius: 50px;
+        }
+    }
+
+    .selected {
+        background-color: black;
+        border-left: 3px solid $exam-dark-green;
+        text-decoration: none;
+        padding-left: 1.5em;
+        font-family: $family-helvetica;
+        font-size: 16px;
+        color: #e7e7e7;
+        letter-spacing: 0.27px;
+        line-height: 18px;
+        text-align: left;
+        font-weight: bold;
+        @media (max-width: $mobile-width) {
+            border: 3px solid $exam-dark-green !important;
+            border-radius: 50px !important;
+        }
+    }
+
+    li {
+        list-style: none;
+        margin-bottom: 2.5em;
+        @media (max-width: $mobile-width) {
+            margin-bottom: 1em;
+        }
+    }
+
+    ul {
+        padding: 0;
+        @media (max-width: $mobile-width) {
+            margin: 0 1.5em;
+        }
+    }
+
+    .nav-header {
+        background-color: black;
+        color: $exam-dark-grey;
+        position: fixed;
+        top: 0;
+        left: 0;
+        display: block;
+        height: 162px;
+        width: 17.125em;
+
+        @media (max-width: $mobile-width) {
+            position: relative;
+            width: 100%;
+            height: 80px;
+        }
+
+        .mobile-menu {
+            float: right;
+            background: none;
+            border: none;
+
+            img {
+                padding-top: 30px;
+            }
+        }
+    }
+
+    .nav-body {
+        position: fixed;
+        background-color: black;
+        color: $exam-dark-grey;
+        top: 162px;
+        bottom: 105px;
+        overflow-y: auto;
+        width: 17.125em;
+
+        @media (max-width: $mobile-width) {
+            display: none;
+        }
+    }
+
+    .nav-body-mobile {
+        @media (max-width: $mobile-width) {
+            background-color: black;
+            color: $exam-dark-grey;
+            position: relative;
+            width: 100%;
+        }
+    }
+
+    .nav-footer {
+        background-color: $exam-medium-green;
+        color: $exam-dark-grey;
+        display: block;
+        position: fixed;
+        bottom: 0;
+        width: 17.125em;
+
+        @media (max-width: $mobile-width) {
+            display: none;
+        }
+    }
+
+    .nav-user {
+        @media (max-width: $mobile-width) {
+            display: none;
+        }
+    }
+
+    .minimize .nav-header {
+        height: 175px;
+        width: 50px;
+    }
+
+    .minimize .nav-body {
+        top: 175px;
+        width: 50px;
+    }
+
+    .minimize .nav-footer {
+        width: 50px;
+    }
+
+    .menu-item {
+        margin: 0;
+        @media (max-width: $mobile-width) {
+            padding-top: 1em;
+            padding-bottom: 1em;
+        }
+        font-family: $family-helvetica;
+        font-size: 16px;
+        color: #e7e7e7;
+        letter-spacing: 0.27px;
+        line-height: 18px;
+        text-align: left;
+        padding-left: 1em;
+    }
+
+    .app-version {
+        margin-left: 2.5em;
+        padding: 0.5em 1em 1em;
+        font-family: $family-helvetica;
+        font-size: 14px;
+        color: #ffffff;
+        letter-spacing: 0.27px;
+        line-height: 18px;
+        text-align: left;
+    }
+
+    .user {
+        bottom: 60px;
+        color: white;
+    }
+
+    .user-name {
+        background-color: black;
+        padding: 1.5em 1em 1em;
+        left: 0;
+        font-size: 1em;
+        font-family: $family-helvetica;
+        color: white;
+        font-weight: 300;
+        letter-spacing: 1px;
+    }
+
+    .minify {
+        bottom: 0;
+        padding: 0.5em;
+        float: right;
+        color: #27b9ca;
+    }
+
+    .minimize .menu-item {
+        display: none;
+    }
+
+    .locale-bar {
+        margin-left: 1.7em;
+        margin-top: 0.4em;
+    }
+
+    .locale-item {
+        cursor: pointer;
+        font-size: 1em;
+        font-family: $family-helvetica;
+        font-weight: 300;
+        letter-spacing: 1px;
+        display: inline-block;
+
+        color: white;
+        padding: 0.5em;
+        margin-left: 1.5em;
+        background-color: transparent;
+        border: 0px;
+        text-decoration: none;
+        @media (max-width: $mobile-width) {
+            border: 3px solid #00000000;
+        }
+    }
+    .locale-item:active .locale-item:hover {
+        font-weight: bold;
+    }
+
+    .minimize .locale-item {
+        text-align: center;
+        padding: 0.3em 0 0.3em 0;
+    }
+
+    .locale-item:hover {
+        color: white;
+        font-weight: bold;
+        @media (max-width: $mobile-width) {
+            border-radius: 50px;
+            border: 3px solid white;
+        }
+    }
+
+    @media print {
+        .nav-container {
+            display: none !important;
+        }
+    }
+
+    .user-logo {
+        display: inline-block;
+        vertical-align: top;
+        margin-right: 10px;
+        margin-left: 10px;
+    }
+
+    .user-data {
+        display: inline-block;
+        max-width: 165px;
+    }
+
+    .sub-menu {
+        font-family: $family-helvetica;
+        font-size: 16px !important;
+        color: #e7e7e7 !important;
+        letter-spacing: 0.27px;
+        line-height: 18px;
+        text-align: left;
+
+        a {
+            font-family: $family-helvetica;
+            font-size: 16px;
+            color: #e7e7e7;
+            letter-spacing: 0.27px;
+            line-height: 18px;
+            text-align: left;
+        }
+    }
+
+    ul.submenu {
+        margin: 0px;
+        margin-top: 20px;
+        border-top: 15px;
+        padding: 0px;
+        border: 0px;
+
+        a {
+            font-family: $family-helvetica;
+            font-size: 16px;
+            color: #e7e7e7;
+            letter-spacing: 0.27px;
+            line-height: 18px;
+            text-align: left;
+            margin: 0 30px;
+        }
+
+        li {
+            margin-bottom: 15px;
+        }
+
+        div {
+            width: 175px;
+            font-family: $family-helvetica;
+            font-size: 16px;
+            color: #e7e7e7 !important;
+            letter-spacing: 0.27px;
+            line-height: 18px;
+            text-align: left;
+            padding-left: 28px;
+            text-indent: -35px;
+        }
+
+        img {
+            margin-left: 0.5em;
+            margin-right: 1em;
+        }
+
+        @media (max-width: $mobile-width) {
+            margin-top: 10px;
+        }
+    }
+
+    .sub-menu-item {
+        padding-left: 1em;
+        font-family: $family-helvetica;
+        font-size: 16px;
+        color: #e7e7e7 !important;
+        letter-spacing: 0.27px;
+        line-height: 18px;
+        text-align: left;
+    }
+    span.sub-menu-item {
+        font-family: $family-helvetica;
+        font-size: 16px;
+        color: #e7e7e7 !important;
+        letter-spacing: 0.27px;
+        line-height: 18px;
+        text-align: left;
+        text-indent: -4em;
+        width: 50px;
+    }
+}

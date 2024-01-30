@@ -1,0 +1,50 @@
+@import '../../shared/styles.scss';
+
+li {
+    list-style: none;
+}
+
+.selected {
+    background-color: #d3e7a8;
+    border-top: none;
+    border-bottom: none;
+}
+.room-name {
+    font-size: 1.6em;
+    padding: 0.8em 0;
+    font-family: $family-helvetica;
+    color: black;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.room-info-span-text {
+    font: $family-helvetica;
+    font-weight: bold;
+}
+
+.toggleMessage {
+    padding: 18px;
+    border: 1px solid #dfdfdf;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.toggleMessage:before {
+    font-size: 13px;
+    color: #777;
+    float: right;
+    margin-left: 10px;
+}
+
+.room-name-title {
+    font-size: 22px;
+    letter-spacing: 0.63px;
+    text-align: left;
+    display: inline-block;
+    font-family: $family-helvetica;
+    font-weight: normal;
+    padding-bottom: 20px;
+    padding-top: 20px;
+    margin-left: 30px;
+}
