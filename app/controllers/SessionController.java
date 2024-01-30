@@ -45,6 +45,7 @@ import javax.mail.internet.InternetAddress;
 import models.ExamEnrolment;
 import models.Language;
 import models.Organisation;
+import models.Permission;
 import models.Reservation;
 import models.Role;
 import models.User;
@@ -329,6 +330,15 @@ public class SessionController extends BaseController {
         user.setUserIdentifier(
             parse(request.header("schacPersonalUniqueCode").orElse("")).map(this::parseUserIdentifier).orElse(null)
         );
+        // Grant BYOD permission automatically for teachers if configuration so mandates
+        if (user.hasRole(Role.Name.TEACHER) && configReader.isByodExamCreationPermissionGrantedForNewUsers()) {
+            Permission permission = DB
+                .find(Permission.class)
+                .where()
+                .eq("type", Permission.Type.CAN_CREATE_BYOD_EXAM)
+                .findOne();
+            user.getPermissions().add(permission);
+        }
         user.setEmail(
             parse(request.header("mail").orElse(""))
                 .flatMap(this::validateEmail)

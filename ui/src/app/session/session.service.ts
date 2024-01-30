@@ -53,6 +53,7 @@ export interface User {
     isLanguageInspector: boolean;
     employeeNumber: string | null;
     lastLogin: string | null;
+    canCreateByodExam: boolean;
 }
 
 interface Env {
@@ -245,6 +246,7 @@ export class SessionService implements OnDestroy {
                 user.isTeacher = role.name === 'TEACHER';
                 user.isStudent = role.name === 'STUDENT';
                 user.isLanguageInspector = user.isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE');
+                user.canCreateByodExam = !user.isStudent && this.hasPermission(user, 'CAN_CREATE_BYOD_EXAM');
                 return user;
             }),
         );
@@ -259,11 +261,11 @@ export class SessionService implements OnDestroy {
                     break;
                 case 'TEACHER':
                     role.displayName = 'i18n_teacher';
-                    role.icon = 'bi-person-fill';
+                    role.icon = 'bi-person';
                     break;
                 case 'STUDENT':
                     role.displayName = 'i18n_student';
-                    role.icon = 'bi-person';
+                    role.icon = 'bi-mortarboard';
                     break;
             }
         });
@@ -278,6 +280,7 @@ export class SessionService implements OnDestroy {
                 isAdmin: loginRole != null && loginRole === 'ADMIN',
                 isStudent: loginRole != null && loginRole === 'STUDENT',
                 isLanguageInspector: isTeacher && this.hasPermission(user, 'CAN_INSPECT_LANGUAGE'),
+                canCreateByodExam: loginRole !== 'STUDENT' && this.hasPermission(user, 'CAN_CREATE_BYOD_EXAM'),
             })),
         );
     }

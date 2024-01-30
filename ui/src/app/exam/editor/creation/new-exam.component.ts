@@ -19,6 +19,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { SessionService } from 'src/app/session/session.service';
 import { HistoryBackComponent } from '../../../shared/history/history-back.component';
 import type { ExamExecutionType, Implementation } from '../../exam.model';
 import { ExamService } from '../../exam.service';
@@ -35,13 +36,16 @@ export class NewExamComponent implements OnInit {
     examinationType: Implementation = 'AQUARIUM';
     homeExaminationSupported = false;
     sebExaminationSupported = false;
+    canCreateByodExams = false;
 
     constructor(
         private http: HttpClient,
         private Exam: ExamService,
+        private Session: SessionService,
     ) {}
 
     ngOnInit() {
+        this.canCreateByodExams = this.Session.getUser().canCreateByodExam;
         this.Exam.listExecutionTypes$().subscribe((types) => {
             this.executionTypes = types;
             this.http

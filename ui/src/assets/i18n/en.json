@@ -1163,5 +1163,6 @@
   "i18n_total_simultaneous_byod_capacity": "Järjestelmän samanaikainen maksimiosallistujamäärä EN",
   "i18n_simultaneous_events": "Samanaikaisesti järjestettävät tenttitilaisuudet maksimiosallistujamäärineen EN",
   "i18n_available_capacity": "Maksimimiosallistujamäärä tälle tilaisuudelle (arvio) EN",
-  "i18n_no_events": "Ei tapahtumia EN"
+  "i18n_no_events": "Ei tapahtumia EN",
+  "i18n_can_create_byod_exam": "Voi luoda omakonetentin EN"
 }
