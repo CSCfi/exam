@@ -11,7 +11,7 @@
             </h1>
         </div>
         <form class="modal-body" #eventForm="ngForm" name="eventForm">
-            @if (hasEnrolments) {
+            @if (hasEnrolments()) {
                 <div class="alert alert-warning form-text">
                     {{ 'i18n_enrolments_exist_for_examination_event' | translate }}
                 </div>
@@ -31,10 +31,10 @@
             <label for="dtpicker">{{ 'i18n_begin' | translate }}:</label>
             <xm-date-time-picker
                 id="dtpicker"
-                [disabled]="hasEnrolments"
+                [disabled]="hasEnrolments()"
                 [hourStep]="1"
                 [minuteStep]="15"
-                [initialTime]="start"
+                [initialTime]="start()"
                 [examMaxDate]="examMaxDate"
                 (updated)="onStartDateChange($event)"
                 autofocus
@@ -47,7 +47,8 @@
                     name="description"
                     class="form-control"
                     required
-                    [(ngModel)]="description"
+                    [ngModel]="description()"
+                    (ngModelChange)="description.set($event)"
                 ></textarea>
             </div>
             <div class="form-group">
@@ -60,19 +61,38 @@
                     type="number"
                     step="1"
                     [min]="1"
-                    [(ngModel)]="capacity"
+                    [ngModel]="capacity()"
+                    (ngModelChange)="capacity.set($event)"
                 />
+                <ul>
+                    <li>
+                        {{ 'i18n_total_simultaneous_byod_capacity' | translate }}:
+                        {{ maxSimultaneousCapacity() }}
+                    </li>
+                    <li>
+                        {{ 'i18n_simultaneous_events' | translate }}:
+                        <ul>
+                            @for (event of conflictingEvents(); track event.id) {
+                                <li>{{ event.start | date }}: {{ event.capacity }}</li>
+                            } @empty {
+                                <li>{{ 'i18n_no_events' | translate }}</li>
+                            }
+                        </ul>
+                    </li>
+                    <li>{{ 'i18n_available_capacity' | translate }}: {{ availableCapacity() }}</li>
+                </ul>
             </div>
             @if (requiresPassword) {
-                <div class="form-group">
+                <div class="form-group mt-2">
                     <label for="settings-password">{{ 'i18n_settings_password' | translate }}:</label>
-                    <div id="settings-password" class="input-group wdth-30">
+                    <div id="settings-password" class="input-group">
                         <input
-                            type="{{ settingsPasswordInputType }}"
+                            type="{{ settingsPasswordInputType() }}"
                             name="settingsPassword"
                             class="form-control"
-                            [(ngModel)]="settingsPassword"
-                            [disabled]="hasEnrolments"
+                            [ngModel]="settingsPassword()"
+                            (ngModelChange)="settingsPassword.set($event)"
+                            [disabled]="hasEnrolments()"
                             required
                         />
                         <div class="input-group-append">
@@ -81,25 +101,26 @@
                                 type="button"
                                 (click)="toggleSettingsPasswordInputType()"
                             >
-                                <i [ngClass]="settingsPasswordInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
+                                <i [ngClass]="settingsPasswordInputType() === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
                             </button>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="quit-password">{{ 'i18n_quit_password' | translate }}:</label>
-                    <div id="quit-password" class="input-group wdth-30">
+                    <div id="quit-password" class="input-group">
                         <input
-                            type="{{ quitPasswordInputType }}"
+                            type="{{ quitPasswordInputType() }}"
                             name="quitPassword"
                             class="form-control"
-                            [(ngModel)]="quitPassword"
-                            [disabled]="hasEnrolments"
+                            [ngModel]="quitPassword()"
+                            (ngModelChange)="quitPassword.set($event)"
+                            [disabled]="hasEnrolments()"
                             required
                         />
                         <div class="input-group-append">
                             <button class="btn btn-primary green" type="button" (click)="toggleQuitPasswordInputType()">
-                                <i [ngClass]="quitPasswordInputType === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
+                                <i [ngClass]="quitPasswordInputType() === 'text' ? 'bi-eye' : 'bi-eye-slash'"></i>
                             </button>
                         </div>
                     </div>
@@ -108,7 +129,10 @@
         </form>
         <div class="modal-footer">
             <div class="student-message-dialog-button-save">
-                <button [disabled]="eventForm.invalid || (maxDateValidator && maxDateValidator < start)" (click)="ok()">
+                <button
+                    [disabled]="eventForm.invalid || (maxDateValidator && maxDateValidator < start())"
+                    (click)="ok()"
+                >
                     {{ 'i18n_button_accept' | translate }}
                 </button>
             </div>

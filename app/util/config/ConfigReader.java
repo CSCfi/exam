@@ -35,6 +35,7 @@ public interface ConfigReader {
     String getSettingsPasswordEncryptionKey();
     String getHomeOrganisationRef();
     Integer getMaxByodExaminationParticipantCount();
+    boolean isByodExamCreationPermissionGrantedForNewUsers();
     String getCourseCodePrefix();
     String getIopHost();
     boolean isApiKeyUsed();

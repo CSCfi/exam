@@ -67,8 +67,8 @@ export class UsersComponent implements OnInit, OnDestroy {
     ngUnsubscribe = new Subject();
     roles: RoleOption[] = [
         { type: 'ADMIN', name: 'i18n_admin', icon: 'bi-gear' },
-        { type: 'TEACHER', name: 'i18n_teacher', icon: 'bi-person-fill' },
-        { type: 'STUDENT', name: 'i18n_student', icon: 'bi-person' },
+        { type: 'TEACHER', name: 'i18n_teacher', icon: 'bi-person' },
+        { type: 'STUDENT', name: 'i18n_student', icon: 'bi-mortarboard' },
     ];
     permissions: PermissionOption[] = [];
     loader = { loading: false };
@@ -99,7 +99,14 @@ export class UsersComponent implements OnInit, OnDestroy {
                     return {
                         ...p,
                         name: 'i18n_can_inspect_language',
-                        icon: 'bi-pencil',
+                        icon: 'bi-alphabet',
+                    };
+                }
+                if (p.type === PermissionType.CAN_CREATE_BYOD_EXAM) {
+                    return {
+                        ...p,
+                        name: 'i18n_can_create_byod_exam',
+                        icon: 'bi-house-gear',
                     };
                 }
 
