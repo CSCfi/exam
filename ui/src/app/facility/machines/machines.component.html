@@ -67,12 +67,10 @@
                                     @for (software of machine.softwareInfo; track software; let l = $last) {
                                         <li class="float-start">
                                             @if (software.status !== 'DISABLED') {
-                                                <span>
-                                                    {{ software.name }}
-                                                    @if (!l) {
-                                                        <span>, </span>
-                                                    }
-                                                </span>
+                                                <span>{{ software.name }}</span>
+                                                @if (!l) {
+                                                    <span>,&nbsp;</span>
+                                                }
                                             }
                                         </li>
                                     }

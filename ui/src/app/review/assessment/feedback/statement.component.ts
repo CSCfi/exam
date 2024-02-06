@@ -16,7 +16,7 @@ import { CdkDrag } from '@angular/cdk/drag-drop';
 import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from '../../../exam/exam.model';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
@@ -24,73 +24,72 @@ import type { FileResult } from '../../../shared/attachment/dialogs/attachment-p
 import { CKEditorComponent } from '../../../shared/ckeditor/ckeditor.component';
 import { FileService } from '../../../shared/file/file.service';
 import { MaturityService } from '../maturity/maturity.service';
+import { AssessmentService } from '../assessment.service';
 
 @Component({
     selector: 'xm-r-statement',
-    template: `<div id="feedback" [hidden]="hasGoneThroughLanguageInspection()">
-        <div cdkDrag id="draggable" class="wrapper">
-            <div class="row">
-                <div
-                    class="col-md-1"
-                    ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
+    template: `<div
+        cdkDrag
+        [cdkDragConstrainPosition]="fixPosition"
+        class="wrapper"
+        [hidden]="hasGoneThroughLanguageInspection()"
+    >
+        <div class="row align-items-center">
+            <div
+                class="col-1"
+                ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <i
+                    (click)="toggleEditorVisibility()"
+                    class="pointer"
+                    [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"
                 >
-                    <i
-                        (click)="toggleEditorVisibility()"
-                        class="pointer vcenter font-6"
-                        [ngClass]="
-                            hideEditor
-                                ? 'bi-arrow-right-circle-fill sitnet-green'
-                                : 'bi-arrow-down-circle-fill sitnet-red'
-                        "
-                    >
-                    </i>
-                </div>
-                <div class="col-md-11">
-                    <div class="vcenter">
-                        {{ 'i18n_give_statement' | translate }}
-                    </div>
+                </i>
+            </div>
+            <div class="col-11">
+                {{ 'i18n_give_statement' | translate }}
+            </div>
+        </div>
+        <div [ngbCollapse]="hideEditor" class="body">
+            <div class="row mt-2 mb-1">
+                <div class="col-md-12">
+                    <xm-ckeditor
+                        [enableClozeTest]="false"
+                        [(ngModel)]="exam.languageInspection.statement.comment"
+                        #ck="ngModel"
+                        name="ck"
+                        rows="10"
+                        cols="80"
+                    ></xm-ckeditor>
                 </div>
             </div>
-            <div [hidden]="hideEditor" class="body">
-                <div class="row editor">
-                    <div class="col-md-12">
-                        <xm-ckeditor
-                            [enableClozeTest]="false"
-                            [(ngModel)]="exam.languageInspection.statement.comment"
-                            #ck="ngModel"
-                            name="ck"
-                        ></xm-ckeditor>
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-outline-secondary" (click)="saveInspectionStatement()">
+                    {{ 'i18n_save' | translate }}
+                </button>
+                @if (exam.languageInspection?.statement?.attachment) {
+                    <div class="d-flex justify-content-end">
+                        <a class="pointer" (click)="downloadStatementAttachment()">{{
+                            exam.examFeedback?.attachment?.fileName
+                        }}</a>
+                        <span class="sitnet-red pointer" (click)="removeStatementAttachment()">
+                            <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
+                        </span>
                     </div>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <button class="btn btn-outline-secondary" (click)="saveInspectionStatement()">
-                            {{ 'i18n_save' | translate }}
-                        </button>
-                    </div>
-                    <div>
-                        @if (exam.languageInspection?.statement?.attachment) {
-                            <span>
-                                <a class="pointer" (click)="downloadStatementAttachment()">{{
-                                    exam.languageInspection?.statement?.attachment?.fileName
-                                }}</a>
-                                <span class="sitnet-red pointer" (click)="removeStatementAttachment()">
-                                    <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
-                                </span>
-                            </span>
-                        }
-                        <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
-                            {{ 'i18n_attach_file' | translate }}
-                        </button>
-                    </div>
+                }
+                <div class="d-flex justify-content-between mt-2">
+                    <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
+                        {{ 'i18n_attach_file' | translate }}
+                    </button>
                 </div>
             </div>
         </div>
     </div>`,
     standalone: true,
-    imports: [CdkDrag, NgbPopover, NgClass, CKEditorComponent, FormsModule, TranslateModule],
+    imports: [CdkDrag, NgbPopover, NgClass, CKEditorComponent, NgbCollapse, FormsModule, TranslateModule],
+    styleUrl: './feedback.component.scss',
 })
 export class StatementComponent {
     @Input() exam!: Exam;
@@ -100,6 +99,7 @@ export class StatementComponent {
         private Attachment: AttachmentService,
         private Files: FileService,
         private Maturity: MaturityService,
+        private Assessment: AssessmentService,
     ) {}
 
     hasGoneThroughLanguageInspection = () => this.exam.languageInspection?.finishedAt;
@@ -124,4 +124,6 @@ export class StatementComponent {
             }),
         );
     };
+
+    fixPosition = this.Assessment.fixPosition;
 }

@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { CdkDrag } from '@angular/cdk/drag-drop';
+import { CdkDrag, Point } from '@angular/cdk/drag-drop';
 import { NgClass } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -30,62 +30,61 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
 
 @Component({
     selector: 'xm-r-feedback',
-    template: `<div id="feedback">
-        <div cdkDrag id="draggable" class="wrapper">
-            <div class="row align-items-center">
-                <div
-                    class="col-1"
-                    ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
-                    triggers="mouseenter:mouseleave"
+    template: `<div cdkDrag [cdkDragConstrainPosition]="fixPosition" class="wrapper">
+        <div class="row align-items-center">
+            <div
+                class="col-1"
+                ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <i
+                    (click)="toggleFeedbackVisibility()"
+                    class="pointer"
+                    [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"
                 >
-                    <i
-                        (click)="toggleFeedbackVisibility()"
-                        class="pointer font-6"
-                        [ngClass]="hideEditor ? 'bi-chevron-right' : 'bi-chevron-down'"
-                    >
-                    </i>
-                </div>
-                <div class="col-11">
-                    {{ title | translate }}
+                </i>
+            </div>
+            <div class="col-11">
+                {{ title | translate }}
+            </div>
+        </div>
+        <div [ngbCollapse]="hideEditor" class="body">
+            <div class="row mt-2 mb-1">
+                <div class="col-md-12">
+                    <xm-ckeditor
+                        id="feedback-editor"
+                        [enableClozeTest]="false"
+                        [(ngModel)]="exam.examFeedback.comment"
+                        #ck="ngModel"
+                        name="ck"
+                        rows="10"
+                        cols="80"
+                    ></xm-ckeditor>
                 </div>
             </div>
-            <div [ngbCollapse]="hideEditor" class="body">
-                <div class="row mt-2 mb-1">
-                    <div class="col-md-12">
-                        <xm-ckeditor
-                            id="feedback-editor"
-                            [enableClozeTest]="false"
-                            [(ngModel)]="exam.examFeedback.comment"
-                            #ck="ngModel"
-                            name="ck"
-                            rows="10"
-                            cols="80"
-                        ></xm-ckeditor>
-                    </div>
+            @if (exam.examFeedback?.attachment) {
+                <div class="d-flex justify-content-end">
+                    <a class="pointer" (click)="downloadFeedbackAttachment()">{{
+                        exam.examFeedback?.attachment?.fileName
+                    }}</a>
+                    <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
+                        <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
+                    </span>
                 </div>
-                @if (exam.examFeedback?.attachment) {
-                    <div class="d-flex justify-content-end">
-                        <a class="pointer" (click)="downloadFeedbackAttachment()">{{
-                            exam.examFeedback?.attachment?.fileName
-                        }}</a>
-                        <span class="sitnet-red pointer" (click)="removeFeedbackAttachment()">
-                            <i class="bi-x" title="{{ 'i18n_remove_attachment' | translate }}"></i>
-                        </span>
-                    </div>
-                }
-                <div class="d-flex justify-content-between mt-2">
-                    <button class="btn btn-outline-secondary" (click)="saveFeedback()">
-                        {{ 'i18n_save' | translate }}
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
-                        {{ 'i18n_attach_file' | translate }}
-                    </button>
-                </div>
+            }
+            <div class="d-flex justify-content-between mt-2">
+                <button class="btn btn-outline-secondary" (click)="saveFeedback()">
+                    {{ 'i18n_save' | translate }}
+                </button>
+                <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">
+                    {{ 'i18n_attach_file' | translate }}
+                </button>
             </div>
         </div>
     </div>`,
     standalone: true,
     imports: [CdkDrag, NgbPopover, NgClass, NgbCollapse, CKEditorComponent, FormsModule, TranslateModule],
+    styleUrl: './feedback.component.scss',
 })
 export class FeedbackComponent implements OnInit {
     @Input() exam!: Examination;
@@ -153,6 +152,8 @@ export class FeedbackComponent implements OnInit {
             this.Attachment.removeFeedbackAttachment(this.exam);
         }
     };
+
+    fixPosition = this.Assessment.fixPosition;
 
     private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
 

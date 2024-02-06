@@ -37,7 +37,7 @@ import { SessionService } from './session/session.service';
         @if (user) {
             <div>
                 <xm-navigation [hidden]="hideNavBar"></xm-navigation>
-                <main id="mainView" class="container-fluid pad0 w-auto" [ngClass]="{ 'vmenu-on': !hideNavBar }">
+                <main id="mainView" class="container-fluid" [ngClass]="{ 'vmenu-on': !hideNavBar }">
                     <router-outlet></router-outlet>
                 </main>
             </div>
@@ -45,6 +45,17 @@ import { SessionService } from './session/session.service';
     `,
     standalone: true,
     imports: [DevLoginComponent, NavigationComponent, NgClass, RouterOutlet],
+    styles: [
+        `
+            #mainView {
+                width: auto !important;
+                @media print {
+                    margin: 0 15px;
+                    max-width: 1000px;
+                }
+            }
+        `,
+    ],
 })
 export class AppComponent implements OnInit, OnDestroy {
     user?: User;
