@@ -332,6 +332,13 @@ public class SettingsController extends BaseController {
         return ok(Json.toJson(node));
     }
 
+    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
+    public Result getByodMaxParticipants() {
+        ObjectNode node = Json.newObject();
+        node.put("max", configReader.getMaxByodExaminationParticipantCount());
+        return ok(Json.toJson(node));
+    }
+
     private URL parseExternalUrl(String reservationRef) throws MalformedURLException {
         return URI
             .create(configReader.getIopHost() + String.format("/api/enrolments/%s/instructions", reservationRef))

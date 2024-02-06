@@ -298,6 +298,7 @@ export class ExamPublicationComponent implements OnInit {
         modalRef.componentInstance.examMaxDate = this.examMaxDate;
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
         modalRef.componentInstance.examId = this.exam.id;
+        modalRef.componentInstance.duration = this.exam.duration;
         modalRef.result
             .then((data: ExaminationEventConfiguration) => this.exam.examinationEventConfigurations.push(data))
             .catch((err) => {
@@ -316,6 +317,7 @@ export class ExamPublicationComponent implements OnInit {
         modalRef.componentInstance.examMaxDate = this.examMaxDate;
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
         modalRef.componentInstance.examId = this.exam.id;
+        modalRef.componentInstance.duration = this.exam.duration;
         modalRef.result
             .then((config: ExaminationEventConfiguration) => {
                 const index = this.exam.examinationEventConfigurations.indexOf(configuration);

@@ -1153,12 +1153,17 @@
   "i18n_actions": "Toimenpiteet SV",
   "i18n_search_course_hint": "Hae opintojakson koodilla tai nimellä SV",
   "i18n_search_exam_hint": "Hae opintojakson koodilla tai tentin nimellä SV",
-  "i18n_library_search_instructions": "Ohjeet kysymyspankin haun toiminnalle EN",
+  "i18n_library_search_instructions": "Ohjeet kysymyspankin haun toiminnalle SV",
   "i18n_go_back": "Back SV",
   "i18n_preview_question": "Question Preview SV",
   "i18n_button_preview": "Preview question SV",
   "i18n_no_preview_available": "No preview available SV",
   "i18n_used_in_exams": "Käytössä tenteissä SV",
   "i18n_quit_password": "SEB-poistumissalasana SV",
-  "i18n_creator": "Luoja SV"
+  "i18n_creator": "Luoja SV",
+  "i18n_total_simultaneous_byod_capacity": "Järjestelmän samanaikainen maksimiosallistujamäärä SV",
+  "i18n_simultaneous_events": "Samanaikaisesti järjestettävät tenttitilaisuudet maksimiosallistujamäärineen SV",
+  "i18n_available_capacity": "Maksimimiosallistujamäärä tälle tilaisuudelle (arvio) SV",
+  "i18n_no_events": "Ei tapahtumia SV",
+  "i18n_can_create_byod_exam": "Voi luoda omakonetentin SV"
 }

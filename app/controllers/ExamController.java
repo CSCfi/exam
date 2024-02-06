@@ -40,6 +40,7 @@ import models.ExamMachine;
 import models.ExamType;
 import models.GradeScale;
 import models.Language;
+import models.Permission;
 import models.Role;
 import models.Software;
 import models.User;
@@ -254,16 +255,23 @@ public class ExamController extends BaseController {
         if (exam == null) {
             return notFound("i18n_error_exam_not_found");
         }
-        // decipher the settings passwords if any
+        // decipher the passwords if any
         if (exam.getImplementation() == Exam.Implementation.CLIENT_AUTH) {
             exam
                 .getExaminationEventConfigurations()
                 .forEach(eec -> {
-                    String plainTextPwd = byodConfigHandler.getPlaintextPassword(
+                    String plainTextSettingsPwd = byodConfigHandler.getPlaintextPassword(
                         eec.getEncryptedSettingsPassword(),
                         eec.getSettingsPasswordSalt()
                     );
-                    eec.setSettingsPassword(plainTextPwd);
+                    eec.setSettingsPassword(plainTextSettingsPwd);
+                    if (eec.getEncryptedQuitPassword() != null) {
+                        String plainTextQuitPwd = byodConfigHandler.getPlaintextPassword(
+                            eec.getEncryptedQuitPassword(),
+                            eec.getQuitPasswordSalt()
+                        );
+                        eec.setQuitPassword(plainTextQuitPwd);
+                    }
                 });
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -499,6 +507,12 @@ public class ExamController extends BaseController {
             return badRequest("Unsupported execution type");
         }
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        if (
+            Exam.Implementation.valueOf(implementation) != Exam.Implementation.AQUARIUM &&
+            !user.hasPermission(Permission.Type.CAN_CREATE_BYOD_EXAM)
+        ) {
+            return forbidden("No permission to create home examinations");
+        }
         Exam exam = new Exam();
         exam.generateHash();
         exam.setState(Exam.State.DRAFT);
