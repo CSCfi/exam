@@ -1,5 +1,6 @@
+<div class="row">
 <!-- SECTIONS AREA -->
-<div class="row top-margin-7 bottom-padding-2 pe-4">
+<div class="row top-margin-7 bottom-padding-2 pe-4 order-1">
     <!-- USERNAME -->
     <div class="col-md-12 ms-2 right-column-box">
         <div class="info-column bot-border">
@@ -11,28 +12,8 @@
         </div>
     </div>
 </div>
-<!-- RETURN -->
-<div class="row" [hidden]="isPreview">
-    <div class="col-md-12 ms-2">
-        <button class="green_button save-and-exit" (click)="turnExam()">
-            {{ 'i18n_save_and_return_exam' | translate }}
-        </button>
-    </div>
-</div>
 
-<!-- ABORT -->
-<div class="row mt-3" [hidden]="isPreview">
-    <div class="col-md-12 ms-2 mt-3">
-        <button class="grey-button abort-and-exit text-nowrap" (click)="abortExam()">
-            <img
-                src="/assets/images/icon_exit.svg"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_exit.png';"
-            /><span class="ps-2 abort-and-exit">{{ 'i18n_abort_exam' | translate }}</span>
-        </button>
-    </div>
-</div>
-
+<div class="order-3">
 <!-- COURSE NAME -->
 <div class="row">
     <div class="col-md-12">
@@ -185,6 +166,7 @@
         </div>
     </button>
 </div>
+
 <div class="row" [hidden]="!isPreview">
     <div class="col-md-12">
         <button
@@ -199,4 +181,30 @@
             {{ 'i18n_exit_preview' | translate }}
         </button>
     </div>
+</div>
+</div>
+
+<div class="order-2">
+<!-- RETURN -->
+<div class="row" [hidden]="false">
+  <div class="col-md-12 ms-2">
+    <button class="green_button save-and-exit" (click)="turnExam()">
+      {{ 'i18n_save_and_return_exam' | translate }}
+    </button>
+  </div>
+</div>
+
+<!-- ABORT -->
+<div class="row mt-3" [hidden]="false">
+  <div class="col-md-12 ms-2 mt-3">
+    <button class="grey-button abort-and-exit text-nowrap" (click)="abortExam()">
+      <img
+        src="/assets/images/icon_exit.svg"
+        alt=""
+        onerror="this.onerror=null;this.src='/assets/images/icon_exit.png';"
+      /><span class="ps-2 abort-and-exit">{{ 'i18n_abort_exam' | translate }}</span>
+    </button>
+  </div>
+</div>
+</div>
 </div>

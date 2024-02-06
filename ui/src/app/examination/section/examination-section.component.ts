@@ -60,6 +60,7 @@ import { ExaminationQuestionComponent } from '../question/examination-question.c
                 }
             </div>
         </div>
+    <!-- Question Content -->
         <div class="row">
             <div class="col-md-12">
                 @for (material of section.examMaterials; track material) {
