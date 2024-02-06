@@ -93,6 +93,8 @@ import { AssessmentService } from '../assessment.service';
 })
 export class StatementComponent {
     @Input() exam!: Exam;
+
+    fixPosition = this.Assessment.fixPosition;
     hideEditor = false;
 
     constructor(
@@ -124,6 +126,4 @@ export class StatementComponent {
             }),
         );
     };
-
-    fixPosition = this.Assessment.fixPosition;
 }
