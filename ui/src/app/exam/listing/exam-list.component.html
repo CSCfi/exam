@@ -159,17 +159,12 @@
                                 </td>
                                 <td>
                                     @if (exam.name) {
-                                        <a
-                                            class="exams-info-title bold-button"
-                                            [routerLink]="['/staff/exams', exam.id, '1']"
-                                            >{{ exam.name }}</a
+                                        <a [routerLink]="['/staff/exams', exam.id, '1']"
+                                            ><strong>{{ exam.name }}</strong></a
                                         >
-                                    }
-                                    @if (!exam.name) {
-                                        <a
-                                            class="exams-info-title bold-button text-danger"
-                                            [routerLink]="['/staff/exams', exam.id, '1']"
-                                            >{{ 'i18n_no_name' | translate }}
+                                    } @else {
+                                        <a class="text-danger" [routerLink]="['/staff/exams', exam.id, '1']">
+                                            <strong>{{ 'i18n_no_name' | translate }}</strong>
                                         </a>
                                     }
                                 </td>

@@ -35,7 +35,7 @@
         display: flex;
         text-decoration: none;
         padding-left: 1.5em;
-        border-left: 3px solid black;
+        border-left: 3px solid #212121;
         font-family: $family-helvetica;
         font-size: 16px;
         color: #e7e7e7;
@@ -44,7 +44,7 @@
         text-align: left;
         align-items: center;
         @media (max-width: $mobile-width) {
-            border: 3px solid black;
+            border: 3px solid #212121;
             border-radius: 50px;
         }
 
@@ -52,7 +52,7 @@
             font-weight: bold;
             border-left: 3px solid $exam-dark-green;
             @media (max-width: $mobile-width) {
-                border-left: 3px solid black;
+                border-left: 3px solid #212121;
                 border-radius: 50px !important;
             }
         }
@@ -82,7 +82,7 @@
     }
 
     .nav-header {
-        background-color: black;
+        background-color: #212121;
         position: fixed;
         top: 0;
         left: 0;
@@ -109,7 +109,7 @@
 
     .nav-body {
         position: fixed;
-        background-color: black;
+        background-color: #212121;
         top: 162px;
         bottom: 105px;
         overflow-y: auto;
@@ -122,7 +122,7 @@
 
     .nav-body-mobile {
         @media (max-width: $mobile-width) {
-            background-color: black;
+            background-color: #212121;
             position: relative;
             width: 100%;
         }
@@ -177,7 +177,7 @@
     }
 
     .user-name {
-        background-color: black;
+        background-color: #212121;
         padding: 1.5em 1em 1em;
         left: 0;
         font-size: 1em;
@@ -271,4 +271,46 @@
             margin-top: 10px;
         }
     }
+}
+button.skip-main {
+    left: -999px;
+    display: flex;
+    position: absolute;
+    top: auto;
+    z-index: -999;
+
+    background-color: #e6e6e6;
+    border: #4c4c4c;
+    border-radius: 4px;
+    color: black;
+}
+button.skip-main:focus,
+button.skip-main:active {
+    white-space: nowrap;
+    margin: 20px;
+    padding: 0 5px !important;
+    left: auto;
+    top: auto;
+    z-index: 999;
+}
+a.skip-main {
+    left: -999px;
+    display: flex;
+    position: absolute;
+    top: auto;
+    z-index: -999;
+
+    margin: 20px;
+    padding: 0 5px !important;
+    white-space: nowrap;
+    background-color: #e6e6e6;
+    border: #4c4c4c;
+    border-radius: 4px;
+    color: black;
+}
+a.skip-main:focus,
+a.skip-main:active {
+    left: auto;
+    top: auto;
+    z-index: 999;
 }

@@ -38,7 +38,7 @@
                 </span>
             }
         </span>
-        <div class="col fpointer single-question-icon" ngbDropdown>
+        <div class="col" ngbDropdown>
             <button class="btn btn-outline-dark float-end" ngbDropdownToggle>
                 {{ 'i18n_settings' | translate }}
             </button>
@@ -90,7 +90,7 @@
                                 @if (!option.option.correctOption) {
                                     <img src="/assets/images/icon_wrong_answer.png" alt="" />
                                 }
-                                <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
+                                <span class="ps-2">{{ option.option.option }}</span>
                             </li>
                         }
                         @for (option of sectionQuestion.options; track option) {
@@ -104,10 +104,8 @@
                                 @if (option.score < 0) {
                                     <img src="/assets/images/icon_wrong_answer_checkbox.png" alt="" />
                                 }
-                                <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
-                                <span class="exam-question-option-text ps-2"
-                                    >{{ option.score }} {{ 'i18n_unit_points' | translate }}</span
-                                >
+                                <span class="ps-2">{{ option.option.option }}</span>
+                                <span class="ps-2">{{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
                             </li>
                         }
                         @for (option of sectionQuestion.options | orderBy: 'option.id'; track option) {
@@ -121,10 +119,8 @@
                                 @if (determineClaimOptionType(option) === 'SkipOption') {
                                     <img src="/assets/images/icon_wrong_answer.png" alt="" />
                                 }
-                                <span class="exam-question-option-text ps-2">{{ option.option.option }}</span>
-                                <span class="exam-question-option-text ps-2"
-                                    >{{ option.score }} {{ 'i18n_unit_points' | translate }}</span
-                                >
+                                <span class="ps-2">{{ option.option.option }}</span>
+                                <span class="ps-2">{{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
                             </li>
                         }
                     </ul>
