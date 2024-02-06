@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { CdkDrag, Point } from '@angular/cdk/drag-drop';
+import { CdkDrag } from '@angular/cdk/drag-drop';
 import { NgClass } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -93,6 +93,7 @@ export class FeedbackComponent implements OnInit {
     feedbackComment = '';
     title = '';
 
+    fixPosition = this.Assessment.fixPosition;
     hideEditor = false;
     id = 0;
     ref = '';
@@ -152,8 +153,6 @@ export class FeedbackComponent implements OnInit {
             this.Attachment.removeFeedbackAttachment(this.exam);
         }
     };
-
-    fixPosition = this.Assessment.fixPosition;
 
     private _saveFeedback$ = () => this.Assessment.saveFeedback$(this.exam);
 

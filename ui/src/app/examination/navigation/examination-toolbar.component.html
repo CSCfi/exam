@@ -1,210 +1,216 @@
 <div class="row">
-<!-- SECTIONS AREA -->
-<div class="row top-margin-7 bottom-padding-2 pe-4 order-1">
-    <!-- USERNAME -->
-    <div class="col-md-12 ms-2 right-column-box">
-        <div class="info-column bot-border">
-            <img
-                src="/assets/images/icon_user.svg"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_user.png';"
-            /><span class="user-span">{{ displayUser() }}</span>
+    <!-- SECTIONS AREA -->
+    <div class="row top-margin-7 bottom-padding-2 pe-4 order-1">
+        <!-- USERNAME -->
+        <div class="col-md-12 ms-2 right-column-box">
+            <div class="info-column bot-border">
+                <img
+                    src="/assets/images/icon_user.svg"
+                    alt=""
+                    onerror="this.onerror=null;this.src='/assets/images/icon_user.png';"
+                /><span class="user-span">{{ displayUser() }}</span>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="order-3">
-<!-- COURSE NAME -->
-<div class="row">
-    <div class="col-md-12">
-        <div class="more-separators"></div>
-    </div>
-</div>
-@if (exam.course) {
-    <div class="row">
-        <div class="col-md-12 ms-3">
-            <div class="right-title">{{ exam.course.name }}</div>
+    <div class="order-3">
+        <!-- COURSE NAME -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="more-separators"></div>
+            </div>
         </div>
-    </div>
-}
+        @if (exam.course) {
+            <div class="row">
+                <div class="col-md-12 ms-3">
+                    <div class="right-title">{{ exam.course.name }}</div>
+                </div>
+            </div>
+        }
 
-<!-- ATTACHMENT -->
-<div class="row ms-3 mt-3 align-items-center" [hidden]="!exam.attachment">
-    <button
-        class="pointer attachment-button green_button text-nowrap"
-        [title]="exam.attachment?.fileName"
-        (click)="downloadExamAttachment()"
-    >
-        {{ 'i18n_open_it' | translate }} {{ 'i18n_exam_attachment' | translate }}
-        <img
-            src="/assets/images/icon_attachment.svg"
-            alt="attachment"
-            onerror="this.onerror=null;this.src='/assets/images/icon_attachment.png';"
-        />
-    </button>
-    <div class="attachment-name ps-1" [title]="exam.attachment?.fileName">
-        {{ exam.attachment?.fileName | uppercase | slice: 0 : 50 }}
-    </div>
-</div>
-
-<div class="row mt-3">
-    <div class="col-md-12">
-        <ul class="list-muted">
-            <li
-                class="row align-items-center phase-box"
-                [ngClass]="!activeSection ? '' : 'notactive'"
-                (click)="selectGuidePage()"
-                (keydown.enter)="selectGuidePage()"
+        <!-- ATTACHMENT -->
+        <div class="row ms-3 mt-3 align-items-center" [hidden]="!exam.attachment">
+            <button
+                class="pointer attachment-button green_button text-nowrap"
+                [title]="exam.attachment?.fileName"
+                (click)="downloadExamAttachment()"
             >
-                <button class="col-md-12 btn green_button w-auto">
-                    {{ 'i18n_move_to' | translate }} {{ 'i18n_exam_guide' | translate }}
-                </button>
-                <a
-                    class="skip"
-                    id="skip-button-instructions"
-                    [href]="getSkipLinkPath('#examination-section')"
-                    [hidden]="!!activeSection"
-                >
-                    {{ 'i18n_skip_to_content' | translate }}
-                </a>
-            </li>
+                {{ 'i18n_open_it' | translate }} {{ 'i18n_exam_attachment' | translate }}
+                <img
+                    src="/assets/images/icon_attachment.svg"
+                    alt="attachment"
+                    onerror="this.onerror=null;this.src='/assets/images/icon_attachment.png';"
+                />
+            </button>
+            <div class="attachment-name ps-1" [title]="exam.attachment?.fileName">
+                {{ exam.attachment?.fileName | uppercase | slice: 0 : 50 }}
+            </div>
+        </div>
 
-            @for (section of exam.examSections | orderBy: 'sequenceNumber'; track section; let i = $index) {
-                <li
-                    class="row d-flex align-items-center phase-box"
-                    [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
-                >
-                    <div class="me-3">
-                        @if (getQuestionAmount(section, 'answered') === getQuestionAmount(section, 'total')) {
-                            <div class="question-type-img-wrap">
-                                <img
-                                    src="/assets/images/icon_question_type_ready_grey.png"
-                                    alt="{{ 'i18n_all_questions_answered' | translate }}"
-                                    onerror="this.onerror=null;this.src='/assets/images/icon_question_type_ready_grey.png';"
-                                />
-                            </div>
-                        }
-                        @if (getQuestionAmount(section, 'answered') !== getQuestionAmount(section, 'total')) {
-                            <div class="question-type-img-wrap">
-                                <img
-                                    src="/assets/images/icon_question_type_waiting.svg"
-                                    alt="{{ 'i18n_unanswered_questions_remain' | translate }}"
-                                    onerror="this.onerror=null;this.src='/assets/images/icon_question_type_waiting.png';"
-                                />
-                            </div>
-                        }
-                    </div>
-                    <div class="flex-grow">
-                        <span [ngClass]="activeSection?.sequenceNumber === i ? 'sitnet-text' : 'sitnet-text-dark'">
-                            {{ i + 1 }}. {{ section.name }}
-                        </span>
-                    </div>
-                    <div class="flex justify-content-between">
-                        <span class="section-answered">
-                            {{ 'i18n_number_of_answered_questions' | translate }}
-                            {{ getQuestionAmount(section, 'answered') }}
-                            <span class="horizontal-padding-05"> / </span>
-                            {{ getQuestionAmount(section, 'total') }}
-                        </span>
-                        <button
-                            class="w-auto btn green_button"
-                            (click)="selectSection(section)"
-                            (keydown.enter)="selectSection(section)"
-                            [attr.aria-current]="activeSection?.sequenceNumber === i"
-                        >
-                            {{ 'i18n_move_to_section' | translate }} {{ i + 1 }}.
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <ul class="list-muted">
+                    <li
+                        class="row align-items-center phase-box"
+                        [ngClass]="!activeSection ? '' : 'notactive'"
+                        (click)="selectGuidePage()"
+                        (keydown.enter)="selectGuidePage()"
+                    >
+                        <button class="col-md-12 btn green_button w-auto">
+                            {{ 'i18n_move_to' | translate }} {{ 'i18n_exam_guide' | translate }}
                         </button>
                         <a
                             class="skip"
-                            id="skip-button"
+                            id="skip-button-instructions"
                             [href]="getSkipLinkPath('#examination-section')"
-                            [hidden]="activeSection?.sequenceNumber !== i"
+                            [hidden]="!!activeSection"
                         >
                             {{ 'i18n_skip_to_content' | translate }}
                         </a>
-                    </div>
-                </li>
-            }
-        </ul>
-    </div>
-</div>
+                    </li>
 
-<!-- INSTRUCTIONS -->
-<div class="row" [hidden]="!room || exam.executionType.type === 'MATURITY'">
-    <div class="col-md-12">
-        <button
-            type="button"
-            role="note"
-            class="row pointer d-flex align-items-center m-0 border-none background-none"
-            ngbPopover="{{ displayRoomInstructions() }}"
-            popoverTitle="{{ 'i18n_instructions' | translate }}"
-        >
-            <div class="me-2">
-                <img src="/assets/images/icon_info.svg" alt="" />
-            </div>
-            <div class="question-text question-type-text info">
-                {{ 'i18n_room_guidance' | translate }}
-            </div>
-        </button>
-    </div>
-</div>
-
-<!-- MATURITY INSTRUCTIONS -->
-<div class="row">
-    <button class="col-md-12" (click)="showMaturityInstructions()" [hidden]="exam.executionType.type !== 'MATURITY'">
-        <div class="row pointer d-flex align-items-center m-0" role="note">
-            <a class="me-2">
-                <img
-                    src="/assets/images/icon_info.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_info.png';"
-                />
-            </a>
-            <div class="col question-text question-type-text info">
-                {{ 'i18n_maturity_instructions' | translate }}
+                    @for (section of exam.examSections | orderBy: 'sequenceNumber'; track section; let i = $index) {
+                        <li
+                            class="row d-flex align-items-center phase-box"
+                            [ngClass]="activeSection?.sequenceNumber === i ? '' : 'notactive'"
+                        >
+                            <div class="me-3">
+                                @if (getQuestionAmount(section, 'answered') === getQuestionAmount(section, 'total')) {
+                                    <div class="question-type-img-wrap">
+                                        <img
+                                            src="/assets/images/icon_question_type_ready_grey.png"
+                                            alt="{{ 'i18n_all_questions_answered' | translate }}"
+                                            onerror="this.onerror=null;this.src='/assets/images/icon_question_type_ready_grey.png';"
+                                        />
+                                    </div>
+                                }
+                                @if (getQuestionAmount(section, 'answered') !== getQuestionAmount(section, 'total')) {
+                                    <div class="question-type-img-wrap">
+                                        <img
+                                            src="/assets/images/icon_question_type_waiting.svg"
+                                            alt="{{ 'i18n_unanswered_questions_remain' | translate }}"
+                                            onerror="this.onerror=null;this.src='/assets/images/icon_question_type_waiting.png';"
+                                        />
+                                    </div>
+                                }
+                            </div>
+                            <div class="flex-grow">
+                                <span
+                                    [ngClass]="activeSection?.sequenceNumber === i ? 'sitnet-text' : 'sitnet-text-dark'"
+                                >
+                                    {{ i + 1 }}. {{ section.name }}
+                                </span>
+                            </div>
+                            <div class="flex justify-content-between">
+                                <span class="section-answered">
+                                    {{ 'i18n_number_of_answered_questions' | translate }}
+                                    {{ getQuestionAmount(section, 'answered') }}
+                                    <span class="horizontal-padding-05"> / </span>
+                                    {{ getQuestionAmount(section, 'total') }}
+                                </span>
+                                <button
+                                    class="w-auto btn green_button"
+                                    (click)="selectSection(section)"
+                                    (keydown.enter)="selectSection(section)"
+                                    [attr.aria-current]="activeSection?.sequenceNumber === i"
+                                >
+                                    {{ 'i18n_move_to_section' | translate }} {{ i + 1 }}.
+                                </button>
+                                <a
+                                    class="skip"
+                                    id="skip-button"
+                                    [href]="getSkipLinkPath('#examination-section')"
+                                    [hidden]="activeSection?.sequenceNumber !== i"
+                                >
+                                    {{ 'i18n_skip_to_content' | translate }}
+                                </a>
+                            </div>
+                        </li>
+                    }
+                </ul>
             </div>
         </div>
-    </button>
-</div>
 
-<div class="row" [hidden]="!isPreview">
-    <div class="col-md-12">
-        <button
-            tabindex="0"
-            class="row pointer d-flex align-items-center m-0 btn btn-outline-secondary"
-            (click)="exitPreview()"
-            (keydown.enter)="exitPreview()"
-        >
-            <a class="me-2">
-                <img src="/assets/images/icon_info.svg" alt="" />
-            </a>
-            {{ 'i18n_exit_preview' | translate }}
-        </button>
+        <!-- INSTRUCTIONS -->
+        <div class="row" [hidden]="!room || exam.executionType.type === 'MATURITY'">
+            <div class="col-md-12">
+                <button
+                    type="button"
+                    role="note"
+                    class="row pointer d-flex align-items-center m-0 border-none background-none"
+                    ngbPopover="{{ displayRoomInstructions() }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                >
+                    <div class="me-2">
+                        <img src="/assets/images/icon_info.svg" alt="" />
+                    </div>
+                    <div class="question-text question-type-text info">
+                        {{ 'i18n_room_guidance' | translate }}
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- MATURITY INSTRUCTIONS -->
+        <div class="row">
+            <button
+                class="col-md-12"
+                (click)="showMaturityInstructions()"
+                [hidden]="exam.executionType.type !== 'MATURITY'"
+            >
+                <div class="row pointer d-flex align-items-center m-0" role="note">
+                    <a class="me-2">
+                        <img
+                            src="/assets/images/icon_info.svg"
+                            alt=""
+                            onerror="this.onerror=null;this.src='/assets/images/icon_info.png';"
+                        />
+                    </a>
+                    <div class="col question-text question-type-text info">
+                        {{ 'i18n_maturity_instructions' | translate }}
+                    </div>
+                </div>
+            </button>
+        </div>
+
+        <div class="row" [hidden]="!isPreview">
+            <div class="col-md-12">
+                <button
+                    tabindex="0"
+                    class="row pointer d-flex align-items-center m-0 btn btn-outline-secondary"
+                    (click)="exitPreview()"
+                    (keydown.enter)="exitPreview()"
+                >
+                    <a class="me-2">
+                        <img src="/assets/images/icon_info.svg" alt="" />
+                    </a>
+                    {{ 'i18n_exit_preview' | translate }}
+                </button>
+            </div>
+        </div>
     </div>
-</div>
-</div>
 
-<div class="order-2">
-<!-- RETURN -->
-<div class="row" [hidden]="false">
-  <div class="col-md-12 ms-2">
-    <button class="green_button save-and-exit" (click)="turnExam()">
-      {{ 'i18n_save_and_return_exam' | translate }}
-    </button>
-  </div>
-</div>
+    <div class="order-2">
+        <!-- RETURN -->
+        <div class="row" [hidden]="false">
+            <div class="col-md-12 ms-2">
+                <button class="green_button save-and-exit" (click)="turnExam()">
+                    {{ 'i18n_save_and_return_exam' | translate }}
+                </button>
+            </div>
+        </div>
 
-<!-- ABORT -->
-<div class="row mt-3" [hidden]="false">
-  <div class="col-md-12 ms-2 mt-3">
-    <button class="grey-button abort-and-exit text-nowrap" (click)="abortExam()">
-      <img
-        src="/assets/images/icon_exit.svg"
-        alt=""
-        onerror="this.onerror=null;this.src='/assets/images/icon_exit.png';"
-      /><span class="ps-2 abort-and-exit">{{ 'i18n_abort_exam' | translate }}</span>
-    </button>
-  </div>
-</div>
-</div>
+        <!-- ABORT -->
+        <div class="row mt-3" [hidden]="false">
+            <div class="col-md-12 ms-2 mt-3">
+                <button class="grey-button abort-and-exit text-nowrap" (click)="abortExam()">
+                    <img
+                        src="/assets/images/icon_exit.svg"
+                        alt=""
+                        onerror="this.onerror=null;this.src='/assets/images/icon_exit.png';"
+                    /><span class="ps-2 abort-and-exit">{{ 'i18n_abort_exam' | translate }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
 </div>

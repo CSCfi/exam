@@ -26,7 +26,7 @@ import { isRealGrade } from '../../exam/exam.model';
 import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
-import { Point } from 'chart.js';
+import { Point } from '@angular/cdk/drag-drop';
 
 type Payload = {
     id: number;
