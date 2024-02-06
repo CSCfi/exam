@@ -1,0 +1,32 @@
+.cloze-correct {
+    margin-right: 3px;
+    padding-right: 3px;
+    border: 1px solid green;
+    border-radius: 3px;
+    background: #ccffcc;
+    min-width: 30px;
+    display: inline-block;
+    box-shadow: 4px 4px 9px 0px rgba(0, 0, 0, 0.75);
+}
+
+.cloze-incorrect {
+    margin-right: 3px;
+    padding-right: 3px;
+    border: 1px solid red;
+    border-radius: 3px;
+    background: #feeeef;
+    min-width: 30px;
+    display: inline-block;
+    box-shadow: 4px 4px 9px 0px rgba(0, 0, 0, 0.75);
+}
+
+.cloze-neutral {
+    margin-right: 3px;
+    padding-right: 3px;
+    border: 1px solid gray;
+    border-radius: 3px;
+    background: white;
+    min-width: 30px;
+    display: inline-block;
+    box-shadow: 4px 4px 9px 0px rgba(0, 0, 0, 0.75);
+}

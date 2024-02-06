@@ -63,6 +63,7 @@ import { ReviewListService } from '../review-list.service';
         PageFillPipe,
         OrderByPipe,
     ],
+    styleUrl: '../review-list.component.scss',
 })
 export class GradedLoggedReviewsComponent implements OnInit, OnChanges {
     @Input() reviews: Review[] = [];

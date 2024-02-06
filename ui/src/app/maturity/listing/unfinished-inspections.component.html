@@ -23,16 +23,16 @@
     </div>
 </div>
 
-<div class="main-row mar0" [hidden]="inspections.length > 0">
+<div class="main-row m-0" [hidden]="inspections.length > 0">
     <div class="col-md-12">
         <div class="review-no-results">
-            <i class="bi-exclamation-circle padl20 grayish"></i>
+            <i class="bi-exclamation-circle ps-3 grayish"></i>
             {{ 'i18n_ongoing_language_inspections_no_results' | translate }}
         </div>
     </div>
 </div>
 
-<div class="main-row mar0" [hidden]="hideItems || inspections.length === 0">
+<div class="main-row m-0" [hidden]="hideItems || inspections.length === 0">
     <div class="col-md-3">
         <div class="input-group">
             <input

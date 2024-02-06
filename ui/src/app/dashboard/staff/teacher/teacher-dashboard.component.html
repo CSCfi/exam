@@ -31,9 +31,9 @@
         <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
             <li [ngbNavItem]="1">
                 <a ngbNavLink>
-                    <div class="make-inline marr10">{{ 'i18n_active_exams_title' | translate }}</div>
+                    <div class="make-inline me-2">{{ 'i18n_active_exams_title' | translate }}</div>
                     @if (activeExams) {
-                        <div class="make-inline tab-number">
+                        <div class="make-inline badge rounded-pill text-bg-danger">
                             {{ filteredActive.length }}
                         </div>
                     }
@@ -50,8 +50,8 @@
             </li>
             <li [ngbNavItem]="2">
                 <a ngbNavLink>
-                    <div class="make-inline marr10">{{ 'i18n_finished_exams_title' | translate }}</div>
-                    <div class="make-inline tab-number">
+                    <div class="make-inline me-2">{{ 'i18n_finished_exams_title' | translate }}</div>
+                    <div class="make-inline badge rounded-pill text-bg-danger">
                         {{ filteredFinished.length }}
                     </div>
                 </a>
@@ -68,8 +68,8 @@
             </li>
             <li [ngbNavItem]="3">
                 <a ngbNavLink>
-                    <div class="make-inline marr10">{{ 'i18n_archived_teacher_exams_title' | translate }}</div>
-                    <div class="make-inline tab-number">
+                    <div class="make-inline me-2">{{ 'i18n_archived_teacher_exams_title' | translate }}</div>
+                    <div class="make-inline badge rounded-pill text-bg-danger">
                         {{ filteredArchived.length }}
                     </div>
                 </a>
@@ -86,8 +86,8 @@
             </li>
             <li [ngbNavItem]="4">
                 <a ngbNavLink>
-                    <div class="make-inline marr10">{{ 'i18n_draft_exams' | translate }}</div>
-                    <div class="make-inline tab-number">
+                    <div class="make-inline me-2">{{ 'i18n_draft_exams' | translate }}</div>
+                    <div class="make-inline badge rounded-pill text-bg-danger">
                         {{ filteredDrafts.length }}
                     </div>
                 </a>

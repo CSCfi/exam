@@ -7,9 +7,12 @@
         </div>
     </div>
     @if (abortedExams.length === 0) {
-        <div class="row mart40 padl30">
-            <div class="review-no-results">
-                <i class="bi-exclamation-circle padl20 grayish"></i> {{ 'i18n_exam_no_aborted' | translate }}
+        <div class="row mt-5 ps-4 align-items-center">
+            <div class="col-auto">
+                <i class="bi-exclamation-circle ps-3 grayish"></i>
+            </div>
+            <div class="col">
+                {{ 'i18n_exam_no_aborted' | translate }}
             </div>
         </div>
     }
@@ -143,7 +146,7 @@
     }
     <!-- Buttons -->
     <div class="flex justify-content-end">
-        <div class="review-attachment-button marr10 marb10">
+        <div class="review-attachment-button me-2 marb10">
             <a class="pointer preview" (click)="cancel()">
                 {{ 'i18n_button_ok' | translate }}
             </a>

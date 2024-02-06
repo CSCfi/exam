@@ -38,7 +38,6 @@ import { AssessmentService } from '../assessment.service';
             <div
                 class="col-1"
                 ngbPopover="{{ (hideEditor ? 'i18n_show' : 'i18n_hide') | translate }}"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
             >
                 <i

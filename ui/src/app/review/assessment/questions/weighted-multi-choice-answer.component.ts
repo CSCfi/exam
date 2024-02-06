@@ -85,6 +85,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
     }`,
     standalone: true,
     imports: [MathJaxDirective, NgClass, TranslateModule, OrderByPipe],
+    styleUrl: './multi-choice-answers.shared.scss',
 })
 export class WeightedMultiChoiceAnswerComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;

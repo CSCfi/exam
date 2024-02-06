@@ -19,12 +19,10 @@ $sitnet-header-height: 4em;
 $sitnet-family-helvetica: Arimo, Helvetica-Neue, Helvetica;
 
 // colors
-$sitnet-light-grey: #e6e6e6;
 $sitnet-light-green_new: rgb(50, 149, 61);
 $sitnet-medium-green-new: #238635;
 $sitnet-green-new: #2c7639;
 $sitnet-dark-green-new: #25622f;
-$sitnet-dark-grey: #4c4c4c;
 $sitnet-white: white;
 $sitnet-black: black;
 $sitnet-red: #e3162e;
@@ -59,10 +57,6 @@ $sitnet-common-medium: rgba(0, 0, 0, 0.3);
 
 .sitnet-text {
     color: $sitnet-text;
-}
-
-.sitnet-dark-grey {
-    color: $sitnet-dark-grey;
 }
 
 .sitnet-white {
@@ -108,15 +102,6 @@ $sitnet-common-medium: rgba(0, 0, 0, 0.3);
 
 .status_green {
     background-color: green;
-}
-
-.bold-button {
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.bold {
-    font-weight: bold;
 }
 
 .top-margin-1 {
@@ -239,10 +224,6 @@ $sitnet-common-medium: rgba(0, 0, 0, 0.3);
     padding-left: 15px !important;
 }
 
-.padl20 {
-    padding-left: 20px !important;
-}
-
 .padl30 {
     padding-left: 30px !important;
 }
@@ -257,10 +238,6 @@ $sitnet-common-medium: rgba(0, 0, 0, 0.3);
 
 .padr10 {
     padding-right: 10px !important;
-}
-
-.padr15 {
-    padding-right: 15px !important;
 }
 
 .padr20 {
@@ -315,10 +292,6 @@ $sitnet-common-medium: rgba(0, 0, 0, 0.3);
     margin-top: 20px !important;
 }
 
-.mart30 {
-    margin-top: 30px !important;
-}
-
 .mart40 {
     margin-top: 40px !important;
 }
@@ -335,20 +308,12 @@ $sitnet-common-medium: rgba(0, 0, 0, 0.3);
     margin-left: 10px !important;
 }
 
-.marl15 {
-    margin-left: 15px !important;
-}
-
 .marl20 {
     margin-left: 20px !important;
 }
 
 .marl30 {
     margin-left: 30px !important;
-}
-
-.marl50 {
-    margin-left: 50px !important;
 }
 
 .marr-20 {
@@ -363,14 +328,6 @@ $sitnet-common-medium: rgba(0, 0, 0, 0.3);
     margin-right: 5px !important;
 }
 
-.marr10 {
-    margin-right: 10px !important;
-}
-
-.marr15 {
-    margin-right: 15px !important;
-}
-
 .marr20 {
     margin-right: 20px !important;
 }
@@ -381,10 +338,6 @@ $sitnet-common-medium: rgba(0, 0, 0, 0.3);
 
 .marr30 {
     margin-right: 30px !important;
-}
-
-.marr50 {
-    margin-right: 50px !important;
 }
 
 .marr110 {
@@ -521,13 +474,6 @@ $sitnet-common-medium: rgba(0, 0, 0, 0.3);
     max-width: 100% !important;
 }
 
-.unstyled-link,
-.unstyled-link:hover,
-.unstyled-link:active {
-    text-decoration: none;
-    color: initial;
-}
-
 .flex-grow {
     flex-grow: 1;
 }
@@ -550,48 +496,6 @@ $sitnet-common-medium: rgba(0, 0, 0, 0.3);
     align-content: flex-start;
 }
 
-button.skip-main {
-    left: -999px;
-    display: flex;
-    position: absolute;
-    top: auto;
-    z-index: -999;
-
-    background-color: $sitnet-light-grey;
-    border: $sitnet-dark-grey;
-    border-radius: 4px;
-    color: $sitnet-black;
-}
-button.skip-main:focus,
-button.skip-main:active {
-    white-space: nowrap;
-    margin: 20px;
-    padding: 0 5px !important;
-    left: auto;
-    top: auto;
-    z-index: 999;
-}
-a.skip-main {
-    left: -999px;
-    display: flex;
-    position: absolute;
-    top: auto;
-    z-index: -999;
-
-    margin: 20px;
-    padding: 0 5px !important;
-    white-space: nowrap;
-    background-color: $sitnet-light-grey;
-    border: $sitnet-dark-grey;
-    border-radius: 4px;
-    color: $sitnet-black;
-}
-a.skip-main:focus,
-a.skip-main:active {
-    left: auto;
-    top: auto;
-    z-index: 999;
-}
 .skip {
     left: -9999px;
     display: flex;
@@ -601,13 +505,20 @@ a.skip-main:active {
 
     margin: 5px;
     white-space: nowrap;
-    background-color: $sitnet-light-grey;
-    border: $sitnet-dark-grey;
+    background-color: #e6e6e6;
+    border: #4c4c4c;
     color: $sitnet-black;
+
+    :focus,
+    :active {
+        left: auto;
+        z-index: 999;
+    }
 }
-.skip:focus,
-.skip:active {
-    left: auto;
-    top: auto;
-    z-index: 999;
+
+.exams-table {
+    // figure out what to do with this
+    font-family: $sitnet-family-helvetica;
+    font-weight: normal;
+    font-size: 0.9em;
 }

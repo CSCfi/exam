@@ -30,6 +30,7 @@ import { AssessmentService } from '../assessment.service';
     templateUrl: './cloze-test.component.html',
     standalone: true,
     imports: [NgStyle, MathJaxDirective, FormsModule, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
+    styleUrl: './cloze-test.component.scss',
 })
 export class ClozeTestComponent implements OnInit {
     @Input() participation!: ExamParticipation;

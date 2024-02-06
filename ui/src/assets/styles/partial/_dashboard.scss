@@ -717,13 +717,11 @@
             margin-right: 3px;
             margin-top: 10px;
         }
-    }
-
-    .tab-number {
-        // teacher db
-        @extend .badge;
-        background-color: $sitnet-red !important;
-        color: white;
+        .tab-content {
+            border-left: 1px solid #dee2e6;
+            border-bottom: 1px solid #dee2e6;
+            border-right: 1px solid #dee2e6;
+        }
     }
 
     .tab-wrapper-exams {

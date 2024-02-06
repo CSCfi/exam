@@ -13,8 +13,8 @@ import { CalendarService } from '../calendar.service';
     selector: 'xm-calendar-selected-room',
     template: `
         <div class="row">
-            <div class="col-md-2 col-12 bold max-w-100perc">
-                {{ room.name }}
+            <div class="col-md-2 col-12 max-w-100perc">
+                <strong>{{ room.name }}</strong>
             </div>
             <div class="col-md-10 col-12">
                 {{ room.mailAddress.street }} {{ room.mailAddress.zip }}
