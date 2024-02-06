@@ -59,7 +59,6 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
 export class LibraryResultsComponent implements OnInit, OnChanges {
     @Input() questions: Question[] = [];
     @Input() disableLinks = false;
-    @Input() tableClass = '';
     @Output() selected = new EventEmitter<number[]>();
     @Output() copied = new EventEmitter<LibraryQuestion>();
 
@@ -85,7 +84,6 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
 
     ngOnInit() {
         this.fixedQuestions = this.questions as SelectableQuestion[]; // FIXME: ugly cast, should resolve this better
-        this.tableClass = this.tableClass || 'exams-table';
         const storedData = this.Library.loadFilters('sorting');
         if (storedData.filters) {
             this.questionsPredicate = storedData.filters.predicate;

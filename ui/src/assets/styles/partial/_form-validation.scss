@@ -1,11 +1,14 @@
 .ng-invalid {
-  border: 0;
+    border: 0;
 }
 
 form .ng-invalid {
-  border: 1px solid red;
+    border: 1px solid red;
+    .exclude {
+        border: 0 !important;
+    }
 }
 
 ng-form {
-  border: 0 !important;
+    border: 0 !important;
 }

@@ -14,88 +14,28 @@ $sitnet-mobile: 920px;
     }
 }
 
+$sitnet-header-height: 4em;
+
+$sitnet-family-helvetica: Arimo, Helvetica-Neue, Helvetica;
+
 // colors
-$sitnet-dark-green: #63aa92;
-$sitnet-green: #2bb9a8;
-$sitnet-dark-blue: #3fa9f5;
-$sitnet-grey: #c0c0c0;
 $sitnet-light-grey: #e6e6e6;
-$sitnet-light-grey_new: rgb(33, 33, 33);
 $sitnet-light-green_new: rgb(50, 149, 61);
 $sitnet-medium-green-new: #238635;
 $sitnet-green-new: #2c7639;
 $sitnet-dark-green-new: #25622f;
-
 $sitnet-dark-grey: #4c4c4c;
-$sitnet-dark: #3e3e3e;
-$sitnet-beige: #f6f2e6;
-$sitnet-beige-active: #f7d56f;
-$sitnet-white: #fff;
-$sitnet-black: #000;
+$sitnet-white: white;
+$sitnet-black: black;
 $sitnet-red: #e3162e;
-$sitnet-dark-red: #be1327;
-$sitnet-rejected: $sitnet-red;
-$sitnet-approved: $sitnet-green-new;
 $sitnet-border-color: #c3c3c3;
-
-$sitnet-teacher-turquoise-dark-active: #006674;
-$sitnet-teacher-turquoise-dark-inactive: #7ab3bc;
-$sitnet-teacher-turquoise-active-question: #019eb1;
-$sitnet-teacher-turquoise-light-active: #7fc5cf;
-$sitnet-teacher-turquoise-light-inactive: #7ab3bc;
-$sitnet-teacher-turquoise-header: #2d848e;
-$sitnet-teacher-blue-light: #d8e6e7;
-
-$sitnet-teacher-green-dark: #d3e7a8;
-$sitnet-teacher-green-light: #d3e7a8;
-
-$sitnet-header-height: 4em;
-
-$sitnet-student-lightgreen: #7fb373;
-$sitnet-student-darkgreen: #4a883f;
-$sitnet-student-inactive-green: #8dc1b5;
-$sitnet-student-turquoise: #3eaa93;
-$sitnet-student-inactive-turquoise: #8dc1b5;
-$sitnet-student-orange: #ffb129;
-$sitnet-student-inactive-gray: #818181;
-$sitnet-blue-highlight: #66afe9;
-
-$sitnet-essay-review-background: #f4f9fc;
-
-$sitnet-family-helvetica: Arimo, Helvetica-Neue, Helvetica;
-
-// #### layout colors ############################################
 $sitnet-alarm: #c0001f;
 $sitnet-aborted: #770505;
-$sitnet-notice: #e1a117;
 $sitnet-ready: #6aa33a;
 $sitnet-theme: #3fa9f5;
 $sitnet-text: #000000;
-$sitnet-language-link-text: #ffffff;
 $sitnet-common-dark: rgba(0, 0, 0, 0.65);
 $sitnet-common-medium: rgba(0, 0, 0, 0.3);
-$sitnet-common-light: rgba(0, 0, 0, 0.1);
-$sitnet-background: #ffffff;
-
-.sitnet-common-light {
-    background-color: $sitnet-common-light;
-}
-
-.sitnet-common-medium {
-    background-color: $sitnet-common-medium;
-}
-
-.sitnet-common-dark {
-    background-color: $sitnet-common-dark;
-}
-
-.sitnet-common-theme {
-    background-color: $sitnet-theme;
-}
-
-.sitnet-text-light {
-    color: $sitnet-common-light;
-}
 
 .sitnet-text-medium {
     color: $sitnet-common-medium;
@@ -103,14 +43,6 @@ $sitnet-background: #ffffff;
 
 .sitnet-text-dark {
     color: $sitnet-common-dark;
-}
-
-.sitnet-text-theme {
-    color: $sitnet-theme;
-}
-
-.sitnet-text-notice {
-    color: $sitnet-notice;
 }
 
 .sitnet-text-ready {
@@ -129,36 +61,8 @@ $sitnet-background: #ffffff;
     color: $sitnet-text;
 }
 
-.sitnet-dark-green {
-    color: $sitnet-dark-green;
-}
-
-.sitnet-green {
-    color: $sitnet-green;
-}
-
-.sitnet-dark-blue {
-    color: $sitnet-dark-blue;
-}
-
-.sitnet-grey {
-    color: $sitnet-grey;
-}
-
-.sitnet-light-grey {
-    color: $sitnet-light-grey;
-}
-
 .sitnet-dark-grey {
     color: $sitnet-dark-grey;
-}
-
-.sitnet-dark {
-    color: $sitnet-dark;
-}
-
-.sitnet-beige {
-    color: $sitnet-beige;
 }
 
 .sitnet-white {
@@ -169,34 +73,6 @@ $sitnet-background: #ffffff;
     color: $sitnet-black;
 }
 
-.sitnet-student-lightgreen {
-    color: $sitnet-student-lightgreen;
-}
-
-.sitnet-student-darkgreen {
-    color: $sitnet-student-darkgreen;
-}
-
-.sitnet-student-inactive-green {
-    color: $sitnet-student-inactive-green;
-}
-
-.sitnet-student-turquoise {
-    color: $sitnet-student-turquoise;
-}
-
-.sitnet-student-inactive-turquoise {
-    color: $sitnet-student-inactive-turquoise;
-}
-
-.sitnet-student-orange {
-    color: $sitnet-student-orange;
-}
-
-.sitnet-student-inactive-gray {
-    color: $sitnet-student-inactive-gray;
-}
-
 .sitnet-medium-green-new {
     color: $sitnet-medium-green-new;
 }
@@ -205,37 +81,6 @@ $sitnet-background: #ffffff;
     color: $sitnet-red;
 }
 
-.sitnet-teacher-turquoise-dark-active {
-    color: $sitnet-teacher-turquoise-dark-active;
-}
-
-.sitnet-teacher-turquoise-dark-inactive {
-    color: $sitnet-teacher-turquoise-dark-inactive;
-}
-
-.sitnet-teacher-turquoise-light-active {
-    color: $sitnet-teacher-turquoise-light-active;
-}
-
-.sitnet-teacher-turquoise-light-inactive {
-    color: $sitnet-teacher-turquoise-light-inactive;
-}
-
-.sitnet-teacher-blue-light {
-    color: $sitnet-teacher-blue-light;
-}
-
-.sitnet-teacher-green-dark {
-    color: $sitnet-teacher-green-dark;
-}
-
-.sitnet-teacher-green-light {
-    color: $sitnet-teacher-green-light;
-}
-
-.greenHover:hover {
-    color: $sitnet-ready;
-}
 .blue-shadow-hover:hover {
     box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1);
 }
@@ -247,94 +92,22 @@ $sitnet-background: #ffffff;
     background: lightcyan;
 }
 
-.sitnet-horizontal-line {
-    background-color: $sitnet-common-light;
-    height: 0.15em;
-}
-
-.italic {
-    font-style: italic;
-}
-
-.popover {
-    font-size: 11px;
-    color: $sitnet-text;
-    width: 300px;
-}
-
-.base {
-    background-color: $sitnet-background;
-    padding: 1em;
-    margin: 0;
-}
-
-$sitnet-icon-size: 32px;
-
-.sitnet-icon-wrapper {
-    min-width: $sitnet-icon-size;
-    width: $sitnet-icon-size;
-    max-width: $sitnet-icon-size;
-    min-height: $sitnet-icon-size;
-    height: $sitnet-icon-size;
-    max-height: $sitnet-icon-size;
-    display: block;
-    text-align: center;
-}
-
-@mixin border-radius($radius) {
-    -webkit-border-radius: $radius;
-    -moz-border-radius: $radius;
-    -ms-border-radius: $radius;
-    border-radius: $radius;
-}
-
 .status_green,
-.status_red,
-.status_orange,
-.status_theme {
+.status_red {
     font-weight: normal;
     letter-spacing: 1px;
     font-size: 0.9em;
     padding: 0.2em 0.5em;
     color: $sitnet-white;
-    @include border-radius(5px);
+    border-radius: 5px;
 }
 
 .status_red {
-    background-color: $sitnet-alarm;
+    background-color: red;
 }
 
 .status_green {
-    background-color: $sitnet-student-darkgreen;
-}
-
-.status_orange {
-    background-color: $sitnet-student-orange;
-}
-
-.status_theme {
-    background-color: $sitnet-theme;
-}
-
-.status_comment {
-    padding: 0.5em;
-    font-size: 0.9em;
-    color: $sitnet-common-medium;
-    font-style: italic;
-    font-weight: bold;
-    font-family: $sitnet-family-helvetica;
-}
-
-.icon-alarm {
-    color: $sitnet-alarm;
-}
-
-.icon-ok {
-    color: $sitnet-student-darkgreen;
-}
-
-.icon-theme {
-    color: $sitnet-theme;
+    background-color: green;
 }
 
 .bold-button {
@@ -346,42 +119,6 @@ $sitnet-icon-size: 32px;
     font-weight: bold;
 }
 
-.icon-notice {
-    color: $sitnet-student-orange;
-}
-
-.header-top {
-    height: 4em;
-    padding: 0.5em;
-}
-
-.header-top-icon {
-    margin-top: 0.4em;
-}
-
-.header-top-link {
-    display: flex;
-    align-items: center;
-    color: $sitnet-text;
-    font-size: 0.9em;
-    font-weight: bold;
-    cursor: pointer;
-    text-decoration: none;
-
-    i {
-        display: inline-flex;
-        width: 2rem;
-        height: 2rem;
-        background-color: #3fa9f5;
-        border-radius: 2px;
-        color: white;
-        margin-right: 0.5rem;
-        justify-content: center;
-        align-items: center;
-        font-size: 1.1rem;
-    }
-}
-
 .top-margin-1 {
     margin-top: 1em;
 }
@@ -390,92 +127,18 @@ $sitnet-icon-size: 32px;
     padding-top: 2em;
 }
 
-.bottom-padding-1 {
-    padding-bottom: 1em;
-}
-
 .bottom-padding-2 {
     padding-bottom: 2em;
-}
-
-.horizontal-padding-1 {
-    padding: 0 1em;
 }
 
 .horizontal-padding-05 {
     padding: 0 0.5em;
 }
 
-.vertical-padding-2 {
-    padding: 2em 0;
-}
-
 .info {
     padding-left: 0;
     margin-left: 0;
     margin-bottom: 1em;
-}
-
-.info-row {
-    padding-left: 0;
-    margin-left: 0;
-}
-
-.info-row-space {
-    padding: 0;
-    margin: 0;
-}
-
-.info-column {
-    padding-right: 1em;
-    font-size: 1em;
-    font-family: Helvetica, Arial, sans-serif;
-    padding-left: 0;
-    margin-left: 0;
-
-    .header {
-        padding-right: 0.5em;
-        float: left;
-        color: $sitnet-common-medium;
-        padding-left: 0;
-        margin-left: 0;
-    }
-    .text {
-        padding-left: 0;
-        margin-left: 0;
-        font-weight: bold;
-        float: left;
-        color: $sitnet-text;
-    }
-    .light-text {
-        padding-left: 0;
-        margin-left: 0;
-        font-weight: normal;
-        float: left;
-    }
-    .link-text {
-        padding-left: 0;
-        margin-left: 0;
-        font-weight: normal;
-        float: left;
-        color: $sitnet-theme;
-    }
-}
-
-.info-header-bolditalic {
-    font-size: 1.1em;
-    font-weight: bold;
-    font-style: italic;
-}
-
-.info-header-bold {
-    font-size: 1.1em;
-    font-weight: bold;
-}
-
-.info-header-normal {
-    font-size: 1.1em;
-    font-weight: normal;
 }
 
 .examination-event-list-item {
@@ -488,35 +151,8 @@ $sitnet-icon-size: 32px;
     }
 }
 
-.icon_fix {
-    margin-left: 1em;
-    line-height: 1.8em;
-}
-
 .rotate90 {
     transform: rotate(90deg);
-}
-
-.light-table {
-    border: 0;
-    font-size: 0.9em;
-    border-spacing: 1em;
-    border-collapse: separate;
-
-    td {
-        padding: 0.5em;
-        border: 0;
-        border-right: 0.15em solid $sitnet-common-light;
-    }
-}
-
-.sitnet-badge {
-    padding: 0.25em 0.6em 0.1em;
-    font-size: 0.9em;
-    background-color: $sitnet-theme;
-    color: $sitnet-white;
-    margin: 0.1em;
-    text-align: center;
 }
 
 .width-100 {
@@ -532,41 +168,14 @@ $sitnet-icon-size: 32px;
     white-space: pre-wrap;
 }
 
-.removeListLeftSpace {
-    ul {
-        padding-left: 0;
-        margin-left: 0;
-    }
-}
-
 .inline {
     display: inline;
-}
-
-.editable {
-    cursor: pointer;
-}
-
-.editable:hover {
-    color: green;
 }
 
 .sitnet-info-text {
     color: #727272;
     font-style: normal;
     margin-top: 1em;
-}
-
-.sitnet-info-text-compact {
-    color: #727272;
-    font-style: normal;
-}
-
-.sitnet-info-text-bold {
-    color: #727272;
-    font-style: normal;
-    margin-top: 1em;
-    font-weight: bold;
 }
 
 .pointer {
@@ -834,10 +443,6 @@ $sitnet-icon-size: 32px;
     border-color: #6b6b6b !important;
 }
 
-.font20 {
-    font-size: 20px !important;
-}
-
 .grey-top {
     border-top: 1px solid $sitnet-border-color;
 }
@@ -872,10 +477,6 @@ $sitnet-icon-size: 32px;
 
 .font-sm {
     font-size: 0.8rem !important;
-}
-
-.overflow-hidden {
-    overflow: hidden;
 }
 
 .overflow-x-scroll {
@@ -932,7 +533,7 @@ $sitnet-icon-size: 32px;
 }
 
 .hover-grey:hover {
-    background-color: $sitnet-grey;
+    background-color: #c0c0c0;
 }
 
 .flex {
