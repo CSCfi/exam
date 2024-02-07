@@ -95,7 +95,11 @@ export class ExamTabsComponent implements OnInit, OnDestroy {
             (x) => x.id === this.user.id || x.email.toLowerCase() === this.user.email.toLowerCase(),
         );
 
-    navChanged = (event: NgbNavChangeEvent) => this.router.navigate([event.nextId], { relativeTo: this.route });
+    navChanged = (event: NgbNavChangeEvent) =>
+        this.router.navigate([event.nextId], {
+            relativeTo: this.route,
+            queryParams: { collaborative: this.collaborative },
+        });
 
     examUpdated = (props: UpdateProps) => {
         this.updateTitle(props.code, props.name);

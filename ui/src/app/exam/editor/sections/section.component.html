@@ -235,7 +235,10 @@
     <div class="row ms-2 me-2" [ngbCollapse]="!section.expanded">
         <div class="col-md-12 mt-2">
             <div id="exam" cdkDropList (cdkDropListDropped)="moveQuestion($event)" class="sortable no-padding mb-2">
-                @for (sectionQuestion of section.sectionQuestions; track sectionQuestion) {
+                @for (
+                    sectionQuestion of section.sectionQuestions | orderBy: 'sequenceNumber';
+                    track sectionQuestion.sequenceNumber
+                ) {
                     <div cdkDrag cdkDragLockAxis="y" class="mb-4">
                         <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
                         <div class="drag-preview" *cdkDragPreview [innerHtml]="sectionQuestion.question.question"></div>
