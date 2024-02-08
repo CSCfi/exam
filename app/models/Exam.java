@@ -862,6 +862,10 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
         return executionType.getType().equals(ExamExecutionType.Type.PRINTOUT.toString());
     }
 
+    public boolean isUnsupervised() {
+        return !executionType.getType().equals(Implementation.AQUARIUM.toString());
+    }
+
     public boolean hasState(State... states) {
         return Arrays.asList(states).contains(state);
     }
@@ -893,30 +897,6 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     @Override
     public int hashCode() {
         return new HashCodeBuilder().append(id).build();
-    }
-
-    @Override
-    public String toString() {
-        return (
-            "Exam{" +
-            "course=" +
-            course +
-            ", id='" +
-            id +
-            '\'' +
-            ", name='" +
-            name +
-            '\'' +
-            ", examType=" +
-            examType +
-            ", hash='" +
-            hash +
-            '\'' +
-            ", state='" +
-            state +
-            '\'' +
-            '}'
-        );
     }
 
     @Override

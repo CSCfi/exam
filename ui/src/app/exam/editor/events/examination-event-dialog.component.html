@@ -35,7 +35,7 @@
                 [hourStep]="1"
                 [minuteStep]="15"
                 [initialTime]="start()"
-                [examMaxDate]="examMaxDate"
+                [maxDate]="examMaxDate"
                 (updated)="onStartDateChange($event)"
                 autofocus
             >
@@ -129,10 +129,7 @@
         </form>
         <div class="modal-footer">
             <div class="student-message-dialog-button-save">
-                <button
-                    [disabled]="eventForm.invalid || (maxDateValidator && maxDateValidator < start())"
-                    (click)="ok()"
-                >
+                <button [disabled]="eventForm.invalid" (click)="ok()">
                     {{ 'i18n_button_accept' | translate }}
                 </button>
             </div>
