@@ -10,7 +10,6 @@ public interface ConfigReader {
     DateTimeZone getDefaultTimeZone();
     String getHostName();
     Integer getMaxFileSize();
-    String getExamMaxDate();
     List<Integer> getExamDurations();
     Integer getExamMaxDuration();
     Integer getExamMinDuration();
