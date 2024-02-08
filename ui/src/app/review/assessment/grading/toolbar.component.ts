@@ -27,8 +27,8 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
 @Component({
     selector: 'xm-r-toolbar',
     template: `<!-- Buttons -->
-        <div class="review-toolbar-wrapper pt-4 padl0 padr0 marb20 me-4 float-end">
-            <div class="review-attachment-button exam-questions-buttons marl15">
+        <div class="review-toolbar-wrapper pt-4 ps-0 pe-0 m2-2 me-4 float-end">
+            <div class="review-attachment-button exam-questions-buttons">
                 <a
                     class="pointer preview"
                     [routerLink]="getExitState().fragments"

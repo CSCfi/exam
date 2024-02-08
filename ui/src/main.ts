@@ -9,7 +9,7 @@ import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { ToastrModule } from 'ngx-toastr';
 import { AppComponent } from './app/app.component';
-import { APP_ROUTES } from './app/app.routing';
+import { APP_ROUTES } from './app/app.routes';
 import { AuthInterceptor } from './app/interceptors/auth-interceptor';
 import { ErrorInterceptor } from './app/interceptors/error-interceptor';
 import { ExaminationInterceptor } from './app/interceptors/examination-interceptor';

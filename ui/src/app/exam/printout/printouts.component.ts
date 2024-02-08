@@ -86,10 +86,8 @@ import type { Exam } from '../exam.model';
                                         }
                                     </td>
                                     <td>
-                                        <a
-                                            class="exams-info-title bold-button"
-                                            [routerLink]="['/staff/exams', exam.id, 'printout']"
-                                            >{{ exam.name }}</a
+                                        <a [routerLink]="['/staff/exams', exam.id, 'printout']"
+                                            ><strong>{{ exam.name }}</strong></a
                                         >
                                     </td>
                                     <td>

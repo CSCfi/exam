@@ -4,8 +4,22 @@
         <xm-examination-header [exam]="exam" (timedOut)="timedOut()" [isPreview]="isPreview"> </xm-examination-header>
     }
     <div class="row ms-3">
+        <!-- RIGHT COLUMN -->
+        <div class="col-md-4 col-xs-4 pe-4 order-2">
+            <!-- TOOLBAR -->
+            @if (exam) {
+                <xm-examination-toolbar
+                    [exam]="exam"
+                    [activeSection]="activeSection"
+                    [isPreview]="isPreview"
+                    (pageSelected)="selectNewPage($event)"
+                    [isCollaborative]="isCollaborative"
+                >
+                </xm-examination-toolbar>
+            }
+        </div>
         <!-- LEFT COLUMN -->
-        <div class="col-md-8 col-xs-8">
+        <div class="col-md-8 col-xs-8 order-1">
             <!-- EXAM AREA -->
             <!-- EXAM SECTION -->
             @if (activeSection) {
@@ -33,21 +47,9 @@
                 >
                 </xm-examination-navigation>
             }
-        </div>
-
-        <!-- RIGHT COLUMN -->
-        <div class="col-md-4 col-xs-4 pe-4">
-            <!-- TOOLBAR -->
-            @if (exam) {
-                <xm-examination-toolbar
-                    [exam]="exam"
-                    [activeSection]="activeSection"
-                    [isPreview]="isPreview"
-                    (pageSelected)="selectNewPage($event)"
-                    [isCollaborative]="isCollaborative"
-                >
-                </xm-examination-toolbar>
-            }
+            <a class="skip" id="skip-button" [href]="getSkipLinkPath('#examination-section')">
+                {{ 'i18n_skip_to_content' | translate }}
+            </a>
         </div>
     </div>
 </div>

@@ -1,5 +1,5 @@
 <div id="dashboard">
-    <div class="col-md-12 mt-2">
+    <div class="col-12 mt-2">
         <div class="student-details-title-wrap">
             <xm-history-back xmAutoFocus></xm-history-back>
             <h1 class="student-exam-details-title">{{ 'i18n_calendar' | translate }}</h1>
@@ -16,7 +16,7 @@
     }
     <!-- Phase 2: Optional exam section selection (optional) -->
     @if (examInfo && hasOptionalSections()) {
-        <div class="mart10">
+        <div class="mt-3">
             <xm-calendar-optional-sections
                 [examInfo]="examInfo"
                 (selected)="onSectionSelection($event)"
@@ -25,7 +25,7 @@
     }
     <!-- Phase 3: Organisation picker -->
     @if (isInteroperable && isExternal) {
-        <div class="mart10">
+        <div class="mt-3">
             <xm-calendar-organisation-picker
                 [sequenceNumber]="getSequenceNumber('organization')"
                 [disabled]="!sectionSelectionOk()"
@@ -35,7 +35,7 @@
         </div>
     }
     <!-- Phase 4: Room picker -->
-    <div class="mart10">
+    <div class="mt-3">
         <xm-calendar-slot-picker
             [sequenceNumber]="getSequenceNumber('room')"
             [isInteroperable]="isInteroperable"
@@ -53,12 +53,12 @@
 
     <!-- Reservation confirmation -->
 
-    <div class="row mart10 marb20">
-        <div class="col-md-8 col-12 pad0">
+    <div class="row mt-3 mb-4">
+        <div class="col-md-8 col-12 p-0">
             <div class="row student-enrolment-wrapper details-view" [ngClass]="reservation ? '' : 'notactive'">
                 <div class="col-md-12">
                     <div class="row">
-                        <span class="col-md-12 marb10">
+                        <span class="col-md-12 mb-3">
                             <h2 class="calendar-phase-title">
                                 {{ getSequenceNumber('confirmation') }}. {{ 'i18n_calendar_phase_3' | translate }}
                             </h2>
@@ -133,8 +133,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 col-12 pad0 mar-">
-            <div class="row mart20 marb10 marr10 marl10 align-items-center">
+        <div class="col-md-4 col-12 p-0">
+            <div class="row m-2 align-items-center">
                 <div class="col-md-12">
                     <button
                         [disabled]="!reservation || confirming"
@@ -146,7 +146,7 @@
                     </button>
                 </div>
             </div>
-            <div class="row mart20 marb10 marr10 marl10 align-items-center">
+            <div class="row m-2 align-items-center">
                 <div class="col-md-12">
                     <button
                         class="btn btn-lg btn-outline-secondary float-end"

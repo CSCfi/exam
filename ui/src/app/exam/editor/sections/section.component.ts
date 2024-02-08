@@ -43,6 +43,7 @@ import { FileService } from '../../../shared/file/file.service';
 import type { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { SectionQuestionComponent } from './section-question.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-section',
@@ -63,7 +64,9 @@ import { SectionQuestionComponent } from './section-question.component';
         CdkDragPreview,
         SectionQuestionComponent,
         TranslateModule,
+        OrderByPipe,
     ],
+    styleUrls: ['./section.component.scss', './sections.shared.scss'],
 })
 export class SectionComponent {
     @Input() section!: ExamSection;

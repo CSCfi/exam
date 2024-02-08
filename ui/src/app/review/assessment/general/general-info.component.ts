@@ -69,9 +69,9 @@ export class GeneralInfoComponent implements OnInit {
         this.reservation = this.enrolment?.reservation;
         if (this.collaborative) {
             this.http
-                .get<ExamParticipation[]>(
-                    `/app/iop/reviews/${this.route.snapshot.params.id}/participations/${this.route.snapshot.params.ref}`,
-                )
+                .get<
+                    ExamParticipation[]
+                >(`/app/iop/reviews/${this.route.snapshot.params.id}/participations/${this.route.snapshot.params.ref}`)
                 .subscribe(this.handleParticipations);
         } else {
             this.http

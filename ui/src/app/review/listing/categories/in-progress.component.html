@@ -206,7 +206,7 @@
                                 @for (inspection of review.examParticipation.exam.examInspections; track inspection) {
                                     <div>
                                         <span [ngClass]="inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'">
-                                            <span [ngClass]="isOwner(inspection.user) ? 'bold' : ''">
+                                            <span [ngClass]="isOwner(inspection.user) ? 'fw-bold' : ''">
                                                 {{ inspection.user.firstName }} {{ inspection.user.lastName }}
                                             </span>
                                         </span>
@@ -222,8 +222,7 @@
                         <tr>
                             @if (showId()) {
                                 <td colspan="8">{{ 'i18n_review_no_result' | translate }}</td>
-                            }
-                            @if (!showId()) {
+                            } @else {
                                 <td colspan="7">{{ 'i18n_review_no_result' | translate }}</td>
                             }
                         </tr>

@@ -28,7 +28,7 @@ import { ExceptionWorkingHours } from '../../reservation/reservation.model';
             </div>
             <div class="modal-body">
                 <div class="flex">
-                    <div class="min-width-300 marr10">
+                    <div class="min-width-300 me-2">
                         {{ message }}
                     </div>
                     @if (exception?.outOfService) {

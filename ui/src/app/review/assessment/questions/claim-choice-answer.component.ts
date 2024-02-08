@@ -50,6 +50,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
     }`,
     standalone: true,
     imports: [NgClass, TranslateModule, OrderByPipe],
+    styleUrl: './multi-choice-answers.shared.scss',
 })
 export class ClaimChoiceAnswerComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;

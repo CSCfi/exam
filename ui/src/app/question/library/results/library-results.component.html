@@ -1,6 +1,6 @@
 <div class="row">
     <div class="col-md-12">
-        <table class="table table-striped table-sm" [ngClass]="tableClass">
+        <table class="table table-striped table-sm exams-table">
             <thead>
                 <tr>
                     <th>
@@ -143,7 +143,7 @@
                                 </span>
                             }
                         </td>
-                        <td>{{ showDisplayedScoreOrTranslate(question.displayedMaxScore) }}</td>
+                        <td class="td-center-align">{{ showDisplayedScoreOrTranslate(question.displayedMaxScore) }}</td>
                         <td>
                             @if (question.type === 'MultipleChoiceQuestion') {
                                 <span>{{ 'i18n_question_mc' | translate }}</span>
@@ -182,7 +182,7 @@
                                 </span>
                             }
                         </td>
-                        <td class="padl20">
+                        <td class="td-center-align">
                             @if (question.allowedToRemove) {
                                 <a (click)="deleteQuestion(question)" class="pointer">
                                     <i
@@ -194,7 +194,7 @@
                                 </a>
                             }
                         </td>
-                        <td class="padl20 padr10">
+                        <td class="td-center-align">
                             <a (click)="copyQuestion(question)">
                                 <i
                                     class="bi-files"
@@ -204,7 +204,7 @@
                                 ></i>
                             </a>
                         </td>
-                        <td>
+                        <td class="td-center-align">
                             {{ examSectionQuestionsLength(question) }}
                         </td>
                     </tr>

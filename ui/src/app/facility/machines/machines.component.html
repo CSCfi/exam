@@ -54,10 +54,9 @@
                             <td>
                                 <a
                                     [ngClass]="{ 'text-danger': !machine.name }"
-                                    class="exams-info-title bold-button"
                                     [routerLink]="['/staff/machines', machine.id]"
                                 >
-                                    {{ !machine.name ? ('i18n_no_name' | translate) : machine.name }}
+                                    <strong>{{ !machine.name ? ('i18n_no_name' | translate) : machine.name }}</strong>
                                 </a>
                             </td>
                             <td>{{ machine.otherIdentifier }}</td>
@@ -67,12 +66,10 @@
                                     @for (software of machine.softwareInfo; track software; let l = $last) {
                                         <li class="float-start">
                                             @if (software.status !== 'DISABLED') {
-                                                <span>
-                                                    {{ software.name }}
-                                                    @if (!l) {
-                                                        <span>, </span>
-                                                    }
-                                                </span>
+                                                <span>{{ software.name }}</span>
+                                                @if (!l) {
+                                                    <span>,&nbsp;</span>
+                                                }
                                             }
                                         </li>
                                     }

@@ -101,7 +101,7 @@
             </textarea>
         </div>
     </div>
-    <div class="row padr15 marl15 mart30">
+    <div class="row pe-3 ms-3 mt-4">
         <!-- This stuff could form a component of its own -->
         <div class="col-md-3 grading-title">
             {{ 'i18n_exam_review_maturity_evaluation' | translate | uppercase }}
@@ -111,7 +111,7 @@
         <div class="col-md-3 grading-title">{{ 'i18n_exam_credit' | translate | uppercase }} (op):</div>
     </div>
 
-    <div class="row padr15 marl15">
+    <div class="row pe-3 ms-3">
         <div class="col-md-3 general-info-content">
             <select
                 id="examGrade"
@@ -178,7 +178,7 @@
     <!-- end of possible new component -->
 
     <!-- Bottom toolbar for maturity -->
-    <div class="row mart20 padr15">
+    <div class="row mart20 pe-3">
         <div class="col-md-12">
             <span>{{ examForm.errors?.toString() }}</span>
             <xm-r-maturity-toolbar [exam]="exam" [valid]="!examForm.invalid"></xm-r-maturity-toolbar>

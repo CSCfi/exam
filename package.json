@@ -10,14 +10,14 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build --build-optimizer false --output-path ../public",
+    "build": "ng build --build-optimizer false --output-path ./public",
     "analyze": "ng build --stats-json && webpack-bundle-analyzer dist/exam/stats.json",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint --fix",
-    "format": "prettier --write \"src/app/**/*.{ts,html}\" --write \"../app/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
-    "prepare": "cd .. && npx husky install ui/.husky",
-    "check-format": "prettier --check \"src/app/**/*.{ts,html}\" --check \"../app/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
+    "format": "prettier --write \"ui/src/app/**/*.{ts,html}\" --write \"app/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
+    "prepare": "lefthook install",
+    "check-format": "prettier --check \"ui/src/app/**/*.{ts,html}\" --check \"app/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
     "check-lint": "ng lint"
   },
   "dependencies": {
@@ -70,27 +70,12 @@
     "@typescript-eslint/parser": "^6.10.0",
     "eslint": "^8.53.0",
     "eslint-plugin-deprecation": "^2.0.0",
-    "husky": "^8.0.1",
     "karma": "^6.3.0",
-    "lint-staged": "^13.0.3",
+    "lefthook": "^1.6.1",
     "prettier": "^3.0.0",
     "prettier-plugin-java": "^2.5.0",
     "prettier-plugin-organize-imports": "^3.2.4",
     "typescript": "~5.3.0",
     "webpack-bundle-analyzer": "^4.5.0"
-  },
-  "lint-staged": {
-    "src/app/**/*.{ts,html}": [
-      "prettier --write"
-    ],
-    "../app/**/*.java": [
-      "prettier --write --plugin=prettier-plugin-java --print-width=120 --tab-width=4"
-    ],
-    "../test/**/*.java": [
-      "prettier --write --plugin=prettier-plugin-java --print-width=120 --tab-width=4"
-    ],
-    "src/app/**/*.ts": [
-      "eslint --fix"
-    ]
   }
 }

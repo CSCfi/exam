@@ -88,6 +88,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
     }`,
     standalone: true,
     imports: [MathJaxDirective, TranslateModule, OrderByPipe],
+    styleUrl: './multi-choice-answers.shared.scss',
 })
 export class MultiChoiceAnswerComponent {
     @Input() sectionQuestion!: ExamSectionQuestion;

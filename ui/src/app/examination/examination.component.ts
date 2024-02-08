@@ -26,6 +26,7 @@ import { AnswerInstructionsComponent } from './instructions/answer-instructions.
 import { ExaminationNavigationComponent } from './navigation/examination-navigation.component';
 import { ExaminationToolbarComponent } from './navigation/examination-toolbar.component';
 import { ExaminationSectionComponent } from './section/examination-section.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-examination',
@@ -37,6 +38,7 @@ import { ExaminationSectionComponent } from './section/examination-section.compo
         AnswerInstructionsComponent,
         ExaminationNavigationComponent,
         ExaminationToolbarComponent,
+        TranslateModule,
     ],
 })
 export class ExaminationComponent implements OnInit, OnDestroy {
@@ -100,6 +102,10 @@ export class ExaminationComponent implements OnInit, OnDestroy {
                 finalize(() => this.logout('i18n_exam_time_is_up', true)),
             )
             .subscribe();
+
+    getSkipLinkPath = (skipTarget: string) => {
+        return window.location.toString().includes(skipTarget) ? window.location : window.location + skipTarget;
+    };
 
     private logout = (msg: string, canFail: boolean) =>
         this.Examination.logout(msg, this.exam.hash, this.exam.implementation === 'CLIENT_AUTH', canFail);

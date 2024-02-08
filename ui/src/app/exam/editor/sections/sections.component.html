@@ -19,13 +19,7 @@
     </div>
 }
 
-<div
-    class="row ms-2 me-2"
-    id="exam"
-    cdkDropList
-    [cdkDropListData]="exam.examSections"
-    (cdkDropListDropped)="moveSection($event)"
->
+<div class="row ms-2 me-2" cdkDropList [cdkDropListData]="exam.examSections" (cdkDropListDropped)="moveSection($event)">
     <div class="col-md-12">
         @for (section of exam.examSections | orderBy: 'sequenceNumber'; track section; let i = $index) {
             <div cdkDrag cdkDragLockAxis="y">

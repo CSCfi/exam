@@ -48,6 +48,7 @@ import type { Examination } from '../examination.model';
     </div>`,
     standalone: true,
     imports: [CourseCodeComponent, ExaminationClockComponent],
+    styleUrl: './examination-header.component.scss',
 })
 export class ExaminationHeaderComponent {
     @Input() exam!: Examination;

@@ -1,6 +1,6 @@
 <div id="dashboard">
     @for (room of rooms; track room) {
-        <div class="row" id="room" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
+        <div class="row" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
             <div class="col-12">
                 <h2 class="room-name-title">{{ room.name || 'i18n_no_name' | translate }}</h2>
                 <a
@@ -35,7 +35,7 @@
                             </a>
                         </div>
                         <div>
-                            <span class="marr10">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
+                            <span class="me-2">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
                             @if (room.addressVisible) {
                                 <i class="bi-chevron-down pointer" (click)="room.addressVisible = false"></i>
                             }
@@ -112,14 +112,14 @@
                             {{ 'i18n_openinghours_exception_datetimes' | translate }}
                         </div>
                         <div class="d-flex justify-content-end">
-                            <span class="marr10 d-" [hidden]="room.availabilityVisible">
+                            <span class="me-2 d-" [hidden]="room.availabilityVisible">
                                 @for (
                                     timetable of getWorkingHoursDisplayFormat(room.defaultWorkingHours);
                                     track timetable
                                 ) {
                                     <div class="flex justify-content-end">
                                         @if (timetable.length > 0) {
-                                            <div class="bg-success custom-green-dot marr10"></div>
+                                            <div class="bg-success custom-green-dot me-2"></div>
                                         }
                                         <div>{{ timetable }}</div>
                                     </div>
@@ -140,12 +140,12 @@
                             @for (exception of getNextExceptionEvent(room.calendarExceptionEvents); track exception) {
                                 <div class="flex justify-content-end flex-nowrap">
                                     @if (exception?.outOfService) {
-                                        <div class="text-danger marr10 bi-exclamation-triangle-fill">
+                                        <div class="text-danger me-2 bi-exclamation-triangle-fill">
                                             {{ 'i18n_room_out_of_service' | translate }}
                                         </div>
                                     }
                                     @if (!exception?.outOfService) {
-                                        <div class="text-success marr10">
+                                        <div class="text-success me-2">
                                             {{ 'i18n_room_in_service' | translate }}
                                         </div>
                                     }
@@ -156,10 +156,7 @@
                             }
                             @if (getFutureExceptionEvent(room.calendarExceptionEvents).length > 2) {
                                 <div class="flex justify-content-end flex-nowrap">
-                                    <i
-                                        class="bi-three-dots pointer marr10"
-                                        (click)="room.availabilityVisible = true"
-                                    ></i>
+                                    <i class="bi-three-dots pointer me-2" (click)="room.availabilityVisible = true"></i>
                                     <div class="text-danger">
                                         ({{ getFutureExceptionEvent(room.calendarExceptionEvents).length }})
                                     </div>

@@ -26,6 +26,7 @@ import { isRealGrade } from '../../exam/exam.model';
 import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
+import { Point } from '@angular/cdk/drag-drop';
 
 type Payload = {
     id: number;
@@ -309,5 +310,11 @@ export class AssessmentService {
             }),
             switchMap(() => this.sendToRegistry$(payload, res)),
         );
+    };
+
+    fixPosition = (pos: Point): Point => {
+        const vpw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        const vph = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+        return { x: Math.min(Math.max(pos.x, 0), vpw - 30), y: Math.min(Math.max(pos.y, 0), vph - 30) };
     };
 }

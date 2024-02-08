@@ -44,7 +44,7 @@ import { CalendarService } from './calendar.service';
     template: `
         @if (visible) {
             <div>
-                <div class="row mart20 marb10" id="calendarBlock">
+                <div class="row mt-2 mb-2" id="calendarBlock">
                     @if (visible) {
                         <div class="col-md-12">
                             <full-calendar #fc [options]="calendarOptions()"></full-calendar>
