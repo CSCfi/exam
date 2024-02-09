@@ -18,8 +18,8 @@ import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { parseISO } from 'date-fns';
 import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.model';
+import { DateTime } from 'luxon';
 
 @Component({
     selector: 'xm-select-examination-event-dialog',
@@ -84,7 +84,11 @@ export class SelectExaminationEventDialogComponent implements OnInit {
     ngOnInit() {
         // for all confs over
         this.configs = this.exam.examinationEventConfigurations
-            .filter((ec) => parseISO(ec.examinationEvent.start) > new Date() && ec.id !== this.existingEventId)
+            .filter(
+                (ec) =>
+                    DateTime.fromISO(ec.examinationEvent.start).toJSDate() > new Date() &&
+                    ec.id !== this.existingEventId,
+            )
             .sort((a, b) => (a.examinationEvent.start < b.examinationEvent.start ? -1 : 1));
     }
 

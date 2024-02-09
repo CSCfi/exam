@@ -14,7 +14,6 @@
  */
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { format, parseISO } from 'date-fns';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 
@@ -50,10 +49,10 @@ export class WrongLocationService {
     };
 
     displayWrongUserAgent = (startsAtTxt: string) => {
-        const startsAt = parseISO(startsAtTxt); // TODO: what about timezone here?
-        if (startsAt > new Date()) {
+        const startsAt = DateTime.fromISO(startsAtTxt); // TODO: what about timezone here?
+        if (startsAt.toJSDate() > new Date()) {
             this.toast.warning(
-                `${this.translate.instant('i18n_seb_exam_about_to_begin')} ${format(startsAt, 'HH:mm')}`,
+                `${this.translate.instant('i18n_seb_exam_about_to_begin')} ${startsAt.toFormat('HH:mm')}`,
                 '', // TODO: should we have some title for this (needs translation)
                 { timeOut: 10000 },
             );

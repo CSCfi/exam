@@ -74,6 +74,8 @@ export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewIni
     @ViewChild('fc') calendar!: FullCalendarComponent;
 
     calendarOptions = signal<CalendarOptions>({});
+    searchStart = DateTime.now().startOf('week').toISO();
+    searchEnd = DateTime.now().endOf('week').toISO();
 
     constructor(
         private translate: TranslateService,
@@ -94,11 +96,9 @@ export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewIni
             events: this.refetch,
             eventClick: this.eventClicked.bind(this),
         });
-        this.translate.onLangChange.subscribe((event) => {
-            this.calendarOptions.set({ ...this.calendarOptions(), locale: event.lang });
-            //this.calendar.getApi().destroy();
-            //this.calendar.getApi().render();
-        });
+        this.translate.onLangChange.subscribe((event) =>
+            this.calendarOptions.set({ ...this.calendarOptions(), locale: event.lang }),
+        );
     }
 
     ngOnInit() {
@@ -118,19 +118,19 @@ export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewIni
 
     ngOnChanges(changes: SimpleChanges) {
         if (changes.room && this.room) {
-            const earliestOpening = this.Calendar.getEarliestOpening(this.room);
+            const earliestOpening = this.Calendar.getEarliestOpening(this.room, this.searchStart, this.searchEnd);
             const minTime =
                 earliestOpening.getHours() > 1
                     ? DateTime.fromJSDate(earliestOpening).minus({ hour: 1 }).toJSDate()
                     : earliestOpening;
-            const latestClosing = this.Calendar.getLatestClosing(this.room);
+            const latestClosing = this.Calendar.getLatestClosing(this.room, this.searchStart, this.searchEnd);
             const maxTime =
                 latestClosing.getHours() < 23
                     ? DateTime.fromJSDate(latestClosing).plus({ hour: 1 }).toJSDate()
                     : latestClosing;
             this.calendarOptions.update((cos) => ({
                 ...cos,
-                hiddenDays: this.Calendar.getClosedWeekdays(this.room),
+                hiddenDays: this.Calendar.getClosedWeekdays(this.room, this.searchStart, this.searchEnd),
                 slotMinTime: DateTime.fromJSDate(minTime).toFormat('HH:mm:ss'),
                 slotMaxTime: DateTime.fromJSDate(maxTime).toFormat('HH:mm:ss'),
                 timeZone: this.room.localTimezone,
@@ -141,8 +141,22 @@ export class BookingCalendarComponent implements OnInit, OnChanges, AfterViewIni
             this.calendar.getApi().refetchEvents();
         }
     }
-    refetch = (input: { startStr: string; timeZone: string }, success: (events: EventInput[]) => void) =>
+
+    refetch = (input: { startStr: string; timeZone: string }, success: (events: EventInput[]) => void) => {
+        this.searchStart = input.startStr;
+        this.searchEnd = DateTime.fromISO(input.startStr).endOf('week').toISO() as string;
+        const hidden = this.Calendar.getClosedWeekdays(this.room, this.searchStart, this.searchEnd);
+        const earliestOpening = this.Calendar.getEarliestOpening(this.room, this.searchStart, this.searchEnd);
+        const latestClosing = this.Calendar.getLatestClosing(this.room, this.searchStart, this.searchEnd);
+        this.calendarOptions.update((cos) => ({
+            ...cos,
+            hiddenDays: hidden,
+            slotMinTime: DateTime.fromJSDate(earliestOpening).toFormat('HH:mm:ss'),
+            slotMaxTime: DateTime.fromJSDate(latestClosing).toFormat('HH:mm:ss'),
+        }));
+
         this.moreEventsNeeded.emit({ date: input.startStr, timeZone: input.timeZone, success: success });
+    };
 
     eventClicked(arg: EventClickArg): void {
         if (arg.event.extendedProps?.availableMachines > 0) {
