@@ -14,20 +14,20 @@
  */
 import type { PipeTransform } from '@angular/core';
 import { Pipe } from '@angular/core';
-import { addHours, formatISO, parseISO } from 'date-fns';
 import { DateTimeService } from './date.service';
+import { DateTime } from 'luxon';
 
 @Pipe({
     name: 'applyDst',
     standalone: true,
 })
 export class ApplyDstPipe implements PipeTransform {
-    constructor(private DateTime: DateTimeService) {}
+    constructor(private DateTimeService: DateTimeService) {}
     transform = (input?: string): string => {
         if (!input) return '';
-        const date = parseISO(input);
-        if (this.DateTime.isDST(date)) {
-            return formatISO(addHours(date, -1));
+        const date = DateTime.fromISO(input);
+        if (this.DateTimeService.isDST(date.toJSDate())) {
+            return date.minus({ hours: 1 }).toISO() as string;
         }
         return input;
     };

@@ -1,7 +1,7 @@
 import { formatDate, NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgbActiveModal, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbDropdownModule, NgbTimepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { areIntervalsOverlapping, eachDayOfInterval } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
@@ -9,7 +9,7 @@ import { range } from 'ramda';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 import { ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { DateTimeService, REPEAT_OPTIONS } from '../../shared/date/date.service';
+import { DateTimeService, REPEAT_OPTION } from '../../shared/date/date.service';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 
 enum ORDINAL {
@@ -22,7 +22,15 @@ enum ORDINAL {
 
 @Component({
     standalone: true,
-    imports: [FormsModule, TranslateModule, NgClass, DateTimePickerComponent, DatePickerComponent, NgbTimepickerModule],
+    imports: [
+        FormsModule,
+        TranslateModule,
+        NgClass,
+        DateTimePickerComponent,
+        DatePickerComponent,
+        NgbTimepickerModule,
+        NgbDropdownModule,
+    ],
     templateUrl: './exception-dialog.component.html',
 })
 export class ExceptionDialogComponent {
@@ -43,8 +51,8 @@ export class ExceptionDialogComponent {
     dayOfMonth = 1;
     selectableWeekDays: { selected: boolean; day: string; number: number }[];
     selectableMonths: { selected: boolean; month: string; number: number }[];
-    repeatOptions: REPEAT_OPTIONS[] = Object.values(REPEAT_OPTIONS);
-    repeats: REPEAT_OPTIONS = REPEAT_OPTIONS.once;
+    repeatOptions: REPEAT_OPTION[] = Object.values(REPEAT_OPTION);
+    repeats: REPEAT_OPTION = REPEAT_OPTION.once;
     isNumericNotWeekday = true;
     weeks = [range(1, 8), range(8, 15), range(15, 22), range(22, 29)];
     ordinals: { ordinal: string; number: number }[] = Object.values(ORDINAL).map((o, i) => ({ ordinal: o, number: i }));
@@ -82,7 +90,7 @@ export class ExceptionDialogComponent {
             this.endTime.minute = 59;
         }
         if (
-            this.repeats === REPEAT_OPTIONS.once
+            this.repeats === REPEAT_OPTION.once
                 ? this.startDate >= this.endDate
                 : this.startTime.hour * 100 + this.startTime.minute >= this.endTime.hour * 100 + this.endTime.minute ||
                   new Date(this.startDate.getFullYear(), this.startDate.getMonth() + 1, this.startDate.getDate()) >
@@ -335,7 +343,7 @@ export class ExceptionDialogComponent {
         }
     }
 
-    updateRepeatOption(select: REPEAT_OPTIONS) {
+    updateRepeatOption(select: REPEAT_OPTION) {
         this.repeats = select;
     }
 

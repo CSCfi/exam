@@ -17,12 +17,12 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { format } from 'date-fns';
 import { Exam } from 'src/app/exam/exam.model';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
 import { FileService } from '../../shared/file/file.service';
 import type { ReviewedExam, Scores } from '../enrolment.model';
 import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
+import { DateTime } from 'luxon';
 
 @Component({
     selector: 'xm-exam-feedback',
@@ -76,6 +76,11 @@ export class ExamFeedbackComponent implements OnInit {
 
     downloadScoreReport = () => {
         const url = `/app/feedback/exams/${this.assessment.id}/report`;
-        this.Files.download(url, `${this.assessment.name}_${format(new Date(), 'dd-MM-yyyy')}.xlsx`, undefined, false);
+        this.Files.download(
+            url,
+            `${this.assessment.name}_${DateTime.now().toFormat('dd-LL-yyyy')}.xlsx`,
+            undefined,
+            false,
+        );
     };
 }
