@@ -65,6 +65,16 @@ public class ExamUpdaterImpl implements ExamUpdater {
             exam.setDuration(newDuration.orElse(null));
             return Optional.empty();
         }
+        if (exam.isUnsupervised() && newEnd.isPresent()) {
+            Set<DateTime> dates = exam
+                .getExaminationEventConfigurations()
+                .stream()
+                .map(c -> c.getExaminationEvent().getStart())
+                .collect(Collectors.toSet());
+            if (dates.stream().anyMatch(d -> d.isAfter(newEnd.get()))) {
+                return Optional.of(forbidden("i18n_error_future_reservations_exist"));
+            }
+        }
         boolean hasFutureReservations = hasFutureReservations(exam);
         boolean isAdmin = user.hasRole(Role.Name.ADMIN);
         if (newStart.isPresent()) {

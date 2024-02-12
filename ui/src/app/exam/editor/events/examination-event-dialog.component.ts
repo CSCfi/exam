@@ -19,7 +19,6 @@ import { Component, Input, computed, effect, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -40,7 +39,7 @@ export class ExaminationEventDialogComponent implements OnInit {
     @Input() config?: ExaminationEventConfiguration;
     @Input() maintenancePeriods: MaintenancePeriod[] = [];
     @Input() requiresPassword = false;
-    @Input() examMaxDate?: string;
+    @Input() examMaxDate = '';
     start = signal(new Date(new Date().getTime() + 60 * 1000));
     description = signal('');
     capacity = signal(0);
@@ -54,7 +53,6 @@ export class ExaminationEventDialogComponent implements OnInit {
     hasEnrolments = signal(false);
     settingsPasswordInputType = signal('password');
     quitPasswordInputType = signal('password');
-    maxDateValidator?: Date;
     private now = new Date();
 
     constructor(
@@ -89,10 +87,6 @@ export class ExaminationEventDialogComponent implements OnInit {
                 return d;
             });
         }
-        if (this.examMaxDate) {
-            const maxDate = new Date(Date.parse(this.examMaxDate)).getTime() - new Date(0).getTime();
-            this.maxDateValidator = new Date(this.now.getTime() + maxDate);
-        }
         this.http
             .get<{ max: number }>('/app/settings/byodmaxparticipants')
             .subscribe((value) => this.maxSimultaneousCapacity.set(value.max));
@@ -104,13 +98,6 @@ export class ExaminationEventDialogComponent implements OnInit {
         this.quitPasswordInputType.set(this.quitPasswordInputType() === 'text' ? 'password' : 'text');
 
     onStartDateChange = (event: { date: Date }) => {
-        if (this.maxDateValidator && this.maxDateValidator < event.date) {
-            this.toast.error(
-                this.translate.instant('i18n_date_too_far_in_future') +
-                    ' ' +
-                    DateTime.fromJSDate(this.maxDateValidator || new Date()).toFormat('dd.MM.yyyy HH:mm'),
-            );
-        }
         if (this.now > event.date) {
             this.toast.error(this.translate.instant('i18n_select_time_in_future'));
         }
@@ -120,10 +107,6 @@ export class ExaminationEventDialogComponent implements OnInit {
     ok() {
         if (!this.start) {
             this.toast.error(this.translate.instant('i18n_no_examination_start_date_picked'));
-        }
-        if (this.maxDateValidator && this.maxDateValidator < this.start()) {
-            this.toast.error(this.translate.instant('i18n_invalid_start_date_picked'));
-            return;
         }
         const config = {
             config: {
