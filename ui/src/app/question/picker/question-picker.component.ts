@@ -26,7 +26,7 @@ import { LibrarySearchComponent } from '../library/search/library-search.compone
     standalone: true,
     imports: [TranslateModule, LibrarySearchComponent, LibraryResultsComponent],
     template: `
-        <div id="library">
+        <div id="dashboard">
             <!-- title row and add new question button -->
             <div class="modal-header">
                 <div class="student-enroll-title-wrap">
@@ -37,44 +37,44 @@ import { LibrarySearchComponent } from '../library/search/library-search.compone
                 <!-- search bar and search parameters -->
                 <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
 
-                <div class="row">
-                    <div class="col-md-12 padl0 padr0 marb20">
-                        <span class="float-start marl20">
-                            <div class="library-button make-inline mart20 marr30 marl10">
-                                <a class="pointer" (click)="addQuestions()"
-                                    >{{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
+                <div class="row ms-3 mb-3">
+                    <div class="col-md-12">
+                        <div class="review-attachment-button make-inline mt-2">
+                            <a class="pointer" (click)="addQuestions()"
+                                >{{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row ms-3">
+                    <div class="col-md-12">
+                        <xm-library-results
+                            [questions]="questions"
+                            (selected)="questionSelected($event)"
+                            (copied)="questionCopied()"
+                            [disableLinks]="true"
+                            class="overflow-x-auto"
+                        ></xm-library-results>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="modal-footer">
+                    <div class="flex flex-middle me-2 mb-2">
+                        <span class="float-end">
+                            <div class="review-attachment-button make-inline">
+                                <a class="pointer preview" (click)="cancel()">
+                                    {{ 'i18n_button_cancel' | translate }}
+                                </a>
+                            </div>
+                            <div class="review-attachment-button make-inline mt-2 me-3 ms-2">
+                                <a class="pointer" (click)="addQuestions()">
+                                    {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
                                 </a>
                             </div>
                         </span>
                     </div>
-                </div>
-
-                <!-- resulting table with questions -->
-                <xm-library-results
-                    [questions]="questions"
-                    (selected)="questionSelected($event)"
-                    (copied)="questionCopied()"
-                    tableClass="library-table"
-                    [disableLinks]="true"
-                    class="overflow-x-auto"
-                ></xm-library-results>
-            </div>
-
-            <!-- Buttons -->
-            <div class="modal-footer">
-                <div class="flex flex-middle marr20 marb20">
-                    <span class="float-end">
-                        <div class="library-button make-inline">
-                            <a class="pointer preview" (click)="cancel()">
-                                {{ 'i18n_button_cancel' | translate }}
-                            </a>
-                        </div>
-                        <div class="library-button make-inline mart20 marr30 marl10">
-                            <a class="pointer" (click)="addQuestions()">
-                                {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
-                            </a>
-                        </div>
-                    </span>
                 </div>
             </div>
         </div>

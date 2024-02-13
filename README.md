@@ -19,7 +19,6 @@ EXAM Quickstart for developers
 
 3.  Get frontend dependencies and start frontend application in development mode
 
-        $ cd ui
         $ npm install
         $ npm start
 
@@ -28,7 +27,7 @@ EXAM Quickstart for developers
         $ sbt -Dconfig.file=conf/dev.conf -jvm-debug 9999 -mem 2048
         [exam] $ run
 
-    This opens up a debug port at 9999 and allocates 2 Gb of heap memory for the JVM
+    This opens up a debug port at 9999 and allocates 2 Gb of heap memory for the JVM.
 
 5.  Open http://localhost:4200 in your browser. 
     Accept the database migrations in case you see a prompt.

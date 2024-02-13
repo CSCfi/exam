@@ -14,13 +14,17 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { ToastrService } from 'ngx-toastr';
 import type { ExamMaterial } from '../../exam.model';
+import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-exam-material',
     templateUrl: './exam-material.component.html',
+    standalone: true,
+    imports: [FormsModule, TranslateModule, NgbPopoverModule],
 })
 export class ExamMaterialComponent implements OnInit {
     materials: ExamMaterial[] = [];

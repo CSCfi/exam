@@ -60,12 +60,12 @@ import { ExaminationQuestionComponent } from '../question/examination-question.c
                 }
             </div>
         </div>
-    <!-- Question Content -->
+        <!-- Question Content -->
         <div class="row">
             <div class="col-md-12">
                 @for (material of section.examMaterials; track material) {
                     <div class="row">
-                        <div class="col-md-12 info-row mart10">
+                        <div class="col-md-12 mart10">
                             <i class="text-muted bi-book" alt="exam materials"></i>
                             <span style="padding-left: 15px">{{ material.name }}</span>
                             @if (material.author) {

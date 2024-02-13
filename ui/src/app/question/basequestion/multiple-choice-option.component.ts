@@ -24,7 +24,7 @@ import { QuestionDraft, QuestionService } from '../question.service';
     selector: 'xm-mc-option-editor',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     template: `
-        <div ngModelGroup="mcOptions" class="question-editor-option">
+        <div ngModelGroup="mcOptions" class="question-editor-option exclude">
             <div class="row">
                 <div
                     class="col-md-6 question-option-empty"

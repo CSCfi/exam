@@ -16,7 +16,7 @@
                         {{ 'i18n_making_room_out_of_service' | translate }}
                     </div>
                 }
-                <div class="form-check mart30">
+                <div class="form-check mt-4">
                     <label>
                         <input
                             class="form-check-input"
@@ -31,38 +31,17 @@
             </div>
         </div>
         <div class="sitnet-info-text">{{ 'i18n_repeating_info' | translate }}</div>
-        <div>
-            <span class="dropdown" ngbDropdown>
-                <button
-                    ngbDropdownToggle
-                    class="btn btn-outline-secondary"
-                    type="button"
-                    id="dropDownMenu1"
-                    aria-expanded="true"
-                >
-                    {{ 'i18n_' + repeats.toLowerCase() | translate }}&nbsp;<span class="caret"></span>
-                </button>
-                <div
-                    ngbDropdownMenu
-                    style="padding-left: 0; min-width: 17em"
-                    role="menu"
-                    aria-labelledby="dropDownMenu1"
-                >
-                    @for (ro of repeatOptions; track ro) {
-                        <button
-                            ngbDropdownItem
-                            role="presentation"
-                            class="pointer"
-                            (click)="updateRepeatOption(ro)"
-                            (keydown.enter)="updateRepeatOption(ro)"
-                        >
-                            <a role="menuitem" title="{{ 'i18n_' + ro.toLowerCase() | translate }}">{{
-                                'i18n_' + ro.toLowerCase() | translate
-                            }}</a>
-                        </button>
-                    }
-                </div>
-            </span>
+        <div ngbDropdown>
+            <button ngbDropdownToggle class="btn btn-outline-secondary" type="button" id="dropDownMenu1">
+                {{ 'i18n_' + repeats.toLowerCase() | translate }}&nbsp;<span class="caret"></span>
+            </button>
+            <div ngbDropdownMenu aria-labelledby="dropDownMenu1">
+                @for (ro of repeatOptions; track ro) {
+                    <button ngbDropdownItem (click)="updateRepeatOption(ro)" (keydown.enter)="updateRepeatOption(ro)">
+                        {{ 'i18n_' + ro.toLowerCase() | translate }}"
+                    </button>
+                }
+            </div>
         </div>
         <div class="row align-items-center">
             @if (repeats.toString() === 'ONCE') {

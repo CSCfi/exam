@@ -27,6 +27,13 @@ import type { ExamMachine, ExamRoom } from '../../reservation/reservation.model'
     selector: 'xm-machines',
     standalone: true,
     imports: [NgbPopover, NgClass, RouterLink, TranslateModule],
+    styles: [
+        `
+            li {
+                list-style: none;
+            }
+        `,
+    ],
 })
 export class MachineListComponent implements OnInit {
     @Input() room!: ExamRoom;

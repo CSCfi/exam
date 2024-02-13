@@ -1,543 +1,414 @@
-@import "fonts";
-@import "partial/defines";
-@import "partial/vmenu";
-@import "partial/header";
-@import "partial/exam";
-@import "partial/library";
-@import "partial/question-editor";
-@import "partial/student_exam";
-@import "partial/dialog";
-@import "partial/room";
-@import "partial/dashboard";
-@import "partial/form-validation";
-@import "partial/print";
-@import "partial/datetimepicker";
-@import "partial/feedback";
-@import "partial/mainview";
-@import "partial/printout";
-@import "partial/calendar";
+@import './fonts';
+@import 'partial/defines';
+@import 'partial/form-validation';
+@import 'partial/header';
+@import 'partial/student_exam';
+@import 'partial/dialog';
+@import 'partial/dashboard';
+@import 'partial/print';
+@import 'partial/printout';
+@import 'partial/calendar';
 
-
-* {-webkit-font-smoothing: antialiased;}
+* {
+    -webkit-font-smoothing: antialiased;
+}
 
 html {
-  font-family: $sitnet-family-helvetica;
+    font-family: $sitnet-family-helvetica;
 }
 
 body {
-  background-color: $sitnet-background;
-  font-family: $sitnet-family-helvetica;
+    background-color: white;
+    font-family: $sitnet-family-helvetica;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: $sitnet-family-helvetica;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: $sitnet-family-helvetica;
 }
-p, li {
-  font-family: $sitnet-family-helvetica;
-  overflow-wrap: break-word;
+p,
+li {
+    font-family: $sitnet-family-helvetica;
+    overflow-wrap: break-word;
 }
 
 .vmenu-on {
-  width: auto;
-  margin-left: 17.025em !important;
+    width: auto;
+    margin-left: 17.025em !important;
 
-  @media (max-width: $sitnet-mobile) {
-    margin-left: 0 !important;
-    padding-left: 0;
-    padding-right: 0;
-  }
+    @media (max-width: $sitnet-mobile) {
+        margin-left: 0 !important;
+        padding-left: 0;
+        padding-right: 0;
+    }
 
-  @media print {
-    overflow-x: visible;
-  }
-}
-
-.vmenu-off {
-  width: auto;
-  margin-left: 50px;
+    @media print {
+        overflow-x: visible;
+    }
 }
 
 .student-enroll-title {
-  font-family: $sitnet-family-helvetica;
-  font-size: 2em;
-  color: #2c2c2c;
-  border-bottom: 2px solid $sitnet-green-new;
-  padding-bottom: 7px;
+    font-family: $sitnet-family-helvetica;
+    font-size: 2em;
+    color: #2c2c2c;
+    border-bottom: 2px solid $sitnet-green-new;
+    padding-bottom: 7px;
 }
 .student-enroll-title-wrap {
-  margin-left: 1.4em;
-  display: inline-block;
+    margin-left: 1.4em;
+    display: inline-block;
 
-  &.waitingroom {
-    padding-top: 45px;
-    margin-left: 2.4em;
-  }
+    &.waitingroom {
+        padding-top: 45px;
+        margin-left: 2.4em;
+    }
 
-  @media (max-width: $sitnet-mobile) {
-    margin-left: 0;
-  }
+    @media (max-width: $sitnet-mobile) {
+        margin-left: 0;
+    }
 }
 .student-enroll-dialog-wrap {
-  display: inline-block;
+    display: inline-block;
 }
 
 .student-enroll-dialog-subtitle {
-  font-family: $sitnet-family-helvetica;
-  font-size: 14px;
-  padding-top: 30px;
-  padding-bottom: 20px;
-  display: inline-block;
-  max-width: 100%;
-  margin-bottom: 0px;
-  font-weight: normal;
+    font-family: $sitnet-family-helvetica;
+    font-size: 14px;
+    padding-top: 30px;
+    padding-bottom: 20px;
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 0px;
+    font-weight: normal;
 }
 
-.student-message-dialog-buttons{
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  @media (max-width: $sitnet-mobile) {
-    justify-content: center;
-    div{
-      width: auto;
-      min-width: auto;
+.student-message-dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    @media (max-width: $sitnet-mobile) {
+        justify-content: center;
+        div {
+            width: auto;
+            min-width: auto;
+        }
     }
-  }
 }
 
 .student-message-dialog-button-save {
-
-  button {
-    font-size: 16px;
-    font-family: $sitnet-family-helvetica;
-    background-color: $sitnet-green-new;
-    border: 1px solid #133b17;
-    min-width: 150px;
-    padding-top: 11px;
-    padding-bottom: 11px;
-    margin-left: 10px;
-    color: white;
-    border-radius: 3px;
-  }
-
-  button:hover, button:active, button:focus, button:active:focus {
-    background-color: #133b17;
-    border: 1px solid #133b17;
-    color: white;
-  }
-
-  button:disabled {
-    opacity: 0.3;
-    pointer-events: none;
-    cursor: not-allowed;
-  }
-
-  a {
-    font-size: 16px;
-    font-family: $sitnet-family-helvetica;
-    background-color: $sitnet-green-new;
-    border: 1px solid #133b17;
-    width: 150px;
-    margin-left: 10px;
-    line-height: 1.5;
-    border-radius: 3px;
-    padding: 14px;
-    padding-left: 20px;
-    padding-right: 20px;
-    color:white;
-
-    &.nowdt {
-      width: inherit;
+    button {
+        font-size: 16px;
+        font-family: $sitnet-family-helvetica;
+        background-color: $sitnet-green-new;
+        border: 1px solid #133b17;
+        min-width: 150px;
+        padding-top: 11px;
+        padding-bottom: 11px;
+        margin-left: 10px;
+        color: white;
+        border-radius: 3px;
     }
 
-  }
+    button:hover,
+    button:active,
+    button:focus,
+    button:active:focus {
+        background-color: #133b17;
+        border: 1px solid #133b17;
+        color: white;
+    }
 
-  a:hover, button:active, button:focus, button:active:focus {
-    background-color: #133b17;
-    border: 1px solid #133b17;
-    text-decoration: none;
-  }
+    button:disabled {
+        opacity: 0.3;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
 
+    a {
+        font-size: 16px;
+        font-family: $sitnet-family-helvetica;
+        background-color: $sitnet-green-new;
+        border: 1px solid #133b17;
+        width: 150px;
+        margin-left: 10px;
+        line-height: 1.5;
+        border-radius: 3px;
+        padding: 14px;
+        padding-left: 20px;
+        padding-right: 20px;
+        color: white;
+
+        &.nowdt {
+            width: inherit;
+        }
+    }
+
+    a:hover,
+    button:active,
+    button:focus,
+    button:active:focus {
+        background-color: #133b17;
+        border: 1px solid #133b17;
+        text-decoration: none;
+    }
 }
 
 .student-message-dialog-button-cancel {
-  float:right;
+    float: right;
 
-  button {
-    font-size: 16px;
-    font-family: $sitnet-family-helvetica;
-    background-color: #808080;
-    border: 1px solid #6B6B6B;
-    min-width: 150px;
-    padding-top: 11px;
-    padding-bottom: 11px;
+    button {
+        font-size: 16px;
+        font-family: $sitnet-family-helvetica;
+        background-color: #808080;
+        border: 1px solid #6b6b6b;
+        min-width: 150px;
+        padding-top: 11px;
+        padding-bottom: 11px;
+    }
 
-  }
-
-  button:hover, button:active, button:focus, button:active:focus {
-    background-color: #6B6B6B;
-    border: 1px solid #6B6B6B;
-  }
-
-
+    button:hover,
+    button:active,
+    button:focus,
+    button:active:focus {
+        background-color: #6b6b6b;
+        border: 1px solid #6b6b6b;
+    }
 }
 .student-message-dialog-textarea {
-  border-radius: 4px;
-  width: 100%;
-  resize: vertical;
-  padding-top: 10px;
-  padding-left: 15px;
+    border-radius: 4px;
+    width: 100%;
+    resize: vertical;
+    padding-top: 10px;
+    padding-left: 15px;
 }
 
 .student-details-title-wrap {
-  margin-left: 2.5em;
-  display: inline-block;
-  margin-top: 25px;
-  margin-bottom: 30px;
+    margin-left: 2.5em;
+    display: inline-block;
+    margin-top: 25px;
+    margin-bottom: 30px;
 
-  img {
-    float: left;
-    padding-top: 12px;
+    img {
+        float: left;
+        padding-top: 12px;
 
-    &.nopad {
-      padding-top: 0px;
+        &.nopad {
+            padding-top: 0px;
+        }
     }
-  }
 
-  &.padtop {
-    padding-top: 45px;
-  }
+    &.padtop {
+        padding-top: 45px;
+    }
 
-  &.noleft {
-    margin-left: 0px;
-  }
+    &.noleft {
+        margin-left: 0px;
+    }
 
-  &.padleft {
-    margin-left: 3.7em;
+    &.padleft {
+        margin-left: 3.7em;
+        @media (max-width: $sitnet-mobile) {
+            margin-left: 1.7em;
+        }
+    }
+
+    &.subtitle {
+        margin-bottom: 0px;
+    }
+
     @media (max-width: $sitnet-mobile) {
-      margin-left: 1.7em;
+        margin-left: 1em;
     }
-
-  }
-
-  &.subtitle { margin-bottom: 0px; }
-
-  @media (max-width: $sitnet-mobile) {
-    margin-left: 1em;
-  }
-
 }
 
 .student-exam-details-title {
-  font-family: $sitnet-family-helvetica;
-  font-size: 2em;
-  color: #2c2c2c;
-  border-bottom: 2px solid $sitnet-green-new;
-  padding-bottom: 7px;
-  margin-left: 50px;
+    font-family: $sitnet-family-helvetica;
+    font-size: 2em;
+    color: #2c2c2c;
+    border-bottom: 2px solid $sitnet-green-new;
+    padding-bottom: 7px;
+    margin-left: 50px;
 
-  &.subtitle { margin-left: 30px; margin-bottom: 20px; }
-  &.nopad { margin-left: 10px; }
-  &.nomar { margin-left: 0px; }
-
+    &.subtitle {
+        margin-left: 30px;
+        margin-bottom: 20px;
+    }
+    &.nopad {
+        margin-left: 10px;
+    }
+    &.nomar {
+        margin-left: 0px;
+    }
 }
 
 .student-exam-search-title {
-  font-family: $sitnet-family-helvetica;
-  font-size: 2em;
-  color: #2c2c2c;
-  border-bottom: 2px solid $sitnet-green-new;
-  padding-bottom: 7px;
+    font-family: $sitnet-family-helvetica;
+    font-size: 2em;
+    color: #2c2c2c;
+    border-bottom: 2px solid $sitnet-green-new;
+    padding-bottom: 7px;
 
-  &.subtitle { margin-left: 30px; margin-bottom: 20px; }
-
+    &.subtitle {
+        margin-left: 30px;
+        margin-bottom: 20px;
+    }
 }
 
 .calendar-phase-title {
-  font-family: $sitnet-family-helvetica;
-  font-size: 22px;
-  color: #2C2C2C;
-}
-
-.calendar-button-save {
-  vertical-align: top;
-  width: 22%;
-  float: right;
-  margin-right: 30px;
-  cursor: not-allowed;
-
-  a {
-    font-size: 16px;
     font-family: $sitnet-family-helvetica;
-    background-color: #D8D8D8;
-    border: 1px solid #979797;
-    width: 100%;
-    margin-left: 10px;
-    line-height: 1.5;
-    border-radius: 3px;
-    color: white;
-    text-align: center;
-    display: block;
-    padding-top: 10px;
-    padding-bottom: 10px;
-
-    &.cancel {
-      cursor: pointer;
-      background-color: #606060;
-      border: 1px solid #565656;
-
-    }
-  }
-
-  a:hover, button:active, button:focus, button:active:focus {
-    background-color: #D8D8D8;
-    border: 1px solid #979797;
-    &.cancel {
-      cursor: pointer;
-      background-color: #6B6B6B;
-      border: 1px solid #6B6B6B;
-    }
-    text-decoration: none;
-  }
+    font-size: 22px;
+    color: #2c2c2c;
 }
-
-
-.calendar-button-save-activated {
-
-  cursor: pointer;
-
-  a {
-    font-size: 16px;
-    font-family: $sitnet-family-helvetica;
-    background-color: $sitnet-green-new;
-    border: 1px solid $sitnet-dark-green-new;
-    width: 100%;
-    margin-left: 10px;
-    line-height: 1.5;
-    border-radius: 3px;
-    color: white;
-    text-align: center;
-    display: block;
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
-
-  a:hover, button:active, button:focus, button:active:focus {
-    background-color: $sitnet-dark-green-new;
-    border: 1px solid $sitnet-dark-green-new;
-    text-decoration: none;
-  }
-
-
-}
-
 
 .calendar-phase-icon {
-  float: right;
+    float: right;
 }
 
 .calendar-titles {
-  padding-top: 10px;
+    padding-top: 10px;
 }
 
 .calendar-course-title {
-  color:#2C2C2C;
-  font-family: $sitnet-family-helvetica;
-  font-size:16px;
-  font-weight: bold;
-}
-
-.calendar-accessibility-link {
-
-  a {
-    color: #266B99;
+    color: #2c2c2c;
     font-family: $sitnet-family-helvetica;
+    font-size: 16px;
     font-weight: bold;
-  }
 }
 
-.calendar-accs-title {
-  font-weight: 500;
-  font-family: $sitnet-family-helvetica;
-  padding-bottom: 10px;
-  color: #2C2C2C;
-
-  &.subi {
-    padding-top:10px;
-  }
-
-}
-
-.calendar-accs-checkboxes {
-  display: inline-block;
-  padding-right:10px;
-  @media (max-width: $sitnet-mobile) {
-    input[type=checkbox]
-    {
-      margin: 10px;
-      -ms-transform: scale(2); /* IE */
-      -moz-transform: scale(2); /* FF */
-      -webkit-transform: scale(2); /* Safari and Chrome */
-      -o-transform: scale(2); /* Opera */
-      transform: scale(2);
-    }
-  }
-}
-
-.accs-list{
-  display: flex;
-  flex-flow: nowrap;
-  align-items: center;
-  gap: 5px;
-}
-
-.calendar-room-title {
-  color: #2C2C2C;
-  font-size: 16px;
-  font-family: $sitnet-family-helvetica;
-  font-weight: bold;
-  padding-top: 10px;
-}
-
-.calendar-room-info {
-  color: #555555;
-  font-weight: 400;
-  font-family: $sitnet-family-helvetica;
-  padding-top: 15px;
-  font-size: 14px;
-}
-
-.calendar-room-info-title {
-  width: 200px;
-  float: left;
-}
-.calendar-room-info-content {
-  margin-left:200px;
+.accs-list {
+    display: flex;
+    flex-flow: nowrap;
+    align-items: center;
+    gap: 5px;
 }
 
 /* exam_search */
 .input-group-append {
-
-  &.search {
-    padding: 0px !important;
-    border: 0px !important;
-    border-radius: 0px !important;
-    height:40px !important;
-  }
+    &.search {
+        padding: 0px !important;
+        border: 0px !important;
+        border-radius: 0px !important;
+        height: 40px !important;
+    }
 }
 
 .form-control {
+    &.search {
+        height: 40px !important;
+    }
 
-  &.search {
-    height:40px !important;
-  }
+    &.langinsp {
+        height: 40px !important;
+        width: 350px !important;
+    }
 
-  &.langinsp {
-    height:40px !important;
-    width:350px !important;
-  }
-
-  &.login {
-    width:22em !important;
-  }
+    &.login {
+        width: 22em !important;
+    }
 }
 
 .form-group {
-
-  &.search {
-    max-width: 700px;
-  }
-
+    &.search {
+        max-width: 700px;
+    }
 }
 
 .waitingroom-info {
-  margin-left: 2.4em;
-  padding-top: 27px;
-  padding-bottom: 22px;
+    margin-left: 2.4em;
+    padding-top: 27px;
+    padding-bottom: 22px;
 }
 
 .paginator {
-  list-style: none;
-  margin: 15px;
-  justify-content: center;
+    list-style: none;
+    margin: 15px;
+    justify-content: center;
 
-  .disabled {
-    display:none;
-  }
-
-  li {
-    display: inline-block;
-    padding: 5px;
-
-    a, a:focus {
-      padding: 8px;
-      color: black;
-      background-color: white;
-      border: 0px;
-      width:32px;
-      height:32px;
-      cursor: pointer;
-    }
-    a:hover {
-      color: white !important;
-      background: $sitnet-green-new;
-      -moz-border-radius: 50%;
-      -webkit-border-radius: 50%;
-      border-radius: 50%;
+    .disabled {
+        display: none;
     }
 
-  }
+    li {
+        display: inline-block;
+        padding: 5px;
 
-  .active {
-
-    a, a:focus {
-      color: #fff !important;
-      background: $sitnet-green-new;
-      -moz-border-radius: 50%;
-      -webkit-border-radius: 50%;
-      border-radius: 50%;
-      border:0px;
+        a,
+        a:focus {
+            padding: 8px;
+            color: black;
+            background-color: white;
+            border: 0px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+        }
+        a:hover {
+            color: white !important;
+            background: $sitnet-green-new;
+            -moz-border-radius: 50%;
+            -webkit-border-radius: 50%;
+            border-radius: 50%;
+        }
     }
 
-    a:hover {
-      color: #fff !important;
-      background: $sitnet-green-new;
+    .active {
+        a,
+        a:focus {
+            color: #fff !important;
+            background: $sitnet-green-new;
+            -moz-border-radius: 50%;
+            -webkit-border-radius: 50%;
+            border-radius: 50%;
+            border: 0px;
+        }
+
+        a:hover {
+            color: #fff !important;
+            background: $sitnet-green-new;
+        }
     }
-
-  }
-
 }
 
-.disable-gray-out{
-  user-select: none;
-  pointer-events: none;
-  opacity: 0.6;
-  filter: grayscale(100%);
+.disable-gray-out {
+    user-select: none;
+    pointer-events: none;
+    opacity: 0.6;
+    filter: grayscale(100%);
 }
 
-.warning-no-hover{
-  background-color: white;
-  border: #E3162E 1px solid;
-  color: #E3162E;
+.warning-no-hover {
+    background-color: white;
+    border: #e3162e 1px solid;
+    color: #e3162e;
 }
 
-.warning{
-  background-color: white;
-  border: #E3162E 1px solid;
-  color: #E3162E;
+.warning {
+    background-color: white;
+    border: #e3162e 1px solid;
+    color: #e3162e;
 }
-.warning:hover{
-  background-color: #BE1327;
-  border: #BE1327 1px solid;
-  color: #ffffff;
-}
-
-.important-flex{
-  display: flex !important;
+.warning:hover {
+    background-color: #be1327;
+    border: #be1327 1px solid;
+    color: #ffffff;
 }
 
-.important-clear-focus:focus{
-  box-shadow:  0px 0px 0px 1.5px rgb(255,255,255), 0px 0px 0px 4px rgb(68,120,247) !important;
-  -webkit-box-shadow:  0px 0px 0px 1.5px rgb(255,255,255), 0px 0px 0px 4px rgb(68,120,247) !important;
-  -moz-box-shadow:  0px 0px 0px 1.5px rgb(255,255,255), 0px 0px 0px 4px rgb(68,120,247) !important;
+.important-flex {
+    display: flex !important;
+}
+
+.important-clear-focus:focus {
+    box-shadow:
+        0px 0px 0px 1.5px rgb(255, 255, 255),
+        0px 0px 0px 4px rgb(68, 120, 247) !important;
+    -webkit-box-shadow:
+        0px 0px 0px 1.5px rgb(255, 255, 255),
+        0px 0px 0px 4px rgb(68, 120, 247) !important;
+    -moz-box-shadow:
+        0px 0px 0px 1.5px rgb(255, 255, 255),
+        0px 0px 0px 4px rgb(68, 120, 247) !important;
 }

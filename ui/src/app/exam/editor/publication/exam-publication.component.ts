@@ -76,7 +76,6 @@ export class ExamPublicationComponent implements OnInit {
     examDurations: number[] = [];
     maintenancePeriods: MaintenancePeriod[] = [];
     visibleParticipantSelector = 'participant';
-    examMaxDate?: Date;
     timeValue?: number;
     hourValue?: number;
     minuteValue?: number;
@@ -107,9 +106,6 @@ export class ExamPublicationComponent implements OnInit {
             next: (data) => (this.examDurations = data.examDurations),
             error: (err) => this.toast.error(err),
         });
-        this.http
-            .get<{ maxDate: Date }>('/app/settings/maxDate')
-            .subscribe({ next: (data) => (this.examMaxDate = data.maxDate), error: (err) => this.toast.error(err) });
         this.http.get<{ maxDuration: number }>('/app/settings/maxDuration').subscribe({
             next: (data) => (this.maxDuration = data.maxDuration),
             error: (err) => this.toast.error(err),
@@ -295,7 +291,7 @@ export class ExamPublicationComponent implements OnInit {
             size: 'lg',
         });
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
-        modalRef.componentInstance.examMaxDate = this.examMaxDate;
+        modalRef.componentInstance.examMaxDate = this.exam.periodEnd;
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
         modalRef.componentInstance.examId = this.exam.id;
         modalRef.componentInstance.duration = this.exam.duration;
@@ -314,7 +310,7 @@ export class ExamPublicationComponent implements OnInit {
         });
         modalRef.componentInstance.config = configuration;
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
-        modalRef.componentInstance.examMaxDate = this.examMaxDate;
+        modalRef.componentInstance.examMaxDate = this.exam.periodEnd;
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
         modalRef.componentInstance.examId = this.exam.id;
         modalRef.componentInstance.duration = this.exam.duration;

@@ -63,7 +63,7 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
             </div>
         }
         @for (option of question.options; track option.id; let i = $index) {
-            <div class="row" id="question-editor">
+            <div class="row">
                 <div class="col-md-12">
                     @if (question.type === 'MultipleChoiceQuestion') {
                         <xm-mc-option-editor

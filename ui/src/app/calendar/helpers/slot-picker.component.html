@@ -14,7 +14,7 @@
         </div>
         <div class="row mt-2 mb-2">
             <!-- todo: make this a component -->
-            <div class="col-md-12 mart10 marb20" [hidden]="isExternal">
+            <div class="col-md-12 mt-2 mb-2" [hidden]="isExternal">
                 <div class="row">
                     <span class="col-md-12">
                         @if (!disabled) {
@@ -49,7 +49,7 @@
                             <div class="row">
                                 <div class="col-md-12 calendar-accs-checkboxes">
                                     @for (accessibility of accessibilities(); track accessibility.id) {
-                                        <span class="marr10 accs-list">
+                                        <span class="me-2 accs-list">
                                             <label for="{{ accessibility.name }}">
                                                 <input
                                                     id="{{ accessibility.name }}"
@@ -69,7 +69,7 @@
             </div>
         </div>
         <div class="row ms-1 mt-3">
-            <div class="dropdown col" ngbDropdown>
+            <div class="col" ngbDropdown>
                 <button
                     ngbDropdownToggle
                     class="btn btn-outline-dark"
@@ -100,7 +100,7 @@
             </div>
         </div>
         @if (selectedRoom) {
-            <div class="row mart10">
+            <div class="row mt-2">
                 <div class="col-md-12">
                     <xm-calendar-selected-room
                         [room]="selectedRoom"
@@ -111,7 +111,7 @@
             </div>
         }
         @if (selectedRoom) {
-            <div class="row mart10">
+            <div class="row mt-2">
                 <div class="col-md-12">
                     <xm-booking-calendar
                         (eventSelected)="eventSelected($event)"

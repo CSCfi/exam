@@ -38,7 +38,7 @@ import { QuestionReviewService } from '../question-review.service';
                     {{ 'i18n_graded' | translate | lowercase }}
                 </span>
             </div>
-            <span class="float-end dropdown pointer-hand single-question-icon" uib-dropdown>
+            <span class="float-end">
                 <input
                     type="checkbox"
                     (change)="reviewSelected()"

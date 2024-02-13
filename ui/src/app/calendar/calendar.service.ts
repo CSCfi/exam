@@ -14,7 +14,7 @@
  */
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { DateTime } from 'luxon';
+import { DateTime, Interval } from 'luxon';
 import type { Observable } from 'rxjs';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import { Course, Exam, ExamSection, MaintenancePeriod } from '../exam/exam.model';
@@ -68,7 +68,7 @@ export class CalendarService {
     constructor(
         private http: HttpClient,
 
-        private DateTime: DateTimeService,
+        private DateTimeService: DateTimeService,
         private Session: SessionService,
     ) {}
 
@@ -101,7 +101,7 @@ export class CalendarService {
         const lang = this.Session.getUser().lang;
         const locale = lang.toLowerCase() + '-' + lang.toUpperCase();
         const options: Intl.DateTimeFormatOptions = { weekday: 'short' };
-        const weekday = this.DateTime.getDateForWeekday;
+        const weekday = this.DateTimeService.getDateForWeekday;
         return {
             SUNDAY: { ord: 7, name: weekday(0).toLocaleDateString(locale, options) },
             MONDAY: { ord: 1, name: weekday(1).toLocaleDateString(locale, options) },
@@ -163,30 +163,41 @@ export class CalendarService {
         return room.calendarExceptionEvents.map((e) => this.formatExceptionEvent(e, room.localTimezone));
     }
 
-    getEarliestOpening(room: ExamRoom): Date {
+    getEarliestOpening(room: ExamRoom, start: string, end: string): Date {
         const tz = room.localTimezone;
-        const openings = room.defaultWorkingHours.map((dwh) => {
-            const start = DateTime.fromISO(dwh.startTime, { zone: tz });
-            return DateTime.now().set({ hour: start.hour, minute: start.minute, second: start.second });
-        });
-        return DateTime.min(...openings)
-            .set({ minute: 0 })
-            .toJSDate();
+        const regularOpenings = room.defaultWorkingHours.map((dwh) =>
+            this.normalize(DateTime.fromISO(dwh.startTime, { zone: tz })),
+        );
+        const extraOpenings = room.calendarExceptionEvents
+            .filter((e) => !e.outOfService && e.startDate >= start && e.endDate <= end)
+            .flatMap((d) => this.daysBetween(DateTime.fromISO(d.startDate), DateTime.fromISO(d.endDate)))
+            .map((d) => this.normalize(d.start as DateTime));
+
+        return DateTime.min(...regularOpenings.concat(extraOpenings)).toJSDate();
     }
 
-    getLatestClosing(room: ExamRoom): Date {
+    getLatestClosing(room: ExamRoom, start: string, end: string): Date {
         const tz = room.localTimezone;
-        const closings = room.defaultWorkingHours.map((dwh) => {
-            const end = DateTime.fromISO(dwh.endTime, { zone: tz });
-            return DateTime.now().set({ hour: end.hour, minute: end.minute, second: end.second });
-        });
-        return DateTime.max(...closings).toJSDate();
+        const regularClosings = room.defaultWorkingHours.map((dwh) =>
+            this.normalize(DateTime.fromISO(dwh.endTime, { zone: tz })),
+        );
+        const extraClosings = room.calendarExceptionEvents
+            .filter((e) => !e.outOfService && e.startDate >= start && e.endDate <= end)
+            .flatMap((d) => this.daysBetween(DateTime.fromISO(d.startDate), DateTime.fromISO(d.endDate)))
+            .map((d) => this.normalize(d.end as DateTime));
+
+        return DateTime.max(...regularClosings.concat(extraClosings)).toJSDate();
     }
 
-    getClosedWeekdays(room: ExamRoom): number[] {
+    getClosedWeekdays(room: ExamRoom, start: string, end: string): number[] {
         const weekdays = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-        const openedDays = room.defaultWorkingHours.map((dwh) => weekdays.indexOf(dwh.weekday));
-        return [0, 1, 2, 3, 4, 5, 6].filter((x) => openedDays.indexOf(x) === -1);
+        const regularDays = room.defaultWorkingHours.map((d) => weekdays.indexOf(d.weekday));
+        const extraDays = room.calendarExceptionEvents
+            .filter((e) => !e.outOfService && e.startDate >= start && e.endDate <= end)
+            .flatMap((d) => this.daysBetween(DateTime.fromISO(d.startDate), DateTime.fromISO(d.endDate)))
+            .map((d) => (d.start?.weekday === 7 ? 0 : (d.start as DateTime).weekday - 1)); // locale nuisances
+
+        return [0, 1, 2, 3, 4, 5, 6].filter((x) => regularDays.concat(extraDays).indexOf(x) === -1);
     }
 
     listRooms$ = () => this.http.get<ExamRoom[]>('/app/rooms');
@@ -211,6 +222,8 @@ export class CalendarService {
     getExamInfo$ = (collaborative: boolean, id: number) =>
         this.http.get<ExamInfo>(collaborative ? `/app/iop/exams/${id}/info` : `/app/student/exam/${id}/info`);
 
+    private daysBetween = (start: DateTime, end: DateTime) => Interval.fromDateTimes(start, end).splitBy({ day: 1 });
+    private normalize = (d: DateTime) => DateTime.now().set({ hour: d.hour, minute: d.minute, second: d.second });
     private adjustBack(date: DateTime): string {
         const offset = date.isInDST ? 1 : 0;
         return date.toUTC().plus({ hour: offset }).toISO() as string;

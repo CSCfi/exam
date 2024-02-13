@@ -122,17 +122,16 @@
                         <tr>
                             <td>
                                 <a
-                                    class="exams-info-title bold-button"
                                     [routerLink]="['/staff/exams', exam.id, '1']"
                                     [queryParams]="{ collaborative: true }"
                                 >
                                     @if (exam.name) {
-                                        <span>{{ exam.name }}</span>
+                                        <strong>{{ exam.name }}</strong>
                                     }
                                     @if (!exam.name) {
-                                        <span class="text-danger">
+                                        <strong class="text-danger">
                                             {{ 'i18n_no_name' | translate | uppercase }}
-                                        </span>
+                                        </strong>
                                     }
                                 </a>
                             </td>

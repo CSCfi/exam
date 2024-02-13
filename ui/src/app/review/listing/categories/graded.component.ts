@@ -66,6 +66,7 @@ import { ReviewListService } from '../review-list.service';
         DiffInDaysPipe,
         OrderByPipe,
     ],
+    styleUrl: '../review-list.component.scss',
 })
 export class GradedReviewsComponent implements OnInit, OnChanges {
     @Input() exam!: Exam;

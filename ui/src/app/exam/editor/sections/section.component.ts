@@ -66,6 +66,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
         TranslateModule,
         OrderByPipe,
     ],
+    styleUrls: ['./section.component.scss', './sections.shared.scss'],
 })
 export class SectionComponent {
     @Input() section!: ExamSection;
