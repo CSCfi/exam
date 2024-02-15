@@ -124,21 +124,27 @@ public class SessionController extends BaseController {
         Reservation externalReservation = getUpcomingExternalReservation(eppn);
         boolean isTemporaryVisitor = externalReservation != null;
         User user = DB.find(User.class).where().eq("eppn", eppn).findOne();
-        boolean newUser = user == null;
         try {
-            if (newUser) {
+            if (user == null) {
                 user = createNewUser(eppn, request, isTemporaryVisitor);
             } else {
                 updateUser(user, request);
             }
         } catch (NotFoundException | AddressException e) {
+            logger.error("Login failed", e);
+            String headers = request
+                .headers()
+                .asMap()
+                .entrySet()
+                .stream()
+                .map(entry -> String.format("%s: %s", entry.getKey(), entry.getValue()))
+                .collect(Collectors.joining());
+            logger.error("Received following request headers: {}", headers);
             return wrapAsPromise(badRequest(e.getMessage()));
         }
         user.setLastLogin(new Date());
         user.save();
-        if (newUser) {
-            associateWithPreEnrolments(user);
-        }
+        associateWithPreEnrolments(user);
         return handleExternalReservationAndCreateSession(user, externalReservation, request);
     }
 
@@ -219,7 +225,7 @@ public class SessionController extends BaseController {
             .gt("endAt", now)
             .orderBy("startAt")
             .findList();
-        return reservations.isEmpty() ? null : reservations.get(0);
+        return reservations.isEmpty() ? null : reservations.getFirst();
     }
 
     private CompletionStage<Result> handleExternalReservation(User user, Reservation reservation)
@@ -375,19 +381,19 @@ public class SessionController extends BaseController {
         payload.put("id", user.getId().toString());
         payload.put("email", user.getEmail());
         if (!user.getPermissions().isEmpty()) {
-            // For now we support just a single permission
-            payload.put("permissions", user.getPermissions().get(0).getValue());
+            // For now, we support just a single permission
+            payload.put("permissions", user.getPermissions().getFirst().getValue());
         }
         // If (regular) user has just one role, set it as the one used for login
         if (user.getRoles().size() == 1 && !isTemporaryVisitor) {
-            payload.put("role", user.getRoles().get(0).getName());
+            payload.put("role", user.getRoles().getFirst().getName());
         }
         List<Role> roles = isTemporaryVisitor
             ? DB.find(Role.class).where().eq("name", Role.Name.STUDENT.toString()).findList()
             : user.getRoles();
         if (isTemporaryVisitor) {
             payload.put("visitingStudent", "true");
-            payload.put("role", roles.get(0).getName()); // forced login as student
+            payload.put("role", roles.getFirst().getName()); // forced login as student
         }
         ObjectNode result = Json.newObject();
         result.put("id", user.getId());
