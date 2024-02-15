@@ -331,7 +331,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             Exam document = JsonDeserializer.deserialize(Exam.class, root);
             // Set references so that:
             // - external ref is the reference we got from outside. Must not be changed.
-            // - local ref is an UUID X. It is used locally for referencing the exam
+            // - local ref is a UUID X. It is used locally for referencing the exam
             // - content's hash is set to X in order to simplify things with frontend
 
             String externalRef = document.getHash();
