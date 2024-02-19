@@ -1162,6 +1162,7 @@
   "i18n_quit_password": "SEB-poistumissalasana SV",
   "i18n_can_create_byod_exam": "Voi luoda omakonetentin SV",
   "i18n_seconds_until_examination_starts": "sekuntia tentin käynnistymiseen SV",
+  "i18n_creator": "Luoja SV",
   "i18n_total_simultaneous_byod_capacity": "Järjestelmän samanaikainen maksimiosallistujamäärä SV",
   "i18n_simultaneous_events": "Samanaikaisesti järjestettävät tenttitilaisuudet maksimiosallistujamäärineen SV",
   "i18n_available_capacity": "Maksimimiosallistujamäärä tälle tilaisuudelle (arvio) SV",

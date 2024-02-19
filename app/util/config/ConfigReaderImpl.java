@@ -56,13 +56,6 @@ public class ConfigReaderImpl implements ConfigReader {
     }
 
     @Override
-    public String getExamMaxDate() {
-        DateTime newDate = new DateTime(0);
-        Period period = Period.parse(config.getString("exam.exam.maxDate"));
-        return newDate.plus(period).toString();
-    }
-
-    @Override
     public List<Integer> getExamDurations() {
         String[] durations = config.getString("exam.exam.durations").split(",");
         return Arrays.stream(durations).map(Integer::parseInt).toList();

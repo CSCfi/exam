@@ -51,7 +51,7 @@ import { CalendarService } from '../calendar.service';
                 </div>
             </div>
         }
-        @if (exceptionHours.length > 0) {
+        @if (exceptionHours().length > 0) {
             <div class="row mt-2">
                 <div class="col-md-2 col-12">{{ 'i18n_exception_datetimes' | translate }}:</div>
                 <div class="col-md-10 col-12">

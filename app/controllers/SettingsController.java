@@ -185,13 +185,6 @@ public class SettingsController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
-    public Result getExamMaxDate() {
-        ObjectNode node = Json.newObject();
-        node.put("maxDate", configReader.getExamMaxDate());
-        return ok(Json.toJson(node));
-    }
-
-    @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExamDurations() {
         ObjectNode node = Json.newObject();
         ArrayNode durations = node.putArray("examDurations");

@@ -624,6 +624,7 @@ public class ExamSectionController extends BaseController implements SectionQues
         Optional<List<Long>> courseIds,
         Optional<List<Long>> examIds,
         Optional<List<Long>> tagIds,
+        Optional<List<Long>> ownerIds,
         Http.Request request
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
@@ -643,6 +644,9 @@ public class ExamSectionController extends BaseController implements SectionQues
         }
         if (tagIds.isPresent() && !tagIds.get().isEmpty()) {
             query = query.in("examSectionQuestions.question.tags.id", tagIds.get());
+        }
+        if (ownerIds.isPresent() && !ownerIds.get().isEmpty()) {
+            query = query.in("questionOwners.id", ownerIds.get());
         }
         Set<ExamSection> sections = query.findSet();
         return ok(sections, PathProperties.parse("(*, creator(id))"));

@@ -71,12 +71,11 @@ class CourseController @Inject() (
           DB.find(classOf[Course]).where.isNotNull("name").orderBy("code").findList
         }.map(_.asScala.toResult(OK))
 
-  private def getUserCourses(
-      user: User,
-      examIds: Option[List[Long]],
-      sectionIds: Option[List[Long]],
-      tagIds: Option[List[Long]]
-  ): Result =
+  private def getUserCourses(user: User,
+                             examIds: Option[List[Long]],
+                             sectionIds: Option[List[Long]],
+                             tagIds: Option[List[Long]],
+                             ownerIds: Option[List[Long]]): Result =
     var query = DB.find(classOf[Course]).where.isNotNull("name")
     if !user.hasRole(Role.Name.ADMIN) then
       query = query
@@ -87,6 +86,10 @@ class CourseController @Inject() (
     if tagIds.getOrElse(Nil).nonEmpty then
       query =
         query.in("exams.examSections.sectionQuestions.question.parent.tags.id", tagIds.get.asJava)
+
+    if (ownerIds.getOrElse(Nil).nonEmpty)
+      query =
+        query.in("exams.examOwners.id", ownerIds.get.asJava)
     query.orderBy("name desc").findList.asScala.toResult(OK)
 
   // Actions ->
@@ -101,12 +104,11 @@ class CourseController @Inject() (
       DB.find(classOf[Course], id).toResult(OK)
     }
 
-  def listUsersCourses(
-      examIds: Option[List[Long]],
-      sectionIds: Option[List[Long]],
-      tagIds: Option[List[Long]]
-  ): Action[AnyContent] =
+  def listUsersCourses(examIds: Option[List[Long]],
+                       sectionIds: Option[List[Long]],
+                       tagIds: Option[List[Long]],
+                       ownerIds: Option[List[Long]]): Action[AnyContent] =
     authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
-      getUserCourses(user, examIds, sectionIds, tagIds)
+      getUserCourses(user, examIds, sectionIds, tagIds, ownerIds)
     }
