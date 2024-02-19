@@ -16,6 +16,7 @@ import { UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import { AttachmentService } from '../../../shared/attachment/attachment.service';
@@ -26,7 +27,7 @@ import type { ReviewQuestion } from '../../review.model';
     selector: 'xm-essay-answer',
     templateUrl: './essay-answer.component.html',
     standalone: true,
-    imports: [RouterLink, MathJaxDirective, FormsModule, UpperCasePipe, TranslateModule],
+    imports: [RouterLink, MathJaxDirective, FormsModule, UpperCasePipe, NgbCollapse, TranslateModule],
 })
 export class EssayAnswerComponent implements OnInit {
     @Input() answer!: ReviewQuestion;

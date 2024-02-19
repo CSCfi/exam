@@ -1,106 +1,100 @@
 <div id="dashboard">
     <div class="row">
-        <div class="col-md-8 essay-question-review-column p-0">
-            <div class="essay-question-review-wrapper">
-                <div class="top-row">
-                    <div class="col-md-8">
-                        <div class="student-details-title-wrap">
-                            <xm-history-back></xm-history-back>
-                            <div class="student-exam-details-title">
-                                {{ 'i18n_question_based_review' | translate }}
-                            </div>
+        <div class="col-md-8 essay-question-review-column">
+            <div class="top-row">
+                <div class="col-md-8">
+                    <div class="student-details-title-wrap">
+                        <xm-history-back></xm-history-back>
+                        <div class="student-exam-details-title">
+                            {{ 'i18n_question_based_review' | translate }}
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="essay-review-status">
-                            <!-- Assessment status in progress / done -->
-                            <span class="inspection-title">{{ 'i18n_inspection_status' | translate }}:</span>
-                            @if (isFinalized(selectedReview)) {
-                                <span class="text-success"
-                                    >{{ 'i18n_exam_status_graded' | translate | lowercase }}
-                                </span>
+                </div>
+                <div class="col-md-4">
+                    <div class="essay-review-status">
+                        <!-- Assessment status in progress / done -->
+                        <span class="inspection-title">{{ 'i18n_inspection_status' | translate }}:</span>
+                        @if (isFinalized(selectedReview)) {
+                            <span class="text-success">{{ 'i18n_exam_status_graded' | translate | lowercase }} </span>
+                        }
+                        @if (!isFinalized(selectedReview)) {
+                            <span class="text-danger">{{ 'i18n_in_progress' | translate | lowercase }} </span>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="top-row">
+                <div class="col-md-11 col-md-offset-1">
+                    {{ getAssessedAnswerCount(true) }} / {{ selectedReview && selectedReview.answers.length }}
+                    {{ 'i18n_graded' | translate | lowercase }}
+                </div>
+            </div>
+            <div class="detail-row">
+                <div
+                    [ngClass]="
+                        selectedReview && selectedReview.question.defaultAnswerInstructions ? 'col-md-10' : 'col-md-11'
+                    "
+                    class="col-md-offset-1"
+                >
+                    <div class="review-question-title" [xmMathJax]="selectedReview.question.question"></div>
+                </div>
+                @if (selectedReview && selectedReview.question.defaultAnswerInstructions) {
+                    <div class="col-md-1">
+                        <a (click)="selectedReview.expanded = !selectedReview.expanded" class="pointer-hand">
+                            @if (!selectedReview.expanded) {
+                                <img
+                                    src="/assets/images/icon_list_show_right.svg"
+                                    alt=""
+                                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
+                                />
                             }
-                            @if (!isFinalized(selectedReview)) {
-                                <span class="text-danger">{{ 'i18n_in_progress' | translate | lowercase }} </span>
+                            @if (selectedReview.expanded) {
+                                <img
+                                    src="/assets/images/icon_list_show_down.svg"
+                                    alt=""
+                                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
+                                />
                             }
-                        </div>
-                    </div>
-                </div>
-                <div class="top-row">
-                    <div class="col-md-11 col-md-offset-1">
-                        {{ getAssessedAnswerCount(true) }} / {{ selectedReview && selectedReview.answers.length }}
-                        {{ 'i18n_graded' | translate | lowercase }}
-                    </div>
-                </div>
-                <div class="detail-row">
-                    <div
-                        [ngClass]="
-                            selectedReview && selectedReview.question.defaultAnswerInstructions
-                                ? 'col-md-10'
-                                : 'col-md-11'
-                        "
-                        class="col-md-offset-1"
-                    >
-                        <div class="review-question-title" [xmMathJax]="selectedReview.question.question"></div>
-                    </div>
-                    @if (selectedReview && selectedReview.question.defaultAnswerInstructions) {
-                        <div class="col-md-1">
-                            <a (click)="selectedReview.expanded = !selectedReview.expanded" class="pointer-hand">
-                                @if (!selectedReview.expanded) {
-                                    <img
-                                        src="/assets/images/icon_list_show_right.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-                                    />
-                                }
-                                @if (selectedReview.expanded) {
-                                    <img
-                                        src="/assets/images/icon_list_show_down.svg"
-                                        alt=""
-                                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-                                    />
-                                }
-                            </a>
-                        </div>
-                    }
-                </div>
-                @if (selectedReview && selectedReview.expanded && selectedReview.question.defaultAnswerInstructions) {
-                    <div class="main-row">
-                        <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box" role="note">
-                            <img src="/assets/images/icon_info.png" alt="" />
-                            <span class="padl10">{{ selectedReview.question.defaultAnswerInstructions }}</span>
-                        </div>
-                    </div>
-                }
-                @if (selectedReview && selectedReview.question.attachment) {
-                    <div class="main-row">
-                        <div class="col-md-10 col-md-offset-1">
-                            <span>
-                                <i class="bi-paperclip text-primary"></i>&nbsp;
-                                <a class="pointer" (click)="downloadQuestionAttachment()">
-                                    {{ selectedReview.question.attachment?.fileName }}</a
-                                >
-                            </span>
-                        </div>
-                    </div>
-                }
-                @if (selectedReview?.evaluationCriteria) {
-                    <div class="main-row padb0">
-                        <div class="col-md-11 col-md-offset-1">
-                            {{ 'i18n_exam_evaluation_criteria' | translate }}
-                        </div>
-                    </div>
-                }
-                @if (selectedReview?.evaluationCriteria) {
-                    <div class="detail-row">
-                        <div class="col-md-11 col-md-offset-1">
-                            <div class="review-question-title">
-                                {{ selectedReview.evaluationCriteria }}
-                            </div>
-                        </div>
+                        </a>
                     </div>
                 }
             </div>
+            @if (selectedReview && selectedReview.expanded && selectedReview.question.defaultAnswerInstructions) {
+                <div class="main-row">
+                    <div class="col-md-10 col-md-offset-1 essay-answer-instructions-box" role="note">
+                        <img src="/assets/images/icon_info.png" alt="" />
+                        <span class="padl10">{{ selectedReview.question.defaultAnswerInstructions }}</span>
+                    </div>
+                </div>
+            }
+            @if (selectedReview && selectedReview.question.attachment) {
+                <div class="main-row">
+                    <div class="col-md-10 col-md-offset-1">
+                        <span>
+                            <i class="bi-paperclip text-primary"></i>&nbsp;
+                            <a class="pointer" (click)="downloadQuestionAttachment()">
+                                {{ selectedReview.question.attachment?.fileName }}</a
+                            >
+                        </span>
+                    </div>
+                </div>
+            }
+            @if (selectedReview?.evaluationCriteria) {
+                <div class="main-row padb0">
+                    <div class="col-md-11 col-md-offset-1">
+                        {{ 'i18n_exam_evaluation_criteria' | translate }}
+                    </div>
+                </div>
+            }
+            @if (selectedReview?.evaluationCriteria) {
+                <div class="detail-row">
+                    <div class="col-md-11 col-md-offset-1">
+                        <div class="review-question-title">
+                            {{ selectedReview.evaluationCriteria }}
+                        </div>
+                    </div>
+                </div>
+            }
             <div class="detail-row p-0">
                 <div class="triangle-line"></div>
             </div>
@@ -159,7 +153,7 @@
         </div>
         <!-- END OF RIGHT COL -->
 
-        <div class="col-md-4 p-0">
+        <div class="col-md-4">
             @if (reviews) {
                 <xm-question-flow [reviews]="reviews" (selected)="questionSelected($event)"> </xm-question-flow>
             }

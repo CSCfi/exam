@@ -85,6 +85,7 @@ export class DatePickerComponent implements OnInit, OnChanges {
     @Input() modelOptions: Record<string, string> = {};
     @Input() disabled = false;
     @Input() optional = true;
+    @Input() readonly = false;
     @Input() minDate?: string;
     @Input() maxDate?: string;
 

@@ -135,6 +135,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         enrolment.setEnrolledOn(DateTime.now());
         enrolment.setUser(user);
         enrolment.setCollaborativeExam(exam);
+        enrolment.setRandomDelay();
         enrolment.save();
         return enrolment;
     }
@@ -155,7 +156,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         }
         // reservation in the future, replace it
         if (!enrolmentsWithFutureReservations.isEmpty()) {
-            enrolmentsWithFutureReservations.get(0).delete();
+            enrolmentsWithFutureReservations.getFirst().delete();
             ExamEnrolment newEnrolment = makeEnrolment(ce, user);
             return Optional.of(ok(newEnrolment));
         }

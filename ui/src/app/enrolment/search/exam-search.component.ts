@@ -112,7 +112,7 @@ import { ExamSearchService } from './exam-search.service';
 })
 export class ExamSearchComponent implements OnInit, OnDestroy {
     exams: EnrolmentInfo[] = [];
-    filterChanged: Subject<string> = new Subject<string>();
+    filterChanged = new Subject<string>();
     ngUnsubscribe = new Subject();
     filter = { text: '' };
     permissionCheck = { active: false };
