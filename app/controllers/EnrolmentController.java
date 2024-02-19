@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
@@ -173,6 +174,7 @@ public class EnrolmentController extends BaseController {
             enrolment.setUser(user);
         }
         enrolment.setExam(exam);
+        enrolment.setRandomDelay();
         enrolment.save();
         return enrolment;
     }

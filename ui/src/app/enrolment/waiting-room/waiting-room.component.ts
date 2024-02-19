@@ -12,10 +12,10 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
+import { AsyncPipe, DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnDestroy, OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -28,6 +28,7 @@ import { MathJaxDirective } from '../../shared/math/math-jax.directive';
 import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from '../../shared/user/teacher-list.component';
 import type { ExamEnrolment } from '../enrolment.model';
+import { Observable, interval, map, startWith } from 'rxjs';
 
 type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
 type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
@@ -42,6 +43,7 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
         CourseCodeComponent,
         TeacherListComponent,
         MathJaxDirective,
+        AsyncPipe,
         UpperCasePipe,
         SlicePipe,
         DatePipe,
@@ -51,9 +53,12 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {
     enrolment!: WaitingEnrolment;
-    isUpcoming = false;
-    timeoutId = 0;
-    roomInstructions = '';
+    isUpcoming = signal(false);
+    roomInstructions = signal('');
+    delayCounter$?: Observable<number>;
+
+    private startTimerId = 0;
+    private delayTimerId = 0;
 
     constructor(
         private http: HttpClient,
@@ -66,17 +71,17 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         if (this.route.snapshot.params.id && this.route.snapshot.params.hash) {
-            this.isUpcoming = true;
+            this.isUpcoming.set(true);
             this.http.get<WaitingEnrolment>(`/app/student/enrolments/${this.route.snapshot.params.id}`).subscribe({
                 next: (enrolment) => {
                     this.setOccasion(enrolment.reservation);
                     this.enrolment = enrolment;
                     const offset = this.calculateOffset();
-                    this.timeoutId = window.setTimeout(this.Session.checkSession, offset);
+                    this.startTimerId = window.setTimeout(this.startScheduled, offset);
                     if (this.enrolment.reservation) {
                         const room = this.enrolment.reservation.machine.room;
                         const code = this.translate.currentLang.toUpperCase();
-                        this.roomInstructions = this.getRoomInstructions(code, room);
+                        this.roomInstructions.set(this.getRoomInstructions(code, room));
                     }
                     this.http
                         .post<void>(`/app/student/exam/${this.route.snapshot.params.hash}`, {})
@@ -88,8 +93,22 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        window.clearTimeout(this.timeoutId);
+        window.clearTimeout(this.startTimerId);
+        window.clearTimeout(this.delayTimerId);
     }
+
+    private startScheduled = () => {
+        window.clearTimeout(this.startTimerId);
+        const offset = Math.ceil(
+            DateTime.fromJSDate(this.getStart()).plus({ seconds: this.enrolment.delay }).toSeconds() -
+                DateTime.now().toSeconds(),
+        );
+        this.delayTimerId = window.setTimeout(this.Session.checkSession, offset * 1000);
+        this.delayCounter$ = interval(1000).pipe(
+            startWith(0),
+            map((n) => offset - n),
+        );
+    };
 
     private getRoomInstructions = (lang: string, room: ExamRoom) => {
         switch (lang) {

@@ -319,20 +319,25 @@ public class EnrolmentRepository {
         ExaminationEvent event = ee.getExaminationEventConfiguration() != null
             ? ee.getExaminationEventConfiguration().getExaminationEvent()
             : null;
+        int delay = ee.getDelay();
         return (
             (reservation != null &&
-                reservation.getStartAt().isBefore(latest) &&
+                reservation.getStartAt().plusSeconds(delay).isBefore(latest) &&
                 reservation.getEndAt().isAfter(earliest)) ||
             (event != null &&
-                event.getStart().isBefore(latest) &&
+                event.getStart().plusSeconds(delay).isBefore(latest) &&
                 event.getStart().plusMinutes(ee.getExam().getDuration()).isAfter(earliest))
         );
     }
 
     private DateTime getStartTime(ExamEnrolment enrolment) {
         return enrolment.getReservation() != null
-            ? enrolment.getReservation().getStartAt()
-            : enrolment.getExaminationEventConfiguration().getExaminationEvent().getStart();
+            ? enrolment.getReservation().getStartAt().plusSeconds(enrolment.getDelay())
+            : enrolment
+                .getExaminationEventConfiguration()
+                .getExaminationEvent()
+                .getStart()
+                .plusSeconds(enrolment.getDelay());
     }
 
     private Optional<ExamEnrolment> getNextEnrolment(Long userId, int minutesToFuture) {
