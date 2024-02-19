@@ -10,7 +10,12 @@
             <!-- examination dates -->
             <div class="col-md-3 exam-basic-title padl0">{{ 'i18n_examination_dates' | translate }}</div>
             <div class="col-md-4">
-                <xm-date-picker [extra]="true" extraText="i18n_add" (extraActionHappened)="addExaminationDate($event)">
+                <xm-date-picker
+                    [extra]="true"
+                    [readonly]="true"
+                    extraText="i18n_add"
+                    (extraActionHappened)="addExaminationDate($event)"
+                >
                 </xm-date-picker>
             </div>
         </div>
@@ -58,11 +63,19 @@
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <xm-date-picker [initialDate]="exam.periodStart" (updated)="startDateChanged($event)">
+                            <xm-date-picker
+                                [initialDate]="exam.periodStart"
+                                [readonly]="true"
+                                (updated)="startDateChanged($event)"
+                            >
                             </xm-date-picker>
                         </div>
                         <div class="col-md-3">
-                            <xm-date-picker [initialDate]="exam.periodEnd" (updated)="endDateChanged($event)">
+                            <xm-date-picker
+                                [initialDate]="exam.periodEnd"
+                                [readonly]="true"
+                                (updated)="endDateChanged($event)"
+                            >
                             </xm-date-picker>
                         </div>
                         <div class="col-md-3" [hidden]="!exam.hasEnrolmentsInEffect">
@@ -113,8 +126,7 @@
                                             class="bi-x rounded-end background-gray pad6"
                                         ></i
                                     ></span>
-                                }
-                                @if (config.examEnrolments.length > 0) {
+                                } @else {
                                     <span class="rounded-end text text-muted background-gray pad6">
                                         <i title="{{ 'i18n_event_enrolments_exist' | translate }}" class="bi-x"></i>
                                     </span>
@@ -139,29 +151,31 @@
                 </sup>
             </div>
             <div class="col-md-9">
-                @for (duration of examDurations; track duration) {
+                @for (duration of examDurations(); track duration) {
                     <span class="me-2">
                         <button
                             class="btn btn-publish"
                             [ngClass]="checkDuration(duration)"
                             (click)="setExamDuration(0, duration)"
-                            [disabled]="!user.isAdmin && exam.hasEnrolmentsInEffect"
+                            [disabled]="!isAdmin() && exam.hasEnrolmentsInEffect"
                         >
                             {{ duration }}
                         </button>
                     </span>
                 }
                 @if (exam.implementation === 'WHATEVER' || exam.implementation === 'CLIENT_AUTH') {
-                    <button class="btn btn-primary green marl30" (click)="toggleCustomTimeField()">
+                    <button
+                        class="btn btn-primary green marl30"
+                        (click)="showCustomTimeField.set(!showCustomTimeField())"
+                    >
                         {{ 'i18n_custom' | translate }} {{ ('i18n_exam_time' | translate).toLowerCase() }}
-                        @if (this.showCustomTimeField) {
+                        @if (showCustomTimeField()) {
                             <img class="rotate90" src="/assets/images/icon_right_white.png" alt="" />
-                        }
-                        @if (!this.showCustomTimeField) {
+                        } @else {
                             <img src="/assets/images/icon_right_white.png" alt="" />
                         }
                     </button>
-                    @if (this.showCustomTimeField) {
+                    @if (showCustomTimeField()) {
                         <div class="wdt400">
                             <div class="mart10">
                                 <div class="mart10">
@@ -170,10 +184,10 @@
                                         name="examDuration-hours"
                                         class="wdt50 time-display"
                                         type="number"
-                                        [(ngModel)]="hourValue"
+                                        [ngModel]="hourValue()"
+                                        (ngModelChange)="hourValue.set($event)"
                                         [max]="23"
                                         [min]="0"
-                                        (change)="setHourValue($event)"
                                     />
                                     <label for="hourValue">{{ 'i18n_hours' | translate }}</label>
                                 </div>
@@ -183,23 +197,23 @@
                                         name="examDuration-minutes"
                                         class="wdt50 time-display"
                                         type="number"
-                                        [(ngModel)]="minuteValue"
+                                        [ngModel]="minuteValue()"
+                                        (ngModelChange)="minuteValue.set($event)"
                                         [max]="59"
                                         [min]="0"
-                                        (change)="setMinuteValue($event)"
                                     />
                                     <label for="minuteValue">{{ 'i18n_minutes' | translate }}</label>
                                 </div>
                                 <button
                                     class="btn btn-primary green mart10"
-                                    (click)="setExamDuration(hourValue, minuteValue)"
+                                    (click)="setExamDuration(hourValue(), minuteValue())"
                                 >
                                     {{ 'i18n_save_custom_time' | translate }}
                                 </button>
                             </div>
                             <div>
-                                {{ 'i18n_between' | translate }}: {{ toHoursAndMinutes(minDuration) }} -
-                                {{ toHoursAndMinutes(maxDuration) }}
+                                {{ 'i18n_between' | translate }}: {{ toHoursAndMinutes(minDuration()) }} -
+                                {{ toHoursAndMinutes(maxDuration()) }}
                             </div>
                         </div>
                     }
@@ -251,14 +265,19 @@
             </div>
         </div>
 
-        @if (!collaborative) {
+        @if (!collaborative()) {
             <div class="row mt-2" [hidden]="exam.executionType.type === 'PUBLIC'">
                 <div class="col-md-3 exam-basic-title">
                     {{ 'i18n_exam_add_participants_title' | translate }}
                 </div>
                 <div class="col-md-9 participant-selector-toggle">
                     <label>
-                        <input type="radio" [(ngModel)]="visibleParticipantSelector" value="participant" />
+                        <input
+                            type="radio"
+                            [ngModel]="visibleParticipantSelector()"
+                            (ngModelChange)="visibleParticipantSelector.set($event)"
+                            value="participant"
+                        />
                         {{ 'i18n_exam_participant_selector_label' | translate }}
                         <sup
                             ngbPopover="{{ 'i18n_exam_participants_description' | translate }}"
@@ -268,7 +287,12 @@
                         /></sup>
                     </label>
                     <label>
-                        <input type="radio" [(ngModel)]="visibleParticipantSelector" value="pre-participant" />
+                        <input
+                            type="radio"
+                            [ngModel]="visibleParticipantSelector()"
+                            (ngModelChange)="visibleParticipantSelector.set($event)"
+                            value="pre-participant"
+                        />
                         {{ 'i18n_exam_pre_participant_selector_label' | translate }}
                         <sup
                             ngbPopover="{{ 'i18n_exam_pre_participants_description' | translate }}"
@@ -282,29 +306,28 @@
         }
 
         <!-- Exam participants -->
-        @if (exam.executionType.type !== 'PUBLIC' && !collaborative && visibleParticipantSelector === 'participant') {
+        @if (
+            exam.executionType.type !== 'PUBLIC' && !collaborative() && visibleParticipantSelector() === 'participant'
+        ) {
             <xm-exam-participant-selector [exam]="exam"></xm-exam-participant-selector>
         }
 
         <!-- Exam pre-participants -->
         @if (
-            exam.executionType.type !== 'PUBLIC' && !collaborative && visibleParticipantSelector === 'pre-participant'
+            exam.executionType.type !== 'PUBLIC' &&
+            !collaborative() &&
+            visibleParticipantSelector() === 'pre-participant'
         ) {
             <xm-exam-pre-participant-selector [exam]="exam"></xm-exam-pre-participant-selector>
         }
 
-        <!-- Collaborative exam owners -->
-        @if (collaborative) {
+        @if (collaborative()) {
             <xm-collaborative-exam-owner-selector [exam]="exam"> </xm-collaborative-exam-owner-selector>
-        }
-
-        <!-- Collaborative exam organisations -->
-        @if (collaborative) {
             <xm-exam-organisation-selector [exam]="exam"></xm-exam-organisation-selector>
         }
 
         <!-- Link to enrolment -->
-        @if (exam.executionType.type === 'PUBLIC' && !collaborative) {
+        @if (exam.executionType.type === 'PUBLIC' && !collaborative()) {
             <div class="row marr30">
                 <div class="col-md-12 mart40">
                     <div class="review-list-title">
@@ -320,11 +343,11 @@
                 </div>
             </div>
         }
-        @if (exam.executionType.type === 'PUBLIC' && !collaborative) {
+        @if (exam.executionType.type === 'PUBLIC' && !collaborative()) {
             <div class="row">
                 <div class="col-md-12 mart20">
-                    <a href="{{ hostName }}/enrolments/{{ exam.id }}?code={{ exam.course?.code }}">
-                        {{ hostName }}/enrolments/{{ exam.id }}?code={{ exam.course?.code }}
+                    <a href="{{ hostName() }}/enrolments/{{ exam.id }}?code={{ exam.course?.code }}">
+                        {{ hostName() }}/enrolments/{{ exam.id }}?code={{ exam.course?.code }}
                     </a>
                 </div>
             </div>
@@ -347,14 +370,13 @@
                         <a class="pointer" (click)="saveAndPublishExam()">
                             @if (!isDraftCollaborativeExam()) {
                                 <span>{{ 'i18n_save_and_publish' | translate }}</span>
-                            }
-                            @if (isDraftCollaborativeExam()) {
+                            } @else {
                                 <span>{{ 'i18n_save_and_pre_publish' | translate }}</span>
                             }
                         </a>
                     </div>
                     <div
-                        [hidden]="exam.state !== 'PUBLISHED' || exam.executionType.type !== 'PUBLIC' || collaborative"
+                        [hidden]="exam.state !== 'PUBLISHED' || exam.executionType.type !== 'PUBLIC' || collaborative()"
                         class="review-attachment-button exam-questions-buttons marl10"
                     >
                         <a class="pointer warning" (click)="unpublishExam()">

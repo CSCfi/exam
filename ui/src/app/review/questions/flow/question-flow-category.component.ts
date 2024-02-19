@@ -14,6 +14,7 @@
  */
 import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { SessionService } from '../../../session/session.service';
 import type { QuestionReview } from '../../review.model';
@@ -21,31 +22,25 @@ import { QuestionReviewService } from '../question-review.service';
 
 @Component({
     selector: 'xm-question-flow-category',
-    template: `<div class="main-row question-flow-category-title-wrapper">
-            <span class="col-md-10">
+    template: `<div class="row me-2 mb-2 mt-2">
+            <span class="col-10">
                 <strong>{{ categoryTitle | translate | uppercase }}</strong
                 >&nbsp;
                 <span class="badge bg-danger">{{ reviews.length }}</span>
             </span>
-            <div class="col-md-2">
+            <div class="col-2" [hidden]="reviews.length === 0">
                 <a (click)="hideCategory = !hideCategory" class="pointer-hand float-end">
                     @if (hideCategory) {
-                        <img
-                            src="/assets/images/icon_list_show_right.svg"
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-                        />
+                        <img src="/assets/images/icon_list_show_right.svg" />
+                    } @else {
+                        <img src="/assets/images/icon_list_show_down.svg" />
                     }
-                    <img
-                        [hidden]="hideCategory"
-                        src="/assets/images/icon_list_show_down.svg"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-                    />
                 </a>
             </div>
         </div>
         <div class="question-flow-category-questions">
             @for (r of reviews; track r) {
-                <div [hidden]="hideCategory" class="main-row question-flow-category-question-wrapper">
+                <div [ngbCollapse]="hideCategory" class="row">
                     <div class="col-md-1">
                         <input type="radio" [checked]="r.selected" (change)="selectQuestion(r)" />
                     </div>
@@ -61,7 +56,7 @@ import { QuestionReviewService } from '../question-review.service';
             }
         </div>`,
     standalone: true,
-    imports: [NgClass, UpperCasePipe, SlicePipe, TranslateModule],
+    imports: [NgClass, UpperCasePipe, SlicePipe, TranslateModule, NgbCollapse],
 })
 export class QuestionFlowCategoryComponent {
     @Input() categoryTitle = '';
