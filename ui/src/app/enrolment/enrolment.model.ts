@@ -47,6 +47,7 @@ export interface ExamEnrolment {
     noShow: boolean;
     retrialPermitted: boolean;
     optionalSections: ExamSection[];
+    delay: number;
 }
 
 export interface EnrolmentInfo extends Exam {
