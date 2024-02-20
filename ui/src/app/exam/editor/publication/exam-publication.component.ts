@@ -15,17 +15,17 @@
 import { DatePipe, NgClass, UpperCasePipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
+import { Duration } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { from, Observable, throwError } from 'rxjs';
+import { Observable, from, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { isBoolean } from 'src/app/shared/miscellaneous/helpers';
-import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import { DatePickerComponent } from '../../../shared/date/date-picker.component';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
@@ -69,19 +69,18 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
 })
 export class ExamPublicationComponent implements OnInit {
     exam!: Exam;
-    collaborative = false;
-
-    user: User;
-    hostName: string;
-    examDurations: number[] = [];
     maintenancePeriods: MaintenancePeriod[] = [];
-    visibleParticipantSelector = 'participant';
-    timeValue?: number;
-    hourValue?: number;
-    minuteValue?: number;
-    maxDuration = 300; //DEFAULT
-    minDuration = 1; //DEFAULT
-    showCustomTimeField = false;
+
+    collaborative = signal(false);
+    isAdmin = signal(false);
+    hostName = signal('');
+    examDurations = signal<number[]>([]);
+    visibleParticipantSelector = signal('participant');
+    hourValue = signal(0);
+    minuteValue = signal(0);
+    maxDuration = signal(300);
+    minDuration = signal(1);
+    showCustomTimeField = signal(false);
 
     constructor(
         private http: HttpClient,
@@ -95,23 +94,23 @@ export class ExamPublicationComponent implements OnInit {
         private Confirmation: ConfirmationDialogService,
         private Tabs: ExamTabService,
     ) {
-        this.hostName = window.location.origin;
-        this.user = this.Session.getUser();
+        this.hostName.set(window.location.origin);
+        this.isAdmin.set(this.Session.getUser().isAdmin);
     }
 
     ngOnInit() {
         this.exam = this.Tabs.getExam();
-        this.collaborative = this.Tabs.isCollaborative();
+        this.collaborative.set(this.Tabs.isCollaborative());
         this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe({
-            next: (data) => (this.examDurations = data.examDurations),
+            next: (data) => this.examDurations.set(data.examDurations),
             error: (err) => this.toast.error(err),
         });
         this.http.get<{ maxDuration: number }>('/app/settings/maxDuration').subscribe({
-            next: (data) => (this.maxDuration = data.maxDuration),
+            next: (data) => this.maxDuration.set(data.maxDuration),
             error: (err) => this.toast.error(err),
         });
         this.http.get<{ minDuration: number }>('/app/settings/minDuration').subscribe({
-            next: (data) => (this.minDuration = data.minDuration),
+            next: (data) => this.minDuration.set(data.minDuration),
             error: (err) => this.toast.error(err),
         });
         if (this.exam.implementation !== 'AQUARIUM') {
@@ -138,10 +137,6 @@ export class ExamPublicationComponent implements OnInit {
         }
     };
 
-    toggleCustomTimeField() {
-        this.showCustomTimeField = !this.showCustomTimeField;
-    }
-
     removeExaminationDate = (date: ExaminationDate) => {
         this.http.delete(`/app/exam/${this.exam.id}/examinationdate/${date.id}`).subscribe(() => {
             const i = this.exam.examinationDates.indexOf(date);
@@ -166,12 +161,9 @@ export class ExamPublicationComponent implements OnInit {
 
     updateExam = () => this.updateExam$().subscribe();
 
-    setExamDuration = (hours?: number, minutes?: number) => {
-        // Fix undefined values
-        const fixHour = hours || 0;
-        const fixMinutes = minutes || 0;
-        const duration = fixHour * 60 + fixMinutes;
-        if (duration < this.minDuration || duration > this.maxDuration) {
+    setExamDuration = (hours: number, minutes: number) => {
+        const duration = hours * 60 + minutes;
+        if (duration < this.minDuration() || duration > this.maxDuration()) {
             this.toast.warning(this.translate.instant('DIALOGS_ERROR'));
             return;
         }
@@ -179,30 +171,11 @@ export class ExamPublicationComponent implements OnInit {
         this.updateExam$().subscribe();
     };
 
-    setHourValue = (event: Event) => {
-        this.hourValue = parseInt((event.target as HTMLInputElement).value);
-    };
-    setMinuteValue = (event: Event) => {
-        this.minuteValue = parseInt((event.target as HTMLInputElement).value);
-    };
+    toHoursAndMinutes = (minutes: number): string => Duration.fromObject({ minutes: minutes }).toFormat('hh:mm');
 
-    toHoursAndMinutes = (minutes: number): string => {
-        const hours = minutes / 60;
-        const fullHours = Math.floor(hours);
-        const spareMinutes = Math.round((hours - fullHours) * 60);
-        const hourString = fullHours + ' ' + this.translate.instant('i18n_hours');
-        const minuteString = spareMinutes + ' ' + this.translate.instant('i18n_minutes');
-        return (fullHours > 0 ? hourString : '') + ' ' + (spareMinutes > 0 ? minuteString : '') + ' (' + minutes + ')';
-    };
     checkDuration = (duration: number) => (this.exam.duration === duration ? 'btn-primary' : '');
 
-    range = (min: number, max: number, step = 1) => {
-        const input: number[] = [];
-        for (let i = min; i <= max; i += step) {
-            input.push(i);
-        }
-        return input;
-    };
+    range = (min: number, max: number, step = 1) => [...Array(step + max - min).keys()].map((v) => min + v);
 
     checkTrialCount = (x: number | null) => (this.exam.trialCount === x ? 'btn-primary' : '');
 
@@ -211,7 +184,7 @@ export class ExamPublicationComponent implements OnInit {
         this.updateExam$().subscribe();
     };
 
-    previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative);
+    previewExam = (fromTab: number) => this.Exam.previewExam(this.exam, fromTab, this.collaborative());
 
     previousTab = () => {
         this.Tabs.notifyTabChange(3);
@@ -248,7 +221,7 @@ export class ExamPublicationComponent implements OnInit {
                                 ? 'i18n_exam_saved_and_pre_published'
                                 : 'i18n_exam_saved_and_published';
                             this.toast.success(this.translate.instant(text));
-                            this.router.navigate(['/staff', this.user.isAdmin ? 'admin' : 'teacher']);
+                            this.router.navigate(['/staff', this.isAdmin() ? 'admin' : 'teacher']);
                         },
                         error: (err) => this.toast.error(err),
                     });
@@ -258,7 +231,7 @@ export class ExamPublicationComponent implements OnInit {
         }
     };
 
-    isDraftCollaborativeExam = () => this.collaborative && this.exam.state === 'DRAFT';
+    isDraftCollaborativeExam = () => this.collaborative() && this.exam.state === 'DRAFT';
 
     // TODO: how should this work when it comes to private exams?
     unpublishExam = () => {
@@ -270,7 +243,7 @@ export class ExamPublicationComponent implements OnInit {
                 })
                 .result.then(() =>
                     this.updateExam$(true, {
-                        state: this.collaborative ? 'PRE_PUBLISHED' : 'DRAFT',
+                        state: this.collaborative() ? 'PRE_PUBLISHED' : 'DRAFT',
                     }).subscribe({
                         next: () => {
                             this.toast.success(this.translate.instant('i18n_exam_unpublished'));
@@ -350,7 +323,7 @@ export class ExamPublicationComponent implements OnInit {
         prop.sort((a, b) => Date.parse(a.examinationEvent.start) - Date.parse(b.examinationEvent.start));
 
     private updateExam$ = (silent?: boolean, overrides?: Record<string, string>): Observable<Exam> => {
-        return this.Exam.updateExam$(this.exam, overrides, this.collaborative).pipe(
+        return this.Exam.updateExam$(this.exam, overrides, this.collaborative()).pipe(
             tap(() => {
                 if (!silent) {
                     this.toast.info(this.translate.instant('i18n_exam_saved'));

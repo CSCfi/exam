@@ -12,13 +12,17 @@ import type { ExamInfo } from '../calendar.service';
     template: `
         <div class="row student-enrolment-wrapper details-view">
             <div class="col-md-12">
-                <div class="row">
-                    <span class="col-md-12">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
                         <h2 class="calendar-phase-title">1. {{ 'i18n_calendar_phase_1' | translate }}</h2>
-                        <span class="calendar-phase-icon float-end">
-                            <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
-                        </span>
-                    </span>
+                    </div>
+                    <div class="col-md-4">
+                        <img
+                            class="calendar-phase-icon float-end arrow_icon"
+                            src="/assets/images/icon-phase.png"
+                            alt=""
+                        />
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
