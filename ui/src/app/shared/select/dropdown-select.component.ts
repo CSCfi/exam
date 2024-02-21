@@ -30,7 +30,7 @@ export interface Option<V, I> {
 
 @Component({
     selector: 'xm-dropdown-select',
-    template: `<div ngbDropdown>
+    template: `<div ngbDropdown #d="ngbDropdown" autoClose="outside">
         <button
             ngbDropdownToggle
             class="btn btn-outline-secondary"
@@ -50,7 +50,6 @@ export interface Option<V, I> {
                             [(ngModel)]="searchFilter"
                             class="form-control"
                             (input)="filterOptions()"
-                            (click)="$event.stopPropagation()"
                             placeholder="{{ 'i18n_search' | translate }}"
                         />
                         <div class="input-group-append">
@@ -61,11 +60,11 @@ export interface Option<V, I> {
                     </div>
                 </button>
             }
-            <button ngbDropdownItem (click)="clearSelection()">
+            <button ngbDropdownItem (click)="clearSelection(); d.close()">
                 <i class="bi-x text text-danger"></i>
             </button>
             @for (opt of filteredOptions; track $index) {
-                <button ngbDropdownItem [ngClass]="getClasses(opt)" (click)="selectOption(opt)">
+                <button ngbDropdownItem [ngClass]="getClasses(opt)" (click)="selectOption(opt); d.close()">
                     @if (!opt.isHeader) {
                         <span>
                             {{ opt.label || '' | translate | slice: 0 : 40 }}
