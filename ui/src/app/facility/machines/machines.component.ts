@@ -27,18 +27,13 @@ import type { ExamMachine, ExamRoom } from '../../reservation/reservation.model'
     selector: 'xm-machines',
     standalone: true,
     imports: [NgbPopover, NgClass, RouterLink, TranslateModule],
-    styles: [
-        `
-            li {
-                list-style: none;
-            }
-        `,
-    ],
+    styleUrls: ['./machines.component.scss'],
 })
 export class MachineListComponent implements OnInit {
     @Input() room!: ExamRoom;
 
     showMachines = false;
+    machines: ExamMachine[] = [];
 
     constructor(
         private http: HttpClient,
@@ -48,6 +43,7 @@ export class MachineListComponent implements OnInit {
 
     ngOnInit() {
         this.showMachines = false;
+        this.machines = this.sort(this.room.examMachines);
     }
 
     toggleShow = () => (this.showMachines = !this.showMachines);
@@ -62,21 +58,10 @@ export class MachineListComponent implements OnInit {
             next: (resp) => {
                 this.toast.info(this.translate.instant('i18n_machine_added'));
                 this.room.examMachines.push(resp);
+                this.machines = this.sort(this.room.examMachines);
             },
             error: (err) => this.toast.error(err.data),
         });
-    sortAlphabeticalMachineList(list: ExamMachine[]) {
-        const empties = list.filter((m) => !m.name);
-        return list
-            .filter((m) => m.name)
-            .sort((a, b) => {
-                if (a.name.replace(/[1-9]/g, '') === b.name.replace(/[1-9]/g, '')) {
-                    return parseInt(a.name.replace(/[^\d.-]/g, '')) - parseInt(b.name.replace(/[^\d.-]/g, ''));
-                }
-                if (a.name.trim() > b.name.trim()) return 1;
-                if (a.name.trim() < b.name.trim()) return -1;
-                return 0;
-            })
-            .concat(empties);
-    }
+
+    private sort = (machines: ExamMachine[]) => machines.sort((a, b) => ('' + a.name).localeCompare(b.name));
 }

@@ -41,7 +41,7 @@ import { CoursePickerComponent } from '../common/course-picker.component';
             </div>
         </div>
         <!-- Course scope and organization name elements -> 3 rows -->
-        <div class="row margin-20">
+        <div class="row mt-3">
             <div class="col-md-3 col-md-offset-3">
                 {{ 'i18n_course_scope' | translate }}
             </div>
@@ -49,7 +49,7 @@ import { CoursePickerComponent } from '../common/course-picker.component';
                 {{ exam.course?.credits }}
             </div>
         </div>
-        <div class="row margin-20">
+        <div class="row mt-3">
             <div class="col-md-3 col-md-offset-3">
                 {{ 'i18n_faculty_name' | translate }}
             </div>
@@ -57,7 +57,7 @@ import { CoursePickerComponent } from '../common/course-picker.component';
                 {{ exam.course?.organisation?.name }}
             </div>
         </div>
-        <div class="row margin-20" [hidden]="!exam.course?.gradeScale">
+        <div class="row mt-3" [hidden]="!exam.course?.gradeScale">
             <div class="col-md-3 col-md-offset-3">
                 {{ 'i18n_grade_scale' | translate }}
             </div>

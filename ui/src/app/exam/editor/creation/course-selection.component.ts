@@ -21,6 +21,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { SessionService } from '../../../session/session.service';
 import { HistoryBackComponent } from '../../../shared/history/history-back.component';
 import type { Course, Exam } from '../../exam.model';
@@ -39,6 +41,8 @@ import { LanguageSelectorComponent } from '../common/language-picker.component';
         FormsModule,
         LanguageSelectorComponent,
         TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class CourseSelectionComponent implements OnInit {

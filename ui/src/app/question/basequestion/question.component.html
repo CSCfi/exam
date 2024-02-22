@@ -26,44 +26,40 @@
                 }
             </form>
             <!-- buttons -->
-            <div class="mart20">
-                <div class="question-cancel marl20">
-                    <button
-                        (click)="openPreview()"
-                        type="submit"
-                        class="btn btn-success float-end bigbutton"
-                        [disabled]="
-                            !question ||
-                            !question.type ||
-                            hasNoCorrectOption() ||
-                            hasInvalidClaimChoiceOptions() ||
-                            questionForm.invalid
-                        "
-                    >
-                        {{ 'i18n_button_preview' | translate }}
-                    </button>
-                </div>
-                <div class="question-cancel">
-                    <button
-                        [disabled]="
-                            !question ||
-                            !question.type ||
-                            hasNoCorrectOption() ||
-                            hasInvalidClaimChoiceOptions() ||
-                            questionForm.invalid
-                        "
-                        (click)="saveQuestion()"
-                        type="submit"
-                        class="btn btn-success bigbutton"
-                    >
-                        {{ 'i18n_save' | translate }}
-                    </button>
-                </div>
-                <div class="question-cancel marr20">
-                    <button (click)="cancel()" type="submit" class="btn btn-cancel float-end bigbutton">
-                        {{ 'i18n_button_cancel' | translate }}
-                    </button>
-                </div>
+
+            <div class="d-flex flex-row-reverse mt-2">
+                <button
+                    [disabled]="
+                        !question ||
+                        !question.type ||
+                        hasNoCorrectOption() ||
+                        hasInvalidClaimChoiceOptions() ||
+                        questionForm.invalid
+                    "
+                    (click)="saveQuestion()"
+                    type="submit"
+                    class="xm-ok-button"
+                >
+                    {{ 'i18n_save' | translate }}
+                </button>
+
+                <button (click)="cancel()" type="submit" class="xm-cancel-button me-2">
+                    {{ 'i18n_button_cancel' | translate }}
+                </button>
+                <button
+                    (click)="openPreview()"
+                    type="submit"
+                    class="xm-neutral-button me-2"
+                    [disabled]="
+                        !question ||
+                        !question.type ||
+                        hasNoCorrectOption() ||
+                        hasInvalidClaimChoiceOptions() ||
+                        questionForm.invalid
+                    "
+                >
+                    {{ 'i18n_button_preview' | translate }}
+                </button>
             </div>
         </div>
     </div>

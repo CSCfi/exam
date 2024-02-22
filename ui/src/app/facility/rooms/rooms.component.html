@@ -48,16 +48,16 @@
                         <!-- Room Code & Accessibility Info -->
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="sitnet-info-text">
+                                <div class="facility-info-text">
                                     {{ 'i18n_room_code' | translate }}:
-                                    <span class="room-info-span-text">{{ room.roomCode }}</span>
+                                    <strong>{{ room.roomCode }}</strong>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="sitnet-info-text">
+                                <div class="facility-info-text">
                                     {{ 'i18n_room_accessibility_info' | translate }}:
                                     @for (info of room.accessibilities; track info; let last = $last) {
-                                        <span class="room-info-span-text"> {{ info.name }}{{ last ? '' : ', ' }} </span>
+                                        <strong> {{ info.name }}{{ last ? '' : ', ' }} </strong>
                                     }
                                 </div>
                             </div>
@@ -65,42 +65,42 @@
                         <!-- Building name & Tilaohjeet -->
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="sitnet-info-text">
+                                <div class="facility-info-text">
                                     {{ 'i18n_room_building_name' | translate }}:
-                                    <span class="room-info-span-text">{{ room.buildingName }}</span>
+                                    <strong>{{ room.buildingName }}</strong>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="sitnet-info-text">
+                                <div class="facility-info-text">
                                     {{ 'i18n_room_guidance' | translate }}:
-                                    <span class="room-info-span-text">{{ room.roomInstruction }}</span>
+                                    <strong>{{ room.roomInstruction }}</strong>
                                 </div>
                             </div>
                         </div>
                         <!-- Campus & Contact Person -->
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="sitnet-info-text">
+                                <div class="facility-info-text">
                                     {{ 'i18n_room_campus' | translate }}:
-                                    <span class="room-info-span-text">{{ room.campus }}</span>
+                                    <strong>{{ room.campus }}</strong>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="sitnet-info-text">
+                                <div class="facility-info-text">
                                     {{ 'i18n_room_contact_person' | translate }}:
-                                    <span class="room-info-span-text">{{ room.contactPerson }}</span>
+                                    <strong>{{ room.contactPerson }}</strong>
                                 </div>
                             </div>
                         </div>
                         <!-- Address -->
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="sitnet-info-text">
+                                <div class="facility-info-text">
                                     {{ 'i18n_exam_room_address' | translate }}:
-                                    <span class="room-info-span-text"
+                                    <strong
                                         >{{ room.mailAddress.street }}, {{ room.mailAddress.zip }},
                                         {{ room.mailAddress.city }}
-                                    </span>
+                                    </strong>
                                 </div>
                             </div>
                         </div>
@@ -117,7 +117,7 @@
                                     timetable of getWorkingHoursDisplayFormat(room.defaultWorkingHours);
                                     track timetable
                                 ) {
-                                    <div class="flex justify-content-end">
+                                    <div class="d-flex justify-content-end">
                                         @if (timetable.length > 0) {
                                             <div class="bg-success custom-green-dot me-2"></div>
                                         }
@@ -136,26 +136,30 @@
                         </div>
                     </div>
                     <div class="row" [hidden]="room.availabilityVisible">
-                        <div class="col-md mart10 marr26">
-                            @for (exception of getNextExceptionEvent(room.calendarExceptionEvents); track exception) {
-                                <div class="flex justify-content-end flex-nowrap">
-                                    @if (exception?.outOfService) {
-                                        <div class="text-danger me-2 bi-exclamation-triangle-fill">
-                                            {{ 'i18n_room_out_of_service' | translate }}
-                                        </div>
-                                    }
-                                    @if (!exception?.outOfService) {
-                                        <div class="text-success me-2">
-                                            {{ 'i18n_room_in_service' | translate }}
-                                        </div>
-                                    }
-                                    <div class="justify-self-right">
+                        <div class="col-md mt-2 me-2">
+                            @for (
+                                exception of getNextExceptionEvent(room.calendarExceptionEvents);
+                                track exception.id
+                            ) {
+                                <div class="row">
+                                    <div class="col-md-2 offset-md-7">
+                                        @if (exception?.outOfService) {
+                                            <div class="text-danger me-2 bi-exclamation-triangle-fill">
+                                                {{ 'i18n_room_out_of_service' | translate }}
+                                            </div>
+                                        } @else {
+                                            <div class="text-success me-2">
+                                                {{ 'i18n_room_in_service' | translate }}
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="col-md-3">
                                         {{ formatDate(exception) }}
                                     </div>
                                 </div>
                             }
                             @if (getFutureExceptionEvent(room.calendarExceptionEvents).length > 2) {
-                                <div class="flex justify-content-end flex-nowrap">
+                                <div class="d-flex justify-content-end flex-nowrap">
                                     <i class="bi-three-dots pointer me-2" (click)="room.availabilityVisible = true"></i>
                                     <div class="text-danger">
                                         ({{ getFutureExceptionEvent(room.calendarExceptionEvents).length }})

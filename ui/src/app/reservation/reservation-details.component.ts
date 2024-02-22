@@ -48,6 +48,7 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
         ApplyDstPipe,
         OrderByPipe,
     ],
+    styles: '.wrap { white-space: wrap !important }',
 })
 export class ReservationDetailsComponent implements OnChanges {
     @Input() reservations: AnyReservation[] = [];

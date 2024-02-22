@@ -50,6 +50,8 @@ import { MultipleChoiceEditorComponent } from './multiple-choice.component';
         TagPickerComponent,
         TranslateModule,
     ],
+    styleUrls: ['../question.shared.scss'],
+    styles: '.initial-width { width: initial !important; }',
 })
 export class QuestionBodyComponent implements OnInit {
     @Input() question!: ReverseQuestion | QuestionDraft;

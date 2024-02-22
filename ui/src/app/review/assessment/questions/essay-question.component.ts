@@ -31,6 +31,7 @@ import { AssessmentService } from '../assessment.service';
 @Component({
     selector: 'xm-r-essay-question',
     templateUrl: './essay-question.component.html',
+    styleUrls: ['../assessment.shared.scss', './essay-question.component.scss'],
     standalone: true,
     imports: [
         MathJaxDirective,
@@ -39,6 +40,15 @@ import { AssessmentService } from '../assessment.service';
         FixedPrecisionValidatorDirective,
         UpperCasePipe,
         TranslateModule,
+    ],
+    styles: [
+        `
+            .warning-no-hover {
+                background-color: white;
+                border: #e3162e 1px solid;
+                color: #e3162e;
+            }
+        `,
     ],
 })
 export class EssayQuestionComponent implements OnInit {

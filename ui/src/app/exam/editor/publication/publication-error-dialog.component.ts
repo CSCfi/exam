@@ -22,23 +22,19 @@ import { TranslateModule } from '@ngx-translate/core';
     selector: 'xm-publication-error-dialog',
     standalone: true,
     imports: [TranslateModule],
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="student-message-dialog-wrapper-padding">
-            <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ 'i18n_please_check_following_infos' | translate }}</div>
-            </div>
-            <div class="modal-body">
-                @for (error of errors; track error) {
-                    <p>{{ error | translate }}</p>
-                }
-            </div>
-            <div class="modal-footer">
-                <div class="student-message-dialog-button-save">
-                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                        {{ 'i18n_button_ok' | translate }}
-                    </button>
-                </div>
-            </div>
+    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+        <div class="modal-header">
+            <div class="xm-page-header-title">{{ 'i18n_please_check_following_infos' | translate }}</div>
+        </div>
+        <div class="modal-body">
+            @for (error of errors; track error) {
+                <p>{{ error | translate }}</p>
+            }
+        </div>
+        <div class="modal-footer">
+            <button class="xm-cancel-button" (click)="activeModal.close()" autofocus>
+                {{ 'i18n_button_ok' | translate }}
+            </button>
         </div>
     </div>`,
 })

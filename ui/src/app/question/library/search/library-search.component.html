@@ -1,5 +1,5 @@
 <div class="row ms-3 me-3 align-items-center">
-    <div class="col-md-6 marb10">
+    <div class="col-md-6 mb-2">
         <span class="m-1" ngbDropdown [autoClose]="'outside'">
             <button
                 class="btn btn-outline-secondary btn-sm"
@@ -11,8 +11,8 @@
                 {{ 'i18n_course' | translate }}&nbsp;
                 <span class="caret"></span>
             </button>
-            <ul class="scrollable-menu max-w-1100 pointer" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
-                <li ngbDropdownItem role="presentation" class="important-flex min-width-300 max-w-1100">
+            <ul class="scrollable-menu pointer" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
+                <li ngbDropdownItem role="presentation">
                     <input
                         [(ngModel)]="limitations.course"
                         (ngModelChange)="filterCourses()"
@@ -43,8 +43,8 @@
             >
                 {{ 'i18n_exam' | translate }}&nbsp;
             </button>
-            <ul class="scrollable-menu max-w-1100" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
-                <li ngbDropdownItem role="presentation" class="important-flex min-width-300 max-w-1100">
+            <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu2">
+                <li ngbDropdownItem role="presentation">
                     <input
                         [(ngModel)]="limitations.exam"
                         (ngModelChange)="filterExams()"
@@ -82,8 +82,8 @@
                 {{ 'i18n_category' | translate }}&nbsp;
                 <span class="caret"></span>
             </button>
-            <ul class="scrollable-menu max-w-1100" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
-                <li ngbDropdownItem role="presentation" class="important-flex min-width-300 max-w-1100">
+            <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
+                <li ngbDropdownItem role="presentation">
                     <input
                         [(ngModel)]="limitations.tag"
                         (ngModelChange)="filterTags()"
@@ -120,8 +120,8 @@
                 {{ 'i18n_exam_section' | translate }}&nbsp;
                 <span class="caret"></span>
             </button>
-            <ul class="scrollable-menu max-w-1100" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
-                <li ngbDropdownItem role="presentation" class="important-flex min-width-300 max-w-1100">
+            <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
+                <li ngbDropdownItem role="presentation">
                     <input
                         [(ngModel)]="limitations.section"
                         (ngModelChange)="filterSections()"
@@ -144,19 +144,25 @@
                 }
             </ul>
         </span>
-      <span class="m-1" ngbDropdown [autoClose]="'outside'">
-            <button ngbDropdownToggle class="btn btn-outline-secondary btn-sm" type="button" id="dropDownMenu3" (click)="listAllOwners$()">
+        <span class="m-1" ngbDropdown [autoClose]="'outside'">
+            <button
+                ngbDropdownToggle
+                class="btn btn-outline-secondary btn-sm"
+                type="button"
+                id="dropDownMenu3"
+                (click)="listAllOwners$()"
+            >
                 {{ 'i18n_owner' | translate }}&nbsp;
                 <span class="caret"></span>
             </button>
-            <ul class="scrollable-menu max-w-1100" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
-                <li ngbDropdownItem role="presentation" class="important-flex min-width-300 max-w-1100">
+            <ul class="scrollable-menu" ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu3">
+                <li ngbDropdownItem role="presentation">
                     <input
-                      [(ngModel)]="limitations.owner"
-                      (ngModelChange)="filterOwners()"
-                      class="form-control"
-                      placeholder="{{ 'i18n_search' | translate }}"
-                      aria-describedby="search-icon-3"
+                        [(ngModel)]="limitations.owner"
+                        (ngModelChange)="filterOwners()"
+                        class="form-control"
+                        placeholder="{{ 'i18n_search' | translate }}"
+                        aria-describedby="search-icon-3"
                     />
                     <div class="input-group-append">
                         <div class="input-group-text">
@@ -165,17 +171,13 @@
                     </div>
                 </li>
                 <li
-                  *ngFor="let owner of filteredOwners"
-                  [hidden]="owner.filtered"
-                  role="presentation"
-                  (click)="applyFilter(owner)"
-                  ngbDropdownItem
+                    *ngFor="let owner of filteredOwners"
+                    [hidden]="owner.filtered"
+                    role="presentation"
+                    (click)="applyFilter(owner)"
+                    ngbDropdownItem
                 >
-                    <div
-                      role="menuitem"
-                      class="text"
-                      title="{{'i18n_owner' | translate }}"
-                    >
+                    <div role="menuitem" class="text" title="{{ 'i18n_owner' | translate }}">
                         {{ owner.name }}
                     </div>
                 </li>
@@ -183,43 +185,34 @@
         </span>
     </div>
     <div class="col-md-6">
-                <div class="col-md-12">
-                    <form>
-                        <div class="input-group">
-                            <input
-                                class="form-control"
-                                name="filterSearch"
-                                (input)="applySearchFilter()"
-                                [(ngModel)]="filter.text"
-                                placeholder="{{ 'i18n_search_by_question_text' | translate }}"
-                            />
-                            <div class="input-group-text p-0">
-                                <img src="/assets/images/icon_search.png" width="46" height="38" />
-                            </div>
-                        </div>
-                    </form>
+        <div class="col-md-12">
+            <form>
+                <div class="input-group">
+                    <input
+                        class="form-control"
+                        name="filterSearch"
+                        (input)="applySearchFilter()"
+                        [(ngModel)]="filter.text"
+                        placeholder="{{ 'i18n_search_by_question_text' | translate }}"
+                    />
+                    <div class="input-group-text p-0">
+                        <img src="/assets/images/icon_search.png" width="46" height="38" />
+                    </div>
                 </div>
+            </form>
         </div>
     </div>
-<div class="row ms-3">
-    <div class="col-md-12">
-        <ul class="inline-list ps-1">
-            @for (filter of getFilters(); track filter) {
-                <li>
-                    {{ filter.name }}
-                    <button
-                        class="reviewer-remove"
-                        (click)="applyFilter(filter)"
-                        title="{{ 'i18n_remove' | translate }}"
-                    >
-                        <img
-                            src="/assets/images/icon_remove.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_remove.png';"
-                        />
-                    </button>
-                </li>
-            }
-        </ul>
+</div>
+<div class="row m-3">
+    <div class="col-md-12 ms-2">
+        @for (filter of getFilters(); track filter) {
+            <span
+                class="badge text-bg-secondary me-1"
+                (click)="applyFilter(filter)"
+                title="{{ 'i18n_remove' | translate }}"
+            >
+                {{ filter.name }}
+            </span>
+        }
     </div>
 </div>

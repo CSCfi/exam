@@ -39,8 +39,8 @@ interface RoomWithAddressVisibility extends ExamRoom {
     selector: 'xm-opening-hours',
     template: `
         @for (dwh of orderByWeekday(extendedRoom.extendedDwh); track dwh) {
-            <div class="row mart10 flex align-content-center">
-                <div class="col-2 min-w-100 align-self-center">
+            <div class="row mt-1 flex align-content-center">
+                <div class="col-2 align-self-center">
                     {{ dateTime.translateWeekdayName(dwh.weekday, true) }}
                 </div>
                 <div class="col row">
@@ -74,17 +74,17 @@ interface RoomWithAddressVisibility extends ExamRoom {
                         <div class="bi-pencil-fill pointer align-self-center" (click)="dwh.editing = true"></div>
                     }
                     @if (dwh.editing) {
-                        <div class="flex">
+                        <div class="d-flex">
                             <div
-                                class="marl5 bi-x-square-fill text-muted pointer align-self-center"
+                                class="ms-1 bi-x-square-fill text-muted pointer align-self-center"
                                 (click)="dwh.editing = false"
                             ></div>
                             <div
-                                class="marl5 bi-check-circle-fill text-success pointer align-self-center"
+                                class="ms-1 bi-check-circle-fill text-success pointer align-self-center"
                                 (click)="updateHours(dwh)"
                             ></div>
                             <div
-                                class="marl5 bi-trash text-danger pointer align-self-center"
+                                class="ms-1 bi-trash text-danger pointer align-self-center"
                                 (click)="deleteHours(dwh)"
                             ></div>
                         </div>
@@ -92,7 +92,7 @@ interface RoomWithAddressVisibility extends ExamRoom {
                 </div>
             </div>
         }
-        <div class="row mart10 flex align-content-center">
+        <div class="row mt-1 flex align-content-center">
             <span class="col-2 align-self-center min-w-100" ngbDropdown>
                 <button
                     ngbDropdownToggle

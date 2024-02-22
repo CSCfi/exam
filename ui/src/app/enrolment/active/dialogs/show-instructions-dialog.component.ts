@@ -22,19 +22,17 @@ import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
     selector: 'xm-show-instructions-dialog',
     standalone: true,
     imports: [TranslateModule, MathJaxDirective],
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
+    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
         <div class="modal-header">
             <div class="modal-title">
-                <div class="student-enroll-title">{{ title | translate }}</div>
+                <div class="xm-page-header-title">{{ title | translate }}</div>
             </div>
         </div>
         <div class="modal-body" [xmMathJax]="instructions"></div>
         <div class="modal-footer">
-            <div class="student-message-dialog-button-save">
-                <button class="btn btn-sm btn-primary" (click)="ok()" autofocus>
-                    {{ 'i18n_button_ok' | translate }}
-                </button>
-            </div>
+            <button class="xm-cancel-button" (click)="ok()" autofocus>
+                {{ 'i18n_button_ok' | translate }}
+            </button>
         </div>
     </div> `,
 })

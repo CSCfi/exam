@@ -1,0 +1,9 @@
+.attachment-name {
+    font-size: 12px;
+    color: #555555;
+    margin-top: 10px;
+
+    @media (max-width: 1050px) {
+        margin-top: 3px;
+    }
+}

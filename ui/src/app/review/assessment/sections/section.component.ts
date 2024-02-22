@@ -26,6 +26,7 @@ import { MultiChoiceQuestionComponent } from '../questions/multi-choice-question
 @Component({
     selector: 'xm-r-section',
     templateUrl: './section.component.html',
+    styleUrls: ['../assessment.shared.scss'],
     standalone: true,
     imports: [MultiChoiceQuestionComponent, EssayQuestionComponent, ClozeTestComponent, TranslateModule, OrderByPipe],
 })

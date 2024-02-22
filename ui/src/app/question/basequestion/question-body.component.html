@@ -1,11 +1,3 @@
-<!-- SIT-1548 disable at least for now --->
-<!-- Shared -->
-<!--div class="row">
-<div class="checkbox">
-  <label><input type="checkbox" [(ngModel)]="newQuestion.shared">
-    <strong class="sitnet-info-text">{{ 'i18n_public_question' | translate }}</strong></label>
-  </div>
-</div-->
 <style>
     #questionBody.ng-invalid {
         border-color: transparent;
@@ -16,23 +8,19 @@
 </style>
 <div ngModelGroup="questionBody" id="questionBody">
     @if (showWarning()) {
-        <div class="student-enrolment-wrapper review-view exam-view-warning mart40">
+        <div class="xm-study-item-container review-view exam-view-warning mt-3">
             <!-- Exam contexts -->
             <div class="row">
                 <div class="col-auto p-1">
-                    <img
-                        src="/assets/images/icon_warning.png"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_warning.svg';"
-                    />
+                    <img src="/assets/images/icon_warning.png" />
                 </div>
                 <div class="col warning-text">
                     {{ 'i18n_exam_question_edit_instructions' | translate }}
-                    <ul class="list-inline margin-10">
+                    <ul class="list-inline m-2">
                         <li class="list-inline-item">
                             @for (name of examNames; track $index) {
                                 <span class="exists-text">
-                                    <span class="padr10">{{ name }}</span>
+                                    <span class="pe-1">{{ name }}</span>
                                 </span>
                             }
                         </li>
@@ -48,7 +36,7 @@
             @if (showWarning()) {
                 <div class="review-list-title edit-warning-container">
                     {{ 'i18n_exam_basic_information_tab' | translate }}
-                    <i class="bi-exclamation-circle ps-4 reddish"></i>
+                    <i class="bi-exclamation-circle ps-4 text-danger"></i>
                     <span class="warning-text-small ps-2">
                         {{ 'i18n_shared_question_property_info' | translate }}
                     </span>
@@ -66,7 +54,7 @@
             <div class="col-md-3 exam-basic-title">
                 {{ 'i18n_question_id' | translate }}
             </div>
-            <div class="col-md-9 padr0">#{{ question.id }}</div>
+            <div class="col-md-9 pe-0">#{{ question.id }}</div>
         </div>
     }
     <div class="row mt-3">
@@ -77,11 +65,7 @@
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
             >
-                <img
-                    src="/assets/images/icon_tooltip.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                />
+                <img src="/assets/images/icon_tooltip.svg" />
             </sup>
         </div>
         <div class="col-md-9">
@@ -89,7 +73,7 @@
                 [hidden]="question.type"
                 id="newQuestion"
                 name="newQuestion"
-                class="form-select wdtin"
+                class="form-select initial-width"
                 [(ngModel)]="newType"
                 (change)="setQuestionType()"
             >
@@ -283,7 +267,7 @@
                         </button>
                     </div>
                 } @else {
-                    <ul class="list-inline mart10 padl10">
+                    <ul class="list-inline mt-1 ps-2">
                         @for (user of currentOwners; track user.id) {
                             <li class="list-inline-item">
                                 {{ user.firstName }} {{ user.lastName }}
@@ -304,7 +288,7 @@
                     </ul>
                 }
                 @if (isUserAllowedToModifyOwners()) {
-                    <ul class="list-inline mart10 padl10">
+                    <ul class="list-inline mt-1 ps-2">
                         @for (user of currentOwners; track user.id) {
                             <li class="list-inline-item">
                                 {{ user.firstName }} {{ user.lastName }}
@@ -348,11 +332,9 @@
                 </sup>
             </div>
             <div class="col-md-9" id="attachment">
-                <div class="review-attachment-button wdt120 make-inline">
-                    <a class="pointer" (click)="selectFile()">{{ 'i18n_attach_file' | translate }}</a>
-                </div>
+                <button class="xm-ok-button" (click)="selectFile()">{{ 'i18n_attach_file' | translate }}</button>
                 @if (question.attachment && !question.attachment?.removed) {
-                    <div class="make-inline padl10">
+                    <div class="make-inline ps-2">
                         @if (hasUploadedAttachment()) {
                             <!-- Uploaded -->
                             <a class="pointer attachment-link" (click)="downloadQuestionAttachment()">
@@ -374,8 +356,8 @@
                     </div>
                 }
                 @if (showWarning()) {
-                    <div class="mart10 edit-warning-container">
-                        <i class="bi-exclamation-circle reddish me-2"></i>
+                    <div class="mt-1 edit-warning-container">
+                        <i class="bi-exclamation-circle text-danger me-2"></i>
                         <span class="warning-text-small">{{ 'i18n_shared_question_property_info' | translate }}</span>
                     </div>
                 }
@@ -398,7 +380,7 @@
                     />
                 </sup>
             </div>
-            <div class="col-md-9 padr0">
+            <div class="col-md-9 pe-0">
                 <textarea
                     id="defaultInstructions"
                     name="defaultInstructions"
@@ -428,7 +410,7 @@
                         />
                     </sup>
                 </div>
-                <div class="col-md-9 padr0">
+                <div class="col-md-9 pe-0">
                     <textarea
                         id="defaultEvaluationCriteria"
                         name="defaultEvaluationCriteria"

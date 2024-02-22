@@ -4,7 +4,7 @@
             <input
                 [(ngModel)]="filterText"
                 type="text"
-                class="form-control search"
+                class="form-control"
                 placeholder="{{ 'i18n_exam_search_description' | translate }}"
                 (ngModelChange)="search($event)"
             />
@@ -85,7 +85,7 @@
                 @for (exam of items | orderBy: sorting.predicate : sorting.reverse; track exam) {
                     <tr>
                         @if (exam.name) {
-                            <td class="table-column-examname">
+                            <td class="">
                                 @if (isOwner(exam)) {
                                     <a
                                         [routerLink]="['/staff/exams', exam.id, '1']"
@@ -99,7 +99,7 @@
                             </td>
                         }
                         @if (!exam.name) {
-                            <td class="table-column-examname">
+                            <td class="">
                                 @if (isOwner(exam)) {
                                     <a
                                         class="text-danger"
@@ -121,7 +121,7 @@
                         <td>
                             <span class="exam-type">{{ getExecutionTypeTranslation(exam) }}</span>
                         </td>
-                        <td class="table-column-open-until">
+                        <td class="">
                             @if (exam.periodStart && exam.periodEnd) {
                                 <span>
                                     {{ exam.periodStart | date: 'dd.MM.yyyy' }} -
@@ -151,7 +151,7 @@
                                 }
                             </td>
                         }
-                        <td class="table-column-teachers">
+                        <td class="">
                             <xm-teacher-list [exam]="exam"></xm-teacher-list>
                         </td>
                         <td class="text-center">

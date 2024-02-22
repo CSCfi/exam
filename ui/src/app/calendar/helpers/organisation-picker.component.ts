@@ -8,7 +8,7 @@ import { CalendarService } from '../calendar.service';
 @Component({
     selector: 'xm-calendar-organisation-picker',
     template: `
-        <div class="row student-enrolment-wrapper details-view" [ngClass]="selectedOrganisation() ? '' : 'notactive'">
+        <div class="row m-2 xm-study-item-container details-view" [ngClass]="selectedOrganisation() ? '' : 'notactive'">
             <div class="col-md-12">
                 <div class="row">
                     <span class="col-md-11 col-9">
@@ -79,6 +79,7 @@ import { CalendarService } from '../calendar.service';
             </div>
         </div>
     `,
+    styleUrls: ['../calendar.component.scss'],
     standalone: true,
     imports: [NgClass, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
 })

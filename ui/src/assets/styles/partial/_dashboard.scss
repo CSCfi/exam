@@ -1,208 +1,11 @@
 #dashboard {
     $sitnet-dark-red: #be1327;
-    min-height: $sitnet-header-height;
-
-    // Basic bootstrap grid rows with different kind of padding
-
-    .detail-row {
-        @extend .row;
-        margin: 0;
-        padding-left: 1em;
-        padding-right: 1em;
-    }
-
-    .search-list-wrapper {
-        // used in exam-search
-        padding: 3em;
-        @media (max-width: $sitnet-mobile) {
-            padding: 5px;
-        }
-    }
-
-    .student-enrolment-wrapper {
-        // used a lot
-        border-radius: 4px;
-        border: 2px solid #ededed;
-        border-left: $sitnet-medium-green-new 4px solid;
-        margin-left: 1.4em;
-        margin-right: 1.4em;
-        margin-bottom: 25px;
-        @media (max-width: $sitnet-mobile) {
-            padding: 5px;
-            margin-bottom: 5px;
-        }
-        padding: 30px;
-
-        &.review-view {
-            margin-left: 0;
-            margin-top: 0;
-            margin-right: 0;
-            padding: 20px;
-        }
-
-        &.essay-review {
-            margin-top: 10px;
-            margin-right: 0;
-            padding: 20px;
-        }
-
-        &.notactive {
-            border-left: #b1b1b1 4px solid;
-        }
-
-        &.waitingroom {
-            margin-left: 2.4em;
-            margin-right: 2.4em;
-        }
-
-        &.exam-view-warning {
-            border-left: $sitnet-red 4px solid;
-            margin-left: 0px;
-            margin-right: 0px;
-        }
-
-        &.exam-questions-warning {
-            border-left: $sitnet-red 4px solid;
-            margin-left: 0px;
-            margin-right: 40px;
-        }
-
-        &.unseen-review {
-            border-color: $sitnet-medium-green-new;
-        }
-
-        @media (max-width: $sitnet-mobile) {
-            margin-left: 0em;
-            margin-right: 0em;
-        }
-    }
-
-    .exam-questions-buttons {
-        display: inline-block;
-    }
-
-    .question-review-title {
-        // used in question-review
-        font-family: $sitnet-family-helvetica;
-        font-size: 22px;
-        font-weight: normal;
-        color: #2c2c2c;
-    }
-
-    .question-review-toolbar-text {
-        // ditto
-        line-height: 2.2;
-    }
-
-    .essay-question-review-column {
-        // ditto
-        border-right: 1px solid lightgrey;
-    }
-
-    .essay-question-review-wrapper {
-        // ditto
-        padding-bottom: 30px;
-    }
-
-    .essay-review-status {
-        // ditto
-        line-height: 2.2;
-        font-size: 20px;
-    }
-
-    .essay-answer-instructions-box {
-        // ditto
-        border-top: 1px solid lightgrey;
-        border-bottom: 1px solid lightgrey;
-        padding-top: 1em;
-        padding-bottom: 1em;
-    }
-
-    .question-flow-title {
-        // ditto
-        font-family: $sitnet-family-helvetica;
-        font-size: 22px;
-        font-weight: normal;
-        color: #2c2c2c;
-        padding-bottom: 5px;
-        margin-bottom: 20px;
-        padding-top: 5px;
-        border-bottom: 1px solid #b1b1b1;
-    }
-
-    .question-flow-category-title-wrapper {
-        // ditto
-        border-bottom: 1px solid lightgrey;
-        border-top: 1px solid lightgrey;
-        margin-right: -15px;
-    }
-
-    .question-flow-category-questions {
-        // ditto
-        margin-bottom: 40px;
-    }
-
-    .question-flow-category-question-wrapper {
-        // ditto
-        border-bottom: 1px solid lightgrey;
-        margin-right: -15px;
-    }
-
-    .question-flow-badge {
-        // ditto
-        background-color: $sitnet-red;
-    }
-
-    .triangle-line {
-        // ditto
-        border-top: 2px solid lightgrey;
-        position: relative;
-        background: white;
-        margin-top: 10px;
-        transform: rotate(180deg);
-        margin-right: -15px;
-        width: 100%;
-    }
-    .triangle-line:before,
-    .triangle-line:after {
-        content: '';
-        position: absolute;
-        right: 70px;
-        top: -19px;
-        width: 0;
-        height: 0;
-        border-style: solid;
-        border-width: 0 20px 20px 20px;
-        border-color: transparent transparent white transparent;
-    }
-    .triangle-line:before {
-        right: 68px;
-        top: -22px;
-        border-width: 0 22px 22px 22px;
-        border-bottom-color: lightgrey;
-    }
-
-    .essay-answer-wrapper {
-        border: 1px solid lightgrey;
-        border-left: 4px solid $sitnet-medium-green-new;
-        margin-bottom: 15px;
-    }
-
-    .essay-answer-item {
-        border-bottom: 1px solid lightgrey;
-        padding-bottom: 10px;
-        word-wrap: break-word;
-    }
-
-    .essay-answer-warning {
-        margin-left: 1px;
-        margin-right: 1px;
-    }
-
-    .essay-answer-checkbox-item {
-        border-bottom: 1px solid lightgrey;
-        padding-bottom: 14px;
-    }
+    $sitnet-border-color: #c3c3c3;
+    $sitnet-dark-green-new: #25622f;
+    $sitnet-green-new: #2c7639;
+    $sitnet-medium-green-new: #238635;
+    $sitnet-family-helvetica: Arimo, Helvetica-Neue, Helvetica;
+    $sitnet-mobile: 920px;
 
     .enrollment-card-dropdown {
         //active-enrolment
@@ -255,99 +58,20 @@
     }
 
     .exam-ready {
+        //enrolment
         color: $sitnet-green-new;
         font-size: 13px;
     }
 
-    .exam-needs-reservation {
-        color: #a61022;
-        font-size: 13px;
-    }
-
-    .student-exam-needs-reservation {
-        color: #a61022;
-        font-size: 13px;
-    }
-
-    .student-exam-header-row {
-        margin-bottom: 10px;
-
-        .student-details-title {
-            font-size: 16px;
-            font-weight: bold;
-            font-family: $sitnet-family-helvetica;
-            color: #2c2c2c;
-        }
-
-        .student-details-subtitle {
-            font-size: 13px;
-            font-weight: bold;
-            color: #555555;
-            font-family: $sitnet-family-helvetica;
-        }
-
-        .student-details-indicator {
-            float: right;
-            color: $sitnet-green-new;
-            font-size: 16px;
-            font-family: $sitnet-family-helvetica;
-        }
-    }
-
-    .student-exam-row-title-blue {
-        // calendar, waiting-room, participations, exam-search
-        font-family: $sitnet-family-helvetica;
-        font-size: 16px;
+    .xm-info-link {
         color: #266b99;
         font-weight: bold;
-    }
-
-    .student-exam-row {
-        clear: both;
-        padding-top: 10px;
-        color: #555555;
-
-        .student-exam-row-title {
-            padding-left: 0px;
-
-            .student-exam-row-title-grey {
-                font-family: $sitnet-family-helvetica;
-                font-size: 13px;
-                color: #555555;
-                font-weight: bold;
-            }
-        }
-
-        .student-exam-list-row {
-            display: inline-block;
-
-            &.enroll-button {
-                float: right;
-                color: $sitnet-green-new;
-                font-size: 16px;
-                font-family: $sitnet-family-helvetica;
-            }
-        }
-    }
-
-    .infolink {
-        // a lot
-        color: #266b99;
-        font-family: $sitnet-family-helvetica;
-        font-weight: bold;
         text-decoration: none;
     }
 
-    .infolink-light {
-        color: #266b99;
-        font-family: $sitnet-family-helvetica;
-        text-decoration: none;
-    }
-
-    .infolink-light-alert {
-        color: $sitnet-aborted;
-        font-family: $sitnet-family-helvetica;
-        text-decoration: none;
+    .needs-reservation {
+        color: #a61022;
+        font-size: 13px;
     }
 
     .student-exam-row-infolink {
@@ -365,48 +89,6 @@
             vertical-align: baseline;
             padding-left: 3px;
         }
-    }
-
-    .student-exam-row-infobox {
-        // enrolments
-        padding-top: 1em;
-    }
-
-    .student-exam-all-required {
-        color: $sitnet-green-new;
-        font-size: 16px;
-        font-family: $sitnet-family-helvetica;
-        padding-right: 3px;
-    }
-
-    .bottom-row {
-        @extend .detail-row;
-        padding-bottom: 1em;
-    }
-
-    .top-row {
-        @extend .detail-row;
-        padding-top: 45px;
-
-        @media (max-width: $sitnet-mobile) {
-            padding-top: 15px;
-        }
-    }
-
-    .main-row {
-        @extend .detail-row;
-        padding-top: 1em;
-        padding-bottom: 1em;
-    }
-
-    .wide-column {
-        // exam-question
-        padding-right: 0;
-    }
-
-    .collaborative-exam-table {
-        // collab exam search
-        overflow-x: scroll;
     }
 
     .exams-table {
@@ -461,7 +143,7 @@
                 }
 
                 &.no_show {
-                    color: $sitnet-red !important;
+                    color: red !important;
                 }
 
                 &.review {
@@ -518,15 +200,6 @@
         text-align: center;
     }
 
-    .table-column-13 {
-        width: 13%;
-    }
-
-    .table-column-examname {
-        width: 25%;
-        font-weight: bold;
-    }
-
     .table-column-enroll-participation {
         // exam-listign
         width: 10%;
@@ -535,35 +208,8 @@
 
         span {
             font-size: 0.8em;
-            color: $sitnet-common-medium;
+            color: rgba(0, 0, 0, 0.3);
         }
-    }
-
-    .table-column-open-until {
-        // exam-listign
-        width: 10%;
-    }
-
-    .table-column-10 {
-        width: 10%;
-    }
-
-    .table-column-15 {
-        width: 15%;
-    }
-
-    .table-column-25 {
-        width: 25%;
-    }
-
-    .table-column-teachers {
-        // exams list, review
-        width: 25%;
-    }
-
-    .table-column-bold {
-        // maturity, review
-        font-weight: bold;
     }
 
     .exams-list-title-text {
@@ -590,58 +236,6 @@
     .student-title-wrap {
         // enrolments
         display: inline-block;
-    }
-
-    .inline-list li {
-        // library, statistics
-        list-style: none;
-    }
-
-    .muted-list {
-        // participant picker
-        list-style: none;
-        padding: 0;
-    }
-
-    .vcenter {
-        // review (feedback, question review)
-        display: inline-block;
-        vertical-align: middle;
-        float: none;
-    }
-
-    @media screen {
-        // maturity report
-        .print-only {
-            display: none !important;
-        }
-    }
-
-    @media print {
-        // maturity report
-
-        a[href]:after {
-            content: none !important;
-        }
-
-        .no-print {
-            display: none !important;
-        }
-    }
-
-    .evaluation-padtop {
-        // finished enrolment
-        padding-top: 10px;
-    }
-
-    .margin-10 {
-        // question
-        margin-top: 10px;
-    }
-
-    .margin-20 {
-        // editpr, review, question
-        margin-top: 20px;
     }
 
     .notice-wrap {
@@ -679,7 +273,7 @@
     }
 
     .review-list-title {
-        // editor, question,  revie2, maturity
+        // editor, question, review, maturity
         font-family: $sitnet-family-helvetica;
         font-size: 22px;
         font-weight: normal;
@@ -702,155 +296,6 @@
         color: #555555;
     }
 
-    .review-list-footer {
-        // review
-        font-family: $sitnet-family-helvetica;
-        font-size: 16px;
-        font-weight: normal;
-        color: #2c2c2c;
-    }
-
-    @media (max-width: 1100px) {
-        .review-list-footer {
-            float: left;
-            padding-left: 30px;
-        }
-    }
-
-    .review-list-subtitle {
-        font-family: $sitnet-family-helvetica;
-        font-size: 16px;
-        color: #2c2c2c;
-    }
-
-    .review-list-title-row {
-        // speed rev
-        padding-top: 30px;
-        padding-left: 30px;
-    }
-
-    .review-list-bluetitle {
-        // review-llist
-
-        a {
-            font-family: $sitnet-family-helvetica;
-            font-weight: bold;
-            color: #266b99;
-            font-size: 16px;
-        }
-    }
-
-    .review-attachment-button {
-        a,
-        button {
-            font-size: 16px;
-            font-family: $sitnet-family-helvetica;
-            background-color: $sitnet-green-new;
-            border: 1px solid $sitnet-dark-green-new;
-            width: 100%;
-            padding-left: 20px;
-            padding-right: 20px;
-            line-height: 1.5;
-            border-radius: 3px;
-            color: white;
-            text-align: center;
-            display: block;
-            padding-top: 10px;
-            padding-bottom: 10px;
-            text-decoration: none;
-
-            &.notinuse {
-                background-color: #7f7f7f;
-                color: #ffffff;
-                border: 1px solid black;
-            }
-
-            &.preview {
-                background-color: white;
-                border: 1px #979797 solid;
-                color: #555555;
-            }
-
-            &.warning {
-                background-color: white;
-                border: $sitnet-red 1px solid;
-                color: $sitnet-red;
-            }
-
-            &.warning-filled {
-                background-color: $sitnet-red;
-                border: $sitnet-red 1px solid;
-                color: white;
-            }
-
-            &.cancel {
-                color: #fff;
-                background-color: #7f7f7f;
-                border-color: #6b6b6b;
-            }
-        }
-
-        .disabled-button-popover-wrapper {
-            cursor: not-allowed;
-        }
-
-        button:disabled {
-            opacity: 0.3;
-            pointer-events: none;
-            cursor: not-allowed;
-        }
-
-        a:hover,
-        button:active,
-        button:focus,
-        button:active:focus {
-            background-color: $sitnet-dark-green-new;
-            border: 1px solid $sitnet-dark-green-new;
-            text-decoration: none;
-
-            &.notinuse {
-                background-color: #7f7f7f;
-                color: #ffffff;
-                border: 1px solid black;
-            }
-
-            &.preview {
-                background-color: #7f7f7f;
-                border: 1px #979797 solid;
-                color: #ffffff;
-            }
-
-            &.warning {
-                background-color: $sitnet-dark-red;
-                border: $sitnet-dark-red 1px solid;
-                color: #ffffff;
-            }
-
-            &.warning-filled {
-                background-color: $sitnet-dark-red;
-                border: $sitnet-dark-red 1px solid;
-                color: white;
-            }
-
-            &.cancel {
-                color: #fff !important;
-                background-color: #6b6b6b !important;
-                border-color: #6b6b6b !important;
-            }
-        }
-
-        &.print-button {
-            display: inline-block;
-            margin-left: 30px;
-        }
-
-        &.autoeval-button {
-            width: 170px;
-            margin-top: 25px;
-            margin-bottom: 30px;
-        }
-    }
-
     .review-no-show {
         margin-right: 0px;
         margin-left: 0;
@@ -866,14 +311,6 @@
         margin-top: 10px;
     }
 
-    .review-toolbar-wrapper {
-        // grading
-        margin-top: 20px;
-        padding-top: 20px;
-        margin-left: 30px;
-        padding-right: 15px;
-    }
-
     .exam-basic-title {
         // editor, review, matr, qu
         font-family: $sitnet-family-helvetica;
@@ -887,41 +324,6 @@
         font-size: 12px;
         text-transform: uppercase;
         font-family: $sitnet-family-helvetica;
-    }
-
-    .exam-button {
-        // course select
-        color: white;
-        background-color: $sitnet-green-new;
-        border: 1px solid $sitnet-dark-green-new;
-        height: 45px;
-        padding-left: 30px;
-        padding-right: 30px;
-        margin-bottom: 5px;
-        margin-left: 20px;
-    }
-
-    .exam-button:hover {
-        background-color: $sitnet-dark-green-new;
-    }
-
-    .btn-review {
-        // editor
-        color: #2c2c2c;
-        background-color: white;
-        border-color: #00a34b;
-        height: 40px;
-        padding-left: 30px;
-        padding-right: 30px;
-
-        &.btn-primary {
-            color: #2c2c2c;
-            background-color: #7fd28e;
-            border-color: $sitnet-dark-green-new;
-            height: 40px;
-            padding-left: 30px;
-            padding-right: 30px;
-        }
     }
 
     .reservation-search-titles {
@@ -967,7 +369,6 @@
     .review-points {
         margin-right: 0px;
         padding-right: 15px;
-        font-family: $sitnet-family-helvetica;
         font-size: 16px;
         color: #555555;
         font-weight: 400;
@@ -977,7 +378,6 @@
         display: block;
         margin-right: 0px;
         padding-top: 10px;
-        font-family: $sitnet-family-helvetica;
         font-size: 16px;
         color: #555555;
         font-weight: 400;
@@ -986,7 +386,6 @@
     }
 
     .review-question-title {
-        font-family: $sitnet-family-helvetica;
         font-size: 16px;
         color: #2c2c2c;
         padding-right: 15px;
@@ -1003,72 +402,8 @@
         margin-right: 30px;
     }
 
-    .btn-publish {
-        // editor
-        color: #2c2c2c;
-        background-color: white;
-        border-color: #00a34b;
-        height: 40px;
-        padding-left: 15px;
-        padding-right: 15px;
-
-        &.btn-primary {
-            color: #2c2c2c;
-            background-color: #7fd28e;
-            border-color: $sitnet-dark-green-new;
-            height: 40px;
-            padding-left: 15px;
-            padding-right: 15px;
-        }
-    }
-
-    .autoevaluation-info {
-        color: #555555;
-        font-size: 18px;
-        font-family: $sitnet-family-helvetica;
-        line-height: 26px;
-    }
-
-    .autoevaluation-titles {
-        background-color: white;
-        border: 0;
-        font-family: $sitnet-family-helvetica;
-        font-size: 12px;
-        color: #777777;
-        text-transform: uppercase;
-        font-weight: normal;
-        padding-bottom: 10px;
-    }
-
-    .autoevaluation-inputs {
-        width: 113px;
-        height: 40px;
-        //border: 1px solid #EDEDED;
-        display: inline-block;
-    }
-
-    .autoevaluation-numbers {
-        height: 40px;
-        padding-top: 10px;
-    }
-
-    .question-table-name {
-        // library
-        p {
-            margin: 0px;
-        }
-        a {
-            font-size: 14px !important;
-        }
-    }
-
-    .question-table-checkbox {
-        font-size: 20px;
-        padding-top: 15px;
-    }
-
     .warning-text {
-        // question
+        // question, section
         font-size: 18px;
         color: #555555;
     }
@@ -1078,28 +413,10 @@
         font-size: 12px;
     }
 
-    .exists-text {
-        font-family: $sitnet-family-helvetica;
-        font-weight: bold;
-        color: #266b99;
-        font-size: 16px;
-    }
-
-    .reddish {
-        color: $sitnet-red;
-    }
-
     .grayish {
         color: #979797;
         font-size: 20px;
         margin-right: 10px;
-    }
-
-    .question-border {
-        border: 1px solid $sitnet-border-color;
-        padding-bottom: 30px;
-        margin-top: 25px;
-        border-radius: 4px;
     }
 
     .wdt50 {
@@ -1119,275 +436,6 @@
         width: 240px;
     }
 
-    .attachment-link {
-        color: #266b99;
-        font-weight: bold;
-        font-size: 16px;
-    }
-
-    .remove-attachment {
-        margin-bottom: 3px;
-        margin-left: 5px;
-    }
-
-    .bigbutton {
-        padding-top: 10px;
-        padding-bottom: 10px;
-        padding-left: 60px;
-        padding-right: 60px;
-    }
-
-    .question-cancel {
-        float: right;
-        margin-top: 40px;
-    }
-
-    .question-option-radio {
-        font-size: 20px;
-        margin-right: 30px;
-        margin-left: 15px;
-        margin-top: 12px;
-    }
-
-    .question-option-input {
-        width: 27em;
-        height: 40px;
-        border-radius: 4px;
-        border: 1px solid #e0e0df;
-        padding-left: 10px;
-        margin-right: 30px;
-
-        &.ng-invalid {
-            border: 1px solid red;
-        }
-
-        &.radiobut {
-            width: 100%;
-        }
-
-        &.points {
-            width: 5em;
-        }
-    }
-
-    .question-option-empty {
-        border-top: 1px solid white;
-        border-left: 1px solid white;
-        border-bottom: 1px solid white;
-        background-color: white;
-        padding: 10px 10px 0 10px;
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
-    }
-
-    .question-option-empty-radio {
-        border-top: 1px solid white;
-        border-right: 1px solid white;
-        border-bottom: 1px solid white;
-        padding-left: 15px;
-        background-color: white;
-        padding: 10px;
-        border-bottom-right-radius: 4px;
-        border-top-right-radius: 4px;
-        height: 62px;
-    }
-
-    .question-correct-option {
-        border-top: 1px solid $sitnet-green-new !important;
-        border-left: 1px solid $sitnet-green-new;
-        border-right: 1px solid $sitnet-green-new;
-        border-bottom: 1px solid $sitnet-green-new;
-        background-color: #f3fff5;
-        padding: 10px 10px 0 10px;
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
-    }
-
-    .question-incorrect-option {
-        border-top: 1px solid $sitnet-red !important;
-        border-left: 1px solid $sitnet-red;
-        border-right: 1px solid $sitnet-red;
-        border-bottom: 1px solid $sitnet-red;
-        background-color: #fde8ea;
-        padding: 10px 10px 0 10px;
-        border-top-left-radius: 4px;
-        border-bottom-left-radius: 4px;
-    }
-
-    .question-correct-option-radio {
-        border-top: 1px solid $sitnet-green-new;
-        border-right: 1px solid $sitnet-green-new;
-        border-bottom: 1px solid $sitnet-green-new;
-        box-shadow: -2px 0px 0px -1px #f3fff5;
-        padding-left: 15px;
-        background-color: #f3fff5;
-        padding: 10px;
-        border-bottom-right-radius: 4px;
-        border-top-right-radius: 4px;
-        height: 62px;
-    }
-    .question-incorrect-option-radio {
-        border-top: 1px solid $sitnet-red;
-        border-right: 1px solid $sitnet-red;
-        border-bottom: 1px solid $sitnet-red;
-        box-shadow: -2px 0px 0px -1px #fde8ea;
-        background-color: #fde8ea;
-        padding-left: 15px;
-        padding: 10px;
-        border-bottom-right-radius: 4px;
-        border-top-right-radius: 4px;
-        height: 62px;
-    }
-
-    .question-option-trash {
-        font-size: 20px;
-        color: #979797;
-        cursor: pointer;
-        margin-top: 15px;
-    }
-
-    .question-editor-option {
-        margin: 0px;
-        padding: 0px;
-    }
-
-    .question-editor-claim-choice-option {
-        border: 1px solid transparent;
-        border-radius: 4px;
-        padding: 10px;
-        margin-bottom: 1em;
-        width: 600px;
-        transition-duration: 0.2s;
-    }
-
-    .claim-choice-option-labels {
-        width: 500px;
-        padding: 10px;
-        .claim-choice-option-label {
-            display: inline-block;
-            width: 380px;
-            margin: 0 21px 0 11px;
-
-            &.points {
-                margin: 0;
-                width: 70px;
-            }
-        }
-    }
-
-    .claim-choice-option-inputs {
-        .question-option-input {
-            width: 380px;
-            display: inline-block;
-
-            &.points {
-                margin: 0;
-                width: 70px;
-            }
-        }
-    }
-
-    .claim-choice-option-description {
-        display: inline-block;
-        width: 100%;
-        margin: 0;
-        padding: 5px 0 0 5px;
-        font-size: 12px;
-    }
-
-    .claim-choice-correct-answer {
-        border: 1px solid #358f45;
-        background-color: rgba($color: #358f45, $alpha: 0.1);
-
-        .claim-choice-option-description {
-            color: #358f45;
-        }
-
-        input:disabled {
-            color: gray;
-            cursor: not-allowed;
-        }
-    }
-
-    .claim-choice-incorrect-answer {
-        border: 1px solid $sitnet-red;
-        background-color: rgba($color: $sitnet-red, $alpha: 0.1);
-
-        .claim-choice-option-description {
-            color: $sitnet-red;
-        }
-
-        input:disabled {
-            color: #727272;
-            cursor: not-allowed;
-        }
-    }
-
-    .claim-choice-skip-answer {
-        input:disabled {
-            color: #727272;
-            cursor: not-allowed;
-        }
-    }
-
-    .claim-choice-warning-wrapper {
-        min-height: 40px;
-    }
-
-    .claim-choice-warning {
-        background-color: rgba($color: $sitnet-red, $alpha: 0.1);
-        border-left: 6px solid $sitnet-red;
-        padding: 10px;
-    }
-
-    @media screen and (max-width: 1250px) {
-        .question-editor-claim-choice-option {
-            width: 400px;
-        }
-
-        .claim-choice-option-labels {
-            width: 400px;
-            .claim-choice-option-label {
-                width: 280px;
-            }
-        }
-
-        .claim-choice-option-inputs {
-            .question-option-input {
-                width: 280px;
-            }
-        }
-    }
-
-    @media screen and (max-width: 920px) {
-        .question-editor-claim-choice-option {
-            width: 300px;
-        }
-
-        .claim-choice-option-labels {
-            width: 300px;
-            .claim-choice-option-label {
-                width: 180px;
-            }
-        }
-
-        .claim-choice-option-inputs {
-            .question-option-input {
-                width: 180px;
-                margin-right: 18px;
-
-                &.points {
-                    margin: 0;
-                }
-            }
-        }
-    }
-
-    .question-option-title {
-        color: #777777;
-        font-size: 12px;
-    }
-
     .exam-section-settings {
         float: right;
         font-size: 14px;
@@ -1403,28 +451,6 @@
             background-color: #fff;
             padding-top: 0.5em;
         }
-    }
-
-    .exam-new-border {
-        border: 1px solid $sitnet-border-color;
-        padding-bottom: 30px;
-        margin-top: 25px;
-        border-radius: 4px;
-    }
-
-    .middle-column {
-        // review
-        width: 70%;
-        margin-left: 20px;
-        margin-top: 4px;
-        margin-bottom: 4px;
-    }
-
-    .notice-text {
-        line-height: 24px;
-        vertical-align: bottom;
-        color: #555555;
-        letter-spacing: 0.65px;
     }
 
     .points-title {
@@ -1445,144 +471,9 @@
         margin-right: 10px;
     }
 
-    .speed-review-title {
-        font-family: $sitnet-family-helvetica;
-        font-size: 22px;
-        font-weight: normal;
-        color: #2c2c2c;
-        padding-bottom: 5px;
-        padding-right: 10px;
-    }
-
-    .speed-review-subtitle {
-        font-family: $sitnet-family-helvetica;
-        font-size: 14px;
-        color: #2c2c2c;
-    }
-
-    .speed-review-csv {
-        font-size: 16px;
-        font-weight: bold;
-        color: #266b99;
-    }
-
     .reviewer-remove {
         border: 0px;
         background-color: #fff;
-    }
-
-    .approved {
-        // maturity
-        color: $sitnet-red;
-    }
-
-    .rejected {
-        color: $sitnet-green-new;
-    }
-
-    .inspection-button {
-        // review
-        font-size: 16px;
-        font-family: $sitnet-family-helvetica;
-        background-color: $sitnet-green-new;
-        border: 1px solid $sitnet-dark-green-new;
-        padding-left: 20px;
-        padding-right: 20px;
-        line-height: 1.5;
-        border-radius: 3px;
-        color: white;
-        text-align: center;
-        display: block;
-        padding-top: 10px;
-        padding-bottom: 10px;
-
-        &.cancel {
-            background-color: white;
-            border: $sitnet-red 1px solid;
-            color: $sitnet-red;
-        }
-
-        &.button[disabled] {
-            cursor: not-allowed;
-        }
-    }
-
-    .green_button {
-        // EXAMINAtion
-
-        cursor: pointer;
-        text-decoration: none;
-        float: right;
-        font-size: 16px;
-        font-family: $sitnet-family-helvetica;
-        background-color: $sitnet-green-new;
-        border: 1px solid $sitnet-dark-green-new;
-        //width: 150px;
-        margin-left: 10px;
-        border-radius: 3px;
-        padding: 8px;
-        padding-left: 20px;
-        padding-right: 20px;
-        color: white;
-        font-weight: 200;
-
-        :hover,
-        :active,
-        :focus,
-        :active:focus {
-            background-color: $sitnet-dark-green-new;
-        }
-
-        &.left-floater {
-            float: left;
-            width: 167px;
-            padding: 5px;
-            padding-left: 20px;
-            margin-right: 15px;
-            font-size: 14px;
-            letter-spacing: 0.3px;
-        }
-
-        &.left-floater-for-section {
-            float: left;
-            padding: 5px;
-            padding-left: 20px;
-            margin-right: 15px;
-            margin-left: 0px;
-            font-size: 14px;
-            letter-spacing: 0.3px;
-        }
-
-        &.previous {
-            float: left;
-            padding-right: 40px;
-        }
-
-        &.attachment {
-            float: left;
-            margin-left: 0px;
-        }
-    }
-
-    .green_button:hover,
-    .green_button:active,
-    .green_button:focus,
-    .green_button:active:focus {
-        background-color: $sitnet-dark-green-new;
-        border: 1px solid $sitnet-dark-green-new;
-        text-decoration: none;
-    }
-
-    .attachment-name {
-        // review, examination
-        font-family: $sitnet-family-helvetica;
-        font-size: 12px;
-        color: #555555;
-        margin-top: 10px;
-
-        @media (max-width: 1050px) {
-            margin-top: 3px;
-        }
     }
 
     .scrollable-menu {
@@ -1593,38 +484,5 @@
     }
     .scrollable-menu::-webkit-scrollbar-track {
         background: #f1f1f1;
-    }
-
-    .participant-selector-toggle {
-        // editor
-        label {
-            display: block;
-            font-weight: 400;
-        }
-    }
-
-    .no-caret {
-        //enrolment, users
-        .dropdown-toggle::after {
-            display: none;
-        }
-    }
-
-    .flex-wrap-gap {
-        // users
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-
-    .min-width-300 {
-        // library, facilty, users
-        min-width: 300px;
-    }
-
-    .edit-warning-container {
-        // question
-        display: flex;
-        align-items: center;
     }
 }

@@ -2,42 +2,38 @@
 <xm-page-content [content]="content" />
 
 <ng-template #content>
-    <div class="student-enrolment-wrapper">
-        <!-- make component style -->
-        <div class="row">
-            <div class="col-md-9 col-6">
-                <h3>{{ exam.name }}</h3>
-                <div class="student-details-subtitle">
-                    @if (!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft) {
-                        <span class="exam-needs-reservation">
-                            {{ 'i18n_state_needs_reservation_title' | translate }}
-                        </span>
-                    }
-                    @if (exam.reservationMade) {
-                        <span class="exam-ready">
-                            {{ 'i18n_state_ready' | translate }}
-                        </span>
-                    }
-                </div>
+    <div class="row m-2 xm-study-item-container" id="exam-modal">
+        <!-- fix this, needed cos dialog save button used-->
+        <div class="col-md-9 col-6">
+            <h3>{{ exam.name }}</h3>
+            <div class="student-details-subtitle">
+                @if (!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft) {
+                    <span class="needs-reservation">
+                        {{ 'i18n_state_needs_reservation_title' | translate }}
+                    </span>
+                }
+                @if (exam.reservationMade) {
+                    <span class="exam-ready">
+                        {{ 'i18n_state_ready' | translate }}
+                    </span>
+                }
             </div>
         </div>
         <div class="row">
             @if (!exam.alreadyEnrolled && !exam.noTrialsLeft) {
                 <div class="col-md-3 col-6">
-                    <div class="student-message-dialog-button-save">
-                        <button
-                            class="btn btn-success important-clear-focus"
-                            [disabled]="getExpiration()"
-                            (click)="enrollForExam()"
-                        >
-                            {{ 'i18n_enroll_to_exam' | translate }}
-                        </button>
-                        @if (getExpiration()) {
-                            <div class="text-danger marl10">
-                                {{ 'i18n_exam_period_over' | translate }}
-                            </div>
-                        }
-                    </div>
+                    <button
+                        class="xm-ok-button important-clear-focus"
+                        [disabled]="getExpiration()"
+                        (click)="enrollForExam()"
+                    >
+                        {{ 'i18n_enroll_to_exam' | translate }}
+                    </button>
+                    @if (getExpiration()) {
+                        <div class="text-danger ms-1">
+                            {{ 'i18n_exam_period_over' | translate }}
+                        </div>
+                    }
                 </div>
             }
             @if (exam.alreadyEnrolled && exam.reservationMade) {
@@ -118,8 +114,8 @@
 
         @if (!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft) {
             <div class="row ms-2 mt-1 me-1">
-                <div class="col-md-12 student-message-dialog-button-save">
-                    <button class="link-button float-end" (click)="makeReservation()">
+                <div class="col-md-12">
+                    <button class="xm-ok-button" (click)="makeReservation()">
                         {{ 'i18n_student_new_reservation' | translate }}
                     </button>
                 </div>

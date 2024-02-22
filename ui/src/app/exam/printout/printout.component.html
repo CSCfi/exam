@@ -1,208 +1,202 @@
-<div id="printout">
+@if (exam.attachment) {
+    <div class="ptoolbar text text-danger">
+        <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_print_attachment_reminder' | translate }}
+    </div>
+}
+
+<span class="ptoolbar">
+    <button class="btn btn-cancel" (click)="exitPreview()">{{ 'i18n_exit_preview' | translate }}</button>&nbsp;
+    <button class="btn btn-primary" (click)="print()">{{ 'i18n_print' | translate }}</button>&nbsp;
     @if (exam.attachment) {
-        <div class="toolbar text text-danger">
-            <i class="bi-exclamation-circle"></i>&nbsp;{{ 'i18n_print_attachment_reminder' | translate }}
-        </div>
+        <button class="btn btn-primary" (click)="printAttachment()">
+            {{ 'i18n_print_attachment' | translate }}
+        </button>
     }
+</span>
 
-    <span class="toolbar">
-        <button class="btn btn-cancel" (click)="exitPreview()">{{ 'i18n_exit_preview' | translate }}</button>&nbsp;
-        <button class="btn btn-primary" (click)="print()">{{ 'i18n_print' | translate }}</button>&nbsp;
-        @if (exam.attachment) {
-            <button class="btn btn-primary" (click)="printAttachment()">
-                {{ 'i18n_print_attachment' | translate }}
-            </button>
-        }
-    </span>
-
-    <div class="prow">
-        <div class="col-md-12 center instruction">
-            <h3>TENTTI &ndash; TENTAMEN &ndash; EXAM</h3>
-        </div>
+<div class="prow">
+    <div class="col-md-12 pcenter pinstruction">
+        <h3>TENTTI &ndash; TENTAMEN &ndash; EXAM</h3>
     </div>
-    <div class="prow pbreak">
+</div>
+<div class="prow pbreak">
+    <div class="col-md-12">
+        <table class="pinfotable">
+            <tr>
+                <td colspan="2">
+                    <strong
+                        >Opintojakson koodi ja nimi / Studieperiodens kod och namn / The code and the name of the
+                        course:</strong
+                    ><br />
+                    <h4>
+                        @if (exam.course) {
+                            <xm-course-code [course]="exam.course"></xm-course-code>
+                        }
+                    </h4>
+                    <h4>{{ exam.course?.name }}</h4>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <strong>Tentin nimi / Tentamens namn / Exam name:</strong><br />
+                    <h4>{{ exam.name }}</h4>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Tentin p&auml;iv&auml;m&auml;&auml;r&auml;t / Tentamensdatum / Examination dates:</strong>
+                    &nbsp;
+                    @for (ed of exam.examinationDates | orderBy: 'date'; track ed) {
+                        <span> {{ ed.date | date: 'dd.MM.yyyy' }}&nbsp; </span>
+                    }
+                </td>
+                <td>
+                    <strong>Tentin kesto / Tentamens längd / Exam duration:</strong>&nbsp;{{ exam.duration }}&nbsp;min.
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2" class="pt-0">
+                    <strong>Tentaattorit / Tentatoren / Examiners:</strong><br />
+                    <xm-teacher-list [exam]="exam"></xm-teacher-list>
+                </td>
+                <td>
+                    <strong>Opintopistem&auml;&auml;r&auml; / Studiepo&auml;ng / Credit units:</strong>
+                    &nbsp;{{ exam.course?.credits }}
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Sis&auml;inen postiosoite / Intern postaddress / Internal address:</strong>
+                    &nbsp;{{ exam.internalRef }}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <strong>Sallitut apuv&auml;lineet / Tillåtna verktyg / Tools allowed:</strong>
+                    <br />
+                    <div [innerHtml]="exam.enrollInstruction"></div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <strong>Tenttiin vastaaminen / Svara på tentamen / Answer exam questions:</strong><br />
+                    @for (l of exam.examLanguages | orderBy: 'ord'; track l) {
+                        <label class="checkbox-inline">
+                            <input type="checkbox" [disabled]="true" value="true" />{{ getLanguageName(l) }}
+                        </label>
+                    }
+                    <div>
+                        <p>
+                            Suomenkielisessä tutkinto-ohjelmassa olevalla opiskelijalla on oikeus käyttää arvioitavassa
+                            opintosuorituksessa suomen kieltä, vaikka opintojakson opetuskieli olisi englanti. Tämä ei
+                            koske vieraan kielen opintoja. (Kts. Koulutuksen johtosääntö 18 §)
+                        </p>
+                        <p>
+                            En student i det finska utbildningsprogrammet har rätt att använda finska i sin
+                            studieprestation, trots att studiekursens språk är engelska. Denna rätt berör inte
+                            studiekurser på främmande språk. (Se utbildningsinstruktioner 18 §)
+                        </p>
+                        <p>
+                            In a Finnish degree programme a student has a right to use Finnish language for their study
+                            attainment, even though the language of instruction is English, (excluding language studies)
+                            even when the language of instruction is other than Finnish. (See the Education Regulations
+                            18 §)
+                        </p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<hr class="hidden-print" />
+<div class="prow">
+    <div class="col-md-12 instruction center">
+        <h3>KYSYMYKSET &ndash; FRÅGOR &ndash; QUESTIONS</h3>
+    </div>
+</div>
+@if (exam.instruction) {
+    <div class="prow mb-3">
         <div class="col-md-12">
-            <table class="infotable">
-                <tr>
-                    <td colspan="2">
-                        <strong
-                            >Opintojakson koodi ja nimi / Studieperiodens kod och namn / The code and the name of the
-                            course:</strong
-                        ><br />
-                        <h4>
-                            @if (exam.course) {
-                                <xm-course-code [course]="exam.course"></xm-course-code>
-                            }
-                        </h4>
-                        <h4>{{ exam.course?.name }}</h4>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <strong>Tentin nimi / Tentamens namn / Exam name:</strong><br />
-                        <h4>{{ exam.name }}</h4>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong
-                            >Tentin p&auml;iv&auml;m&auml;&auml;r&auml;t / Tentamensdatum / Examination dates:</strong
-                        >
-                        &nbsp;
-                        @for (ed of exam.examinationDates | orderBy: 'date'; track ed) {
-                            <span> {{ ed.date | date: 'dd.MM.yyyy' }}&nbsp; </span>
-                        }
-                    </td>
-                    <td>
-                        <strong>Tentin kesto / Tentamens längd / Exam duration:</strong>&nbsp;{{
-                            exam.duration
-                        }}&nbsp;min.
-                    </td>
-                </tr>
-                <tr>
-                    <td rowspan="2" class="multirow">
-                        <strong>Tentaattorit / Tentatoren / Examiners:</strong><br />
-                        <xm-teacher-list [exam]="exam"></xm-teacher-list>
-                    </td>
-                    <td>
-                        <strong>Opintopistem&auml;&auml;r&auml; / Studiepo&auml;ng / Credit units:</strong>
-                        &nbsp;{{ exam.course?.credits }}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <strong>Sis&auml;inen postiosoite / Intern postaddress / Internal address:</strong>
-                        &nbsp;{{ exam.internalRef }}
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <strong>Sallitut apuv&auml;lineet / Tillåtna verktyg / Tools allowed:</strong>
-                        <br />
-                        <div [innerHtml]="exam.enrollInstruction"></div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <strong>Tenttiin vastaaminen / Svara på tentamen / Answer exam questions:</strong><br />
-                        @for (l of exam.examLanguages | orderBy: 'ord'; track l) {
-                            <label class="checkbox-inline">
-                                <input type="checkbox" [disabled]="true" value="true" />{{ getLanguageName(l) }}
-                            </label>
-                        }
-                        <div>
-                            <p>
-                                Suomenkielisessä tutkinto-ohjelmassa olevalla opiskelijalla on oikeus käyttää
-                                arvioitavassa opintosuorituksessa suomen kieltä, vaikka opintojakson opetuskieli olisi
-                                englanti. Tämä ei koske vieraan kielen opintoja. (Kts. Koulutuksen johtosääntö 18 §)
-                            </p>
-                            <p>
-                                En student i det finska utbildningsprogrammet har rätt att använda finska i sin
-                                studieprestation, trots att studiekursens språk är engelska. Denna rätt berör inte
-                                studiekurser på främmande språk. (Se utbildningsinstruktioner 18 §)
-                            </p>
-                            <p>
-                                In a Finnish degree programme a student has a right to use Finnish language for their
-                                study attainment, even though the language of instruction is English, (excluding
-                                language studies) even when the language of instruction is other than Finnish. (See the
-                                Education Regulations 18 §)
-                            </p>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+            <strong>Ohjeet / Anvisning / Instructions:</strong>
+            <br />
+            <div [innerHtml]="exam.instruction"></div>
         </div>
     </div>
-    <hr class="hidden-print" />
-    <div class="prow">
-        <div class="col-md-12 instruction center">
-            <h3>KYSYMYKSET &ndash; FRÅGOR &ndash; QUESTIONS</h3>
-        </div>
-    </div>
-    @if (exam.instruction) {
-        <div class="prow answer-instructions">
+}
+@for (es of exam.examSections | orderBy: 'sequenceNumber'; track es) {
+    <div>
+        <div class="prow">
             <div class="col-md-12">
-                <strong>Ohjeet / Anvisning / Instructions:</strong>
-                <br />
-                <div [innerHtml]="exam.instruction"></div>
+                <h4>{{ es.name }}</h4>
             </div>
         </div>
-    }
-    @for (es of exam.examSections | orderBy: 'sequenceNumber'; track es) {
-        <div>
+        @if (es.description) {
             <div class="prow">
                 <div class="col-md-12">
-                    <h4>{{ es.name }}</h4>
+                    {{ es.description }}
                 </div>
             </div>
-            @if (es.description) {
-                <div class="prow">
-                    <div class="col-md-12">
-                        {{ es.description }}
-                    </div>
-                </div>
-            }
-            @for (esq of es.sectionQuestions | orderBy: 'sequenceNumber'; track esq) {
-                <div class="prow question">
-                    <span class="col-md-8"
-                        ><strong>{{ esq.sequenceNumber + 1 }}.&nbsp;{{ getQuestionTypeName(esq) }}</strong></span
-                    >
-                    <span class="col-md-4"
-                        ><strong class="float-end">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span
-                    >
-                    @if (esq.answerInstructions.length > 0) {
-                        <span class="col-md-12 question"
-                            ><strong>Ohjeet / Anvisning / Instructions:</strong><br />
-                            {{ esq.answerInstructions }}
-                        </span>
-                    }
-                    @if (esq.question.type !== 'ClozeTestQuestion') {
-                        <span class="col-md-12 question" [xmMathJax]="esq.question.question"></span>
-                    }
-                    @if (esq.question.type === 'ClozeTestQuestion') {
-                        <span class="col-md-12 question" [xmMathJax]="esq.clozeTestAnswer?.question"></span>
-                    }
-                    @if (
-                        esq.question.type === 'MultipleChoiceQuestion' ||
-                        esq.question.type === 'WeightedMultipleChoiceQuestion' ||
-                        esq.question.type === 'ClaimChoiceQuestion'
-                    ) {
-                        <span class="col-md-12">
-                            @for (o of esq.options; track o) {
-                                <div>
-                                    @if (esq.question.type === 'WeightedMultipleChoiceQuestion') {
-                                        <div class="checkbox">
-                                            <label
-                                                ><input type="checkbox" [disabled]="true" value="" />{{
-                                                    o.option.option
-                                                }}</label
-                                            >
-                                        </div>
-                                    }
-                                    @if (esq.question.type === 'MultipleChoiceQuestion') {
-                                        <div class="radio">
-                                            <label
-                                                ><input type="radio" [disabled]="true" name="" />{{
-                                                    o.option.option
-                                                }}</label
-                                            >
-                                        </div>
-                                    }
-                                    @if (esq.question.type === 'ClaimChoiceQuestion') {
-                                        <div class="radio">
-                                            <label
-                                                ><input type="radio" [disabled]="true" name="" />{{
-                                                    o.option.option
-                                                }}</label
-                                            >
-                                        </div>
-                                    }
-                                </div>
-                            }
-                        </span>
-                    }
-                </div>
-            }
-        </div>
-    }
-</div>
+        }
+        @for (esq of es.sectionQuestions | orderBy: 'sequenceNumber'; track esq) {
+            <div class="prow pquestion">
+                <span class="col-md-8"
+                    ><strong>{{ esq.sequenceNumber + 1 }}.&nbsp;{{ getQuestionTypeName(esq) }}</strong></span
+                >
+                <span class="col-md-4"
+                    ><strong class="float-end">{{ esq.derivedMaxScore }} pistettä / poäng / points</strong></span
+                >
+                @if (esq.answerInstructions.length > 0) {
+                    <span class="col-md-12 pquestion"
+                        ><strong>Ohjeet / Anvisning / Instructions:</strong><br />
+                        {{ esq.answerInstructions }}
+                    </span>
+                }
+                @if (esq.question.type !== 'ClozeTestQuestion') {
+                    <span class="col-md-12 pquestion" [xmMathJax]="esq.question.question"></span>
+                }
+                @if (esq.question.type === 'ClozeTestQuestion') {
+                    <span class="col-md-12 pquestion" [xmMathJax]="esq.clozeTestAnswer?.question"></span>
+                }
+                @if (
+                    esq.question.type === 'MultipleChoiceQuestion' ||
+                    esq.question.type === 'WeightedMultipleChoiceQuestion' ||
+                    esq.question.type === 'ClaimChoiceQuestion'
+                ) {
+                    <span class="col-md-12">
+                        @for (o of esq.options; track o) {
+                            <div>
+                                @if (esq.question.type === 'WeightedMultipleChoiceQuestion') {
+                                    <div class="checkbox">
+                                        <label
+                                            ><input type="checkbox" [disabled]="true" value="" />{{
+                                                o.option.option
+                                            }}</label
+                                        >
+                                    </div>
+                                }
+                                @if (esq.question.type === 'MultipleChoiceQuestion') {
+                                    <div class="radio">
+                                        <label
+                                            ><input type="radio" [disabled]="true" name="" />{{
+                                                o.option.option
+                                            }}</label
+                                        >
+                                    </div>
+                                }
+                                @if (esq.question.type === 'ClaimChoiceQuestion') {
+                                    <div class="radio">
+                                        <label
+                                            ><input type="radio" [disabled]="true" name="" />{{
+                                                o.option.option
+                                            }}</label
+                                        >
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </span>
+                }
+            </div>
+        }
+    </div>
+}

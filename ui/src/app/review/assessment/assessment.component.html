@@ -5,14 +5,14 @@
     }
 </div>
 <ng-template #printButton>
-    <div class="review-attachment-button print-button float-end">
-        <a (click)="print()" class="pointer"> {{ 'i18n_print' | translate }}&nbsp;&nbsp; </a>
-    </div>
+    <button (click)="print()" class="xm-ok-button float-end">
+        {{ 'i18n_print' | translate }}<i class="bi bi-printer ps-2"></i>
+    </button>
 </ng-template>
 <ng-template #content>
     <div class="tab-wrapper-exams review">
         <div class="review-border">
-            <div class="padt50 padl30 padr30">
+            <div class="p-3">
                 <h3>
                     @if (exam.course) {
                         <xm-course-code [course]="exam.course"></xm-course-code>
@@ -57,7 +57,7 @@
     }
     <div class="tab-wrapper-exams review">
         <div class="review-border">
-            <div class="padt50 padl30 padr30">
+            <div class="p-3">
                 <h4 class="d-flex justify-content-between">
                     {{ 'i18n_grading_info' | translate }}
                     <a (click)="hideGradeInfo = !hideGradeInfo">
@@ -69,10 +69,10 @@
                 </h4>
             </div>
             <!-- Grading -->
-            <div class="row">
+            <div class="row ms-2">
                 <div class="col-md-12">
                     <div class="row" [ngbCollapse]="hideGradeInfo">
-                        <div class="col-12 padl15 pe-3">
+                        <div class="col-12">
                             @if (exam && !exam.subjectToLanguageInspection) {
                                 <xm-r-grading
                                     [exam]="exam"

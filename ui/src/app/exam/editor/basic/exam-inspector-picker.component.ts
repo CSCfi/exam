@@ -31,6 +31,7 @@ import type { Exam, ExamInspection } from '../../exam.model';
     templateUrl: './exam-inspector-picker.component.html',
     standalone: true,
     imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
+    styles: '.vbottom { vertical-align: bottom !important }',
 })
 export class ExamInspectorSelectorComponent implements OnInit {
     @Input() exam!: Exam;

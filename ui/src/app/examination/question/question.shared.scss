@@ -1,0 +1,22 @@
+@import '../../shared/shared';
+.question-type-text {
+    color: #2c2c2c;
+    font-size: 16px;
+    font-weight: 400;
+
+    display: inline-block;
+
+    &.info {
+        color: #555555;
+        font-size: 14px;
+    }
+}
+
+.question-type-text {
+    line-height: 35px;
+}
+
+.autosave-text {
+    color: #727272;
+    margin-top: 1em;
+}

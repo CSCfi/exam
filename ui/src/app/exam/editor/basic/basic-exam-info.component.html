@@ -1,8 +1,8 @@
 <div class="row ms-2 me-2">
     <div class="col-md-12">
-        <div class="row marr30">
+        <div class="row">
             @if (!collaborative) {
-                <div class="col-md-12 padt40">
+                <div class="col-md-12 pt-2">
                     <div class="review-list-title">{{ 'i18n_course_info' | translate }}</div>
                 </div>
             }
@@ -15,13 +15,13 @@
                     <xm-exam-course [exam]="exam" (updated)="onCourseChange()"></xm-exam-course>
                 }
                 <!-- Exam name and language -->
-                <div class="row marr30">
-                    <div class="col-md-12 margin-20">
+                <div class="row mt-3">
+                    <div class="col-md-12">
                         <div class="review-list-title">{{ 'i18n_exam_title' | translate }}</div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12 margin-20">
+                <div class="row mt-3">
+                    <div class="col-md-12">
                         <div class="row">
                             <div class="col-md-3 exam-basic-title">
                                 {{ 'i18n_exam_name' | translate }}
@@ -34,17 +34,13 @@
                                 </sup>
                             </div>
                             <div class="col-md-9">
-                                <input
-                                    class="form-control wdth-30"
-                                    [(ngModel)]="exam.name"
-                                    (change)="updateExam(false)"
-                                />
+                                <input class="form-control w-50" [(ngModel)]="exam.name" (change)="updateExam(false)" />
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12 margin-20">
+                    <div class="col-md-12 mt-3">
                         <div class="row">
                             <div class="col-md-3 exam-basic-title">
                                 {{ 'i18n_exam_language' | translate }}
@@ -69,7 +65,7 @@
 
                 <!-- EXECUTION TYPE -->
                 <div class="row">
-                    <div class="col-md-12 margin-20">
+                    <div class="col-md-12 mt-3">
                         <div class="row">
                             <div class="col-md-3 exam-basic-title">{{ 'i18n_new_exam_type' | translate }}</div>
                             <div class="col-md-9">{{ getExecutionTypeTranslation() | translate }}</div>
@@ -80,7 +76,7 @@
                 <!-- EXAMINATION TYPE -->
                 @if (byodExaminationSupported) {
                     <div class="row">
-                        <div class="col-md-12 margin-20">
+                        <div class="col-md-12 mt-3">
                             <div class="row">
                                 <div class="col-md-3 exam-basic-title">{{ 'i18n_examination_type' | translate }}</div>
                                 <div class="col-md-9">{{ getExaminationTypeName() | translate }}</div>
@@ -91,7 +87,7 @@
 
                 <!-- ANONYMOUS REVIEW -->
                 <div class="row" [hidden]="!showAnonymousReview()">
-                    <div class="col-md-12 margin-20">
+                    <div class="col-md-12 mt-3">
                         <div class="row">
                             <div class="col-md-3 exam-basic-title">{{ 'i18n_anonymous_review' | translate }}</div>
                             <div class="col-md-9">
@@ -110,7 +106,7 @@
 
                 <!-- INTERNAL REF -->
                 <div class="row" [hidden]="exam.executionType.type !== 'PRINTOUT'">
-                    <div class="col-md-12 margin-20">
+                    <div class="col-md-12 mt-3">
                         <div class="row">
                             <div class="col-md-3 exam-basic-title">
                                 {{ 'i18n_internal_exam_reference' | translate }}
@@ -138,14 +134,14 @@
 
                 <!-- Subject to language inspection-->
                 <div class="row" [hidden]="exam.executionType.type !== 'MATURITY'">
-                    <div class="col-md-12 margin-20">
+                    <div class="col-md-12 mt-3">
                         <div class="row">
                             <div class="col-md-3 exam-basic-title">
                                 {{ 'i18n_subject_to_language_inspection' | translate }}
                             </div>
                             <div class="col-md-9">
                                 <button
-                                    class="btn btn-review"
+                                    class="btn selection-button-wide"
                                     [ngClass]="exam.subjectToLanguageInspection === true ? 'btn-primary' : ''"
                                     [disabled]="exam.state === 'PUBLISHED'"
                                     (click)="exam.subjectToLanguageInspection = true; updateExam(false)"
@@ -153,7 +149,7 @@
                                     {{ 'DIALOGS_YES' | translate }}</button
                                 >&nbsp;
                                 <button
-                                    class="btn btn-review"
+                                    class="btn selection-button-wide"
                                     [ngClass]="exam.subjectToLanguageInspection === false ? 'btn-primary' : ''"
                                     [disabled]="exam.state === 'PUBLISHED'"
                                     (click)="exam.subjectToLanguageInspection = false; updateExam(false)"
@@ -176,8 +172,8 @@
 
                 <!-- Space requirements and attachments -->
                 <div class="row">
-                    <div class="col-md-12 margin-20">
-                        <div class="row marr30">
+                    <div class="col-md-12 mt-3">
+                        <div class="row me-3">
                             <div class="col-md-12">
                                 <div class="review-list-title">{{ 'i18n_exam_requirements' | translate }}</div>
                             </div>
@@ -191,7 +187,7 @@
                 <!-- EXAM ATTACHMENT -->
                 @if (exam.implementation !== 'CLIENT_AUTH') {
                     <div class="row">
-                        <div class="col-md-12 margin-20">
+                        <div class="col-md-12 mt-3">
                             <div class="row">
                                 <div class="col-md-3 exam-basic-title">
                                     {{ 'i18n_exam_attachment' | translate }}
@@ -214,7 +210,7 @@
                                     @if (exam.attachment) {
                                         <div class="make-inline student-enrolment-exam">
                                             <a class="pointer" (click)="downloadExamAttachment()">
-                                                <i class="bi-paperclip padl10"></i> {{ exam.attachment?.fileName }}
+                                                <i class="bi-paperclip ps-2"></i> {{ exam.attachment?.fileName }}
                                             </a>
                                             <span class="sitnet-red pointer" (click)="removeExamAttachment()">
                                                 <img src="/assets/images/icon_remove.svg" alt="" />
@@ -229,8 +225,8 @@
 
                 <!-- INSTRUCTIONS -->
                 <div class="row" [hidden]="exam.executionType.type === 'MATURITY'">
-                    <div class="col-md-12 margin-20">
-                        <div class="row marr30">
+                    <div class="col-md-12 mt-3">
+                        <div class="row me-3">
                             <div class="col-md-12">
                                 <div class="review-list-title">{{ 'i18n_instruction' | translate }}</div>
                             </div>
@@ -238,8 +234,8 @@
                     </div>
                 </div>
                 <div class="row" [hidden]="exam.executionType.type === 'MATURITY'">
-                    <div class="col-md-12 margin-20">
-                        <div class="row marr30">
+                    <div class="col-md-12 mt-3">
+                        <div class="row me-3">
                             <div class="col-md-3 exam-basic-title">
                                 {{ 'i18n_exam_instruction' | translate }}
                                 <sup
@@ -265,8 +261,8 @@
                     </div>
                 </div>
                 <div class="row" [hidden]="exam.executionType.type === 'MATURITY'">
-                    <div class="col-md-12 margin-20">
-                        <div class="row marr30">
+                    <div class="col-md-12 mt-3">
+                        <div class="row me-3">
                             @if (exam.executionType.type !== 'PRINTOUT') {
                                 <div class="col-md-3 exam-basic-title">
                                     {{ 'i18n_enroll_instruction' | translate }}
@@ -307,26 +303,20 @@
 <!-- Buttons -->
 <div class="row mt-3 justify-content-end">
     <div class="col-auto p1">
-        <div class="review-attachment-button exam-questions-buttons">
-            <a class="pointer" (click)="updateExam(false)">
-                {{ 'i18n_save' | translate }}
-            </a>
-        </div>
+        <button class="xm-ok-button" (click)="updateExam(false)">
+            {{ 'i18n_save' | translate }}
+        </button>
     </div>
     <div class="col-auto p1">
         @if (showDelete()) {
-            <div class="review-attachment-button exam-questions-buttons">
-                <a class="pointer warning" (click)="removeExam()"> {{ 'i18n_exam_remove' | translate }}</a>
-            </div>
+            <button class="xm-warning-button" (click)="removeExam()">{{ 'i18n_exam_remove' | translate }}</button>
         }
     </div>
 </div>
 <div class="row mt-3">
-    <div class="col-md-12 padl0 padr0 marb20 padt20 grey-top">
+    <div class="col-md-12 ps-0 pe-2 pt-2 grey-top">
         <span class="float-end">
-            <div class="review-attachment-button exam-questions-buttons">
-                <a class="pointer preview" (click)="nextTab()"> {{ 'i18n_questions' | translate }} &raquo;</a>
-            </div>
+            <button class="xm-neutral-button" (click)="nextTab()">{{ 'i18n_questions' | translate }} &raquo;</button>
         </span>
     </div>
 </div>

@@ -33,6 +33,7 @@ import { ExaminationService } from '../examination.service';
 @Component({
     selector: 'xm-examination-toolbar',
     templateUrl: './examination-toolbar.component.html',
+    styleUrls: ['../examination.shared.scss', './examination-toolbar.component.scss'],
     standalone: true,
     imports: [NgClass, NgbPopover, UpperCasePipe, SlicePipe, TranslateModule, OrderByPipe],
 })

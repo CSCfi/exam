@@ -88,6 +88,7 @@ export interface Option<V, I> {
         SlicePipe,
         TranslateModule,
     ],
+    styleUrl: './dropdown-select.component.scss',
 })
 export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
     @Input() options: Option<V, I>[] = []; // everything

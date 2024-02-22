@@ -25,7 +25,7 @@ import { EnrolmentService } from '../enrolment.service';
 @Component({
     selector: 'xm-exam-search-result',
     template: `<div
-        class="search-result-container"
+        class="xm-study-item-container"
         [ngClass]="exam.alreadyEnrolled && exam.reservationMade ? '' : 'notactive'"
     >
         <div class="row">
@@ -33,7 +33,7 @@ import { EnrolmentService } from '../enrolment.service';
                 <h2 class="student-exam-row-title-blue">
                     @if (!collaborative) {
                         <a
-                            class="infolink"
+                            class="xm-info-link"
                             [routerLink]="['/enrolments', exam.id]"
                             [queryParams]="{ code: exam.course?.code }"
                         >
@@ -48,7 +48,7 @@ import { EnrolmentService } from '../enrolment.service';
         </div>
         <div class="row mt-1">
             @if (exam.alreadyEnrolled && !exam.reservationMade) {
-                <span class="mt-1 student-exam-needs-reservation">
+                <span class="mt-1 needs-reservation">
                     {{ 'i18n_state_needs_reservation_title' | translate }}
                 </span>
             }
@@ -85,7 +85,7 @@ import { EnrolmentService } from '../enrolment.service';
             <div class="col flex justify-content-end">
                 @if (!exam.alreadyEnrolled) {
                     <button
-                        class="btn btn-success text-nowrap important-clear-focus"
+                        class="btn btn-success important-clear-focus"
                         (click)="enrollForExam()"
                         [disabled]="enrolling"
                     >
@@ -93,19 +93,19 @@ import { EnrolmentService } from '../enrolment.service';
                     </button>
                 }
                 @if (exam.alreadyEnrolled && !exam.reservationMade) {
-                    <button class="btn btn-success text-nowrap important-clear-focus" (click)="makeReservation()">
+                    <button class="btn btn-success important-clear-focus" (click)="makeReservation()">
                         {{ 'i18n_student_new_reservation' | translate }}
                     </button>
                 }
                 @if (exam.alreadyEnrolled && exam.reservationMade) {
-                    <span class="student-exam-all-required text-nowrap">{{ 'i18n_enrolled_to_exam' | translate }}</span>
+                    <span class="student-exam-all-required">{{ 'i18n_enrolled_to_exam' | translate }}</span>
                 }
             </div>
         </div>
     </div>`,
+    styleUrls: ['./exam-search.component.scss'],
     standalone: true,
     imports: [NgClass, RouterLink, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
-    styleUrls: ['./exam-search-result.component.scss'],
 })
 export class ExamSearchResultComponent {
     @Input() exam!: EnrolmentInfo | CollaborativeExamInfo;

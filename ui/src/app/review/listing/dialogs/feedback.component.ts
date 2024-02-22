@@ -25,14 +25,14 @@ import { AssessmentService } from '../../assessment/assessment.service';
     selector: 'xm-speed-review-feedback',
     standalone: true,
     imports: [FormsModule, TranslateModule, CKEditorComponent],
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="student-details-title-wrap mart20">
-            <div class="student-enroll-title">{{ 'i18n_give_feedback' | translate }}</div>
+    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+        <div class="modal-header">
+            <div class="xm-page-header-title">{{ 'i18n_give_feedback' | translate }}</div>
         </div>
-        <div class="modal-body marl20">
+        <div class="modal-body ms-2">
             <div class="row">
                 @if (exam.examFeedback !== null) {
-                    <div class="col-md-12 padl0">
+                    <div class="col-md-12 ps-0">
                         <xm-ckeditor
                             rows="10"
                             #ck="ngModel"
@@ -43,11 +43,11 @@ import { AssessmentService } from '../../assessment/assessment.service';
                 }
             </div>
         </div>
-        <div class="modal-footer d-flex justify-content-between">
-            <button class="btn btn btn-success float-start" (click)="ok()">
+        <div class="modal-footer">
+            <button class="btn btn btn-success float-end" (click)="ok()">
                 {{ 'i18n_save' | translate }}
             </button>
-            <button class="btn btn-primary float-end" (click)="cancel()">
+            <button class="btn btn-outline-secondary float-end" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>

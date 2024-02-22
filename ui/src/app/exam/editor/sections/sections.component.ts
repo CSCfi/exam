@@ -52,7 +52,7 @@ import { SectionComponent } from './section.component';
         TranslateModule,
         OrderByPipe,
     ],
-    styleUrls: ['./sections.component.scss', './sections.shared.scss'],
+    styleUrls: ['../../exam.shared.scss', './sections.component.scss', './sections.shared.scss'],
 })
 export class SectionsComponent implements OnInit, OnChanges {
     exam!: Exam;

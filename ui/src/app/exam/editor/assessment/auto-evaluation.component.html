@@ -1,4 +1,4 @@
-<div class="row marr30 mt-4">
+<div class="row me-3 mt-4">
     <div class="col-md-12">
         <div class="review-list-title">
             <span class="pointer" (click)="autoevaluationDisplay.visible = !autoevaluationDisplay.visible">
@@ -28,22 +28,26 @@
 </div>
 
 <div class="row" [ngbCollapse]="!autoevaluationDisplay.visible" [attr.aria-expanded]="autoevaluationDisplay.visible">
-    <div class="col-md-12 margin-20">
+    <div class="col-md-12 my-3">
         <span class="autoevaluation-info">
             {{ 'i18n_autoevaluation_instructions' | translate }}
         </span>
-        <div class="review-attachment-button autoeval-button">
-            @if (!autoevaluation.enabled) {
-                <a class="pointer" name="enableAutoEvaluation" (click)="autoevaluation.enabled = true; enable()">
-                    {{ 'i18n_use' | translate }}</a
-                >
-            }
-            @if (autoevaluation.enabled) {
-                <a class="pointer" name="disableAutoEvaluation" (click)="autoevaluation.enabled = false; disable()">
-                    {{ 'i18n_do_not_use' | translate }}</a
-                >
-            }
-        </div>
+    </div>
+    <div class="col-md-12 mb-3">
+        @if (!autoevaluation.enabled) {
+            <button class="xm-ok-button" name="enableAutoEvaluation" (click)="autoevaluation.enabled = true; enable()">
+                {{ 'i18n_use' | translate }}
+            </button>
+        }
+        @if (autoevaluation.enabled) {
+            <button
+                class="xm-warning-button"
+                name="disableAutoEvaluation"
+                (click)="autoevaluation.enabled = false; disable()"
+            >
+                {{ 'i18n_do_not_use' | translate }}
+            </button>
+        }
     </div>
 </div>
 
@@ -68,7 +72,7 @@
             <form role="form" #gradesForm="ngForm" xmUniqueValues name="gradeEvaluations">
                 @for (ge of config.gradeEvaluations | orderBy: 'grade.name'; track ge) {
                     <div>
-                        <div class="row padl30 mb-2">
+                        <div class="row ps-3 mb-2">
                             <div class="col-md-2">
                                 {{ getGradeDisplayName(ge.grade) }}
                             </div>
@@ -140,7 +144,7 @@
             @if (selectedReleaseType()?.name === 'GIVEN_AMOUNT_DAYS') {
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="sitnet-info-text">{{ 'i18n_autoevaluation_release_after_days' | translate }}:</div>
+                        {{ 'i18n_autoevaluation_release_after_days' | translate }}:
                         @if (config) {
                             <input
                                 name="amountDays"

@@ -7,7 +7,7 @@
         <div class="col-3">
             <label for="userSearch">{{ 'i18n_search_for_users' | translate }}</label>
             <div id="userSearch" class="flex-wrap-gap">
-                <div class="form-group input-group min-width-300">
+                <div class="form-group input-group">
                     <input
                         [ngModel]="filter.text"
                         type="text"
@@ -140,7 +140,7 @@
                                     <span class="no-caret pointer" ngbDropdown>
                                         <button
                                             type="button"
-                                            class="border-none background-none pad0"
+                                            class="border-none background-none p-0"
                                             id="addRoleDropdown"
                                             ngbDropdownToggle
                                             aria-expanded="true"
@@ -171,7 +171,7 @@
                                     <span class="no-caret" ngbDropdown>
                                         <button
                                             id="removeRoleDropdown"
-                                            class="border-none background-none pad0 marl5"
+                                            class="border-none background-none p-0 ms-1"
                                             type="button"
                                             ngbDropdownToggle
                                             aria-expanded="true"
@@ -221,7 +221,7 @@
                                 <div class="float-end">
                                     <span class="no-caret" ngbDropdown>
                                         <button
-                                            class="border-none background-none pad0"
+                                            class="border-none background-none p-0"
                                             type="button"
                                             ngbDropdownToggle
                                             id="addPermissionDropdown"
@@ -258,7 +258,7 @@
                                     </span>
                                     <span class="no-caret" ngbDropdown>
                                         <button
-                                            class="border-none background-none pad0 marl5"
+                                            class="border-none background-none p-0 ms-1"
                                             type="button"
                                             ngbDropdownToggle
                                             id="removePermissionDropdown"

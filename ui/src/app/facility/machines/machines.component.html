@@ -3,9 +3,9 @@
         <div class="col">
             <span class="pointer user-select-none"> {{ 'i18n_exam_room_machines' | translate }}&nbsp;&nbsp; </span>
         </div>
-        <div class="flex justify-content-end col">
+        <div class="d-flex justify-content-end col">
             <a
-                class="ps-2 marr20 text text-success pointer"
+                class="ps-2 me-2 text text-success pointer"
                 (click)="addNewMachine()"
                 triggers="mouseenter:mouseleave"
                 ngbPopover="{{ 'i18n_add' | translate }}"
@@ -26,7 +26,7 @@
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
                 ngbPopover="{{ 'i18n_status_inservice' | translate }}"
             >
-                <span class="badge bg-danger marl10 marr30">
+                <span class="badge bg-danger ms-1 me-3">
                     {{ countMachineAlerts() }}
                 </span>
             </span>
@@ -36,8 +36,8 @@
             </div>
         </div>
     </div>
-    <div class="detail-row">
-        <div class="col-md-12 ms-3" [hidden]="!showMachines">
+    <div class="row" [hidden]="!showMachines">
+        <div class="col-md-12">
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -49,7 +49,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @for (machine of sortAlphabeticalMachineList(room.examMachines); track machine) {
+                    @for (machine of machines; track machine.id) {
                         <tr>
                             <td>
                                 <a

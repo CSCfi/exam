@@ -34,6 +34,7 @@ import { range as _range } from 'ramda';
             </li>
         </ul>
     `,
+    styleUrls: ['./paginator.component.scss'],
     standalone: true,
     imports: [NgClass],
 })

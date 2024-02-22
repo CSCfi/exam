@@ -4,16 +4,12 @@
 </div>
 <ng-template #buttons>
     <div class="teacher-toolbar">
-        <div class="review-attachment-button print-button">
-            <a [routerLink]="['/staff/exams']" class="pointer">
-                {{ 'i18n_toolbar_new_exam' | translate }}
-            </a>
-        </div>
-        <div class="review-attachment-button print-button">
-            <a [routerLink]="['/staff/questions/new']" [queryParams]="{ nextState: 'teacher' }" class="pointer">
-                {{ 'i18n_toolbar_new_question' | translate }}
-            </a>
-        </div>
+        <button [routerLink]="['/staff/exams']" class="xm-ok-button me-3">
+            {{ 'i18n_toolbar_new_exam' | translate }}
+        </button>
+        <button [routerLink]="['/staff/questions/new']" [queryParams]="{ nextState: 'teacher' }" class="xm-ok-button">
+            {{ 'i18n_toolbar_new_question' | translate }}
+        </button>
     </div>
 </ng-template>
 <ng-template #content>

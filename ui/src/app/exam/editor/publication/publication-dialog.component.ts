@@ -23,33 +23,27 @@ import type { Exam } from '../../exam.model';
     selector: 'xm-publication-dialog',
     standalone: true,
     imports: [TranslateModule],
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="student-message-dialog-wrapper-padding">
-            <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ getTitle() | translate }}</div>
-            </div>
-            <div class="modal-body">
+    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+        <div class="modal-header">
+            <div class="xm-page-header-title">{{ getTitle() | translate }}</div>
+        </div>
+        <div class="modal-body">
+            <p>
+                {{ getConfirmationText() }}
+            </p>
+            @if (exam.examFeedbackConfig) {
                 <p>
-                    {{ getConfirmationText() }}
+                    {{ 'i18n_exam_feedback_config_confirmation' | translate }}
                 </p>
-                @if (exam.examFeedbackConfig) {
-                    <p>
-                        {{ 'i18n_exam_feedback_config_confirmation' | translate }}
-                    </p>
-                }
-            </div>
-            <div class="modal-footer">
-                <div class="student-message-dialog-button-save">
-                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                        {{ 'i18n_button_ok' | translate }}
-                    </button>
-                </div>
-                <div class="student-message-dialog-button-cancel">
-                    <button class="btn btn-sm btn-danger" (click)="activeModal.dismiss()">
-                        {{ 'i18n_button_cancel' | translate }}
-                    </button>
-                </div>
-            </div>
+            }
+        </div>
+        <div class="modal-footer">
+            <button class="xm-ok-button" (click)="activeModal.close()" autofocus>
+                {{ 'i18n_button_ok' | translate }}
+            </button>
+            <button class="xm-cancel-button" (click)="activeModal.dismiss()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
         </div>
     </div>`,
 })

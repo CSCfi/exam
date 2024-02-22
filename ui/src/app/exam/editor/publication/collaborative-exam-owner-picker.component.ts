@@ -42,7 +42,7 @@ import type { Exam } from '../../exam.model';
                         type="email"
                         name="email"
                         placeholder="{{ 'i18n_write_exam_owner_email' | translate }}"
-                        class="form-control wdth-30 make-inline"
+                        class="form-control w-50 make-inline"
                         [(ngModel)]="newOwner.email"
                         email
                     />

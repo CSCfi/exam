@@ -3,7 +3,7 @@
     <xm-page-content [content]="content" />
 </div>
 <ng-template #button>
-    <button class="btn btn-primary float-end" (click)="newExam()">
+    <button class="btn btn-success float-end" (click)="newExam()">
         {{ 'i18n_toolbar_new_exam' | translate }}
     </button>
 </ng-template>
@@ -44,7 +44,7 @@
         </div>
     </div>
 
-    <div class="detail-row mt-3">
+    <div class="row mt-3">
         <div class="col-md-4">
             <div class="form-group input-group">
                 <input
@@ -58,14 +58,14 @@
                 />
 
                 <div class="input-group-append search">
-                    <img class="nopad" src="/assets/images/icon_search.png" alt="search-icon" width="45" height="38" />
+                    <img src="/assets/images/icon_search.png" alt="search-icon" width="45" height="38" />
                 </div>
             </div>
         </div>
     </div>
 
     @if (loader.loading) {
-        <div class="main-row">
+        <div class="row mt-2">
             <div class="col-md-12">
                 <button class="btn btn-success" type="button" disabled>
                     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -76,7 +76,7 @@
     }
 
     <div [hidden]="exams.length === 0 || loader.loading" style="min-height: 700px">
-        <div class="detail-row">
+        <div class="row">
             <div class="col-md-12">
                 <table class="table table-striped table-sm exams-table">
                     <thead>
@@ -200,10 +200,10 @@
             </div>
         </div>
         @if (views[activeId].view === 'PUBLISHED' && !views[activeId].showExpired) {
-            <div class="detail-row">
+            <div class="row">
                 <div class="col-md-12">
                     <strong>{{ 'i18n_published_exams' | translate }}: </strong>
-                    <em class="sitnet-text-medium"
+                    <em class="text-black"
                         >{{ 'i18n_published_exams_info_main' | translate }}
                         {{ 'i18n_published_exams_info_other' | translate }}</em
                     >
@@ -211,10 +211,10 @@
             </div>
         }
         @if (views[activeId].view === 'SAVED') {
-            <div class="bottom-row">
+            <div class="row">
                 <div class="col-md-12">
                     <strong>{{ 'i18n_saved_exams' | translate }}: </strong>
-                    <em class="sitnet-text-medium"
+                    <em class="text-black"
                         >{{ 'i18n_saved_exams_info_main' | translate }}
                         {{ 'i18n_saved_exams_info_other' | translate }}</em
                     >

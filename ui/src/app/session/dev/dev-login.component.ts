@@ -33,7 +33,7 @@ import { SessionService } from '../session.service';
                     <label class="form-label" for="uname">{{ 'i18n_username' | translate }}</label>
                     <input
                         id="uname"
-                        class="form-control login"
+                        class="form-control w-25"
                         name="uname"
                         type="text"
                         placeholder="{{ 'i18n_username' | translate }}"
@@ -45,7 +45,7 @@ import { SessionService } from '../session.service';
                     <label class="form-label" for="pwd">{{ 'i18n_password' | translate }}</label>
                     <input
                         id="pwd"
-                        class="form-control login"
+                        class="form-control w-25"
                         type="password"
                         name="pwd"
                         placeholder="{{ 'i18n_password' | translate }}"
@@ -54,7 +54,7 @@ import { SessionService } from '../session.service';
                     />
                 </div>
 
-                <button type="submit" class="btn btn-primary" id="submit">
+                <button type="submit" class="xm-ok-button" id="submit">
                     {{ 'i18n_login' | translate }}
                 </button>
             </form>

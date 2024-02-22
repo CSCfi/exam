@@ -1,12 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
 @import './assets/styles/main';
-/* Importing Bootstrap SCSS file. */
 @import 'bootstrap/scss/bootstrap';
-/* Importing Ngx-Toastr SCSS file. */
 @import 'ngx-toastr/toastr';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
-// fullcalendar overrides, need to be defined here because of view encapsulation
+* {
+    font-family: Arimo, Helvetica-Neue, Helvetica;
+}
+
+/* fullcalendar overrides, need to be defined here because of view encapsulation */
 .fc .fc-col-header-cell-cushion {
     color: black;
     text-decoration: none;
@@ -14,10 +16,8 @@
 .fc-timegrid-event-harness-inset .fc-timegrid-event {
     cursor: pointer;
 }
-
-// override for tab titles
+/* overrides for tab titles */
 .nav-tabs {
-    font-family: $sitnet-family-helvetica;
     font-size: 16px;
     .nav-link.active {
         font-weight: bold;
@@ -26,8 +26,162 @@
         color: #555555;
     }
 }
-
-// extra extra large modal
+/* dropdown without caret */
+.no-caret {
+    .dropdown-toggle::after {
+        display: none;
+    }
+}
+// extra extra large modal */
 .xxl-modal .modal-dialog {
     min-width: 80vw;
+}
+
+// form validation overrides */
+.ng-invalid {
+    border: 0;
+}
+form .ng-invalid {
+    border: 1px solid red;
+    .exclude {
+        border: 0 !important;
+    }
+}
+ng-form {
+    border: 0 !important;
+}
+/* to highlight ck-editor content marked with this class */
+.marker {
+    background-color: yellow;
+}
+/* dumb utilities */
+.pointer {
+    cursor: pointer;
+}
+.make-inline {
+    display: inline-block !important;
+}
+.border-none {
+    border: none !important;
+}
+.background-none {
+    background: none;
+}
+
+/* to be seen if needed really */
+#exam-dialog {
+    h1 {
+        font-size: 1.5em;
+    }
+}
+/* page title */
+.xm-page-header-title {
+    font-size: 2em;
+    color: #2c2c2c;
+    border-bottom: 2px solid #2c7639;
+    padding-bottom: 7px;
+}
+/* used a lot, basically the box that's green or grey on the right side */
+.xm-study-item-container {
+    border-radius: 4px;
+    border: 2px solid #ededed;
+    border-left: #238635 4px solid;
+    @media (max-width: 920px) {
+        padding: 5px;
+        margin-bottom: 5px;
+    }
+    padding: 30px;
+
+    &.review-view {
+        margin-top: 0;
+        padding: 20px;
+    }
+
+    &.notactive {
+        border-left: #b1b1b1 4px solid;
+    }
+
+    &.waitingroom {
+        margin-left: 2.4em;
+        margin-right: 2.4em;
+    }
+
+    &.exam-view-warning {
+        border-left: red 4px solid;
+    }
+
+    &.exam-questions-warning {
+        border-left: red 4px solid;
+        margin-right: 40px;
+    }
+
+    &.search &.unseen-review {
+        border-color: #238635;
+    }
+}
+/* standard buttons that change colors on focus */
+@mixin xm-button($bgc1, $border, $color1, $bgc2, $color2: white) {
+    border: 1px solid $border;
+    background-color: $bgc1;
+    color: $color1;
+    padding-left: 20px;
+    padding-right: 20px;
+    line-height: 1.5;
+    border-radius: 3px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-decoration: none;
+    &:disabled {
+        opacity: 0.3;
+        pointer-events: none;
+        cursor: not-allowed;
+    }
+    &:active,
+    &:hover {
+        background-color: $bgc2;
+        color: $color2;
+    }
+}
+.xm-ok-button {
+    @include xm-button(#2c7639, #25622f, white, #25622f);
+}
+.xm-cancel-button {
+    @include xm-button(#808080, #6b6b6b, white, #6b6b6b);
+}
+.xm-neutral-button {
+    @include xm-button(white, #979797, #555555, #7f7f7f);
+}
+.xm-warning-button {
+    @include xm-button(white, red, red, red);
+}
+
+/* Accessability stuff? */
+.skip {
+    left: -9999px;
+    display: flex;
+    position: absolute;
+    top: auto;
+    z-index: -999;
+    margin: 5px;
+    white-space: nowrap;
+    background-color: #e6e6e6;
+    border: #4c4c4c;
+    color: black;
+
+    :focus,
+    :active {
+        left: auto;
+        z-index: 999;
+    }
+}
+.important-clear-focus:focus {
+    box-shadow:
+        0px 0px 0px 1.5px rgb(255, 255, 255),
+        0px 0px 0px 4px rgb(68, 120, 247) !important;
+    -webkit-box-shadow:
+        0px 0px 0px 1.5px rgb(255, 255, 255),
+        0px 0px 0px 4px rgb(68, 120, 247) !important;
+    -moz-box-shadow:
+        0px 0px 0px 1.5px rgb(255, 255, 255),
+        0px 0px 0px 4px rgb(68, 120, 247) !important;
 }

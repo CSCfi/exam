@@ -1,5 +1,5 @@
 <div
-    class="participation-container"
+    class="xm-study-item-container"
     [ngClass]="{ 'unseen-review': reviewedExam && reviewedExam.examFeedback?.feedbackStatus === null }"
 >
     <div class="row mb-2">
@@ -73,9 +73,8 @@
     }
     @if (reviewedExam) {
         <div class="row" [ngbCollapse]="!showEvaluation">
-            <div class="col-12 ms-4">
+            <div class="col-12 ms-4 pt-2">
                 <xm-exam-feedback
-                    class="student-exam-row-infobox"
                     [assessment]="reviewedExam"
                     [participationTime]="participation.ended || ''"
                     [participationDuration]="participation.duration || 0"

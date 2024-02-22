@@ -13,7 +13,7 @@ import { CalendarService } from '../calendar.service';
     selector: 'xm-calendar-selected-room',
     template: `
         <div class="row">
-            <div class="col-md-2 col-12 max-w-100perc">
+            <div class="col-md-2 col-12">
                 <strong>{{ room.name }}</strong>
             </div>
             <div class="col-md-10 col-12">
@@ -81,6 +81,7 @@ import { CalendarService } from '../calendar.service';
             </div>
         }
     `,
+    styleUrls: ['../calendar.component.scss'],
     standalone: true,
     imports: [NgClass, NgbPopover, UpperCasePipe, DatePipe, TranslateModule, OrderByPipe],
 })

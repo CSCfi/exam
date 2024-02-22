@@ -1,4 +1,4 @@
-<div class="row col-md-12 margin-20">
+<div class="row col-md-12 mt-3">
     <div class="col-md-3 exam-basic-title">
         {{ 'i18n_exam_editor_materials' | translate }}
         <sup
@@ -11,7 +11,7 @@
     <div class="col-md-6">
         <input
             type="text"
-            class="form-control wdth-30 make-inline"
+            class="form-control w-50 make-inline"
             [(ngModel)]="filter"
             [ngbTypeahead]="filterMaterials$"
             (selectItem)="selectMaterial($event)"
@@ -33,7 +33,7 @@
 <div class="row col-md-12">
     <div class="col-md-3 exam-basic-title"></div>
     <div class="col-md-9">
-        <ul class="list-inline mart10">
+        <ul class="list-inline mt-1">
             @for (material of section.examMaterials; track material) {
                 <li class="list-inline-item">
                     {{ material.name }}

@@ -8,7 +8,7 @@
                 }}</a>
             </small>
             @if (inspections.length > 0) {
-                <a (click)="hideItems = !hideItems" class="pointer marl10">
+                <a (click)="hideItems = !hideItems" class="pointer ms-1">
                     <img
                         [hidden]="!hideItems"
                         src="/assets/images/icon_list_show_right.svg"
@@ -37,7 +37,7 @@
                     <input
                         [(ngModel)]="filterText"
                         (ngModelChange)="filterTextChanged()"
-                        class="form-control hgt40"
+                        class="form-control"
                         placeholder="{{ 'i18n_search' | translate }}"
                         ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
                         popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -45,7 +45,7 @@
                     />
 
                     <div class="input-group-append search">
-                        <img class="nopad" src="/assets/images/icon_search.png" width="49" height="40" />
+                        <img src="/assets/images/icon_search.png" width="49" height="40" />
                     </div>
                 </div>
             </div>
@@ -199,7 +199,7 @@
                         </td>
                         <!-- 3 -->
                         <td>
-                            <a class="table-column-examname" [routerLink]="['/staff/assessments', inspection.exam.id]">
+                            <a class="" [routerLink]="['/staff/assessments', inspection.exam.id]">
                                 {{ inspection.exam.name }}
                             </a>
                         </td>
@@ -241,12 +241,11 @@
                         <!-- 10 -->
                         <td>
                             @if (inspection.approved) {
-                                <span class="approved">
+                                <span class="text-success">
                                     {{ 'i18n_approved' | translate }}
                                 </span>
-                            }
-                            @if (!inspection.approved) {
-                                <span class="rejected">
+                            } @else {
+                                <span class="text-danger">
                                     {{ 'i18n_rejected' | translate }}
                                 </span>
                             }
@@ -262,12 +261,12 @@
                 <!--Fill if page not full-->
                 @for (r of [] | pageFill: filteredInspections.length : currentPage : pageSize; track r) {
                     <tr>
-                        <td class="table-column-bold" colspan="11">&nbsp;</td>
+                        <td class="" colspan="11">&nbsp;</td>
                     </tr>
                 }
                 @if (filteredInspections.length === 0) {
                     <tr>
-                        <td class="table-column-bold" colspan="11">
+                        <td class="" colspan="11">
                             {{ 'i18n_processed_language_inspections_no_results' | translate }}
                         </td>
                     </tr>

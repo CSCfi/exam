@@ -37,7 +37,7 @@ import { ExamSearchService } from './exam-search.service';
         <ng-template #content>
             <div class="row">
                 <span class="col-12 align-items-center">
-                    <img class="nopad" src="/assets/images/icon_info.png" class="pe-1" alt="" />
+                    <img src="/assets/images/icon_info.png" class="pe-1" alt="" />
                     &nbsp;
                     @if (permissionCheck.active === false) {
                         {{ 'i18n_exam_search_description' | translate }}
@@ -49,25 +49,19 @@ import { ExamSearchService } from './exam-search.service';
             </div>
             @if (permissionCheck.active === false) {
                 <div class="row mt-3">
-                    <div class="col-12">
-                        <div class="form-group input-group search">
+                    <div class="col-5">
+                        <div class="input-group">
                             <input
                                 xmAutoFocus
                                 (ngModelChange)="search($event)"
                                 [(ngModel)]="filter.text"
                                 type="text"
-                                class="form-control search"
+                                class="form-control"
                                 [attr.aria-label]="'i18n_search' | translate"
                                 placeholder="{{ 'i18n_search' | translate }}"
                             />
                             <div class="input-group-append search" aria-hidden="true">
-                                <img
-                                    class="nopad"
-                                    src="/assets/images/icon_search.png"
-                                    alt="search-icon"
-                                    width="49"
-                                    height="40"
-                                />
+                                <img src="/assets/images/icon_search.png" alt="search-icon" width="49" height="40" />
                             </div>
                         </div>
                     </div>
@@ -86,7 +80,11 @@ import { ExamSearchService } from './exam-search.service';
 
             <div [@listAnimation]="exams.length">
                 @for (exam of exams; track exam.id) {
-                    <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <xm-exam-search-result [exam]="exam" />
+                        </div>
+                    </div>
                 }
             </div>
         </ng-template> `,
@@ -102,6 +100,7 @@ import { ExamSearchService } from './exam-search.service';
             ]),
         ]),
     ],
+    styleUrls: ['./exam-search.component.scss'],
     standalone: true,
     imports: [
         FormsModule,

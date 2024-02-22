@@ -25,34 +25,34 @@ import { LibraryService } from '../library.service';
 
 @Component({
     template: `
-        <div id="sitnet-dialog" role="dialog" aria-modal="true">
+        <div id="exam-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">
-                <div class="student-enroll-dialog-wrap">
-                    <h1 class="student-enroll-title">{{ 'i18n_add_question_tag' | translate }}</h1>
-                </div>
+                <h1 class="xm-page-header-title">{{ 'i18n_tag_questions' | translate }}</h1>
             </div>
             <div class="modal-body">
-                <div class="form-group input-group">
-                    <input
-                        class="form-control"
-                        [ngbTypeahead]="listTags$"
-                        (selectItem)="setQuestionTag($event)"
-                        [inputFormatter]="nameFormatter"
-                        [resultFormatter]="nameFormatter"
-                    />
-                    <div class="input-group-append">
-                        <button class="btn btn-success" (click)="addTagForSelected()">
-                            {{ 'i18n_add' | translate }}
-                        </button>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group input-group">
+                            <input
+                                class="form-control"
+                                [ngbTypeahead]="listTags$"
+                                (selectItem)="setQuestionTag($event)"
+                                [inputFormatter]="nameFormatter"
+                                [resultFormatter]="nameFormatter"
+                            />
+                            <div class="input-group-append">
+                                <button class="btn btn-success" (click)="addTagForSelected()">
+                                    {{ 'i18n_add' | translate }}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <div class="student-message-dialog-button-save">
-                    <button class="btn btn-sm btn-primary" (click)="close()" autofocus>
-                        {{ 'i18n_close' | translate }}
-                    </button>
-                </div>
+                <button class="xm-cancel-button" (click)="close()" autofocus>
+                    {{ 'i18n_close' | translate }}
+                </button>
             </div>
         </div>
     `,
@@ -98,13 +98,13 @@ export class LibraryTagsDialogComponent implements OnInit {
     addTagForSelected = () => {
         // check that atleast one has been selected
         if (!this.selectedTagId) {
-            this.toast.warning(this.translate.instant('i18n_add_question_tag'));
+            this.toast.warning(this.translate.instant('i18n_choose_atleast_one'));
             return;
         }
 
         this.Library.addTagForQuestions$(this.selectedTagId, this.selections).subscribe({
             next: () => {
-                this.toast.info(this.translate.instant('i18n_tag_added'));
+                this.toast.info(this.translate.instant('i18n_question_associated_with_tag'));
                 this.newTags.push(this.selectedTagId as number);
             },
             error: () => this.toast.error(this.translate.instant('i18n_update_failed')),

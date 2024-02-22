@@ -32,6 +32,8 @@ enum ORDINAL {
         NgbDropdownModule,
     ],
     templateUrl: './exception-dialog.component.html',
+    styleUrls: ['../rooms/rooms.component.scss'],
+    styles: '.blue-shadow-hover:hover { box-shadow: 0 0 1px 3px rgba(0, 117, 255, 1); }',
 })
 export class ExceptionDialogComponent {
     @Input() outOfService = true;

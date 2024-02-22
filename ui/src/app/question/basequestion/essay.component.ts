@@ -47,8 +47,8 @@ import { QuestionDraft } from '../question.service';
                         </span>
                     </div>
                     @if (wc.invalid) {
-                        <div class="warning-text-small margin-10 edit-warning-container">
-                            <i class="bi-exclamation-circle reddish me-2"></i>
+                        <div class="warning-text-small m-2 edit-warning-container">
+                            <i class="bi-exclamation-circle text-danger me-2"></i>
                             {{ 'i18n_essay_length_recommendation_bounds' | translate }}
                         </div>
                     }
@@ -56,6 +56,7 @@ import { QuestionDraft } from '../question.service';
             </div>
         </div>
     `,
+    styleUrls: ['../question.shared.scss'],
     standalone: true,
     imports: [FormsModule, TranslateModule],
 })

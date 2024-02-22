@@ -22,9 +22,9 @@ import { ExaminationService } from '../examination.service';
 @Component({
     selector: 'xm-examination-multi-choice-question',
     template: `
-        <div class="bottom-padding-2">
+        <div class="pb-3">
             <fieldset [attr.aria-label]="questionTitle">
-                <legend style="visibility: hidden;">answer options for multiple choice question</legend>
+                <legend [hidden]="true">answer options for multiple choice question</legend>
                 @for (sqo of sq.options; track sqo) {
                     <div class="exam-answer-options">
                         <label>
@@ -44,10 +44,10 @@ import { ExaminationService } from '../examination.service';
             </fieldset>
         </div>
         @if (sq.question.type !== 'ClaimChoiceQuestion') {
-            <div class="padl0 question-type-text">{{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
+            <div class="ps-0 question-type-text">{{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
         }
         @if (sq.question.type === 'ClaimChoiceQuestion' && sq.derivedMinScore !== null) {
-            <div class="padl0 question-type-text">
+            <div class="ps-0 question-type-text">
                 {{ 'i18n_max_points' | translate }} {{ sq.derivedMaxScore }} {{ 'i18n_min_points' | translate }}
                 {{ sq.derivedMinScore }}
             </div>
@@ -55,6 +55,7 @@ import { ExaminationService } from '../examination.service';
     `,
     standalone: true,
     imports: [FormsModule, TranslateModule],
+    styleUrls: ['./question.shared.scss'],
 })
 export class ExaminationMultiChoiceComponent implements OnInit {
     @Input() sq!: ExaminationQuestion;

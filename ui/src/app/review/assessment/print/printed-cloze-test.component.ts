@@ -22,6 +22,7 @@ import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
 @Component({
     selector: 'xm-printed-cloze-test',
     templateUrl: './templates/cloze-test.component.html',
+    styleUrls: ['./print.shared.scss'],
     standalone: true,
     imports: [MathJaxDirective, NgStyle, TranslateModule],
 })

@@ -24,7 +24,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
     template: `@if (reviewExpanded) {
         <div>
             @for (option of sectionQuestion.options | orderBy: 'option.id'; track option) {
-                <div class="padl15 marb10">
+                <div class="ps-2 mb-2">
                     <div [ngClass]="getSelectedOptionClass(option)">
                         <div class="make-inline float-start">
                             @if (determineClaimOptionType(option) === 'CorrectOption') {
@@ -37,7 +37,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                                 <img src="/assets/images/icon_correct_answer_radio_grey.png" alt="" />
                             }
                         </div>
-                        <div class="make-inline middle-column">
+                        <div class="make-inline w-75 my-1 ms-3">
                             <span class="exam-question-option-text" [innerHtml]="option.option.option"></span>
                         </div>
                         <div class="make-inline float-end answer-score-text">

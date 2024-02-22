@@ -1,14 +1,14 @@
 <!-- Publish settings container -->
 <div class="row ms-2 me-2">
     <div class="col-md-12">
-        <div class="row marr30 padt40">
+        <div class="row pt-3">
             <div class="col-md-12">
                 <div class="review-list-title">{{ 'i18n_publish_timetable' | translate }}</div>
             </div>
         </div>
         <div class="row mt-2" [hidden]="exam.executionType.type !== 'PRINTOUT'">
             <!-- examination dates -->
-            <div class="col-md-3 exam-basic-title padl0">{{ 'i18n_examination_dates' | translate }}</div>
+            <div class="col-md-3 exam-basic-title ps-0">{{ 'i18n_examination_dates' | translate }}</div>
             <div class="col-md-4">
                 <xm-date-picker
                     [extra]="true"
@@ -21,7 +21,7 @@
         </div>
         <div class="row mt-2" [hidden]="exam.executionType.type !== 'PRINTOUT'">
             <div class="col-md-9 offset-md-3">
-                <ul class="list-inline mart10">
+                <ul class="list-inline mt-1">
                     @for (ed of exam.examinationDates | orderBy: 'date'; track ed) {
                         <li class="list-inline-item">
                             {{ ed.date | date: 'dd.MM.yyyy' }}
@@ -37,7 +37,7 @@
                 </ul>
             </div>
         </div>
-        <div class="row mt-2" [hidden]="exam.executionType.type === 'PRINTOUT'">
+        <div class="row mt-3" [hidden]="exam.executionType.type === 'PRINTOUT'">
             <div class="col-md-12">
                 <form role="form">
                     <!-- Start & End time datepickers -->
@@ -79,10 +79,8 @@
                             </xm-date-picker>
                         </div>
                         <div class="col-md-3" [hidden]="!exam.hasEnrolmentsInEffect">
-                            <span class="text-info" role="note">
-                                <img class="arrow_icon" alt="" src="/assets/images/icon_info.png" />
-                                {{ 'i18n_restricting_validity_change_disallowed' | translate }}
-                            </span>
+                            <img class="arrow_icon" alt="" src="/assets/images/icon_info.png" />
+                            {{ 'i18n_restricting_validity_change_disallowed' | translate }}
                         </div>
                     </div>
                 </form>
@@ -108,26 +106,26 @@
                     </button>
                 </div>
                 <div class="col-md-6 justify-content-center">
-                    <ul class="list-inline padt20">
+                    <ul class="list-inline pt-2">
                         @for (config of sortByString(exam.examinationEventConfigurations); track config) {
-                            <li class="list-inline-item marb20">
+                            <li class="list-inline-item mb-3">
                                 <span
                                     title="{{ 'i18n_edit' | translate }}"
                                     (click)="modifyExaminationEvent(config)"
                                     class="pointer examination-event-list-item rounded-start"
                                 >
                                     {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm'
-                                    }}<i class="bi-pencil marl5"></i>
+                                    }}<i class="bi-pencil ms-1"></i>
                                 </span>
                                 @if (config.examEnrolments.length === 0) {
                                     <span (click)="removeExaminationEvent(config)" class="text text-danger pointer">
                                         <i
                                             title="{{ 'i18n_remove' | translate }}"
-                                            class="bi-x rounded-end background-gray pad6"
+                                            class="bi-x rounded-end background-gray p-1"
                                         ></i
                                     ></span>
                                 } @else {
-                                    <span class="rounded-end text text-muted background-gray pad6">
+                                    <span class="rounded-end text text-muted background-gray p-1">
                                         <i title="{{ 'i18n_event_enrolments_exist' | translate }}" class="bi-x"></i>
                                     </span>
                                 }
@@ -154,7 +152,7 @@
                 @for (duration of examDurations(); track duration) {
                     <span class="me-2">
                         <button
-                            class="btn btn-publish"
+                            class="btn selection-button-narrow"
                             [ngClass]="checkDuration(duration)"
                             (click)="setExamDuration(0, duration)"
                             [disabled]="!isAdmin() && exam.hasEnrolmentsInEffect"
@@ -165,7 +163,7 @@
                 }
                 @if (exam.implementation === 'WHATEVER' || exam.implementation === 'CLIENT_AUTH') {
                     <button
-                        class="btn btn-primary green marl30"
+                        class="btn btn-primary green ms-3"
                         (click)="showCustomTimeField.set(!showCustomTimeField())"
                     >
                         {{ 'i18n_custom' | translate }} {{ ('i18n_exam_time' | translate).toLowerCase() }}
@@ -176,45 +174,41 @@
                         }
                     </button>
                     @if (showCustomTimeField()) {
-                        <div class="wdt400">
-                            <div class="mart10">
-                                <div class="mart10">
-                                    <input
-                                        id="hourValue"
-                                        name="examDuration-hours"
-                                        class="wdt50 time-display"
-                                        type="number"
-                                        [ngModel]="hourValue()"
-                                        (ngModelChange)="hourValue.set($event)"
-                                        [max]="23"
-                                        [min]="0"
-                                    />
-                                    <label for="hourValue">{{ 'i18n_hours' | translate }}</label>
-                                </div>
-                                <div class="mart10">
-                                    <input
-                                        id="minuteValue"
-                                        name="examDuration-minutes"
-                                        class="wdt50 time-display"
-                                        type="number"
-                                        [ngModel]="minuteValue()"
-                                        (ngModelChange)="minuteValue.set($event)"
-                                        [max]="59"
-                                        [min]="0"
-                                    />
-                                    <label for="minuteValue">{{ 'i18n_minutes' | translate }}</label>
-                                </div>
-                                <button
-                                    class="btn btn-primary green mart10"
-                                    (click)="setExamDuration(hourValue(), minuteValue())"
-                                >
-                                    {{ 'i18n_save_custom_time' | translate }}
-                                </button>
-                            </div>
-                            <div>
-                                {{ 'i18n_between' | translate }}: {{ toHoursAndMinutes(minDuration()) }} -
-                                {{ toHoursAndMinutes(maxDuration()) }}
-                            </div>
+                        <div class="mt-1">
+                            <input
+                                id="hourValue"
+                                name="examDuration-hours"
+                                class="time-display"
+                                type="number"
+                                [ngModel]="hourValue()"
+                                (ngModelChange)="hourValue.set($event)"
+                                [max]="23"
+                                [min]="0"
+                            />
+                            <label for="hourValue">{{ 'i18n_hours' | translate }}</label>
+                        </div>
+                        <div class="mt-1">
+                            <input
+                                id="minuteValue"
+                                name="examDuration-minutes"
+                                class="wdt50 time-display"
+                                type="number"
+                                [ngModel]="minuteValue()"
+                                (ngModelChange)="minuteValue.set($event)"
+                                [max]="59"
+                                [min]="0"
+                            />
+                            <label for="minuteValue">{{ 'i18n_minutes' | translate }}</label>
+                        </div>
+                        <button
+                            class="btn btn-primary green mt-1"
+                            (click)="setExamDuration(hourValue(), minuteValue())"
+                        >
+                            {{ 'i18n_save_custom_time' | translate }}
+                        </button>
+                        <div>
+                            {{ 'i18n_between' | translate }}: {{ toHoursAndMinutes(minDuration()) }} -
+                            {{ toHoursAndMinutes(maxDuration()) }}
                         </div>
                     }
                 }
@@ -224,13 +218,13 @@
                 </div>
             </div>
         </div>
-        <div class="row mt-2 marr30" [hidden]="exam.executionType.type === 'PRINTOUT'">
-            <div class="col-md-12 margin-20">
+        <div class="row mt-2" [hidden]="exam.executionType.type === 'PRINTOUT'">
+            <div class="col-md-12 mt-3">
                 <div class="review-list-title">{{ 'i18n_other_publication_settings' | translate }}</div>
             </div>
         </div>
         <div
-            class="row mt-2"
+            class="row mt-3 align-items-center"
             [hidden]="exam.executionType.type === 'MATURITY' || exam.executionType.type === 'PRINTOUT'"
         >
             <div class="col-md-3 exam-basic-title">
@@ -246,18 +240,28 @@
             <div class="col-md-9">
                 @for (x of range(1, 5); track x) {
                     <span [hidden]="exam.executionType.type !== 'PUBLIC'">
-                        <button class="btn btn-publish" [ngClass]="checkTrialCount(x)" (click)="setTrialCount(x)">
+                        <button
+                            class="btn selection-button-narrow"
+                            [ngClass]="checkTrialCount(x)"
+                            (click)="setTrialCount(x)"
+                        >
                             {{ x }}</button
                         >&nbsp;
                     </span>
                 }
                 @if (exam.executionType.type === 'PUBLIC') {
-                    <button class="btn btn-publish" [ngClass]="checkTrialCount(null)" (click)="setTrialCount(null)">
+                    <button
+                        class="btn selection-button-narrow"
+                        [ngClass]="checkTrialCount(null)"
+                        (click)="setTrialCount(null)"
+                    >
                         &infin;
                     </button>
                 }
                 @if (exam.executionType.type === 'PRIVATE') {
-                    <button class="btn btn-publish" [ngClass]="checkTrialCount(null)" [disabled]="true">1</button>
+                    <button class="btn selection-button-narrow" [ngClass]="checkTrialCount(null)" [disabled]="true">
+                        1
+                    </button>
                 }
                 @if (exam.executionType.type === 'PRIVATE') {
                     <span class="text-muted"> ({{ 'i18n_private_exam_trial_count_description' | translate }})</span>
@@ -328,8 +332,8 @@
 
         <!-- Link to enrolment -->
         @if (exam.executionType.type === 'PUBLIC' && !collaborative()) {
-            <div class="row marr30">
-                <div class="col-md-12 mart40">
+            <div class="row mt-3">
+                <div class="col-md-12">
                     <div class="review-list-title">
                         {{ 'i18n_enrolment_url' | translate }}
                         <sup
@@ -345,7 +349,7 @@
         }
         @if (exam.executionType.type === 'PUBLIC' && !collaborative()) {
             <div class="row">
-                <div class="col-md-12 mart20">
+                <div class="col-md-12 mt-2">
                     <a href="{{ hostName() }}/enrolments/{{ exam.id }}?code={{ exam.course?.code }}">
                         {{ hostName() }}/enrolments/{{ exam.id }}?code={{ exam.course?.code }}
                     </a>
@@ -354,45 +358,37 @@
         }
 
         <!-- Buttons -->
-        <div class="row mt-3 marr30">
-            <div class="col-md-12 marb20">
-                <span class="float-end">
-                    <div class="review-attachment-button exam-questions-buttons">
-                        <a class="pointer preview" (click)="previewExam(4)"> {{ 'i18n_preview' | translate }}</a>
-                    </div>
-                    <div class="review-attachment-button exam-questions-buttons marl10">
-                        <a class="pointer" (click)="updateExam()"> {{ 'i18n_save' | translate }}</a>
-                    </div>
+        <div class="row mt-3 me-3">
+            <div class="col-md-12 mb-3">
+                <div class="d-flex flex-row-reverse">
                     <div
-                        [hidden]="exam.state === 'PUBLISHED'"
-                        class="review-attachment-button exam-questions-buttons marl10"
+                        [hidden]="exam.state !== 'PUBLISHED' || exam.executionType.type !== 'PUBLIC' || collaborative()"
                     >
-                        <a class="pointer" (click)="saveAndPublishExam()">
+                        <button class="xm-warning-button" (click)="unpublishExam()">
+                            {{ 'i18n_unpublish_exam' | translate }}
+                        </button>
+                    </div>
+                    <div [hidden]="exam.state === 'PUBLISHED'">
+                        <button class="xm-ok-button me-3" (click)="saveAndPublishExam()">
                             @if (!isDraftCollaborativeExam()) {
                                 <span>{{ 'i18n_save_and_publish' | translate }}</span>
                             } @else {
                                 <span>{{ 'i18n_save_and_pre_publish' | translate }}</span>
                             }
-                        </a>
+                        </button>
                     </div>
-                    <div
-                        [hidden]="exam.state !== 'PUBLISHED' || exam.executionType.type !== 'PUBLIC' || collaborative()"
-                        class="review-attachment-button exam-questions-buttons marl10"
-                    >
-                        <a class="pointer warning" (click)="unpublishExam()">
-                            {{ 'i18n_unpublish_exam' | translate }}
-                        </a>
-                    </div>
-                </span>
+                    <button class="xm-ok-button me-3" (click)="updateExam()">{{ 'i18n_save' | translate }}</button>
+                    <button class="xm-neutral-button me-3" (click)="previewExam(4)">
+                        {{ 'i18n_preview' | translate }}
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="row marr30">
-            <div class="col-md-12 marb20 padt20 grey-top">
-                <div class="review-attachment-button exam-questions-buttons">
-                    <a class="pointer preview" (click)="previousTab()">
-                        &#171; {{ 'i18n_exam_assessment_settings' | translate }}</a
-                    >
-                </div>
+        <div class="row me-3">
+            <div class="col-md-12 mb-3 pt-2 grey-top">
+                <button class="xm-neutral-button" (click)="previousTab()">
+                    &#171; {{ 'i18n_exam_assessment_settings' | translate }}
+                </button>
             </div>
         </div>
     </div>

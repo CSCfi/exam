@@ -15,13 +15,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
+import { updateList } from 'src/app/shared/miscellaneous/helpers';
 import { MaintenancePeriod } from '../../exam/exam.model';
 import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
 import { BookingCalendarComponent } from '../booking-calendar.component';
 import type { Organisation, Slot } from '../calendar.service';
 import { CalendarService } from '../calendar.service';
 import { SelectedRoomComponent } from './selected-room.component';
-import { updateList } from 'src/app/shared/miscellaneous/helpers';
 
 type FilterableAccessibility = Accessibility & { filtered: boolean };
 type FilterableRoom = ExamRoom & { filtered: boolean };
@@ -30,6 +30,7 @@ type AvailableSlot = Slot & { availableMachines: number };
 @Component({
     selector: 'xm-calendar-slot-picker',
     templateUrl: './slot-picker.component.html',
+    styleUrls: ['../calendar.component.scss'],
     encapsulation: ViewEncapsulation.None,
     standalone: true,
     imports: [

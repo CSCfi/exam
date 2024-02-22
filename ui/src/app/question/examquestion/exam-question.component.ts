@@ -19,6 +19,8 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import type {
     ExamSectionQuestion,
     ExamSectionQuestionOption,
@@ -32,10 +34,11 @@ import { FixedPrecisionValidatorDirective } from '../../shared/validation/fixed-
 import { QuestionPreviewDialogComponent } from '../preview/question-preview-dialog.component';
 import { QuestionService } from '../question.service';
 
-// This component depicts a distributed exam question
+// This component depicts a distributed exam question. Only used thru a modal.
 @Component({
     selector: 'xm-exam-question',
     templateUrl: './exam-question.component.html',
+    styleUrls: ['../question.shared.scss'],
     standalone: true,
     imports: [
         FormsModule,
@@ -45,6 +48,8 @@ import { QuestionService } from '../question.service';
         FixedPrecisionValidatorDirective,
         UpperCasePipe,
         TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class ExamQuestionComponent implements OnInit, OnDestroy {

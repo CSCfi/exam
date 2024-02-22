@@ -66,6 +66,7 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
         TranslateModule,
         OrderByPipe,
     ],
+    styleUrls: ['../../exam.shared.scss', './exam-publication.component.scss'],
 })
 export class ExamPublicationComponent implements OnInit {
     exam!: Exam;

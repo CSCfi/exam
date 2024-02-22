@@ -29,7 +29,6 @@
                         </button>
                     </div>
                 </div>
-                <ng-content></ng-content>
             </div>
         </div>
     </div>
@@ -56,7 +55,7 @@
                     name="sectionName"
                     type="text"
                     required
-                    class="form-control mb-3"
+                    class="form-control mb-3 w-50"
                     [(ngModel)]="section.name"
                     (change)="renameSection()"
                 />
@@ -131,7 +130,7 @@
                         ngbPopover="{{ 'i18n_exam_section_randomize_description' | translate }}"
                         popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
-                        class="marl5"
+                        class="ms-1"
                     >
                         <img
                             src="/assets/images/icon_tooltip.svg"
@@ -257,20 +256,18 @@
                     </div>
                 }
             </div>
-
+        </div>
+    </div>
+    <div class="row mx-2 mt-3">
+        <div class="col-12">
             @if (!collaborative) {
-                <div class="review-attachment-button exam-questions-buttons mt-3">
-                    <a class="pointer" (click)="openLibrary()">
-                        <i class="bi-plus"></i>&nbsp;{{ 'i18n_add_from_library' | translate }}
-                    </a>
-                </div>
+                <button class="xm-ok-button" (click)="openLibrary()">
+                    <i class="bi-plus"></i>&nbsp;{{ 'i18n_add_from_library' | translate }}
+                </button>
             }
-
-            <div class="review-attachment-button exam-questions-buttons ms-3 mt-3">
-                <a class="pointer" (click)="addNewQuestion()">
-                    <i class="bi-plus"></i>&nbsp;{{ 'i18n_exam_new_question' | translate }}
-                </a>
-            </div>
+            <button class="xm-ok-button ms-2" (click)="addNewQuestion()">
+                <i class="bi-plus"></i>&nbsp;{{ 'i18n_exam_new_question' | translate }}
+            </button>
         </div>
     </div>
 </div>

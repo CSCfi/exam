@@ -32,7 +32,7 @@ import type { Exam, ExamParticipation } from '../../exam.model';
                         type="email"
                         name="email"
                         placeholder="{{ 'i18n_write_pre_participant_email' | translate }}"
-                        class="form-control wdth-30 make-inline"
+                        class="form-control w-50 make-inline"
                         [(ngModel)]="newPreParticipant.email"
                         email
                     />
@@ -46,42 +46,34 @@ import type { Exam, ExamParticipation } from '../../exam.model';
                 </form>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-9 offset-md-3">
-                <ul class="muted-list mart10">
-                    <!-- Students not having finished the exam -->
-                    @for (enrolment of exam.examEnrolments; track enrolment) {
-                        <li class="marl10">
-                            {{ renderParticipantLabel(enrolment) }}
-                            @if (enrolment.user?.userIdentifier) {
-                                <span>({{ enrolment.user.userIdentifier }})</span>
-                            }
-                            <button
-                                class="reviewer-remove"
-                                [disabled]="exam.state === 'PUBLISHED'"
-                                (click)="removeParticipant(enrolment.id)"
-                                title="{{ 'i18n_remove' | translate }}"
-                            >
-                                <img
-                                    [hidden]="exam.state === 'PUBLISHED'"
-                                    src="/assets/images/icon_remove.svg"
-                                    alt=""
-                                />
-                            </button>
-                        </li>
-                    }
-                    <!-- Students that have finished the exam -->
-                    @for (participant of participants; track participant) {
-                        <li class="marl10 text-muted">
-                            {{ participant.firstName }} {{ participant.lastName }}
-                            @if (participant.userIdentifier) {
-                                <span>({{ participant.userIdentifier }})</span>
-                            }
-                        </li>
-                    }
-                </ul>
-            </div>
-        </div>`,
+
+        <div class="row mt-1">
+            <span class="col-md-9 offset-md-3">
+                <!-- Students not having finished the exam -->
+                @for (enrolment of exam.examEnrolments; track enrolment) {
+                    <button
+                        class="badge text-bg-secondary ms-1"
+                        [disabled]="exam.state === 'PUBLISHED'"
+                        (click)="removeParticipant(enrolment.id)"
+                        title="{{ 'i18n_remove' | translate }}"
+                    >
+                        {{ renderParticipantLabel(enrolment) }}
+                        @if (enrolment.user?.userIdentifier) {
+                            ({{ enrolment.user.userIdentifier }})
+                        }
+                    </button>
+                }
+                <!-- Students that have finished the exam -->
+                @for (participant of participants; track participant) {
+                    <button class="badge text-bg-light ms-1" [disabled]="true">
+                        {{ participant.firstName }} {{ participant.lastName }}
+                        @if (participant.userIdentifier) {
+                            ({{ participant.userIdentifier }})
+                        }
+                    </button>
+                }
+            </span>
+        </div> `,
     standalone: true,
     imports: [FormsModule, TranslateModule],
 })

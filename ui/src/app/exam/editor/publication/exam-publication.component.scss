@@ -1,0 +1,22 @@
+.examination-event-list-item {
+    background: #00a34b;
+    color: #ffffff;
+    font-variant-numeric: tabular-nums !important;
+    padding: 6px 12px;
+    &:hover {
+        background: #2c7639;
+    }
+}
+.background-gray {
+    background: gainsboro;
+}
+
+.rotate90 {
+    transform: rotate(90deg);
+}
+.participant-selector-toggle {
+    label {
+        display: block;
+        font-weight: 400;
+    }
+}

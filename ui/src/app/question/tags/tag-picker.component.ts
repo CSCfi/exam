@@ -64,7 +64,7 @@ import { QuestionDraft } from '../question.service';
                     </div>
                 </div>
                 <div class="col">
-                    <ul class="list-inline mart10">
+                    <ul class="list-inline mt-1">
                         @for (tag of ownTags; track tag) {
                             <li class="list-inline-item">
                                 {{ tag.name }}

@@ -24,23 +24,25 @@ import { ExaminationQuestion } from '../../examination/examination.model';
 
 @Component({
     template: `
-        <div class="modal-header" aria-modal="true">
-            <h4 class="modal-title">{{ 'i18n_preview_question' | translate }}</h4>
-        </div>
-        @if (preview) {
-            <div class="modal-body">
-                <xm-examination-question
-                    [question]="preview"
-                    [isPreview]="true"
-                    [isCollaborative]="false"
-                ></xm-examination-question>
+        <div id="exam-modal">
+            <div class="modal-header" aria-modal="true">
+                <h4 class="modal-title">{{ 'i18n_preview_question' | translate }}</h4>
             </div>
-        }
-        <div class="modal-footer">
-            <div class="student-message-dialog-button-cancel">
-                <button class="btn btn-success" (click)="activeModal.dismiss()">
-                    {{ 'i18n_close' | translate }}
-                </button>
+            @if (preview) {
+                <div class="modal-body">
+                    <xm-examination-question
+                        [question]="preview"
+                        [isPreview]="true"
+                        [isCollaborative]="false"
+                    ></xm-examination-question>
+                </div>
+            }
+            <div class="modal-footer">
+                <div class="xm-dialog-button-cancel">
+                    <button class="btn btn-success" (click)="activeModal.dismiss()">
+                        {{ 'i18n_close' | translate }}
+                    </button>
+                </div>
             </div>
         </div>
     `,

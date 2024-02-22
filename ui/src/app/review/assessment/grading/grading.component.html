@@ -142,7 +142,7 @@
     @if (exam.examFeedback?.comment) {
         <div
             class="col-md-10"
-            [ngClass]="isCommentRead() ? 'general-info-content' : 'sitnet-text-alarm'"
+            [ngClass]="isCommentRead() ? 'general-info-content' : 'text-danger'"
             [xmMathJax]="exam.examFeedback?.comment"
         ></div>
     }
