@@ -1,0 +1,12 @@
+.reservation-border {
+    @media (max-width: 920px) {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    border: 1px solid #c3c3c3;
+    //padding-bottom: 50px;
+    //margin-left: 50px;
+    //margin-right: 30px;
+    //margin-top: 45px;
+    //padding-left: 1px;
+}

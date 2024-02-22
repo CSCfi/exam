@@ -1,10 +1,33 @@
 /* You can add global styles to this file, and also import other style files */
-@import "./assets/styles/main";
+@import './assets/styles/main';
 /* Importing Bootstrap SCSS file. */
 @import 'bootstrap/scss/bootstrap';
 /* Importing Ngx-Toastr SCSS file. */
 @import 'ngx-toastr/toastr';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
+// fullcalendar overrides, need to be defined here because of view encapsulation
+.fc .fc-col-header-cell-cushion {
+    color: black;
+    text-decoration: none;
+}
+.fc-timegrid-event-harness-inset .fc-timegrid-event {
+    cursor: pointer;
+}
 
+// override for tab titles
+.nav-tabs {
+    font-family: $sitnet-family-helvetica;
+    font-size: 16px;
+    .nav-link.active {
+        font-weight: bold;
+    }
+    a {
+        color: #555555;
+    }
+}
 
+// extra extra large modal
+.xxl-modal .modal-dialog {
+    min-width: 80vw;
+}

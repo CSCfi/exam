@@ -20,6 +20,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
 import { AccessibilitySelectorComponent } from '../accessibility/accessibility-picker.component';
 import { AddressComponent } from '../address/address.component';
@@ -38,6 +40,8 @@ import { RoomService } from './room.service';
         AccessibilitySelectorComponent,
         AddressComponent,
         TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class RoomComponent implements OnInit {

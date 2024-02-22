@@ -1,25 +1,24 @@
 <div id="dashboard">
-    <span class="row mt-4 ms-3 align-items-center">
-        <span class="col-md">
-            <span class="student-enroll-title">{{ 'i18n_exam_rooms_administration' | translate }}</span>
-            <a (click)="createExamRoom()" class="font-6 marl20 pointer">
-                <i class="bi-plus-square"></i>
-            </a>
-        </span>
-        <span class="col-md-6">
-            <a class="float-end me-4 bi-building btn btn-success" (click)="editMultipleRooms()">
-                {{ 'i18n_edit_all_rooms' | translate }}
-            </a>
-        </span>
-    </span>
-    <div class="top-row ms-1">
+    <xm-page-header text="i18n_exam_rooms_administration" [appendTemplate]="buttons" />
+    <xm-page-content [content]="content" />
+</div>
+<ng-template #buttons>
+    <a class="float-end me-4 bi-building btn btn-success" (click)="editMultipleRooms()">
+        <span class="ps-3">{{ 'i18n_edit_all_rooms' | translate }}</span>
+    </a>
+    <a class="float-end me-4 bi-plus-square btn btn-success" (click)="createExamRoom()">
+        <span class="ps-3">{{ 'i18n_add' | translate }}</span>
+    </a>
+</ng-template>
+<ng-template #content>
+    <div class="row">
         <div class="col-md-12">
             <strong>{{ 'i18n_maintenance_periods' | translate }}</strong>
             <a (click)="createPeriod()" class="ms-2"><i class="pointer bi-plus-square"></i></a>
         </div>
     </div>
     @for (period of maintenancePeriods | orderBy: 'startsAt'; track period) {
-        <div class="detail-row ms-1">
+        <div class="row">
             <div class="col-md-12">
                 {{ period.startsAt | date: 'dd.MM.yyyy HH:mm' }} - {{ period.endsAt | date: 'dd.MM.yyyy HH:mm' }}
                 {{ period.description }}
@@ -29,33 +28,35 @@
         </div>
     }
 
-    <div class="tab-wrapper">
-        <ul ngbNav #nav="ngbNav" class="nav-tabs">
-            <li ngbNavItem>
-                <a ngbNavLink>
-                    {{ getHeadingTranslation('i18n_exam_all_rooms') }}
-                </a>
-                <ng-template ngbNavContent>
-                    <xm-rooms></xm-rooms>
-                </ng-template>
-            </li>
-            <li ngbNavItem>
-                <a ngbNavLink>
-                    {{ getHeadingTranslation('i18n_exam_machine_softwares') }}
-                </a>
-                <ng-template ngbNavContent>
-                    <xm-software></xm-software>
-                </ng-template>
-            </li>
-            <li ngbNavItem>
-                <a ngbNavLink>
-                    {{ getHeadingTranslation('i18n_room_accessibility_info') }}
-                </a>
-                <ng-template ngbNavContent>
-                    <xm-accessibility></xm-accessibility>
-                </ng-template>
-            </li>
-        </ul>
-        <div [ngbNavOutlet]="nav"></div>
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <ul ngbNav #nav="ngbNav" class="nav-tabs">
+                <li ngbNavItem>
+                    <a ngbNavLink>
+                        {{ getHeadingTranslation('i18n_exam_all_rooms') }}
+                    </a>
+                    <ng-template ngbNavContent>
+                        <xm-rooms></xm-rooms>
+                    </ng-template>
+                </li>
+                <li ngbNavItem>
+                    <a ngbNavLink>
+                        {{ getHeadingTranslation('i18n_exam_machine_softwares') }}
+                    </a>
+                    <ng-template ngbNavContent>
+                        <xm-software></xm-software>
+                    </ng-template>
+                </li>
+                <li ngbNavItem>
+                    <a ngbNavLink>
+                        {{ getHeadingTranslation('i18n_room_accessibility_info') }}
+                    </a>
+                    <ng-template ngbNavContent>
+                        <xm-accessibility></xm-accessibility>
+                    </ng-template>
+                </li>
+            </ul>
+            <div [ngbNavOutlet]="nav"></div>
+        </div>
     </div>
-</div>
+</ng-template>

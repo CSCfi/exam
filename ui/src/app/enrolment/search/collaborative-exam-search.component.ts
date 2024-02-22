@@ -19,6 +19,8 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { isObject } from 'src/app/shared/miscellaneous/helpers';
 import type { CollaborativeExam } from '../../exam/exam.model';
 import type { CollaborativeExamInfo } from '../enrolment.model';
@@ -28,60 +30,70 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
 @Component({
     selector: 'xm-collaborative-exam-search',
     template: `<div id="dashboard">
-        <div class="student-details-title-wrap padtop padleft">
-            <div class="student-exam-search-title">{{ 'i18n_collaborative_exams' | translate }}</div>
+            <xm-page-header text="i18n_collaborative_exams" />
+            <xm-page-content [content]="content" />
         </div>
-        <div class="student-details-title-wrap padleft">
-            <span class="form-group">
-                <img class="nopad" src="/assets/images/icon_info.png" alt="" /> &nbsp;
-                <span>{{ 'i18n_collaborative_exam_search_description' | translate }}</span>
-            </span>
-        </div>
-
-        <div class="student-details-title-wrap padleft" style="width: 80%">
-            <div class="form-group input-group search">
-                <input
-                    aria-label="exam-search"
-                    [(ngModel)]="filter.text"
-                    (ngModelChange)="search($event)"
-                    type="text"
-                    class="form-control search"
-                    placeholder="{{ 'i18n_search' | translate }}"
-                />
-                <div class="input-group-append search">
-                    <img class="nopad" src="/assets/images/icon_search.png" alt="search-icon" width="49" height="40" />
+        <ng-template #content>
+            <div class="row">
+                <div class="col-12">
+                    <img class="nopad" src="/assets/images/icon_info.png" alt="" /> &nbsp;
+                    <span>{{ 'i18n_collaborative_exam_search_description' | translate }}</span>
                 </div>
             </div>
-        </div>
-
-        @if (exams.length > 0 && filter.text.length > 2) {
-            <div class="student-details-title-wrap padleft">
-                {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
-                {{ 'i18n_student_exam_search_result_continues' | translate }}
-                <b>"{{ filter.text }}"</b>
-            </div>
-        }
-        <div class="student-details-title-wrap padleft">
-            <div class="col" [hidden]="!loader.loading">
-                <button class="btn btn-success" type="button" disabled>
-                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                    {{ 'i18n_searching' | translate }}...
-                </button>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12 ms-4">
-                @for (exam of exams; track exam) {
-                    <div class="exams-list list-item" [hidden]="loader.loading">
-                        <xm-exam-search-result [exam]="exam" [collaborative]="true"></xm-exam-search-result>
+            <div class="row mt-3">
+                <div class="col-4">
+                    <div class="form-group input-group search">
+                        <input
+                            aria-label="exam-search"
+                            [(ngModel)]="filter.text"
+                            (ngModelChange)="search($event)"
+                            type="text"
+                            class="form-control search"
+                            placeholder="{{ 'i18n_search' | translate }}"
+                        />
+                        <div class="input-group-append search">
+                            <img
+                                class="nopad"
+                                src="/assets/images/icon_search.png"
+                                alt="search-icon"
+                                width="49"
+                                height="40"
+                            />
+                        </div>
                     </div>
-                }
+                </div>
             </div>
-        </div>
-    </div>`,
+
+            @if (exams.length > 0 && filter.text.length > 2) {
+                <div class="row mt-2">
+                    <div class="col-12">
+                        {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
+                        {{ 'i18n_student_exam_search_result_continues' | translate }}
+                        <b>"{{ filter.text }}"</b>
+                    </div>
+                </div>
+            }
+            <div class="row mt-2">
+                <div class="col" [hidden]="!loader.loading">
+                    <button class="btn btn-success" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        {{ 'i18n_searching' | translate }}...
+                    </button>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-12">
+                    @for (exam of exams; track exam) {
+                        <div class="exams-list list-item" [hidden]="loader.loading">
+                            <xm-exam-search-result [exam]="exam" [collaborative]="true"></xm-exam-search-result>
+                        </div>
+                    }
+                </div>
+            </div>
+        </ng-template> `,
     standalone: true,
-    imports: [FormsModule, ExamSearchResultComponent, TranslateModule],
+    imports: [FormsModule, ExamSearchResultComponent, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
     exams: CollaborativeExamInfo[] = [];
@@ -131,14 +143,16 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
     }
 
     private _search = (text: string) => {
-        this.filter.text = text;
-        this.loader = { loading: true };
+        if (text.length > 2) {
+            this.filter.text = text;
+            this.loader = { loading: true };
 
-        this.Enrolment.searchExams$(text)
-            .pipe(
-                tap((exams) => this.updateExamList(exams)),
-                finalize(() => (this.loader = { loading: false })),
-            )
-            .subscribe();
+            this.Enrolment.searchExams$(text)
+                .pipe(
+                    tap((exams) => this.updateExamList(exams)),
+                    finalize(() => (this.loader = { loading: false })),
+                )
+                .subscribe();
+        }
     };
 }

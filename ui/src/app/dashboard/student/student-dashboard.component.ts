@@ -16,6 +16,8 @@
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { ActiveEnrolmentComponent } from '../../enrolment/active/active-enrolment.component';
 import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
 import type { DashboardEnrolment } from './student-dashboard.service';
@@ -25,7 +27,7 @@ import { StudentDashboardService } from './student-dashboard.service';
     selector: 'xm-student-dashboard',
     templateUrl: './student-dashboard.component.html',
     standalone: true,
-    imports: [ActiveEnrolmentComponent, TranslateModule, OrderByPipe],
+    imports: [ActiveEnrolmentComponent, TranslateModule, OrderByPipe, PageHeaderComponent, PageContentComponent],
 })
 export class StudentDashboardComponent implements OnInit {
     userEnrolments: DashboardEnrolment[] = [];

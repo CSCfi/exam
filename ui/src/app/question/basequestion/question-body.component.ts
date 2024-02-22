@@ -163,8 +163,9 @@ export class QuestionBodyComponent implements OnInit {
 
     getFileSize = () => {
         if (this.question.attachment) {
-            this.Attachment.getFileSize(this.question.attachment.size);
+            return `(${this.Attachment.getFileSize(this.question.attachment.size)})`;
         }
+        return '';
     };
 
     hasUploadedAttachment = () => {

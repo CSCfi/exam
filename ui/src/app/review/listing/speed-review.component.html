@@ -1,14 +1,9 @@
 <div id="dashboard">
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-details-title-wrap">
-                <xm-history-back></xm-history-back>
-                <div class="student-exam-details-title">{{ 'i18n_speed_review' | translate }}</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="speed-review-border marb20 padb30">
+    <xm-page-header text="i18n_speed_review" [history]="true" />
+    <xm-page-content [content]="content" />
+</div>
+<ng-template #content>
+    <div class="speed-review-border">
         <div class="review-list-title-row marb20">
             <div class="col-md-12 padl0">
                 @if (examInfo?.examOwners) {
@@ -70,7 +65,7 @@
                                 </th>
                                 <th class="with-space">{{ 'i18n_inspection_status' | translate }}</th>
                                 <th class="with-space">{{ 'i18n_exam_state' | translate }}</th>
-                                <th class="with-space">{{ 'i18n_total_score' | translate }}</th>
+                                <th class="with-space with-top">{{ 'i18n_total_score' | translate }}</th>
                                 <th class="with-top">{{ 'i18n_grade' | translate }}</th>
                                 <th class="with-top">{{ 'i18n_feedback' | translate }}</th>
                             </tr>
@@ -91,7 +86,7 @@
                                         <br />
                                         <a
                                             class="pointer"
-                                            [routerLink]="['/staff/exams', review.examParticipation.exam.id, '5']"
+                                            [routerLink]="['/staff/assessments', review.examParticipation.exam.id]"
                                         >
                                             {{ review.examParticipation.user?.email }}
                                         </a>
@@ -264,4 +259,4 @@
             </div>
         </div>
     </div>
-</div>
+</ng-template>

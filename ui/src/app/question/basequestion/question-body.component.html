@@ -260,8 +260,8 @@
                     />
                 </sup>
             </div>
-            @if (isUserAllowedToModifyOwners()) {
-                <div class="col-md-3">
+            <div class="col-md-3">
+                @if (isUserAllowedToModifyOwners()) {
                     <div class="input-group">
                         <input
                             type="text"
@@ -282,10 +282,7 @@
                             {{ 'i18n_add' | translate }}
                         </button>
                     </div>
-                </div>
-            }
-            <div class="col-md-3">
-                @if (isUserAllowedToModifyOwners()) {
+                } @else {
                     <ul class="list-inline mart10 padl10">
                         @for (user of currentOwners; track user.id) {
                             <li class="list-inline-item">
@@ -365,7 +362,7 @@
                             <!-- Not yet uploaded -->
                             <span class="attachment-link">
                                 <i class="bi-paperclip"></i> {{ question.attachment?.fileName }}
-                                <small> ({{ getFileSize() }})</small>
+                                <small class="ps-2">{{ getFileSize() }}</small>
                             </span>
                         }
                         <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
@@ -456,12 +453,8 @@
                 <div class="col-md-3 exam-basic-title">
                     {{ 'i18n_added_to_sections' | translate }}
                 </div>
-                <div class="col-md-9 padr0">
-                    <ul class="list-inline mart10">
-                        @for (name of sectionNames; track $index) {
-                            <li class="list-inline-item">{{ name }}</li>
-                        }
-                    </ul>
+                <div class="col-md-9 exam-basic-title">
+                    {{ sectionNames.join() }}
                 </div>
             </div>
         }

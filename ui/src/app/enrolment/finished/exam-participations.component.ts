@@ -21,6 +21,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { PageContentComponent } from '../../shared/components/page-content.component';
+import { PageHeaderComponent } from '../../shared/components/page-header.component';
 import { PaginatorComponent } from '../../shared/paginator/paginator.component';
 import { AutoFocusDirective } from '../../shared/select/auto-focus.directive';
 import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
@@ -46,6 +48,8 @@ import { ExamParticipationComponent } from './exam-participation.component';
         SlicePipe,
         TranslateModule,
         OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class ExamParticipationsComponent implements OnInit, OnDestroy {

@@ -1,31 +1,18 @@
 <div id="dashboard">
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-details-title-wrap">
-                <img
-                    (click)="cancel()"
-                    class="pointer arrow_icon"
-                    src="/assets/images/icon_history.png"
-                    alt="go back"
-                />
-                <div class="student-enroll-title-wrap">
-                    @if (!newQuestion) {
-                        <div class="student-enroll-title">
-                            {{ 'i18n_questions_edit' | translate }}
-                        </div>
-                    }
-                    @if (newQuestion) {
-                        <div class="student-enroll-title">
-                            {{ 'i18n_toolbar_new_question' | translate }}
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row ms-5 me-5">
+    @if (newQuestion) {
+        <xm-page-header text="i18n_toolbar_new_question" [prependTemplate]="linkBack" />
+    } @else {
+        <xm-page-header text="i18n_questions_edit" [prependTemplate]="linkBack" />
+    }
+    <xm-page-content [content]="content" />
+</div>
+<ng-template #linkBack>
+    <img (click)="cancel()" class="pointer arrow_icon pe-3" src="/assets/images/icon_history.png" alt="go back" />
+</ng-template>
+<ng-template #content>
+    <div class="row me-2">
         <!-- Question body //-->
-        <div class="col-md-12 question-border padl40 padr40">
+        <div class="col-md-12 question-border px-4">
             <form role="form" #questionForm="ngForm" class="form-horizontal" name="questionForm" novalidate>
                 @if (question) {
                     <xm-question-body
@@ -80,4 +67,4 @@
             </div>
         </div>
     </div>
-</div>
+</ng-template>

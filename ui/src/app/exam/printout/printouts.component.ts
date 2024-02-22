@@ -19,6 +19,8 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { map } from 'rxjs/operators';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
 import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
 import { TableSortComponent } from '../../shared/sorting/table-sort.component';
@@ -27,13 +29,13 @@ import type { Exam } from '../exam.model';
 
 @Component({
     selector: 'xm-printout-listing',
-    template: `<div id="sitnet-header" class="header">
-            <div class="col-md-12 header-wrapper">
-                <span class="header-text">{{ 'i18n_printout_exams' | translate }}</span>
-            </div>
-        </div>
+    template: `
         <div id="dashboard">
-            <div class="top-row">
+            <xm-page-header text="i18n_printout_exams" />
+            <xm-page-content [content]="content" />
+        </div>
+        <ng-template #content>
+            <div class="row">
                 <div class="col-md-12">
                     <table class="table table-striped table-sm exams-table">
                         <thead>
@@ -99,9 +101,19 @@ import type { Exam } from '../exam.model';
                     </table>
                 </div>
             </div>
-        </div>`,
+        </ng-template>
+    `,
     standalone: true,
-    imports: [TableSortComponent, CourseCodeComponent, RouterLink, TeacherListComponent, TranslateModule, OrderByPipe],
+    imports: [
+        TableSortComponent,
+        CourseCodeComponent,
+        RouterLink,
+        TeacherListComponent,
+        TranslateModule,
+        OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class PrintoutListingComponent implements OnInit {
     printouts: (Exam & { examinationDatesAggregate: string })[] = [];

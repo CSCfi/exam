@@ -1,84 +1,74 @@
-<div id="sitnet-header" class="header">
-    <div class="col-md-12 header-wrapper">
-        <span class="header-text">{{ 'i18n_settings' | translate }}</span>
-    </div>
-</div>
-
 <div id="dashboard">
+    <xm-page-header text="i18n_settings" />
     @if (config) {
-        <div class="top-row">
-            <div class="col-md-12 form-group">
-                <label for="editor">{{ 'i18n_user_agreement' | translate }}</label>
-                <xm-ckeditor
-                    id="editor"
-                    #ck="ngModel"
-                    name="editor"
-                    ck-editor
-                    rows="10"
-                    cols="80"
-                    [(ngModel)]="config.eula"
-                ></xm-ckeditor>
-            </div>
-        </div>
+        <xm-page-content [content]="content" />
     }
-    <div class="bottom-row mart10">
-        <div class="col-md-12">
+</div>
+<ng-template #content>
+    <div class="row">
+        <div class="col-12 form-group">
+            <label for="editor">{{ 'i18n_user_agreement' | translate }}</label>
+            <xm-ckeditor
+                id="editor"
+                #ck="ngModel"
+                name="editor"
+                ck-editor
+                rows="10"
+                cols="80"
+                [(ngModel)]="config.eula"
+            ></xm-ckeditor>
+        </div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-12">
             <button (click)="updateAgreement()" class="btn btn-success">
                 {{ 'i18n_button_save' | translate }}
             </button>
         </div>
     </div>
 
-    @if (config) {
-        <div class="top-row">
-            <div class="col-md-2 form-group max-w-350">
-                <label for="deadline">{{ 'i18n_review_deadline' | translate }} ({{ 'i18n_days' | translate }})</label>
-                <input
-                    id="deadline"
-                    name="deadline"
-                    class="form-control"
-                    type="number"
-                    lang="en"
-                    [min]="1"
-                    [(ngModel)]="config.reviewDeadline"
-                    ngbPopover="{{ 'i18n_info_deadline' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                />
-            </div>
+    <div class="row mt-2 align-items-end">
+        <div class="col-2 form-group max-w-350">
+            <label for="deadline">{{ 'i18n_review_deadline' | translate }} ({{ 'i18n_days' | translate }})</label>
+            <input
+                id="deadline"
+                name="deadline"
+                class="form-control"
+                type="number"
+                lang="en"
+                [min]="1"
+                [(ngModel)]="config.reviewDeadline"
+                ngbPopover="{{ 'i18n_info_deadline' | translate }}"
+                triggers="mouseenter:mouseleave"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+            />
         </div>
-    }
-    <div class="bottom-row mart10">
-        <div class="col-md-12">
+        <div class="col-10">
             <button (click)="updateDeadline()" class="btn btn-success">
                 {{ 'i18n_button_save' | translate }}
             </button>
         </div>
     </div>
 
-    @if (config) {
-        <div class="top-row">
-            <div class="col-md-2 form-group max-w-350">
-                <label for="reservationWindow"
-                    >{{ 'i18n_reservation_window' | translate }} ({{ 'i18n_days' | translate }})</label
-                >
-                <input
-                    id="reservationWindow"
-                    name="reservationWindow"
-                    class="form-control"
-                    type="number"
-                    lang="en"
-                    [min]="1"
-                    [(ngModel)]="config.reservationWindowSize"
-                    ngbPopover="{{ 'i18n_info_reservation_window' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                />
-            </div>
+    <div class="row mt-2 align-items-end">
+        <div class="col-2 form-group max-w-350">
+            <label for="reservationWindow"
+                >{{ 'i18n_reservation_window' | translate }} ({{ 'i18n_days' | translate }})</label
+            >
+            <input
+                id="reservationWindow"
+                name="reservationWindow"
+                class="form-control"
+                type="number"
+                lang="en"
+                [min]="1"
+                [(ngModel)]="config.reservationWindowSize"
+                ngbPopover="{{ 'i18n_info_reservation_window' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            />
         </div>
-    }
-    <div class="bottom-row mart10">
-        <div class="col-md-12">
+        <div class="col-10">
             <button (click)="updateReservationWindow()" class="btn btn-success">
                 {{ 'i18n_button_save' | translate }}
             </button>
@@ -86,7 +76,7 @@
     </div>
 
     <div class="row mt-4 ms-2">
-        <div class="col-md-6">
+        <div class="col-6">
             <strong>{{ 'i18n_exam_instance_settings' | translate }}</strong>
             @if (config) {
                 <ul>
@@ -208,7 +198,7 @@
                 </ul>
             }
         </div>
-        <div class="col-md-6">
+        <div class="col-6">
             <strong>{{ 'i18n_show_http_headers' | translate }}</strong>
             <ul>
                 @for (item of attributes | keyvalue; track item) {
@@ -219,4 +209,4 @@
             </ul>
         </div>
     </div>
-</div>
+</ng-template>

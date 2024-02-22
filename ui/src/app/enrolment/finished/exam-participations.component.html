@@ -1,33 +1,31 @@
-<div id="dashboard" class="ms-2 me-2 mt-2">
+<div id="dashboard">
+    @if (collaborative) {
+        <xm-page-header text="i18n_collaborative_exam_responses" />
+    } @else {
+        <xm-page-header text="i18n_exam_responses" />
+    }
+    <xm-page-content [content]="content" />
+</div>
+<ng-template #content>
     <!-- Finished exams list -->
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-title-wrap">
-                <h1 class="student-enroll-title" [hidden]="collaborative">{{ 'i18n_exam_responses' | translate }}</h1>
-                <h1 class="student-enroll-title" [hidden]="!collaborative">
-                    {{ 'i18n_collaborative_exam_responses' | translate }}
-                </h1>
-            </div>
-        </div>
-        <div class="row ms-2 me-2 mt-1">
-            <div class="col-md-12">
-                <div class="row mt-1 align-items-center" role="note">
-                    <div class="col-auto p-1">
-                        <img class="nopad" src="/assets/images/icon_info.png" class="padr10" alt="" />
-                    </div>
-                    <div class="col" [hidden]="collaborative">
-                        {{ 'i18n_exam_response_search_description' | translate }}
-                    </div>
-                    <div class="col" [hidden]="!collaborative">
-                        {{ 'i18n_collaborative_exam_response_search_description' | translate }}
-                    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="row align-items-center" role="note">
+                <div class="col-auto">
+                    <img class="nopad" src="/assets/images/icon_info.png" class="padr10" alt="" />
+                </div>
+                <div class="col" [hidden]="collaborative">
+                    {{ 'i18n_exam_response_search_description' | translate }}
+                </div>
+                <div class="col" [hidden]="!collaborative">
+                    {{ 'i18n_collaborative_exam_response_search_description' | translate }}
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="detail-row mt-2">
-        <div class="col-6">
+    <div class="row my-3">
+        <div class="col-4">
             <div class="form-group input-group search">
                 <input
                     xmAutoFocus
@@ -43,8 +41,8 @@
                 </div>
             </div>
         </div>
-        <div class="col-6" ngbDropdown>
-            <button class="float-end btn btn-outline-dark" type="button" ngbDropdownToggle aria-expanded="true">
+        <div class="col-8" ngbDropdown>
+            <button class="btn btn-outline-dark" type="button" ngbDropdownToggle aria-expanded="true">
                 {{ 'i18n_set_ordering' | translate }}
             </button>
             <div ngbDropdownMenu role="menu">
@@ -79,8 +77,8 @@
             | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
         track participation
     ) {
-        <div class="row mart10">
-            <div class="col-md-12">
+        <div class="row">
+            <div class="col-12">
                 <xm-exam-participation
                     [participation]="participation"
                     [collaborative]="collaborative"
@@ -104,4 +102,4 @@
             }
         </div>
     }
-</div>
+</ng-template>

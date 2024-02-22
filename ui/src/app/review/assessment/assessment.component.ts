@@ -19,6 +19,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import type { ClozeTestAnswer, ExamParticipation } from '../../exam/exam.model';
 import { ExamService } from '../../exam/exam.service';
 import type { Examination } from '../../examination/examination.model';
@@ -52,6 +54,8 @@ import { ExamSectionComponent } from './sections/section.component';
         StatementComponent,
         TranslateModule,
         OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class AssessmentComponent implements OnInit {

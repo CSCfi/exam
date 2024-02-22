@@ -13,6 +13,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import { PaginatorComponent } from '../../shared/paginator/paginator.component';
@@ -55,6 +57,8 @@ interface UserWithOptions extends User {
         SlicePipe,
         DatePipe,
         TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class UsersComponent implements OnInit, OnDestroy {

@@ -1,4 +1,4 @@
-<div class="main-row">
+<div class="row p-2 m-2">
     <div class="col-md-12">
         <div class="review-list-title">
             {{ 'i18n_ongoing_language_inspections' | translate }}
@@ -23,7 +23,7 @@
     </div>
 </div>
 
-<div class="main-row m-0" [hidden]="inspections.length > 0">
+<div class="row ms-3" [hidden]="inspections.length > 0">
     <div class="col-md-12">
         <div class="review-no-results">
             <i class="bi-exclamation-circle ps-3 grayish"></i>
@@ -32,7 +32,7 @@
     </div>
 </div>
 
-<div class="main-row m-0" [hidden]="hideItems || inspections.length === 0">
+<div class="row ms-3" [hidden]="hideItems || inspections.length === 0">
     <div class="col-md-3">
         <div class="input-group">
             <input
@@ -49,8 +49,8 @@
         </div>
     </div>
 </div>
-<div class="overflow-x-auto">
-    <div class="col-md-12">
+<div class="row">
+    <div class="col-md-12" style="overflow-x: auto">
         <table class="table table-striped exams-table" [hidden]="hideItems">
             <thead>
                 <tr>

@@ -17,6 +17,8 @@ import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { addDays } from 'date-fns';
+import { PageContentComponent } from '../shared/components/page-content.component';
+import { PageHeaderComponent } from '../shared/components/page-header.component';
 import { LanguageService } from '../shared/language/language.service';
 import type { QueryParams } from './language-inspections.service';
 import { LanguageInspectionService } from './language-inspections.service';
@@ -36,37 +38,39 @@ export interface LanguageInspectionData extends LanguageInspection {
 @Component({
     selector: 'xm-language-inspections',
     template: `<div id="dashboard">
-        <div class="top-row">
-            <div class="col-md-12">
-                <div class="student-enroll-title-wrap">
-                    <div class="student-enroll-title marl20">{{ 'i18n_language_inspections' | translate }}</div>
+            <xm-page-header text="i18n_language_inspections" />
+            <xm-page-content [content]="content" />
+        </div>
+        <ng-template #content>
+            <div class="tab-wrapper-exams">
+                <div class="review-border">
+                    <!-- Under review language inspection -->
+                    @if (ongoingInspections) {
+                        <xm-unfinished-inspections [inspections]="ongoingInspections" />
+                    }
+                </div>
+
+                <div class="review-border">
+                    <!-- Reviewed language inspection -->
+                    @if (processedInspections) {
+                        <xm-reviewed-inspections
+                            [inspections]="processedInspections"
+                            (endDateChanged)="endDateChanged($event)"
+                            (startDateChanged)="startDateChanged($event)"
+                        >
+                        </xm-reviewed-inspections>
+                    }
                 </div>
             </div>
-        </div>
-
-        <div class="tab-wrapper-exams">
-            <div class="review-border">
-                <!-- Under review language inspection -->
-                @if (ongoingInspections) {
-                    <xm-unfinished-inspections [inspections]="ongoingInspections"> </xm-unfinished-inspections>
-                }
-            </div>
-
-            <div class="review-border">
-                <!-- Reviewed language inspection -->
-                @if (processedInspections) {
-                    <xm-reviewed-inspections
-                        [inspections]="processedInspections"
-                        (endDateChanged)="endDateChanged($event)"
-                        (startDateChanged)="startDateChanged($event)"
-                    >
-                    </xm-reviewed-inspections>
-                }
-            </div>
-        </div>
-    </div>`,
+        </ng-template> `,
     standalone: true,
-    imports: [UnfinishedInspectionsComponent, ReviewedInspectionsComponent, TranslateModule],
+    imports: [
+        UnfinishedInspectionsComponent,
+        ReviewedInspectionsComponent,
+        TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class LanguageInspectionsComponent implements OnInit {
     ongoingInspections: LanguageInspectionData[] = [];

@@ -12,7 +12,6 @@ import { PrintoutComponent } from 'src/app/exam/printout/printout.component';
 import { hasUnsavedChangesGuard } from 'src/app/question/has-unsaved-changes.quard';
 import { ReviewListComponent } from 'src/app/review/listing/review-list.component';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
-import { ExamSummaryComponent } from 'src/app/review/listing/summary/exam-summary.component';
 import { QuestionReviewsComponent } from 'src/app/review/questions/listing/question-reviews.component';
 import { ReportsComponent } from '../../administrative/reports/reports.component';
 import { SettingsComponent } from '../../administrative/settings/settings.component';
@@ -100,7 +99,10 @@ export const STAFF_ROUTES: Route[] = [
                     { path: '6', component: QuestionReviewsComponent },
                     {
                         path: '7',
-                        component: ExamSummaryComponent,
+                        loadComponent: () =>
+                            import('../../review/listing/summary/exam-summary.component').then(
+                                (mod) => mod.ExamSummaryComponent,
+                            ),
                         resolve: { reviews: reviewListResolver },
                     },
                 ],

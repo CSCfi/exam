@@ -20,6 +20,8 @@ import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import type { CollaborativeParticipation } from '../../exam/collaborative/collaborative-exam.service';
 import { PaginatorComponent } from '../../shared/paginator/paginator.component';
 import { AutoFocusDirective } from '../../shared/select/auto-focus.directive';
@@ -43,6 +45,8 @@ import { ExamParticipationComponent } from './exam-participation.component';
         SlicePipe,
         TranslateModule,
         OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class CollaborativeParticipationsComponent implements OnInit, AfterViewInit {

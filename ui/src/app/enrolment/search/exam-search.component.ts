@@ -21,6 +21,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { AutoFocusDirective } from '../../shared/select/auto-focus.directive';
 import type { EnrolmentInfo } from '../enrolment.model';
 import { ExamSearchResultComponent } from './exam-search-result.component';
@@ -29,72 +31,65 @@ import { ExamSearchService } from './exam-search.service';
 @Component({
     selector: 'xm-exam-search',
     template: `<div id="dashboard">
-        <div class="top-row ms-2 me-2">
-            <div class="col-md-12">
-                <div class="student-title-wrap">
-                    <h1 class="student-enroll-title">{{ 'i18n_exams' | translate }}</h1>
-                </div>
-            </div>
+            <xm-page-header text="i18n_exams" />
+            <xm-page-content [content]="content" />
         </div>
-        <div class="detail-row ms-2 me-2 mt-3">
-            <span class="col-md-12 mt-1 align-items-center">
-                <img class="nopad" src="/assets/images/icon_info.png" class="pe-1" alt="" />
-                &nbsp;
-                @if (permissionCheck.active === false) {
-                    <span>
+        <ng-template #content>
+            <div class="row">
+                <span class="col-12 align-items-center">
+                    <img class="nopad" src="/assets/images/icon_info.png" class="pe-1" alt="" />
+                    &nbsp;
+                    @if (permissionCheck.active === false) {
                         {{ 'i18n_exam_search_description' | translate }}
-                    </span>
-                }
-                @if (permissionCheck.active === true) {
-                    <span>{{ 'i18n_search_restricted' | translate }}</span>
-                }
-            </span>
-        </div>
-        @if (permissionCheck.active === false) {
-            <div class="detail-row ms-2 me-2 mt-2">
-                <div class="col-md-12">
-                    <div class="form-group input-group search">
-                        <input
-                            xmAutoFocus
-                            (ngModelChange)="search($event)"
-                            [(ngModel)]="filter.text"
-                            type="text"
-                            class="form-control search"
-                            [attr.aria-label]="'i18n_search' | translate"
-                            placeholder="{{ 'i18n_search' | translate }}"
-                        />
-                        <div class="input-group-append search" aria-hidden="true">
-                            <img
-                                class="nopad"
-                                src="/assets/images/icon_search.png"
-                                alt="search-icon"
-                                width="49"
-                                height="40"
+                    }
+                    @if (permissionCheck.active === true) {
+                        {{ 'i18n_search_restricted' | translate }}
+                    }
+                </span>
+            </div>
+            @if (permissionCheck.active === false) {
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="form-group input-group search">
+                            <input
+                                xmAutoFocus
+                                (ngModelChange)="search($event)"
+                                [(ngModel)]="filter.text"
+                                type="text"
+                                class="form-control search"
+                                [attr.aria-label]="'i18n_search' | translate"
+                                placeholder="{{ 'i18n_search' | translate }}"
                             />
+                            <div class="input-group-append search" aria-hidden="true">
+                                <img
+                                    class="nopad"
+                                    src="/assets/images/icon_search.png"
+                                    alt="search-icon"
+                                    width="49"
+                                    height="40"
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
 
-        @if (exams.length > 0) {
-            <div class="row mt-2 me-2 ms-2">
-                <div class="col-md-12">
-                    {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
-                    {{ 'i18n_student_exam_search_result_continues' | translate }}
-                    <b>"{{ filter.text }}"</b>
-                </div>
-            </div>
-        }
-
-        <div [@listAnimation]="exams.length" class="search-list-wrapper">
-            @for (exam of exams; track exam) {
-                <div class="">
-                    <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
+            @if (exams.length > 0) {
+                <div class="row my-2">
+                    <div class="col-md-12">
+                        {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
+                        {{ 'i18n_student_exam_search_result_continues' | translate }}
+                        <b>"{{ filter.text }}"</b>
+                    </div>
                 </div>
             }
-        </div>
-    </div>`,
+
+            <div [@listAnimation]="exams.length">
+                @for (exam of exams; track exam.id) {
+                    <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
+                }
+            </div>
+        </ng-template> `,
     animations: [
         trigger('listAnimation', [
             transition('* <=> *', [
@@ -108,7 +103,14 @@ import { ExamSearchService } from './exam-search.service';
         ]),
     ],
     standalone: true,
-    imports: [FormsModule, AutoFocusDirective, ExamSearchResultComponent, TranslateModule],
+    imports: [
+        FormsModule,
+        AutoFocusDirective,
+        ExamSearchResultComponent,
+        TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class ExamSearchComponent implements OnInit, OnDestroy {
     exams: EnrolmentInfo[] = [];

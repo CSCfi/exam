@@ -1,0 +1,18 @@
+.participation-container {
+    border-radius: 4px;
+    background: white;
+    border: 2px solid #ededed;
+    border-left: #238635 4px solid;
+    margin-right: 1.4em;
+    margin-bottom: 25px;
+    max-width: 1100px;
+    @media (max-width: 920px) {
+        padding: 5px;
+        margin-bottom: 5px;
+    }
+    padding: 30px;
+
+    &.unseen-review {
+        border-color: grey;
+    }
+}

@@ -21,40 +21,52 @@ import { StatisticsService } from '../statistics.service';
 
 @Component({
     template: `
-        <div class="detail-row">
-            <div class="col-md-12">
+        <div class="row my-2">
+            <div class="col-12">
                 <button class="btn btn-primary" (click)="listParticipations()">
                     {{ 'i18n_search' | translate }}
                 </button>
             </div>
         </div>
-        <div class="main-row">
-            <div class="col-md-12" style="overflow: auto">
+        <div class="row">
+            <div class="col-12" style="overflow: auto">
                 <table class="table table-sm table-bordered table-striped">
                     <thead>
-                        <th class="warning">{{ 'i18n_year' | translate }}</th>
-                        <th class="warning">{{ 'i18n_month' | translate }}</th>
+                        <th>
+                            <strong>{{ 'i18n_year' | translate }}</strong>
+                        </th>
+                        <th>
+                            <strong>{{ 'i18n_month' | translate }}</strong>
+                        </th>
                         @for (room of rooms; track room) {
                             <th>{{ room.split('___')[1] }}</th>
                         }
-                        <th class="success">{{ 'i18n_total' | translate }}</th>
+                        <th>
+                            <strong>{{ 'i18n_total' | translate }}</strong>
+                        </th>
                     </thead>
                     <tbody>
                         @for (month of months; track month) {
                             <tr>
-                                <td class="warning">{{ month | date: 'yyyy' }}</td>
-                                <td class="warning">{{ month | date: 'M' }}</td>
+                                <td>
+                                    <strong>{{ month | date: 'yyyy' }}</strong>
+                                </td>
+                                <td>
+                                    <strong>{{ month | date: 'M' }}</strong>
+                                </td>
                                 @for (room of rooms; track room) {
                                     <td>{{ totalParticipations(month, room) }}</td>
                                 }
-                                <td class="success">{{ totalParticipations(month) }}</td>
+                                <td>
+                                    <strong>{{ totalParticipations(month) }}</strong>
+                                </td>
                             </tr>
                         }
                     </tbody>
                     <tfoot>
-                        <tr class="success">
+                        <tr>
                             <td colspan="2">
-                                <b>{{ 'i18n_total' | translate }}</b>
+                                <strong>{{ 'i18n_total' | translate }}</strong>
                             </td>
                             @for (room of rooms; track room) {
                                 <td>{{ totalParticipations(undefined, room) }}</td>

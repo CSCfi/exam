@@ -1,21 +1,15 @@
-<div id="sitnet-header" class="header">
-    <div class="col-md-12 header-wrapper">
-        <span class="header-text">{{ 'i18n_exams' | translate }}</span>
-    </div>
-</div>
-
 <div id="dashboard">
-    <!-- toolbar -->
-    <div class="top-row">
-        <div class="col-md-12">
-            <button class="btn btn-primary float-end" (click)="newExam()">
-                {{ 'i18n_toolbar_new_exam' | translate }}
-            </button>
-        </div>
-    </div>
-
+    <xm-page-header text="i18n_exams" [appendTemplate]="button" />
+    <xm-page-content [content]="content" />
+</div>
+<ng-template #button>
+    <button class="btn btn-primary float-end" (click)="newExam()">
+        {{ 'i18n_toolbar_new_exam' | translate }}
+    </button>
+</ng-template>
+<ng-template #content>
     <!-- TAB NAVIGATION -->
-    <div class="main-row">
+    <div class="row">
         <div class="col-md-12">
             <ul ngbNav #nav="ngbNav" [(activeId)]="activeId" class="nav-tabs">
                 <li role="presentation" [ngbNavItem]="0">
@@ -228,4 +222,4 @@
             </div>
         }
     </div>
-</div>
+</ng-template>

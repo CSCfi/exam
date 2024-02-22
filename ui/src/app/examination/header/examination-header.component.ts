@@ -50,7 +50,7 @@ import type { Examination } from '../examination.model';
     imports: [CourseCodeComponent, ExaminationClockComponent],
     styleUrl: './examination-header.component.scss',
 })
-export class ExaminationHeaderComponent {
+export class ExaminationPageHeaderComponent {
     @Input() exam!: Examination;
     @Input() isPreview = false;
     @Output() timedOut = new EventEmitter<void>();

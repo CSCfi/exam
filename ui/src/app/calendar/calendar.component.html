@@ -1,16 +1,11 @@
 <div id="dashboard">
-    <div class="row">
-        <div class="col-12 mt-2">
-            <div class="student-details-title-wrap">
-                <xm-history-back xmAutoFocus></xm-history-back>
-                <h1 class="student-exam-details-title">{{ 'i18n_calendar' | translate }}</h1>
-            </div>
-        </div>
-    </div>
-
+    <xm-page-header text="i18n_calendar" [history]="true" />
+    <xm-page-content [content]="content" />
+</div>
+<ng-template #content>
     <!-- Phase 1: Exam Info -->
     @if (examInfo && reservationWindowSize) {
-        <div class="row mt-3">
+        <div class="row">
             <div class="col-12 p-0">
                 <xm-calendar-exam-info
                     [examInfo]="examInfo"
@@ -22,7 +17,7 @@
     }
     <!-- Phase 2: Optional exam section selection (optional) -->
     @if (examInfo && hasOptionalSections()) {
-        <div class="row mt-3">
+        <div class="row">
             <div class="col-12 p-0">
                 <xm-calendar-optional-sections
                     [examInfo]="examInfo"
@@ -33,7 +28,7 @@
     }
     <!-- Phase 3: Organisation picker -->
     @if (isInteroperable && isExternal) {
-        <div class="row mt-3">
+        <div class="row">
             <div class="col-12 p-0">
                 <xm-calendar-organisation-picker
                     [sequenceNumber]="getSequenceNumber('organization')"
@@ -45,7 +40,7 @@
         </div>
     }
     <!-- Phase 4: Room picker -->
-    <div class="row mt-3">
+    <div class="row">
         <div class="col-12 p-0">
             <xm-calendar-slot-picker
                 [sequenceNumber]="getSequenceNumber('room')"
@@ -65,9 +60,9 @@
 
     <!-- Reservation confirmation -->
 
-    <div class="row mt-3 mb-4">
+    <div class="row mb-4">
         <div class="col-md-8 col-12 p-0">
-            <div class="row student-enrolment-wrapper details-view" [ngClass]="reservation ? '' : 'notactive'">
+            <div class="row student-enrolment-wrapper" [ngClass]="reservation ? '' : 'notactive'">
                 <div class="col-md-12">
                     <div class="row">
                         <span class="col-md-6 mb-3">
@@ -173,4 +168,4 @@
             </div>
         </div>
     </div>
-</div>
+</ng-template>

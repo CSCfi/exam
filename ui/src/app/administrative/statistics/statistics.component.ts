@@ -27,6 +27,8 @@ import {
     NgbNavLink,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DatePickerComponent } from '../../shared/date/date-picker.component';
 import { ExamStatisticsComponent } from './categories/exam-statistics.component';
 import { ReservationStatisticsComponent } from './categories/reservation-statistics.component';
@@ -67,6 +69,8 @@ enum Tab {
         ResponseStatisticsComponent,
         ExamStatisticsComponent,
         TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class StatisticsComponent implements OnInit {

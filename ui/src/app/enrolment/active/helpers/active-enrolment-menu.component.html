@@ -1,6 +1,6 @@
 <!-- settings menu -->
 <div ngbDropdown class="no-caret flex justify-content-end">
-    <button ngbDropdownToggle class="infolink pointer mart10 flex-middle pointer border rounded hover-grey">
+    <button ngbDropdownToggle class="btn btn-outline-dark">
         <i class="bi-pencil me-2"></i>{{ 'i18n_edit_enrolment' | translate }}
     </button>
     <div ngbDropdownMenu>
@@ -9,24 +9,23 @@
             <div ngbDropdownItem>
                 @if (enrolment.reservation.machine && enrolment.collaborativeExam) {
                     <a
-                        class="infolink-light border rounded"
+                        class="btn btn-outline-secondary"
                         [routerLink]="['/calendar', enrolment.collaborativeExam.id, 'collaborative']"
                         >{{ 'i18n_student_change_reservation' | translate }}
                     </a>
-                }
-                @if (enrolment.reservation.machine && !enrolment.collaborativeExam) {
-                    <a class="infolink-light border rounded" [routerLink]="['/calendar', enrolment.exam.id]"
+                } @else {
+                    <a class="btn btn-outline-secondary" [routerLink]="['/calendar', enrolment.exam.id]"
                         >{{ 'i18n_student_change_reservation' | translate }}
                     </a>
                 }
                 @if (enrolment.reservation.externalReservation && enrolment.exam) {
-                    <a class="infolink-light border rounded" [routerLink]="['/calendar', enrolment.exam.id, 'external']"
+                    <a class="btn btn-outline-secondary" [routerLink]="['/calendar', enrolment.exam.id, 'external']"
                         >{{ 'i18n_student_change_reservation' | translate }}
                     </a>
                 }
                 @if (enrolment.reservation.externalReservation && enrolment.collaborativeExam) {
                     <a
-                        class="infolink-light border rounded"
+                        class="btn btn-outline-secondary"
                         [routerLink]="['/calendar', enrolment.exam.id, 'external']"
                         [queryParams]="{ isCollaborative: true }"
                         >{{ 'i18n_student_change_reservation' | translate }}
@@ -37,7 +36,7 @@
         <!-- enrolment with examination event, allow changing -->
         @if (enrolment.examinationEventConfiguration && hasUpcomingAlternativeEvents()) {
             <div ngbDropdownItem>
-                <button class="infolink-light pointer border rounded" (click)="makeReservation()">
+                <button class="btn btn-outline-secondary" (click)="makeReservation()">
                     {{ 'i18n_student_change_reservation' | translate }}
                 </button>
             </div>
@@ -45,7 +44,7 @@
         <!-- enrolment with reservation, allow reservation removal -->
         @if (enrolment.reservation && canChangeReservation(enrolment.reservation)) {
             <div ngbDropdownItem>
-                <button class="infolink-light-alert pointer border rounded" (click)="removeReservation()">
+                <button class="btn btn-outline-danger" (click)="removeReservation()">
                     {{ 'i18n_student_remove_reservation' | translate }}
                 </button>
             </div>
@@ -53,7 +52,7 @@
         <!-- reservation in progress, inform with a disabled item -->
         @if (enrolment.reservation && !canChangeReservation(enrolment.reservation)) {
             <div>
-                <button class="infolink-light-alert border rounded" [disabled]="true" (click)="removeReservation()">
+                <button class="btn btn-outline-danger" [disabled]="true" (click)="removeReservation()">
                     {{ 'i18n_not_allowed_to_modify_reservation' | translate }}
                 </button>
             </div>
@@ -61,7 +60,7 @@
         <!-- enrolment with examination event, allow event removal -->
         @if (enrolment.examinationEventConfiguration) {
             <div ngbDropdownItem>
-                <button class="infolink-light-alert pointer border rounded" (click)="removeReservation()">
+                <button class="btn btn-outline-danger" (click)="removeReservation()">
                     {{ 'i18n_student_remove_reservation' | translate }}
                 </button>
             </div>
@@ -73,7 +72,7 @@
             (enrolment.exam?.executionType?.type === 'PUBLIC' || enrolment.collaborativeExam)
         ) {
             <div ngbDropdownItem>
-                <button (click)="removeEnrolment()" class="infolink-light-alert pointer border rounded">
+                <button (click)="removeEnrolment()" class="btn btn-outline-danger">
                     {{ 'i18n_student_remove_enrolment' | translate }}
                 </button>
             </div>
@@ -81,7 +80,7 @@
         <!-- enrolment without reservation, allow making reservation -->
         @if ((!enrolment.reservation && enrolment.exam?.implementation === 'AQUARIUM') || enrolment.collaborativeExam) {
             <div ngbDropdownItem>
-                <button (click)="makeReservation()" class="infolink-light pointer border rounded important-clear-focus">
+                <button (click)="makeReservation()" class="btn btn-outline-secondary">
                     {{ 'i18n_student_new_reservation' | translate }}
                 </button>
             </div>
@@ -93,7 +92,7 @@
             hasUpcomingAlternativeEvents()
         ) {
             <div ngbDropdownItem>
-                <button class="infolink-light pointer border rounded important-clear-focus" (click)="makeReservation()">
+                <button class="btn btn-outline-secondary" (click)="makeReservation()">
                     {{ 'i18n_student_new_reservation' | translate }}
                 </button>
             </div>

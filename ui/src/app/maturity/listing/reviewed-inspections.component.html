@@ -1,4 +1,4 @@
-<div class="main-row">
+<div class="row p-2 m-2">
     <div class="col-md-12">
         <div class="review-list-title">
             {{ 'i18n_processed_language_inspections' | translate }}
@@ -27,52 +27,52 @@
     </div>
 </div>
 
-<div [hidden]="hideItems">
-    <div class="top-row marb20 padt20">
-        <div class="col-md-12">
-            <!-- Start & End time datepickers -->
-            <div class="row">
-                <div class="col-md-3">
-                    <span class="exam-basic-selecttitle">&nbsp;</span>
-                    <div class="input-group">
-                        <input
-                            [(ngModel)]="filterText"
-                            (ngModelChange)="filterTextChanged()"
-                            class="form-control hgt40"
-                            placeholder="{{ 'i18n_search' | translate }}"
-                            ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                        />
+<div class="row ms-3" [hidden]="hideItems">
+    <div class="col-md-12">
+        <!-- Start & End time datepickers -->
+        <div class="row">
+            <div class="col-md-3">
+                <span class="exam-basic-selecttitle">&nbsp;</span>
+                <div class="input-group">
+                    <input
+                        [(ngModel)]="filterText"
+                        (ngModelChange)="filterTextChanged()"
+                        class="form-control hgt40"
+                        placeholder="{{ 'i18n_search' | translate }}"
+                        ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    />
 
-                        <div class="input-group-append search">
-                            <img class="nopad" src="/assets/images/icon_search.png" width="49" height="40" />
-                        </div>
+                    <div class="input-group-append search">
+                        <img class="nopad" src="/assets/images/icon_search.png" width="49" height="40" />
                     </div>
                 </div>
+            </div>
 
-                <div class="col-md-2">
-                    <span class="exam-basic-selecttitle">{{ 'i18n_begin' | translate }}</span>
-                    <xm-date-picker
-                        [optional]="true"
-                        [initiallyEmpty]="true"
-                        (updated)="onStartDateChanged($event)"
-                    ></xm-date-picker>
-                </div>
-                <div class="col-md-2">
-                    <span class="exam-basic-selecttitle">{{ 'i18n_end' | translate }}</span>
-                    <xm-date-picker
-                        [optional]="true"
-                        [initiallyEmpty]="true"
-                        (updated)="onEndDateChanged($event)"
-                    ></xm-date-picker>
-                </div>
+            <div class="col-md-2">
+                <span class="exam-basic-selecttitle">{{ 'i18n_begin' | translate }}</span>
+                <xm-date-picker
+                    [optional]="true"
+                    [initiallyEmpty]="true"
+                    (updated)="onStartDateChanged($event)"
+                ></xm-date-picker>
+            </div>
+            <div class="col-md-2">
+                <span class="exam-basic-selecttitle">{{ 'i18n_end' | translate }}</span>
+                <xm-date-picker
+                    [optional]="true"
+                    [initiallyEmpty]="true"
+                    (updated)="onEndDateChanged($event)"
+                ></xm-date-picker>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="overflow-x-auto">
-        <table class="table table-striped exams-table">
+<div class="row">
+    <div class="col-md-12" style="overflow-x: auto">
+        <table class="table table-striped exams-table" [hidden]="hideItems">
             <thead>
                 <tr>
                     <th class="with-top">
@@ -275,12 +275,12 @@
             </tbody>
         </table>
     </div>
-    <div [hidden]="filteredInspections.length <= pageSize">
-        <xm-paginator
-            [items]="filteredInspections"
-            (pageSelected)="pageSelected($event)"
-            [pageSize]="pageSize"
-            [currentPage]="currentPage"
-        ></xm-paginator>
-    </div>
+</div>
+<div [hidden]="filteredInspections.length <= pageSize">
+    <xm-paginator
+        [items]="filteredInspections"
+        (pageSelected)="pageSelected($event)"
+        [pageSize]="pageSize"
+        [currentPage]="currentPage"
+    ></xm-paginator>
 </div>

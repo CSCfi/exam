@@ -22,37 +22,25 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
 
 @Component({
     template: `
-        <div class="top-row">
-            <h4 class="col-md-12">
+        <div class="row">
+            <strong class="col-md-12">
                 {{ 'i18n_get_all_enrolments_reservations_and_cancelations' | translate }}
-            </h4>
+            </strong>
         </div>
-        <div class="bottom-row d-flex justify-content-between">
-            <div class="col-lg-10 mb-4">
+        <div class="row mb-2 align-items-end">
+            <div class="col-10">
                 <label for="enrolment">{{ 'i18n_select_exam' | translate }}</label>
-                @if (examNames) {
-                    <xm-dropdown-select
-                        id="enrolment"
-                        [options]="examNames"
-                        (optionSelected)="enrolmentSelected($event)"
-                        placeholder="{{ 'i18n_select' | translate }}"
-                    ></xm-dropdown-select>
-                }
+                <xm-dropdown-select
+                    id="enrolment"
+                    [options]="examNames"
+                    (optionSelected)="enrolmentSelected($event)"
+                    placeholder="{{ 'i18n_select' | translate }}"
+                ></xm-dropdown-select>
             </div>
-            <div class="col-lg-2 mb-2">
-                <label for="link"></label>
-                <div id="link">
-                    <a
-                        (click)="getExamEnrolments()"
-                        class="print-btn"
-                        download
-                        triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        ngbPopover="{{ 'i18n_download' | translate }}"
-                    >
-                        <i class="bi-file-earmark-excel font-6"></i>
-                    </a>
-                </div>
+            <div class="col-2">
+                <button class="btn btn-success btn-sm float-end" (click)="getExamEnrolments()">
+                    <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
+                </button>
             </div>
         </div>
     `,

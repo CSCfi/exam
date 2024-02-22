@@ -25,7 +25,7 @@ import { EnrolmentService } from '../enrolment.service';
 @Component({
     selector: 'xm-exam-search-result',
     template: `<div
-        class="student-enrolment-result-wrapper max-w-1100"
+        class="search-result-container"
         [ngClass]="exam.alreadyEnrolled && exam.reservationMade ? '' : 'notactive'"
     >
         <div class="row">
@@ -105,6 +105,7 @@ import { EnrolmentService } from '../enrolment.service';
     </div>`,
     standalone: true,
     imports: [NgClass, RouterLink, CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
+    styleUrls: ['./exam-search-result.component.scss'],
 })
 export class ExamSearchResultComponent {
     @Input() exam!: EnrolmentInfo | CollaborativeExamInfo;

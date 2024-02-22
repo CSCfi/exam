@@ -1,132 +1,120 @@
 <div id="dashboard">
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-enroll-title-wrap">
-                <span class="student-enroll-title marl20">{{
-                    'i18n_monthly_language_inspection_report' | translate
-                }}</span>
-                <span class="print-only compact-header-text">{{ month | date: 'MM/yyyy' }}</span>
-            </div>
-            <div class="review-attachment-button print-button float-end marr20 no-print">
-                <a (click)="printReport()" class="pointer"> {{ 'i18n_print' | translate }}&nbsp;&nbsp; </a>
-            </div>
+    <xm-page-header text="i18n_monthly_language_inspection_report" [appendTemplate]="print" />
+    <xm-page-content [content]="content" />
+</div>
+<ng-template #print>
+    <span class="print-only compact-header-text">{{ month | date: 'MM/yyyy' }}</span>
+    <div class="review-attachment-button print-button float-end marr20 no-print">
+        <a (click)="printReport()" class="pointer"> {{ 'i18n_print' | translate }}&nbsp;&nbsp; </a>
+    </div>
+</ng-template>
+<ng-template #content>
+    <div class="row">
+        <div class="col-md-12 mb-3 no-print">
+            <form class="row form-group">
+                <div class="col-auto">
+                    <xm-dropdown-select
+                        id="month"
+                        class="input-group me-2"
+                        placeholder="i18n_month"
+                        [options]="months"
+                        [noSearch]="true"
+                        (optionSelected)="monthChanged($event)"
+                    ></xm-dropdown-select>
+                </div>
+                <div class="col">
+                    <xm-dropdown-select
+                        id="year"
+                        class="input-group"
+                        placeholder="i18n_year"
+                        [noSearch]="true"
+                        [options]="years"
+                        (optionSelected)="yearChanged($event)"
+                    ></xm-dropdown-select>
+                </div>
+            </form>
         </div>
     </div>
 
-    <div class="tab-wrapper-exams">
-        <div class="detail-row">
-            <div class="col-md-12 mb-3 no-print">
-                <form>
-                    <div class="row form-group">
-                        <div class="col-auto">
-                            <xm-dropdown-select
-                                id="month"
-                                class="input-group me-2"
-                                placeholder="{{ 'i18n_month' | translate }}"
-                                [options]="months"
-                                [noSearch]="true"
-                                (optionSelected)="monthChanged($event)"
-                                placeholder="{{ 'i18n_select' | translate }}"
-                            ></xm-dropdown-select>
-                        </div>
-                        <div class="col">
-                            <xm-dropdown-select
-                                id="year"
-                                class="input-group"
-                                placeholder="{{ 'i18n_year' | translate }}"
-                                [noSearch]="true"
-                                [options]="years"
-                                (optionSelected)="yearChanged($event)"
-                                placeholder="{{ 'i18n_select' | translate }}"
-                            ></xm-dropdown-select>
-                        </div>
-                    </div>
-                </form>
-            </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h4>{{ 'i18n_processed_language_inspections' | translate }}</h4>
         </div>
+    </div>
 
-        <div class="detail-row">
-            <div class="col-md-12">
-                <h4>{{ 'i18n_processed_language_inspections' | translate }}</h4>
-            </div>
-        </div>
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{ 'i18n_course_code' | translate }}</th>
+                        <th>{{ 'i18n_exam_name' | translate }}</th>
+                        <th>{{ 'i18n_teachers' | translate }}</th>
+                        <th>{{ 'i18n_arrived' | translate }}</th>
+                        <th>{{ 'i18n_student' | translate }}</th>
+                        <th>{{ 'i18n_finished' | translate }}</th>
+                        <th>{{ 'i18n_language_inspector' | translate }}</th>
+                        <th>{{ 'i18n_inspection_finished' | translate }}</th>
+                        <th>{{ 'i18n_language_inspections' | translate }}</th>
+                        <th class="no-print">{{ 'i18n_feedback' | translate }}</th>
+                    </tr>
+                </thead>
 
-        <div class="detail-row">
-            <div class="col-md-12">
-                <table class="table table-striped">
-                    <thead>
+                <tbody>
+                    @for (inspection of processedInspections | orderBy: 'finishedAt'; track inspection) {
                         <tr>
-                            <th>{{ 'i18n_course_code' | translate }}</th>
-                            <th>{{ 'i18n_exam_name' | translate }}</th>
-                            <th>{{ 'i18n_teachers' | translate }}</th>
-                            <th>{{ 'i18n_arrived' | translate }}</th>
-                            <th>{{ 'i18n_student' | translate }}</th>
-                            <th>{{ 'i18n_finished' | translate }}</th>
-                            <th>{{ 'i18n_language_inspector' | translate }}</th>
-                            <th>{{ 'i18n_inspection_finished' | translate }}</th>
-                            <th>{{ 'i18n_language_inspections' | translate }}</th>
-                            <th class="no-print">{{ 'i18n_feedback' | translate }}</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @for (inspection of processedInspections | orderBy: 'finishedAt'; track inspection) {
-                            <tr>
+                            <td>
+                                @if (inspection.exam.course) {
+                                    <xm-course-code [course]="inspection.exam.course"></xm-course-code>
+                                }
+                            </td>
+                            <td>{{ inspection.exam.name }}</td>
+                            <td>
+                                @for (owner of inspection.exam.parent?.examOwners; track owner) {
+                                    <span> {{ owner.firstName }} {{ owner.lastName }} </span>
+                                }
+                            </td>
+                            <td>{{ inspection.created | date: 'dd.MM.yyyy' }}</td>
+                            <td>
+                                <span
+                                    >{{ inspection.exam.creator.firstName }}
+                                    {{ inspection.exam.creator.lastName }}</span
+                                >
+                                @if (inspection.exam.creator.userIdentifier) {
+                                    <span>&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
+                                }
+                                <span
+                                    ><br /><a href="mailto:{{ inspection.exam.creator.email }}">{{
+                                        inspection.exam.creator.email
+                                    }}</a></span
+                                >
+                            </td>
+                            <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
+                            @if (inspection.assignee) {
                                 <td>
-                                    @if (inspection.exam.course) {
-                                        <xm-course-code [course]="inspection.exam.course"></xm-course-code>
-                                    }
-                                </td>
-                                <td>{{ inspection.exam.name }}</td>
-                                <td>
-                                    @for (owner of inspection.exam.parent?.examOwners; track owner) {
-                                        <span> {{ owner.firstName }} {{ owner.lastName }} </span>
-                                    }
-                                </td>
-                                <td>{{ inspection.created | date: 'dd.MM.yyyy' }}</td>
-                                <td>
+                                    <span>{{ inspection.assignee.firstName }} {{ inspection.assignee.lastName }} </span>
                                     <span
-                                        >{{ inspection.exam.creator.firstName }}
-                                        {{ inspection.exam.creator.lastName }}</span
-                                    >
-                                    @if (inspection.exam.creator.userIdentifier) {
-                                        <span>&nbsp;({{ inspection.exam.creator.userIdentifier }})</span>
-                                    }
-                                    <span
-                                        ><br /><a href="mailto:{{ inspection.exam.creator.email }}">{{
-                                            inspection.exam.creator.email
+                                        ><br /><a href="mailto:{{ inspection.assignee.email }}">{{
+                                            inspection.assignee.email
                                         }}</a></span
                                     >
                                 </td>
-                                <td>{{ inspection.exam.created | date: 'dd.MM.yyyy' }}</td>
-                                @if (inspection.assignee) {
-                                    <td>
-                                        <span
-                                            >{{ inspection.assignee.firstName }} {{ inspection.assignee.lastName }}
-                                        </span>
-                                        <span
-                                            ><br /><a href="mailto:{{ inspection.assignee.email }}">{{
-                                                inspection.assignee.email
-                                            }}</a></span
-                                        >
-                                    </td>
-                                }
-                                <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
-                                <td [ngClass]="inspection.approved ? 'text-success' : 'text-danger'">
-                                    <strong>{{
-                                        (inspection.approved ? 'i18n_approved' : 'i18n_rejected') | translate
-                                    }}</strong>
-                                </td>
-                                <td class="no-print">
-                                    <a class="pointer" (click)="showStatement(inspection.statement)">{{
-                                        'i18n_view' | translate
-                                    }}</a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+                            }
+                            <td>{{ inspection.finishedAt | date: 'dd.MM.yyyy' }}</td>
+                            <td [ngClass]="inspection.approved ? 'text-success' : 'text-danger'">
+                                <strong>{{
+                                    (inspection.approved ? 'i18n_approved' : 'i18n_rejected') | translate
+                                }}</strong>
+                            </td>
+                            <td class="no-print">
+                                <a class="pointer" (click)="showStatement(inspection.statement)">{{
+                                    'i18n_view' | translate
+                                }}</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
+</ng-template>

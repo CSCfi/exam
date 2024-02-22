@@ -33,7 +33,7 @@ import { LibrarySearchComponent } from '../library/search/library-search.compone
                     <div class="student-enroll-title">{{ 'i18n_library_choose' | translate }}</div>
                 </div>
             </div>
-            <div class="modal-content">
+            <div class="modal-content pt-3">
                 <!-- search bar and search parameters -->
                 <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
 
@@ -47,14 +47,13 @@ import { LibrarySearchComponent } from '../library/search/library-search.compone
                     </div>
                 </div>
 
-                <div class="row ms-3">
+                <div class="row">
                     <div class="col-md-12">
                         <xm-library-results
                             [questions]="questions"
                             (selected)="questionSelected($event)"
                             (copied)="questionCopied()"
                             [disableLinks]="true"
-                            class="overflow-x-auto"
                         ></xm-library-results>
                     </div>
                 </div>

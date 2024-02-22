@@ -1,31 +1,33 @@
 <div id="dashboard">
     @if (collaborative) {
+        <!-- check this stuff -->
         <div class="sitnet-header-alt">
             <div class="col-md-12 header-wrapper">
                 <span class="header-text">{{ 'i18n_collaborative_exams' | translate }}</span>
             </div>
         </div>
     }
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-details-title-wrap">
-                <a [routerLink]="[user.isAdmin ? '/staff/admin' : '/staff/teacher']">
-                    <img class="pointer arrow_icon" src="/assets/images/icon_history.png" alt="go back" />
-                </a>
-                <div class="student-exam-details-title">{{ examInfo.title || 'loading' }}</div>
-            </div>
-            @if (exam?.state) {
-                <span class="exam-status">{{ 'i18n_' + exam.state | lowercase | translate }} </span>
-            }
-        </div>
-    </div>
+    <xm-page-header [text]="examInfo.title || 'loading'" [prependTemplate]="linkBack" [appendTemplate]="status" />
+    <xm-page-content [content]="content" />
+</div>
 
+<ng-template #linkBack>
+    <a [routerLink]="[user.isAdmin ? '/staff/admin' : '/staff/teacher']">
+        <img class="pointer arrow_icon pe-4" src="/assets/images/icon_history.png" alt="go back" />
+    </a>
+</ng-template>
+<ng-template #status>
+    @if (exam?.state) {
+        <span class="exam-status float-end me-3">{{ 'i18n_' + exam.state | lowercase | translate }} </span>
+    }
+</ng-template>
+<ng-template #content>
     <ul
         ngbNav
         #nav="ngbNav"
         [(activeId)]="activeTab"
         [destroyOnHide]="false"
-        class="nav-tabs ms-4 me-4"
+        class="nav-tabs ms-2 me-2"
         (navChange)="navChanged($event)"
     >
         <li [disabled]="!isOwner() && !user.isAdmin" [ngbNavItem]="1">
@@ -60,4 +62,4 @@
             <router-outlet></router-outlet>
         </div>
     </div>
-</div>
+</ng-template>

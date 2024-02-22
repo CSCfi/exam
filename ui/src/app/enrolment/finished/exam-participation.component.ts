@@ -51,6 +51,7 @@ type Scores = {
         TranslateModule,
         ApplyDstPipe,
     ],
+    styleUrl: './exam-participations.component.scss',
 })
 export class ExamParticipationComponent implements OnInit, OnDestroy {
     @Input() participation!: ParticipationLike;
