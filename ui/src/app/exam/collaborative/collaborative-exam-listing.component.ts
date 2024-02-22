@@ -21,6 +21,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
 import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
@@ -59,6 +61,8 @@ interface ListedCollaborativeExam extends CollaborativeExam {
         DatePipe,
         TranslateModule,
         OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class CollaborativeExamListingComponent implements OnInit, OnDestroy {

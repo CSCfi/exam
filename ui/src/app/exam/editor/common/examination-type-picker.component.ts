@@ -1,7 +1,7 @@
 import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { NgbAccordionDirective, NgbAccordionItem, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAccordionDirective, NgbAccordionModule, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamService } from '../../exam.service';
 
@@ -10,7 +10,7 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
 @Component({
     selector: 'xm-examination-type-selector',
     standalone: true,
-    imports: [TranslateModule, NgbAccordionDirective, NgbAccordionItem, NgClass],
+    imports: [TranslateModule, NgbAccordionModule, NgClass],
     template: `
         <div id="sitnet-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">

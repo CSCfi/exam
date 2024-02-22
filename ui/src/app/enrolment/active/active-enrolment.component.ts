@@ -45,6 +45,7 @@ import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.co
         TranslateModule,
         ApplyDstPipe,
     ],
+    styleUrl: './active-enrolment.component.scss',
 })
 export class ActiveEnrolmentComponent {
     @Input() enrolment!: ExamEnrolment & { occasion?: { startAt: string; endAt: string; tz: string } };

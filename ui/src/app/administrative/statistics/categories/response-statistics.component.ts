@@ -21,28 +21,28 @@ import { StatisticsService } from '../statistics.service';
 
 @Component({
     template: `
-        <div class="bottom-row">
-            <div class="col-md-12">
+        <div class="row my-2">
+            <div class="col-12">
                 <button class="btn btn-primary" (click)="listResponses()">{{ 'i18n_search' | translate }}</button>
             </div>
         </div>
-        <div class="top-row">
-            <div class="col-md-2">
+        <div class="row">
+            <div class="col-3">
                 <strong>{{ 'i18n_assessed_exams' | translate }}:</strong>
             </div>
-            <div class="col-md-10">{{ assessedExams.length }}</div>
+            <div class="col-9">{{ assessedExams.length }}</div>
         </div>
-        <div class="top-row">
-            <div class="col-md-2">
+        <div class="row">
+            <div class="col-3">
                 <strong>{{ 'i18n_unassessed_exams' | translate }}:</strong>
             </div>
-            <div class="col-md-10">{{ unassessedExams.length }}</div>
+            <div class="col-9">{{ unassessedExams.length }}</div>
         </div>
-        <div class="top-row">
-            <div class="col-md-2">
+        <div class="row">
+            <div class="col-md-3">
                 <strong>{{ 'i18n_aborted_exams' | translate }}:</strong>
             </div>
-            <div class="col-md-10">{{ abortedExams.length }}</div>
+            <div class="col-9">{{ abortedExams.length }}</div>
         </div>
     `,
     selector: 'xm-response-statistics',

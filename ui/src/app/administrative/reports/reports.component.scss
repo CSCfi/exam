@@ -1,0 +1,25 @@
+.report-category {
+    border: 1px solid lightgrey;
+    border-radius: 4pt;
+    padding: 1em;
+    margin-bottom: 1em;
+
+    .dropdown > button {
+        width: 100%;
+        display: inline-flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .print-btn {
+        background-color: #6aa33a;
+        color: white;
+        width: 38px;
+        height: 38px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 2px;
+        margin-left: auto;
+    }
+}

@@ -16,6 +16,8 @@ import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DateTimeService } from '../../shared/date/date.service';
 import { HistoryBackComponent } from '../../shared/history/history-back.component';
 import { MathJaxDirective } from '../../shared/math/math-jax.directive';
@@ -36,6 +38,8 @@ import { EnrolmentService } from '../enrolment.service';
         MathJaxDirective,
         DatePipe,
         TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class EnrolmentDetailsComponent {

@@ -1,107 +1,99 @@
 <div id="dashboard">
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title marl20">{{ 'i18n_dashboard' | translate }}</div>
-            </div>
-            <div class="teacher-toolbar">
-                <div class="make-inline">
-                    <div class="review-attachment-button print-button">
-                        <a [routerLink]="['/staff/exams']" class="pointer">
-                            {{ 'i18n_toolbar_new_exam' | translate }}
-                        </a>
-                    </div>
-                </div>
-                <div class="make-inline">
-                    <div class="review-attachment-button print-button">
-                        <a
-                            [routerLink]="['/staff/questions/new']"
-                            [queryParams]="{ nextState: 'teacher' }"
-                            class="pointer"
-                        >
-                            {{ 'i18n_toolbar_new_question' | translate }}
-                        </a>
-                    </div>
-                </div>
-            </div>
+    <xm-page-header text="i18n_dashboard" [appendTemplate]="buttons" />
+    <xm-page-content [content]="content" />
+</div>
+<ng-template #buttons>
+    <div class="teacher-toolbar">
+        <div class="review-attachment-button print-button">
+            <a [routerLink]="['/staff/exams']" class="pointer">
+                {{ 'i18n_toolbar_new_exam' | translate }}
+            </a>
+        </div>
+        <div class="review-attachment-button print-button">
+            <a [routerLink]="['/staff/questions/new']" [queryParams]="{ nextState: 'teacher' }" class="pointer">
+                {{ 'i18n_toolbar_new_question' | translate }}
+            </a>
         </div>
     </div>
-
-    <div class="tab-wrapper">
-        <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
-            <li [ngbNavItem]="1">
-                <a ngbNavLink>
-                    <div class="make-inline me-2">{{ 'i18n_active_exams_title' | translate }}</div>
-                    @if (activeExams) {
+</ng-template>
+<ng-template #content>
+    <div class="row me-2">
+        <div class="col-12">
+            <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
+                <li [ngbNavItem]="1">
+                    <a ngbNavLink>
+                        <div class="make-inline me-2">{{ 'i18n_active_exams_title' | translate }}</div>
+                        @if (activeExams) {
+                            <div class="make-inline badge rounded-pill text-bg-danger">
+                                {{ filteredActive.length }}
+                            </div>
+                        }
+                    </a>
+                    <ng-template ngbNavContent>
+                        <xm-exam-list-category
+                            [items]="filteredActive"
+                            defaultPredicate="periodEnd"
+                            [extraData]="activeExtraData"
+                            (filtered)="search($event)"
+                        >
+                        </xm-exam-list-category>
+                    </ng-template>
+                </li>
+                <li [ngbNavItem]="2">
+                    <a ngbNavLink>
+                        <div class="make-inline me-2">{{ 'i18n_finished_exams_title' | translate }}</div>
                         <div class="make-inline badge rounded-pill text-bg-danger">
-                            {{ filteredActive.length }}
+                            {{ filteredFinished.length }}
                         </div>
-                    }
-                </a>
-                <ng-template ngbNavContent>
-                    <xm-exam-list-category
-                        [items]="filteredActive"
-                        defaultPredicate="periodEnd"
-                        [extraData]="activeExtraData"
-                        (filtered)="search($event)"
-                    >
-                    </xm-exam-list-category>
-                </ng-template>
-            </li>
-            <li [ngbNavItem]="2">
-                <a ngbNavLink>
-                    <div class="make-inline me-2">{{ 'i18n_finished_exams_title' | translate }}</div>
-                    <div class="make-inline badge rounded-pill text-bg-danger">
-                        {{ filteredFinished.length }}
-                    </div>
-                </a>
-                <ng-template ngbNavContent>
-                    <xm-exam-list-category
-                        [items]="filteredFinished"
-                        defaultPredicate="unassessedCount"
-                        [defaultReverse]="true"
-                        [extraData]="finishedExtraData"
-                        (filtered)="search($event)"
-                    >
-                    </xm-exam-list-category>
-                </ng-template>
-            </li>
-            <li [ngbNavItem]="3">
-                <a ngbNavLink>
-                    <div class="make-inline me-2">{{ 'i18n_archived_teacher_exams_title' | translate }}</div>
-                    <div class="make-inline badge rounded-pill text-bg-danger">
-                        {{ filteredArchived.length }}
-                    </div>
-                </a>
-                <ng-template ngbNavContent>
-                    <xm-exam-list-category
-                        [items]="filteredArchived"
-                        defaultPredicate="periodEnd"
-                        [defaultReverse]="true"
-                        [extraData]="archivedExtraData"
-                        (filtered)="search($event)"
-                    >
-                    </xm-exam-list-category>
-                </ng-template>
-            </li>
-            <li [ngbNavItem]="4">
-                <a ngbNavLink>
-                    <div class="make-inline me-2">{{ 'i18n_draft_exams' | translate }}</div>
-                    <div class="make-inline badge rounded-pill text-bg-danger">
-                        {{ filteredDrafts.length }}
-                    </div>
-                </a>
-                <ng-template ngbNavContent>
-                    <xm-exam-list-category
-                        [items]="filteredDrafts"
-                        defaultPredicate="periodEnd"
-                        [defaultReverse]="true"
-                        (filtered)="search($event)"
-                    >
-                    </xm-exam-list-category>
-                </ng-template>
-            </li>
-        </ul>
+                    </a>
+                    <ng-template ngbNavContent>
+                        <xm-exam-list-category
+                            [items]="filteredFinished"
+                            defaultPredicate="unassessedCount"
+                            [defaultReverse]="true"
+                            [extraData]="finishedExtraData"
+                            (filtered)="search($event)"
+                        >
+                        </xm-exam-list-category>
+                    </ng-template>
+                </li>
+                <li [ngbNavItem]="3">
+                    <a ngbNavLink>
+                        <div class="make-inline me-2">{{ 'i18n_archived_teacher_exams_title' | translate }}</div>
+                        <div class="make-inline badge rounded-pill text-bg-danger">
+                            {{ filteredArchived.length }}
+                        </div>
+                    </a>
+                    <ng-template ngbNavContent>
+                        <xm-exam-list-category
+                            [items]="filteredArchived"
+                            defaultPredicate="periodEnd"
+                            [defaultReverse]="true"
+                            [extraData]="archivedExtraData"
+                            (filtered)="search($event)"
+                        >
+                        </xm-exam-list-category>
+                    </ng-template>
+                </li>
+                <li [ngbNavItem]="4">
+                    <a ngbNavLink>
+                        <div class="make-inline me-2">{{ 'i18n_draft_exams' | translate }}</div>
+                        <div class="make-inline badge rounded-pill text-bg-danger">
+                            {{ filteredDrafts.length }}
+                        </div>
+                    </a>
+                    <ng-template ngbNavContent>
+                        <xm-exam-list-category
+                            [items]="filteredDrafts"
+                            defaultPredicate="periodEnd"
+                            [defaultReverse]="true"
+                            (filtered)="search($event)"
+                        >
+                        </xm-exam-list-category>
+                    </ng-template>
+                </li>
+            </ul>
+        </div>
         <div [ngbNavOutlet]="nav"></div>
     </div>
-</div>
+</ng-template>

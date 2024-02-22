@@ -1,130 +1,129 @@
-<div class="row mt-4 me-2 ms-2">
-    <div class="col-md-12 mt-2">
-        <div class="student-details-title-wrap">
-            <xm-history-back></xm-history-back>
-            <h1 class="student-exam-details-title">{{ exam.name }}</h1>
-        </div>
-    </div>
-</div>
+<xm-page-header [text]="exam.name || ''" [history]="true" />
+<xm-page-content [content]="content" />
 
-<div class="student-enrolment-wrapper details-view marr20">
-    <div class="student-exam-header-row row ms-2">
-        <div class="student-details-title col-md-9 col-6">
-            <h2>{{ exam.name }}</h2>
-            <div class="student-details-subtitle">
-                @if (!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft) {
-                    <span class="exam-needs-reservation">
-                        {{ 'i18n_state_needs_reservation_title' | translate }}
-                    </span>
-                }
-                @if (exam.reservationMade) {
-                    <span class="exam-ready">
-                        {{ 'i18n_state_ready' | translate }}
-                    </span>
-                }
-            </div>
-        </div>
-        @if (!exam.alreadyEnrolled && !exam.noTrialsLeft) {
-            <div class="col-md-3 col-6">
-                <div class="student-message-dialog-button-save">
-                    <button
-                        class="btn btn-success important-clear-focus"
-                        [disabled]="getExpiration()"
-                        (click)="enrollForExam()"
-                    >
-                        {{ 'i18n_enroll_to_exam' | translate }}
-                    </button>
-                    @if (getExpiration()) {
-                        <div class="text-danger marl10">
-                            {{ 'i18n_exam_period_over' | translate }}
-                        </div>
+<ng-template #content>
+    <div class="student-enrolment-wrapper">
+        <!-- make component style -->
+        <div class="row">
+            <div class="col-md-9 col-6">
+                <h3>{{ exam.name }}</h3>
+                <div class="student-details-subtitle">
+                    @if (!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft) {
+                        <span class="exam-needs-reservation">
+                            {{ 'i18n_state_needs_reservation_title' | translate }}
+                        </span>
+                    }
+                    @if (exam.reservationMade) {
+                        <span class="exam-ready">
+                            {{ 'i18n_state_ready' | translate }}
+                        </span>
                     }
                 </div>
             </div>
-        }
-        @if (exam.alreadyEnrolled && exam.reservationMade) {
-            <div class="student-details-indicator col-md-3 col-6">
-                {{ 'i18n_enrolled_to_exam' | translate }}
-            </div>
-        }
-    </div>
-    <div class="row ms-2 mt-1">
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_course_name' | translate }}:</div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            @if (exam.course) {
-                <xm-course-code [course]="exam.course"></xm-course-code>
+        </div>
+        <div class="row">
+            @if (!exam.alreadyEnrolled && !exam.noTrialsLeft) {
+                <div class="col-md-3 col-6">
+                    <div class="student-message-dialog-button-save">
+                        <button
+                            class="btn btn-success important-clear-focus"
+                            [disabled]="getExpiration()"
+                            (click)="enrollForExam()"
+                        >
+                            {{ 'i18n_enroll_to_exam' | translate }}
+                        </button>
+                        @if (getExpiration()) {
+                            <div class="text-danger marl10">
+                                {{ 'i18n_exam_period_over' | translate }}
+                            </div>
+                        }
+                    </div>
+                </div>
             }
-            {{ exam.course?.name }}
+            @if (exam.alreadyEnrolled && exam.reservationMade) {
+                <div class="student-details-indicator col-md-3 col-6">
+                    {{ 'i18n_enrolled_to_exam' | translate }}
+                </div>
+            }
         </div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_teachers' | translate }}:</div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            <xm-teacher-list [exam]="exam"></xm-teacher-list>
-        </div>
-    </div>
-
-    <div class="row ms-2 mt-1">
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_start_time' | translate }}:</div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            {{ exam.periodStart | date: 'dd.MM.yyyy' }} - {{ exam.periodEnd | date: 'dd.MM.yyyy' }}
-        </div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_exam_language' | translate }}:</div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            {{ exam.languages.join(', ') }}
-        </div>
-    </div>
-
-    <div class="row ms-2 mt-1">
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_course_scope' | translate }}:</div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            {{ exam.course?.credits }}
-        </div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_faculty_name' | translate }}:</div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            {{ exam.course?.organisation?.name }}
-        </div>
-    </div>
-
-    <div class="row ms-2 mt-1">
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_exam_duration' | translate }}:</div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            {{ printExamDuration() }}
-        </div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_grade_scale' | translate }}:</div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            {{ translateGradeScale() }}
-        </div>
-    </div>
-    <div class="row ms-2 mt-1">
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_exam_credit_type' | translate }}:</div>
-        <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-            {{ translateExamType() }}
-        </div>
-    </div>
-    <div class="row ms-2 mt-1">
-        <div class="col-12">
-            <div class="student-exam-row-infolink infotitle" [hidden]="exam.executionType.type === 'MATURITY'">
-                {{ 'i18n_view_instructions' | translate }}
+        <div class="row ms-2 mt-1">
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_course_name' | translate }}:</div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                @if (exam.course) {
+                    <xm-course-code [course]="exam.course"></xm-course-code>
+                }
+                {{ exam.course?.name }}
             </div>
-            <div [xmMathJax]="exam.enrollInstruction"></div>
-        </div>
-    </div>
-
-    <div class="row ms-2 mt-1" [hidden]="exam.executionType.type !== 'MATURITY'">
-        <div class="col-md-12">
-            <div class="student-exam-row-infolink">
-                {{ 'i18n_maturity_instructions' | translate }}
-            </div>
-            <div [xmMathJax]="exam.maturityInstructions || ''"></div>
-        </div>
-    </div>
-
-    @if (!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft) {
-        <div class="row ms-2 mt-1 me-1">
-            <div class="col-md-12 student-message-dialog-button-save">
-                <button class="link-button float-end" (click)="makeReservation()">
-                    {{ 'i18n_student_new_reservation' | translate }}
-                </button>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_teachers' | translate }}:</div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                <xm-teacher-list [exam]="exam"></xm-teacher-list>
             </div>
         </div>
-    }
-</div>
+
+        <div class="row ms-2 mt-1">
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_start_time' | translate }}:</div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                {{ exam.periodStart | date: 'dd.MM.yyyy' }} - {{ exam.periodEnd | date: 'dd.MM.yyyy' }}
+            </div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_exam_language' | translate }}:</div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                {{ exam.languages.join(', ') }}
+            </div>
+        </div>
+
+        <div class="row ms-2 mt-1">
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_course_scope' | translate }}:</div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                {{ exam.course?.credits }}
+            </div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_faculty_name' | translate }}:</div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                {{ exam.course?.organisation?.name }}
+            </div>
+        </div>
+
+        <div class="row ms-2 mt-1">
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_exam_duration' | translate }}:</div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                {{ printExamDuration() }}
+            </div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_grade_scale' | translate }}:</div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                {{ translateGradeScale() }}
+            </div>
+        </div>
+        <div class="row ms-2 mt-1">
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">{{ 'i18n_exam_credit_type' | translate }}:</div>
+            <div class="col-6 col-sm-6 col-md-3 col-lg-3">
+                {{ translateExamType() }}
+            </div>
+        </div>
+        <div class="row ms-2 mt-1">
+            <div class="col-12">
+                <div class="student-exam-row-infolink infotitle" [hidden]="exam.executionType.type === 'MATURITY'">
+                    {{ 'i18n_view_instructions' | translate }}
+                </div>
+                <div [xmMathJax]="exam.enrollInstruction"></div>
+            </div>
+        </div>
+
+        <div class="row ms-2 mt-1" [hidden]="exam.executionType.type !== 'MATURITY'">
+            <div class="col-md-12">
+                <div class="student-exam-row-infolink">
+                    {{ 'i18n_maturity_instructions' | translate }}
+                </div>
+                <div [xmMathJax]="exam.maturityInstructions || ''"></div>
+            </div>
+        </div>
+
+        @if (!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft) {
+            <div class="row ms-2 mt-1 me-1">
+                <div class="col-md-12 student-message-dialog-button-save">
+                    <button class="link-button float-end" (click)="makeReservation()">
+                        {{ 'i18n_student_new_reservation' | translate }}
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</ng-template>

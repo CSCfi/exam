@@ -1,21 +1,12 @@
 <div id="dashboard">
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-enroll-title-wrap">
-                @if (isAdminView()) {
-                    <div class="student-enroll-title">
-                        {{ 'i18n_reservations_administration' | translate }}
-                    </div>
-                }
-                @if (!isAdminView()) {
-                    <div class="student-enroll-title">
-                        {{ 'i18n_reservations_new' | translate }}
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-
+    @if (isAdminView()) {
+        <xm-page-header text="i18n_reservations_administration" />
+    } @else {
+        <xm-page-header text="i18n_reservations_new" />
+    }
+    <xm-page-content [content]="content" />
+</div>
+<ng-template #content>
     <div class="reservation-border">
         <div class="ps-4 pe-4 pt-4 pb-2 row">
             <div class="col-md-2 pt-1 reservation-search-titles">
@@ -165,11 +156,10 @@
                 </div>
             </div>
         }
-        <div class="overflow-x-auto">
-            @if (reservations) {
-                <xm-reservation-details [reservations]="reservations" [isAdminView]="isAdminView()">
-                </xm-reservation-details>
-            }
-        </div>
+
+        @if (reservations) {
+            <xm-reservation-details [reservations]="reservations" [isAdminView]="isAdminView()">
+            </xm-reservation-details>
+        }
     </div>
-</div>
+</ng-template>

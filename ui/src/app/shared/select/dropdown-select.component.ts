@@ -50,7 +50,7 @@ export interface Option<V, I> {
                             [(ngModel)]="searchFilter"
                             class="form-control"
                             (input)="filterOptions()"
-                            placeholder="{{ 'i18n_search' | translate }}"
+                            placeholder="{{ placeholder | translate }}"
                         />
                         <div class="input-group-append">
                             <span class="input-group-text">
@@ -91,7 +91,7 @@ export interface Option<V, I> {
 })
 export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
     @Input() options: Option<V, I>[] = []; // everything
-    @Input() placeholder = ' ';
+    @Input() placeholder = 'i18n_choose';
     @Input() limitTo?: number;
     @Input() fullWidth = false;
     @Input() noSearch = false;

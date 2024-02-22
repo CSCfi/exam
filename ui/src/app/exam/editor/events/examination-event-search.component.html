@@ -1,63 +1,56 @@
 <div id="dashboard">
-    <div class="reservation-border mobile-paddings border-none">
+    <xm-page-header text="i18n_byod_exam_search"></xm-page-header>
+    <div class="row ms-3">
         <div class="col-md-12">
             <div class="row mt-4">
                 <div class="col-md-12">
-                    <div style="display: inline-block">
-                        <div class="student-enroll-title">{{ 'i18n_byod_exam_search' | translate }}</div>
+                    <div class="row mt-3 align-items-center" role="note">
+                        <div class="col-auto"><img src="/assets/images/icon_info.png" alt="" role="note" /></div>
+                        <div class="col">
+                            {{ 'i18n_byod_exam_search_description' | translate }}
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="row mt-3 align-items-center" role="note">
-                <div class="col-auto"><img src="/assets/images/icon_info.png" alt="" role="note" /></div>
-                <div class="col">
-                    {{ 'i18n_byod_exam_search_description' | translate }}
                 </div>
             </div>
         </div>
     </div>
-    <div class="top-row marb20 padt20">
+    <form class="row m-3 align-items-end">
         <!-- Start & End time datepickers -->
-        <div class="flex flex-wrap">
-            <div class="marr20 max-w-350 min-w-100">
-                <span class="exam-basic-selecttitle">{{ 'i18n_begin' | translate }}</span>
-                <xm-date-picker
-                    [optional]="true"
-                    [initialDate]="date"
-                    (updated)="startDateChanged($event)"
-                ></xm-date-picker>
-            </div>
-            <div class="marr20 max-w-350 min-w-100">
-                <span class="exam-basic-selecttitle">{{ 'i18n_end' | translate }}</span>
-                <xm-date-picker
-                    [optional]="true"
-                    [initialDate]="date"
-                    (updated)="endDateChanged($event)"
-                ></xm-date-picker>
-            </div>
-            <div class="marr20 max-w-350 min-w-100 mt-4">
-                <div class="input-group">
-                    <input
-                        [(ngModel)]="filterText"
-                        (ngModelChange)="query()"
-                        class="form-control hgt40"
-                        placeholder="{{ 'i18n_search' | translate }}"
-                        ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                    />
+        <div class="col-2">
+            <span class="exam-basic-selecttitle">{{ 'i18n_begin' | translate }}</span>
+            <xm-date-picker
+                [optional]="true"
+                [initialDate]="date"
+                (updated)="startDateChanged($event)"
+            ></xm-date-picker>
+        </div>
+        <div class="col-2">
+            <span class="exam-basic-selecttitle">{{ 'i18n_end' | translate }}</span>
+            <xm-date-picker [optional]="true" [initialDate]="date" (updated)="endDateChanged($event)"></xm-date-picker>
+        </div>
+        <div class="col-2">
+            <div class="input-group">
+                <input
+                    name="text-search"
+                    [(ngModel)]="filterText"
+                    (ngModelChange)="query()"
+                    class="form-control"
+                    placeholder="{{ 'i18n_search' | translate }}"
+                    ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                />
 
-                    <div class="input-group-append search">
-                        <img class="nopad" src="/assets/images/icon_search.png" width="49" height="40" />
-                    </div>
+                <div class="input-group-append search">
+                    <img class="nopad" src="/assets/images/icon_search.png" width="49" height="40" />
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 
     @if (events.length > 0) {
-        <div class="mt-4 overflow-x-auto">
-            <div class="col-md-12">
+        <div class="row ms-3">
+            <div class="col-md-12 mt-4">
                 <table class="table table-striped exams-table">
                     <thead>
                         <tr>
@@ -112,14 +105,7 @@
                                 </xm-table-sort>
                             </th>
                             <th class="with-top">
-                                <xm-table-sort
-                                    by="examEnrolments.length"
-                                    text="i18n_control"
-                                    [predicate]="sorting.predicate"
-                                    [reverse]="sorting.reverse"
-                                    (click)="setPredicate('examEnrolments.length')"
-                                >
-                                </xm-table-sort>
+                                {{ 'i18n_control' | translate }}
                             </th>
                         </tr>
                     </thead>
@@ -161,7 +147,7 @@
                                 <!-- 6 -->
                                 <td>
                                     @if (isActive(event)) {
-                                        <button class="rounded warning" (click)="removeEvent(event)">
+                                        <button class="btn btn-sm btn-danger" (click)="removeEvent(event)">
                                             {{ 'i18n_remove' | translate }}
                                         </button>
                                     }
@@ -172,10 +158,11 @@
                 </table>
             </div>
         </div>
-    }
-    @if (events.length <= 0) {
-        <div class="marl30 mart20">
-            {{ 'i18n_exam_no_result' | translate }}
+    } @else {
+        <div class="row ms-3">
+            <div class="col-md-12 mt-4">
+                {{ 'i18n_exam_no_result' | translate }}
+            </div>
         </div>
     }
 </div>

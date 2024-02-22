@@ -30,6 +30,8 @@ import { from } from 'rxjs';
 import type { MaintenancePeriod } from '../exam/exam.model';
 import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
+import { PageContentComponent } from '../shared/components/page-content.component';
+import { PageHeaderComponent } from '../shared/components/page-header.component';
 import { OrderByPipe } from '../shared/sorting/order-by.pipe';
 import { SoftwareComponent } from '../software/software.component';
 import { AccessibilityComponent } from './accessibility/accessibility.component';
@@ -54,6 +56,8 @@ import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-
         TranslateModule,
         DatePipe,
         OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class FacilityComponent implements OnInit {

@@ -145,11 +145,11 @@
                             </div>
                         </td>
                         <td>
-                          <span class="">
-                            <small>{{ question.creator?.firstName }} {{ question.creator?.lastName }}</small>
-                          </span>
+                            <span class="">
+                                <small>{{ question.creator?.firstName }} {{ question.creator?.lastName }}</small>
+                            </span>
                         </td>
-                      <td>
+                        <td>
                             @if (question.modified) {
                                 <span class="timestamp">
                                     {{ question.modified | date: 'dd.MM.yyyy HH:mm' }}
@@ -220,7 +220,7 @@
                             </a>
                         </td>
                         <td class="td-center-align">
-                            {{ examSectionQuestionsLength(question) }}
+                            {{ question.examSectionQuestions.length }}
                         </td>
                     </tr>
                 }

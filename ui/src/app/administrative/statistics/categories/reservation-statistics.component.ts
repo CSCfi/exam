@@ -20,24 +20,24 @@ import { StatisticsService } from '../statistics.service';
 
 @Component({
     template: `
-        <div class="bottom-row">
-            <div class="col-md-12">
+        <div class="row my-2">
+            <div class="col-12">
                 <button class="btn btn-primary" (click)="listReservations()">
                     {{ 'i18n_search' | translate }}
                 </button>
             </div>
         </div>
-        <div class="top-row">
-            <div class="col-md-2">
+        <div class="row">
+            <div class="col-3">
                 <strong>{{ 'i18n_total_reservations' | translate }}:</strong>
             </div>
-            <div class="col-md-10">{{ reservations.length }}</div>
+            <div class="col-9">{{ reservations.length }}</div>
         </div>
-        <div class="main-row">
-            <div class="col-md-2">
+        <div class="row">
+            <div class="col-3">
                 <strong>{{ 'i18n_total_no_shows' | translate }}:</strong>
             </div>
-            <div class="col-md-10">{{ noShows.length }}</div>
+            <div class="col-9">{{ noShows.length }}</div>
         </div>
     `,
     selector: 'xm-reservation-statistics',

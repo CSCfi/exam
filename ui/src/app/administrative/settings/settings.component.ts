@@ -5,6 +5,8 @@ import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { CKEditorComponent } from '../../shared/ckeditor/ckeditor.component';
 import { AppConfig, SettingsService } from './settings.service';
 
@@ -12,7 +14,15 @@ import { AppConfig, SettingsService } from './settings.service';
     templateUrl: './settings.component.html',
     selector: 'xm-settings',
     standalone: true,
-    imports: [CKEditorComponent, FormsModule, NgbPopover, KeyValuePipe, TranslateModule],
+    imports: [
+        CKEditorComponent,
+        FormsModule,
+        NgbPopover,
+        KeyValuePipe,
+        TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
+    ],
 })
 export class SettingsComponent implements OnInit {
     config!: AppConfig;

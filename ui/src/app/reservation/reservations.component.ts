@@ -21,12 +21,14 @@ import { NgbTypeaheadModule, NgbTypeaheadSelectItemEvent } from '@ng-bootstrap/n
 import { TranslateModule } from '@ngx-translate/core';
 import { addMinutes, endOfDay, parseISO, startOfDay } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin, from, Observable, of } from 'rxjs';
+import { Observable, forkJoin, from, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 import type { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { CollaborativeExam, Exam, ExamImpl, Implementation } from '../exam/exam.model';
 import type { User } from '../session/session.service';
 import { SessionService } from '../session/session.service';
+import { PageContentComponent } from '../shared/components/page-content.component';
+import { PageHeaderComponent } from '../shared/components/page-header.component';
 import { DatePickerComponent } from '../shared/date/date-picker.component';
 import { isObject } from '../shared/miscellaneous/helpers';
 import { DropdownSelectComponent, Option } from '../shared/select/dropdown-select.component';
@@ -80,8 +82,11 @@ export type AnyReservation =
         DatePickerComponent,
         DropdownSelectComponent,
         ReservationDetailsComponent,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
     templateUrl: './reservations.component.html',
+    styleUrl: './reservations.component.scss',
 })
 export class ReservationsComponent implements OnInit {
     @ViewChild('studentInput') studentInput!: ElementRef;

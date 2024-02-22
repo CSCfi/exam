@@ -16,6 +16,7 @@ import { NgClass } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { EventInput } from '@fullcalendar/core';
+import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
@@ -37,7 +38,7 @@ import { RoomService } from './room.service';
         `,
     ],
     standalone: true,
-    imports: [NgClass, BookingCalendarComponent, TranslateModule],
+    imports: [NgClass, BookingCalendarComponent, TranslateModule, NgbPopover],
 })
 export class AvailabilityComponent implements OnInit {
     @Input() room!: ExamRoom;

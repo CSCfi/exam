@@ -16,6 +16,8 @@
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { RoomService } from '../../facility/rooms/room.service';
 import { ExamRoom } from '../../reservation/reservation.model';
 import { User } from '../../session/session.service';
@@ -34,42 +36,20 @@ import { ReportsService, UserRole } from './reports.service';
 @Component({
     selector: 'xm-reports',
     template: `
-        <div>
-            <div id="sitnet-header" class="header">
-                <div class="col-md-12 header-wrapper">
-                    <span class="header-text">{{ 'i18n_reports' | translate }}</span>
-                </div>
-            </div>
-
-            <div id="dashboard">
-                @if (rooms) {
-                    <div class="report-category"><xm-rooms-report [rooms]="rooms"></xm-rooms-report></div>
-                }
-                @if (examNames) {
-                    <div class="report-category">
-                        <xm-exams-report [examNames]="examNames" fileType="xlsx"></xm-exams-report>
-                    </div>
-                }
-                @if (students) {
-                    <div class="report-category">
-                        <xm-students-report [students]="students"></xm-students-report>
-                    </div>
-                }
-                @if (examNames) {
-                    <div class="report-category">
-                        <xm-enrolments-report [examNames]="examNames"></xm-enrolments-report>
-                    </div>
-                }
-                <div class="report-category"><xm-answers-report></xm-answers-report></div>
-                <div class="report-category"><xm-reviews-report></xm-reviews-report></div>
-                <div class="report-category"><xm-records-report></xm-records-report></div>
-                @if (teachers) {
-                    <div class="report-category">
-                        <xm-teachers-report [teachers]="teachers"></xm-teachers-report>
-                    </div>
-                }
-            </div>
+        <div id="dashboard">
+            <xm-page-header text="i18n_reports" />
+            <xm-page-content [content]="content" />
         </div>
+        <ng-template #content>
+            <div class="report-category"><xm-rooms-report [rooms]="rooms" /></div>
+            <div class="report-category"><xm-exams-report [examNames]="examNames" /></div>
+            <div class="report-category"><xm-students-report [students]="students" /></div>
+            <div class="report-category"><xm-enrolments-report [examNames]="examNames" /></div>
+            <div class="report-category"><xm-answers-report /></div>
+            <div class="report-category"><xm-reviews-report /></div>
+            <div class="report-category"><xm-records-report /></div>
+            <div class="report-category"><xm-teachers-report [teachers]="teachers" /></div>
+        </ng-template>
     `,
     standalone: true,
     imports: [
@@ -82,7 +62,10 @@ import { ReportsService, UserRole } from './reports.service';
         RecordsReportComponent,
         TeachersReportComponent,
         TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
+    styleUrl: './reports.component.scss',
 })
 export class ReportsComponent implements OnInit {
     rooms: Option<ExamRoom, number>[] = [];

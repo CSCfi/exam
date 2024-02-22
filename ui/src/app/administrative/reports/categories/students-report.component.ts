@@ -12,7 +12,6 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -25,49 +24,37 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
 
 @Component({
     template: `
-        <div class="top-row">
-            <h4 class="col-md-12">
+        <div class="row">
+            <strong class="col-md-12">
                 {{ 'i18n_get_all_student_activities' | translate }}
-            </h4>
+            </strong>
         </div>
-        <div class="bottom-row d-flex justify-content-between">
-            <div class="col-lg-4 mb-2">
+        <div class="row align-items-end mb-2">
+            <div class="col-3">
                 <label for="student">{{ 'i18n_student' | translate }}</label>
-                @if (students) {
-                    <xm-dropdown-select
-                        id="student"
-                        [options]="students"
-                        (optionSelected)="studentSelected($event)"
-                        placeholder="{{ 'i18n_select' | translate }}"
-                    ></xm-dropdown-select>
-                }
+                <xm-dropdown-select
+                    id="student"
+                    [options]="students"
+                    (optionSelected)="studentSelected($event)"
+                    placeholder="{{ 'i18n_select' | translate }}"
+                ></xm-dropdown-select>
             </div>
-            <div class="col-lg-3 mb-2">
+            <div class="col-3">
                 <label for="startAt">{{ 'i18n_start_time' | translate }}</label>
                 <div id="startAt">
                     <xm-date-picker (updated)="startDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
-            <div class="col-lg-3 mb-2">
+            <div class="col-3">
                 <label for="endAt">{{ 'i18n_end_time' | translate }}</label>
                 <div id="endAt">
                     <xm-date-picker (updated)="endDateChanged($event)"></xm-date-picker>
                 </div>
             </div>
-            <div class="col-lg-2 mb-2">
-                <label for="link">&nbsp;</label>
-                <div id="link">
-                    <a
-                        (click)="getStudentReport()"
-                        class="print-btn"
-                        download
-                        triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        ngbPopover="{{ 'i18n_download' | translate }}"
-                    >
-                        <i class="bi-file-earmark-excel font-6"></i>
-                    </a>
-                </div>
+            <div class="col-3">
+                <button class="btn btn-success btn-sm float-end" (click)="getStudentReport()">
+                    <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
+                </button>
             </div>
         </div>
     `,
@@ -82,7 +69,6 @@ export class StudentsReportComponent {
     endDate: Date | null = null;
 
     constructor(
-        private datePipe: DatePipe,
         private translate: TranslateService,
         private toast: ToastrService,
         private files: FileService,

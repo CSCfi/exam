@@ -36,6 +36,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { noop } from 'rxjs';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { QuestionSelectorComponent } from '../../../question/picker/question-picker.component';
 import { QuestionService } from '../../../question/question.service';
 import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
@@ -43,7 +44,6 @@ import { FileService } from '../../../shared/file/file.service';
 import type { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
 import { ExamService } from '../../exam.service';
 import { SectionQuestionComponent } from './section-question.component';
-import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-section',
@@ -238,7 +238,7 @@ export class SectionComponent {
         const modal = this.modal.open(QuestionSelectorComponent, {
             backdrop: 'static',
             keyboard: true,
-            size: 'xl',
+            windowClass: 'xxl-modal',
         });
         modal.componentInstance.examId = this.examId;
         modal.componentInstance.sectionId = this.section.id;

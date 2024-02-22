@@ -22,6 +22,8 @@ import { ToastrService } from 'ngx-toastr';
 import { switchMap, tap } from 'rxjs/operators';
 import { ExamEnrolment } from '../enrolment/enrolment.model';
 import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
+import { PageContentComponent } from '../shared/components/page-content.component';
+import { PageHeaderComponent } from '../shared/components/page-header.component';
 import { DateTimeService } from '../shared/date/date.service';
 import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
 import { HistoryBackComponent } from '../shared/history/history-back.component';
@@ -48,6 +50,8 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
         CourseCodeComponent,
         DatePipe,
         TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class CalendarComponent implements OnInit {

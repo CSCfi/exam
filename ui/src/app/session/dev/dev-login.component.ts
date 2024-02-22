@@ -15,6 +15,8 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import type { User } from '../session.service';
 import { SessionService } from '../session.service';
 
@@ -22,51 +24,44 @@ import { SessionService } from '../session.service';
     selector: 'xm-dev-login',
     template: `
         <div class="container-fluid">
-            <div class="row mt-2">
-                <div class="col-md-12">
-                    <div class="student-details-title-wrap">
-                        <div class="student-enroll-title">{{ 'i18n_login' | translate }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="row marl20">
-                <div class="col-md-12">
-                    <form (ngSubmit)="login($event, false)">
-                        <div class="mb-3">
-                            <label class="form-label" for="uname">{{ 'i18n_username' | translate }}</label>
-                            <input
-                                id="uname"
-                                class="form-control login"
-                                name="uname"
-                                type="text"
-                                placeholder="{{ 'i18n_username' | translate }}"
-                                [(ngModel)]="username"
-                                (keydown.enter)="login($event, true)"
-                            />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" for="pwd">{{ 'i18n_password' | translate }}</label>
-                            <input
-                                id="pwd"
-                                class="form-control login"
-                                type="password"
-                                name="pwd"
-                                placeholder="{{ 'i18n_password' | translate }}"
-                                [(ngModel)]="password"
-                                (keydown.enter)="login($event, true)"
-                            />
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" id="submit">
-                            {{ 'i18n_login' | translate }}
-                        </button>
-                    </form>
-                </div>
-            </div>
+            <xm-page-header text="i18n_login" />
+            <xm-page-content [content]="content" />
         </div>
+        <ng-template #content>
+            <form (ngSubmit)="login($event, false)">
+                <div class="mb-3">
+                    <label class="form-label" for="uname">{{ 'i18n_username' | translate }}</label>
+                    <input
+                        id="uname"
+                        class="form-control login"
+                        name="uname"
+                        type="text"
+                        placeholder="{{ 'i18n_username' | translate }}"
+                        [(ngModel)]="username"
+                        (keydown.enter)="login($event, true)"
+                    />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="pwd">{{ 'i18n_password' | translate }}</label>
+                    <input
+                        id="pwd"
+                        class="form-control login"
+                        type="password"
+                        name="pwd"
+                        placeholder="{{ 'i18n_password' | translate }}"
+                        [(ngModel)]="password"
+                        (keydown.enter)="login($event, true)"
+                    />
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submit">
+                    {{ 'i18n_login' | translate }}
+                </button>
+            </form>
+        </ng-template>
     `,
     standalone: true,
-    imports: [FormsModule, TranslateModule],
+    imports: [FormsModule, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class DevLoginComponent {
     @Output() loggedIn = new EventEmitter<User>();

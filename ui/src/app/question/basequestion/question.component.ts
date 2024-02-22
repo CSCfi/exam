@@ -19,6 +19,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
 import { CanComponentDeactivate } from '../has-unsaved-changes.quard';
@@ -31,7 +33,7 @@ import { QuestionBodyComponent } from './question-body.component';
     selector: 'xm-question',
     templateUrl: './question.component.html',
     standalone: true,
-    imports: [FormsModule, QuestionBodyComponent, TranslateModule],
+    imports: [FormsModule, QuestionBodyComponent, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactivate {
     @Input() newQuestion = false;

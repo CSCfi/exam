@@ -22,19 +22,14 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
 
 @Component({
     template: `
-        <div class="top-row">
-            <h4 class="col-md-12">
+        <div class="row">
+            <strong class="col-12">
                 {{ 'i18n_get_all_info_from_exam' | translate }}
-                @if (fileType === 'xlsx') {
-                    <span>{{ 'i18n_excel_file' | translate }}</span>
-                }
-                @if (fileType === 'json') {
-                    <span>{{ 'i18n_json_file' | translate }}</span>
-                }
-            </h4>
+                {{ 'i18n_excel_file' | translate }}
+            </strong>
         </div>
-        <div class="bottom-row d-flex justify-content-between">
-            <div class="col-lg-10 mb-4">
+        <div class="row mb-2 align-items-end">
+            <div class="col-2">
                 <label for="exam">{{ 'i18n_select_exam' | translate }}</label>
                 @if (examNames) {
                     <xm-dropdown-select
@@ -45,25 +40,10 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
                     ></xm-dropdown-select>
                 }
             </div>
-            <div class="col-lg-2 mb-2">
-                <label for="link"></label>
-                <div id="link">
-                    <a
-                        (click)="getExams()"
-                        class="print-btn"
-                        download
-                        triggers="mouseenter:mouseleave"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        ngbPopover="{{ 'i18n_download' | translate }}"
-                    >
-                        @if (fileType === 'xlsx') {
-                            <i class="bi-file-earmark-excel font-6"></i>
-                        }
-                        @if (fileType === 'json') {
-                            <i class="bi-file-earmark-code font-6"></i>
-                        }
-                    </a>
-                </div>
+            <div class="col-10">
+                <button class="btn btn-success btn-sm float-end" (click)="getExams()">
+                    <i class="bi-file-earmark-excel text-white pe-2"></i>{{ 'i18n_download' | translate }}
+                </button>
             </div>
         </div>
     `,
@@ -73,7 +53,6 @@ import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown
 })
 export class ExamsReportComponent {
     @Input() examNames: Option<string, number>[] = [];
-    @Input() fileType = '';
 
     exam?: number;
 
@@ -87,8 +66,8 @@ export class ExamsReportComponent {
 
     getExams = () => {
         if (this.exam) {
-            const url = `/app/statistics/examnames/${this.exam}/${this.fileType}`;
-            const fileName = `exams.${this.fileType}`;
+            const url = `/app/statistics/examnames/${this.exam}/xlsx`;
+            const fileName = 'exams.xlsx';
             this.files.download(url, fileName);
         } else {
             this.toast.error(this.translate.instant('i18n_choose_exam'));

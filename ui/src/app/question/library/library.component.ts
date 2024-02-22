@@ -20,6 +20,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { from, tap } from 'rxjs';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { FileService } from 'src/app/shared/file/file.service';
 import type { Question, Tag } from '../../exam/exam.model';
 import type { User } from '../../session/session.service';
@@ -32,128 +34,122 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
 @Component({
     selector: 'xm-library',
     template: `<div id="dashboard">
-        <div class="top-row">
-            <div class="col-md-12">
-                <div class="student-enroll-title-wrap">
-                    <div class="student-enroll-title marl20 marr-20">{{ 'i18n_library_new' | translate }}</div>
-                </div>
-                <div class="teacher-toolbar">
-                    <div class="make-inline">
-                        <div class="review-attachment-button print-button">
-                            <a (click)="import()" class="pointer">
-                                {{ 'i18n_toolbar_import_questions' | translate }}
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="teacher-toolbar">
-                    <div class="make-inline">
-                        <div class="review-attachment-button print-button">
-                            <a [routerLink]="['new']" [queryParams]="{ nextState: 'questions' }" class="pointer">
-                                {{ 'i18n_toolbar_new_question' | translate }}
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <xm-page-header text="i18n_library_new" [appendTemplate]="buttons" />
+            <xm-page-content [content]="content" />
         </div>
-
-        <div class="reservation-border">
-            <div class="row ms-4 mt-2">
-                <div class="col-12">
-                    <strong>{{ 'i18n_search' | translate }}:</strong>
-                    <span
-                        ngbPopover="{{ 'i18n_library_search_instructions' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                        class="ms-2"
-                    >
-                        <img
-                            src="/assets/images/icon_tooltip.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                        />
-                    </span>
+        <ng-template #buttons>
+            <div class="teacher-toolbar">
+                <div class="review-attachment-button print-button">
+                    <a (click)="import()" class="pointer">
+                        {{ 'i18n_toolbar_import_questions' | translate }}
+                    </a>
                 </div>
             </div>
-            <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
-            <div class="row ms-4 mb-1">
-                <div class="col-12">
-                    <strong>{{ 'i18n_actions' | translate }}:</strong>
+            <div class="teacher-toolbar">
+                <div class="review-attachment-button print-button">
+                    <a [routerLink]="['new']" [queryParams]="{ nextState: 'questions' }" class="pointer">
+                        {{ 'i18n_toolbar_new_question' | translate }}
+                    </a>
                 </div>
             </div>
-            <div class="row ms-4">
-                <div class="col-12">
-                    <span ngbDropdown [autoClose]="'outside'">
-                        <button
-                            class="btn btn-outline-secondary btn-sm"
-                            type="button"
-                            id="dropDownMenu1"
-                            ngbDropdownToggle
+        </ng-template>
+        <ng-template #content>
+            <div class="reservation-border">
+                <div class="row ms-4 mt-2">
+                    <div class="col-12">
+                        <strong>{{ 'i18n_search' | translate }}:</strong>
+                        <span
+                            ngbPopover="{{ 'i18n_library_search_instructions' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                            class="ms-2"
                         >
-                            {{ 'i18n_choose' | translate }}&nbsp;
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="pointer" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
-                            <li
-                                ngbDropdownItem
-                                role="presentation"
-                                ngbDropdownItem
-                                [disabled]="selections.length === 0"
-                                (click)="openOwnerSelection()"
+                            <img
+                                src="/assets/images/icon_tooltip.svg"
+                                alt=""
+                                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
+                            />
+                        </span>
+                    </div>
+                </div>
+                <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
+                <div class="row ms-4 mb-1">
+                    <div class="col-12">
+                        <strong>{{ 'i18n_actions' | translate }}:</strong>
+                    </div>
+                </div>
+                <div class="row ms-4">
+                    <div class="col-12">
+                        <span ngbDropdown [autoClose]="'outside'">
+                            <button
+                                class="btn btn-outline-secondary btn-sm"
+                                type="button"
+                                id="dropDownMenu1"
+                                ngbDropdownToggle
                             >
-                                <a role="menuitem">{{ 'i18n_add_question_owner' | translate }}</a>
-                            </li>
-                            <li
-                                ngbDropdownItem
-                                role="presentation"
-                                ngbDropdownItem
-                                [disabled]="selections.length === 0"
-                                (click)="openTagSelection()"
-                            >
-                                <a role="menuitem">{{ 'i18n_tag_questions' | translate }}</a>
-                            </li>
-                            <li
-                                ngbDropdownItem
-                                role="presentation"
-                                ngbDropdownItem
-                                [disabled]="selections.length === 0"
-                                (click)="openFileTransfer()"
-                            >
-                                <a role="menuitem">{{ 'i18n_transfer_questions' | translate }}</a>
-                            </li>
-                            <li
-                                ngbDropdownItem
-                                role="presentation"
-                                ngbDropdownItem
-                                [disabled]="selections.length === 0"
-                                (click)="export()"
-                            >
-                                <a role="menuitem">{{ 'i18n_export_questions' | translate }}</a>
-                            </li>
-                        </ul>
-                    </span>
-                    @if (selections.length === 0) {
-                        <small class="ms-2 text-muted">{{ 'i18n_choose_atleast_one' | translate }}</small>
-                    }
-                    @if (selections.length > 0) {
-                        <small class="ms-2">
-                            {{ selections.length }} {{ 'i18n_questions_selected' | translate }}
-                        </small>
-                    }
+                                {{ 'i18n_choose' | translate }}&nbsp;
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="pointer" role="menu" aria-labelledby="dropDownMenu1" ngbDropdownMenu>
+                                <li
+                                    ngbDropdownItem
+                                    role="presentation"
+                                    ngbDropdownItem
+                                    [disabled]="selections.length === 0"
+                                    (click)="openOwnerSelection()"
+                                >
+                                    <a role="menuitem">{{ 'i18n_add_question_owner' | translate }}</a>
+                                </li>
+                                <li
+                                    ngbDropdownItem
+                                    role="presentation"
+                                    ngbDropdownItem
+                                    [disabled]="selections.length === 0"
+                                    (click)="openTagSelection()"
+                                >
+                                    <a role="menuitem">{{ 'i18n_tag_questions' | translate }}</a>
+                                </li>
+                                <li
+                                    ngbDropdownItem
+                                    role="presentation"
+                                    ngbDropdownItem
+                                    [disabled]="selections.length === 0"
+                                    (click)="openFileTransfer()"
+                                >
+                                    <a role="menuitem">{{ 'i18n_transfer_questions' | translate }}</a>
+                                </li>
+                                <li
+                                    ngbDropdownItem
+                                    role="presentation"
+                                    ngbDropdownItem
+                                    [disabled]="selections.length === 0"
+                                    (click)="export()"
+                                >
+                                    <a role="menuitem">{{ 'i18n_export_questions' | translate }}</a>
+                                </li>
+                            </ul>
+                        </span>
+                        @if (selections.length === 0) {
+                            <small class="ms-2 text-muted">{{ 'i18n_choose_atleast_one' | translate }}</small>
+                        }
+                        @if (selections.length > 0) {
+                            <small class="ms-2">
+                                {{ selections.length }} {{ 'i18n_questions_selected' | translate }}
+                            </small>
+                        }
+                    </div>
+                </div>
+
+                <div class="margin-20">
+                    <xm-library-results
+                        [questions]="questions"
+                        (copied)="questionCopied($event)"
+                        (selected)="questionSelected($event)"
+                    >
+                    </xm-library-results>
                 </div>
             </div>
-
-            <div class="margin-20">
-                <xm-library-results
-                    [questions]="questions"
-                    (copied)="questionCopied($event)"
-                    (selected)="questionSelected($event)"
-                >
-                </xm-library-results>
-            </div>
-        </div>
-    </div>`,
+        </ng-template>`,
     standalone: true,
     imports: [
         RouterLink,
@@ -164,7 +160,10 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
         LibraryTransferDialogComponent,
         LibraryResultsComponent,
         TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
+    styleUrl: './library.component.scss',
 })
 export class LibraryComponent {
     questions: Question[] = [];

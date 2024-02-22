@@ -1,13 +1,12 @@
-<div id="sitnet-header" class="header">
-    <div class="col-md-12 header-wrapper">
-        <span class="header-text">{{ 'i18n_user_administration' | translate }}</span>
-    </div>
-</div>
 <div id="dashboard">
-    <div class="main-row">
-        <label class="col-md-12" for="userSearch">{{ 'i18n_search_for_users' | translate }}</label>
-        <div id="userSearch" class="flex-wrap-gap">
-            <div class="">
+    <xm-page-header text="i18n_user_administration" />
+    <xm-page-content [content]="content" />
+</div>
+<ng-template #content>
+    <div class="row align-items-end">
+        <div class="col-3">
+            <label for="userSearch">{{ 'i18n_search_for_users' | translate }}</label>
+            <div id="userSearch" class="flex-wrap-gap">
                 <div class="form-group input-group min-width-300">
                     <input
                         [ngModel]="filter.text"
@@ -29,7 +28,9 @@
                     </div>
                 </div>
             </div>
-            <span class="dropdown" ngbDropdown>
+        </div>
+        <div class="col-3">
+            <div ngbDropdown>
                 <button
                     ngbDropdownToggle
                     class="btn btn-outline-secondary"
@@ -55,9 +56,10 @@
                         </button>
                     }
                 </div>
-            </span>
-
-            <span class="dropdown" ngbDropdown>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div ngbDropdown>
                 <button
                     ngbDropdownToggle
                     class="btn btn-outline-secondary"
@@ -84,10 +86,10 @@
                         </button>
                     }
                 </div>
-            </span>
+            </div>
         </div>
     </div>
-    <div class="main-row">
+    <div class="row mt-2">
         <div class="col-md-12" [hidden]="!loader.loading">
             <button class="btn btn-success" type="button" disabled>
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -95,7 +97,7 @@
             </button>
         </div>
     </div>
-    <div class="main-row" style="padding-bottom: 150px">
+    <div class="row mt-2">
         <div class="col-md-12">
             <table class="table table-striped table-bordered">
                 <thead>
@@ -309,4 +311,4 @@
             }
         </div>
     </div>
-</div>
+</ng-template>

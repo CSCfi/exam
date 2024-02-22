@@ -15,25 +15,25 @@
 
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { EnrolmentService } from '../enrolment/enrolment.service';
 import { SessionService } from '../session/session.service';
 import type { Examination, ExaminationSection, NavigationPage } from './examination.model';
 import { ExaminationService } from './examination.service';
-import { ExaminationHeaderComponent } from './header/examination-header.component';
+import { ExaminationPageHeaderComponent } from './header/examination-header.component';
 import { AnswerInstructionsComponent } from './instructions/answer-instructions.component';
 import { ExaminationNavigationComponent } from './navigation/examination-navigation.component';
 import { ExaminationToolbarComponent } from './navigation/examination-toolbar.component';
 import { ExaminationSectionComponent } from './section/examination-section.component';
-import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-examination',
     templateUrl: './examination.component.html',
     standalone: true,
     imports: [
-        ExaminationHeaderComponent,
+        ExaminationPageHeaderComponent,
         ExaminationSectionComponent,
         AnswerInstructionsComponent,
         ExaminationNavigationComponent,

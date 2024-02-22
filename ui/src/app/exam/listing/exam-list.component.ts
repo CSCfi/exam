@@ -19,8 +19,10 @@ import { Router, RouterLink } from '@angular/router';
 import { NgbModal, NgbNav, NgbNavItem, NgbNavItemRole, NgbNavLink, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { from, Subject } from 'rxjs';
+import { Subject, from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
 import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
@@ -50,6 +52,8 @@ type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
         DatePipe,
         TranslateModule,
         OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class ExamListingComponent implements OnInit, OnDestroy {

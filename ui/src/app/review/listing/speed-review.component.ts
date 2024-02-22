@@ -24,6 +24,8 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { forkJoin, noop, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import type {
     Course,
@@ -74,7 +76,10 @@ import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
         DiffInMinutesPipe,
         DiffInDaysPipe,
         OrderByPipe,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
+    styleUrl: './speed-review.component.scss',
 })
 export class SpeedReviewComponent implements OnInit {
     pageSize = 10;
