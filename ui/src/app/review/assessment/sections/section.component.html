@@ -1,16 +1,16 @@
 <div class="tab-wrapper-exams review">
-    <div class="review-border">
-        <div class="padt50 padl30 padr30">
-            <h4 class="col-md-12 padl0">
+    <div class="xm-bordered-area m-3 p-3">
+        <div class="p-3">
+            <h4 class="col-md-12 ps-0">
                 {{ index }}. &nbsp; &nbsp;{{ section.name }}
-                <span class="score-details">
+                <span class="float-end">
                     @if (getSectionMaxScore() > 0) {
-                        <span>
+                        <small>
                             {{ 'i18n_word_points' | translate }}:&nbsp;
                             <span style="color: #2c2c2c"
                                 >{{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}</span
                             >
-                        </span>
+                        </small>
                     }
                     &nbsp;
                     @if ((selectionEssays?.totalSelectionEssays || 0) > 0) {
@@ -29,16 +29,16 @@
             </h4>
         </div>
         @if (section.description) {
-            <div class="detail-row padr0 padl0 mar0">
-                <div class="col-md-12 padr0 padl0">
-                    <div class="padl30 mart20" role="note">
+            <div class="row pe-0 ps-0 m-0">
+                <div class="col-md-12 pe-0 ps-0">
+                    <div class="ps-3 mt-2" role="note">
                         <img src="/assets/images/icon_info.svg" alt="" />
-                        <span class="padl10 notice-text">{{ section.description }}</span>
+                        <span class="ps-2 notice-text">{{ section.description }}</span>
                     </div>
                 </div>
             </div>
         }
-        <div class="detail-row ms-2 me-2">
+        <div class="row ms-2 me-2">
             @for (sq of section.sectionQuestions | orderBy: 'sequenceNumber'; track sq) {
                 <div class="col-md-12 mt-4">
                     @if (sq.question.type === 'MultipleChoiceQuestion') {
@@ -105,23 +105,19 @@
                 </div>
             }
         </div>
-        <div class="detail-row ms-2 me-2 d-flex justify-content-end">
-            <div class="review-list-footer">
-                @if (getSectionMaxScore() > 0) {
-                    <div>
-                        {{ 'i18n_word_points' | translate }}:
-                        <span> {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }} </span>
-                    </div>
-                }
-                @if ((selectionEssays?.totalSelectionEssays || 0) > 0) {
-                    <div>
-                        {{ 'i18n_section_accepted_and_rejected' | translate }}
-                        <span>
-                            {{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }}
-                        </span>
-                    </div>
-                }
-            </div>
+        <div class="row mx-2 mt-4">
+            @if (getSectionMaxScore() > 0) {
+                <div>
+                    {{ 'i18n_word_points' | translate }}:
+                    <span> {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }} </span>
+                </div>
+            }
+            @if ((selectionEssays?.totalSelectionEssays || 0) > 0) {
+                <div>
+                    {{ 'i18n_section_accepted_and_rejected' | translate }}
+                    <span> {{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }} </span>
+                </div>
+            }
         </div>
     </div>
 </div>

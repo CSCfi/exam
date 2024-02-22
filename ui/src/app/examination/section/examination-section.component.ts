@@ -22,8 +22,8 @@ import { ExaminationQuestionComponent } from '../question/examination-question.c
 
 @Component({
     selector: 'xm-examination-section',
-    template: `<div class="row">
-            <div class="col-md-12 studentexam-header">
+    template: `<div class="row mt-3 ms-1">
+            <div class="col-md-12">
                 <h2
                     aria-live="polite"
                     attr.aria-label="{{ 'i18n_exam_section' | translate }} {{ index ? index + '. ' : '' }}{{
@@ -33,7 +33,7 @@ import { ExaminationQuestionComponent } from '../question/examination-question.c
                 >
                     <span class="exam-title">{{ index ? index + '. ' : '' }}{{ section.name }}</span>
                     @if (isPreview && section.lotteryOn) {
-                        <span class="sitnet-text-medium">
+                        <span class="text-black">
                             <small class="ms-3">({{ 'i18n_lottery_questions' | translate }})</small>
                         </span>
                     }
@@ -61,11 +61,11 @@ import { ExaminationQuestionComponent } from '../question/examination-question.c
             </div>
         </div>
         <!-- Question Content -->
-        <div class="row">
+        <div class="row ms-1">
             <div class="col-md-12">
                 @for (material of section.examMaterials; track material) {
                     <div class="row">
-                        <div class="col-md-12 mart10">
+                        <div class="col-md-12 mt-1">
                             <i class="text-muted bi-book" alt="exam materials"></i>
                             <span style="padding-left: 15px">{{ material.name }}</span>
                             @if (material.author) {
@@ -91,6 +91,7 @@ import { ExaminationQuestionComponent } from '../question/examination-question.c
         </div>`,
     standalone: true,
     imports: [ExaminationQuestionComponent, TranslateModule, OrderByPipe],
+    styleUrls: ['../examination.shared.scss', './examination-section.component.scss'],
 })
 export class ExaminationSectionComponent implements OnInit, OnDestroy {
     @Input() exam!: Examination;

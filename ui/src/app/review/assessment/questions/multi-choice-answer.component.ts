@@ -22,7 +22,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
 @Component({
     selector: 'xm-r-multi-choice-answer',
     template: `@for (option of sectionQuestion.options | orderBy: 'id'; track option) {
-        <div class="padl15 marb10" [hidden]="!reviewExpanded">
+        <div class="ps-2 mb-2" [hidden]="!reviewExpanded">
             @if (option.answered) {
                 <div>
                     @if (option.option.correctOption) {
@@ -36,7 +36,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                                     />
                                 }
                             </div>
-                            <div class="make-inline middle-column">
+                            <div class="make-inline w-75 my-1 ms-3">
                                 <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                             </div>
                         </div>
@@ -52,7 +52,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                                     />
                                 }
                             </div>
-                            <div class="make-inline middle-column">
+                            <div class="make-inline w-75 my-1 ms-3">
                                 <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                             </div>
                         </div>
@@ -78,7 +78,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                                 />
                             }
                         </div>
-                        <div class="make-inline middle-column">
+                        <div class="make-inline w-75 my-1 ms-3">
                             <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                         </div>
                     </div>

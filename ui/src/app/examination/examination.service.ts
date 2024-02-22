@@ -144,15 +144,13 @@ export class ExaminationService {
         return isAnswered;
     };
 
-    setQuestionColors = (sectionQuestion: ExaminationQuestion) => {
+    setAnswerStatus = (sectionQuestion: ExaminationQuestion) => {
         if (this.isAnswered(sectionQuestion)) {
             sectionQuestion.answered = true;
             sectionQuestion.questionStatus = this.translate.instant('i18n_question_answered');
-            sectionQuestion.selectedAnsweredState = 'question-answered-header';
         } else {
             sectionQuestion.answered = false;
             sectionQuestion.questionStatus = this.translate.instant('i18n_question_unanswered');
-            sectionQuestion.selectedAnsweredState = 'question-unanswered-header';
         }
     };
 
@@ -169,12 +167,12 @@ export class ExaminationService {
                 next: () => {
                     this.toast.info(this.translate.instant('i18n_answer_saved'));
                     sq.options.forEach((o) => (o.answered = ids.indexOf(o.id as number) > -1));
-                    this.setQuestionColors(sq);
+                    this.setAnswerStatus(sq);
                 },
                 error: (err) => this.toast.error(err),
             });
         } else {
-            this.setQuestionColors(sq);
+            this.setAnswerStatus(sq);
         }
     };
 

@@ -34,7 +34,7 @@ import type { Exam, ExamParticipation } from '../../exam.model';
             <div class="col-md-9 offset-md-3">
                 <input
                     type="text"
-                    class="form-control wdth-30 make-inline"
+                    class="form-control w-50 make-inline"
                     placeholder="{{ 'i18n_write_participant_name' | translate }}"
                     [(ngModel)]="newParticipant.name"
                     [ngbTypeahead]="listStudents$"
@@ -42,47 +42,38 @@ import type { Exam, ExamParticipation } from '../../exam.model';
                     [resultFormatter]="nameFormat"
                     (selectItem)="setExamParticipant($event)"
                 />
-                <button [disabled]="!newParticipant.id" (click)="addParticipant()" class="btn btn-primary green">
+                <button [disabled]="!newParticipant.id" (click)="addParticipant()" class="btn btn-success">
                     {{ 'i18n_add' | translate }}
                 </button>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-md-9 offset-md-3">
-                <ul class="muted-list mart10">
-                    <!-- Students not having finished the exam -->
-                    @for (enrolment of exam.examEnrolments; track enrolment) {
-                        <li class="marl10">
-                            {{ renderParticipantLabel(enrolment) }}
-                            @if (enrolment.user?.userIdentifier) {
-                                <span>({{ enrolment.user.userIdentifier }})</span>
-                            }
-                            <button
-                                class="reviewer-remove"
-                                [disabled]="exam.state === 'PUBLISHED'"
-                                (click)="removeParticipant(enrolment.id)"
-                                title="{{ 'i18n_remove' | translate }}"
-                            >
-                                <img
-                                    [hidden]="exam.state === 'PUBLISHED'"
-                                    src="/assets/images/icon_remove.svg"
-                                    alt=""
-                                />
-                            </button>
-                        </li>
-                    }
-                    <!-- Students that have finished the exam -->
-                    @for (participant of participants; track participant) {
-                        <li class="marl10 text-muted">
-                            {{ participant.firstName }} {{ participant.lastName }}
-                            @if (participant.userIdentifier) {
-                                <span>({{ participant.userIdentifier }})</span>
-                            }
-                        </li>
-                    }
-                </ul>
-            </div>
+        <div class="row mt-1">
+            <span class="col-md-9 offset-md-3">
+                <!-- Students not having finished the exam -->
+                @for (enrolment of exam.examEnrolments; track enrolment) {
+                    <button
+                        class="badge text-bg-secondary ms-1"
+                        [disabled]="exam.state === 'PUBLISHED'"
+                        (click)="removeParticipant(enrolment.id)"
+                        title="{{ 'i18n_remove' | translate }}"
+                    >
+                        {{ renderParticipantLabel(enrolment) }}
+                        @if (enrolment.user?.userIdentifier) {
+                            ({{ enrolment.user.userIdentifier }})
+                        }
+                    </button>
+                }
+                <!-- Students that have finished the exam -->
+                @for (participant of participants; track participant) {
+                    <button class="badge text-bg-light ms-1" [disabled]="true">
+                        {{ participant.firstName }} {{ participant.lastName }}
+                        @if (participant.userIdentifier) {
+                            ({{ participant.userIdentifier }})
+                        }
+                    </button>
+                }
+            </span>
         </div>`,
     standalone: true,
     imports: [FormsModule, NgbTypeahead, TranslateModule],

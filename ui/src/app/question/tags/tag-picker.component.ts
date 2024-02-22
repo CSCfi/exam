@@ -55,7 +55,7 @@ import { QuestionDraft } from '../question.service';
                             [inputFormatter]="nameFormat"
                         />
                         <button
-                            class="input-group-text btn btn-primary green"
+                            class="input-group-text btn btn-success"
                             (click)="addTag()"
                             [disabled]="!newTag || newTag.name.length < 2"
                         >
@@ -64,23 +64,19 @@ import { QuestionDraft } from '../question.service';
                     </div>
                 </div>
                 <div class="col">
-                    <ul class="list-inline mart10">
-                        @for (tag of ownTags; track tag) {
-                            <li class="list-inline-item">
-                                {{ tag.name }}
-                                <button
-                                    class="reviewer-remove"
-                                    ngbPopover="{{ 'i18n_remove' | translate }}"
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                    (click)="removeTag(tag)"
-                                    title="{{ 'i18n_remove' | translate }}"
-                                >
-                                    <img src="/assets/images/icon_remove.svg" alt="" />
-                                </button>
-                            </li>
-                        }
-                    </ul>
+                    @for (tag of ownTags; track tag) {
+                        {{ tag.name }}
+                        <button
+                            class="btn btn-light"
+                            ngbPopover="{{ 'i18n_remove' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                            (click)="removeTag(tag)"
+                            title="{{ 'i18n_remove' | translate }}"
+                        >
+                            <i class="bi bi-x"></i>
+                        </button>
+                    }
                 </div>
             </div>
         </form>

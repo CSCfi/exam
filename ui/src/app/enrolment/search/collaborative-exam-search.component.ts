@@ -36,29 +36,23 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
         <ng-template #content>
             <div class="row">
                 <div class="col-12">
-                    <img class="nopad" src="/assets/images/icon_info.png" alt="" /> &nbsp;
+                    <img src="/assets/images/icon_info.png" alt="" /> &nbsp;
                     <span>{{ 'i18n_collaborative_exam_search_description' | translate }}</span>
                 </div>
             </div>
             <div class="row mt-3">
                 <div class="col-4">
-                    <div class="form-group input-group search">
+                    <div class="input-group">
                         <input
                             aria-label="exam-search"
                             [(ngModel)]="filter.text"
                             (ngModelChange)="search($event)"
                             type="text"
-                            class="form-control search"
+                            class="form-control"
                             placeholder="{{ 'i18n_search' | translate }}"
                         />
                         <div class="input-group-append search">
-                            <img
-                                class="nopad"
-                                src="/assets/images/icon_search.png"
-                                alt="search-icon"
-                                width="49"
-                                height="40"
-                            />
+                            <img src="/assets/images/icon_search.png" alt="search-icon" width="49" height="40" />
                         </div>
                     </div>
                 </div>
@@ -85,7 +79,7 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
             <div class="row mt-3">
                 <div class="col-12">
                     @for (exam of exams; track exam) {
-                        <div class="exams-list list-item" [hidden]="loader.loading">
+                        <div [hidden]="loader.loading">
                             <xm-exam-search-result [exam]="exam" [collaborative]="true"></xm-exam-search-result>
                         </div>
                     }

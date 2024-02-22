@@ -1,5 +1,44 @@
+@import '../../shared/shared';
+
 .exam-question-container {
     border-left: 1px solid #7ab3bc;
     padding-left: 0.5em;
     padding-top: 0.5em;
+}
+
+.section-box-title {
+    float: left;
+    margin-left: 10px;
+    margin-top: 10px;
+    color: #2c2c2c;
+    font-size: 16px;
+
+    &.arrow {
+        margin-left: 0px;
+        padding-left: 0px;
+        margin-top: 0px;
+        float: right;
+    }
+}
+
+.question-text {
+    display: inline;
+    margin: 0;
+    line-height: 1.5em;
+    font-size: 22px;
+    color: #2c2c2c;
+
+    p {
+        margin: 0;
+        padding: 0;
+    }
+}
+.attachment-name {
+    font-size: 12px;
+    color: #555555;
+}
+.info-question-separator {
+    width: 33%;
+    margin-left: 0px;
+    color: #b1b1b1;
 }

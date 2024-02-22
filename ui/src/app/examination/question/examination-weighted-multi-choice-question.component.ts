@@ -22,9 +22,9 @@ import { ExaminationService } from '../examination.service';
 @Component({
     selector: 'xm-examination-weighted-multi-choice-question',
     template: `
-        <div class="bottom-padding-2">
+        <div class="pb-3">
             <fieldset [attr.aria-label]="questionTitle">
-                <legend style="visibility: hidden;">answer options for multiple choice question</legend>
+                <legend [hidden]="true">answer options for multiple choice question</legend>
                 @for (sqo of sq.options; track sqo) {
                     <div class="exam-answer-options">
                         <label>
@@ -41,10 +41,11 @@ import { ExaminationService } from '../examination.service';
             </fieldset>
         </div>
 
-        <div class="padl0 question-type-text">{{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
+        <div class="ps-0 question-type-text">{{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}</div>
     `,
     standalone: true,
     imports: [FormsModule, TranslateModule],
+    styleUrls: ['./question.shared.scss'],
 })
 export class ExaminationWeightedMultiChoiceComponent implements OnInit {
     @Input() sq!: ExaminationQuestion;

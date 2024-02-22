@@ -12,7 +12,6 @@ export interface ExaminationQuestion extends ExamSectionQuestion {
     derivedMinScore: number;
     selectedOption: number;
     answered: boolean;
-    selectedAnsweredState: string;
     expanded: boolean;
     options: ExamSectionQuestionOption[];
 }

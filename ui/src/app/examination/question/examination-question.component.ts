@@ -45,6 +45,7 @@ type ClozeTestAnswer = { [key: string]: string };
         SlicePipe,
         TranslateModule,
     ],
+    styleUrls: ['../examination.shared.scss', './question.shared.scss', './examination-question.component.scss'],
 })
 export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
     @Input() exam?: Examination;

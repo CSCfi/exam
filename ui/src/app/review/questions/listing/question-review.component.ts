@@ -23,7 +23,7 @@ import { QuestionReviewService } from '../question-review.service';
 
 @Component({
     selector: 'xm-question-review',
-    template: `<div class="student-enrolment-wrapper essay-review">
+    template: `<div class="xm-study-item-container mx-0">
         <div class="review-points-exam d-flex justify-content-between">
             <div>
                 @if (getAssessedAnswerCount() === review.answers.length) {
@@ -33,7 +33,7 @@ import { QuestionReviewService } from '../question-review.service';
                     <img src="/assets/images/icon_question_type_ready_grey.png" />
                 }
 
-                <span class="vcenter marl10">
+                <span class="ms-2">
                     {{ getAssessedAnswerCount() }} / {{ review.answers.length }}
                     {{ 'i18n_graded' | translate | lowercase }}
                 </span>
@@ -63,8 +63,8 @@ import { QuestionReviewService } from '../question-review.service';
         }
 
         <!-- Question -->
-        <div class="marl10 make-inline">
-            <div class="review-question-title make-inline" [xmMathJax]="review.question.question"></div>
+        <div class="ms-2">
+            <div [xmMathJax]="review.question.question"></div>
             @if (review.question.defaultAnswerInstructions) {
                 <a (click)="review.expanded = !review.expanded" class="pointer-hand">
                     @if (!review.expanded) {
@@ -87,12 +87,13 @@ import { QuestionReviewService } from '../question-review.service';
                 @if (
                     review.question.defaultAnswerInstructions && review.question.defaultAnswerInstructions.length > 0
                 ) {
-                    <span class="padl10"> {{ review.question.defaultAnswerInstructions }}</span>
+                    <span class="ps-2"> {{ review.question.defaultAnswerInstructions }}</span>
                 }
             </div>
         }
     </div>`,
     standalone: true,
+    styleUrls: ['./question-review.component.scss'],
     imports: [FormsModule, MathJaxDirective, LowerCasePipe, TranslateModule],
 })
 export class QuestionReviewComponent {

@@ -7,24 +7,18 @@ import { TranslateModule } from '@ngx-translate/core';
     standalone: true,
     imports: [TranslateModule],
     template: `
-        <div id="sitnet-dialog" role="dialog" aria-modal="true">
+        <div id="exam-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">
-                <div class="student-enroll-dialog-wrap">
-                    <div class="student-enroll-title">{{ title | translate }}</div>
-                </div>
+                <div class="xm-page-header-title">{{ title | translate }}</div>
             </div>
             <div class="modal-body" [innerHTML]="description"></div>
             <div class="modal-footer">
-                <div class="student-message-dialog-button-save">
-                    <button class="btn btn-sm btn-primary" (click)="activeModal.close(true)" autofocus>
-                        {{ 'i18n_button_accept' | translate }}
-                    </button>
-                </div>
-                <div class="student-message-dialog-button-cancel">
-                    <button class="btn btn-sm btn-danger float-start" (click)="activeModal.dismiss(false)">
-                        {{ 'i18n_button_decline' | translate }}
-                    </button>
-                </div>
+                <button class="xm-ok-button" (click)="activeModal.close(true)" autofocus>
+                    {{ 'i18n_button_accept' | translate }}
+                </button>
+                <button class="xm-cancel-button float-start" (click)="activeModal.dismiss(false)">
+                    {{ 'i18n_button_decline' | translate }}
+                </button>
             </div>
         </div>
     `,

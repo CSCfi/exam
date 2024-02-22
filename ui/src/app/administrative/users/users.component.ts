@@ -60,6 +60,15 @@ interface UserWithOptions extends User {
         PageHeaderComponent,
         PageContentComponent,
     ],
+    styles: [
+        `
+            .flex-wrap-gap {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+        `,
+    ],
 })
 export class UsersComponent implements OnInit, OnDestroy {
     users: UserWithOptions[] = [];

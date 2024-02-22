@@ -33,7 +33,7 @@ import { RoomService } from '../rooms/room.service';
         >
             <div class="row">
                 <div class="col-md-6">
-                    <div class="sitnet-info-text">{{ 'i18n_exam_room_address_street' | translate }}</div>
+                    <div class="facility-info-text">{{ 'i18n_exam_room_address_street' | translate }}</div>
                     <div class="input-group">
                         <input type="text" name="street" class="form-control" [(ngModel)]="address.street" required />
                         <span class="input-group-append">
@@ -50,7 +50,7 @@ import { RoomService } from '../rooms/room.service';
                 </div>
 
                 <div class="col-md-6">
-                    <div class="sitnet-info-text">{{ 'i18n_exam_room_address_zip' | translate }}</div>
+                    <div class="facility-info-text">{{ 'i18n_exam_room_address_zip' | translate }}</div>
                     <div class="input-group">
                         <input type="text" name="zip" class="form-control" [(ngModel)]="address.zip" required />
                         <span class="input-group-append">
@@ -68,7 +68,7 @@ import { RoomService } from '../rooms/room.service';
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="sitnet-info-text">{{ 'i18n_exam_room_address_city' | translate }}</div>
+                    <div class="facility-info-text">{{ 'i18n_exam_room_address_city' | translate }}</div>
                     <div class="input-group">
                         <input type="text" name="city" class="form-control" [(ngModel)]="address.city" required />
                         <span class="input-group-append">
@@ -93,6 +93,7 @@ import { RoomService } from '../rooms/room.service';
             </div>
         </form>
     </div> `,
+    styleUrls: ['../rooms/rooms.component.scss'],
     standalone: true,
     imports: [FormsModule, NgbPopover, TranslateModule],
 })

@@ -21,28 +21,22 @@ import { TranslateModule } from '@ngx-translate/core';
     selector: 'xm-publication-revoke-dialog',
     standalone: true,
     imports: [TranslateModule],
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="student-message-dialog-wrapper-padding">
-            <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ 'i18n_unpublish_exam_confirm_dialog_title' | translate }}</div>
-            </div>
-            <div class="modal-body">
-                <p>
-                    {{ 'i18n_unpublish_exam_confirm' | translate }}
-                </p>
-            </div>
-            <div class="student-message-dialog-footer">
-                <div class="student-message-dialog-button-save marl10">
-                    <button class="btn btn-sm btn-primary nowdt" (click)="activeModal.close()" autofocus>
-                        {{ 'i18n_unpublish_exam' | translate }}
-                    </button>
-                </div>
-                <div class="student-message-dialog-button-cancel">
-                    <button class="btn btn-sm btn-danger float-start" (click)="activeModal.dismiss()">
-                        {{ 'i18n_close' | translate }}
-                    </button>
-                </div>
-            </div>
+    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+        <div class="modal-header">
+            <div class="xm-page-header-title">{{ 'i18n_unpublish_exam_confirm_dialog_title' | translate }}</div>
+        </div>
+        <div class="modal-body">
+            <p>
+                {{ 'i18n_unpublish_exam_confirm' | translate }}
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="xm-ok-button" (click)="activeModal.close()" autofocus>
+                {{ 'i18n_unpublish_exam' | translate }}
+            </button>
+            <button class="xm-cancel-button float-start" (click)="activeModal.dismiss()">
+                {{ 'i18n_close' | translate }}
+            </button>
         </div>
     </div> `,
 })

@@ -3,7 +3,7 @@
         <div class="row mt-2">
             <div class="notice-wrap">
                 <span class="form-group" role="note"
-                    ><img class="nopad" alt="" src="/assets/images/icon_info.png" />
+                    ><img alt="" src="/assets/images/icon_info.png" />
                     &nbsp;
                     <span>{{ 'i18n_no_grading_description' | translate }}</span>
                 </span>
@@ -15,7 +15,7 @@
         <div class="row mt-2">
             <div class="notice-wrap">
                 <span class="form-group" role="note"
-                    ><img class="nopad" alt="" src="/assets/images/icon_info.png" />
+                    ><img alt="" src="/assets/images/icon_info.png" />
                     &nbsp;
                     <span>{{ 'i18n_autoevaluation_release_description' | translate }}</span>
                 </span>
@@ -116,7 +116,7 @@
                     <div class="col-12">{{ 'i18n_teachers_comment' | translate }}:</div>
                 </div>
                 <div class="row">
-                    <div class="col-12 general-info-content" [innerHtml]="assessment.examFeedback?.comment"></div>
+                    <div class="col-12" [innerHtml]="assessment.examFeedback?.comment"></div>
                 </div>
             </div>
         </div>
@@ -162,10 +162,7 @@
                     <div class="col-12">{{ 'i18n_inspector_statement' | translate }}:</div>
                 </div>
                 <div class="row">
-                    <div
-                        class="col-12 general-info-content"
-                        [innerHtml]="assessment.languageInspection?.statement?.comment"
-                    ></div>
+                    <div class="col-12" [innerHtml]="assessment.languageInspection?.statement?.comment"></div>
                 </div>
             </div>
         </div>
@@ -190,7 +187,7 @@
     }
 
     @if (assessment.assessmentInfo) {
-        <div class="row evaluation-padtop mt-1">
+        <div class="row pt-2 mt-1">
             <div class="col-12">
                 <div class="row">
                     <div class="col-6 col-sm-6 col-md-2 col-lg-2">

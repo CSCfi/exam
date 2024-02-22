@@ -1,0 +1,6 @@
+.disable-gray-out {
+    user-select: none;
+    pointer-events: none;
+    opacity: 0.6;
+    filter: grayscale(100%);
+}

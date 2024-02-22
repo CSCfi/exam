@@ -38,6 +38,7 @@ import { SlotPickerComponent } from './helpers/slot-picker.component';
 @Component({
     selector: 'xm-calendar',
     templateUrl: './calendar.component.html',
+    styleUrls: ['./calendar.component.scss'],
     standalone: true,
     imports: [
         HistoryBackComponent,

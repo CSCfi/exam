@@ -16,7 +16,7 @@ import { HistoryBackComponent } from '../history/history-back.component';
                 @if (prependTemplate) {
                     <ng-container [ngTemplateOutlet]="prependTemplate"></ng-container>
                 }
-                <span class="header-title">{{ text | translate }}</span>
+                <span class="xm-page-header-title">{{ text | translate }}</span>
             </div>
             @if (appendTemplate) {
                 <div class="col-6">
@@ -25,17 +25,6 @@ import { HistoryBackComponent } from '../history/history-back.component';
             }
         </div>
     `,
-    styles: [
-        `
-            .header-title {
-                font-family: Arimo, Helvetica-Neue, Helvetica;
-                font-size: 2em;
-                color: #2c2c2c;
-                border-bottom: 2px solid #2c7639;
-                padding-bottom: 7px;
-            }
-        `,
-    ],
 })
 export class PageHeaderComponent {
     @Input() text = '';

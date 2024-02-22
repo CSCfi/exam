@@ -1,43 +1,43 @@
-<div class="row p-2 m-2">
-    <div class="col-md-12">
-        <div class="review-list-title">
-            {{ 'i18n_processed_language_inspections' | translate }}
-            <small class="ps-3">
-                <a [routerLink]="['/staff/inspections/reports']">{{
-                    'i18n_language_inspection_report_link' | translate
-                }}</a>
-            </small>
-            @if (inspections.length > 0) {
-                <a (click)="hideItems = !hideItems" class="pointer marl10">
-                    <img
-                        [hidden]="!hideItems"
-                        src="/assets/images/icon_list_show_right.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-                    />
-                    <img
-                        [hidden]="hideItems"
-                        src="/assets/images/icon_list_show_down.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-                    />
-                </a>
-            }
-        </div>
+<div class="row p-2 mb-2 maturity-paragraph-title">
+    <div class="col-md-6">
+        {{ 'i18n_processed_language_inspections' | translate }}
+        @if (inspections.length > 0) {
+            <a (click)="hideItems = !hideItems" class="pointer ms-1">
+                <img
+                    [hidden]="!hideItems"
+                    src="/assets/images/icon_list_show_right.svg"
+                    alt=""
+                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
+                />
+                <img
+                    [hidden]="hideItems"
+                    src="/assets/images/icon_list_show_down.svg"
+                    alt=""
+                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
+                />
+            </a>
+        }
+    </div>
+    <div class="col-md-6">
+        <small class="float-end">
+            <a [routerLink]="['/staff/inspections/reports']">{{
+                'i18n_language_inspection_report_link' | translate
+            }}</a>
+        </small>
     </div>
 </div>
 
-<div class="row ms-3" [hidden]="hideItems">
+<div [ngbCollapse]="hideItems" [hidden]="inspections.length === 0">
     <div class="col-md-12">
         <!-- Start & End time datepickers -->
-        <div class="row">
+        <div class="row mb-3">
             <div class="col-md-3">
-                <span class="exam-basic-selecttitle">&nbsp;</span>
+                <span class="maturity-input-label">&nbsp;</span>
                 <div class="input-group">
                     <input
                         [(ngModel)]="filterText"
                         (ngModelChange)="filterTextChanged()"
-                        class="form-control hgt40"
+                        class="form-control"
                         placeholder="{{ 'i18n_search' | translate }}"
                         ngbPopover="{{ 'i18n_maturity_search_description' | translate }}"
                         popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -45,13 +45,13 @@
                     />
 
                     <div class="input-group-append search">
-                        <img class="nopad" src="/assets/images/icon_search.png" width="49" height="40" />
+                        <img src="/assets/images/icon_search.png" width="49" height="40" />
                     </div>
                 </div>
             </div>
 
             <div class="col-md-2">
-                <span class="exam-basic-selecttitle">{{ 'i18n_begin' | translate }}</span>
+                <span class="maturity-input-label">{{ 'i18n_begin' | translate }}</span>
                 <xm-date-picker
                     [optional]="true"
                     [initiallyEmpty]="true"
@@ -59,7 +59,7 @@
                 ></xm-date-picker>
             </div>
             <div class="col-md-2">
-                <span class="exam-basic-selecttitle">{{ 'i18n_end' | translate }}</span>
+                <span class="maturity-input-label">{{ 'i18n_end' | translate }}</span>
                 <xm-date-picker
                     [optional]="true"
                     [initiallyEmpty]="true"
@@ -72,7 +72,7 @@
 
 <div class="row">
     <div class="col-md-12" style="overflow-x: auto">
-        <table class="table table-striped exams-table" [hidden]="hideItems">
+        <table class="table table-striped xm-data-table" [hidden]="hideItems">
             <thead>
                 <tr>
                     <th class="with-top">
@@ -199,7 +199,7 @@
                         </td>
                         <!-- 3 -->
                         <td>
-                            <a class="table-column-examname" [routerLink]="['/staff/assessments', inspection.exam.id]">
+                            <a [routerLink]="['/staff/assessments', inspection.exam.id]">
                                 {{ inspection.exam.name }}
                             </a>
                         </td>
@@ -217,7 +217,7 @@
                             }
                             <span>
                                 <br />
-                                <a class="pointer smaller" href="mailto:{{ inspection.exam.creator.email }}">{{
+                                <a class="pointer" href="mailto:{{ inspection.exam.creator.email }}">{{
                                     inspection.exam.creator.email
                                 }}</a>
                             </span>
@@ -230,7 +230,7 @@
                                 <span>{{ inspection.inspectorName }} </span>
                                 <span>
                                     <br />
-                                    <a class="pointer smaller" href="mailto:{{ inspection.modifier.email }}">{{
+                                    <a class="pointer" href="mailto:{{ inspection.modifier.email }}">{{
                                         inspection.modifier.email
                                     }}</a>
                                 </span>
@@ -241,19 +241,18 @@
                         <!-- 10 -->
                         <td>
                             @if (inspection.approved) {
-                                <span class="approved">
+                                <span class="text-success">
                                     {{ 'i18n_approved' | translate }}
                                 </span>
-                            }
-                            @if (!inspection.approved) {
-                                <span class="rejected">
+                            } @else {
+                                <span class="text-danger">
                                     {{ 'i18n_rejected' | translate }}
                                 </span>
                             }
                         </td>
                         <!-- 11 -->
                         <td>
-                            <a class="pointer smaller" (click)="showStatement(inspection.statement)">{{
+                            <a class="pointer" (click)="showStatement(inspection.statement)">{{
                                 'i18n_view' | translate
                             }}</a>
                         </td>
@@ -262,12 +261,12 @@
                 <!--Fill if page not full-->
                 @for (r of [] | pageFill: filteredInspections.length : currentPage : pageSize; track r) {
                     <tr>
-                        <td class="table-column-bold" colspan="11">&nbsp;</td>
+                        <td colspan="11">&nbsp;</td>
                     </tr>
                 }
                 @if (filteredInspections.length === 0) {
                     <tr>
-                        <td class="table-column-bold" colspan="11">
+                        <td colspan="11">
                             {{ 'i18n_processed_language_inspections_no_results' | translate }}
                         </td>
                     </tr>

@@ -45,6 +45,7 @@ import { PrintedMultiChoiceComponent } from './printed-multi-choice.component';
             </div>
         }
     `,
+    styleUrls: ['./print.shared.scss'],
     standalone: true,
     imports: [PrintedMultiChoiceComponent, PrintedEssayComponent, PrintedClozeTestComponent, OrderByPipe],
 })

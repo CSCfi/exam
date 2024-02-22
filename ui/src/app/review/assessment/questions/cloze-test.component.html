@@ -1,5 +1,5 @@
 <div id="exam">
-    <div class="student-enrolment-wrapper review-view">
+    <div class="xm-study-item-container review-view">
         <div class="col-md-12">
             <!-- question text -->
             <div class="float-end">
@@ -12,7 +12,7 @@
                     }
                 </a>
                 <!-- grade -->
-                <div class="review-points me-2">
+                <div class="pe-3 me-2">
                     <!-- grade -->
                     <div>
                         <strong>{{ 'i18n_multiplechoice_question_correct' | translate }}:</strong>
@@ -35,11 +35,11 @@
                 </div>
             </div>
 
-            <div class="review-question-title marr110" [xmMathJax]="sectionQuestion.question.question"></div>
+            <div class="" [xmMathJax]="sectionQuestion.question.question"></div>
 
             <!-- question attachment -->
             @if (reviewExpanded && sectionQuestion.question.attachment) {
-                <div class="padl0 mart20 marb20 notice-text">
+                <div class="ps-0 mt-2 mb-3 notice-text">
                     {{ 'i18n_question_attachment' | translate }}:
                     <a class="pointer" (click)="downloadQuestionAttachment()">
                         {{ sectionQuestion.question.attachment?.fileName }}</a
@@ -49,29 +49,29 @@
 
             <!-- question instructions -->
             @if (reviewExpanded && sectionQuestion.answerInstructions) {
-                <div class="padl0 mart20 marb20 notice-text" role="note">
+                <div class="ps-0 mt-2 mb-3 notice-text" role="note">
                     <img src="/assets/images/icon_info.svg" alt="" />
-                    <span class="padl10">{{ 'i18n_instructions' | translate }}:</span>
+                    <span class="ps-2">{{ 'i18n_instructions' | translate }}:</span>
                     <span [innerHtml]="sectionQuestion.answerInstructions"></span>
                 </div>
             }
 
             <!-- answer -->
             @if (reviewExpanded) {
-                <div class="mart20">
+                <div class="mt-2">
                     <hr />
                 </div>
             }
 
             @if (reviewExpanded) {
-                <div class="marb10">
-                    <div class="points-title">
+                <div class="mb-2">
+                    <div>
                         <span>{{ 'i18n_exam_answer' | translate | uppercase }}</span>
                     </div>
                     <div [innerHtml]="sectionQuestion.clozeTestAnswer?.question"></div>
                     @if (participation.exam.executionType.type !== 'MATURITY') {
-                        <div class="make-inline padr30 mart20">
-                            <div class="points-title">
+                        <div class="make-inline pe-3 mt-2">
+                            <div>
                                 <span class="text text-danger"
                                     >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
                                     <small>[0 &hellip; {{ sectionQuestion.maxScore.toFixed(2) }}]</small></span

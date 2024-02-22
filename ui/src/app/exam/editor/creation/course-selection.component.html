@@ -1,107 +1,97 @@
 @if (exam) {
     <div id="dashboard">
-        <div class="top-row">
-            <div class="col-md-12">
-                <div class="student-details-title-wrap">
-                    <xm-history-back></xm-history-back>
-                    <div class="student-enroll-title-wrap">
-                        <div class="student-enroll-title">{{ 'i18n_toolbar_new_exam' | translate }}</div>
-                    </div>
-                </div>
+        <xm-page-header text="i18n_toolbar_new_exam" [history]="true" />
+        <xm-page-content [content]="content" />
+    </div>
+    <ng-template #content>
+        <div class="row my-3">
+            <div class="col">
+                <div class="xm-paragraph-title">{{ 'i18n_exam_title' | translate }}</div>
             </div>
         </div>
-        <div class="row me-5">
-            <div class="col-md-12 ms-5 me-5 exam-new-border">
-                <div class="row">
-                    <div class="col mt-3 ms-3 me-3 mb-3">
-                        <div class="review-list-title">{{ 'i18n_exam_title' | translate }}</div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-3 exam-basic-title ms-3 mt-1">
-                        {{ 'i18n_new_exam_type' | translate }}
+        <div class="row mt-1">
+            <div class="col-md-3">
+                {{ 'i18n_new_exam_type' | translate }}
+                <sup
+                    triggers="mouseenter:mouseleave"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_new_exam_type_description' | translate }}"
+                >
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
+                </sup>
+            </div>
+            <div class="col">
+                {{ getExecutionTypeTranslation() | translate }}
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col">
+                <xm-exam-course [exam]="exam" (updated)="onCourseSelected($event)"></xm-exam-course>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col">
+                <div class="xm-paragraph-title">{{ 'i18n_exam_title' | translate }}</div>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-md-12">
+                <form novalidate>
+                    <label class="form-label" for="examName"
+                        >{{ 'i18n_exam_name' | translate }}
                         <sup
-                            triggers="mouseenter:mouseleave"
+                            ngbPopover="{{ 'i18n_exam_title_description' | translate }}"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            ngbPopover="{{ 'i18n_new_exam_type_description' | translate }}"
+                            triggers="mouseenter:mouseleave"
                         >
                             <img src="/assets/images/icon_tooltip.svg" alt="" />
                         </sup>
-                    </div>
-                    <div class="col">
-                        {{ getExecutionTypeTranslation() | translate }}
-                    </div>
+                    </label>
+                    <input
+                        name="examName"
+                        id="examName"
+                        type="text"
+                        class="form-control w-50"
+                        [(ngModel)]="exam.name"
+                        (blur)="updateExamName()"
+                        required
+                    />
+                    <label class="form-label" for="examLanguage" class="mt-2">
+                        {{ 'i18n_exam_language' | translate }}
+                        <sup
+                            ngbPopover="{{ 'i18n_exam_language_description' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
+                            <img src="/assets/images/icon_tooltip.svg" alt="" />
+                        </sup>
+                    </label>
+                    @if (exam) {
+                        <xm-language-picker [exam]="exam" id="examLanguage"></xm-language-picker>
+                    }
+                </form>
+            </div>
+        </div>
+        <div class="row justify-content-end">
+            <!-- buttons -->
+            <div class="col-auto">
+                <div [hidden]="exam.state !== 'DRAFT'">
+                    <button class="xm-cancel-button" (click)="cancelNewExam()">
+                        {{ 'i18n_button_cancel' | translate }}
+                    </button>
                 </div>
-                <div class="row">
-                    <div class="col ms-3 mt-3">
-                        <xm-exam-course [exam]="exam" (updated)="onCourseSelected($event)"></xm-exam-course>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col ms-3 mt-3 me-3">
-                        <div class="review-list-title">{{ 'i18n_exam_title' | translate }}</div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12 ms-3 mt-3">
-                        <form novalidate>
-                            <label class="form-label" for="examName"
-                                >{{ 'i18n_exam_name' | translate }}
-                                <sup
-                                    ngbPopover="{{ 'i18n_exam_title_description' | translate }}"
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                >
-                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                </sup>
-                            </label>
-                            <input
-                                name="examName"
-                                id="examName"
-                                type="text"
-                                class="form-control wdth-30"
-                                [(ngModel)]="exam.name"
-                                (blur)="updateExamName()"
-                                required
-                            />
-                            <label class="form-label" for="examLanguage" class="mt-2">
-                                {{ 'i18n_exam_language' | translate }}
-                                <sup
-                                    ngbPopover="{{ 'i18n_exam_language_description' | translate }}"
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                >
-                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                </sup>
-                            </label>
-                            @if (exam) {
-                                <xm-language-picker [exam]="exam" id="examLanguage"></xm-language-picker>
-                            }
-                        </form>
-                    </div>
-                </div>
-                <div class="row justify-content-end">
-                    <!-- buttons -->
-                    <div class="col-auto ms-3 mt-3 me-3">
-                        <div [hidden]="exam.state !== 'DRAFT'" class="review-attachment-button">
-                            <a class="pointer cancel" (click)="cancelNewExam()">
-                                {{ 'i18n_button_cancel' | translate }}
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-auto ms-3 mt-3 me-3">
-                        <div class="review-attachment-button flex">
-                            <button
-                                class="btn exam-button"
-                                [disabled]="!exam.course || !exam.name || exam.examLanguages.length < 1"
-                                (click)="continueToExam()"
-                            >
-                                {{ 'i18n_save' | translate }}
-                            </button>
-                        </div>
-                    </div>
+            </div>
+            <div class="col-auto">
+                <div class="flex">
+                    <button
+                        class="xm-ok-button"
+                        [disabled]="!exam.course || !exam.name || exam.examLanguages.length < 1"
+                        (click)="continueToExam()"
+                    >
+                        {{ 'i18n_save' | translate }}
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
+    </ng-template>
 }

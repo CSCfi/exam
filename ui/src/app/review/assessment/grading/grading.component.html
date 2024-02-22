@@ -1,8 +1,8 @@
-<div class="row ms-3 mt-3">
-    <div class="col-md-2 general-info-title">{{ 'i18n_total_score' | translate }}:</div>
-    <div class="col-md-4 general-info-content">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
-    <div class="col-md-2 general-info-title">{{ 'i18n_grading_inspector' | translate }}:</div>
-    <div class="col-md-4 general-info-content">
+<div class="row mx-2">
+    <div class="col-md-2">{{ 'i18n_total_score' | translate }}:</div>
+    <div class="col-md-4">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
+    <div class="col-md-2">{{ 'i18n_grading_inspector' | translate }}:</div>
+    <div class="col-md-4">
         @for (inspection of exam.examInspections; track inspection) {
             <div>
                 <xm-r-inspection
@@ -16,17 +16,15 @@
         }
     </div>
 </div>
-<div class="row ms-3">
-    <div class="col-md-2 general-info-title">
-        {{ 'i18n_approved' | translate }} / {{ 'i18n_rejected' | translate }}:
-    </div>
-    <div class="col-md-4 general-info-content">{{ questionSummary.accepted }} / {{ questionSummary.rejected }}</div>
-    <div class="col-md-2 general-info-title">&nbsp;</div>
-    <div class="col-md-4 general-info-content">&nbsp;</div>
+<div class="row mx-2">
+    <div class="col-md-2">{{ 'i18n_approved' | translate }} / {{ 'i18n_rejected' | translate }}:</div>
+    <div class="col-md-4">{{ questionSummary.accepted }} / {{ questionSummary.rejected }}</div>
+    <div class="col-md-2">&nbsp;</div>
+    <div class="col-md-4">&nbsp;</div>
 </div>
-<div class="row ms-3 mt-3">
-    <div class="col-md-2 general-info-title">{{ 'i18n_exam_owners' | translate }}:</div>
-    <div class="col-md-4 general-info-content">
+<div class="row mx-2 mt-3">
+    <div class="col-md-2">{{ 'i18n_exam_owners' | translate }}:</div>
+    <div class="col-md-4">
         @if (!collaborative) {
             <div>
                 @for (teacher of exam.parent?.examOwners; track teacher) {
@@ -44,8 +42,8 @@
             </div>
         }
     </div>
-    <div class="col-md-2 general-info-title">{{ 'i18n_exam_instructor' | translate }}:</div>
-    <div class="col-md-4 general-info-content">
+    <div class="col-md-2">{{ 'i18n_exam_instructor' | translate }}:</div>
+    <div class="col-md-4">
         @for (inspection of exam.examInspections; track inspection) {
             <span> {{ inspection.user.firstName }} {{ inspection.user.lastName }} </span>
         }
@@ -53,16 +51,16 @@
 </div>
 
 @if (exam.state === 'GRADED_LOGGED') {
-    <div class="row ms-3">
-        <div class="col-md-4 general-info-title">{{ 'i18n_graded' | translate }}:</div>
-        <div class="col-md-8 general-info-content">
+    <div class="row mx-2">
+        <div class="col-md-4">{{ 'i18n_graded' | translate }}:</div>
+        <div class="col-md-8">
             {{ exam.gradedTime | date: 'dd.MM.yyyy' }}
         </div>
     </div>
 }
 
-<div class="row ms-3 mt-3 me-2 align-items-center">
-    <div class="col-md-2 general-info-title">
+<div class="row mx-2 mt-3 align-items-center">
+    <div class="col-md-2">
         {{ 'i18n_additional_info_for_registry' | translate }}:
         <sup
             ngbPopover="{{ 'i18n_additional_info_for_registry_description' | translate }}"
@@ -74,7 +72,7 @@
                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
         /></sup>
     </div>
-    <div class="col-md-8 general-info-content">
+    <div class="col-md-8">
         <textarea
             class="form-control"
             [(ngModel)]="exam.additionalInfo"
@@ -84,8 +82,8 @@
         </textarea>
     </div>
 </div>
-<div class="row ms-3 mt-3 me-2 align-items-center" [hidden]="!isReadOnly() || !isOwnerOrAdmin()">
-    <div class="col-md-2 general-info-title">
+<div class="row mx-2 mt-3 align-items-center" [hidden]="!isReadOnly() || !isOwnerOrAdmin()">
+    <div class="col-md-2">
         {{ 'i18n_additional_info_for_student' | translate }}:
         <sup
             ngbPopover="{{ 'i18n_additional_info_for_student_description' | translate }}"
@@ -97,17 +95,17 @@
                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
         /></sup>
     </div>
-    <div class="col-md-8 general-info-content">
+    <div class="col-md-8">
         <textarea class="form-control" [(ngModel)]="exam.assessmentInfo" rows="3 "> </textarea>
     </div>
-    <div class="col-md-2 general-info-content">
+    <div class="col-md-2">
         <button class="btn btn-success" [disabled]="!exam.assessmentInfo" (click)="saveAssessmentInfo()">
             {{ 'i18n_save' | translate }}
         </button>
     </div>
 </div>
-<div class="row ms-3 mt-3 me-2 align-items-center" [hidden]="getTeacherCount() === 0">
-    <div class="col-md-2 general-info-title">
+<div class="row mx-2 mt-3 align-items-center" [hidden]="getTeacherCount() === 0">
+    <div class="col-md-2">
         {{ 'i18n_send_to_other_reviewers' | translate }}:
         <sup
             ngbPopover="{{ 'i18n_send_to_other_reviewers_description' | translate }}"
@@ -119,7 +117,7 @@
                 onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
         /></sup>
     </div>
-    <div class="col-md-8 general-info-content">
+    <div class="col-md-8">
         <textarea class="form-control" [(ngModel)]="message.text" rows="3" cols="120"></textarea>
     </div>
     <div class="col-md-2">
@@ -128,8 +126,8 @@
         </button>
     </div>
 </div>
-<div class="row ms-3 mt-2" [hidden]="!isReadOnly()">
-    <div class="col-md-2 general-info-title">
+<div class="row mx-2 mt-2" [hidden]="!isReadOnly()">
+    <div class="col-md-2">
         {{ 'i18n_teachers_comment' | translate }}
         @if (!!isCommentRead()) {
             <span>({{ 'i18n_teachers_comment_read' | translate | lowercase }})</span>
@@ -142,19 +140,19 @@
     @if (exam.examFeedback?.comment) {
         <div
             class="col-md-10"
-            [ngClass]="isCommentRead() ? 'general-info-content' : 'sitnet-text-alarm'"
+            [ngClass]="isCommentRead() ? '' : 'text-danger'"
             [xmMathJax]="exam.examFeedback?.comment"
         ></div>
     }
     @if (exam.examFeedback?.attachment) {
-        <div class="col-md-offset-2 col-md-10 general-info-content">
+        <div class="col-md-offset-2 col-md-10">
             <a class="pointer" (click)="downloadFeedbackAttachment()">
                 {{ exam.examFeedback.attachment?.fileName }}
             </a>
         </div>
     }
 </div>
-<div class="row ms-3 me-2 mt-3">
+<div class="row mx-2 mt-3">
     <div class="col-md-12">
         <form #gradingForm="ngForm" name="gradingForm" role="form" novalidate>
             <div class="row">

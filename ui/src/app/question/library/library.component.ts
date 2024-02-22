@@ -38,19 +38,13 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
             <xm-page-content [content]="content" />
         </div>
         <ng-template #buttons>
-            <div class="teacher-toolbar">
-                <div class="review-attachment-button print-button">
-                    <a (click)="import()" class="pointer">
-                        {{ 'i18n_toolbar_import_questions' | translate }}
-                    </a>
-                </div>
-            </div>
-            <div class="teacher-toolbar">
-                <div class="review-attachment-button print-button">
-                    <a [routerLink]="['new']" [queryParams]="{ nextState: 'questions' }" class="pointer">
-                        {{ 'i18n_toolbar_new_question' | translate }}
-                    </a>
-                </div>
+            <div class="float-end pe-3">
+                <button (click)="import()" class="xm-ok-button me-3">
+                    {{ 'i18n_toolbar_import_questions' | translate }}
+                </button>
+                <button [routerLink]="['new']" [queryParams]="{ nextState: 'questions' }" class="xm-ok-button">
+                    {{ 'i18n_toolbar_new_question' | translate }}
+                </button>
             </div>
         </ng-template>
         <ng-template #content>
@@ -140,7 +134,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                     </div>
                 </div>
 
-                <div class="margin-20">
+                <div class="mt-3">
                     <xm-library-results
                         [questions]="questions"
                         (copied)="questionCopied($event)"

@@ -24,10 +24,10 @@ import { Observable, Subject, interval, map, startWith, switchMap, take } from '
     template: `<div class="floating-clock">
         <div class="row">
             <div class="header-wrapper col-12">
-                <div class="row align-items-center p-2">
+                <div class="row align-items-start p-2">
                     @if (showRemainingTime()) {
                         <div class="col-5">
-                            <span class="sitnet-white">{{ 'i18n_exam_time_left' | translate }}: </span>
+                            <span class="text-white">{{ 'i18n_exam_time_left' | translate }}: </span>
                         </div>
                     } @else {
                         <div class="col-5 clock-hide text-muted">
@@ -59,6 +59,7 @@ import { Observable, Subject, interval, map, startWith, switchMap, take } from '
     </div>`,
     standalone: true,
     imports: [NgClass, AsyncPipe, TranslateModule],
+    styleUrl: './examination-clock.component.scss',
 })
 export class ExaminationClockComponent implements OnInit, OnDestroy {
     @Input() examHash = '';

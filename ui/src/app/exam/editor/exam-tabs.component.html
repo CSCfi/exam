@@ -1,16 +1,7 @@
 <div id="dashboard">
-    @if (collaborative) {
-        <!-- check this stuff -->
-        <div class="sitnet-header-alt">
-            <div class="col-md-12 header-wrapper">
-                <span class="header-text">{{ 'i18n_collaborative_exams' | translate }}</span>
-            </div>
-        </div>
-    }
     <xm-page-header [text]="examInfo.title || 'loading'" [prependTemplate]="linkBack" [appendTemplate]="status" />
     <xm-page-content [content]="content" />
 </div>
-
 <ng-template #linkBack>
     <a [routerLink]="[user.isAdmin ? '/staff/admin' : '/staff/teacher']">
         <img class="pointer arrow_icon pe-4" src="/assets/images/icon_history.png" alt="go back" />
@@ -57,7 +48,7 @@
         }
     </ul>
 
-    <div class="main-row">
+    <div class="row mt-2">
         <div class="col-md-12">
             <router-outlet></router-outlet>
         </div>

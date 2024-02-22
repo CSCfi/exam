@@ -31,6 +31,7 @@ import { RoomService } from './room.service';
 
 @Component({
     templateUrl: './room.component.html',
+    styleUrls: ['./rooms.component.scss'],
     selector: 'xm-room',
     standalone: true,
     imports: [

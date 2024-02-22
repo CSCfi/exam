@@ -37,7 +37,7 @@ type Organisation = {
 @Component({
     selector: 'xm-exam-organisation-selector',
     template: `<div class="row mt-2">
-            <div class="col-md-3 exam-basic-title">
+            <div class="col-md-3 ">
                 {{ 'i18n_exam_organisations' | translate }}
                 <sup
                     ngbPopover="{{ 'i18n_exam_organisations_description' | translate }}"
@@ -78,24 +78,17 @@ type Organisation = {
         @if (selectedOrganisations.length > 0) {
             <div class="row mt-2">
                 <div class="col-md-9 offset-md-3">
-                    <ul class="list-group list-group-horizontal">
-                        @for (org of selectedOrganisations; track org) {
-                            <li class="list-group-item">
-                                {{ org.name }} ({{ org.code }})
-                                <button
-                                    class="reviewer-remove"
-                                    [disabled]="exam.state === 'PUBLISHED'"
-                                    (click)="removeOrganisation(org)"
-                                >
-                                    <img
-                                        [hidden]="exam.state === 'PUBLISHED'"
-                                        src="/assets/images/icon_remove.svg"
-                                        alt=""
-                                    />
-                                </button>
-                            </li>
-                        }
-                    </ul>
+                    @for (org of selectedOrganisations; track org) {
+                        {{ org.name }} ({{ org.code }})
+                        <button
+                            class="btn btn-light"
+                            [disabled]="exam.state === 'PUBLISHED'"
+                            (click)="removeOrganisation(org)"
+                            title="{{ 'i18n_remove' | translate }}"
+                        >
+                            <i class="bi bi-x"></i>
+                        </button>
+                    }
                 </div>
             </div>
         }`,

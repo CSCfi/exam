@@ -21,7 +21,7 @@ import type { Examination, ExaminationSection, NavigationPage } from '../examina
 @Component({
     selector: 'xm-examination-navigation',
     template: `<!-- SECTION NAVIGATION ARROWS AND LABELS -->
-        <div class="row exam-navigation mb-3">
+        <div class="row pt-2 mb-3">
             <span class="col-md-12 ms-2">
                 <!-- PREVIOUS SECTION BUTTON -->
                 @if (prev.valid) {
@@ -53,6 +53,15 @@ import type { Examination, ExaminationSection, NavigationPage } from '../examina
         </div>`,
     standalone: true,
     imports: [TranslateModule],
+    styles: [
+        `
+            .arrow_icon {
+                vertical-align: baseline;
+                padding-left: 13px;
+                padding-right: 13px;
+            }
+        `,
+    ],
 })
 export class ExaminationNavigationComponent implements OnInit, OnChanges {
     @Input() exam!: Examination;

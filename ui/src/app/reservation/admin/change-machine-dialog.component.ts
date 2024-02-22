@@ -27,7 +27,7 @@ import type { ExamMachine, Reservation } from '../reservation.model';
     selector: 'xm-change-machine-dialog',
     standalone: true,
     imports: [TranslateModule, DropdownSelectComponent],
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
+    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
         <div class="terms-dialog-header">
             <h4><i class="bi-info-circle"></i>&nbsp;&nbsp;{{ 'i18n_change_reservation_machine' | translate }}</h4>
         </div>

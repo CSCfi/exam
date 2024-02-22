@@ -21,21 +21,19 @@ import { TranslateModule } from '@ngx-translate/core';
     selector: 'xm-inspection-statement-dialog',
     standalone: true,
     imports: [TranslateModule],
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="student-message-dialog-wrapper-padding">
-            <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ 'i18n_give_feedback' | translate }}</div>
-            </div>
-            <div class="mart20 student-feedback">
+    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+        <div class="modal-header">
+            <div class="xm-page-header-title">{{ 'i18n_give_feedback' | translate }}</div>
+        </div>
+        <div class="modal-body">
+            <div class="mt-2">
                 <p mathjax [innerHtml]="statement"></p>
             </div>
-            <div class="modal-footer">
-                <div class="student-message-dialog-button-save">
-                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                        {{ 'i18n_close' | translate }}
-                    </button>
-                </div>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="xm-cancel-button" (click)="activeModal.close()" autofocus>
+                {{ 'i18n_close' | translate }}
+            </button>
         </div>
     </div> `,
 })

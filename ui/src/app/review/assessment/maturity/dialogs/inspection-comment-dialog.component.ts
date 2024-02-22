@@ -22,38 +22,23 @@ import { TranslateModule } from '@ngx-translate/core';
     standalone: true,
     imports: [FormsModule, TranslateModule],
     template: `
-        <div id="sitnet-dialog" role="dialog" aria-modal="true">
-            <div class="student-message-dialog-wrapper-padding">
-                <div class="student-enroll-dialog-wrap">
-                    <div class="student-enroll-title">{{ 'i18n_inspection_comment_title' | translate }}</div>
-                </div>
-                <div>
-                    <form role="form" id="infoForm" name="infoForm" novalidate>
-                        <label for="infoForm" class="student-enroll-dialog-subtitle">{{
-                            'i18n_inspection_comment_description' | translate
-                        }}</label>
-                        <textarea
-                            rows="10"
-                            name="message"
-                            class="student-message-dialog-textarea"
-                            [(ngModel)]="data.comment"
-                            autofocus
-                        >
-                        </textarea>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <div class="student-message-dialog-button-save">
-                        <button class="btn btn-sm btn-primary" [disabled]="!data.comment" (click)="ok()">
-                            {{ 'i18n_add' | translate }}
-                        </button>
-                    </div>
-                    <div class="student-message-dialog-button-cancel">
-                        <button class="btn btn-sm btn-danger float-start" (click)="cancel()">
-                            {{ 'i18n_button_cancel' | translate }}
-                        </button>
-                    </div>
-                </div>
+        <div id="exam-dialog" role="dialog" aria-modal="true">
+            <div class="modal-header">
+                <h1 class="xm-page-header-title">{{ 'i18n_inspection_comment_title' | translate }}</h1>
+            </div>
+            <div class="modal-body">
+                <form role="form" id="infoForm" name="infoForm" novalidate>
+                    <label for="infoForm">{{ 'i18n_inspection_comment_description' | translate }}</label>
+                    <textarea rows="10" name="message" class="w-100" [(ngModel)]="data.comment" autofocus> </textarea>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="xm-ok-button" [disabled]="!data.comment" (click)="ok()">
+                    {{ 'i18n_add' | translate }}
+                </button>
+                <button class="xm-cancel-button float-start" (click)="cancel()">
+                    {{ 'i18n_button_cancel' | translate }}
+                </button>
             </div>
         </div>
     `,

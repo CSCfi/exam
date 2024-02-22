@@ -43,24 +43,20 @@ export interface LanguageInspectionData extends LanguageInspection {
         </div>
         <ng-template #content>
             <div class="tab-wrapper-exams">
-                <div class="review-border">
-                    <!-- Under review language inspection -->
-                    @if (ongoingInspections) {
-                        <xm-unfinished-inspections [inspections]="ongoingInspections" />
-                    }
-                </div>
+                <!-- Under review language inspection -->
+                @if (ongoingInspections) {
+                    <xm-unfinished-inspections [inspections]="ongoingInspections" />
+                }
 
-                <div class="review-border">
-                    <!-- Reviewed language inspection -->
-                    @if (processedInspections) {
-                        <xm-reviewed-inspections
-                            [inspections]="processedInspections"
-                            (endDateChanged)="endDateChanged($event)"
-                            (startDateChanged)="startDateChanged($event)"
-                        >
-                        </xm-reviewed-inspections>
-                    }
-                </div>
+                <!-- Reviewed language inspection -->
+                @if (processedInspections) {
+                    <xm-reviewed-inspections
+                        [inspections]="processedInspections"
+                        (endDateChanged)="endDateChanged($event)"
+                        (startDateChanged)="startDateChanged($event)"
+                    >
+                    </xm-reviewed-inspections>
+                }
             </div>
         </ng-template> `,
     standalone: true,

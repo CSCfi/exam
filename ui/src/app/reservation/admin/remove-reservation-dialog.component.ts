@@ -24,7 +24,7 @@ import type { Reservation } from '../reservation.model';
     selector: 'xm-remove-reservation-dialog',
     standalone: true,
     imports: [FormsModule, TranslateModule],
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
+    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
         <div class="terms-dialog-header">
             <h4><i class="bi-trash"></i>&nbsp;&nbsp;{{ 'i18n_remove_reservation' | translate }}</h4>
         </div>

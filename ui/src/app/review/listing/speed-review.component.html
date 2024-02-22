@@ -3,260 +3,219 @@
     <xm-page-content [content]="content" />
 </div>
 <ng-template #content>
-    <div class="speed-review-border">
-        <div class="review-list-title-row marb20">
-            <div class="col-md-12 padl0">
-                @if (examInfo?.examOwners) {
-                    <div class="speed-review-title">
-                        {{ examInfo?.title }}
-                        <span class="speed-review-subtitle">({{ 'i18n_teachers' | translate }}:</span>
-                        @for (owner of examInfo?.examOwners; track owner; let isLast = $last) {
-                            <span class="speed-review-subtitle">
-                                {{ owner.firstName }} {{ owner.lastName }}
-                                @if (!isLast) {
-                                    <span>,&nbsp;</span>
-                                }
-                            </span>
+    <div class="col-md-12 p-3">
+        @if (examInfo?.examOwners) {
+            <div class="speed-review-title">
+                {{ examInfo?.title }}
+                <span class="speed-review-subtitle">({{ 'i18n_teachers' | translate }}:</span>
+                @for (owner of examInfo?.examOwners; track owner; let isLast = $last) {
+                    <span class="speed-review-subtitle">
+                        {{ owner.firstName }} {{ owner.lastName }}
+                        @if (!isLast) {
+                            <span>,&nbsp;</span>
                         }
-                        <span class="speed-review-subtitle">)</span>
-                    </div>
+                    </span>
                 }
+                <span class="speed-review-subtitle">)</span>
             </div>
+        }
+    </div>
+
+    @if (examReviews?.length === 0) {
+        <div class="col-md-12 mt-2">
+            {{ 'i18n_no_examinations_to_grade' | translate }}
+        </div>
+    } @else {
+        <div class="col-md-12 mt-2">
+            <table class="table table-striped xm-data-table">
+                <thead>
+                    <tr>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="displayName"
+                                text="i18n_student"
+                                [predicate]="reviewPredicate"
+                                [reverse]="reverse"
+                                (click)="setPredicate('displayName')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="examParticipation.started"
+                                text="i18n_exam_duration"
+                                [predicate]="reviewPredicate"
+                                [reverse]="reverse"
+                                (click)="setPredicate('examParticipation.started')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-top">
+                            <xm-table-sort
+                                by="examParticipation.deadline"
+                                text="i18n_review_deadline"
+                                [predicate]="reviewPredicate"
+                                [reverse]="reverse"
+                                (click)="setPredicate('examParticipation.deadline')"
+                            ></xm-table-sort>
+                        </th>
+                        <th class="with-space">{{ 'i18n_inspection_status' | translate }}</th>
+                        <th class="with-space">{{ 'i18n_exam_state' | translate }}</th>
+                        <th class="with-space with-top">{{ 'i18n_total_score' | translate }}</th>
+                        <th class="with-top">{{ 'i18n_grade' | translate }}</th>
+                        <th class="with-top">{{ 'i18n_feedback' | translate }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (
+                        review of examReviews
+                            | orderBy: reviewPredicate : reverse
+                            | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
+                        track review
+                    ) {
+                        <tr>
+                            <td>
+                                {{ review.displayName }}
+                                @if (review.examParticipation.user?.userIdentifier) {
+                                    <span> <br />({{ review.examParticipation.user?.userIdentifier }})</span>
+                                }
+                                <br />
+                                <a
+                                    class="pointer"
+                                    [routerLink]="['/staff/assessments', review.examParticipation.exam.id]"
+                                >
+                                    {{ review.examParticipation.user?.email }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                                {{ 'i18n_clock_short' | translate }}
+                                {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
+                                {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }} ({{
+                                    review.examParticipation.started | minuteDiff: review.examParticipation.ended
+                                }}&nbsp;min)
+                            </td>
+                            <td>
+                                {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (
+                                <span [innerHtml]="review.examParticipation.deadline | dayDiff"></span>)
+                            </td>
+                            <td>
+                                @for (inspection of review.examParticipation.exam.examInspections; track inspection) {
+                                    <div>
+                                        <span [ngClass]="inspection.ready ? 'text-success' : 'text-danger'">
+                                            <span
+                                                [ngClass]="
+                                                    isOwner(inspection.user, review.examParticipation.exam.examOwners)
+                                                        ? 'bold'
+                                                        : ''
+                                                "
+                                            >
+                                                {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                                            </span>
+                                        </span>
+                                    </div>
+                                }
+                            </td>
+                            <td class="text-success">
+                                {{ 'i18n_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
+                            </td>
+                            <td>
+                                {{ review.examParticipation.exam.totalScore }} /
+                                {{ review.examParticipation.exam.maxScore }}
+                                @if (
+                                    review.examParticipation.exam.rejectedAnswerCount > 0 ||
+                                    review.examParticipation.exam.approvedAnswerCount > 0
+                                ) {
+                                    <span>
+                                        <br />{{ 'i18n_approved' | translate }}:
+                                        {{ review.examParticipation.exam.approvedAnswerCount }} <br />{{
+                                            'i18n_rejected' | translate
+                                        }}: {{ review.examParticipation.exam.rejectedAnswerCount }}
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                @if (!isGradeable(review)) {
+                                    <span>{{ 'i18n_speed_review_incomplete_info_or_no_permission' | translate }}</span>
+                                }
+                                <select
+                                    class="form-select custom-select"
+                                    [disabled]="!isGradeable(review)"
+                                    [(ngModel)]="review.selectedGrade"
+                                >
+                                    @for (grade of review.grades | orderBy: 'id'; track grade) {
+                                        <option [ngValue]="grade">
+                                            {{ grade.name }}
+                                        </option>
+                                    }
+                                    <option value="" [selected]="!review.selectedGrade">
+                                        {{ 'i18n_choose' | translate }}
+                                    </option>
+                                </select>
+                            </td>
+                            <td>
+                                <button
+                                    class="btn xm-link btn-link"
+                                    [disabled]="!isAllowedToGrade(review)"
+                                    (click)="showFeedbackEditor(review)"
+                                >
+                                    {{ 'i18n_edit' | translate }}
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                    <!--Fill if page not full-->
+                    @for (r of [] | pageFill: examReviews.length : currentPage : pageSize; track r) {
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td colspan="8"></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (toggleReviews) {
+        @if (examReviews.length > pageSize) {
+            <div>
+                <xm-paginator
+                    [items]="examReviews"
+                    (pageSelected)="pageSelected($event)"
+                    [pageSize]="pageSize"
+                    [currentPage]="currentPage"
+                ></xm-paginator>
+            </div>
+        }
+    }
+
+    <!-- Buttons -->
+    <div class="pe-3 mb-2 d-flex justify-content-between">
+        <div class="speed-review-csv ms-3 mb-1">
+            <a class="pointer" (click)="importGrades()">{{ 'i18n_import_grades_from_csv' | translate }}</a>
+            <sup
+                ngbPopover="{{ 'i18n_grade_import_file_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
         </div>
 
-        @if (examReviews && examReviews.length === 0) {
-            <div class="col-md-12 padl30 mart20 padb30">
-                {{ 'i18n_no_examinations_to_grade' | translate }}
-            </div>
-        }
-
-        @if (examReviews && examReviews.length > 0) {
-            <div>
-                <div class="col-md-12 padl0 padr0 mart40 overflow-x-scroll">
-                    <table class="table table-striped exams-table">
-                        <thead>
-                            <tr>
-                                <th class="with-top">
-                                    <xm-table-sort
-                                        by="displayName"
-                                        text="i18n_student"
-                                        [predicate]="reviewPredicate"
-                                        [reverse]="reverse"
-                                        (click)="setPredicate('displayName')"
-                                    ></xm-table-sort>
-                                </th>
-                                <th class="with-top">
-                                    <xm-table-sort
-                                        by="examParticipation.started"
-                                        text="i18n_exam_duration"
-                                        [predicate]="reviewPredicate"
-                                        [reverse]="reverse"
-                                        (click)="setPredicate('examParticipation.started')"
-                                    ></xm-table-sort>
-                                </th>
-                                <th class="with-top">
-                                    <xm-table-sort
-                                        by="examParticipation.deadline"
-                                        text="i18n_review_deadline"
-                                        [predicate]="reviewPredicate"
-                                        [reverse]="reverse"
-                                        (click)="setPredicate('examParticipation.deadline')"
-                                    ></xm-table-sort>
-                                </th>
-                                <th class="with-space">{{ 'i18n_inspection_status' | translate }}</th>
-                                <th class="with-space">{{ 'i18n_exam_state' | translate }}</th>
-                                <th class="with-space with-top">{{ 'i18n_total_score' | translate }}</th>
-                                <th class="with-top">{{ 'i18n_grade' | translate }}</th>
-                                <th class="with-top">{{ 'i18n_feedback' | translate }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (
-                                review of examReviews
-                                    | orderBy: reviewPredicate : reverse
-                                    | slice: currentPage * pageSize : currentPage * pageSize + pageSize;
-                                track review
-                            ) {
-                                <tr>
-                                    <td class="table-column-bold reservation-search">
-                                        {{ review.displayName }}
-                                        @if (review.examParticipation.user?.userIdentifier) {
-                                            <span> <br />({{ review.examParticipation.user?.userIdentifier }})</span>
-                                        }
-                                        <br />
-                                        <a
-                                            class="pointer"
-                                            [routerLink]="['/staff/assessments', review.examParticipation.exam.id]"
-                                        >
-                                            {{ review.examParticipation.user?.email }}
-                                        </a>
-                                    </td>
-                                    <td>
-                                        {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
-                                        {{ 'i18n_clock_short' | translate }}
-                                        {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
-                                        {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }} ({{
-                                            review.examParticipation.started
-                                                | minuteDiff: review.examParticipation.ended
-                                        }}&nbsp;min)
-                                    </td>
-                                    <td>
-                                        {{ review.examParticipation.deadline | date: 'dd.MM.yyyy' }} (
-                                        <span [innerHtml]="review.examParticipation.deadline | dayDiff"></span>)
-                                    </td>
-                                    <td>
-                                        @for (
-                                            inspection of review.examParticipation.exam.examInspections;
-                                            track inspection
-                                        ) {
-                                            <div>
-                                                <span
-                                                    [ngClass]="
-                                                        inspection.ready ? 'sitnet-text-ready' : 'sitnet-text-alarm'
-                                                    "
-                                                >
-                                                    <span
-                                                        [ngClass]="
-                                                            isOwner(
-                                                                inspection.user,
-                                                                review.examParticipation.exam.examOwners
-                                                            )
-                                                                ? 'bold'
-                                                                : ''
-                                                        "
-                                                    >
-                                                        {{ inspection.user.firstName }} {{ inspection.user.lastName }}
-                                                    </span>
-                                                </span>
-                                            </div>
-                                        }
-                                    </td>
-                                    <td class="text-success">
-                                        {{
-                                            'i18n_exam_status_' + review.examParticipation.exam.state
-                                                | lowercase
-                                                | translate
-                                        }}
-                                    </td>
-                                    <td>
-                                        {{ review.examParticipation.exam.totalScore }} /
-                                        {{ review.examParticipation.exam.maxScore }}
-                                        @if (
-                                            review.examParticipation.exam.rejectedAnswerCount > 0 ||
-                                            review.examParticipation.exam.approvedAnswerCount > 0
-                                        ) {
-                                            <span>
-                                                <br />{{ 'i18n_approved' | translate }}:
-                                                {{ review.examParticipation.exam.approvedAnswerCount }} <br />{{
-                                                    'i18n_rejected' | translate
-                                                }}: {{ review.examParticipation.exam.rejectedAnswerCount }}
-                                            </span>
-                                        }
-                                    </td>
-                                    <td>
-                                        @if (!isGradeable(review)) {
-                                            <span>{{
-                                                'i18n_speed_review_incomplete_info_or_no_permission' | translate
-                                            }}</span>
-                                        }
-                                        <select
-                                            class="form-select custom-select"
-                                            [disabled]="!isGradeable(review)"
-                                            [(ngModel)]="review.selectedGrade"
-                                        >
-                                            @for (grade of review.grades | orderBy: 'id'; track grade) {
-                                                <option [ngValue]="grade">
-                                                    {{ grade.name }}
-                                                </option>
-                                            }
-                                            <option value="" [selected]="!review.selectedGrade">
-                                                {{ 'i18n_choose' | translate }}
-                                            </option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <button
-                                            class="btn general-info-link-bold btn-link padl0"
-                                            [disabled]="!isAllowedToGrade(review)"
-                                            (click)="showFeedbackEditor(review)"
-                                        >
-                                            {{ 'i18n_edit' | translate }}
-                                        </button>
-                                    </td>
-                                </tr>
-                            }
-                            <!--Fill if page not full-->
-                            @for (r of [] | pageFill: examReviews.length : currentPage : pageSize; track r) {
-                                <tr>
-                                    <td class="table-column-examname">&nbsp;</td>
-                                    <td colspan="8"></td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        }
-        @if (toggleReviews) {
-            <div>
-                @if (examReviews.length > pageSize) {
-                    <div>
-                        <xm-paginator
-                            [items]="examReviews"
-                            (pageSelected)="pageSelected($event)"
-                            [pageSize]="pageSize"
-                            [currentPage]="currentPage"
-                        ></xm-paginator>
-                    </div>
-                }
-            </div>
-        }
-
-        <!-- Buttons -->
-        <div class="padl15 pe-3 marb20 d-flex justify-content-between">
-            <div>
-                <div class="speed-review-csv ms-3 mb-1">
-                    <a class="pointer" (click)="importGrades()">{{ 'i18n_import_grades_from_csv' | translate }}</a>
-                    <sup
-                        ngbPopover="{{ 'i18n_grade_import_file_description' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                    >
-                        <img src="/assets/images/icon_tooltip.svg" alt="" />
-                    </sup>
-                </div>
-
-                <div class="speed-review-csv ms-3">
-                    <a class="pointer" (click)="createGradingTemplate()">{{
-                        'i18n_create_grading_template' | translate
-                    }}</a>
-                    <sup
-                        ngbPopover="{{ 'i18n_create_grading_template_description' | translate }}"
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                    >
-                        <img src="/assets/images/icon_tooltip.svg" alt="" />
-                    </sup>
-                </div>
-            </div>
-
-            <div class="p-2">
-                <div class="review-attachment-button make-inline">
-                    <a class="pointer preview" [routerLink]="['/staff/exams/', examId, '5']">
-                        {{ 'i18n_button_cancel' | translate }}
-                    </a>
-                </div>
-                <div class="review-attachment-button make-inline ms-2">
-                    <button
-                        class="btn btn-link"
-                        [disabled]="!hasModifications()"
-                        class="pointer"
-                        (click)="gradeExams()"
-                    >
-                        {{ 'i18n_grade_exams' | translate }}
-                    </button>
-                </div>
-            </div>
+        <div class="speed-review-csv ms-3">
+            <a class="pointer" (click)="createGradingTemplate()">{{ 'i18n_create_grading_template' | translate }}</a>
+            <sup
+                ngbPopover="{{ 'i18n_create_grading_template_description' | translate }}"
+                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                triggers="mouseenter:mouseleave"
+            >
+                <img src="/assets/images/icon_tooltip.svg" alt="" />
+            </sup>
+        </div>
+        <div class="d-flex flex-row-reverse p-2">
+            <button class="xm-ok-button" [disabled]="!hasModifications()" (click)="gradeExams()">
+                {{ 'i18n_grade_exams' | translate }}
+            </button>
+            <button class="xm-cancel-button me-3" [routerLink]="['/staff/exams/', examId, '5']">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
         </div>
     </div>
 </ng-template>

@@ -25,7 +25,7 @@ import { AccessibilityService } from './accessibility.service';
     selector: 'xm-accessibility-picker',
     template: `<div class="row">
         <div class="col-md-12">
-            <div class="sitnet-info-text">{{ 'i18n_room_accessibility_info' | translate }}</div>
+            <div class="facility-info-text">{{ 'i18n_room_accessibility_info' | translate }}</div>
             <div>
                 <span class="dropdown" ngbDropdown>
                     <button

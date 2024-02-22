@@ -20,13 +20,13 @@ import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 import { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import { SessionService } from '../../../session/session.service';
 
 @Component({
     selector: 'xm-no-shows-component',
     standalone: true,
     imports: [TranslateModule, ApplyDstPipe, OrderByPipe, DatePipe, TableSortComponent],
     templateUrl: './no-shows.component.html',
+    styleUrls: ['../review-list.component.scss'],
 })
 export class NoShowsComponent implements OnInit {
     @Input() noShows: (ExamEnrolment & { displayName: string })[] = [];
@@ -34,10 +34,7 @@ export class NoShowsComponent implements OnInit {
     noShowPredicate = 'reservation.startAt';
     reverse = false;
 
-    constructor(
-        private modal: NgbActiveModal,
-        private Session: SessionService,
-    ) {}
+    constructor(private modal: NgbActiveModal) {}
 
     //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
     ngOnInit() {

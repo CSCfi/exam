@@ -17,18 +17,28 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { DateTime } from 'luxon';
 import { Exam } from 'src/app/exam/exam.model';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
 import { FileService } from '../../shared/file/file.service';
 import type { ReviewedExam, Scores } from '../enrolment.model';
 import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
-import { DateTime } from 'luxon';
 
 @Component({
     selector: 'xm-exam-feedback',
     templateUrl: './exam-feedback.component.html',
     standalone: true,
     imports: [NgClass, DatePipe, TranslateModule],
+    styles: [
+        `
+            .notice-wrap {
+                margin-left: 1em;
+                display: inline-block;
+                margin-bottom: 30px;
+                margin-top: 10px;
+            }
+        `,
+    ],
 })
 export class ExamFeedbackComponent implements OnInit {
     @Input() assessment!: ReviewedExam;

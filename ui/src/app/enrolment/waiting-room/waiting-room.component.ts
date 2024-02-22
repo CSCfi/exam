@@ -20,6 +20,9 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
+import { Observable, interval, map, startWith } from 'rxjs';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import type { ExamRoom, Reservation } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
 import { ApplyDstPipe } from '../../shared/date/apply-dst.pipe';
@@ -28,7 +31,6 @@ import { MathJaxDirective } from '../../shared/math/math-jax.directive';
 import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from '../../shared/user/teacher-list.component';
 import type { ExamEnrolment } from '../enrolment.model';
-import { Observable, interval, map, startWith } from 'rxjs';
 
 type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
 type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
@@ -38,6 +40,7 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
 @Component({
     selector: 'xm-waiting-room',
     templateUrl: './waiting-room.component.html',
+    styleUrls: ['../enrolment.shared.scss', './waiting-room.component.scss'],
     standalone: true,
     imports: [
         CourseCodeComponent,
@@ -49,6 +52,8 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
         DatePipe,
         TranslateModule,
         ApplyDstPipe,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class WaitingRoomComponent implements OnInit, OnDestroy {

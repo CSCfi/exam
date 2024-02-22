@@ -1,4 +1,4 @@
-<div class="student-enrolment-wrapper review-view mb-2">
+<div class="xm-study-item-container review-view mb-2">
     <div class="row align-items-center">
         <span class="col-md-6">
             <strong class="me-3">#{{ sectionQuestion.question.id }}</strong>
@@ -52,7 +52,7 @@
     <div class="row mt-3">
         <!-- Question -->
         <div class="col-md-12">
-            <div class="review-question-title make-inline" [xmMathJax]="sectionQuestion.question.question"></div>
+            <div class="make-inline" [xmMathJax]="sectionQuestion.question.question"></div>
         </div>
     </div>
     <div class="row mt-2">
@@ -67,37 +67,35 @@
             }
         </div>
     </div>
-    <div class="row" [ngbCollapse]="!sectionQuestion.expanded">
+    <div class="row mt-1" [ngbCollapse]="!sectionQuestion.expanded">
         <div class="col-md-12">
-            <div class="row mt-2 ms-3">
-                <div class="col-md-12 mb-3 ms-2" role="note">
-                    @if (sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0) {
+            @if (sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0) {
+                <div class="row my-4 ms-2">
+                    <div class="col-md-12" role="note">
                         <img src="/assets/images/icon_info.png" alt="" />
-                    }
-                    @if (sectionQuestion.answerInstructions && sectionQuestion.answerInstructions.length > 0) {
-                        <span class="padl10"> {{ sectionQuestion.answerInstructions }}</span>
-                    }
+                        {{ sectionQuestion.answerInstructions }}
+                    </div>
                 </div>
-            </div>
-            <div class="row ms-3">
-                <div class="col-md-12">
-                    <ul class="exam-section-question-options">
-                        @for (option of sectionQuestion.options; track option) {
-                            <li class="ms-2" [hidden]="sectionQuestion.question.type !== 'MultipleChoiceQuestion'">
+            }
+            @switch (sectionQuestion.question.type) {
+                @case ('MultipleChoiceQuestion') {
+                    @for (option of sectionQuestion.options; track option) {
+                        <div class="row ms-2 mt-2">
+                            <div class="col-md-12">
                                 @if (option.option.correctOption) {
                                     <img src="/assets/images/icon_correct_answer.png" alt="" />
-                                }
-                                @if (!option.option.correctOption) {
+                                } @else {
                                     <img src="/assets/images/icon_wrong_answer.png" alt="" />
                                 }
-                                <span class="ps-2">{{ option.option.option }}</span>
-                            </li>
-                        }
-                        @for (option of sectionQuestion.options; track option) {
-                            <li
-                                class="ms-2"
-                                [hidden]="sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion'"
-                            >
+                                {{ option.option.option }}
+                            </div>
+                        </div>
+                    }
+                }
+                @case ('WeightedMultipleChoiceQuestion') {
+                    @for (option of sectionQuestion.options; track option) {
+                        <div class="row ms-2 mt-2">
+                            <div class="col-md-12">
                                 @if (option.score >= 0) {
                                     <img src="/assets/images/icon_correct_answer_checkbox.png" alt="" />
                                 }
@@ -106,10 +104,14 @@
                                 }
                                 <span class="ps-2">{{ option.option.option }}</span>
                                 <span class="ps-2">{{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
-                            </li>
-                        }
-                        @for (option of sectionQuestion.options | orderBy: 'option.id'; track option) {
-                            <li class="mt-2" [hidden]="sectionQuestion.question.type !== 'ClaimChoiceQuestion'">
+                            </div>
+                        </div>
+                    }
+                }
+                @case ('ClaimChoiceQuestion') {
+                    @for (option of sectionQuestion.options | orderBy: 'option.id'; track option) {
+                        <div class="row ms-2 mt-2">
+                            <div class="col-md-12">
                                 @if (determineClaimOptionType(option) === 'CorrectOption') {
                                     <img src="/assets/images/icon_correct_answer_radio.png" alt="" />
                                 }
@@ -121,11 +123,11 @@
                                 }
                                 <span class="ps-2">{{ option.option.option }}</span>
                                 <span class="ps-2">{{ option.score }} {{ 'i18n_unit_points' | translate }}</span>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
+                            </div>
+                        </div>
+                    }
+                }
+            }
         </div>
     </div>
 </div>

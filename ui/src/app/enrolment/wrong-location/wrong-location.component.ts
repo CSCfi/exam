@@ -32,6 +32,16 @@ import { EnrolmentService } from '../enrolment.service';
     templateUrl: './wrong-location.component.html',
     standalone: true,
     imports: [CourseCodeComponent, TeacherListComponent, DatePipe, TranslateModule],
+    styles: [
+        `
+            .exams-list-title-text {
+                font-size: 1.4em;
+                font-weight: 400;
+                letter-spacing: 1px;
+                vertical-align: middle;
+            }
+        `,
+    ],
 })
 export class WrongLocationComponent implements OnInit {
     cause = '';

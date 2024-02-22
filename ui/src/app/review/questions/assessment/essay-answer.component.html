@@ -1,7 +1,7 @@
-<div class="essay-answer-wrapper">
+<div class="xm-study-item-container">
     @if (answer.question.question !== answer.question.parent?.question) {
         <div class="row m-2">
-            <span class="col-12 alert alert-warning essay-answer-warning" role="alert">
+            <span class="col-12 alert alert-warning" role="alert">
                 <i class="bi-exclamation-triangle"></i>&nbsp;{{ 'i18n_question_differs' | translate }}
             </span>
         </div>
@@ -123,7 +123,7 @@
                         {{ action | translate }}
                     </label>
                     @if (editable && isAssessed() && answer.selected) {
-                        <i class="marl10 pointer bi bi-arrow-return-right text-success" (click)="saveScore()"></i>
+                        <i class="ms-1 pointer bi bi-arrow-return-right text-success" (click)="saveScore()"></i>
                     }
                 </span>
             </div>

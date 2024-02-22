@@ -5,12 +5,12 @@
                 <div class="col-auto">
                     @if (isAnswered()) {
                         <div [attr.aria-label]="'i18n_all_questions_answered' | translate">
-                            <img class="mart05" src="/assets/images/icon_question_type_ready_grey.png" alt="" />
+                            <img class="mt-05" src="/assets/images/icon_question_type_ready_grey.png" alt="" />
                         </div>
                     }
                     @if (!isAnswered()) {
                         <div [attr.aria-label]="'i18n_questions_unanswered' | translate">
-                            <img class="mart05" src="/assets/images/icon_question_type_waiting.svg" alt="" />
+                            <img class="mt-05" src="/assets/images/icon_question_type_waiting.svg" alt="" />
                         </div>
                     }
                 </div>
@@ -45,7 +45,7 @@
                 <div class="col-auto">
                     <div
                         tabindex="0"
-                        class="section-header-right pointer section-box-title arrow"
+                        class="pointer section-box-title arrow"
                         [attr.aria-label]="expanded ? ('i18n_collapse' | translate) : ('i18n_expand' | translate)"
                         (click)="expanded = !expanded"
                         (keydown.enter)="expanded = !expanded"
@@ -70,16 +70,18 @@
             @if (sq.question.attachment && expanded) {
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <a
-                            class="pointer green_button left-floater-for-section"
-                            tabindex="0"
-                            (click)="downloadQuestionAttachment()"
-                            (keydown.enter)="downloadQuestionAttachment()"
-                        >
-                            {{ 'i18n_download_section_question_attachment' | translate }}
-                            <img src="/assets/images/icon_attachment.svg" alt=""
-                        /></a>
-                        <div class="attachment-name">{{ sq.question.attachment?.fileName | uppercase }}</div>
+                        <div class="float-end">
+                            <button
+                                class="btn btn-success"
+                                tabindex="0"
+                                (click)="downloadQuestionAttachment()"
+                                (keydown.enter)="downloadQuestionAttachment()"
+                            >
+                                {{ 'i18n_download_section_question_attachment' | translate }}
+                                <img src="/assets/images/icon_attachment.svg" alt="" />
+                            </button>
+                            <div class="attachment-name">{{ sq.question.attachment?.fileName | uppercase }}</div>
+                        </div>
                     </div>
                 </div>
             }
@@ -88,51 +90,48 @@
             <div class="row">
                 <div class="col-md-12">
                     @if (expanded) {
-                        <div class="exam-question-container">
-                            <hr class="info-question-separator" aria-hidden="true" />
-                            <div class="question">
-                                @switch (sq.question.type) {
-                                    @case ('EssayQuestion') {
-                                        <xm-examination-essay-question [sq]="sq" [exam]="exam" [isPreview]="isPreview">
-                                        </xm-examination-essay-question>
-                                    }
-                                    @case ('ClozeTestQuestion') {
-                                        <xm-examination-cloze-test
-                                            [sq]="sq"
-                                            [examHash]="exam?.hash || ''"
-                                            [isPreview]="isPreview"
-                                        >
-                                        </xm-examination-cloze-test>
-                                    }
-                                    @case ('MultipleChoiceQuestion') {
-                                        <xm-examination-multi-choice-question
-                                            [sq]="sq"
-                                            [examHash]="exam?.hash || ''"
-                                            [isPreview]="isPreview"
-                                            [orderOptions]="!exam?.external"
-                                        >
-                                        </xm-examination-multi-choice-question>
-                                    }
-                                    @case ('ClaimChoiceQuestion') {
-                                        <xm-examination-multi-choice-question
-                                            [sq]="sq"
-                                            [examHash]="exam?.hash || ''"
-                                            [isPreview]="isPreview"
-                                            [orderOptions]="true"
-                                        >
-                                        </xm-examination-multi-choice-question>
-                                    }
-                                    @case ('WeightedMultipleChoiceQuestion') {
-                                        <xm-examination-weighted-multi-choice-question
-                                            [sq]="sq"
-                                            [examHash]="exam?.hash || ''"
-                                            [isPreview]="isPreview"
-                                            [orderOptions]="!exam?.external"
-                                        >
-                                        </xm-examination-weighted-multi-choice-question>
-                                    }
+                        <div class="question">
+                            @switch (sq.question.type) {
+                                @case ('EssayQuestion') {
+                                    <xm-examination-essay-question [sq]="sq" [exam]="exam" [isPreview]="isPreview">
+                                    </xm-examination-essay-question>
                                 }
-                            </div>
+                                @case ('ClozeTestQuestion') {
+                                    <xm-examination-cloze-test
+                                        [sq]="sq"
+                                        [examHash]="exam?.hash || ''"
+                                        [isPreview]="isPreview"
+                                    >
+                                    </xm-examination-cloze-test>
+                                }
+                                @case ('MultipleChoiceQuestion') {
+                                    <xm-examination-multi-choice-question
+                                        [sq]="sq"
+                                        [examHash]="exam?.hash || ''"
+                                        [isPreview]="isPreview"
+                                        [orderOptions]="!exam?.external"
+                                    >
+                                    </xm-examination-multi-choice-question>
+                                }
+                                @case ('ClaimChoiceQuestion') {
+                                    <xm-examination-multi-choice-question
+                                        [sq]="sq"
+                                        [examHash]="exam?.hash || ''"
+                                        [isPreview]="isPreview"
+                                        [orderOptions]="true"
+                                    >
+                                    </xm-examination-multi-choice-question>
+                                }
+                                @case ('WeightedMultipleChoiceQuestion') {
+                                    <xm-examination-weighted-multi-choice-question
+                                        [sq]="sq"
+                                        [examHash]="exam?.hash || ''"
+                                        [isPreview]="isPreview"
+                                        [orderOptions]="!exam?.external"
+                                    >
+                                    </xm-examination-weighted-multi-choice-question>
+                                }
+                            }
                         </div>
                     }
                 </div>

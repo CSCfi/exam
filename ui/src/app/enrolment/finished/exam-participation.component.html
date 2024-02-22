@@ -1,11 +1,14 @@
 <div
-    class="participation-container"
-    [ngClass]="{ 'unseen-review': reviewedExam && reviewedExam.examFeedback?.feedbackStatus === null }"
+    [ngClass]="
+        reviewedExam && !reviewedExam.examFeedback?.feedbackStatus
+            ? 'xm-study-item-container--unseen'
+            : 'xm-study-item-container'
+    "
 >
     <div class="row mb-2">
         <div class="col-12">
             <!-- exam title n stuff -->
-            <h2 class="student-enrolment-exam">
+            <h2 class="participation-heading">
                 @if (!participation.exam.anonymous) {
                     <span>#{{ participation.exam.id }}</span>
                 }
@@ -73,9 +76,8 @@
     }
     @if (reviewedExam) {
         <div class="row" [ngbCollapse]="!showEvaluation">
-            <div class="col-12 ms-4">
+            <div class="col-12 ms-4 pt-2">
                 <xm-exam-feedback
-                    class="student-exam-row-infobox"
                     [assessment]="reviewedExam"
                     [participationTime]="participation.ended || ''"
                     [participationDuration]="participation.duration || 0"

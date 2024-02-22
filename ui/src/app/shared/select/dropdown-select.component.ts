@@ -42,7 +42,7 @@ export interface Option<V, I> {
         >
             {{ selected?.label || placeholder | translate }}
         </button>
-        <div ngbDropdownMenu class="scrollable-menu" role="menu" aria-labelledby="dd1">
+        <div ngbDropdownMenu class="xm-scrollable-menu" role="menu" aria-labelledby="dd1">
             @if (!noSearch) {
                 <button ngbDropdownItem>
                     <div class="input-group">
@@ -88,6 +88,7 @@ export interface Option<V, I> {
         SlicePipe,
         TranslateModule,
     ],
+    styleUrl: './dropdown-select.component.scss',
 })
 export class DropdownSelectComponent<V, I> implements OnInit, OnChanges {
     @Input() options: Option<V, I>[] = []; // everything

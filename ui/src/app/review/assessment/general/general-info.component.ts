@@ -34,6 +34,7 @@ export type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Ex
 @Component({
     selector: 'xm-r-general-info',
     templateUrl: './general-info.component.html',
+    styleUrls: ['../assessment.shared.scss'],
     standalone: true,
     imports: [ParticipationComponent, NoShowComponent, MathJaxDirective, DatePipe, TranslateModule, ApplyDstPipe],
 })

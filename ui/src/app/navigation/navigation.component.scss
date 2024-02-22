@@ -1,5 +1,4 @@
-@import '../shared/styles.scss';
-
+@import '../shared/shared';
 #nav {
     top: 0;
     left: 0;
@@ -7,6 +6,20 @@
     z-index: 2;
     padding: 0;
     position: fixed;
+
+    .hidden-mobile {
+        display: block;
+        @media (max-width: $mobile-width) {
+            display: none;
+        }
+    }
+
+    .visible-mobile {
+        display: none;
+        @media (max-width: $mobile-width) {
+            display: block;
+        }
+    }
 
     @media (max-width: $mobile-width) {
         position: relative;
@@ -36,7 +49,6 @@
         text-decoration: none;
         padding-left: 1.5em;
         border-left: 3px solid #212121;
-        font-family: $family-helvetica;
         font-size: 16px;
         color: #e7e7e7;
         letter-spacing: 0.27px;
@@ -151,7 +163,6 @@
             padding-top: 1em;
             padding-bottom: 1em;
         }
-        font-family: $family-helvetica;
         font-size: 16px;
         color: #e7e7e7;
         letter-spacing: 0.27px;
@@ -161,9 +172,8 @@
     }
 
     .app-version {
-        margin-left: 2.5em;
+        margin-left: 3.5em;
         padding: 0.5em 1em 1em;
-        font-family: $family-helvetica;
         font-size: 14px;
         color: white;
         letter-spacing: 0.27px;
@@ -181,7 +191,6 @@
         padding: 1.5em 1em 1em;
         left: 0;
         font-size: 1em;
-        font-family: $family-helvetica;
         color: white;
         font-weight: 300;
         letter-spacing: 1px;
@@ -195,7 +204,6 @@
     .locale-item {
         cursor: pointer;
         font-size: 1em;
-        font-family: $family-helvetica;
         font-weight: 300;
         letter-spacing: 1px;
         display: inline-block;
@@ -203,7 +211,7 @@
         color: white;
         padding: 0.5em;
         margin-left: 1.5em;
-        border: 0px;
+        border: 0;
         @media (max-width: $mobile-width) {
             border: 3px solid #00000000;
         }
@@ -239,7 +247,6 @@
         border-top: 15px;
         padding: 0px;
         border: 0px;
-        font-family: $family-helvetica;
         font-size: 16px;
         color: #e7e7e7;
         letter-spacing: 0.27px;

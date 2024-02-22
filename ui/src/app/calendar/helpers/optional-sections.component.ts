@@ -7,17 +7,18 @@ import type { ExamInfo } from '../calendar.service';
 @Component({
     selector: 'xm-calendar-optional-sections',
     template: `
-        <div class="student-enrolment-wrapper details-view">
-            <div class="row mb-3" [ngClass]="sectionSelectionOk() ? '' : 'notactive'">
-                <span class="col-md-12">
-                    <h2 class="calendar-phase-title">2. {{ 'i18n_exam_materials' | translate }}</h2>
-                    @if (sectionSelectionOk()) {
-                        <span class="calendar-phase-icon float-end">
-                            <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
-                        </span>
-                    }
-                </span>
-            </div>
+        <div
+            class="row m-2 xm details-view"
+            [ngClass]="sectionSelectionOk() ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
+        >
+            <span class="col-md-12">
+                <h2 class="calendar-phase-title">2. {{ 'i18n_exam_materials' | translate }}</h2>
+                @if (sectionSelectionOk()) {
+                    <span class="calendar-phase-icon float-end">
+                        <img class="arrow_icon" src="/assets/images/icon-phase.png" alt="" />
+                    </span>
+                }
+            </span>
             @for (section of examInfo.examSections; track section.id) {
                 <div>
                     <div class="row">
@@ -86,6 +87,7 @@ import type { ExamInfo } from '../calendar.service';
             }
         </div>
     `,
+    styleUrls: ['../calendar.component.scss'],
     standalone: true,
     imports: [NgClass, FormsModule, UpperCasePipe, TranslateModule],
 })

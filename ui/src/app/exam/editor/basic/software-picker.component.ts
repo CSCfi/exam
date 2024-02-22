@@ -30,9 +30,9 @@ import type { Exam, Software } from '../../exam.model';
 @Component({
     selector: 'xm-software-picker',
     template: `<div [hidden]="exam.executionType.type === 'MATURITY'" class="row">
-        <div class="col-md-12 margin-20">
+        <div class="col-md-12 mt-3">
             <div class="row">
-                <div class="col-md-3 exam-basic-title">
+                <div class="col-md-3 ">
                     {{ 'i18n_machine_softwares' | translate }}
                     <sup
                         ngbPopover="{{ 'i18n_exam_software_description' | translate }}"

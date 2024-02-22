@@ -22,22 +22,22 @@ import type { Examination } from '../examination.model';
 @Component({
     selector: 'xm-examination-header',
     template: `<div class="row">
-        <div class="padr0 padl0 hidden-mobile">
+        <div class="pe-0 ps-0">
             <div class="exam-header">
                 <div class="exam-header-img-wrap">
-                    <img src="/assets/images//exam-logo-mobile.svg" alt="" />
+                    <img src="/assets/images/exam-logo-mobile.svg" alt="" />
                 </div>
                 <div class="exam-header-title divider"></div>
-                <div class="exam-header-title width-100 marl20 marr20">
+                <div class="exam-header-title w-100 ms-4 me-2">
                     {{ exam.course?.name }}
                     @if (exam.course) {
                         <xm-course-code [course]="exam.course"></xm-course-code>
                     }
                 </div>
                 <div class="language-selector">
-                    <button class="green_button marl10" (click)="switchLanguage('fi')">FI</button>
-                    <button class="green_button marl10" (click)="switchLanguage('sv')">SV</button>
-                    <button class="green_button marl10" (click)="switchLanguage('en')">EN</button>
+                    <button class="xm-ok-button ms-1" (click)="switchLanguage('fi')">FI</button>
+                    <button class="xm-ok-button ms-1" (click)="switchLanguage('sv')">SV</button>
+                    <button class="xm-ok-button ms-1" (click)="switchLanguage('en')">EN</button>
                     <div class="divider-free"></div>
                 </div>
                 @if (!isPreview) {
@@ -48,7 +48,7 @@ import type { Examination } from '../examination.model';
     </div>`,
     standalone: true,
     imports: [CourseCodeComponent, ExaminationClockComponent],
-    styleUrl: './examination-header.component.scss',
+    styleUrls: ['../examination.shared.scss', './examination-header.component.scss'],
 })
 export class ExaminationPageHeaderComponent {
     @Input() exam!: Examination;

@@ -1,22 +1,11 @@
 <div id="dashboard">
-    <div class="top-row">
+    <xm-page-header text="i18n_toolbar_new_exam" [history]="true" />
+    <xm-page-content [content]="content" />
+</div>
+<ng-template #content>
+    <div class="row me-3">
         <div class="col-md-12">
-            <xm-history-back></xm-history-back>
-            <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title">{{ 'i18n_toolbar_new_exam' | translate }}</div>
-            </div>
-        </div>
-    </div>
-    <div class="row me-5">
-        <div class="col-md-12 ms-5 me-5 exam-new-border">
             <div class="row">
-                <div class="col-md-12">
-                    <div class="margin-20 marl30 marr30 marb20">
-                        <div class="review-list-title">{{ 'i18n_exam_title' | translate }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="row margin-20 padl40 padr40">
                 <div class="col-md-3">
                     <form>
                         <div class="mb-3">
@@ -94,15 +83,13 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row mt-3">
         @if (homeExaminationSupported || sebExaminationSupported) {
             <div class="col-md-12">
-                <div class="ms-5 mart40">
-                    <button class="btn btn-success" (click)="createExam()" [disabled]="!type">
-                        {{ 'i18n_create_new' | translate }}
-                    </button>
-                </div>
+                <button class="xm-ok-button" (click)="createExam()" [disabled]="!type">
+                    {{ 'i18n_create_new' | translate }}
+                </button>
             </div>
         }
     </div>
-</div>
+</ng-template>

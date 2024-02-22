@@ -20,43 +20,37 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ExceptionWorkingHours } from '../../reservation/reservation.model';
 
 @Component({
-    selector: 'xm-publication-delete-dialog',
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="student-message-dialog-wrapper-padding">
-            <div class="student-enroll-dialog-wrap">
-                <div class="student-enroll-title">{{ 'i18n_remove_exception_confirmation' | translate }}</div>
-            </div>
-            <div class="modal-body">
-                <div class="flex">
-                    <div class="min-width-300 me-2">
-                        {{ message }}
+    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+        <div class="modal-header">
+            <div class="xm-page-header-title">{{ 'i18n_remove_exception_confirmation' | translate }}</div>
+        </div>
+        <div class="modal-body">
+            <div class="d-flex">
+                <div class="me-2">
+                    {{ message }}
+                </div>
+                @if (exception?.outOfService) {
+                    <div class="text-danger">
+                        {{ 'i18n_room_out_of_service' | translate }}
                     </div>
-                    @if (exception?.outOfService) {
-                        <div class="text-danger">
-                            {{ 'i18n_room_out_of_service' | translate }}
-                        </div>
-                    }
-                    @if (!exception?.outOfService) {
-                        <div class="text-info">
-                            {{ 'i18n_room_in_service' | translate }}
-                        </div>
-                    }
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="student-message-dialog-button-save float-end">
-                    <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                        {{ 'i18n_confirm' | translate }}
-                    </button>
-                </div>
-                <div class="student-message-dialog-button-cancel">
-                    <button class="btn btn-sm btn-danger" (click)="activeModal.dismiss()">
-                        {{ 'i18n_button_cancel' | translate }}
-                    </button>
-                </div>
+                }
+                @if (!exception?.outOfService) {
+                    <div class="text-info">
+                        {{ 'i18n_room_in_service' | translate }}
+                    </div>
+                }
             </div>
         </div>
+        <div class="modal-footer">
+            <button class="xm-ok-button" (click)="activeModal.close()" autofocus>
+                {{ 'i18n_confirm' | translate }}
+            </button>
+            <button class="xm-cancel-button" (click)="activeModal.dismiss()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
+        </div>
     </div>`,
+    styleUrls: ['../rooms/rooms.component.scss'],
     standalone: true,
     imports: [TranslateModule],
 })

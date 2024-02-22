@@ -31,6 +31,7 @@ import type { LanguageInspection } from '../maturity.model';
 @Component({
     selector: 'xm-maturity-reporting',
     templateUrl: './maturity-reporting.component.html',
+    styleUrls: ['./maturity-reporting.component.scss'],
     standalone: true,
     imports: [
         FormsModule,

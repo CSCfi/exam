@@ -1,6 +1,6 @@
-@import '../../../shared/styles';
-.exam-answered-correct { 
-    border: 1px solid $exam-darker-green;
+@import '../../../shared/shared';
+.exam-answered-correct {
+    border: 1px solid $exam-dark-green;
     background-color: #f3fff5;
     padding: 5px;
     border-radius: 4px;
@@ -35,8 +35,7 @@
     border-radius: 4px;
 }
 
-.exam-question-option-text { 
+.exam-question-option-text {
     color: #2c2c2c;
     font-size: 14px;
 }
-

@@ -18,57 +18,55 @@ import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.model';
 import { DateTime } from 'luxon';
+import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.model';
 
 @Component({
     selector: 'xm-select-examination-event-dialog',
     standalone: true,
     imports: [TranslateModule, DatePipe],
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
-        <div class="student-message-dialog-wrapper-padding">
-            <div class="student-enroll-dialog-wrap">
-                <h1 class="student-enroll-title">
-                    <i class="bi-calendar-event"></i>&nbsp;&nbsp;{{ 'i18n_pick_examination_event' | translate }}
-                </h1>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <h3>
-                            {{ 'i18n_exam_duration' | translate }}: {{ exam.duration }}
-                            {{ 'i18n_minutes' | translate }}
-                        </h3>
-                    </div>
-                </div>
-                @for (config of configs; track config) {
-                    <div class="examination-event">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h3>{{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}</h3>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <span>{{ config.examinationEvent.description }}</span>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12 mart10">
-                                <button class="btn btn-sm btn-success" (click)="selectEvent(config)" autofocus>
-                                    {{ 'i18n_select' | translate }}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-            <div class="modal-footer">
+    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+        <div class="modal-header">
+            <h1 class="xm-page-header-title">
+                <i class="bi-calendar-event"></i>&nbsp;&nbsp;{{ 'i18n_pick_examination_event' | translate }}
+            </h1>
+        </div>
+        <div class="modal-body">
+            <div class="row">
                 <div class="col-md-12">
-                    <button class="btn btn-sm btn-danger float-end" (click)="cancel()">
-                        {{ 'i18n_button_decline' | translate }}
-                    </button>
+                    <h3>
+                        {{ 'i18n_exam_duration' | translate }}: {{ exam.duration }}
+                        {{ 'i18n_minutes' | translate }}
+                    </h3>
                 </div>
+            </div>
+            @for (config of configs; track config) {
+                <div class="examination-event">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3>{{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}</h3>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span>{{ config.examinationEvent.description }}</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mt-1">
+                            <button class="btn btn-sm btn-success" (click)="selectEvent(config)" autofocus>
+                                {{ 'i18n_select' | translate }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="modal-footer">
+            <div class="col-md-12">
+                <button class="btn btn-sm btn-danger float-end" (click)="cancel()">
+                    {{ 'i18n_button_decline' | translate }}
+                </button>
             </div>
         </div>
     </div>`,

@@ -55,13 +55,7 @@ type SelectableQuestion = LibraryQuestion & { selected: boolean };
         PageFillPipe,
         OrderByPipe,
     ],
-    styles: [
-        `
-            .td-center-align {
-                text-align: center;
-            }
-        `,
-    ],
+    styleUrls: ['../library.component.scss'],
 })
 export class LibraryResultsComponent implements OnInit, OnChanges {
     @Input() questions: Question[] = [];

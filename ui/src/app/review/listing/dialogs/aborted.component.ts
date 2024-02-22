@@ -40,6 +40,7 @@ import type { Review } from '../../review.model';
         TableSortComponent,
     ],
     templateUrl: './aborted.component.html',
+    styleUrls: ['../review-list.component.scss'],
 })
 export class AbortedExamsComponent {
     @Input() exam!: Exam;

@@ -1,0 +1,20 @@
+.status_green,
+.status_red {
+    font-weight: normal;
+    letter-spacing: 1px;
+    font-size: 0.9em;
+    padding: 0.2em 0.5em;
+    color: white;
+    border-radius: 5px;
+}
+
+.status_red {
+    background-color: red;
+}
+
+.status_green {
+    background-color: green;
+}
+li {
+    list-style: none;
+}

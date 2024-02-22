@@ -25,7 +25,7 @@ import { ExamQuestionComponent } from './exam-question.component';
     standalone: true,
     imports: [ExamQuestionComponent],
     template: `
-        <div id="sitnet-dialog" role="dialog" aria-modal="true">
+        <div id="exam-dialog" role="dialog" aria-modal="true">
             <div class="modal-body">
                 @if (examQuestion) {
                     <xm-exam-question

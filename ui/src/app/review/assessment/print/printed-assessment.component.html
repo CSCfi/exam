@@ -134,7 +134,7 @@
         <!-- Sections -->
         <div class="row firefox-print-fix">
             @for (section of exam.examSections | orderBy: 'sequenceNumber'; track section; let index = $index) {
-                <div class="top-margin-1 col-md-12">
+                <div class="mt-2 col-md-12">
                     <xm-printed-section [section]="section" [index]="index"></xm-printed-section>
                 </div>
             }

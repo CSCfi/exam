@@ -47,6 +47,7 @@ import { ReviewListService } from './review-list.service';
         DatePipe,
         TranslateModule,
     ],
+    styleUrl: './review-list.component.scss',
 })
 export class ReviewListComponent implements OnInit, OnChanges {
     exam!: Exam;

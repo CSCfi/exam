@@ -1,4 +1,7 @@
-<div class="row student-enrolment-wrapper details-view" [ngClass]="selectedRoom ? '' : 'notactive'">
+<div
+    class="row m-2 details-view"
+    [ngClass]="selectedRoom ? 'xm-study-item-container' : 'xm-study-item-container--inactive'"
+>
     <div class="col-md-12">
         <div class="row">
             <span class="col-md-11 col-9">
@@ -80,7 +83,7 @@
                     {{ isExternal ? ('i18n_external_room' | translate) : ('i18n_room' | translate) }}
                     <span class="caret"></span>
                 </button>
-                <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1" class="scrollable-menu">
+                <div ngbDropdownMenu role="menu" aria-labelledby="dropDownMenu1" class="xm-scrollable-menu">
                     @for (room of rooms(); track room.id) {
                         <button ngbDropdownItem role="presentation" (click)="selectRoom(room)" title="{{ room.name }}">
                             <div ngbDropdownItem [disabled]="room.outOfService" role="menuitem">

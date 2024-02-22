@@ -1,0 +1,14 @@
+.dropdown-toggle::after {
+    display: none;
+}
+.config-info {
+    color: #555555;
+    font-size: 18px;
+    line-height: 26px;
+}
+.feature-not-in-use {
+    background-color: #7f7f7f;
+    color: #ffffff;
+    border: 1px solid black;
+    cursor: not-allowed;
+}
