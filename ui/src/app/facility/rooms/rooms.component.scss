@@ -1,4 +1,4 @@
-@import '../../shared/styles.scss';
+@import '../../shared/shared';
 
 .selected {
     background-color: #d3e7a8;
@@ -8,15 +8,9 @@
 .room-name {
     font-size: 1.6em;
     padding: 0.8em 0;
-    font-family: $family-helvetica;
     color: black;
     font-weight: 600;
     letter-spacing: 1px;
-}
-
-.room-info-span-text {
-    font: $family-helvetica;
-    font-weight: bold;
 }
 
 .toggleMessage {
@@ -38,9 +32,35 @@
     letter-spacing: 0.63px;
     text-align: left;
     display: inline-block;
-    font-family: $family-helvetica;
-    font-weight: normal;
     padding-bottom: 20px;
     padding-top: 20px;
     margin-left: 30px;
+}
+.custom-green-dot {
+    height: 5px;
+    width: 5px;
+    border-radius: 100%;
+    align-self: center;
+}
+.border-top-none {
+    border-top: none !important;
+}
+.font-6 {
+    font-size: 1.5rem;
+}
+.facility-info-text {
+    color: #727272;
+    margin-top: 1em;
+}
+.background-gray {
+    background: gainsboro;
+}
+.background-light-blue {
+    background: lightcyan;
+}
+.disable-gray-out {
+    user-select: none;
+    pointer-events: none;
+    opacity: 0.6;
+    filter: grayscale(100%);
 }

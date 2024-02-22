@@ -1,129 +1,119 @@
-<div id="sitnet-header" class="header">
-    <div class="col-md-12 header-wrapper">
-        <span class="header-text">{{ 'i18n_exam_machine' | translate }}</span>
+<form id="dashboard" #machineForm="ngForm" class="container">
+    <xm-page-header text="i18n_exam_machine" />
+    @if (machine) {
+        <xm-page-content [content]="content" />
+    }
+</form>
+<ng-template #content>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="facility-info-text">
+                {{ 'i18n_machine_name' | translate }}
+            </div>
+            <div>
+                <input name="name" required type="text" class="form-control" [(ngModel)]="machine.name" autofocus />
+            </div>
+        </div>
     </div>
-</div>
-@if (machine) {
-    <form id="dashboard" #machineForm="ngForm" class="container">
-        <div class="row">
-            <div class="col-md-6">
-                <div class="sitnet-info-text">
-                    {{ 'i18n_machine_name' | translate }}
-                </div>
-                <div>
-                    <input name="name" required type="text" class="form-control" [(ngModel)]="machine.name" autofocus />
-                </div>
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <div class="checkbox">
+                <label>
+                    <input name="accessible" type="checkbox" [(ngModel)]="machine.accessible" />
+                    {{ 'i18n_machine_accessible' | translate }}
+                </label>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="checkbox">
-                    <label>
-                        <input name="accessible" type="checkbox" [(ngModel)]="machine.accessible" />
-                        {{ 'i18n_machine_accessible' | translate }}
-                    </label>
-                </div>
-                <div class="sitnet-info-text">
-                    {{ 'i18n_machine_accessibility' | translate }}
-                </div>
-                <div>
-                    <input
-                        type="text"
-                        name="accessibility"
-                        [disabled]="!machine.accessible"
-                        class="form-control"
-                        [(ngModel)]="machine.accessibilityInfo"
-                    />
-                </div>
+            <div class="facility-info-text">
+                {{ 'i18n_machine_accessibility' | translate }}
             </div>
-        </div>
-        <!-- Other indentifier & Surveillance camera information -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="sitnet-info-text">{{ 'i18n_machine_other_identifier' | translate }}</div>
-                <div>
-                    <input name="identifier" type="text" class="form-control" [(ngModel)]="machine.otherIdentifier" />
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="sitnet-info-text">{{ 'i18n_machine_surveillance_camera' | translate }}</div>
-                <div>
-                    <input
-                        name="surveillance"
-                        type="text"
-                        class="form-control"
-                        [(ngModel)]="machine.surveillanceCamera"
-                    />
-                </div>
-            </div>
-        </div>
-        <!-- Video recordings & IP-address information -->
-        <div class="row">
-            <!-- Video recordings URL -->
-            <div class="col-md-6">
-                <div class="sitnet-info-text">{{ 'i18n_machine_video_recordings' | translate }}</div>
-                <div>
-                    <input type="text" name="video" class="form-control" [(ngModel)]="machine.videoRecordings" />
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="sitnet-info-text">{{ 'i18n_machine_ip_address' | translate }}</div>
-                <div>
-                    <input type="text" name="ip" required class="form-control" [(ngModel)]="machine.ipAddress" />
-                </div>
-            </div>
-        </div>
-        <!--Software-->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="sitnet-info-text">{{ 'i18n_machine_softwares' | translate }}</div>
-                <div class="input-group">
-                    @for (software of software; track software) {
-                        <button
-                            class="btn mb-2 me-2"
-                            name="software"
-                            type="button"
-                            [ngClass]="software.class"
-                            (click)="toggleSoftware(software)"
-                        >
-                            {{ software.name }}
-                        </button>
-                    }
-                </div>
-            </div>
-        </div>
-        <!-- Service status -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="checkbox">
-                    <label>
-                        <input
-                            type="checkbox"
-                            name="outOfService"
-                            [(ngModel)]="machine.outOfService"
-                            (change)="setReason()"
-                        />
-                        {{ 'i18n_out_of_service' | translate }}
-                    </label>
-                </div>
-                <div class="sitnet-info-text">
-                    {{ 'i18n_reason' | translate }}
-                </div>
-                <textarea
-                    name="statusComment"
-                    [disabled]="!machine.outOfService"
+            <div>
+                <input
+                    type="text"
+                    name="accessibility"
+                    [disabled]="!machine.accessible"
                     class="form-control"
-                    [(ngModel)]="machine.statusComment"
+                    [(ngModel)]="machine.accessibilityInfo"
+                />
+            </div>
+        </div>
+    </div>
+    <!-- Other indentifier & Surveillance camera information -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="facility-info-text">{{ 'i18n_machine_other_identifier' | translate }}</div>
+            <div>
+                <input name="identifier" type="text" class="form-control" [(ngModel)]="machine.otherIdentifier" />
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="facility-info-text">{{ 'i18n_machine_surveillance_camera' | translate }}</div>
+            <div>
+                <input name="surveillance" type="text" class="form-control" [(ngModel)]="machine.surveillanceCamera" />
+            </div>
+        </div>
+    </div>
+    <!-- Video recordings & IP-address information -->
+    <div class="row">
+        <!-- Video recordings URL -->
+        <div class="col-md-6">
+            <div class="facility-info-text">{{ 'i18n_machine_video_recordings' | translate }}</div>
+            <div>
+                <input type="text" name="video" class="form-control" [(ngModel)]="machine.videoRecordings" />
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="facility-info-text">{{ 'i18n_machine_ip_address' | translate }}</div>
+            <div>
+                <input type="text" name="ip" required class="form-control" [(ngModel)]="machine.ipAddress" />
+            </div>
+        </div>
+    </div>
+    <!--Software-->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="facility-info-text">{{ 'i18n_machine_softwares' | translate }}</div>
+            @for (software of software; track software) {
+                <span
+                    class="badge bg-secondary me-1 mb-1 pointer"
+                    [ngClass]="software.class"
+                    (click)="toggleSoftware(software)"
                 >
-                </textarea>
-            </div>
+                    {{ software.name }}
+                </span>
+            }
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <button [disabled]="!machineForm.valid" (click)="updateMachineAndExit()" class="btn btn-primary">
-                    {{ 'i18n_save' | translate }}
-                </button>
+    </div>
+    <!-- Service status -->
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <div class="checkbox">
+                <label>
+                    <input
+                        type="checkbox"
+                        name="outOfService"
+                        [(ngModel)]="machine.outOfService"
+                        (change)="setReason()"
+                    />
+                    {{ 'i18n_out_of_service' | translate }}
+                </label>
             </div>
+            <div class="facility-info-text">
+                {{ 'i18n_reason' | translate }}
+            </div>
+            <textarea
+                name="statusComment"
+                [disabled]="!machine.outOfService"
+                class="form-control"
+                [(ngModel)]="machine.statusComment"
+            >
+            </textarea>
         </div>
-    </form>
-}
+    </div>
+    <div class="row mt-2">
+        <div class="col-md-12">
+            <button [disabled]="!machineForm.valid" (click)="updateMachineAndExit()" class="btn btn-primary">
+                {{ 'i18n_save' | translate }}
+            </button>
+        </div>
+    </div>
+</ng-template>

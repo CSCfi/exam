@@ -16,7 +16,7 @@ import { DatePipe, LowerCasePipe, NgClass, NgStyle, SlicePipe } from '@angular/c
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapse, NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { noop } from 'rxjs';
 import type { Exam } from '../../../exam/exam.model';
@@ -54,6 +54,7 @@ import { ReviewListService } from '../review-list.service';
         PageFillPipe,
         DiffInDaysPipe,
         OrderByPipe,
+        NgbCollapse,
     ],
 })
 export class InProgressReviewsComponent implements OnInit {

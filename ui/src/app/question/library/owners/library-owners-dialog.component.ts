@@ -26,11 +26,9 @@ import { QuestionService } from '../../question.service';
 
 @Component({
     template: `
-        <div id="sitnet-dialog" role="dialog" aria-modal="true">
+        <div id="exam-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">
-                <div class="student-enroll-dialog-wrap">
-                    <h1 class="student-enroll-title">{{ 'i18n_add_question_owner' | translate }}</h1>
-                </div>
+                <h1 class="xm-page-header-title">{{ 'i18n_add_question_owner' | translate }}</h1>
             </div>
             <div class="modal-body">
                 <div class="form-group input-group">
@@ -41,19 +39,16 @@ import { QuestionService } from '../../question.service';
                         [inputFormatter]="nameFormatter"
                         [resultFormatter]="nameFormatter"
                     />
-                    <div class="input-group-append">
-                        <button class="btn btn-success" (click)="addOwnerForSelected()">
-                            {{ 'i18n_add' | translate }}
-                        </button>
-                    </div>
+
+                    <button class="xm-ok-button" (click)="addOwnerForSelected()">
+                        {{ 'i18n_add' | translate }}
+                    </button>
                 </div>
             </div>
             <div class="modal-footer">
-                <div class="student-message-dialog-button-save">
-                    <button class="btn btn-sm btn-primary" (click)="close()" autofocus>
-                        {{ 'i18n_close' | translate }}
-                    </button>
-                </div>
+                <button class="xm-cancel-button" (click)="close()" autofocus>
+                    {{ 'i18n_close' | translate }}
+                </button>
             </div>
         </div>
     `,

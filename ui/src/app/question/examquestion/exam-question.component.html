@@ -1,78 +1,46 @@
 <div id="dashboard">
-    <div class="top-row">
+    <div class="row ms-4 mt-2">
         <div class="col-md-12">
-            <div class="student-details-title-wrap">
-                <div class="student-enroll-title-wrap">
-                    <div class="student-enroll-title">{{ 'i18n_questions_edit' | translate }}</div>
-                </div>
-            </div>
+            <span class="xm-page-header-title">{{ 'i18n_questions_edit' | translate }}</span>
         </div>
     </div>
 
     <div class="ms-5 me-5">
         <!-- Question body //-->
-        <div class="row question-border padl40 padr40">
+        <div class="row question-border px-3">
             <div class="col-md-12">
                 <form role="form" class="form-horizontal" #questionForm="ngForm" name="form">
                     @if (examNames.length > 0) {
-                        <div class="student-enrolment-wrapper review-view exam-view-warning mart40">
+                        <div class="xm-study-item-container--warning mt-3">
                             <!-- Exam contexts -->
-                            @if (showWarning()) {
-                                <div class="row">
-                                    <div class="col-auto p-1">
-                                        <img
-                                            src="/assets/images/icon_warning.png"
-                                            alt=""
-                                            onerror="this.onerror=null;this.src='/assets/images/icon_warning.svg';"
-                                        />
-                                    </div>
-                                    <div class="col warning-text">
+                            <div class="row">
+                                <div class="col-auto p-1">
+                                    <img src="/assets/images/icon_warning.png" />
+                                </div>
+                                <div class="col warning-text">
+                                    @if (showWarning()) {
                                         {{ 'i18n_exam_question_edit_instructions' | translate }}
-                                        <ul class="list-inline margin-10">
-                                            <li class="list-inline-item">
-                                                @for (name of examNames; track $index) {
-                                                    <span class="exists-text">
-                                                        <span class="padr10">{{ name }}</span>
-                                                    </span>
-                                                }
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            }
-                            @if (!showWarning()) {
-                                <div class="row">
-                                    <div class="col-auto p-1">
-                                        <img
-                                            src="/assets/images/icon_warning.png"
-                                            alt=""
-                                            onerror="this.onerror=null;this.src='/assets/images/icon_warning.svg';"
-                                        />
-                                    </div>
-                                    <div class="col warning-text">
+                                    } @else {
                                         {{ 'i18n_added_to_exams' | translate }}
-                                        <ul class="list-inline margin-10">
-                                            <li class="list-inline-item">
-                                                @for (name of examNames; track $index) {
-                                                    <span class="exists-text">
-                                                        {{ name }}
-                                                    </span>
-                                                }
-                                            </li>
-                                        </ul>
-                                    </div>
+                                    }
+                                    <ul class="list-inline m-1">
+                                        <li class="list-inline-item">
+                                            <div class="exists-text">
+                                                {{ examNames.join(', ') }}
+                                            </div>
+                                        </li>
+                                    </ul>
                                 </div>
-                            }
+                            </div>
                         </div>
                     }
 
-                    <!-- Question editor -->
-                    <div class="row">
-                        <div class="col-md-12 mart40 wide-column">
-                            <div class="review-list-title edit-warning-container">
+                    <div class="row mt-2">
+                        <div class="col-md-12 pe-0">
+                            <div class="xm-paragraph-title edit-warning-container">
                                 {{ 'i18n_exam_basic_information_tab' | translate }}
                                 @if (showWarning()) {
-                                    <i class="bi-exclamation-circle ps-4 reddish"></i>
+                                    <i class="bi-exclamation-circle ps-4 text-danger"></i>
                                 }
                                 @if (showWarning()) {
                                     <span class="warning-text-small ps-2">
@@ -84,12 +52,12 @@
                     </div>
 
                     <div class="row mt-3">
-                        <div class="col-md-3 exam-basic-title">{{ 'i18n_question_id' | translate }}</div>
+                        <div class="col-md-3">{{ 'i18n_question_id' | translate }}</div>
                         <div class="col-md-9">#{{ question?.id }}</div>
                     </div>
 
                     <div class="row">
-                        <div class="col-md-3 exam-basic-title">
+                        <div class="col-md-3">
                             {{ 'i18n_new_question_type' | translate }}
                             <sup
                                 ngbPopover="{{ 'i18n_question_type_description' | translate }}"
@@ -125,18 +93,14 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-3 exam-basic-title">
+                        <div class="col-md-3">
                             {{ 'i18n_question_text' | translate }}
                             <sup
                                 ngbPopover="{{ 'i18n_question_text_description' | translate }}"
                                 popoverTitle="{{ 'i18n_instructions' | translate }}"
                                 triggers="mouseenter:mouseleave"
                             >
-                                <img
-                                    src="/assets/images/icon_tooltip.svg"
-                                    alt=""
-                                    onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                                />
+                                <img src="/assets/images/icon_tooltip.svg" />
                             </sup>
                         </div>
                         @if (question?.type) {
@@ -156,23 +120,23 @@
                         }
                     </div>
 
-                    <!-- TODO: Refactor these to smaller components -->
+                    <!-- TODO: Refactor these to  components -->
                     <!-- Type specific content - essay -->
                     <!-- Evaluation -->
                     @if (question?.type === 'EssayQuestion') {
                         <div class="row">
-                            <div class="col-md-12 mart40 wide-column">
-                                <div class="review-list-title">{{ 'i18n_comments' | translate }}</div>
+                            <div class="col-md-12 mt-2 pr-0">
+                                <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
                             </div>
                         </div>
                     }
 
                     @if (question?.type === 'EssayQuestion') {
                         <div class="row mt-3">
-                            <div class="col-md-3 exam-basic-title">
+                            <div class="col-md-3">
                                 {{ 'i18n_essay_length_recommendation' | translate }}
                             </div>
-                            <span class="col-md-9">
+                            <span class="col-md-4">
                                 <div class="input-group" id="expectedWordCount">
                                     <input
                                         name="expectedWordCount"
@@ -193,8 +157,8 @@
                                     </span>
                                 </div>
                                 @if (wordCount.invalid) {
-                                    <div class="warning-text-small margin-10 edit-warning-container">
-                                        <i class="bi-exclamation-circle reddish me-2"></i>
+                                    <div class="warning-text-small m-1 edit-warning-container">
+                                        <i class="bi-exclamation-circle text-danger me-2"></i>
                                         {{ 'i18n_essay_length_recommendation_bounds' | translate }}
                                     </div>
                                 }
@@ -209,11 +173,11 @@
                         question?.type === 'ClaimChoiceQuestion'
                     ) {
                         <div class="row mt-3 mb-2">
-                            <div class="col-md-12 wide-column">
-                                <div class="review-list-title edit-warning-container">
+                            <div class="col-md-12 pe-0">
+                                <div class="xm-paragraph-title edit-warning-container">
                                     {{ 'i18n_question_options' | translate }}
                                     @if (showWarning() && question?.type !== 'MultipleChoiceQuestion') {
-                                        <i class="bi-exclamation-circle ps-4 reddish"></i>
+                                        <i class="bi-exclamation-circle ps-4 text-danger"></i>
                                     }
                                     @if (showWarning() && question?.type !== 'MultipleChoiceQuestion') {
                                         <span class="warning-text-small ps-2">
@@ -242,7 +206,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 @for (option of examQuestion.options; track option.id) {
-                                    <div class="row form-horizontal question-editor-option mb-3">
+                                    <div class="row form-horizontal m-0 p-0 mb-3">
                                         @if (option.option) {
                                             <div
                                                 class="col-md-6 question-option-empty"
@@ -259,7 +223,7 @@
                                                     type="text"
                                                     rows="1"
                                                     name="weightedOptionText_{{ option.id }}"
-                                                    class="question-option-input form-control marb10"
+                                                    class="question-option-input form-control mb-1"
                                                     [(ngModel)]="option.option!.option"
                                                     required
                                                 ></textarea>
@@ -367,7 +331,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-12 margin-10 claim-choice-option-labels">
+                                <div class="col-md-12 m-1 claim-choice-option-labels">
                                     <div class="claim-choice-option-label">
                                         <span class="question-option-title">{{
                                             'i18n_question_options' | translate | uppercase
@@ -381,7 +345,7 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-12 margin-10">
+                                <div class="col-md-12 m-1">
                                     @for (opt of examQuestion.options; track opt.id) {
                                         <div
                                             class="question-editor-claim-choice-option row"
@@ -446,8 +410,8 @@
                         question?.type === 'MultipleChoiceQuestion' ||
                         question?.type === 'WeightedMultipleChoiceQuestion'
                     ) {
-                        <div class="row">
-                            <div class="col-md-12 mart20">
+                        <div class="row mt-2">
+                            <div class="col-md-12">
                                 <a (click)="addNewOption()" class="attachment-link pointer">
                                     <i class="bi-plus"></i>
                                     {{ 'i18n_question_add_new_option' | translate }}
@@ -459,13 +423,13 @@
                     <!-- Evaluation type - essay -->
                     @if (question?.type === 'EssayQuestion') {
                         <div class="row mt-2">
-                            <div class="col-md-3 exam-basic-title">
+                            <div class="col-md-3">
                                 {{ 'i18n_evaluation_type' | translate }}
                             </div>
-                            <div class="col-md-9">
+                            <div class="col-md-2">
                                 <select
                                     id="evaluationType"
-                                    class="form-select wdt240"
+                                    class="form-select w-50"
                                     name="evaluationType"
                                     [(ngModel)]="examQuestion.evaluationType"
                                     (change)="updateEvaluationType()"
@@ -485,16 +449,16 @@
                         examQuestion.evaluationType === 'Points'
                     ) {
                         <div class="row mt-2">
-                            <div class="col-md-3 exam-basic-title">
+                            <div class="col-md-3">
                                 {{ 'i18n_max_score' | translate }}
                             </div>
-                            <div class="col-md-9">
+                            <div class="col-md-2">
                                 <input
                                     id="maxScore"
                                     name="maxScore"
                                     type="number"
                                     lang="en"
-                                    class="form-control wdt100"
+                                    class="form-control w-25"
                                     [(ngModel)]="examQuestion.maxScore"
                                     [min]="0"
                                     [max]="1000"
@@ -508,14 +472,14 @@
 
                     <!-- Additional info -->
                     <div class="row mt-2">
-                        <div class="col-md-12 mart40 wide-column">
-                            <div class="review-list-title">{{ 'i18n_additional_info' | translate }}</div>
+                        <div class="col-md-12 mt-2 pe-0">
+                            <div class="xm-paragraph-title">{{ 'i18n_additional_info' | translate }}</div>
                         </div>
                     </div>
 
                     <!-- Exam owners -->
                     <div class="row mt-2">
-                        <div class="col-md-3 exam-basic-title">
+                        <div class="col-md-3">
                             {{ 'i18n_question_owners' | translate }}
                             <sup
                                 ngbPopover="{{ 'i18n_question_owners_description' | translate }}"
@@ -542,7 +506,7 @@
 
                     <!-- Attachment -->
                     <div class="row">
-                        <div class="col-md-3 exam-basic-title">
+                        <div class="col-md-3">
                             {{ 'i18n_question_attachment' | translate }}
                             <sup
                                 ngbPopover="{{ 'i18n_attachment_description' | translate }}"
@@ -558,11 +522,12 @@
                         </div>
 
                         <div class="col-md-9" id="attachment">
-                            <div class="review-attachment-button wdt120 make-inline">
-                                <a class="pointer" (click)="selectFile()">{{ 'i18n_attach_file' | translate }}</a>
-                            </div>
+                            <button class="xm-ok-button" (click)="selectFile()">
+                                {{ 'i18n_attach_file' | translate }}
+                            </button>
+
                             @if (question?.attachment && !question!.attachment?.removed) {
-                                <div class="make-inline padl10">
+                                <div class="make-inline ps-2">
                                     <!-- Uploaded -->
                                     @if (question!.attachment?.id) {
                                         <a class="pointer attachment-link" (click)="downloadQuestionAttachment()">
@@ -587,7 +552,7 @@
                             }
                             @if (showWarning()) {
                                 <div class="mt-1 mb-2 edit-warning-container">
-                                    <i class="bi-exclamation-circle reddish"></i>
+                                    <i class="bi-exclamation-circle text-danger"></i>
                                     <span class="warning-text-small ps-2">{{
                                         'i18n_shared_question_property_info' | translate
                                     }}</span>
@@ -598,7 +563,7 @@
 
                     <!-- Instructions -->
                     <div class="row mt-2">
-                        <div class="col-md-3 exam-basic-title">
+                        <div class="col-md-3">
                             {{ 'i18n_question_instruction' | translate }}
                             <sup
                                 ngbPopover="{{ 'i18n_question_instruction_description' | translate }}"
@@ -628,7 +593,7 @@
                     <!-- Evaluation criteria -->
                     @if (question?.type === 'EssayQuestion') {
                         <div class="row mt-2">
-                            <div class="col-md-3 exam-basic-title">
+                            <div class="col-md-3">
                                 {{ 'i18n_exam_evaluation_criteria' | translate }}
                                 <sup
                                     ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
@@ -658,7 +623,7 @@
 
                     <!-- Tags -->
                     <div class="row mt-2">
-                        <div class="col-md-3 exam-basic-title">
+                        <div class="col-md-3">
                             {{ 'i18n_added_to_categories' | translate }}
                             <sup
                                 ngbPopover="{{ 'i18n_question_tag_question_description' | translate }}"
@@ -685,7 +650,7 @@
 
                     <!-- Categories -->
                     <div class="row mt-2">
-                        <div class="col-md-3 exam-basic-title">
+                        <div class="col-md-3">
                             {{ 'i18n_added_to_sections' | translate }}
                         </div>
                         <div class="col-md-9">
@@ -699,31 +664,27 @@
                 </form>
             </div>
         </div>
-        <div class="row padl40 padr40">
-            <div class="col-md-12 mart20">
-                <div class="question-cancel marl20">
-                    <button
-                        (click)="openPreview()"
-                        type="submit"
-                        class="btn btn-success float-end bigbutton"
-                        [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"
-                    >
-                        {{ 'i18n_button_preview' | translate }}
-                    </button>
-                </div>
-                <div class="question-cancel">
+        <div class="row px-3">
+            <div class="col-md-12 mt-3">
+                <div class="d-flex flex-row-reverse">
                     <button
                         [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"
                         (click)="save()"
                         type="submit"
-                        class="btn btn-success bigbutton"
+                        class="xm-ok-button"
                     >
                         {{ 'i18n_save' | translate }}
                     </button>
-                </div>
-                <div class="question-cancel marr20">
-                    <button (click)="cancel()" type="submit" class="btn btn-cancel float-end bigbutton">
+                    <button (click)="cancel()" type="submit" class="xm-cancel-button me-2">
                         {{ 'i18n_button_cancel' | translate }}
+                    </button>
+                    <button
+                        (click)="openPreview()"
+                        type="submit"
+                        class="xm-neutral-button me-2"
+                        [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"
+                    >
+                        {{ 'i18n_button_preview' | translate }}
                     </button>
                 </div>
             </div>

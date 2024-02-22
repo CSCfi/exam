@@ -29,21 +29,17 @@ import { LibrarySearchComponent } from '../library/search/library-search.compone
         <div id="dashboard">
             <!-- title row and add new question button -->
             <div class="modal-header">
-                <div class="student-enroll-title-wrap">
-                    <div class="student-enroll-title">{{ 'i18n_library_choose' | translate }}</div>
-                </div>
+                <div class="xm-page-header-title">{{ 'i18n_library_choose' | translate }}</div>
             </div>
-            <div class="modal-content pt-3">
+            <div class="modal-body pt-3">
                 <!-- search bar and search parameters -->
                 <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
 
                 <div class="row ms-3 mb-3">
                     <div class="col-md-12">
-                        <div class="review-attachment-button make-inline mt-2">
-                            <a class="pointer" (click)="addQuestions()"
-                                >{{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
-                            </a>
-                        </div>
+                        <button class="xm-ok-button" (click)="addQuestions()">
+                            {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
+                        </button>
                     </div>
                 </div>
 
@@ -57,21 +53,21 @@ import { LibrarySearchComponent } from '../library/search/library-search.compone
                         ></xm-library-results>
                     </div>
                 </div>
+            </div>
 
-                <!-- Buttons -->
-                <div class="modal-footer">
-                    <div class="flex flex-middle me-2 mb-2">
+            <!-- Buttons -->
+            <div class="modal-footer">
+                <div class="row align-items-center">
+                    <div class="col-12">
                         <span class="float-end">
-                            <div class="review-attachment-button make-inline">
-                                <a class="pointer preview" (click)="cancel()">
-                                    {{ 'i18n_button_cancel' | translate }}
-                                </a>
-                            </div>
-                            <div class="review-attachment-button make-inline mt-2 me-3 ms-2">
-                                <a class="pointer" (click)="addQuestions()">
-                                    {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
-                                </a>
-                            </div>
+                            <button class="xm-cancel-button" (click)="cancel()">
+                                {{ 'i18n_button_cancel' | translate }}
+                            </button>
+                        </span>
+                        <span class="me-3 float-end">
+                            <button class="xm-ok-button" (click)="addQuestions()">
+                                {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
+                            </button>
                         </span>
                     </div>
                 </div>

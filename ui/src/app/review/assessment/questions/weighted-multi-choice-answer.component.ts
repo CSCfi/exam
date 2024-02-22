@@ -22,7 +22,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
 @Component({
     selector: 'xm-r-weighted-multi-choice-answer',
     template: `@for (option of sectionQuestion.options | orderBy: 'id'; track option) {
-        <div class="padl15 marb10" [hidden]="!reviewExpanded">
+        <div class="ps-2 mb-2" [hidden]="!reviewExpanded">
             @if (option.answered) {
                 <div>
                     @if (option.score >= 0) {
@@ -30,7 +30,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                             <div class="make-inline float-start">
                                 <img src="/assets/images/icon_correct_answer_checkbox_green.svg" alt="" />
                             </div>
-                            <div class="make-inline middle-column">
+                            <div class="make-inline w-75 my-1 ms-3">
                                 <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                             </div>
                             <div class="make-inline float-end">
@@ -45,7 +45,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                             <div class="make-inline float-start">
                                 <img src="/assets/images/icon_wrong_answer_checkbox_red.svg" alt="" />
                             </div>
-                            <div class="make-inline middle-column">
+                            <div class="make-inline w-75 my-1 ms-3">
                                 <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                             </div>
                             <div class="make-inline float-end">
@@ -70,7 +70,7 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                                 <img src="/assets/images/icon_wrong_answer_checkbox.png" alt="" />
                             }
                         </div>
-                        <div class="make-inline middle-column">
+                        <div class="make-inline w-75 my-1 ms-3">
                             <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
                         </div>
                         <div class="make-inline float-end">

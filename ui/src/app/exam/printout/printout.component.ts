@@ -32,6 +32,7 @@ type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & {
     templateUrl: './printout.component.html',
     standalone: true,
     imports: [CourseCodeComponent, TeacherListComponent, MathJaxDirective, DatePipe, TranslateModule, OrderByPipe],
+    styleUrl: './printout.component.scss',
 })
 export class PrintoutComponent implements OnInit {
     exam!: Printout;

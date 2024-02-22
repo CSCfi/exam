@@ -25,33 +25,14 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
 
 @Component({
     selector: 'xm-r-inspection-comments',
-    template: `<div class="detail-row marb20 mart20">
-            <div class="col-md-12 general-info-title">{{ 'i18n_inspector_comments' | translate }}:</div>
-        </div>
-
-        @for (comment of exam.inspectionComments; track comment) {
-            <div class="col-md-12 padl0 marb20">
-                <div class="col-md-4">
-                    {{ comment.creator.firstName }} {{ comment.creator.lastName }}
-                    <small>({{ comment.creator.email }})</small>
-                    <br />
-                    {{ comment.created | date: 'dd.MM.yyyy HH:mm' }}
-                </div>
-                <div class="col-md-8">
-                    {{ comment.comment }}
-                </div>
-            </div>
-        }
-
-        <div class="main-row">
-            <span class="col-md-12">
-                <div class="review-attachment-button exam-questions-buttons me-2">
-                    @if (addingVisible) {
-                        <button class="btn btn-link" (click)="addInspectionComment()">
-                            {{ 'i18n_inspection_comment_title' | translate }}
-                        </button>
-                    }
-                </div>
+    template: `<div class="row mb-3 mt-2 align-items-center">
+            <div class="col-md-2 ">{{ 'i18n_inspector_comments' | translate }}:</div>
+            <div class="col-md-10">
+                @if (addingVisible) {
+                    <button class="xm-ok-button me-2" (click)="addInspectionComment()">
+                        {{ 'i18n_inspection_comment_title' | translate }}
+                    </button>
+                }
                 <sup
                     ngbPopover="{{ 'i18n_inspection_comment_info' | translate }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -63,8 +44,22 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
                         onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
                     />
                 </sup>
-            </span>
-        </div>`,
+            </div>
+        </div>
+
+        @for (comment of exam.inspectionComments; track comment) {
+            <div class="col-md-12 ps-0 mb-3">
+                <div class="col-md-4">
+                    {{ comment.creator.firstName }} {{ comment.creator.lastName }}
+                    <small>({{ comment.creator.email }})</small>
+                    <br />
+                    {{ comment.created | date: 'dd.MM.yyyy HH:mm' }}
+                </div>
+                <div class="col-md-8">
+                    {{ comment.comment }}
+                </div>
+            </div>
+        } `,
     standalone: true,
     imports: [NgbPopover, DatePipe, TranslateModule],
 })

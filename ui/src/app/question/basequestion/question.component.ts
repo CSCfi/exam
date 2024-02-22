@@ -32,6 +32,7 @@ import { QuestionBodyComponent } from './question-body.component';
 @Component({
     selector: 'xm-question',
     templateUrl: './question.component.html',
+    styleUrls: ['../question.shared.scss'],
     standalone: true,
     imports: [FormsModule, QuestionBodyComponent, TranslateModule, PageHeaderComponent, PageContentComponent],
 })

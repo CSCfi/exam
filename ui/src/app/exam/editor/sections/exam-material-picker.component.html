@@ -1,5 +1,5 @@
-<div class="row col-md-12 margin-20">
-    <div class="col-md-3 exam-basic-title">
+<div class="row col-md-12 mt-3">
+    <div class="col-md-3">
         {{ 'i18n_exam_editor_materials' | translate }}
         <sup
             ngbPopover="{{ 'i18n_exam_material_description' | translate }}"
@@ -11,7 +11,7 @@
     <div class="col-md-6">
         <input
             type="text"
-            class="form-control wdth-30 make-inline"
+            class="form-control w-50 make-inline"
             [(ngModel)]="filter"
             [ngbTypeahead]="filterMaterials$"
             (selectItem)="selectMaterial($event)"
@@ -19,7 +19,7 @@
             [editable]="false"
         />
         <span
-            ><button (click)="addMaterial()" class="btn btn-primary green">
+            ><button (click)="addMaterial()" class="btn btn-success">
                 {{ 'i18n_add' | translate }}
             </button></span
         >
@@ -31,21 +31,12 @@
     </div>
 </div>
 <div class="row col-md-12">
-    <div class="col-md-3 exam-basic-title"></div>
+    <div class="col-md-3"></div>
     <div class="col-md-9">
-        <ul class="list-inline mart10">
-            @for (material of section.examMaterials; track material) {
-                <li class="list-inline-item">
-                    {{ material.name }}
-                    <button
-                        class="reviewer-remove"
-                        (click)="removeMaterial(material)"
-                        title="{{ 'i18n_remove' | translate }}"
-                    >
-                        <img src="/assets/images/icon_remove.svg" alt="" />
-                    </button>
-                </li>
-            }
-        </ul>
+        @for (material of section.examMaterials; track material) {
+            <button class="btn btn-light" (click)="removeMaterial(material)" title="{{ 'i18n_remove' | translate }}">
+                <i class="bi bi-x"></i>
+            </button>
+        }
     </div>
 </div>

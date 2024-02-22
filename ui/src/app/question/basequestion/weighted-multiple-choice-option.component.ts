@@ -25,7 +25,7 @@ import { QuestionDraft } from '../question.service';
     selector: 'xm-wmc-option-editor',
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     template: `
-        <div ngModelGroup="wmcOptions" class="question-editor-option exclude">
+        <div ngModelGroup="wmcOptions" class="m-0 p-0 exclude">
             <div class="row">
                 <div
                     class="col-md-6 question-option-empty"

@@ -1,85 +1,83 @@
 <div class="row ms-3 mt-3">
-    <div class="col-md-2 general-info-title">{{ 'i18n_name' | translate }}:</div>
-    <div class="col-md-4 general-info-content">
+    <div class="col-md-2">{{ 'i18n_name' | translate }}:</div>
+    <div class="col-md-4">
         {{ studentName }}
         @if (student?.userIdentifier) {
             <span>&nbsp;({{ student?.userIdentifier }})</span>
         }
     </div>
-    <div class="col-md-2 general-info-title">{{ 'i18n_email' | translate }}:</div>
-    <div class="col-md-4 general-info-link-bold">
+    <div class="col-md-2">{{ 'i18n_email' | translate }}:</div>
+    <div class="col-md-4 xm-link">
         @if (student?.email) {
             <a href="mailto:{{ student?.email }}">{{ student?.email }}</a>
         }
     </div>
 </div>
 <div class="row ms-3">
-    <div class="col-md-2 general-info-title">{{ 'i18n_exam_reservation' | translate }}:</div>
+    <div class="col-md-2">{{ 'i18n_exam_reservation' | translate }}:</div>
     @if (!participation.examinationEvent) {
-        <div class="col-md-4 general-info-content">
+        <div class="col-md-4">
             {{ participation.started | applyDst | date: 'dd.MM.yyyy HH:mm' }} -
             {{ participation.ended | applyDst | date: 'HH:mm' }}
         </div>
     }
     @if (participation.examinationEvent) {
-        <div class="col-md-4 general-info-content">
+        <div class="col-md-4">
             {{ participation.started | date: 'dd.MM.yyyy HH:mm' }} - {{ participation.ended | date: 'HH:mm' }}
         </div>
     }
-    <div class="col-md-2 general-info-title">{{ 'i18n_time_of_exam_participation' | translate }}:</div>
-    <div class="col-md-4 general-info-content">{{ participation.duration | date: 'HH:mm' : 'UTC' }}</div>
+    <div class="col-md-2">{{ 'i18n_time_of_exam_participation' | translate }}:</div>
+    <div class="col-md-4">{{ participation.duration | date: 'HH:mm' : 'UTC' }}</div>
 </div>
 @if (enrolment?.information) {
     <div class="row ms-3">
-        <div class="col-md-2 general-info-title">{{ 'i18n_student_enrolment_info' | translate }}:</div>
-        <div class="col-md-10 general-info-content">{{ enrolment?.information }}</div>
+        <div class="col-md-2">{{ 'i18n_student_enrolment_info' | translate }}:</div>
+        <div class="col-md-10">{{ enrolment?.information }}</div>
     </div>
 }
 @if (reservation) {
     <div class="row ms-3">
-        <div class="col-md-2 general-info-title">{{ 'i18n_examination_location' | translate }}:</div>
+        <div class="col-md-2">{{ 'i18n_examination_location' | translate }}:</div>
         @if (reservation.machine?.room) {
-            <div class="col-md-4 general-info-content">
-                {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
-            </div>
+            <div class="col-md-4">{{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})</div>
         }
         @if (!reservation?.machine?.room) {
-            <div class="col-md-4 general-info-content">N/A</div>
+            <div class="col-md-4">N/A</div>
         }
-        <div class="col-md-2 general-info-title">{{ 'i18n_exam_machine' | translate }}:</div>
+        <div class="col-md-2">{{ 'i18n_exam_machine' | translate }}:</div>
         @if (reservation?.machine) {
-            <div class="col-md-4 general-info-content">
+            <div class="col-md-4">
                 {{ reservation.machine.name }}
             </div>
         }
         @if (!reservation?.machine) {
-            <div class="col-md-4 general-info-content">N/A</div>
+            <div class="col-md-4">N/A</div>
         }
     </div>
 }
 @if (enrolment?.examinationEventConfiguration) {
     <div class="row ms-3">
-        <div class="col-md-2 general-info-title">{{ 'i18n_examination_event' | translate }}:</div>
-        <div class="col-md-4 general-info-content">
+        <div class="col-md-2">{{ 'i18n_examination_event' | translate }}:</div>
+        <div class="col-md-4">
             {{ enrolment?.examinationEventConfiguration?.examinationEvent?.start | date }}
         </div>
-        <div class="col-md-2 general-info-title">{{ 'i18n_instructions' | translate }}:</div>
-        <div class="col-md-4 general-info-content">
+        <div class="col-md-2">{{ 'i18n_instructions' | translate }}:</div>
+        <div class="col-md-4">
             {{ enrolment?.examinationEventConfiguration?.examinationEvent?.description }}
         </div>
     </div>
 }
 @if (participations.length === 0 && noShows.length === 0) {
     <div class="row ms-3 mt-2">
-        <div class="col-md-2 general-info-title">{{ 'i18n_previous_exam_participations' | translate }}:</div>
-        <div class="col-md-10 general-info-title">
+        <div class="col-md-2">{{ 'i18n_previous_exam_participations' | translate }}:</div>
+        <div class="col-md-10">
             {{ 'i18n_exam_no_previous_participations' | translate }}
         </div>
     </div>
 }
 @if (participations.length > 0 || noShows.length > 0) {
     <div class="row ms-3 mt-2">
-        <div class="col-md-12 general-info-title">{{ 'i18n_previous_exam_participations' | translate }}:</div>
+        <div class="col-md-12">{{ 'i18n_previous_exam_participations' | translate }}:</div>
     </div>
 }
 @for (participation of participations; track participation) {
@@ -99,19 +97,19 @@
 
 @if (exam.instruction) {
     <div class="row ms-3 mt-3">
-        <div class="col-md-2 general-info-title" role="note">
+        <div class="col-md-2" role="note">
             <img src="/assets/images/icon_info.svg" alt="" />
-            <span class="padl10 notice-text">{{ 'i18n_exam_instruction' | translate }}:</span>
+            <span class="ps-2 notice-text">{{ 'i18n_exam_instruction' | translate }}:</span>
         </div>
-        <div class="col-md-10 general-info-content">
+        <div class="col-md-10">
             <p [xmMathJax]="exam.instruction"></p>
         </div>
     </div>
 }
 @if (exam.attachment) {
     <div class="row ms-3 mt-3">
-        <div class="col-md-2 general-info-title">{{ 'i18n_exam_attachment' | translate }}:</div>
-        <div class="col-md-10 general-info-link-bold">
+        <div class="col-md-2">{{ 'i18n_exam_attachment' | translate }}:</div>
+        <div class="col-md-10 xm-link">
             <a class="pointer" (click)="downloadExamAttachment()">{{ exam.attachment?.fileName }}</a>
         </div>
     </div>

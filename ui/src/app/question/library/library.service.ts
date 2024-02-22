@@ -18,8 +18,8 @@ import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import type { Course, Exam, ExamSection, ReverseQuestion, Tag } from '../../exam/exam.model';
+import { User } from '../../session/session.service';
 import { QuestionService } from '../question.service';
-import {User} from "../../session/session.service";
 
 export interface LibraryQuestion extends ReverseQuestion {
     icon: string;
@@ -37,22 +37,44 @@ export class LibraryService {
         private Question: QuestionService,
     ) {}
 
-    listExams$ = (courseIds: number[], sectionIds: number[], tagIds: number[], ownerIds: number[]): Observable<Exam[]> =>
-        this.http.get<Exam[]>('/app/examsearch', { params: this.getQueryParams(courseIds, [], sectionIds, tagIds, ownerIds) });
+    listExams$ = (
+        courseIds: number[],
+        sectionIds: number[],
+        tagIds: number[],
+        ownerIds: number[],
+    ): Observable<Exam[]> =>
+        this.http.get<Exam[]>('/app/examsearch', {
+            params: this.getQueryParams(courseIds, [], sectionIds, tagIds, ownerIds),
+        });
 
-    listCourses$ = (examIds: number[], sectionIds: number[], tagIds: number[], ownerIds: number[]): Observable<Course[]> =>
-        this.http.get<Course[]>('/app/courses/user', { params: this.getQueryParams([], examIds, sectionIds, tagIds, ownerIds) });
+    listCourses$ = (
+        examIds: number[],
+        sectionIds: number[],
+        tagIds: number[],
+        ownerIds: number[],
+    ): Observable<Course[]> =>
+        this.http.get<Course[]>('/app/courses/user', {
+            params: this.getQueryParams([], examIds, sectionIds, tagIds, ownerIds),
+        });
 
-    listSections$ = (courseIds: number[], examIds: number[], tagIds: number[], ownerIds: number[]): Observable<ExamSection[]> =>
-        this.http.get<ExamSection[]>('/app/sections', { params: this.getQueryParams(courseIds, examIds, [], tagIds, ownerIds) });
+    listSections$ = (
+        courseIds: number[],
+        examIds: number[],
+        tagIds: number[],
+        ownerIds: number[],
+    ): Observable<ExamSection[]> =>
+        this.http.get<ExamSection[]>('/app/sections', {
+            params: this.getQueryParams(courseIds, examIds, [], tagIds, ownerIds),
+        });
 
     listTags$ = (courseIds: number[], examIds: number[], sectionIds: number[], ownerIds: number[]): Observable<Tag[]> =>
-        this.http.get<Tag[]>('/app/tags', { params: this.getQueryParams(courseIds, sectionIds, examIds, [], ownerIds) });
+        this.http.get<Tag[]>('/app/tags', {
+            params: this.getQueryParams(courseIds, sectionIds, examIds, [], ownerIds),
+        });
 
     listAllTags$ = (): Observable<Tag[]> => this.http.get<Tag[]>('/app/tags');
 
-    listAllOwners$ = (): Observable<User[]> =>
-      this.http.get<User[]>('/app/users');
+    listAllOwners$ = (): Observable<User[]> => this.http.get<User[]>('/app/users');
 
     addTagForQuestions$ = (tagId: number, questionIds: number[]) =>
         this.http.post<void>('/app/tags/questions', { questionIds: questionIds, tagId: tagId });
@@ -97,7 +119,7 @@ export class LibraryService {
         if (text) {
             return questions.filter((question) => {
                 const re = new RegExp(text, 'i');
-                const owner = question.questionOwners.map((o)=> o.firstName + ' ' + o.lastName).toString();
+                const owner = question.questionOwners.map((o) => o.firstName + ' ' + o.lastName).toString();
                 return owner.match(re);
             });
         } else {
@@ -110,7 +132,7 @@ export class LibraryService {
         examIds: number[],
         sectionIds: number[],
         tagIds: number[],
-        ownerIds: number[]
+        ownerIds: number[],
     ): Observable<LibraryQuestion[]> =>
         this.http
             .get<LibraryQuestion[]>('/app/questions', {
@@ -142,7 +164,13 @@ export class LibraryService {
                 }),
             );
 
-    private getQueryParams = (courseIds: number[], examIds: number[], sectionIds: number[], tagIds: number[], ownerIds: number[]) => {
+    private getQueryParams = (
+        courseIds: number[],
+        examIds: number[],
+        sectionIds: number[],
+        tagIds: number[],
+        ownerIds: number[],
+    ) => {
         let params = new HttpParams();
 
         const append = (key: string, idArray: number[], paramsObj: HttpParams) => {

@@ -1,4 +1,4 @@
-<table class="table table-striped table-sm exams-table mar60">
+<table class="table table-striped table-sm xm-data-table px-3 mt-4">
     <thead>
         <tr>
             <th class="reservation-search">
@@ -72,10 +72,10 @@
                 </xm-table-sort>
             </th>
             @if (isAdminView) {
-                <th class="reservation-search">{{ 'i18n_remove_reservation' | translate }}</th>
+                <th class="reservation-search wrap">{{ 'i18n_remove_reservation' | translate }}</th>
             }
             @if (isAdminView) {
-                <th class="reservation-search">
+                <th class="reservation-search wrap">
                     {{ 'i18n_change_reservation_machine' | translate }}
                 </th>
             }
@@ -157,19 +157,19 @@
                     </td>
                 }
                 @if (r.enrolment.exam.parent) {
-                    <td class="width15">
+                    <td>
                         <xm-teacher-list [exam]="r.enrolment.exam" [useParent]="true"></xm-teacher-list>
                     </td>
                 }
                 @if (!r.enrolment.exam.external && !r.enrolment.exam.parent) {
-                    <td class="reservation-search" class="width15">
+                    <td class="reservation-search">
                         @if (r.enrolment.exam) {
                             <xm-teacher-list [exam]="r.enrolment.exam"></xm-teacher-list>
                         }
                     </td>
                 }
                 @if (r.enrolment.exam.external) {
-                    <td class="reservation-search text-primary" class="width15">
+                    <td class="reservation-search text-primary">
                         {{ 'i18n_exam_status_external' | translate }}
                     </td>
                 }

@@ -17,7 +17,7 @@
     <form class="row m-3 align-items-end">
         <!-- Start & End time datepickers -->
         <div class="col-2">
-            <span class="exam-basic-selecttitle">{{ 'i18n_begin' | translate }}</span>
+            <span class="exam-input-label-uppercase">{{ 'i18n_begin' | translate }}</span>
             <xm-date-picker
                 [optional]="true"
                 [initialDate]="date"
@@ -25,7 +25,7 @@
             ></xm-date-picker>
         </div>
         <div class="col-2">
-            <span class="exam-basic-selecttitle">{{ 'i18n_end' | translate }}</span>
+            <span class="exam-input-label-uppercase">{{ 'i18n_end' | translate }}</span>
             <xm-date-picker [optional]="true" [initialDate]="date" (updated)="endDateChanged($event)"></xm-date-picker>
         </div>
         <div class="col-2">
@@ -42,7 +42,7 @@
                 />
 
                 <div class="input-group-append search">
-                    <img class="nopad" src="/assets/images/icon_search.png" width="49" height="40" />
+                    <img src="/assets/images/icon_search.png" width="49" height="40" />
                 </div>
             </div>
         </div>
@@ -51,7 +51,7 @@
     @if (events.length > 0) {
         <div class="row ms-3">
             <div class="col-md-12 mt-4">
-                <table class="table table-striped exams-table">
+                <table class="table table-striped xm-data-table">
                     <thead>
                         <tr>
                             <th class="with-top">
@@ -120,7 +120,7 @@
                                 </td>
                                 <!-- 2 -->
                                 <td>
-                                    <a class="infolink" [routerLink]="['/staff/exams', event.exam.id, '1']">
+                                    <a class="xm-link" [routerLink]="['/staff/exams', event.exam.id, '1']">
                                         {{ event.exam.name }}
                                     </a>
                                 </td>

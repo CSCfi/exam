@@ -1,4 +1,5 @@
-<div class="active-enrolment-container">
+<div class="active-enrolment-container" id="exam-modal">
+    <!-- fix this, needed cos dialog save button used-->
     <div class="row align-items-center">
         <!-- calendar box -->
         @if (enrolment.reservation || enrolment.examinationEventConfiguration) {
@@ -60,19 +61,17 @@
                                     enrolment.collaborativeExam?.state === 'PUBLISHED') &&
                                 (enrolment.reservation || enrolment.examinationEventConfiguration)
                             ) {
-                                <span class="exam-ready">{{ 'i18n_state_ready' | translate }}</span>
+                                <span class="text-success">{{ 'i18n_state_ready' | translate }}</span>
                             }
                             @if (
                                 enrolment.exam?.state === 'PUBLISHED' &&
                                 !enrolment.reservation &&
                                 !enrolment.examinationEventConfiguration
                             ) {
-                                <span class="exam-needs-reservation">{{
-                                    'i18n_state_needs_reservation_title' | translate
-                                }}</span>
+                                <span class="text-danger">{{ 'i18n_state_needs_reservation_title' | translate }}</span>
                             }
                             @if (enrolment.exam?.state === 'STUDENT_STARTED') {
-                                <span class="exam-ready">
+                                <span class="text-success">
                                     {{ 'i18n_state_started' | translate }}
                                 </span>
                             }
@@ -135,7 +134,7 @@
             </div>
         </div>
     } @else {
-        <div class="">
+        <div>
             <div class="row mt-3">
                 <div class="col-md-3 col-lg-2">{{ 'i18n_exam_room' | translate }}:</div>
                 @if (enrolment.reservation.machine) {
@@ -213,8 +212,8 @@
     @if (enrolment.exam && enrolment.examinationEventConfiguration && enrolment.exam.implementation !== 'AQUARIUM') {
         <div>
             <div class="row mt-3 justify-content-start">
-                <div class="">{{ 'i18n_examination_event' | translate }}:</div>
-                <div class="">
+                <div>{{ 'i18n_examination_event' | translate }}:</div>
+                <div>
                     {{
                         enrolment.examinationEventConfiguration?.examinationEvent?.start | date: 'dd.MM.yyyy HH:mm zzzz'
                     }}
@@ -227,9 +226,9 @@
         <div class="row mt-3 justify-content-start">
             <div class="col">
                 <div class="row">
-                    <div class="">{{ 'i18n_instructions' | translate }}:</div>
-                    <div class="">
-                        <span class="marr20">
+                    <div>{{ 'i18n_instructions' | translate }}:</div>
+                    <div>
+                        <span class="me-2">
                             {{ enrolment.examinationEventConfiguration.examinationEvent.description }}
                         </span>
                     </div>
@@ -242,12 +241,12 @@
         <div class="row mt-3 justify-content-start">
             <div class="col">
                 <div class="row">
-                    <div class="">{{ 'i18n_seb_file' | translate }}:</div>
-                    <div class="">
-                        <span class="marr20">
+                    <div>{{ 'i18n_seb_file' | translate }}:</div>
+                    <div>
+                        <span class="me-2">
                             <button
                                 (click)="downloadSebFile()"
-                                class="text text-success pointer mart10 pointer border rounded hover-grey"
+                                class="text text-success pointer mt-1 pointer border rounded hover-grey"
                             >
                                 <strong>{{ 'i18n_download' | translate }}</strong>
                             </button>
@@ -261,7 +260,7 @@
         <div class="row mt-2 enrollment-card-dropdown">
             <div class="col col-md-12">
                 <button
-                    class="infolink pointer mart10 pointer border rounded hover-grey"
+                    class="btn btn-outline-dark"
                     (click)="showMaterials = !showMaterials"
                     (keydown.enter)="showMaterials = !showMaterials"
                     [attr.aria-expanded]="showMaterials"
@@ -271,33 +270,31 @@
                     <img class="arrow_icon" [hidden]="!showMaterials" alt="" src="/assets/images/arrow_down.png" />
                 </button>
                 @if (enrolment.reservation && enrolment.optionalSections.length > 0) {
-                    <div class="student-exam-row-infobox" [hidden]="!showMaterials">
+                    <div class="pt-2" [hidden]="!showMaterials">
                         @for (section of enrolment.exam.examSections; track section) {
-                            <div class="marb20">
+                            <div class="mb-3">
                                 @if (section.optional === false) {
-                                    <div>
-                                        <div class="row">
-                                            <div class="col">
-                                                <strong
-                                                    >{{ 'i18n_exam_section' | translate }}
-                                                    <small class="text text-danger"
-                                                        >({{ 'i18n_required' | translate | lowercase }})</small
-                                                    >:</strong
-                                                >
-                                                {{ section.name }}
-                                            </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <strong
+                                                >{{ 'i18n_exam_section' | translate }}
+                                                <small class="text text-danger"
+                                                    >({{ 'i18n_required' | translate | lowercase }})</small
+                                                >:</strong
+                                            >
+                                            {{ section.name }}
                                         </div>
-                                        <div class="row">
-                                            <div class="col">
-                                                {{ section.description }}
-                                            </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            {{ section.description }}
                                         </div>
                                     </div>
                                 }
                             </div>
                         }
                         @for (section of enrolment.optionalSections; track section) {
-                            <div class="marb20">
+                            <div class="mb-3">
                                 <div class="row">
                                     <div class="col">
                                         <strong
@@ -351,7 +348,7 @@
     <div class="row mb-3 mt-2">
         <div class="col">
             <button
-                class="infolink pointer mart10 pointer border rounded hover-grey"
+                class="xm-link pointer mt-1 border rounded hover-grey"
                 [hidden]="!enrolment.exam?.enrollInstruction && !enrolment.collaborativeExam?.enrollInstruction"
                 (click)="showInstructions = !showInstructions"
             >
@@ -377,24 +374,20 @@
             ></div>
         </div>
     </div>
-    <div class="col flex justify-content-end">
+    <div class="col flex justify-content-end mb-3">
         @if (!enrolment.reservation && (enrolment.exam?.implementation === 'AQUARIUM' || enrolment.collaborativeExam)) {
-            <div class="student-message-dialog-button-save">
-                <button class="link-button pointer" (click)="makeReservation()">
-                    {{ 'i18n_student_new_reservation' | translate }}
-                </button>
-            </div>
+            <button class="xm-ok-button" (click)="makeReservation()">
+                {{ 'i18n_student_new_reservation' | translate }}
+            </button>
         }
         @if (
             !enrolment.examinationEventConfiguration &&
             enrolment.exam?.implementation !== 'AQUARIUM' &&
             hasUpcomingAlternativeEvents()
         ) {
-            <div class="student-message-dialog-button-save">
-                <button class="link-button pointer" (click)="makeReservation()">
-                    {{ 'i18n_student_new_reservation' | translate }}
-                </button>
-            </div>
+            <button class="xm-ok-button" (click)="makeReservation()">
+                {{ 'i18n_student_new_reservation' | translate }}
+            </button>
         }
     </div>
 </div>

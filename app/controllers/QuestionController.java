@@ -89,7 +89,8 @@ public class QuestionController extends BaseController implements SectionQuestio
     ) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (
-            user.hasRole(Role.Name.ADMIN) && Stream.of(examIds, courseIds, tagIds, sectionIds, ownerIds).allMatch(List::isEmpty)
+            user.hasRole(Role.Name.ADMIN) &&
+            Stream.of(examIds, courseIds, tagIds, sectionIds, ownerIds).allMatch(List::isEmpty)
         ) {
             return ok(Collections.emptySet());
         }
@@ -111,16 +112,20 @@ public class QuestionController extends BaseController implements SectionQuestio
                 el = el.in("questionOwners.id", ownerIds);
             }
         } else {
-                el = el.inOrEmpty("questionOwners.id", ownerIds);
+            el = el.inOrEmpty("questionOwners.id", ownerIds);
         }
-            el = el.inOrEmpty("examSectionQuestions.examSection.exam.id", examIds);
-            el = el.inOrEmpty("examSectionQuestions.examSection.exam.course.id", courseIds);
-            el = el.inOrEmpty("tags.id", tagIds);
-            el = el.inOrEmpty("examSectionQuestions.examSection.id", sectionIds);
+        el = el.inOrEmpty("examSectionQuestions.examSection.exam.id", examIds);
+        el = el.inOrEmpty("examSectionQuestions.examSection.exam.course.id", courseIds);
+        el = el.inOrEmpty("tags.id", tagIds);
+        el = el.inOrEmpty("examSectionQuestions.examSection.id", sectionIds);
 
         Set<Question> questions = el.orderBy("created desc").findSet();
         if (user.hasRole(Role.Name.TEACHER) && !ownerIds.isEmpty()) {
-            questions = questions.stream().filter(question -> question.getQuestionOwners().contains(user)).collect(Collectors.toSet());
+            questions =
+                questions
+                    .stream()
+                    .filter(question -> question.getQuestionOwners().contains(user))
+                    .collect(Collectors.toSet());
         }
         return ok(questions, pp);
     }

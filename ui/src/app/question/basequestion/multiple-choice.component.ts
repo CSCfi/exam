@@ -31,7 +31,7 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
                     <br /><span>
                         @if (showWarning) {
                             <div class="edit-warning-container">
-                                <i class="bi-exclamation-circle reddish"></i>
+                                <i class="bi-exclamation-circle text-danger"></i>
                                 <small class="ps-2">{{ 'i18n_shared_question_property_info' | translate }}</small>
                             </div>
                         }
@@ -49,7 +49,7 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
                     <br /><span>
                         @if (showWarning) {
                             <div class="edit-warning-container">
-                                <i class="bi-exclamation-circle reddish"></i>
+                                <i class="bi-exclamation-circle text-danger"></i>
                                 <small class="ps-2">{{ 'i18n_shared_question_property_info' | translate }}</small>
                             </div>
                         }

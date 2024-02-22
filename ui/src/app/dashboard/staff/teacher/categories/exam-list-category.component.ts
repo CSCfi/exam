@@ -20,7 +20,7 @@ import { Router, RouterLink } from '@angular/router';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { from, Subject } from 'rxjs';
+import { Subject, from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { ExaminationTypeSelectorComponent } from '../../../../exam/editor/common/examination-type-picker.component';
 import type { Exam } from '../../../../exam/exam.model';
@@ -43,6 +43,7 @@ export interface ExtraData {
 @Component({
     selector: 'xm-exam-list-category',
     templateUrl: './exam-list-category.component.html',
+    styleUrls: ['./exam-list-category.component.scss'],
     standalone: true,
     imports: [
         FormsModule,

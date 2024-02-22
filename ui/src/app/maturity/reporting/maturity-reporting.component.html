@@ -4,8 +4,10 @@
 </div>
 <ng-template #print>
     <span class="print-only compact-header-text">{{ month | date: 'MM/yyyy' }}</span>
-    <div class="review-attachment-button print-button float-end marr20 no-print">
-        <a (click)="printReport()" class="pointer"> {{ 'i18n_print' | translate }}&nbsp;&nbsp; </a>
+    <div class="float-end me-2 no-print">
+        <button (click)="printReport()" class="xm-ok-button">
+            {{ 'i18n_print' | translate }}<i class="bi bi-printer ps-2"></i>
+        </button>
     </div>
 </ng-template>
 <ng-template #content>

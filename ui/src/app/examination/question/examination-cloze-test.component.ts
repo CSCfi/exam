@@ -24,12 +24,11 @@ import { ExaminationService } from '../examination.service';
             <div class="row">
                 <div class="col-md-12">
                     @if (sq.autosaved) {
-                        <small class="sitnet-info-text">
+                        <small class="autosave-text">
                             {{ 'i18n_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date: 'HH:mm' }}
                         </small>
-                    }
-                    @if (!sq.autosaved) {
-                        <small class="sitnet-info-text"> &nbsp; </small>
+                    } @else {
+                        <small class="autosave-text"> &nbsp; </small>
                     }
                 </div>
             </div>

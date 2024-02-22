@@ -22,9 +22,9 @@ import { EssayAnswerComponent } from './essay-answer.component';
 @Component({
     selector: 'xm-essay-answers',
     template: `
-        <div class="top-row">
+        <div class="row mt-3">
             @for (answer of answers; track answer) {
-                <div class="col-md-12">
+                <div class="col-md-12 mb-3">
                     <xm-essay-answer
                         [answer]="answer"
                         [editable]="editable"
@@ -40,7 +40,7 @@ import { EssayAnswerComponent } from './essay-answer.component';
                 </div>
             }
             @if (answers.length > 0) {
-                <div class="col-md-12 mart20 marb30">
+                <div class="col-md-12 mt-2 mb-3">
                     <button class="btn btn-success" (click)="assessSelected()">
                         {{ actionText | translate }} ({{ countSelected() }})
                     </button>

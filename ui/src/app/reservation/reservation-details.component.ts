@@ -48,6 +48,7 @@ type ReservationDetail = Reservation & { org: { name: string; code: string }; us
         ApplyDstPipe,
         OrderByPipe,
     ],
+    styles: '.wrap { white-space: wrap !important }',
 })
 export class ReservationDetailsComponent implements OnChanges {
     @Input() reservations: AnyReservation[] = [];
@@ -71,8 +72,12 @@ export class ReservationDetailsComponent implements OnChanges {
 
     printExamState = (reservation: Reservation) => this.Reservation.printExamState(reservation);
 
-    getStateClass = (reservation: Reservation) =>
-        reservation.enrolment.noShow ? 'no_show' : reservation.enrolment.exam.state.toLowerCase();
+    getStateClass = (reservation: Reservation) => {
+        if (reservation.enrolment.noShow) {
+            return 'text-danger';
+        }
+        return reservation.enrolment.exam.state === 'REVIEW' ? 'text-success' : '';
+    };
 
     removeReservation(reservation: ReservationDetail) {
         this.Reservation.cancelReservation(reservation)

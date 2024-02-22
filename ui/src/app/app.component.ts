@@ -43,8 +43,6 @@ import { SessionService } from './session/session.service';
             </div>
         }
     `,
-    standalone: true,
-    imports: [DevLoginComponent, NavigationComponent, NgClass, RouterOutlet],
     styles: [
         `
             #mainView {
@@ -54,8 +52,24 @@ import { SessionService } from './session/session.service';
                     max-width: 1000px;
                 }
             }
+            .vmenu-on {
+                width: auto;
+                margin-left: 17.025em !important;
+
+                @media (max-width: 920px) {
+                    margin-left: 0 !important;
+                    padding-left: 0;
+                    padding-right: 0;
+                }
+
+                @media print {
+                    overflow-x: visible;
+                }
+            }
         `,
     ],
+    standalone: true,
+    imports: [DevLoginComponent, NavigationComponent, NgClass, RouterOutlet],
 })
 export class AppComponent implements OnInit, OnDestroy {
     user?: User;

@@ -15,11 +15,10 @@
 
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { from } from 'rxjs';
 import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 import { FilterByPipe } from '../../shared/filter/filter-by.pipe';
 import { RoomService } from '../rooms/room.service';
 import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.component';
@@ -57,10 +56,10 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
         @if (!hideButton) {
             <div class="row mt-2">
                 <div class="col-12">
-                    <button (click)="addExceptionClosed()" class="btn btn-sm btn-outline-dark marr20 marb10">
+                    <button (click)="addExceptionClosed()" class="btn btn-sm btn-outline-dark me-2 mb-2">
                         {{ 'i18n_add_out_of_service_time' | translate }}
                     </button>
-                    <button (click)="addExceptionOpen()" class="btn btn-sm btn-outline-success marb10">
+                    <button (click)="addExceptionOpen()" class="btn btn-sm btn-outline-success mb-2">
                         {{ 'i18n_add_extra_working_hour' | translate }}
                     </button>
                 </div>
@@ -83,8 +82,6 @@ export class ExceptionListComponent implements OnInit, OnChanges {
 
     constructor(
         private roomService: RoomService,
-        private Confirmation: ConfirmationDialogService,
-        private translate: TranslateService,
         private modal: NgbModal,
     ) {
         this.filter = () => true;

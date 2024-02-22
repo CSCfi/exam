@@ -50,7 +50,8 @@ public class CollaborativeEnrolmentController extends CollaborationController {
         return (
             exam.getState() == Exam.State.PUBLISHED &&
             exam.getExecutionType().getType().equals(ExamExecutionType.Type.PUBLIC.toString()) &&
-            exam.getPeriodEnd() != null && exam.getPeriodEnd().isAfterNow()
+            exam.getPeriodEnd() != null &&
+            exam.getPeriodEnd().isAfterNow()
         );
     }
 

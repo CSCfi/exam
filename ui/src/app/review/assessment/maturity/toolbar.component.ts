@@ -27,28 +27,27 @@ import { MaturityService } from './maturity.service';
     selector: 'xm-r-maturity-toolbar',
     template: `<!-- language inspection controls  -->
         @if (isOwnerOrAdmin() || isUnderLanguageInspection()) {
-            <div class="float-end">
+            <div class="d-flex flex-row-reverse">
                 <span [hidden]="isUnderLanguageInspection()">
                     @if (!isReadOnly()) {
-                        <div class="review-attachment-button exam-questions-buttons marl10">
-                            <button (click)="saveAssessment()" [disabled]="!valid" class="btn inspection-button">
+                        <div class="ms-1">
+                            <button (click)="saveAssessment()" [disabled]="!valid" class="xm-ok-button">
                                 {{ 'i18n_save' | translate }}
                             </button>
                         </div>
                     }
                     @if (isReadOnly()) {
-                        <div class="review-attachment-button exam-questions-buttons marl15">
-                            <a class="pointer preview" [routerLink]="['/staff/exams', exam.parent?.id, '5']">
-                                {{ 'i18n_close' | translate }}</a
-                            >
+                        <div class="ms-2">
+                            <button class="xm-cancel-button" [routerLink]="['/staff/exams', exam.parent?.id, '5']">
+                                {{ 'i18n_close' | translate }}
+                            </button>
                         </div>
                     }
                 </span>
                 @if (!isReadOnly() && !isDisabled()) {
-                    <div class="review-attachment-button exam-questions-buttons marl10">
+                    <div class="ms-1">
                         <button
-                            class="btn inspection-button"
-                            [ngClass]="getNextState().warn ? 'warning-filled' : ''"
+                            [ngClass]="getNextState().warn ? 'xm-warning-button' : 'xm-ok-button'"
                             (click)="proceed(false)"
                         >
                             {{ getNextState().text | translate }}
@@ -60,11 +59,12 @@ import { MaturityService } from './maturity.service';
                     getNextState().alternateState &&
                     !isDisabled(getAlternateState(getNextState().alternateState).name)
                 ) {
-                    <div class="review-attachment-button exam-questions-buttons marl10">
+                    <div class="ms-1">
                         <button
-                            class="btn inspection-button"
                             [ngClass]="
-                                getAlternateState(getNextState().alternateState).warn ? 'warning-filled' : 'btn-primary'
+                                getAlternateState(getNextState().alternateState).warn
+                                    ? 'xm-warning-button'
+                                    : 'xm-ok-button'
                             "
                             (click)="proceed(true)"
                         >
@@ -73,26 +73,22 @@ import { MaturityService } from './maturity.service';
                     </div>
                 }
                 @if (!isReadOnly() && getNextState().alternateState) {
-                    <div class="review-attachment-button exam-questions-buttons">
-                        @if (isMissingStatement()) {
-                            <span class="text-danger"
-                                >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                    getNextState()?.hint(exam) || '' | translate
-                                }}</span
-                            >
-                        }
-                    </div>
+                    @if (isMissingStatement()) {
+                        <span class="text-danger"
+                            >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
+                                getNextState()?.hint(exam) || '' | translate
+                            }}</span
+                        >
+                    }
                 }
                 @if (!isReadOnly() && !getNextState().alternateState) {
-                    <div class="review-attachment-button exam-questions-buttons">
-                        @if (getNextState()?.hint) {
-                            <span class="text-danger"
-                                >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                    getNextState()?.hint(exam) || '' | translate
-                                }}</span
-                            >
-                        }
-                    </div>
+                    @if (getNextState()?.hint) {
+                        <span class="text-danger"
+                            >&nbsp; <i class="bi-exclamation-circle"></i>&nbsp;{{
+                                getNextState()?.hint(exam) || '' | translate
+                            }}</span
+                        >
+                    }
                 }
             </div>
         }`,

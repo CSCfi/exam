@@ -16,6 +16,7 @@ import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from '../../../exam/exam.model';
 import { SessionService } from '../../../session/session.service';
@@ -47,6 +48,7 @@ import { ReviewListService } from '../review-list.service';
         PageFillPipe,
         DiffInDaysPipe,
         OrderByPipe,
+        NgbCollapse,
     ],
 })
 export class RejectedReviewsComponent implements OnInit {

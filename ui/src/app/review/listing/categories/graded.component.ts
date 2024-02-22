@@ -19,6 +19,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angu
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
+    NgbCollapse,
     NgbDropdown,
     NgbDropdownItem,
     NgbDropdownMenu,
@@ -54,6 +55,7 @@ import { ReviewListService } from '../review-list.service';
         NgbDropdownToggle,
         NgbDropdownMenu,
         NgbDropdownItem,
+        NgbCollapse,
         NgClass,
         TableSortComponent,
         RouterLink,

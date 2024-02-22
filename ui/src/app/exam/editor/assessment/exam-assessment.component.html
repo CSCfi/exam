@@ -4,10 +4,10 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-md-12 margin-20">
-                        <div class="row marr30">
+                    <div class="col-md-12 mt-3">
+                        <div class="row me-3">
                             <div class="col-md-12">
-                                <div class="review-list-title">{{ 'i18n_exam_review_settings' | translate }}</div>
+                                <div class="xm-paragraph-title">{{ 'i18n_exam_review_settings' | translate }}</div>
                             </div>
                         </div>
                     </div>
@@ -15,9 +15,9 @@
 
                 <!-- EXAM TYPE PICKER -->
                 <div class="row">
-                    <div class="col-md-12 margin-20">
+                    <div class="col-md-12 mt-3">
                         <div class="row">
-                            <div class="col-md-3 exam-basic-title">
+                            <div class="col-md-3">
                                 {{ 'i18n_exam_credit_type' | translate }}
                                 <sup
                                     popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -32,7 +32,7 @@
                                     <span>
                                         <button
                                             [disabled]="examTypes.length < 2"
-                                            class="btn btn-review"
+                                            class="btn selection-button-narrow"
                                             [ngClass]="checkExamType(examType.type)"
                                             (click)="setExamType(examType.type)"
                                         >
@@ -47,9 +47,9 @@
 
                 <!-- GRADE SCALE PICKER -->
                 <div class="row">
-                    <div class="col-md-12 margin-20">
+                    <div class="col-md-12 mt-3">
                         <div class="row">
-                            <div class="col-md-3 exam-basic-title">
+                            <div class="col-md-3">
                                 {{ 'i18n_grade_scale' | translate }}
                                 <sup
                                     popoverTitle="{{ 'i18n_instructions' | translate }}"
@@ -63,7 +63,7 @@
                                 @for (gradeScale of getSelectableScales(); track gradeScale) {
                                     <span>
                                         <button
-                                            class="btn btn-review"
+                                            class="btn selection-button-narrow"
                                             [ngClass]="checkScale(gradeScale)"
                                             (click)="setScale(gradeScale)"
                                             [disabled]="checkScaleDisabled(gradeScale)"
@@ -89,7 +89,7 @@
                     </div>
                 }
                 @if (!collaborative && exam.executionType?.type !== 'MATURITY') {
-                    <div class="">
+                    <div>
                         <xm-exam-feedback-config
                             [exam]="exam"
                             [modifiable]="isAllowedToUpdateFeedbackConfig"
@@ -104,25 +104,23 @@
     </div>
 </div>
 <!-- Buttons -->
-<div class="row mt-3 marr30">
-    <div class="col-md-12 marb20">
+<div class="row mt-3 me-3">
+    <div class="col-md-12 mb-3">
         <div class="float-end">
-            <div class="review-attachment-button exam-questions-buttons marl10">
-                <a class="pointer" (click)="updateExam(false)"> {{ 'i18n_save' | translate }}</a>
-            </div>
+            <button class="xm-ok-button" (click)="updateExam(false)">{{ 'i18n_save' | translate }}</button>
         </div>
     </div>
 </div>
 
 <div class="row mt-4">
-    <div class="col-md-2 grey-top marb20 padt20">
-        <div class="review-attachment-button exam-questions-buttons">
-            <a class="pointer preview" (click)="previousTab()"> &#171; {{ 'i18n_questions' | translate }}</a>
-        </div>
+    <div class="col-md-2 grey-top mb-3 pt-2">
+        <button class="xm-neutral-button" (click)="previousTab()">&#171; {{ 'i18n_questions' | translate }}</button>
     </div>
-    <div class="col grey-top marb20 padt20">
-        <div class="review-attachment-button exam-questions-buttons float-end">
-            <a class="pointer preview" (click)="nextTab()"> {{ 'i18n_exam_publish_tab' | translate }} &#187;</a>
+    <div class="col grey-top mb-3 pt-2">
+        <div class="float-end">
+            <button class="xm-neutral-button" (click)="nextTab()">
+                {{ 'i18n_exam_publish_tab' | translate }} &#187;
+            </button>
         </div>
     </div>
 </div>

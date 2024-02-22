@@ -32,6 +32,7 @@ import { WeightedMultiChoiceAnswerComponent } from './weighted-multi-choice-answ
 @Component({
     selector: 'xm-r-multi-choice-question',
     templateUrl: './multi-choice-question.component.html',
+    styleUrls: ['../assessment.shared.scss'],
     standalone: true,
     imports: [
         MathJaxDirective,

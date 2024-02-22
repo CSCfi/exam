@@ -10,7 +10,7 @@ import type { ExamInfo } from '../calendar.service';
 @Component({
     selector: 'xm-calendar-exam-info',
     template: `
-        <div class="row student-enrolment-wrapper details-view">
+        <div class="row xm-study-item-container m-2 details-view">
             <div class="col-md-12">
                 <div class="row align-items-center">
                     <div class="col-md-8">
@@ -67,7 +67,7 @@ import type { ExamInfo } from '../calendar.service';
                 </div>
                 <div class="row mt-2">
                     <div class="col-md-12">
-                        <span class="student-exam-row-infolink" [hidden]="examInfo.executionType?.type === 'MATURITY'">
+                        <span class="" [hidden]="examInfo.executionType?.type === 'MATURITY'">
                             {{ 'i18n_calendar_instructions' | translate }}:
                             <span [xmMathJax]="examInfo.enrollInstruction"></span>
                         </span>
@@ -76,8 +76,8 @@ import type { ExamInfo } from '../calendar.service';
                 <div class="row mt-2">
                     <div class="col-md-12">
                         @if (showReservationWindowDescription()) {
-                            <span class="infolink" role="note">
-                                <img class="arrow_icon padr10" src="/assets/images/icon_info.png" alt="" />
+                            <span class="xm-info-link" role="note">
+                                <img class="arrow_icon pe-1" src="/assets/images/icon_info.png" alt="" />
                                 {{ reservationWindowDescription() }}
                             </span>
                         }
@@ -86,6 +86,7 @@ import type { ExamInfo } from '../calendar.service';
             </div>
         </div>
     `,
+    styleUrls: ['../calendar.component.scss'],
     standalone: true,
     imports: [CourseCodeComponent, MathJaxDirective, DatePipe, TranslateModule],
 })

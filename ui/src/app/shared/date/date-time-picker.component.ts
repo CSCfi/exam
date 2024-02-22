@@ -43,6 +43,7 @@ import { DatePickerComponent } from './date-picker.component';
             </div>
         </div>
     `,
+    styleUrls: ['./date-time-picker.component.scss'],
     standalone: true,
     imports: [NgClass, DatePickerComponent, NgbTimepicker, FormsModule],
 })

@@ -36,12 +36,12 @@ import { QuestionDraft, QuestionService } from '../question.service';
                 <br />
                 @if (showWarning) {
                     <div class="edit-warning-container">
-                        <i class="bi-exclamation-circle reddish me-2"></i>
+                        <i class="bi-exclamation-circle text-danger me-2"></i>
                         <small>{{ 'i18n_shared_question_property_info' | translate }}</small>
                     </div>
                 }
             </div>
-            <div class="col-md-9 col-md-offset-3 margin-10 padl0 padr0 claim-choice-option-labels">
+            <div class="col-md-9 col-md-offset-3 m-2 ps-0 pe-0 claim-choice-option-labels">
                 <div class="claim-choice-option-label">
                     <span class="question-option-title">{{ 'i18n_question_options' | translate | uppercase }}</span>
                 </div>
@@ -51,7 +51,7 @@ import { QuestionDraft, QuestionService } from '../question.service';
                     </span>
                 </div>
             </div>
-            <div class="col-md-9 col-md-offset-3 margin-10 padl0 padr0">
+            <div class="col-md-9 col-md-offset-3 m-2 ps-0 pe-0">
                 @for (opt of question.options; track opt.id) {
                     <div class="form-horizontal question-editor-claim-choice-option" [ngClass]="returnOptionClass(opt)">
                         <div class="claim-choice-option-inputs">
@@ -96,6 +96,7 @@ import { QuestionDraft, QuestionService } from '../question.service';
             </div>
         </div>
     `,
+    styleUrls: ['../question.shared.scss'],
     standalone: true,
     imports: [FormsModule, NgClass, FixedPrecisionValidatorDirective, UpperCasePipe, TranslateModule],
 })

@@ -8,22 +8,22 @@
             </div>
         </div>
         @if (cause === 'room') {
-            <div class="detail-row">
-                <div class="col-md-3 text">{{ 'i18n_current_wrong_room_title' | translate }}:</div>
-                <div class="col-md-9 light-text sitnet-text-alarm">
+            <div class="row">
+                <div class="col-md-3">{{ 'i18n_current_wrong_room_title' | translate }}:</div>
+                <div class="col-md-9 text-danger">
                     {{ currentMachine.room.name }} ({{ currentMachine.room.buildingName }})
                 </div>
             </div>
         }
         @if (cause === 'room') {
-            <div class="detail-row">
-                <div class="col-md-3 text">{{ 'i18n_reserved_room' | translate }}:</div>
-                <div class="col-md-9 light-text sitnet-text-ready">
+            <div class="row">
+                <div class="col-md-3">{{ 'i18n_reserved_room' | translate }}:</div>
+                <div class="col-md-9 text-success">
                     {{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})
                 </div>
             </div>
         }
-        <div class="main-row">
+        <div class="row mt-2">
             <div class="col-md-12">
                 <span class="exams-list-title-text"
                     >{{ 'i18n_reserved_exam' | translate }}:&nbsp; {{ enrolment.exam.name }} -
@@ -33,40 +33,40 @@
                 </span>
             </div>
         </div>
-        <div class="detail-row">
-            <div class="col-md-3 header text">{{ 'i18n_course_name' | translate }}:</div>
-            <strong class="col-md-9 text">{{ enrolment.exam.course?.name }}</strong>
+        <div class="row">
+            <div class="col-md-3">{{ 'i18n_course_name' | translate }}:</div>
+            <strong class="col-md-9">{{ enrolment.exam.course?.name }}</strong>
         </div>
-        <div class="detail-row">
-            <div class="col-md-3 header text">{{ 'i18n_exam_duration' | translate }}:</div>
-            <strong class="col-md-9 text">{{ printExamDuration() }}</strong>
+        <div class="row">
+            <div class="col-md-3">{{ 'i18n_exam_duration' | translate }}:</div>
+            <strong class="col-md-9">{{ printExamDuration() }}</strong>
         </div>
-        <div class="detail-row">
-            <div class="col-md-3 header text">{{ 'i18n_exam_room' | translate }}:</div>
-            <strong class="col-md-9 text"
+        <div class="row">
+            <div class="col-md-3">{{ 'i18n_exam_room' | translate }}:</div>
+            <strong class="col-md-9"
                 >{{ reservation.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
                 {{ reservation.machine.room.name }}({{ reservation.machine.room.roomCode }})</strong
             >
         </div>
-        <div class="detail-row">
-            <div class="col-md-3 header text">{{ 'i18n_reservation_time' | translate }}:</div>
-            <strong class="col-md-9 text"
+        <div class="row">
+            <div class="col-md-3">{{ 'i18n_reservation_time' | translate }}:</div>
+            <strong class="col-md-9"
                 >{{ reservation.startAt | date: 'dd.MM.yyyy' }} {{ occasion.startAt }} - {{ occasion.endAt }} ({{
                     reservation.machine.room.localTimezone
                 }})
             </strong>
         </div>
         @if (enrolment.exam.enrollInstruction) {
-            <div class="detail-row">
-                <div class="col-md-3 header text">{{ 'i18n_instructions' | translate }}:</div>
-                <div class="col-md-9 text">
-                    <a class="infolink pointer" (click)="showInstructions()">{{ 'i18n_view' | translate }}</a>
+            <div class="row">
+                <div class="col-md-3">{{ 'i18n_instructions' | translate }}:</div>
+                <div class="col-md-9">
+                    <a class="xm-link pointer" (click)="showInstructions()">{{ 'i18n_view' | translate }}</a>
                 </div>
             </div>
         }
-        <div class="bottom-row">
-            <div class="col-md-3 header text">{{ 'i18n_teachers' | translate }}:</div>
-            <div class="col-md-9 light-text">
+        <div class="row">
+            <div class="col-md-3">{{ 'i18n_teachers' | translate }}:</div>
+            <div class="col-md-9">
                 @if (enrolment.exam) {
                     <xm-teacher-list [exam]="enrolment.exam"></xm-teacher-list>
                 }

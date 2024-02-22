@@ -1,8 +1,8 @@
 <!-- language inspection - verdict -->
 @if (hasGoneThroughLanguageInspection()) {
-    <div class="detail-row marb20 mart20">
-        <div class="col-md-2 general-info-title">{{ 'i18n_language_inspections' | translate }}:</div>
-        <div class="col-md-10 general-info-content">
+    <div class="row mb-3 mt-2">
+        <div class="col-md-2">{{ 'i18n_language_inspections' | translate }}:</div>
+        <div class="col-md-10">
             <span [ngClass]="exam.languageInspection.approved ? 'text-success' : 'text-danger'">
                 @if (exam.languageInspection.approved) {
                     <span>
@@ -24,10 +24,10 @@
 
 <!-- language inspection - inspector -->
 @if (hasGoneThroughLanguageInspection()) {
-    <div class="detail-row mart20">
-        <div class="col-md-2 general-info-title">{{ 'i18n_language_inspector' | translate }}:</div>
+    <div class="row ms-2 mt-2">
+        <div class="col-md-2">{{ 'i18n_language_inspector' | translate }}:</div>
         @if (exam.languageInspection) {
-            <div class="col-md-10 general-info-content">
+            <div class="col-md-10">
                 {{ exam.languageInspection.modifier.firstName }} {{ exam.languageInspection.modifier.lastName }}
             </div>
         }
@@ -36,18 +36,18 @@
 
 <!-- language inspection - statement -->
 @if (hasGoneThroughLanguageInspection()) {
-    <div class="detail-row mart20">
-        <div class="col-md-2 general-info-title">{{ 'i18n_inspector_statement' | translate }}:</div>
-        <div class="col-md-10 general-info-content">
+    <div class="row ms-2 mt-2">
+        <div class="col-md-2">{{ 'i18n_inspector_statement' | translate }}:</div>
+        <div class="col-md-10">
             <div [xmMathJax]="exam.languageInspection.statement.comment"></div>
         </div>
     </div>
 }
 <!-- language inspection - statement attachment -->
 @if (hasGoneThroughLanguageInspection() && exam.languageInspection?.statement?.attachment) {
-    <div class="detail-row mart20">
-        <div class="col-md-2 general-info-title">{{ 'i18n_statement_attachment' | translate }}:</div>
-        <div class="col-md-10 general-info-content">
+    <div class="row ms-2 mt-2">
+        <div class="col-md-2">{{ 'i18n_statement_attachment' | translate }}:</div>
+        <div class="col-md-10">
             <a class="pointer" (click)="downloadStatementAttachment()">
                 {{ exam.languageInspection?.statement?.attachment?.fileName }}
             </a>
@@ -57,10 +57,10 @@
 
 <!-- inspection creator -->
 @if (isReadOnly() || isUnderLanguageInspection()) {
-    <div class="detail-row mart20">
-        <div class="col-md-2 general-info-title">{{ 'i18n_inspector_name' | translate }}:</div>
+    <div class="row ms-2 mt-2">
+        <div class="col-md-2">{{ 'i18n_inspector_name' | translate }}:</div>
         @if (exam.languageInspection) {
-            <div class="col-md-10 general-info-content">
+            <div class="col-md-10">
                 {{ exam.languageInspection.creator.firstName }} {{ exam.languageInspection.creator.lastName }}
             </div>
         }
@@ -69,9 +69,9 @@
 
 <!-- exam feedback -->
 @if (isReadOnly() || isUnderLanguageInspection()) {
-    <div class="detail-row mart20">
-        <div class="col-md-2 general-info-title">{{ 'i18n_teachers_comment' | translate }}:</div>
-        <div class="col-md-10 general-info-content">
+    <div class="row ms-2 mt-2">
+        <div class="col-md-2">{{ 'i18n_teachers_comment' | translate }}:</div>
+        <div class="col-md-10">
             <div [xmMathJax]="exam.examFeedback.comment"></div>
         </div>
     </div>
@@ -79,8 +79,8 @@
 
 <form #examForm="ngForm" name="examForm" role="form" novalidate>
     <!-- extra info for registry -->
-    <div class="detail-row mart20">
-        <div class="col-md-2 general-info-title">
+    <div class="row mt-2 align-items-center">
+        <div class="col-md-4">
             {{ 'i18n_additional_info_for_registry' | translate }}:
             <sup
                 ngbPopover="{{ 'i18n_additional_info_for_registry_description' | translate }}"
@@ -89,7 +89,7 @@
                 ><img src="/assets/images/icon_tooltip.svg" alt=""
             /></sup>
         </div>
-        <div class="col-md-10 general-info-content">
+        <div class="col-md-8 pe-2">
             <textarea
                 id="infoForRegistry"
                 name="infoForRegistry"
@@ -101,7 +101,7 @@
             </textarea>
         </div>
     </div>
-    <div class="row pe-3 ms-3 mt-4">
+    <div class="row pe-3 mt-4">
         <!-- This stuff could form a component of its own -->
         <div class="col-md-3 grading-title">
             {{ 'i18n_exam_review_maturity_evaluation' | translate | uppercase }}
@@ -111,8 +111,8 @@
         <div class="col-md-3 grading-title">{{ 'i18n_exam_credit' | translate | uppercase }} (op):</div>
     </div>
 
-    <div class="row pe-3 ms-3">
-        <div class="col-md-3 general-info-content">
+    <div class="row pe-3">
+        <div class="col-md-3">
             <select
                 id="examGrade"
                 name="examGrade"
@@ -128,7 +128,7 @@
                 <option value="" [selected]="!exam.grade">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>
-        <div class="col-md-3 general-info-title">
+        <div class="col-md-3">
             <select
                 id="creditType"
                 name="creditType"
@@ -144,7 +144,7 @@
                 <option value="">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>
-        <div class="col-md-3 general-info-title">
+        <div class="col-md-3">
             <select
                 id="answerLanguage"
                 name="answerLanguage"
@@ -160,7 +160,7 @@
                 <option value="">{{ 'i18n_choose' | translate }}</option>
             </select>
         </div>
-        <div class="col-md-3 general-info-title">
+        <div class="col-md-3">
             <input
                 id="customCredit"
                 name="customCredit"
@@ -178,9 +178,8 @@
     <!-- end of possible new component -->
 
     <!-- Bottom toolbar for maturity -->
-    <div class="row mart20 pe-3">
+    <div class="row mt-2 pe-3">
         <div class="col-md-12">
-            <span>{{ examForm.errors?.toString() }}</span>
             <xm-r-maturity-toolbar [exam]="exam" [valid]="!examForm.invalid"></xm-r-maturity-toolbar>
         </div>
     </div>

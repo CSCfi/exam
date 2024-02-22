@@ -1,155 +1,166 @@
 <div id="dashboard">
-    <div class="top-row">
-        <div class="col-md-12">
-            <div class="student-enroll-title-wrap">
-                <div class="student-enroll-title">{{ 'i18n_aborted_exams' | translate }}</div>
+    <div class="modal-header">
+        <div class="row ms-3 mt-3">
+            <div class="col-md-12">
+                <div class="xm-page-header-title">{{ 'i18n_aborted_exams' | translate }}</div>
             </div>
         </div>
     </div>
-    @if (abortedExams.length === 0) {
-        <div class="row mt-5 ps-4 align-items-center">
-            <div class="col-auto">
-                <i class="bi-exclamation-circle ps-3 grayish"></i>
+    <div class="modal-body">
+        @if (abortedExams.length === 0) {
+            <div class="row my-3 align-items-center xm-paragraph-title-no-results">
+                <div class="col-auto">
+                    <i class="bi-exclamation-circle ps-3"></i>
+                </div>
+                <div class="col">
+                    {{ 'i18n_exam_no_aborted' | translate }}
+                </div>
             </div>
-            <div class="col">
-                {{ 'i18n_exam_no_aborted' | translate }}
-            </div>
-        </div>
-    }
-    @if (abortedExams.length > 0) {
-        <div class="row review-no-show">
-            <table class="table table-striped exams-table">
-                <thead>
-                    <tr>
-                        @if (showId()) {
-                            <th>Id</th>
-                        }
-                        <th>
-                            <xm-table-sort
-                                [reverse]="reverse"
-                                [predicate]="abortedPredicate"
-                                by="displayName"
-                                text="i18n_student"
-                                (click)="setPredicate('displayName')"
-                            ></xm-table-sort>
-                        </th>
-                        <th>
-                            <xm-table-sort
-                                [reverse]="reverse"
-                                [predicate]="abortedPredicate"
-                                by="examParticipation.user.email"
-                                text="i18n_email"
-                                (click)="setPredicate('examParticipation.user.email')"
-                            ></xm-table-sort>
-                        </th>
-                        <th>
-                            <xm-table-sort
-                                [reverse]="reverse"
-                                [predicate]="abortedPredicate"
-                                by="examParticipation.started"
-                                text="i18n_exam_duration"
-                                (click)="setPredicate('examParticipation.started')"
-                            ></xm-table-sort>
-                        </th>
-                        <th>{{ 'i18n_exam_state' | translate }}</th>
-                        <th>
-                            <xm-table-sort
-                                [reverse]="reverse"
-                                [predicate]="abortedPredicate"
-                                by="examParticipation.reservation.trialCount"
-                                text="i18n_trial"
-                                (click)="setPredicate('examParticipation.exam.trialCount')"
-                            ></xm-table-sort>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (review of abortedExams | orderBy: abortedPredicate : reverse; track review) {
+        } @else {
+            <div class="row">
+                <table class="col-12 table table-striped xm-data-table">
+                    <thead>
                         <tr>
                             @if (showId()) {
-                                <td>{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
+                                <th>Id</th>
                             }
-                            <td class="table-column-examname">
-                                {{ review.displayName }}
-                                @if (review.examParticipation.user?.userIdentifier) {
-                                    <span><br />({{ review.examParticipation.user?.userIdentifier }})</span>
-                                }
-                            </td>
-                            <td class="table-column-25">
-                                <a class="pointer" href="mailto:{{ review.examParticipation.user?.email }}">
-                                    {{ review.examParticipation.user?.email }}</a
-                                >
-                            </td>
-                            @if (
-                                review.examParticipation.exam.implementation === 'CLIENT_AUTH' ||
-                                review.examParticipation.exam.implementation === 'WHATEVER'
-                            ) {
-                                <td class="table-column-25">
-                                    {{ review.examParticipation.started | date: 'dd.MM.yyyy' }}
-                                    {{ 'i18n_clock_short' | translate }}
-                                    {{ review.examParticipation.started | date: 'HH:mm' }} -
-                                    {{ review.examParticipation.ended | date: 'HH:mm' }} ({{
-                                        review.examParticipation.started | minuteDiff: review.examParticipation.ended
-                                    }}&nbsp;min)
-                                </td>
-                            }
-                            @if (review.examParticipation.exam.implementation === 'AQUARIUM') {
-                                <td class="table-column-25">
-                                    {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
-                                    {{ 'i18n_clock_short' | translate }}
-                                    {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
-                                    {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }} ({{
-                                        review.examParticipation.started | minuteDiff: review.examParticipation.ended
-                                    }}&nbsp;min)
-                                </td>
-                            }
-                            <td class="table-column-15 sitnet-text-aborted">
-                                {{ 'i18n_exam_status_' + review.examParticipation.exam.state | lowercase | translate }}
-                            </td>
-                            @if (review.examParticipation.exam.executionType.type === 'PUBLIC') {
-                                <td class="table-column-10">
-                                    @if (
-                                        review.examParticipation.exam.trialCount &&
-                                        review.examParticipation.exam.examEnrolments[0]
-                                    ) {
-                                        <div>
-                                            <button
-                                                [disabled]="
-                                                    review.examParticipation.exam.examEnrolments[0].retrialPermitted
-                                                "
-                                                (click)="permitRetrial(review.examParticipation.exam.examEnrolments[0])"
-                                                class="btn btn-sm btn-primary"
-                                            >
-                                                {{
-                                                    review.examParticipation.exam.examEnrolments[0].retrialPermitted
-                                                        ? ('i18n_retrial_permitted' | translate)
-                                                        : ('i18n_permit_retrial' | translate)
-                                                }}
-                                            </button>
-                                        </div>
-                                    }
-                                    @if (!review.examParticipation.exam.trialCount) {
-                                        <div class="text-muted">
-                                            {{ 'i18n_unrestricted' | translate }}
-                                        </div>
-                                    }
-                                </td>
-                            }
-                            @if (review.examParticipation.exam.executionType.type !== 'PUBLIC') {
-                                <td class="table-column-10">&ndash;</td>
-                            }
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse"
+                                    [predicate]="abortedPredicate"
+                                    by="displayName"
+                                    text="i18n_student"
+                                    (click)="setPredicate('displayName')"
+                                ></xm-table-sort>
+                            </th>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse"
+                                    [predicate]="abortedPredicate"
+                                    by="examParticipation.user.email"
+                                    text="i18n_email"
+                                    (click)="setPredicate('examParticipation.user.email')"
+                                ></xm-table-sort>
+                            </th>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse"
+                                    [predicate]="abortedPredicate"
+                                    by="examParticipation.started"
+                                    text="i18n_exam_duration"
+                                    (click)="setPredicate('examParticipation.started')"
+                                ></xm-table-sort>
+                            </th>
+                            <th>{{ 'i18n_exam_state' | translate }}</th>
+                            <th>
+                                <xm-table-sort
+                                    [reverse]="reverse"
+                                    [predicate]="abortedPredicate"
+                                    by="examParticipation.reservation.trialCount"
+                                    text="i18n_trial"
+                                    (click)="setPredicate('examParticipation.exam.trialCount')"
+                                ></xm-table-sort>
+                            </th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
-    <!-- Buttons -->
-    <div class="flex justify-content-end">
-        <div class="review-attachment-button me-2 marb10">
-            <a class="pointer preview" (click)="cancel()">
-                {{ 'i18n_button_ok' | translate }}
-            </a>
+                    </thead>
+                    <tbody>
+                        @for (review of abortedExams | orderBy: abortedPredicate : reverse; track review) {
+                            <tr>
+                                @if (showId()) {
+                                    <td>{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
+                                }
+                                <td>
+                                    {{ review.displayName }}
+                                    @if (review.examParticipation.user?.userIdentifier) {
+                                        <span><br />({{ review.examParticipation.user?.userIdentifier }})</span>
+                                    }
+                                </td>
+                                <td>
+                                    <a class="pointer" href="mailto:{{ review.examParticipation.user?.email }}">
+                                        {{ review.examParticipation.user?.email }}</a
+                                    >
+                                </td>
+                                @if (
+                                    review.examParticipation.exam.implementation === 'CLIENT_AUTH' ||
+                                    review.examParticipation.exam.implementation === 'WHATEVER'
+                                ) {
+                                    <td>
+                                        {{ review.examParticipation.started | date: 'dd.MM.yyyy' }}
+                                        {{ 'i18n_clock_short' | translate }}
+                                        {{ review.examParticipation.started | date: 'HH:mm' }} -
+                                        {{ review.examParticipation.ended | date: 'HH:mm' }} ({{
+                                            review.examParticipation.started
+                                                | minuteDiff: review.examParticipation.ended
+                                        }}&nbsp;min)
+                                    </td>
+                                }
+                                @if (review.examParticipation.exam.implementation === 'AQUARIUM') {
+                                    <td>
+                                        {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
+                                        {{ 'i18n_clock_short' | translate }}
+                                        {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
+                                        {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }} ({{
+                                            review.examParticipation.started
+                                                | minuteDiff: review.examParticipation.ended
+                                        }}&nbsp;min)
+                                    </td>
+                                }
+                                <td class="text-danger">
+                                    {{
+                                        'i18n_exam_status_' + review.examParticipation.exam.state
+                                            | lowercase
+                                            | translate
+                                    }}
+                                </td>
+                                @if (review.examParticipation.exam.executionType.type === 'PUBLIC') {
+                                    <td>
+                                        @if (
+                                            review.examParticipation.exam.trialCount &&
+                                            review.examParticipation.exam.examEnrolments[0]
+                                        ) {
+                                            <div>
+                                                <button
+                                                    [disabled]="
+                                                        review.examParticipation.exam.examEnrolments[0].retrialPermitted
+                                                    "
+                                                    (click)="
+                                                        permitRetrial(review.examParticipation.exam.examEnrolments[0])
+                                                    "
+                                                    class="btn btn-sm btn-primary"
+                                                >
+                                                    {{
+                                                        review.examParticipation.exam.examEnrolments[0].retrialPermitted
+                                                            ? ('i18n_retrial_permitted' | translate)
+                                                            : ('i18n_permit_retrial' | translate)
+                                                    }}
+                                                </button>
+                                            </div>
+                                        }
+                                        @if (!review.examParticipation.exam.trialCount) {
+                                            <div class="text-muted">
+                                                {{ 'i18n_unrestricted' | translate }}
+                                            </div>
+                                        }
+                                    </td>
+                                }
+                                @if (review.examParticipation.exam.executionType.type !== 'PUBLIC') {
+                                    <td>&ndash;</td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    <div class="modal-footer">
+        <!-- Buttons -->
+        <div class="justify-content-end">
+            <div class="justify-content-end">
+                <button class="xm-ok-button mb-2 me-2" (click)="cancel()">
+                    {{ 'i18n_button_ok' | translate }}
+                </button>
+            </div>
         </div>
     </div>
 </div>

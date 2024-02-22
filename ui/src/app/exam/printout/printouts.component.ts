@@ -37,7 +37,7 @@ import type { Exam } from '../exam.model';
         <ng-template #content>
             <div class="row">
                 <div class="col-md-12">
-                    <table class="table table-striped table-sm exams-table">
+                    <table class="table table-striped table-sm xm-data-table">
                         <thead>
                             <tr>
                                 <th>

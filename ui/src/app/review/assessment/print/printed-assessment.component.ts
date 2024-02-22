@@ -51,6 +51,7 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
         ApplyDstPipe,
         OrderByPipe,
     ],
+    styleUrls: ['./print.shared.scss'],
 })
 export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
     collaborative = false;

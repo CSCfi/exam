@@ -26,7 +26,7 @@ import type { Exam } from '../../exam.model';
 @Component({
     selector: 'xm-collaborative-exam-owner-selector',
     template: `<div class="row mt-2">
-            <div class="col-md-3 exam-basic-title">
+            <div class="col-md-3 ">
                 {{ 'i18n_exam_owners' | translate }}
                 <sup
                     ngbPopover="{{ 'i18n_exam_owner_description' | translate }}"
@@ -42,14 +42,14 @@ import type { Exam } from '../../exam.model';
                         type="email"
                         name="email"
                         placeholder="{{ 'i18n_write_exam_owner_email' | translate }}"
-                        class="form-control wdth-30 make-inline"
+                        class="form-control w-50 make-inline"
                         [(ngModel)]="newOwner.email"
                         email
                     />
                     <button
                         [disabled]="!myForm.valid || !newOwner.email || !user.isAdmin"
                         (click)="addOwner()"
-                        class="btn btn-primary green"
+                        class="btn btn-success"
                     >
                         {{ 'i18n_add' | translate }}
                     </button>
@@ -57,28 +57,20 @@ import type { Exam } from '../../exam.model';
             </div>
         </div>
         <div class="row mt-2">
-            <div class="col-md-3 exam-basic-title"></div>
+            <div class="col-md-3 "></div>
             <div class="col-md-9">
-                <ul class="list-group list-group-horizontal">
-                    <!-- Owners for the exam -->
-                    @for (owner of exam.examOwners; track owner) {
-                        <li class="list-group-item">
-                            {{ owner.email }}
-                            <button
-                                class="reviewer-remove"
-                                [disabled]="!user.isAdmin"
-                                (click)="removeOwner(owner.id)"
-                                title="{{ 'i18n_remove' | translate }}"
-                            >
-                                <img
-                                    [hidden]="exam.state === 'PUBLISHED'"
-                                    src="/assets/images/icon_remove.svg"
-                                    alt=""
-                                />
-                            </button>
-                        </li>
-                    }
-                </ul>
+                <!-- Owners for the exam -->
+                @for (owner of exam.examOwners; track owner) {
+                    {{ owner.email }}
+                    <button
+                        class="btn btn-light"
+                        [disabled]="!user.isAdmin"
+                        (click)="removeOwner(owner.id)"
+                        title="{{ 'i18n_remove' | translate }}"
+                    >
+                        <i class="bi bi-x"></i>
+                    </button>
+                }
             </div>
         </div>`,
     standalone: true,

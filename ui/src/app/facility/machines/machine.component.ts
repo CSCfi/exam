@@ -19,6 +19,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import type { Software } from '../../exam/exam.model';
 import type { ExamMachine } from '../../reservation/reservation.model';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
@@ -30,9 +32,10 @@ interface SoftwareWithClass extends Software {
 
 @Component({
     templateUrl: './machine.component.html',
+    styleUrls: ['../rooms/rooms.component.scss'],
     selector: 'xm-machine',
     standalone: true,
-    imports: [FormsModule, NgClass, TranslateModule],
+    imports: [FormsModule, NgClass, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class MachineComponent implements OnInit {
     machine!: ExamMachine;
@@ -51,19 +54,16 @@ export class MachineComponent implements OnInit {
         this.machines.getMachine(this.route.snapshot.params.id).subscribe({
             next: (machine) => {
                 this.machine = machine;
-                this.machines.getSoftware().subscribe((data) => {
-                    this.software = data as unknown as SoftwareWithClass[];
-                    this.software.forEach((s) => {
-                        s.class =
-                            this.machine.softwareInfo
-                                .map((si) => {
-                                    return si.id;
-                                })
-                                .indexOf(s.id) > -1
-                                ? 'btn-info'
-                                : 'btn-outline-dark';
-                    });
-                });
+                this.machines.getSoftware().subscribe(
+                    (data) =>
+                        (this.software = data.map((s) => ({
+                            ...s,
+                            class:
+                                this.machine.softwareInfo.map((si) => si.id).indexOf(s.id) > -1
+                                    ? 'bg-success'
+                                    : 'bg-secondary',
+                        }))),
+                );
             },
             error: (err) => this.toast.error(err),
         });
@@ -87,7 +87,7 @@ export class MachineComponent implements OnInit {
 
     toggleSoftware = (software: SoftwareWithClass) => {
         this.machines.toggleMachineSoftware(this.machine.id, software.id).subscribe({
-            next: (response) => (software.class = response.turnedOn === true ? 'btn-info' : 'btn-default'),
+            next: (response) => (software.class = response.turnedOn === true ? 'bg-success' : 'bg-secondary'),
             error: (err) => this.toast.error(err),
         });
     };

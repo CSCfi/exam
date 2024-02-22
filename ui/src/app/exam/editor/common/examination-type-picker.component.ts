@@ -12,7 +12,7 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
     standalone: true,
     imports: [TranslateModule, NgbAccordionModule, NgClass],
     template: `
-        <div id="sitnet-dialog" role="dialog" aria-modal="true">
+        <div id="exam-dialog" role="dialog" aria-modal="true">
             <div class="modal-header">
                 <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'i18n_choose' | translate }}</h4>
             </div>

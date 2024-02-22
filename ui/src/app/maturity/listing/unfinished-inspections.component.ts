@@ -3,7 +3,7 @@ import type { OnChanges } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { User } from '../../session/session.service';
 import { SessionService } from '../../session/session.service';
@@ -31,10 +31,12 @@ import type { LanguageInspection } from '../maturity.model';
 @Component({
     selector: 'xm-unfinished-inspections',
     templateUrl: './unfinished-inspections.component.html',
+    styleUrls: ['../maturity.shared.scss'],
     standalone: true,
     imports: [
         FormsModule,
         NgbPopover,
+        NgbCollapse,
         TableSortComponent,
         CourseCodeComponent,
         RouterLink,

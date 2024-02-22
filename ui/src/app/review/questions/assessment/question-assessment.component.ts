@@ -26,6 +26,8 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
@@ -41,6 +43,7 @@ import { EssayAnswerListComponent } from './essay-answers.component';
 @Component({
     selector: 'xm-question-assessment',
     templateUrl: './question-assessment.component.html',
+    styleUrls: ['./question-assessment.component.scss'],
     standalone: true,
     imports: [
         HistoryBackComponent,
@@ -56,6 +59,8 @@ import { EssayAnswerListComponent } from './essay-answers.component';
         QuestionFlowComponent,
         LowerCasePipe,
         TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class QuestionAssessmentComponent implements OnInit {

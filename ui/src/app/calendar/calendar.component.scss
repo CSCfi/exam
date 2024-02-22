@@ -1,0 +1,26 @@
+@import '../shared/shared';
+.calendar-phase-title {
+    font-size: 22px;
+    color: #2c2c2c;
+}
+
+.calendar-phase-icon {
+    float: right;
+}
+
+.calendar-titles {
+    padding-top: 10px;
+}
+
+.calendar-course-title {
+    color: #2c2c2c;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.accs-list {
+    display: flex;
+    flex-flow: nowrap;
+    align-items: center;
+    gap: 5px;
+}

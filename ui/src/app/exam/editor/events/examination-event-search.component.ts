@@ -34,6 +34,7 @@ import { ExaminationEventConfiguration } from '../../exam.model';
 @Component({
     selector: 'xm-examination-event-search',
     templateUrl: './examination-event-search.component.html',
+    styleUrls: ['../../exam.shared.scss'],
     standalone: true,
     imports: [
         DatePickerComponent,

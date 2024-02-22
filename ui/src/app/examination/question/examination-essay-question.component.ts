@@ -29,6 +29,7 @@ import { ExaminationService } from '../examination.service';
     templateUrl: './examination-essay-question.component.html',
     standalone: true,
     imports: [CKEditorComponent, FormsModule, UpperCasePipe, DatePipe, TranslateModule],
+    styleUrls: ['../examination.shared.scss', './question.shared.scss'],
 })
 export class ExaminationEssayQuestionComponent implements OnInit {
     @Input() sq!: Omit<ExaminationQuestion, 'essayAnswer'> & { essayAnswer: EssayAnswer };
@@ -47,7 +48,7 @@ export class ExaminationEssayQuestionComponent implements OnInit {
         if (!this.sq.essayAnswer) {
             Object.assign(this.sq, { essayAnswer: {} });
         }
-        this.Examination.setQuestionColors(this.sq);
+        this.Examination.setAnswerStatus(this.sq);
         const html = this.sq.question.question;
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');

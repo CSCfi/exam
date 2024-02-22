@@ -24,7 +24,7 @@
 @if (sq.autosaved) {
     <div class="row">
         <div class="col-md-12">
-            <small class="sitnet-info-text">
+            <small class="autosave-text">
                 {{ 'i18n_autosaved' | translate }}:&nbsp;{{ sq.autosaved | date: 'HH:mm' }}
             </small>
         </div>
@@ -45,8 +45,8 @@
     @if (exam?.implementation !== 'CLIENT_AUTH' && sq.essayAnswer?.attachment?.fileName) {
         <div class="col-md-9 mt-2">
             <span class="float-end">
-                <span class="pe-2 filename-text">{{ sq.essayAnswer?.attachment?.fileName | uppercase }}</span>
-                <button class="pointer green_button" (click)="removeQuestionAnswerAttachment()">
+                <span class="pe-2">{{ sq.essayAnswer?.attachment?.fileName | uppercase }}</span>
+                <button class="btn btn-success" (click)="removeQuestionAnswerAttachment()">
                     {{ 'i18n_remove_answer_attachment' | translate }}
                     <img
                         src="/assets/images/icon_attachment.svg"
@@ -66,11 +66,9 @@
     </div>
     @if (exam?.implementation !== 'CLIENT_AUTH' && sq.essayAnswer) {
         <div class="col-md-6">
-            <div class="float-end mart10">
+            <div class="float-end mt-1">
                 @if (!sq.essayAnswer.attachment?.fileName) {
-                    <div class="filename-text">
-                        {{ 'i18n_no_attachment' | translate }}
-                    </div>
+                    {{ 'i18n_no_attachment' | translate }}
                 }
                 <button
                     class="pointer btn btn-success"

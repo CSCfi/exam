@@ -27,13 +27,13 @@ import type { User } from '../../../session/session.service';
     template: `@if (inspection.user?.id !== user.id) {
             <span>
                 @if (inspection.ready) {
-                    <span class="sitnet-text-ready">
+                    <span class="text-success">
                         {{ inspection.user.firstName }} {{ inspection.user.lastName }}
                         {{ 'i18n_ready' | translate }}</span
                     >
                 }
                 @if (!inspection.ready) {
-                    <span class="sitnet-text-alarm">
+                    <span class="text-danger">
                         {{ inspection.user.firstName }} {{ inspection.user.lastName }}
                         {{ 'i18n_in_progress' | translate }}</span
                     >
@@ -43,7 +43,7 @@ import type { User } from '../../../session/session.service';
         @if (inspection.user?.id === user.id) {
             <div class="input-group-sm make-inline">
                 <div class="make-inline">{{ inspection.user.firstName }} {{ inspection.user.lastName }}</div>
-                <div class="make-inline padl10">
+                <div class="make-inline ps-2">
                     <select
                         [(ngModel)]="inspection.ready"
                         class="form-select"

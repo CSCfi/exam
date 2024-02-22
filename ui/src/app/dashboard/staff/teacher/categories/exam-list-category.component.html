@@ -1,10 +1,10 @@
-<div class="row">
+<div class="row m-3 mt-4">
     <div class="col-md-6">
-        <div class="input-group search tab-search">
+        <div class="input-group">
             <input
                 [(ngModel)]="filterText"
                 type="text"
-                class="form-control search"
+                class="form-control"
                 placeholder="{{ 'i18n_exam_search_description' | translate }}"
                 (ngModelChange)="search($event)"
             />
@@ -16,7 +16,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <table class="table table-striped exams-table">
+        <table class="table table-striped xm-data-table">
             <thead>
                 <tr>
                     <th class="with-top">
@@ -85,7 +85,7 @@
                 @for (exam of items | orderBy: sorting.predicate : sorting.reverse; track exam) {
                     <tr>
                         @if (exam.name) {
-                            <td class="table-column-examname">
+                            <td>
                                 @if (isOwner(exam)) {
                                     <a
                                         [routerLink]="['/staff/exams', exam.id, '1']"
@@ -99,7 +99,7 @@
                             </td>
                         }
                         @if (!exam.name) {
-                            <td class="table-column-examname">
+                            <td>
                                 @if (isOwner(exam)) {
                                     <a
                                         class="text-danger"
@@ -115,13 +115,13 @@
                         }
                         <td>
                             @if (exam.course) {
-                                <xm-course-code class="exam-code" [course]="exam.course"></xm-course-code>
+                                <xm-course-code [course]="exam.course"></xm-course-code>
                             }
                         </td>
                         <td>
-                            <span class="exam-type">{{ getExecutionTypeTranslation(exam) }}</span>
+                            <span class="text-uppercase">{{ getExecutionTypeTranslation(exam) }}</span>
                         </td>
-                        <td class="table-column-open-until">
+                        <td>
                             @if (exam.periodStart && exam.periodEnd) {
                                 <span>
                                     {{ exam.periodStart | date: 'dd.MM.yyyy' }} -
@@ -131,27 +131,25 @@
                         </td>
                         @for (column of extraData; track column) {
                             <td class="table-column-enroll-participation">
-                                <span class="exam-count">
-                                    @if (
-                                        (!column.checkOwnership || isOwner(exam)) &&
-                                        exam.executionType.type !== 'PRINTOUT'
-                                    ) {
-                                        <a [routerLink]="getLink(column, exam)">{{ exam[column.property] }}</a>
-                                    }
-                                    @if (
-                                        !isOwner(exam) &&
-                                        column.checkOwnership &&
-                                        exam.executionType.type !== 'PRINTOUT'
-                                    ) {
-                                        <span class="exam-count-not-active">{{ exam[column.property] }}</span>
-                                    }
-                                </span>
+                                @if (
+                                    (!column.checkOwnership || isOwner(exam)) && exam.executionType.type !== 'PRINTOUT'
+                                ) {
+                                    <a [routerLink]="getLink(column, exam)"
+                                        ><strong>{{ exam[column.property] }}</strong></a
+                                    >
+                                }
+                                @if (
+                                    !isOwner(exam) && column.checkOwnership && exam.executionType.type !== 'PRINTOUT'
+                                ) {
+                                    <span class="text-muted">{{ exam[column.property] }}</span>
+                                }
+
                                 @if (exam.executionType.type === 'PRINTOUT') {
                                     <div>&ndash;</div>
                                 }
                             </td>
                         }
-                        <td class="table-column-teachers">
+                        <td>
                             <xm-teacher-list [exam]="exam"></xm-teacher-list>
                         </td>
                         <td class="text-center">

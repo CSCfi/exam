@@ -1,11 +1,10 @@
-//@import '../../../assets/styles/partial/_defines';
-
 .active-enrolment-container {
+    // todo: use global container?
     border-radius: 4px;
     border: 2px solid #ededed;
     border-left: #238635 4px solid; // medium-green
     padding-left: 15px;
-    padding-right: 15px;
+    padding-right: 25px;
     max-width: 1100px;
     @media (max-width: 920px) {
         padding-left: 5px;
@@ -14,14 +13,9 @@
 }
 
 .active-enrolment-heading {
-    font-size: 18px;
-    font-weight: bold;
-
     a {
-        font-size: 16px;
-        font-family: Arimo, Helvetica-Neue, Helvetica;;
+        font-size: 20px;
         color: #266b99;
-        font-weight: bold;
         text-decoration: none;
     }
 }
@@ -29,4 +23,8 @@
 .exam-ready {
     color: #2c7639; //green-new
     font-size: 16px !important; // TODO: remove importance
+}
+
+.hover-grey:hover {
+    background-color: #c0c0c0;
 }

@@ -25,23 +25,21 @@ import { CoursePickerComponent } from '../common/course-picker.component';
     selector: 'xm-exam-course',
     template: `<div class="row align-items-center">
             <div class="col-md-3 mt-2">
-                <div class="exam-basic-title">
-                    {{ 'i18n_course' | translate }}
-                    <sup
-                        popoverTitle="{{ 'i18n_instructions' | translate }}"
-                        ngbPopover="{{ 'i18n_select_exam_course_description' | translate }}"
-                        triggers="mouseenter:mouseleave"
-                    >
-                        <img src="/assets/images/icon_tooltip.svg" alt="" placement="top" />
-                    </sup>
-                </div>
+                {{ 'i18n_course' | translate }}
+                <sup
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    ngbPopover="{{ 'i18n_select_exam_course_description' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                >
+                    <img src="/assets/images/icon_tooltip.svg" alt="" placement="top" />
+                </sup>
             </div>
             <div class="col mt-2">
                 <xm-course-picker [course]="exam.course" (updated)="setCourse($event)"></xm-course-picker>
             </div>
         </div>
         <!-- Course scope and organization name elements -> 3 rows -->
-        <div class="row margin-20">
+        <div class="row mt-3">
             <div class="col-md-3 col-md-offset-3">
                 {{ 'i18n_course_scope' | translate }}
             </div>
@@ -49,7 +47,7 @@ import { CoursePickerComponent } from '../common/course-picker.component';
                 {{ exam.course?.credits }}
             </div>
         </div>
-        <div class="row margin-20">
+        <div class="row mt-3">
             <div class="col-md-3 col-md-offset-3">
                 {{ 'i18n_faculty_name' | translate }}
             </div>
@@ -57,7 +55,7 @@ import { CoursePickerComponent } from '../common/course-picker.component';
                 {{ exam.course?.organisation?.name }}
             </div>
         </div>
-        <div class="row margin-20" [hidden]="!exam.course?.gradeScale">
+        <div class="row mt-3" [hidden]="!exam.course?.gradeScale">
             <div class="col-md-3 col-md-offset-3">
                 {{ 'i18n_grade_scale' | translate }}
             </div>

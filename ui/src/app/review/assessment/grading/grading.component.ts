@@ -39,6 +39,7 @@ import { ToolbarComponent } from './toolbar.component';
 @Component({
     selector: 'xm-r-grading',
     templateUrl: './grading.component.html',
+    styleUrls: ['../assessment.shared.scss'],
     standalone: true,
     imports: [
         InspectionComponent,

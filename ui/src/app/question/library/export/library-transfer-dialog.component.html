@@ -1,8 +1,6 @@
-<div id="sitnet-dialog" role="dialog" aria-modal="true">
+<div id="exam-dialog" role="dialog" aria-modal="true">
     <div class="modal-header">
-        <div class="student-enroll-dialog-wrap">
-            <h1 class="student-enroll-title">{{ 'i18n_transfer_questions' | translate }}</h1>
-        </div>
+        <h1 class="xm-page-header-title">{{ 'i18n_transfer_questions' | translate }}</h1>
     </div>
     <div class="modal-body">
         <!-- org pick TODO: make a component out of this-->
@@ -25,20 +23,18 @@
         </div>
         <div class="row mt-4">
             <div class="col-12">
-                <button class="btn green whitetext" [disabled]="!organisation" (click)="transfer()">
+                <button class="xm-ok-button" [disabled]="!organisation" (click)="transfer()">
                     {{ 'i18n_copy' | translate }}
                 </button>
                 @if (organisation) {
-                    <span class="padl10 vertm">({{ organisation.code }})</span>
+                    <span class="ps-2 vertm">({{ organisation.code }})</span>
                 }
             </div>
         </div>
     </div>
     <div class="modal-footer">
-        <div class="student-message-dialog-button-save">
-            <button class="btn btn-sm btn-primary" (click)="activeModal.close()" autofocus>
-                {{ 'i18n_close' | translate }}
-            </button>
-        </div>
+        <button class="xm-cancel-button" (click)="activeModal.close()" autofocus>
+            {{ 'i18n_close' | translate }}
+        </button>
     </div>
 </div>

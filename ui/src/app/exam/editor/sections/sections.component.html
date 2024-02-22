@@ -3,7 +3,7 @@
 @if (exam.hasEnrolmentsInEffect) {
     <div class="row ms-2 me-2">
         <div class="col-md-12">
-            <div class="row student-enrolment-wrapper review-view exam-questions-warning mart40">
+            <div class="row xm-study-item-container--warning m-3">
                 <div class="col-md-1">
                     <img
                         src="/assets/images/icon_warning.png"
@@ -27,7 +27,7 @@
                 <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
                 <div class="row section-handle">
                     <xm-section
-                        class="col-md-12 padt40"
+                        class="col-md-12 pt-2"
                         [section]="section"
                         [index]="i + 1"
                         [examId]="exam.id"
@@ -51,7 +51,7 @@
 </div>
 
 <div class="row mt-4">
-    <div class="col-md-3 exam-basic-title">
+    <div class="col-md-3">
         <h4>{{ 'i18n_total_score' | translate }}:</h4>
     </div>
     <div class="col-md-9">
@@ -61,52 +61,44 @@
 
 <!-- Buttons -->
 <div class="row me-1 mt-4">
-    <div class="col-md-2 marb20">
-        <div class="review-attachment-button exam-questions-buttons">
-            <a class="pointer" (click)="addNewSection()">
-                <i class="bi-plus"></i>&nbsp;{{ 'i18n_section_add' | translate }}
-            </a>
-        </div>
+    <div class="col-md-3 mb-3">
+        <button class="xm-ok-button" (click)="addNewSection()">
+            <i class="bi-plus"></i>&nbsp;{{ 'i18n_section_add' | translate }}
+        </button>
     </div>
     <div class="col">
         <div class="row justify-content-end">
             <div class="col-auto p-1">
-                <div class="review-attachment-button exam-questions-buttons">
-                    <a class="pointer preview" (click)="previewExam(2)">
-                        {{ 'i18n_preview' | translate }}
-                    </a>
-                </div>
+                <button class="xm-neutral-button" (click)="previewExam(2)">
+                    {{ 'i18n_preview' | translate }}
+                </button>
             </div>
             <div class="col-auto p-1">
-                <div class="review-attachment-button exam-questions-buttons marl10">
-                    <a class="pointer" (click)="updateExam(false)">
-                        {{ 'i18n_save' | translate }}
-                    </a>
-                </div>
+                <button class="xm-ok-button" (click)="updateExam(false)">
+                    {{ 'i18n_save' | translate }}
+                </button>
             </div>
             <div class="col-auto p-1">
                 @if (showDelete()) {
-                    <div class="review-attachment-button exam-questions-buttons marl10">
-                        <a class="pointer warning" (click)="removeExam()">
-                            {{ 'i18n_exam_remove' | translate }}
-                        </a>
-                    </div>
+                    <button class="xm-warning-button" (click)="removeExam()">
+                        {{ 'i18n_exam_remove' | translate }}
+                    </button>
                 }
             </div>
         </div>
     </div>
 </div>
 <div class="row mt-2">
-    <div class="col-md-2 grey-top marb20 padt20">
-        <div class="review-attachment-button exam-questions-buttons">
-            <a class="pointer preview" (click)="previousTab()">
-                &#171; {{ 'i18n_exam_basic_information_tab' | translate }}</a
-            >
-        </div>
+    <div class="col-md-2 grey-top mb-3 pt-2">
+        <button class="xm-neutral-button" (click)="previousTab()">
+            &#171; {{ 'i18n_exam_basic_information_tab' | translate }}
+        </button>
     </div>
-    <div class="col grey-top marb20 padt20">
-        <div class="review-attachment-button exam-questions-buttons float-end">
-            <a class="pointer preview" (click)="nextTab()"> {{ 'i18n_exam_assessment_settings' | translate }} &#187;</a>
+    <div class="col grey-top mb-3 pt-2">
+        <div class="float-end">
+            <button class="xm-neutral-button" (click)="nextTab()">
+                {{ 'i18n_exam_assessment_settings' | translate }} &#187;
+            </button>
         </div>
     </div>
 </div>

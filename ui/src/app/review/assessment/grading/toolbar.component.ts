@@ -27,55 +27,57 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
 @Component({
     selector: 'xm-r-toolbar',
     template: `<!-- Buttons -->
-        <div class="review-toolbar-wrapper pt-4 ps-0 pe-0 m2-2 me-4 float-end">
-            <div class="review-attachment-button exam-questions-buttons">
-                <a
-                    class="pointer preview"
+        <div class="pt-4 ps-0 pe-0 m2-2 me-4">
+            <div class="d-flex flex-row-reverse">
+                <div [hidden]="isReadOnly()" class="ms-2">
+                    <span
+                        class="disabled-button-popover-wrapper"
+                        ngbPopover="{{ 'i18n_send_result_to_registry_popover_info' | translate }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                    >
+                        @if (!isMaturityRejection()) {
+                            <button
+                                class="xm-ok-button"
+                                [disabled]="!isOwnerOrAdmin() || !valid"
+                                (click)="createExamRecord()"
+                            >
+                                {{ 'i18n_send_result_to_registry' | translate }}
+                            </button>
+                        }
+                    </span>
+                </div>
+                <div [hidden]="isReadOnly()" class="ms-2">
+                    <button
+                        class="xm-ok-button"
+                        [disabled]="isReadOnly()"
+                        (click)="saveAssessment()"
+                        ngbPopover="{{ 'i18n_save_changes_popover_info' | translate }}"
+                        triggers="mouseenter:mouseleave"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    >
+                        {{ 'i18n_save_changes' | translate }}
+                    </button>
+                </div>
+                <div [hidden]="isReadOnly()">
+                    @if (isMaturityRejection()) {
+                        <button
+                            class="xm-warning-button ms-2"
+                            [disabled]="!isOwnerOrAdmin() || !valid"
+                            (click)="rejectMaturity()"
+                        >
+                            {{ 'i18n_reject_maturity' | translate }}
+                        </button>
+                    }
+                </div>
+                <button
+                    class="xm-cancel-button ms-2"
                     [routerLink]="getExitState().fragments"
                     [queryParams]="getExitState().params"
                     [hidden]="(!isReadOnly() && isOwnerOrAdmin()) || (!isReadOnly() && !isGraded())"
                 >
                     {{ 'i18n_close' | translate }}
-                </a>
-            </div>
-
-            <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons">
-                @if (isMaturityRejection()) {
-                    <button
-                        class="pointer warning-filled"
-                        [disabled]="!isOwnerOrAdmin() || !valid"
-                        (click)="rejectMaturity()"
-                    >
-                        {{ 'i18n_reject_maturity' | translate }}
-                    </button>
-                }
-            </div>
-
-            <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10">
-                <button
-                    class="pointer"
-                    [disabled]="isReadOnly()"
-                    (click)="saveAssessment()"
-                    ngbPopover="{{ 'i18n_save_changes_popover_info' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                >
-                    {{ 'i18n_save_changes' | translate }}
                 </button>
-            </div>
-            <div [hidden]="isReadOnly()" class="review-attachment-button exam-questions-buttons marl10 mart40">
-                <span
-                    class="disabled-button-popover-wrapper"
-                    ngbPopover="{{ 'i18n_send_result_to_registry_popover_info' | translate }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                    triggers="mouseenter:mouseleave"
-                >
-                    @if (!isMaturityRejection()) {
-                        <button class="pointer" [disabled]="!isOwnerOrAdmin() || !valid" (click)="createExamRecord()">
-                            {{ 'i18n_send_result_to_registry' | translate }}
-                        </button>
-                    }
-                </span>
             </div>
         </div>`,
     standalone: true,

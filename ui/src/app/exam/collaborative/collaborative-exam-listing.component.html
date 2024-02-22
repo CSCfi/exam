@@ -41,14 +41,14 @@
                 <input
                     (keyup)="search($event)"
                     type="text"
-                    class="form-control search"
+                    class="form-control"
                     placeholder="{{ 'i18n_search' | translate }}"
                     ngbPopover="{{ 'i18n_collaborative_exam_search_description_teacher' | translate }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 />
                 <div class="input-group-append search">
-                    <img class="nopad" src="/assets/images/icon_search.png" alt="search-icon" width="49" height="40" />
+                    <img src="/assets/images/icon_search.png" alt="search-icon" width="49" height="40" />
                 </div>
             </div>
         </div>
@@ -60,9 +60,9 @@
         </div>
     </div>
 
-    <div class="row mt-2 collaborative-exam-table">
+    <div class="row mt-2" style="overflow-x: scroll">
         <div class="col-12">
-            <table class="table table-striped table-sm exams-table">
+            <table class="table table-striped table-sm xm-data-table">
                 <thead>
                     <tr>
                         <th>
@@ -132,8 +132,8 @@
                             </td>
                             <td
                                 [ngClass]="{
-                                    'sitnet-medium-green-new': exam.state === 'PUBLISHED',
-                                    'sitnet-red': exam.state === 'PRE_PUBLISHED'
+                                    'text-success': exam.state === 'PUBLISHED',
+                                    'text-danger': exam.state === 'PRE_PUBLISHED'
                                 }"
                             >
                                 {{ getStateTranslation(exam) }}

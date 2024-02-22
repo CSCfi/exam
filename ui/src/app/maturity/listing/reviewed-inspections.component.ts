@@ -17,7 +17,7 @@ import type { OnChanges, SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DatePickerComponent } from '../../shared/date/date-picker.component';
 import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
@@ -31,11 +31,13 @@ import { LanguageInspectionService } from '../language-inspections.service';
 @Component({
     selector: 'xm-reviewed-inspections',
     templateUrl: './reviewed-inspections.component.html',
+    styleUrls: ['../maturity.shared.scss'],
     standalone: true,
     imports: [
         RouterLink,
         FormsModule,
         NgbPopover,
+        NgbCollapse,
         DatePickerComponent,
         TableSortComponent,
         CourseCodeComponent,

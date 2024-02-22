@@ -37,7 +37,7 @@ export interface FileResult {
     selector: 'xm-attachment-selector',
     standalone: true,
     imports: [TranslateModule],
-    template: `<div id="sitnet-dialog" role="dialog" aria-modal="true">
+    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
         <div class="modal-header">
             <h2>{{ title | translate }}</h2>
         </div>
@@ -83,6 +83,7 @@ export interface FileResult {
             </button>
         </div>
     </div>`,
+    styleUrls: ['./attachment-picker.component.scss'],
 })
 export class AttachmentSelectorComponent implements OnInit {
     @ViewChild('file', { static: false }) file!: ElementRef;

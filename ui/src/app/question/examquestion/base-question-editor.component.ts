@@ -25,7 +25,7 @@ import type { QuestionDraft } from '../question.service';
     standalone: true,
     imports: [QuestionComponent],
     template: `
-        <div id="sitnet-dialog" role="dialog" aria-modal="true">
+        <div id="exam-dialog" role="dialog" aria-modal="true">
             <div class="modal-body">
                 <xm-question
                     [newQuestion]="newQuestion"
@@ -52,8 +52,6 @@ export class BaseQuestionEditorComponent {
     @Input() lotteryOn = false;
     @Input() examId = 0;
     @Input() sectionQuestion!: ExamSectionQuestion;
-
-    transitionWatcher: unknown;
 
     constructor(
         public modal: NgbActiveModal,

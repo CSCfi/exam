@@ -1,5 +1,5 @@
 <div>
-    <div class="review-list-title">
+    <div class="xm-paragraph-title">
         {{ 'i18n_archived_exams' | translate }}
         <a (click)="view.toggle = !view.toggle" class="pointer" [attr.aria-expanded]="view.toggle">
             @if (!view.toggle) {
@@ -12,18 +12,9 @@
     </div>
 </div>
 
-@if (view.items.length === 0) {
-    <div>
-        <div class="review-no-results">
-            <i class="bi-exclamation-circle grayish"></i>
-            {{ 'i18n_exam_archived' | translate }}
-        </div>
-    </div>
-}
-
-@if (view.toggle && view.items.length > 0) {
+<div [ngbCollapse]="!view.toggle" [hidden]="view.items.length === 0">
     <div class="overflow-x-scroll">
-        <div class="py-3 input-group max-w-350">
+        <div class="py-3 input-group w-25">
             <input
                 (input)="applyFreeSearchFilter()"
                 [(ngModel)]="view.filter"
@@ -32,7 +23,7 @@
             />
             <i class="input-group-text bi-search"></i>
         </div>
-        <table class="table table-striped exams-table">
+        <table class="table table-striped xm-data-table">
             <thead>
                 <tr>
                     @if (exam && showId()) {
@@ -114,7 +105,7 @@
                         @if (showId()) {
                             <td>{{ review.examParticipation._id || review.examParticipation.exam.id }}</td>
                         }
-                        <td class="table-column-13 table-column-bold">
+                        <td class=" ">
                             <a class="pointer" [routerLink]="['/staff/assessments', review.examParticipation.exam.id]">
                                 {{ review.displayName }}
                                 @if (review.examParticipation.user?.userIdentifier) {
@@ -122,25 +113,25 @@
                                 }
                             </a>
                         </td>
-                        <td class="table-column-15">
+                        <td>
                             <a class="pointer" href="mailto:{{ review.examParticipation.user?.email }}">{{
                                 review.examParticipation.user?.email
                             }}</a>
                         </td>
-                        <td class="table-column-10">{{ review.duration + ' min' }}</td>
-                        <td class="table-column-10">
+                        <td>{{ review.duration + ' min' }}</td>
+                        <td>
                             {{ review.examParticipation.started | applyDst | date: 'dd.MM.yyyy' }}
                             {{ 'i18n_clock_short' | translate }}
                             {{ review.examParticipation.started | applyDst | date: 'HH:mm' }} -
                             {{ review.examParticipation.ended | applyDst | date: 'HH:mm' }}
                         </td>
-                        <td class="table-column-15">
+                        <td>
                             {{ review.displayedGrade }}
                         </td>
-                        <td class="table-column-10">
+                        <td>
                             {{ review.displayedCredit }}
                         </td>
-                        <td class="table-column-15">{{ review.displayedGradingTime | date: 'dd.MM.yyyy' }}</td>
+                        <td>{{ review.displayedGradingTime | date: 'dd.MM.yyyy' }}</td>
                     </tr>
                 }
                 @if (view.filtered.length === 0) {
@@ -156,7 +147,7 @@
                 <!--Fill if page not full-->
                 @for (r of [] | pageFill: view.filtered.length : view.page : view.pageSize; track r) {
                     <tr>
-                        <td class="table-column-examname">&nbsp;</td>
+                        <td>&nbsp;</td>
                         @if (showId()) {
                             <td colspan="6"></td>
                         }
@@ -168,10 +159,7 @@
             </tbody>
         </table>
     </div>
-}
-
-@if (view.toggle) {
-    <div class="detail-row">
+    <div class="row ms-2">
         @if (view.filtered.length > view.pageSize) {
             <div class="col-md-12">
                 <xm-paginator
@@ -183,4 +171,4 @@
             </div>
         }
     </div>
-}
+</div>

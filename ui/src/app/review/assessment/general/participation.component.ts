@@ -12,7 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import { DatePipe, LowerCasePipe, NgStyle } from '@angular/common';
+import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -23,23 +23,23 @@ import { CommonExamService } from '../../../shared/miscellaneous/common-exam.ser
 @Component({
     selector: 'xm-r-participation',
     template: `
-        <div class="col-md-2 general-info-title">{{ participation.started | date: 'dd.MM.yyyy' }}</div>
-        <div class="col-md-4 general-info-content">
-            <span [ngStyle]="participation.exam.state === 'ABORTED' ? { color: '#F35D6C' } : { color: '#3CA34F' }">
+        <div class="col-md-2 ">{{ participation.started | date: 'dd.MM.yyyy' }}</div>
+        <div class="col-md-4 ">
+            <span [ngClass]="participation.exam.state === 'ABORTED' ? 'text-danger' : 'text-success'">
                 {{ 'i18n_exam_status_' + participation.exam.state | lowercase | translate }}
             </span>
         </div>
-        <div class="col-md-2 generail-info-title" [hidden]="hideGrade()">
+        <div class="col-md-2 general-info-title" [hidden]="hideGrade()">
             {{ 'i18n_grade' | translate }}:&nbsp;&nbsp;&nbsp;<span style="color: #3ca34f">{{ translateGrade() }}</span>
         </div>
         @if (!hideAnswerLink()) {
-            <div class="col-md-4 general-info-link-bold">
+            <div class="col-md-4 xm-link">
                 <a class="pointer" (click)="viewAnswers()">{{ 'i18n_view_answers' | translate }}</a>
             </div>
         }
     `,
     standalone: true,
-    imports: [NgStyle, LowerCasePipe, DatePipe, TranslateModule],
+    imports: [NgClass, LowerCasePipe, DatePipe, TranslateModule],
 })
 export class ParticipationComponent {
     @Input() participation!: ExamParticipation;

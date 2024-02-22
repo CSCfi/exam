@@ -24,14 +24,14 @@ import type { Examination } from '../examination.model';
     selector: 'xm-answer-instructions',
     template: `
         <!-- ANSWER INSTRUCTIONS -->
-        <div class="row">
-            <div class="col-md-12" class="studentexam-header">
+        <div class="row mt-3 ms-1">
+            <div class="col-md-12">
                 <h2 class="exam-title" aria-live="polite" id="examination-section">
                     {{ 'i18n_exam_guide' | translate }}
                 </h2>
             </div>
         </div>
-        <div class="row ms-2 guide-wrapper">
+        <div class="row ms-3 guide-wrapper">
             <div class="col-md-12">
                 @if (exam.course) {
                     <div class="row">
@@ -62,6 +62,7 @@ import type { Examination } from '../examination.model';
     `,
     standalone: true,
     imports: [CourseCodeComponent, MathJaxDirective, TranslateModule],
+    styleUrls: ['../examination.shared.scss'],
 })
 export class AnswerInstructionsComponent {
     @Input() exam!: Examination;
