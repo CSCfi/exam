@@ -58,11 +58,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                             triggers="mouseenter:mouseleave"
                             class="ms-2"
                         >
-                            <img
-                                src="/assets/images/icon_tooltip.svg"
-                                alt=""
-                                onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                            />
+                            <img src="/assets/images/icon_tooltip.svg" alt="" />
                         </span>
                     </div>
                 </div>

@@ -9,11 +9,7 @@
                     triggers="mouseenter:mouseleave"
                     class="me-4"
                 >
-                    <img
-                        src="/assets/images/icon_tooltip.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                    />
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                 </sup>
                 <!-- settings -->
                 <div class="float-end" ngbDropdown>
@@ -43,11 +39,7 @@
                         ngbPopover="{{ 'i18n_exam_section_name_description' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
-                        <img
-                            src="/assets/images/icon_tooltip.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                        />
+                        <img src="/assets/images/icon_tooltip.svg" alt="" />
                     </sup>
                 </label>
                 <input
@@ -67,11 +59,7 @@
                         popoverTitle="{{ 'i18n_instructions' | translate }}"
                         triggers="mouseenter:mouseleave"
                     >
-                        <img
-                            src="/assets/images/icon_tooltip.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                        />
+                        <img src="/assets/images/icon_tooltip.svg" alt="" />
                     </sup>
                 </label>
                 <textarea
@@ -132,11 +120,7 @@
                         triggers="mouseenter:mouseleave"
                         class="ms-1"
                     >
-                        <img
-                            src="/assets/images/icon_tooltip.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                        />
+                        <img src="/assets/images/icon_tooltip.svg" alt="" />
                     </sup>
                     @if (!questionPointsMatch()) {
                         <span class="text text-danger ms-2">{{
@@ -188,11 +172,7 @@
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
-                    <img
-                        src="/assets/images/icon_tooltip.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                    />
+                    <img src="/assets/images/icon_tooltip.svg" alt="" />
                 </sup>
             </div>
             <div class="col-md-9">
@@ -213,18 +193,10 @@
                     (click)="section.expanded = !section.expanded; expandSection()"
                 >
                     @if (!section.expanded) {
-                        <img
-                            src="/assets/images/icon_list_show_right.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-                        />
+                        <img src="/assets/images/icon_list_show_right.svg" alt="" />
                     }
                     @if (section.expanded) {
-                        <img
-                            src="/assets/images/icon_list_show_down.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-                        />
+                        <img src="/assets/images/icon_list_show_down.svg" alt="" />
                     }
                 </a>
             </div>

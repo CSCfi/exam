@@ -2,11 +2,7 @@
     {{ 'i18n_exam_reviewed' | translate }}
     <a (click)="view.toggle = !view.toggle" class="pointer">
         @if (!view.toggle) {
-            <img
-                src="/assets/images/icon_list_show_right.svg"
-                alt=""
-                onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-            />
+            <img src="/assets/images/icon_list_show_right.svg" alt="" />
         }
         @if (view.toggle) {
             <img src="/assets/images/icon_list_show_down.svg" />

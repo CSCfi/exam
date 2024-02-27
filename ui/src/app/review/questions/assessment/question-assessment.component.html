@@ -45,18 +45,10 @@
             <div class="col-md-1">
                 <a (click)="selectedReview.expanded = !selectedReview.expanded" class="pointer-hand">
                     @if (!selectedReview.expanded) {
-                        <img
-                            src="/assets/images/icon_list_show_right.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-                        />
+                        <img src="/assets/images/icon_list_show_right.svg" alt="" />
                     }
                     @if (selectedReview.expanded) {
-                        <img
-                            src="/assets/images/icon_list_show_down.svg"
-                            alt=""
-                            onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-                        />
+                        <img src="/assets/images/icon_list_show_down.svg" alt="" />
                     }
                 </a>
             </div>

@@ -10,24 +10,14 @@
                         <img src="/assets/images/exam-logo-new.svg" alt="{{ 'i18n_exam_logo' | translate }}" />
                     </div>
                     <div class="visible-mobile">
-                        <img
-                            src="/assets/images/exam-logo-mobile.svg"
-                            alt="{{ 'i18n_exam_logo' | translate }}"
-                            onerror="this.onerror = null;
-                            this.src = '/assets/images/exam-logo-mobile.png'"
-                        />
+                        <img src="/assets/images/exam-logo-mobile.svg" alt="{{ 'i18n_exam_logo' | translate }}" />
                         <button
                             class="mobile-menu"
                             (click)="openMenu()"
                             [hidden]="!user"
                             [attr.aria-open]="mobileMenuOpen"
                         >
-                            <img
-                                src="/assets/images/icon_menu_mobile.svg"
-                                alt="{{ 'i18n_mobile_menu' | translate }}"
-                                onerror="this.onerror = null;
-                                this.src = '/assets/images/icon_menu_mobile.png'"
-                            />
+                            <img src="/assets/images/icon_menu_mobile.svg" alt="{{ 'i18n_mobile_menu' | translate }}" />
                         </button>
                     </div>
                 </div>
