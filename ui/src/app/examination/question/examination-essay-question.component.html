@@ -48,11 +48,7 @@
                 <span class="pe-2">{{ sq.essayAnswer?.attachment?.fileName | uppercase }}</span>
                 <button class="btn btn-success" (click)="removeQuestionAnswerAttachment()">
                     {{ 'i18n_remove_answer_attachment' | translate }}
-                    <img
-                        src="/assets/images/icon_attachment.svg"
-                        alt="attachment"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_attachment.png';"
-                    />
+                    <img src="/assets/images/icon_attachment.svg" alt="attachment" />
                 </button>
             </span>
         </div>
@@ -78,11 +74,7 @@
                     tabindex="0"
                 >
                     {{ 'i18n_upload_answer_attachment' | translate }}
-                    <img
-                        src="/assets/images/icon_attachment.svg"
-                        alt=""
-                        onerror="this.onerror=null;this.src='/assets/images/icon_attachment.png';"
-                    />
+                    <img src="/assets/images/icon_attachment.svg" alt="" />
                 </button>
             </div>
         </div>
