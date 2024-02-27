@@ -9,21 +9,15 @@
 <ng-template #content>
     <div class="row">
         <div class="col-md-2 pt-1 reservation-search-form-label">
-            <label for="start-date-picker" class="reservation-search-form-label form-label">{{
-                'i18n_begin' | translate
-            }}</label>
+            <label for="start-date-picker" class="reservation-search-form-label">{{ 'i18n_begin' | translate }}</label>
             <xm-date-picker id="start-date-picker" (updated)="startDateChanged($event)"></xm-date-picker>
         </div>
         <div class="col-md-2 pt-1 reservation-search-form-label">
-            <label for="end-date-picker" class="reservation-search-form-label form-label">{{
-                'i18n_end' | translate
-            }}</label>
+            <label for="end-date-picker" class="reservation-search-form-label">{{ 'i18n_end' | translate }}</label>
             <xm-date-picker id="end-date-picker" (updated)="endDateChanged($event)"></xm-date-picker>
         </div>
         <div class="col-md-2">
-            <label for="student-search" class="reservation-search-form-label form-label">{{
-                'i18n_student' | translate
-            }}</label>
+            <label for="student-search" class="reservation-search-form-label">{{ 'i18n_student' | translate }}</label>
             <div class="input-group">
                 <input
                     #studentInput
@@ -43,9 +37,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <label for="exam-search" class="reservation-search-form-label form-label">{{
-                'i18n_exam' | translate
-            }}</label>
+            <label for="exam-search" class="reservation-search-form-label">{{ 'i18n_exam' | translate }}</label>
             <div class="input-group">
                 <input
                     #examInput
@@ -65,9 +57,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <label for="state-search" class="reservation-search-form-label form-label">{{
-                'i18n_exam_state' | translate
-            }}</label>
+            <label for="state-search" class="reservation-search-form-label">{{ 'i18n_exam_state' | translate }}</label>
             <xm-dropdown-select
                 id="state-search"
                 [options]="stateOptions"
@@ -80,9 +70,9 @@
     </div>
     <!-- 2nd row of controls for admin only -->
     @if (isAdminView()) {
-        <div class="row align-items-center">
+        <div class="row mt-2 align-items-center">
             <div class="col-md-3">
-                <label for="owner-search" class="reservation-search-form-label form-label">{{
+                <label for="owner-search" class="reservation-search-form-label">{{
                     'i18n_exam_owners' | translate
                 }}</label>
                 <div class="input-group">
@@ -104,9 +94,7 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <label for="room-search" class="reservation-search-form-label form-label">{{
-                    'i18n_room' | translate
-                }}</label>
+                <label for="room-search" class="reservation-search-form-label">{{ 'i18n_room' | translate }}</label>
                 @if (roomOptions) {
                     <xm-dropdown-select
                         id="room-search"
@@ -120,7 +108,7 @@
                 }
             </div>
             <div class="col-md-3">
-                <label for="machine-search" class="reservation-search-form-label form-label">{{
+                <label for="machine-search" class="reservation-search-form-label">{{
                     'i18n_exam_machine' | translate
                 }}</label>
                 @if (machineOptions) {

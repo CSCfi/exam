@@ -26,6 +26,7 @@ import { DatePickerComponent } from './date-picker.component';
                 <xm-date-picker
                     [disabled]="disabled"
                     [initialDate]="initialTime"
+                    [readonly]="readonly"
                     (updated)="onDateUpdate($event)"
                     [minDate]="minDate"
                     [maxDate]="maxDate"
@@ -52,6 +53,7 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
     @Input() hourStep = 0;
     @Input() minuteStep = 0;
     @Input() disabled = false;
+    @Input() readonly = false;
     @Input() maxDate?: string;
     @Input() disableDate?: boolean = false;
     @Input() disableTime?: boolean = false;
