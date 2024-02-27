@@ -6,7 +6,7 @@ import { Component, Input, TemplateRef } from '@angular/core';
     standalone: true,
     imports: [NgTemplateOutlet],
     template: `
-        <div class="row ms-3">
+        <div class="row mx-3">
             <div class="col-md-12 my-4">
                 <ng-container [ngTemplateOutlet]="content"></ng-container>
             </div>
