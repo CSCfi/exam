@@ -38,11 +38,7 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"
                 >
-                    <img
-                        src="/assets/images/icon_tooltip.svg"
-                        alt="{{ 'i18n_inspection_comment_info' | translate }}"
-                        onerror="this.onerror=null;this.src='/assets/images/icon_tooltip.png';"
-                    />
+                    <img src="/assets/images/icon_tooltip.svg" alt="{{ 'i18n_inspection_comment_info' | translate }}" />
                 </sup>
             </div>
         </div>

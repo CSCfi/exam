@@ -34,6 +34,7 @@
             [disabled]="hasEnrolments()"
             [hourStep]="1"
             [minuteStep]="15"
+            [readonly]="true"
             [initialTime]="start()"
             [maxDate]="examMaxDate"
             (updated)="onStartDateChange($event)"

@@ -3,18 +3,8 @@
         {{ 'i18n_processed_language_inspections' | translate }}
         @if (inspections.length > 0) {
             <a (click)="hideItems = !hideItems" class="pointer ms-1">
-                <img
-                    [hidden]="!hideItems"
-                    src="/assets/images/icon_list_show_right.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_right.png';"
-                />
-                <img
-                    [hidden]="hideItems"
-                    src="/assets/images/icon_list_show_down.svg"
-                    alt=""
-                    onerror="this.onerror=null;this.src='/assets/images/icon_list_show_down.png';"
-                />
+                <img [hidden]="!hideItems" src="/assets/images/icon_list_show_right.svg" alt="" />
+                <img [hidden]="hideItems" src="/assets/images/icon_list_show_down.svg" alt="" />
             </a>
         }
     </div>
