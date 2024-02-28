@@ -509,7 +509,7 @@ public class ExaminationController extends BaseController {
     public static PathProperties getPath(boolean includeEnrolment) {
         String path =
             "(id, name, state, instruction, hash, duration, cloned, external, implementation, " +
-            "course(id, code, name), executionType(id, type), " + // (
+            "course(id, code, name), examType(id, type), executionType(id, type), " + // (
             "examParticipation(id), " + //
             "examLanguages(code), attachment(fileName), examOwners(firstName, lastName)" +
             "examInspections(*, user(id, firstName, lastName))" +

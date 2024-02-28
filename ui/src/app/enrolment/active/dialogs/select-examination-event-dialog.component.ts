@@ -32,32 +32,28 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
             </h1>
         </div>
         <div class="modal-body">
-            <div class="row">
+            <div class="row mb-2">
                 <div class="col-md-12">
-                    <h3>
-                        {{ 'i18n_exam_duration' | translate }}: {{ exam.duration }}
-                        {{ 'i18n_minutes' | translate }}
-                    </h3>
+                    {{ 'i18n_exam_duration' | translate }}: {{ exam.duration }}
+                    {{ 'i18n_minutes' | translate }}
                 </div>
             </div>
             @for (config of configs; track config) {
-                <div class="examination-event">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <h3>{{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}</h3>
-                        </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        {{ config.examinationEvent.start | date: 'dd.MM.yyyy HH:mm' }}
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <span>{{ config.examinationEvent.description }}</span>
-                        </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <span>{{ config.examinationEvent.description }}</span>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12 mt-1">
-                            <button class="btn btn-sm btn-success" (click)="selectEvent(config)" autofocus>
-                                {{ 'i18n_select' | translate }}
-                            </button>
-                        </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-12 mt-1">
+                        <button class="btn btn-sm btn-success" (click)="selectEvent(config)" autofocus>
+                            {{ 'i18n_select' | translate }}
+                        </button>
                     </div>
                 </div>
             }

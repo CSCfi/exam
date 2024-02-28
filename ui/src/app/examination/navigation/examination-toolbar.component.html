@@ -98,27 +98,25 @@
             </div>
         }
 
-        <!-- ROOM INSTRUCTIONS -->
-        <div class="row mt-3 ms-2" [hidden]="!room || exam.examType.type === 'MATURITY'">
+        <div class="row mt-3 ms-2" [hidden]="!room">
             <div class="col-12">
-                <button
-                    class="xm-ok-button"
-                    ngbPopover="{{ displayRoomInstructions() }}"
-                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                >
-                    {{ 'i18n_room_guidance' | translate }}
-                    <i class="bi bi-info-square ps-2"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- MATURITY INSTRUCTIONS -->
-        <div class="row mt-3 ms-2" [hidden]="exam.executionType.type !== 'MATURITY'">
-            <div class="col-12">
-                <button class="xm-ok-button" (click)="showMaturityInstructions()">
-                    {{ 'i18n_maturity_instructions' | translate }}
-                    <i class="bi bi-info-square ps-2"></i>
-                </button>
+                @if (exam.examType.type !== 'MATURITY') {
+                    <!-- ROOM INSTRUCTIONS -->
+                    <button
+                        class="xm-ok-button"
+                        ngbPopover="{{ displayRoomInstructions() }}"
+                        popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    >
+                        {{ 'i18n_room_guidance' | translate }}
+                        <i class="bi bi-info-square ps-2"></i>
+                    </button>
+                } @else {
+                    <!-- MATURITY INSTRUCTIONS -->
+                    <button class="xm-ok-button" (click)="showMaturityInstructions()">
+                        {{ 'i18n_maturity_instructions' | translate }}
+                        <i class="bi bi-info-square ps-2"></i>
+                    </button>
+                }
             </div>
         </div>
 
