@@ -183,13 +183,13 @@
                         </td>
                         <td>
                             @for (inspection of review.examParticipation.exam.examInspections; track inspection) {
-                                <div>
+                                @if (inspection.user) {
                                     <span [ngClass]="inspection.ready ? 'text-success' : 'text-danger'">
                                         <span [ngClass]="isOwner(inspection.user) ? 'fw-bold' : ''">
                                             {{ inspection.user.firstName }} {{ inspection.user.lastName }}
                                         </span>
                                     </span>
-                                </div>
+                                }
                             }
                         </td>
                         <td>

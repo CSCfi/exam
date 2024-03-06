@@ -199,9 +199,9 @@ public class ReviewController extends BaseController {
             "course(code, name, gradeScale(grades(*))), " +
             "examSections(name, sectionQuestions(*, clozeTestAnswer(*), question(*), essayAnswer(*), options(*, option(*)))), " +
             "languageInspection(*), examLanguages(*), examFeedback(*), grade(name), " +
-            "parent(name, periodStart, periodEnd, course(code, name), examOwners(firstName, lastName, email)), " +
+            "parent(name, periodStart, periodEnd, course(code, name), examOwners(firstName, lastName, email), examInspections(id, firstName, lastName))" +
             "examParticipation(*, user(id, firstName, lastName, email, userIdentifier)), " +
-            "examEnrolments(retrialPermitted)" +
+            "examEnrolments(retrialPermitted)," +
             ")"
         );
         Query<Exam> query = DB.find(Exam.class);
