@@ -488,8 +488,7 @@ public class ExamController extends BaseController {
         // Force anonymous review if globally enabled for public examinations
         if (!copy.isPrivate()) {
             copy.setAnonymous(false);
-        }
-        else if (configReader.isAnonymousReviewEnabled()) {
+        } else if (configReader.isAnonymousReviewEnabled()) {
             copy.setAnonymous(true);
         }
         copy.save();
