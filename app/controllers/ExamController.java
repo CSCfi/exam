@@ -486,7 +486,7 @@ public class ExamController extends BaseController {
         copy.setPeriodStart(now);
         copy.setPeriodEnd(now.plusDays(1));
         // Force anonymous review if globally enabled
-        if (configReader.isAnonymousReviewEnabled()) {
+        if (configReader.isAnonymousReviewEnabled() && !copy.isPrivate()) {
             copy.setAnonymous(true);
         }
         copy.save();
