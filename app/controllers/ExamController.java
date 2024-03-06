@@ -485,8 +485,10 @@ public class ExamController extends BaseController {
         DateTime now = DateTime.now().withTimeAtStartOfDay();
         copy.setPeriodStart(now);
         copy.setPeriodEnd(now.plusDays(1));
-        // Force anonymous review if globally enabled
-        if (configReader.isAnonymousReviewEnabled() && !copy.isPrivate()) {
+        // Force anonymous review if globally enabled for public examinations
+        if (!copy.isPrivate()) {
+            copy.setAnonymous(false);
+        } else if (configReader.isAnonymousReviewEnabled()) {
             copy.setAnonymous(true);
         }
         copy.save();
