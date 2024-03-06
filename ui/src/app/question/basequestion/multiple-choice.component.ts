@@ -102,6 +102,7 @@ import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple
             </div>
         </div>
     `,
+    styleUrls: ['../question.shared.scss'],
     standalone: true,
     imports: [
         MultipleChoiceOptionEditorComponent,

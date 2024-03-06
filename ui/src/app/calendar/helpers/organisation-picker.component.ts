@@ -35,7 +35,7 @@ import { CalendarService } from '../calendar.service';
                                     <button
                                         [disabled]="disabled"
                                         ngbDropdownToggle
-                                        class="btn btn-outline-dark"
+                                        class="btn btn-outline-secondary"
                                         type="button"
                                         id="dropDownMenu21"
                                         aria-haspopup="true"
@@ -59,7 +59,7 @@ import { CalendarService } from '../calendar.service';
                             </div>
                             <div class="col">
                                 <div class="col-12 ps-0">
-                                    <button class="btn btn-outline-dark" (click)="makeInternalReservation()">
+                                    <button class="btn btn-outline-secondary" (click)="makeInternalReservation()">
                                         {{ 'i18n_internal_reservation' | translate }}&nbsp;
                                     </button>
                                 </div>

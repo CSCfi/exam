@@ -115,7 +115,7 @@
     @if (enrolment.exam) {
         <div class="row mt-3">
             <div class="col-12">
-                <button class="btn btn-outline-dark" (click)="addEnrolmentInformation()">
+                <button class="btn btn-outline-secondary" (click)="addEnrolmentInformation()">
                     <i class="bi bi-envelope"></i>
                     {{ 'i18n_student_edit' | translate }}
                 </button>
@@ -182,7 +182,7 @@
             <div class="row mt-3">
                 <div class="col">
                     <button
-                        class="btn btn-outline-dark"
+                        class="btn btn-outline-secondary"
                         (click)="showGuide = !showGuide"
                         (keydown.enter)="showGuide = !showGuide"
                         [attr.aria-expanded]="showGuide"
@@ -260,7 +260,7 @@
         <div class="row mt-2 enrollment-card-dropdown">
             <div class="col col-md-12">
                 <button
-                    class="btn btn-outline-dark"
+                    class="btn btn-outline-secondary"
                     (click)="showMaterials = !showMaterials"
                     (keydown.enter)="showMaterials = !showMaterials"
                     [attr.aria-expanded]="showMaterials"
