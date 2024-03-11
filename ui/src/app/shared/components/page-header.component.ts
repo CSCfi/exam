@@ -9,7 +9,7 @@ import { HistoryBackComponent } from '../history/history-back.component';
     imports: [NgTemplateOutlet, TranslateModule, HistoryBackComponent],
     template: `
         <div class="row mx-3 mt-4 mb-2 align-items-center">
-            <div class="col-md-6 col-s-3">
+            <div class="col-md-9 col-s-3">
                 @if (history) {
                     <span class="pe-4"><xm-history-back xmAutoFocus></xm-history-back></span>
                 }
@@ -19,7 +19,7 @@ import { HistoryBackComponent } from '../history/history-back.component';
                 <span class="xm-page-header-title">{{ text | translate }}</span>
             </div>
             @if (appendTemplate) {
-                <div class="col-6">
+                <div class="col-3">
                     <ng-container [ngTemplateOutlet]="appendTemplate"></ng-container>
                 </div>
             }
