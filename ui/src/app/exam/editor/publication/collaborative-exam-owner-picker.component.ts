@@ -63,7 +63,7 @@ import type { Exam } from '../../exam.model';
                 @for (owner of exam.examOwners; track owner) {
                     {{ owner.email }}
                     <button
-                        class="btn btn-light"
+                        class="btn btn-sm btn-light"
                         [disabled]="!user.isAdmin"
                         (click)="removeOwner(owner.id)"
                         title="{{ 'i18n_remove' | translate }}"

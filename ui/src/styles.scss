@@ -177,6 +177,10 @@ ng-form {
     text-decoration: none;
     cursor: pointer;
 }
+/* numeric input */
+.xm-numeric-input {
+    max-width: 7em;
+}
 /* dumb utilities */
 .pointer {
     cursor: pointer;

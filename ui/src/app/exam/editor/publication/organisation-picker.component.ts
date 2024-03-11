@@ -81,7 +81,7 @@ type Organisation = {
                     @for (org of selectedOrganisations; track org) {
                         {{ org.name }} ({{ org.code }})
                         <button
-                            class="btn btn-light"
+                            class="btn btn-sm btn-light"
                             [disabled]="exam.state === 'PUBLISHED'"
                             (click)="removeOrganisation(org)"
                             title="{{ 'i18n_remove' | translate }}"
