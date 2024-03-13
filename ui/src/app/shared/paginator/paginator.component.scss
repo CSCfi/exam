@@ -7,6 +7,13 @@
     .disabled {
         display: none;
     }
+    .active {
+        a {
+            color: white;
+            background: $exam-medium-green;
+            border-radius: 50%;
+        }
+    }
 
     li {
         display: inline-block;
@@ -27,13 +34,5 @@
             border-radius: 50%;
         }
     }
-
-    .active {
-        a {
-            color: white;
-            background: $exam-medium-green;
-            border-radius: 50%;
-        }
-
-    }
+    
 }
