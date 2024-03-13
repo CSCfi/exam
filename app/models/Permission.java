@@ -15,6 +15,7 @@
 
 package models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.ebean.annotation.EnumValue;
 import jakarta.persistence.Entity;
 import java.util.Objects;
@@ -34,6 +35,7 @@ public class Permission extends GeneratedIdentityModel implements be.objectify.d
     private Type type;
 
     @Override
+    @JsonIgnore
     public String getValue() {
         return type.toString();
     }

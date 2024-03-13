@@ -1,4 +1,4 @@
-@import '../shared';
+@import '../definitions.scss';
 .paginator {
     list-style: none;
     margin: 15px;
@@ -11,40 +11,29 @@
     li {
         display: inline-block;
         padding: 5px;
-
+    
         a,
         a:focus {
+            text-decoration: none;
             padding: 8px;
             color: black;
-            background-color: white;
-            border: 0px;
             width: 32px;
             height: 32px;
             cursor: pointer;
         }
         a:hover {
-            color: white !important;
+            color: white;
             background: $exam-medium-green;
-            -moz-border-radius: 50%;
-            -webkit-border-radius: 50%;
             border-radius: 50%;
         }
     }
 
     .active {
-        a,
-        a:focus {
-            color: #fff !important;
+        a {
+            color: white;
             background: $exam-medium-green;
-            -moz-border-radius: 50%;
-            -webkit-border-radius: 50%;
             border-radius: 50%;
-            border: 0px;
         }
 
-        a:hover {
-            color: #fff !important;
-            background: $exam-medium-green;
-        }
     }
 }
