@@ -24,7 +24,7 @@ import { CalendarService } from '../calendar.service';
 import { AccessibilityPickerComponent } from './accessibility-picker.component';
 import { SelectedRoomComponent } from './selected-room.component';
 
-type FilterableAccessibility = Accessibility & { filtered: boolean };
+export type FilterableAccessibility = Accessibility & { filtered: boolean };
 type FilterableRoom = ExamRoom & { filtered: boolean };
 type AvailableSlot = Slot & { availableMachines: number };
 
@@ -68,7 +68,6 @@ export class SlotPickerComponent implements OnInit, OnChanges {
     maintenancePeriods = signal<MaintenancePeriod[]>([]);
     selectedRoom?: ExamRoom;
     accessibilities: FilterableAccessibility[] = [];
-    showAccessibilityMenu = signal(false);
     currentWeek = signal(DateTime.now());
     examId = signal(0);
 

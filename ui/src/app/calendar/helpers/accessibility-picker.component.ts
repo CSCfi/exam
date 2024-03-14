@@ -1,11 +1,7 @@
-import { NgClass, UpperCasePipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { Accessibility } from 'src/app/reservation/reservation.model';
-
-type FilterableAccessibility = Accessibility & { filtered: boolean };
+import { FilterableAccessibility } from './slot-picker.component';
 
 @Component({
     selector: 'xm-calendar-accessibility-picker',
@@ -23,8 +19,7 @@ type FilterableAccessibility = Accessibility & { filtered: boolean };
                             {{ 'i18n_calendar_room_accessibility_info' | translate }}
                             @if (!showMenu()) {
                                 <i class="bi bi-chevron-right"></i>
-                            }
-                            @if (showMenu()) {
+                            } @else {
                                 <i class="bi bi-chevron-down"></i>
                             }
                         </button>
@@ -65,7 +60,7 @@ type FilterableAccessibility = Accessibility & { filtered: boolean };
     </div> `,
     styleUrls: ['../calendar.component.scss'],
     standalone: true,
-    imports: [NgClass, FormsModule, NgbCollapse, UpperCasePipe, TranslateModule],
+    imports: [NgbCollapse, TranslateModule],
 })
 export class AccessibilityPickerComponent {
     @Input() items: FilterableAccessibility[] = [];
