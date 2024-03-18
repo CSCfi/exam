@@ -47,7 +47,10 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
             <span class="col-md-12">
                 <div class="review-attachment-button exam-questions-buttons me-2">
                     @if (addingVisible) {
-                        <button class="infolink pointer border rounded ng-star-inserted" (click)="addInspectionComment()">
+                        <button
+                            class="infolink pointer border rounded ng-star-inserted"
+                            (click)="addInspectionComment()"
+                        >
                             {{ 'i18n_inspection_comment_title' | translate }}
                         </button>
                     }
