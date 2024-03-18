@@ -36,7 +36,7 @@
                 @for (user of examOwners; track user) {
                     {{ user.firstName }} {{ user.lastName }} ({{ user.email }})
                     <button
-                        class="btn btn-light"
+                        class="btn btn-sm btn-light"
                         [disabled]="examOwners.length === 1"
                         (click)="removeOwner(user.id)"
                         title="{{ 'i18n_remove' | translate }}"

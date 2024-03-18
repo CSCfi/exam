@@ -26,7 +26,7 @@ import { range as _range } from 'ramda';
             </li>
             @for (n of range(); track $index) {
                 <li [ngClass]="{ active: isCurrent(n) }" (click)="setPage(n)" (keyup.enter)="setPage(n)">
-                    <a tabindex="0">{{ printRange(n) }}</a>
+                    <a tabindex="0" class="fs-6 text badge">{{ n + 1 }}</a>
                 </li>
             }
             <li [ngClass]="nextPageDisabled()">
@@ -54,8 +54,6 @@ export class PaginatorComponent implements OnChanges {
             this.pageSelected.emit({ page: 0 });
         }
     }
-
-    printRange = (n: number) => (n < 9 ? '0' + (n + 1) : n + 1);
 
     previousPage = () => {
         if (this.currentPage > 0) {

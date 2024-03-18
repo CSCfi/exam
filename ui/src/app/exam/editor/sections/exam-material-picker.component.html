@@ -34,7 +34,11 @@
     <div class="col-md-3"></div>
     <div class="col-md-9">
         @for (material of section.examMaterials; track material) {
-            <button class="btn btn-light" (click)="removeMaterial(material)" title="{{ 'i18n_remove' | translate }}">
+            <button
+                class="btn btn-sm btn-light"
+                (click)="removeMaterial(material)"
+                title="{{ 'i18n_remove' | translate }}"
+            >
                 <i class="bi bi-x"></i>
             </button>
         }

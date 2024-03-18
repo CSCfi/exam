@@ -28,7 +28,7 @@ import type { User } from '../session.service';
         </div>
         <div class="modal-body">
             <div ngbDropdown>
-                <button ngbDropdownToggle class="btn btn-light" type="button" id="dropDownMenu1">
+                <button ngbDropdownToggle class="btn btn-sm btn-light" type="button" id="dropDownMenu1">
                     {{ 'i18n_choose' | translate }}
                 </button>
                 <div ngbDropdownMenu aria-labelledby="dropDownMenu1">

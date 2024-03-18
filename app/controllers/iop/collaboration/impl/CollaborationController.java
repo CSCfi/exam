@@ -104,6 +104,7 @@ public class CollaborationController extends BaseController {
         user.getEnrolments().clear();
         user.getParticipations().clear();
         user.getInspections().clear();
+        user.getPermissions().clear();
     }
 
     void updateLocalReferences(JsonNode root, Map<String, CollaborativeExam> locals) {

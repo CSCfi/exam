@@ -33,7 +33,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
-import org.joda.time.base.AbstractInterval;
 import util.config.ConfigReader;
 
 public class DateTimeHandlerImpl implements DateTimeHandler {
@@ -130,14 +129,16 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
     }
 
     @Override
-    public List<Interval> mergeSlots(List<Interval> slots) {
-        if (slots.size() <= 1) {
-            return slots;
+    public List<Interval> mergeSlots(List<Interval> intervals) {
+        if (intervals.size() <= 1) {
+            return intervals;
         }
-        slots.sort(Comparator.comparing(AbstractInterval::getStart));
+        // make sure the list is mutable, otherwise sorting fails
+        var slots = new ArrayList<>(intervals);
+        slots.sort(Comparator.comparing(Interval::getStart));
         boolean isMerged = false;
         List<Interval> merged = new ArrayList<>();
-        merged.add(slots.get(0));
+        merged.add(slots.getFirst());
         for (int i = 1; i < slots.size(); ++i) {
             Interval first = slots.get(i - 1);
             Interval second = slots.get(i);

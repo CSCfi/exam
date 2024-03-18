@@ -179,7 +179,7 @@
                     <select
                         id="evaluationType"
                         name="evaluationType"
-                        class="form-select w-50"
+                        class="form-select w-75"
                         [(ngModel)]="question.defaultEvaluationType"
                         (change)="updateEvaluationType()"
                         required="question.type == 'EssayQuestion'"
@@ -206,7 +206,7 @@
                         name="defaultMaxScore"
                         type="number"
                         lang="en"
-                        class="form-control w-25"
+                        class="form-control xm-numeric-input"
                         [(ngModel)]="question.defaultMaxScore"
                         [min]="0"
                         [max]="1000"
@@ -236,53 +236,47 @@
                     <img src="/assets/images/icon_tooltip.svg" alt="" />
                 </sup>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-9">
                 @if (isUserAllowedToModifyOwners()) {
-                    <div class="input-group">
-                        <input
-                            type="text"
-                            name="questionOnwers"
-                            class="form-control"
-                            [(ngModel)]="newOwner.name"
-                            [ngbTypeahead]="listQuestionOwners$"
-                            [editable]="false"
-                            [inputFormatter]="nameFormat"
-                            [resultFormatter]="nameFormat"
-                            (selectItem)="setQuestionOwner($event)"
-                        />
-                        <button
-                            (click)="addQuestionOwner()"
-                            [disabled]="!newOwner?.name"
-                            class="btn btn-success input-group-text"
-                        >
-                            {{ 'i18n_add' | translate }}
-                        </button>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    name="questionOnwers"
+                                    class="form-control"
+                                    [(ngModel)]="newOwner.name"
+                                    [ngbTypeahead]="listQuestionOwners$"
+                                    [editable]="false"
+                                    [inputFormatter]="nameFormat"
+                                    [resultFormatter]="nameFormat"
+                                    (selectItem)="setQuestionOwner($event)"
+                                />
+                                <button
+                                    (click)="addQuestionOwner()"
+                                    [disabled]="!newOwner?.name"
+                                    class="btn btn-success input-group-text"
+                                >
+                                    {{ 'i18n_add' | translate }}
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                } @else {
-                    @for (user of currentOwners; track user.id) {
-                        {{ user.firstName }} {{ user.lastName }}
-                        <button
-                            class="btn btn-light"
-                            [disabled]="removeOwnerDisabled(user)"
-                            (click)="removeOwner(user)"
-                            title="{{ 'i18n_remove' | translate }}"
-                        >
-                            <i class="bi bi-x"></i>
-                        </button>
-                    }
-                }
-                @if (isUserAllowedToModifyOwners()) {
-                    @for (user of currentOwners; track user.id) {
-                        {{ user.firstName }} {{ user.lastName }}
-                        <button
-                            class="btn btn-light"
-                            [disabled]="removeOwnerDisabled(user)"
-                            (click)="removeOwner(user)"
-                            title="{{ 'i18n_remove' | translate }}"
-                        >
-                            <i class="bi bi-x"></i>
-                        </button>
-                    }
+                    <div class="row">
+                        <div class="col-md-12">
+                            @for (user of currentOwners; track user.id) {
+                                {{ user.firstName }} {{ user.lastName }}
+                                <button
+                                    class="btn btn-sm btn-light"
+                                    [disabled]="removeOwnerDisabled(user)"
+                                    (click)="removeOwner(user)"
+                                    title="{{ 'i18n_remove' | translate }}"
+                                >
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            }
+                        </div>
+                    </div>
                 } @else {
                     @for (user of currentOwners; track user.id) {
                         <span class="label label-default pe-2">{{ user.firstName }} {{ user.lastName }}</span>
@@ -400,7 +394,7 @@
                     {{ 'i18n_added_to_sections' | translate }}
                 </div>
                 <div class="col-md-9">
-                    {{ sectionNames.join() }}
+                    {{ sectionNames.join(', ') }}
                 </div>
             </div>
         }

@@ -56,7 +56,7 @@ import type { ExamInfo } from '../calendar.service';
                                 {{ examInfo.periodEnd | date: 'dd.MM.yyyy' }}
                             </div>
                             <div class="clearfix visible-md"></div>
-                            <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-6">
+                            <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-4">
                                 {{ 'i18n_exam_duration' | translate }}:
                             </div>
                             <div class="mt-2 col-6 col-sm-6 col-md-4 col-lg-4">

@@ -36,7 +36,7 @@ import { QuestionDraft } from '../question.service';
                             #wc="ngModel"
                             type="number"
                             lang="en"
-                            class="form-control"
+                            class="form-control xm-numeric-input"
                             [(ngModel)]="question.defaultExpectedWordCount"
                             [min]="1"
                             [max]="1000000"

@@ -63,6 +63,7 @@ import { QuestionDraft } from '../question.service';
             </div>
         </div>
     `,
+    styleUrls: ['../question.shared.scss'],
     standalone: true,
     imports: [FormsModule, NgClass, FixedPrecisionValidatorDirective, TranslateModule],
 })

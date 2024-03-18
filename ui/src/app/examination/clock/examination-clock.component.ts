@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
-import { Observable, Subject, interval, map, startWith, switchMap, take } from 'rxjs';
+import { Observable, Subject, filter, interval, map, startWith, switchMap, take } from 'rxjs';
 
 @Component({
     selector: 'xm-examination-clock',
@@ -42,6 +42,8 @@ import { Observable, Subject, interval, map, startWith, switchMap, take } from '
                                 [ngClass]="(isTimeScarce$ | async) ? 'text-warning' : ''"
                                 >{{ remainingTime$ | async }}</span
                             >
+                        }
+                        @if (ariaLiveTime) {
                             <span class="exam-clock skip" role="region" [attr.aria-live]="'polite'">{{
                                 ('i18l_examination_time_warning' | translate) + ': ' + ariaLiveTime
                             }}</span>
@@ -98,34 +100,12 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
             .subscribe(this.subject);
 
         this.remainingTime$ = this.subject.pipe(map((n) => Duration.fromObject({ seconds: n }).toFormat('hh:mm:ss')));
-        this.remainingTime$.subscribe({
-            next: (time) => {
-                const timeRegex = /^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/;
-                const hourRegex = /^([0-9]|1[0-9]|2[0-3]):00:00$/;
-                const halfHourRegex = /^(0[0-9]|1[0-9]|2[0-3]):30:00$/;
-                const tenMinutesRegex = /^00:10:00$/;
-                const fiveMinutesRegex = /^00:05:00$/;
-                const minuteRegex = /^00:01:00$/;
-
-                if (!timeRegex.test(time)) return;
-
-                if (
-                    hourRegex.test(time) ||
-                    halfHourRegex.test(time) ||
-                    tenMinutesRegex.test(time) ||
-                    fiveMinutesRegex.test(time) ||
-                    minuteRegex.test(time)
-                ) {
-                    this.ariaLiveTime = time;
-                }
-            },
-            error: (error) => {
-                console.error('Error:', error);
-            },
-            complete: () => {
-                console.log('Observable complete');
-            },
-        });
+        this.subject
+            .pipe(
+                filter((t) => t % (60 * 30) === 0 || [1, 5, 10].some((n) => t === 60 * n)),
+                map((t) => Duration.fromObject({ seconds: t }).toFormat('hh:mm:ss')),
+            )
+            .subscribe((time) => (this.ariaLiveTime = time));
         this.isTimeScarce$ = this.subject.pipe(map((n) => n <= this.alarmThreshold));
         this.subject.subscribe((n) => {
             if (n === 0) this.timedOut.emit();

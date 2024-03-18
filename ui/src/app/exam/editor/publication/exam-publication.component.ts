@@ -41,6 +41,7 @@ import { ExamService } from '../../exam.service';
 import { ExaminationEventDialogComponent } from '../events/examination-event-dialog.component';
 import { ExamTabService } from '../exam-tabs.service';
 import { CollaborativeExamOwnerSelectorComponent } from './collaborative-exam-owner-picker.component';
+import { CustomDurationPickerDialogComponent } from './custom-duration-picker-dialog.component';
 import { ExamParticipantSelectorComponent } from './exam-participant-picker.component';
 import { ExamPreParticipantSelectorComponent } from './exam-pre-participant-picker.component';
 import { OrganisationSelectorComponent } from './organisation-picker.component';
@@ -77,11 +78,6 @@ export class ExamPublicationComponent implements OnInit {
     hostName = signal('');
     examDurations = signal<number[]>([]);
     visibleParticipantSelector = signal('participant');
-    hourValue = signal(0);
-    minuteValue = signal(0);
-    maxDuration = signal(300);
-    minDuration = signal(1);
-    showCustomTimeField = signal(false);
 
     constructor(
         private http: HttpClient,
@@ -104,14 +100,6 @@ export class ExamPublicationComponent implements OnInit {
         this.collaborative.set(this.Tabs.isCollaborative());
         this.http.get<{ examDurations: number[] }>('/app/settings/durations').subscribe({
             next: (data) => this.examDurations.set(data.examDurations),
-            error: (err) => this.toast.error(err),
-        });
-        this.http.get<{ maxDuration: number }>('/app/settings/maxDuration').subscribe({
-            next: (data) => this.maxDuration.set(data.maxDuration),
-            error: (err) => this.toast.error(err),
-        });
-        this.http.get<{ minDuration: number }>('/app/settings/minDuration').subscribe({
-            next: (data) => this.minDuration.set(data.minDuration),
             error: (err) => this.toast.error(err),
         });
         if (this.exam.implementation !== 'AQUARIUM') {
@@ -164,15 +152,11 @@ export class ExamPublicationComponent implements OnInit {
 
     setExamDuration = (hours: number, minutes: number) => {
         const duration = hours * 60 + minutes;
-        if (duration < this.minDuration() || duration > this.maxDuration()) {
-            this.toast.warning(this.translate.instant('DIALOGS_ERROR'));
-            return;
-        }
         this.exam.duration = duration;
         this.updateExam$().subscribe();
     };
 
-    toHoursAndMinutes = (minutes: number): string => Duration.fromObject({ minutes: minutes }).toFormat('hh:mm');
+    format = (minutes: number): string => Duration.fromObject({ minutes: minutes }).toFormat('hh:mm');
 
     checkDuration = (duration: number) => (this.exam.duration === duration ? 'btn-primary' : '');
 
@@ -190,6 +174,17 @@ export class ExamPublicationComponent implements OnInit {
     previousTab = () => {
         this.Tabs.notifyTabChange(3);
         this.router.navigate(['..', '3'], { relativeTo: this.route });
+    };
+
+    openCustomTimeEditor = () => {
+        from(
+            this.modal.open(CustomDurationPickerDialogComponent, {
+                backdrop: 'static',
+                keyboard: true,
+            }).result,
+        ).subscribe((duration: { hours: number; minutes: number }) =>
+            this.setExamDuration(duration.hours, duration.minutes),
+        );
     };
 
     saveAndPublishExam = () => {
