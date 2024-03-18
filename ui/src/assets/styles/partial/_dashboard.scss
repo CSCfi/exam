@@ -1018,7 +1018,11 @@
         }
     }
 
-    .reservation-border {
+    .btn-review:hover{
+    background-color: lightgrey;
+    }
+
+  .reservation-border {
         // question reserv, editor :D
         @media (max-width: $sitnet-mobile) {
             margin-left: 0;

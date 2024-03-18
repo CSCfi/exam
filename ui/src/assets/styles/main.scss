@@ -13,6 +13,16 @@
     -webkit-font-smoothing: antialiased;
 }
 
+*::-webkit-scrollbar {
+  width: 12px;
+}
+*::-webkit-scrollbar-thumb {
+  border-radius: 7px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #666666;
+}
+
 html {
     font-family: $sitnet-family-helvetica;
 }
