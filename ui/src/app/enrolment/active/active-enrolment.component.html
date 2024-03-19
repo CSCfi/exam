@@ -41,7 +41,9 @@
                     }
                     @if (enrolment.collaborativeExam) {
                         <h2>
-                            {{ enrolment.collaborativeExam.name }}
+                            <a>
+                                {{ enrolment.collaborativeExam.name }}
+                            </a>
                         </h2>
                     }
 
@@ -64,7 +66,8 @@
                                 <span class="text-success">{{ 'i18n_state_ready' | translate }}</span>
                             }
                             @if (
-                                enrolment.exam?.state === 'PUBLISHED' &&
+                                (enrolment.exam?.state === 'PUBLISHED' ||
+                                    enrolment.collaborativeExam?.state === 'PUBLISHED') &&
                                 !enrolment.reservation &&
                                 !enrolment.examinationEventConfiguration
                             ) {
@@ -244,10 +247,7 @@
                     <div>{{ 'i18n_seb_file' | translate }}:</div>
                     <div>
                         <span class="me-2">
-                            <button
-                                (click)="downloadSebFile()"
-                                class="text text-success pointer mt-1 pointer border rounded hover-grey"
-                            >
+                            <button (click)="downloadSebFile()" class="mt-1 btn btn-outline-secondary">
                                 <strong>{{ 'i18n_download' | translate }}</strong>
                             </button>
                         </span>
@@ -348,26 +348,15 @@
     <div class="row mb-3 mt-2">
         <div class="col">
             <button
-                class="xm-link pointer mt-1 border rounded hover-grey"
+                class="mt-1 btn btn-outline-secondary"
                 [hidden]="!enrolment.exam?.enrollInstruction && !enrolment.collaborativeExam?.enrollInstruction"
                 (click)="showInstructions = !showInstructions"
             >
                 {{ 'i18n_view_instructions' | translate }}
-                <img
-                    class="arrow_icon"
-                    [hidden]="showInstructions"
-                    alt="show instructions"
-                    src="/assets/images/arrow_right.png"
-                />
-                <img
-                    class="arrow_icon"
-                    [hidden]="!showInstructions"
-                    alt="hide instructions"
-                    src="/assets/images/arrow_down.png"
-                />
+                <i [hidden]="showInstructions" class="bi bi-chevron-right"></i>
+                <i [hidden]="!showInstructions" class="bi bi-chevron-down"></i>
             </button>
             <div
-                class="border rounded col"
                 [ngbCollapse]="!showInstructions"
                 [attr.aria-expanded]="showInstructions"
                 [xmMathJax]="enrolment.exam?.enrollInstruction || enrolment.collaborativeExam?.enrollInstruction || ''"

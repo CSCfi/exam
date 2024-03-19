@@ -20,7 +20,6 @@
 }
 
 .question-option-input {
-    width: 27em;
     height: 40px;
     border-radius: 4px;
     border: 1px solid #e0e0df;
@@ -127,43 +126,7 @@
     border-radius: 4px;
     padding: 10px;
     margin-bottom: 1em;
-    width: 600px;
     transition-duration: 0.2s;
-}
-
-.claim-choice-option-labels {
-    width: 500px;
-    padding: 10px;
-    .claim-choice-option-label {
-        display: inline-block;
-        width: 380px;
-        margin: 0 21px 0 11px;
-
-        &.points {
-            margin: 0;
-            width: 70px;
-        }
-    }
-}
-
-.claim-choice-option-inputs {
-    .question-option-input {
-        width: 380px;
-        display: inline-block;
-
-        &.points {
-            margin: 0;
-            width: 70px;
-        }
-    }
-}
-
-.claim-choice-option-description {
-    display: inline-block;
-    width: 100%;
-    margin: 0;
-    padding: 5px 0 0 5px;
-    font-size: 12px;
 }
 
 .claim-choice-correct-answer {
@@ -195,6 +158,7 @@
 }
 
 .claim-choice-skip-answer {
+    border: 1px solid #ededed;
     input:disabled {
         color: #727272;
         cursor: not-allowed;
@@ -210,50 +174,6 @@
     border-left: 6px solid red;
     padding: 10px;
 }
-
-@media screen and (max-width: 1250px) {
-    .question-editor-claim-choice-option {
-        width: 400px;
-    }
-
-    .claim-choice-option-labels {
-        width: 400px;
-        .claim-choice-option-label {
-            width: 280px;
-        }
-    }
-
-    .claim-choice-option-inputs {
-        .question-option-input {
-            width: 280px;
-        }
-    }
-}
-
-@media screen and (max-width: 920px) {
-    .question-editor-claim-choice-option {
-        width: 300px;
-    }
-
-    .claim-choice-option-labels {
-        width: 300px;
-        .claim-choice-option-label {
-            width: 180px;
-        }
-    }
-
-    .claim-choice-option-inputs {
-        .question-option-input {
-            width: 180px;
-            margin-right: 18px;
-
-            &.points {
-                margin: 0;
-            }
-        }
-    }
-}
-
 .edit-warning-container {
     display: flex;
     align-items: center;

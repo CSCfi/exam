@@ -49,14 +49,14 @@
     min-width: 80vw;
 }
 /* form validation overrides */
-.ng-invalid {
-    border: 0;
-}
 form .ng-invalid {
     border: 1px solid red;
-    .exclude {
-        border: 0 !important;
-    }
+}
+form .exclude {
+    border: 0 !important;
+}
+form .xm-cke-invalid {
+    border: 1px solid red;
 }
 ng-form {
     border: 0 !important;

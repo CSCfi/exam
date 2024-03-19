@@ -206,10 +206,13 @@
                                     @if (exam.attachment) {
                                         <div class="make-inline">
                                             <a class="pointer" (click)="downloadExamAttachment()">
-                                                <i class="bi-paperclip ps-2"></i> {{ exam.attachment?.fileName }}
-                                            </a>
-                                            <span class="sitnet-red pointer" (click)="removeExamAttachment()">
-                                                <img src="/assets/images/icon_remove.svg" alt="" />
+                                                <i class="bi-paperclip ps-2"></i>{{ exam.attachment?.fileName }}</a
+                                            >
+                                            <span class="pointer ms-2" (click)="removeExamAttachment()">
+                                                <i
+                                                    class="bi bi-x-lg text-danger"
+                                                    title="{{ 'i18n_remove' | translate }}"
+                                                ></i>
                                             </span>
                                         </div>
                                     }

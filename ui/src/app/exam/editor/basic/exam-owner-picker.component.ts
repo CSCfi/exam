@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
@@ -30,7 +31,7 @@ import type { Exam } from '../../exam.model';
     selector: 'xm-exam-owner-picker',
     templateUrl: './exam-owner-picker.component.html',
     standalone: true,
-    imports: [NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
+    imports: [NgClass, NgbPopover, FormsModule, NgbTypeahead, TranslateModule],
 })
 export class ExamOwnerSelectorComponent implements OnInit {
     @Input() exam!: Exam;

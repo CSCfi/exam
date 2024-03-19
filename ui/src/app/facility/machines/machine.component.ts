@@ -61,7 +61,7 @@ export class MachineComponent implements OnInit {
                             class:
                                 this.machine.softwareInfo.map((si) => si.id).indexOf(s.id) > -1
                                     ? 'bg-success'
-                                    : 'bg-secondary',
+                                    : 'bg-light text-dark',
                         }))),
                 );
             },
@@ -87,7 +87,7 @@ export class MachineComponent implements OnInit {
 
     toggleSoftware = (software: SoftwareWithClass) => {
         this.machines.toggleMachineSoftware(this.machine.id, software.id).subscribe({
-            next: (response) => (software.class = response.turnedOn === true ? 'bg-success' : 'bg-secondary'),
+            next: (response) => (software.class = response.turnedOn === true ? 'bg-success' : 'bg-light text-dark'),
             error: (err) => this.toast.error(err),
         });
     };
