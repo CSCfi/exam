@@ -15,7 +15,7 @@
  */
 
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
@@ -78,7 +78,7 @@ import { Duration } from 'luxon';
         </div>
     </div>`,
 })
-export class CustomDurationPickerDialogComponent {
+export class CustomDurationPickerDialogComponent implements OnInit {
     hours = signal(0);
     minutes = signal(0);
     minDuration = signal(1);

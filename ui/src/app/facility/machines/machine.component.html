@@ -73,11 +73,7 @@
         <div class="col-md-12">
             <div class="facility-info-text">{{ 'i18n_machine_softwares' | translate }}</div>
             @for (software of software; track software) {
-                <span
-                    class="badge bg-secondary me-1 mb-1 pointer"
-                    [ngClass]="software.class"
-                    (click)="toggleSoftware(software)"
-                >
+                <span class="badge me-1 mb-1 pointer" [ngClass]="software.class" (click)="toggleSoftware(software)">
                     {{ software.name }}
                 </span>
             }

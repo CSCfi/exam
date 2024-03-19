@@ -100,7 +100,7 @@
                             </sup>
                         </div>
                         @if (question?.type) {
-                            <div class="col-md-9">
+                            <div class="col-md-9" [ngClass]="ck.invalid ? 'xm-cke-invalid' : ''">
                                 <xm-ckeditor
                                     id="editor"
                                     name="editor"
@@ -425,7 +425,7 @@
                             <div class="col-md-2">
                                 <select
                                     id="evaluationType"
-                                    class="form-select w-50"
+                                    class="form-select w-75"
                                     name="evaluationType"
                                     [(ngModel)]="examQuestion.evaluationType"
                                     (change)="updateEvaluationType()"
@@ -454,12 +454,12 @@
                                     name="maxScore"
                                     type="number"
                                     lang="en"
-                                    class="form-control w-25"
+                                    class="form-control xm-numeric-input"
                                     [(ngModel)]="examQuestion.maxScore"
                                     [min]="0"
                                     [max]="1000"
-                                    xmFixedPrecision
                                     required
+                                    xmFixedPrecision
                                     [disabled]="lotteryOn"
                                 />
                             </div>

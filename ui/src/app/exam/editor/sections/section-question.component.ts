@@ -27,7 +27,7 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { mergeDeepRight } from 'ramda';
-import { from, noop, Observable, of } from 'rxjs';
+import { Observable, from, noop, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { BaseQuestionEditorComponent } from '../../../question/examquestion/base-question-editor.component';
 import { ExamQuestionEditorComponent } from '../../../question/examquestion/exam-question-editor.component';
@@ -181,7 +181,6 @@ export class SectionQuestionComponent {
                         error: (err) => this.toast.error(err),
                     });
             },
-            error: (err) => this.toast.error(err),
         });
     };
 

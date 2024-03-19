@@ -67,7 +67,7 @@ import { QuestionDraft } from '../question.service';
                     @for (tag of ownTags; track tag) {
                         {{ tag.name }}
                         <button
-                            class="btn btn-sm btn-light"
+                            class="btn btn-sm btn-link"
                             ngbPopover="{{ 'i18n_remove' | translate }}"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
                             triggers="mouseenter:mouseleave"

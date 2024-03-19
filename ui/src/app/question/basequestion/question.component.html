@@ -13,7 +13,7 @@
     <div class="row me-2">
         <!-- Question body //-->
         <div class="col-md-12 question-border px-4">
-            <form role="form" #questionForm="ngForm" class="form-horizontal" name="questionForm" novalidate>
+            <form role="form" #questionForm="ngForm" name="questionForm" novalidate>
                 @if (question) {
                     <xm-question-body
                         [question]="question"

@@ -395,7 +395,7 @@ export class QuestionService {
         }
     };
 
-    returnClaimChoiceOptionClass = (optionType: string): string => {
+    determineClaimChoiceOptionClass = (optionType: string): string => {
         switch (optionType) {
             case 'CorrectOption':
                 return 'claim-choice-correct-answer';
@@ -408,7 +408,7 @@ export class QuestionService {
         }
     };
 
-    returnOptionDescriptionTranslation = (optionType: string) => {
+    determineOptionDescriptionTranslation = (optionType: string) => {
         switch (optionType) {
             case 'CorrectOption':
                 return this.translate.instant('i18n_claim_choice_correct_option_description');

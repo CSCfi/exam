@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -63,18 +64,18 @@ import type { Exam } from '../../exam.model';
                 @for (owner of exam.examOwners; track owner) {
                     {{ owner.email }}
                     <button
-                        class="btn btn-sm btn-light"
+                        class="btn btn-sm btn-link px-0"
                         [disabled]="!user.isAdmin"
                         (click)="removeOwner(owner.id)"
                         title="{{ 'i18n_remove' | translate }}"
                     >
-                        <i class="bi bi-x"></i>
+                        <i class="bi bi-x-lg" [ngClass]="!user.isAdmin ? 'text-danger' : 'text-success'"></i>
                     </button>
                 }
             </div>
         </div>`,
     standalone: true,
-    imports: [NgbPopover, FormsModule, TranslateModule],
+    imports: [NgClass, NgbPopover, FormsModule, TranslateModule],
 })
 export class CollaborativeExamOwnerSelectorComponent {
     @Input() exam!: Exam;

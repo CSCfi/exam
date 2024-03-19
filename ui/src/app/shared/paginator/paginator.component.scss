@@ -13,6 +13,9 @@
             background: $exam-medium-green;
             border-radius: 50%;
         }
+        a:focus {
+            color: white;
+        }
     }
 
     li {

@@ -36,12 +36,12 @@
                 @for (user of examOwners; track user) {
                     {{ user.firstName }} {{ user.lastName }} ({{ user.email }})
                     <button
-                        class="btn btn-sm btn-light"
+                        class="btn btn-sm btn-link px-0"
                         [disabled]="examOwners.length === 1"
                         (click)="removeOwner(user.id)"
                         title="{{ 'i18n_remove' | translate }}"
                     >
-                        <i class="bi bi-x"></i>
+                        <i class="bi bi-x-lg" [ngClass]="examOwners.length === 1 ? 'text-danger' : 'text-success'"></i>
                     </button>
                 }
             </div>

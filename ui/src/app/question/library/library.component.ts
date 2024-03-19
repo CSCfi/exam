@@ -34,7 +34,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
 @Component({
     selector: 'xm-library',
     template: `<div id="dashboard">
-            <xm-page-header text="i18n_library_new" [appendTemplate]="buttons" />
+            <xm-page-header text="i18n_library_new" [appendWide]="true" [appendTemplate]="buttons" />
             <xm-page-content [content]="content" />
         </div>
         <ng-template #buttons>

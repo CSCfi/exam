@@ -27,13 +27,15 @@ export class FixedPrecisionValidatorDirective {
     @HostListener('change')
     onChange() {
         const fixed = this.toFixed();
-        (this.el.nativeElement as HTMLInputElement).value = fixed;
-        this.ngModelChange.emit(parseFloat(fixed));
+        if (fixed) {
+            (this.el.nativeElement as HTMLInputElement).value = fixed;
+            this.ngModelChange.emit(parseFloat(fixed));
+        }
     }
 
     private toFixed = () => {
         if (this.ngModel == null || this.ngModel == undefined) {
-            return '';
+            return this.ngModel;
         }
         const re = /^-?[0-9]+(\.[0-9]{1,2})?$/i;
         if (!this.ngModel.toString().match(re)) {
