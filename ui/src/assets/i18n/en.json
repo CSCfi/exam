@@ -1166,5 +1166,11 @@
   "i18n_total_simultaneous_byod_capacity": "Maximum number of participants for all overlapping exam events",
   "i18n_simultaneous_events": "Overlapping exam events with maximum number of participants.",
   "i18n_available_capacity": "Possible maximum number of participants in this event (approx.)",
-  "i18n_no_events": "No exam events"
+  "i18n_no_events": "No exam events",
+  "i18n_exam_question_edit_instructions_more_than_one": "Tämä kysymys on käytössä useammassa tentissä. Muutokset kysymystekstiin, vastausvaihtoehtoihin ja liitetiedostoon päivittyvät seuraaviin tentteihin. Vastausvaihtoehtojen pisteet ja kysymykseen liittyvä ohjeistus eivät päivity. EN",
+  "i18n_exam_question_edit_instructions_for_one": "Tämä kysymys on käytössä yhdessä tentissä. Muutokset kysymystekstiin, vastausvaihtoehtoihin ja liitetiedostoon päivittyvät seuraavaan tenttiin. Vastausvaihtoehtojen pisteet ja kysymykseen liittyvä ohjeistus eivät päivity EN",
+  "i18n_exam_question_edit_instructions_for_none": "Tämä kysymys ei ole käytössä yhdessäkään tentissä EN",
+  "i18n_open_list_of_exams": "Näytä lista tenteistä EN",
+  "i18n_more_hidden": "Lisää piilotettuna EN",
+  "i18n_exam_question_in_use": "Tenttejä joissa kysymys on käytössä EN"
 }
