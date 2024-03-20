@@ -1166,5 +1166,10 @@
   "i18n_total_simultaneous_byod_capacity": "Järjestelmän samanaikainen maksimiosallistujamäärä SV",
   "i18n_simultaneous_events": "Samanaikaisesti järjestettävät tenttitilaisuudet maksimiosallistujamäärineen SV",
   "i18n_available_capacity": "Maksimimiosallistujamäärä tälle tilaisuudelle (arvio) SV",
-  "i18n_no_events": "Ei tapahtumia SV"
+  "i18n_no_events": "Ei tapahtumia SV",
+  "i18n_exam_question_edit_instructions_for_one": "Tämä kysymys on käytössä yhdessä tentissä. Muutokset kysymystekstiin, vastausvaihtoehtoihin ja liitetiedostoon päivittyvät seuraavaan tenttiin. Vastausvaihtoehtojen pisteet ja kysymykseen liittyvä ohjeistus eivät päivity SV",
+  "i18n_exam_question_edit_instructions_for_none": "Tämä kysymys ei ole käytössä yhdessäkään tentissä SV",
+  "i18n_open_list_of_exams": "Näytä lista tenteistä SV",
+  "i18n_more_hidden": "Lisää piilotettuna SV",
+  "i18n_exam_question_in_use": "Tenttejä joissa kysymys on käytössä SV"
 }
