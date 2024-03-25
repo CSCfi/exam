@@ -23,7 +23,7 @@ import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import type { Course, Exam, ExamSection, Tag } from '../../../exam/exam.model';
-import type { User } from '../../../session/session.service';
+import type { Role, User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
 import type { LibraryQuestion } from '../library.service';
 import { LibraryService } from '../library.service';
@@ -221,8 +221,10 @@ export class LibrarySearchComponent implements OnInit {
                                 filtered: false,
                             })),
                         )
-                            .filter((o) => !o.object.isTeacher || !o.object.isAdmin)
-                            .sort((a, b) => a.name.localeCompare(b.name));
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .filter((o) =>
+                                o.object.roles.some((r: Role) => r.name === 'ADMIN' || r.name === 'TEACHER'),
+                            );
                     }),
                 )
                 .subscribe();
