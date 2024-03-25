@@ -76,9 +76,9 @@ import { RoomService } from '../rooms/room.service';
                 </button>
             </div>
             <div class="col-6">
-                <a class="pointer float-end" (click)="toggleAllExamStartingHours()">{{
-                    'i18n_add_remove_all' | translate
-                }}</a>
+                <button class="btn btn-outline-dark float-end" (click)="toggleAllExamStartingHours()">
+                    {{ 'i18n_add_remove_all' | translate }}
+                </button>
             </div>
         </div>`,
     standalone: true,
