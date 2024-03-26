@@ -117,6 +117,6 @@ export class LibraryOwnersDialogComponent implements OnInit {
 
     private filterByName = (src: User[], q: string): User[] => {
         if (!q) return src;
-        return src.filter((u) => u.name?.toLowerCase().includes(q.toLowerCase()));
+        return src.filter((u) => `${u.firstName} ${u.lastName}`.toLowerCase().includes(q.toLowerCase()));
     };
 }

@@ -23,7 +23,7 @@ import { ToastrService } from 'ngx-toastr';
 import { Observable, interval, map, startWith } from 'rxjs';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import type { ExamRoom, Reservation } from '../../reservation/reservation.model';
+import type { Reservation } from '../../reservation/reservation.model';
 import { SessionService } from '../../session/session.service';
 import { ApplyDstPipe } from '../../shared/date/apply-dst.pipe';
 import { DateTimeService } from '../../shared/date/date.service';
@@ -59,7 +59,6 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
 export class WaitingRoomComponent implements OnInit, OnDestroy {
     enrolment!: WaitingEnrolment;
     isUpcoming = signal(false);
-    roomInstructions = signal('');
     delayCounter$?: Observable<number>;
 
     private startTimerId = 0;
@@ -83,11 +82,6 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                     this.enrolment = enrolment;
                     const offset = this.calculateOffset();
                     this.startTimerId = window.setTimeout(this.startScheduled, offset);
-                    if (this.enrolment.reservation) {
-                        const room = this.enrolment.reservation.machine.room;
-                        const code = this.translate.currentLang.toUpperCase();
-                        this.roomInstructions.set(this.getRoomInstructions(code, room));
-                    }
                     this.http
                         .post<void>(`/app/student/exam/${this.route.snapshot.params.hash}`, {})
                         .subscribe(() => console.log(`exam ${this.route.snapshot.params.hash} prepared ok`));
@@ -102,6 +96,19 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         window.clearTimeout(this.delayTimerId);
     }
 
+    getRoomInstructions = () => {
+        const room = this.enrolment.reservation.machine.room;
+        const lang = this.translate.currentLang.toUpperCase();
+        switch (lang) {
+            case 'FI':
+                return room.roomInstruction;
+            case 'SV':
+                return room.roomInstructionSV;
+            default:
+                return room.roomInstructionEN;
+        }
+    };
+
     private startScheduled = () => {
         window.clearTimeout(this.startTimerId);
         const offset = Math.ceil(
@@ -111,19 +118,8 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         this.delayTimerId = window.setTimeout(this.Session.checkSession, offset * 1000);
         this.delayCounter$ = interval(1000).pipe(
             startWith(0),
-            map((n) => offset - n),
+            map((n) => Math.max(offset - n, 0)),
         );
-    };
-
-    private getRoomInstructions = (lang: string, room: ExamRoom) => {
-        switch (lang) {
-            case 'FI':
-                return room.roomInstruction;
-            case 'SV':
-                return room.roomInstructionSV;
-            default:
-                return room.roomInstructionEN;
-        }
     };
 
     private setOccasion = (reservation: WaitingReservation) => {

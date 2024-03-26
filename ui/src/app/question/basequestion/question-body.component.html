@@ -112,7 +112,7 @@
                     <img src="/assets/images/icon_tooltip.svg" alt="" />
                 </sup>
             </div>
-            <div class="col-md-9" [ngClass]="ck.invalid ? 'xm-cke-invalid' : ''">
+            <div class="col-md-9" [ngClass]="ck.invalid ? 'ng-invalid' : ''">
                 <xm-ckeditor
                     id="editor"
                     name="editor"
@@ -267,7 +267,7 @@
                             @for (user of currentOwners; track user.id) {
                                 {{ user.firstName }} {{ user.lastName }}
                                 <button
-                                    class="btn btn-sm link"
+                                    class="btn btn-sm btn-link"
                                     [disabled]="removeOwnerDisabled(user)"
                                     (click)="removeOwner(user)"
                                     title="{{ 'i18n_remove' | translate }}"

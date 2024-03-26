@@ -120,7 +120,6 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
                     next: () => this.questions.splice(this.questions.indexOf(question), 1),
                     error: () => this.toast.info(this.translate.instant('i18n_question_removed')),
                 }),
-            error: (err) => this.toast.error(err),
         });
 
     copyQuestion = (question: SelectableQuestion) =>
@@ -136,7 +135,6 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
                     },
                     error: (err) => this.toast.error(err),
                 }),
-            error: (err) => this.toast.error(err),
         });
 
     downloadQuestionAttachment = (question: LibraryQuestion) => this.Attachment.downloadQuestionAttachment(question);

@@ -95,13 +95,13 @@ export class SectionQuestionComponent {
         this.Confirmation.open$(
             this.translate.instant('i18n_confirm'),
             this.translate.instant('i18n_remove_question'),
-        ).subscribe({ next: () => this.removed.emit(this.sectionQuestion), error: (err) => this.toast.error(err) });
+        ).subscribe({ next: () => this.removed.emit(this.sectionQuestion) });
 
     copyQuestion = () =>
         this.Confirmation.open$(
             this.translate.instant('i18n_confirm'),
             this.translate.instant('i18n_copy_question'),
-        ).subscribe({ next: () => this.copied.emit(this.sectionQuestion), error: (err) => this.toast.error(err) });
+        ).subscribe({ next: () => this.copied.emit(this.sectionQuestion) });
 
     determineClaimOptionType(examOption: ExamSectionQuestionOption) {
         return this.Question.determineClaimOptionTypeForExamQuestionOption(examOption);
