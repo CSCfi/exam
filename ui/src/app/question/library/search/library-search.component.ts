@@ -22,6 +22,7 @@ import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
+import { UserService } from 'src/app/shared/user/user.service';
 import type { Course, Exam, ExamSection, Tag } from '../../../exam/exam.model';
 import type { User } from '../../../session/session.service';
 import { SessionService } from '../../../session/session.service';
@@ -75,6 +76,7 @@ export class LibrarySearchComponent implements OnInit {
         private Library: LibraryService,
         private Session: SessionService,
         private CourseCode: CourseCodeService,
+        private User: UserService,
     ) {
         this.user = this.Session.getUser();
     }
@@ -209,7 +211,7 @@ export class LibrarySearchComponent implements OnInit {
     listAllOwners$ = () => {
         if (this.user.isAdmin) {
             const owners = this.owners.filter((o) => o.filtered);
-            return this.Library.listAllOwners$()
+            return this.User.listUsersByRoles$(['TEACHER', 'ADMIN'])
                 .pipe(
                     tap((resp) => {
                         this.owners = this.filteredOwners = this.union(
@@ -220,9 +222,7 @@ export class LibrarySearchComponent implements OnInit {
                                 object: r,
                                 filtered: false,
                             })),
-                        )
-                            .filter((o) => !o.object.isTeacher || !o.object.isAdmin)
-                            .sort((a, b) => a.name.localeCompare(b.name));
+                        ).sort((a, b) => a.name.localeCompare(b.name));
                     }),
                 )
                 .subscribe();

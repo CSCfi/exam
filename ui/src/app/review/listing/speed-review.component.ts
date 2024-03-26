@@ -192,7 +192,6 @@ export class SpeedReviewComponent implements OnInit {
                     }
                 });
             },
-            error: (err) => this.toast.error(err),
         });
     };
 

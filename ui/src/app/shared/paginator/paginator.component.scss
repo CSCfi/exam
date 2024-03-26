@@ -7,21 +7,11 @@
     .disabled {
         display: none;
     }
-    .active {
-        a {
-            color: white;
-            background: $exam-medium-green;
-            border-radius: 50%;
-        }
-        a:focus {
-            color: white;
-        }
-    }
 
     li {
         display: inline-block;
         padding: 5px;
-    
+
         a,
         a:focus {
             text-decoration: none;
@@ -36,6 +26,13 @@
             background: $exam-medium-green;
             border-radius: 50%;
         }
+        &.active {
+            a,
+            a:focus {
+                color: white;
+                background: $exam-medium-green;
+                border-radius: 50%;
+            }
+        }
     }
-    
 }

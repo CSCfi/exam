@@ -82,7 +82,6 @@ export class MachineComponent implements OnInit {
                     },
                     error: (err) => this.toast.error(err),
                 }),
-            error: (err) => this.toast.error(err),
         });
 
     toggleSoftware = (software: SoftwareWithClass) => {

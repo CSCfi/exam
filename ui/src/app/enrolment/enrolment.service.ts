@@ -60,7 +60,6 @@ export class EnrolmentService {
                     },
                     error: (err) => this.toast.error(err),
                 }),
-            error: (err) => this.toast.error(err),
         });
     };
 
@@ -82,7 +81,6 @@ export class EnrolmentService {
             this.translate.instant('i18n_are_you_sure'),
         ).subscribe({
             next: () => this.http.delete(url).subscribe({ next: successFn, error: errorFn }),
-            error: (err) => this.toast.error(err),
         });
     }
 

@@ -24,7 +24,7 @@
         <div class="row m-2 xm-study-item-container waitingroom ms-2" id="dashboard">
             <div class="col-md-12">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-1">
                         <!-- calendar box -->
                         @if (enrolment?.reservation) {
                             <div class="student-enrolment-date-box">
@@ -45,15 +45,17 @@
                                 }}</span>
                             </div>
                         }
+                    </div>
+                    <div class="col">
                         <!-- exam title n stuff -->
-                        <div class="student-enrolment-exam">
+                        <strong class="fs-5">
                             {{ enrolment?.exam?.name }}
                             @if (enrolment?.exam?.anonymous) {
                                 <span>({{ 'i18n_anonymous_review' | translate }})</span>
                             }
                             <br />
                             <span class="text-success">{{ 'i18n_state_ready' | translate }}</span>
-                        </div>
+                        </strong>
                     </div>
                 </div>
                 <div class="row mt-2">
@@ -78,7 +80,7 @@
                 @if (enrolment?.reservation) {
                     <div class="row">
                         <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_exam_room' | translate }}:</div>
-                        <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3">
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
                             {{ enrolment.reservation.machine.name }}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
                             {{ enrolment.reservation.machine.room.name }}
                             ({{ enrolment.reservation.machine.room.roomCode }})
@@ -114,26 +116,22 @@
                         </div>
                     </div>
                 }
-                @if (roomInstructions()) {
+                @if (enrolment?.reservation?.machine?.room?.roomInstruction) {
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                             <strong>{{ 'i18n_room_guidance' | translate }}: </strong>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12 pt-2">{{ roomInstructions() }}</div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-2">{{ getRoomInstructions() }}</div>
                     </div>
                 }
                 @if (enrolment?.exam?.enrollInstruction) {
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-xs-6 col-sm-6 col-md-2 col-lg-2">
                             <strong>{{ 'i18n_view_instructions' | translate }}:</strong>
                         </div>
-                    </div>
-                }
-                @if (enrolment?.exam?.enrollInstruction) {
-                    <div class="row">
-                        <div class="col-md-12 pt-2" [xmMathJax]="enrolment.exam.enrollInstruction"></div>
+                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-5">
+                            [xmMathJax]="enrolment.exam.enrollInstruction">
+                        </div>
                     </div>
                 }
             </div>

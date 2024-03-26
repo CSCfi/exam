@@ -85,7 +85,7 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
                     sync$.pipe(
                         switchMap((t) =>
                             interval(1000).pipe(
-                                map((n) => t - n),
+                                map((n) => Math.max(0, t - n)),
                                 take(this.syncInterval),
                             ),
                         ),
