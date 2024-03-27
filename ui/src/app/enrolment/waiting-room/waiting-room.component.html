@@ -8,14 +8,14 @@
 <ng-template #content>
     <div class="waitingroom-info">
         @if (delayCounter$) {
-            <div class="alert alert-info me-4" [attr.aria-live]="'polite'">
+            <div class="alert alert-info me-4">
                 <i class="bi bi-exclamation-circle-fill me-4"></i>
                 {{ delayCounter$ | async }} {{ 'i18n_seconds_until_examination_starts' | translate }}
             </div>
         } @else if (isUpcoming()) {
             <div class="alert alert-secondary me-4">
                 <i class="bi bi-exclamation-circle-fill me-4"></i>
-                {{ 'i18n_redirect_to_exam_notice' | translate }}
+                <span [attr.aria-live]="'polite'">{{ 'i18n_redirect_to_exam_notice' | translate }}</span>
             </div>
         }
     </div>

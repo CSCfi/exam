@@ -1166,5 +1166,6 @@
   "i18n_total_simultaneous_byod_capacity": "Järjestelmän samanaikainen maksimiosallistujamäärä SV",
   "i18n_simultaneous_events": "Samanaikaisesti järjestettävät tenttitilaisuudet maksimiosallistujamäärineen SV",
   "i18n_available_capacity": "Maksimimiosallistujamäärä tälle tilaisuudelle (arvio) SV",
-  "i18n_no_events": "Ei tapahtumia SV"
+  "i18n_no_events": "Ei tapahtumia SV",
+  "i18l_examination_time_warning": "Tenttiaika varoitus SV"
 }
