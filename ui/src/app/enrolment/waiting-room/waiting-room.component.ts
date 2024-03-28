@@ -40,7 +40,7 @@ type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {
 @Component({
     selector: 'xm-waiting-room',
     templateUrl: './waiting-room.component.html',
-    styleUrls: ['../enrolment.shared.scss', './waiting-room.component.scss'],
+    styleUrls: ['../enrolment.shared.scss'],
     standalone: true,
     imports: [
         CourseCodeComponent,
