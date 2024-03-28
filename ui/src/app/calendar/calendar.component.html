@@ -1,7 +1,5 @@
-<div id="dashboard">
-    <xm-page-header text="i18n_calendar" [history]="true" />
-    <xm-page-content [content]="content" />
-</div>
+<xm-page-header text="i18n_calendar" [history]="true" />
+<xm-page-content [content]="content" />
 <ng-template #content>
     <!-- Phase 1: Exam Info -->
     @if (examInfo && reservationWindowSize) {

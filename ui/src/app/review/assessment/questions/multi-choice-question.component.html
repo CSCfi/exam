@@ -1,127 +1,125 @@
-<div id="exam">
-    <div class="xm-study-item-container review-view">
-        <div class="col-md-12">
-            <!-- question text -->
-            <div class="d-flex justify-content-between">
-                <div class="" [xmMathJax]="sectionQuestion.question.question"></div>
-                <div>
-                    <!-- grade -->
-                    @if (sectionQuestion.question.type === 'MultipleChoiceQuestion') {
-                        <div class="d-inline-block pe-3">
-                            <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
-                                {{ scoreMultipleChoiceAnswer(true) }}
+<div class="xm-study-item-container review-view">
+    <div class="col-md-12">
+        <!-- question text -->
+        <div class="d-flex justify-content-between">
+            <div class="" [xmMathJax]="sectionQuestion.question.question"></div>
+            <div>
+                <!-- grade -->
+                @if (sectionQuestion.question.type === 'MultipleChoiceQuestion') {
+                    <div class="d-inline-block pe-3">
+                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                            {{ scoreMultipleChoiceAnswer(true) }}
+                        </span>
+                        @if (hasForcedScore()) {
+                            <span class="text text-danger">
+                                {{ sectionQuestion.forcedScore }}
                             </span>
-                            @if (hasForcedScore()) {
-                                <span class="text text-danger">
-                                    {{ sectionQuestion.forcedScore }}
-                                </span>
-                            }
-                            / {{ displayMaxScore() }} {{ 'i18n_unit_points' | translate }}
-                        </div>
-                    }
-                    @if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') {
-                        <div class="d-inline-block pe-3">
-                            <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
-                                {{ scoreWeightedMultipleChoiceAnswer(true) }}
-                            </span>
-                            @if (hasForcedScore()) {
-                                <span class="text text-danger">
-                                    {{ sectionQuestion.forcedScore }}
-                                </span>
-                            }
-                            / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }}
-                        </div>
-                    }
-                    @if (sectionQuestion.question.type === 'ClaimChoiceQuestion') {
-                        <div class="d-inline-block pe-3">
-                            <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
-                                {{ scoreClaimChoiceAnswer(true) }}
-                            </span>
-                            @if (hasForcedScore()) {
-                                <span class="text text-danger">
-                                    {{ sectionQuestion.forcedScore }}
-                                </span>
-                            }
-                            / {{ getCorrectClaimChoiceOptionScore() }} {{ 'i18n_unit_points' | translate }}
-                        </div>
-                    }
-                    <a class="d-inline-block" (click)="reviewExpanded = !reviewExpanded">
-                        @if (!reviewExpanded) {
-                            <img src="/assets/images/icon_list_show_right.svg" alt="" />
                         }
-                        @if (reviewExpanded) {
-                            <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                        / {{ displayMaxScore() }} {{ 'i18n_unit_points' | translate }}
+                    </div>
+                }
+                @if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') {
+                    <div class="d-inline-block pe-3">
+                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                            {{ scoreWeightedMultipleChoiceAnswer(true) }}
+                        </span>
+                        @if (hasForcedScore()) {
+                            <span class="text text-danger">
+                                {{ sectionQuestion.forcedScore }}
+                            </span>
                         }
-                    </a>
-                </div>
+                        / {{ calculateWeightedMaxPoints() }} {{ 'i18n_unit_points' | translate }}
+                    </div>
+                }
+                @if (sectionQuestion.question.type === 'ClaimChoiceQuestion') {
+                    <div class="d-inline-block pe-3">
+                        <span [ngStyle]="hasForcedScore() ? { 'text-decoration': 'line-through' } : null">
+                            {{ scoreClaimChoiceAnswer(true) }}
+                        </span>
+                        @if (hasForcedScore()) {
+                            <span class="text text-danger">
+                                {{ sectionQuestion.forcedScore }}
+                            </span>
+                        }
+                        / {{ getCorrectClaimChoiceOptionScore() }} {{ 'i18n_unit_points' | translate }}
+                    </div>
+                }
+                <a class="d-inline-block" (click)="reviewExpanded = !reviewExpanded">
+                    @if (!reviewExpanded) {
+                        <img src="/assets/images/icon_list_show_right.svg" alt="" />
+                    }
+                    @if (reviewExpanded) {
+                        <img src="/assets/images/icon_list_show_down.svg" alt="" />
+                    }
+                </a>
             </div>
-
-            <!-- question attachment -->
-            @if (reviewExpanded && sectionQuestion.question.attachment) {
-                <div class="ps-0 mt-2 mb-3 notice-text">
-                    {{ 'i18n_question_attachment' | translate }}:
-                    <a class="pointer" (click)="downloadQuestionAttachment()">
-                        {{ sectionQuestion.question.attachment.fileName }}</a
-                    >
-                </div>
-            }
-            <!-- answer -->
-            @if (reviewExpanded) {
-                <div class="mt-2">
-                    <hr />
-                    @if (sectionQuestion.question.type === 'MultipleChoiceQuestion') {
-                        <div>
-                            <xm-r-multi-choice-answer [sectionQuestion]="sectionQuestion"></xm-r-multi-choice-answer>
-                        </div>
-                    }
-                    @if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') {
-                        <div>
-                            <xm-r-weighted-multi-choice-answer [sectionQuestion]="sectionQuestion">
-                            </xm-r-weighted-multi-choice-answer>
-                        </div>
-                    }
-                    @if (sectionQuestion.question.type === 'ClaimChoiceQuestion') {
-                        <div>
-                            <xm-r-claim-choice-answer [sectionQuestion]="sectionQuestion"></xm-r-claim-choice-answer>
-                        </div>
-                    }
-                    @if (participation.exam.executionType.type !== 'MATURITY') {
-                        <div class="make-inline pe-3 mt-2">
-                            <div>
-                                <span class="text text-danger"
-                                    >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
-                                    <small
-                                        >[{{ getMinimumOptionScore() }} &hellip;
-                                        {{ sectionQuestion.maxScore || calculateWeightedMaxPoints() }}]</small
-                                    ></span
-                                >
-                            </div>
-                            <form #forcedPoints="ngForm" name="forcedPoints">
-                                <input
-                                    name="score"
-                                    type="number"
-                                    lang="en"
-                                    class="form-control"
-                                    xmFixedPrecision
-                                    [(ngModel)]="scoreValue"
-                                    (blur)="forcedPoints.valid && insertForcedScore()"
-                                    onclick="this.focus()"
-                                    [disabled]="!isScorable"
-                                    [min]="getMinimumOptionScore()"
-                                    [max]="sectionQuestion.maxScore || calculateWeightedMaxPoints()"
-                                />
-                                @if (forcedPoints.invalid) {
-                                    <small class="alert-danger">
-                                        <i class="bi-exclamation-circle"></i>&nbsp;{{
-                                            'i18n_error_score_input' | translate
-                                        }}
-                                    </small>
-                                }
-                            </form>
-                        </div>
-                    }
-                </div>
-            }
         </div>
+
+        <!-- question attachment -->
+        @if (reviewExpanded && sectionQuestion.question.attachment) {
+            <div class="ps-0 mt-2 mb-3 notice-text">
+                {{ 'i18n_question_attachment' | translate }}:
+                <a class="pointer" (click)="downloadQuestionAttachment()">
+                    {{ sectionQuestion.question.attachment.fileName }}</a
+                >
+            </div>
+        }
+        <!-- answer -->
+        @if (reviewExpanded) {
+            <div class="mt-2">
+                <hr />
+                @if (sectionQuestion.question.type === 'MultipleChoiceQuestion') {
+                    <div>
+                        <xm-r-multi-choice-answer [sectionQuestion]="sectionQuestion"></xm-r-multi-choice-answer>
+                    </div>
+                }
+                @if (sectionQuestion.question.type === 'WeightedMultipleChoiceQuestion') {
+                    <div>
+                        <xm-r-weighted-multi-choice-answer [sectionQuestion]="sectionQuestion">
+                        </xm-r-weighted-multi-choice-answer>
+                    </div>
+                }
+                @if (sectionQuestion.question.type === 'ClaimChoiceQuestion') {
+                    <div>
+                        <xm-r-claim-choice-answer [sectionQuestion]="sectionQuestion"></xm-r-claim-choice-answer>
+                    </div>
+                }
+                @if (participation.exam.executionType.type !== 'MATURITY') {
+                    <div class="make-inline pe-3 mt-2">
+                        <div>
+                            <span class="text text-danger"
+                                >{{ 'i18n_set_forced_score' | translate | uppercase }}&nbsp;
+                                <small
+                                    >[{{ getMinimumOptionScore() }} &hellip;
+                                    {{ sectionQuestion.maxScore || calculateWeightedMaxPoints() }}]</small
+                                ></span
+                            >
+                        </div>
+                        <form #forcedPoints="ngForm" name="forcedPoints">
+                            <input
+                                name="score"
+                                type="number"
+                                lang="en"
+                                class="form-control"
+                                xmFixedPrecision
+                                [(ngModel)]="scoreValue"
+                                (blur)="forcedPoints.valid && insertForcedScore()"
+                                onclick="this.focus()"
+                                [disabled]="!isScorable"
+                                [min]="getMinimumOptionScore()"
+                                [max]="sectionQuestion.maxScore || calculateWeightedMaxPoints()"
+                            />
+                            @if (forcedPoints.invalid) {
+                                <small class="alert-danger">
+                                    <i class="bi-exclamation-circle"></i>&nbsp;{{
+                                        'i18n_error_score_input' | translate
+                                    }}
+                                </small>
+                            }
+                        </form>
+                    </div>
+                }
+            </div>
+        }
     </div>
 </div>

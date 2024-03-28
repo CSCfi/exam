@@ -1,7 +1,5 @@
-<div id="dashboard">
-    <xm-page-header text="i18n_speed_review" [history]="true" />
-    <xm-page-content [content]="content" />
-</div>
+<xm-page-header text="i18n_speed_review" [history]="true" />
+<xm-page-content [content]="content" />
 <ng-template #content>
     <div class="col-md-12 p-3">
         @if (examInfo?.examOwners) {

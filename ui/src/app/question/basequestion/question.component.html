@@ -1,11 +1,9 @@
-<div id="dashboard">
-    @if (newQuestion) {
-        <xm-page-header text="i18n_toolbar_new_question" [prependTemplate]="linkBack" />
-    } @else {
-        <xm-page-header text="i18n_questions_edit" [prependTemplate]="linkBack" />
-    }
-    <xm-page-content [content]="content" />
-</div>
+@if (newQuestion) {
+    <xm-page-header text="i18n_toolbar_new_question" [prependTemplate]="linkBack" />
+} @else {
+    <xm-page-header text="i18n_questions_edit" [prependTemplate]="linkBack" />
+}
+<xm-page-content [content]="content" />
 <ng-template #linkBack>
     <img (click)="cancel()" class="pointer arrow_icon pe-3" src="/assets/images/icon_history.png" alt="go back" />
 </ng-template>

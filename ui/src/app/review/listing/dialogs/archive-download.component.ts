@@ -28,20 +28,10 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
             <div class="xm-modal-title">{{ 'i18n_exam_validity' | translate }}</div>
         </div>
         <div class="modal-body mx-4">
-            <div id="dashboard">
-                <div>
-                    <label for="archive-download-start">{{ 'i18n_begin' | translate }}:</label>
-                    <xm-date-picker
-                        id="archive-download-start"
-                        (updated)="startDateChanged($event)"
-                        autofocus
-                    ></xm-date-picker>
-                </div>
-                <div>
-                    <label for="archive-download-end">{{ 'i18n_end' | translate }}:</label>
-                    <xm-date-picker id="archive-download-end" (updated)="endDateChanged($event)"></xm-date-picker>
-                </div>
-            </div>
+            <label for="archive-download-start">{{ 'i18n_begin' | translate }}:</label>
+            <xm-date-picker id="archive-download-start" (updated)="startDateChanged($event)" autofocus></xm-date-picker>
+            <label for="archive-download-end">{{ 'i18n_end' | translate }}:</label>
+            <xm-date-picker id="archive-download-end" (updated)="endDateChanged($event)"></xm-date-picker>
         </div>
         <div class="modal-footer">
             <button class="btn btn-outline-secondary" (click)="cancel()">

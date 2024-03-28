@@ -1,8 +1,5 @@
-<div id="dashboard">
-    <xm-page-header text="i18n_user_enrolled_exams_title" />
-    <xm-page-content [content]="content"></xm-page-content>
-</div>
-
+<xm-page-header text="i18n_user_enrolled_exams_title" />
+<xm-page-content [content]="content"></xm-page-content>
 <ng-template #content>
     @for (enrolment of userEnrolments | orderBy: 'startAtAggregate'; track enrolment) {
         <div class="row mb-2">

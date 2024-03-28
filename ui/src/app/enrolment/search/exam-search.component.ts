@@ -30,10 +30,9 @@ import { ExamSearchService } from './exam-search.service';
 
 @Component({
     selector: 'xm-exam-search',
-    template: `<div id="dashboard">
-            <xm-page-header text="i18n_exams" />
-            <xm-page-content [content]="content" />
-        </div>
+    template: `
+        <xm-page-header text="i18n_exams" />
+        <xm-page-content [content]="content" />
         <ng-template #content>
             <div class="row">
                 <span class="col-12 align-items-center">
@@ -87,7 +86,8 @@ import { ExamSearchService } from './exam-search.service';
                     </div>
                 }
             </div>
-        </ng-template> `,
+        </ng-template>
+    `,
     animations: [
         trigger('listAnimation', [
             transition('* <=> *', [

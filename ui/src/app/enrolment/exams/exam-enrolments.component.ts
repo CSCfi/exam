@@ -27,32 +27,30 @@ import { EnrolmentDetailsComponent } from './exam-enrolment-details.component';
 @Component({
     selector: 'xm-exam-enrolments',
     template: `
-        <div id="dashboard">
-            @if (exam?.noTrialsLeft) {
-                <div class="row mt-2 ms-2 me-2">
-                    <div class="col-md-12 alert-danger">
-                        <h1>{{ 'i18n_no_trials_left' | translate }}</h1>
+        @if (exam?.noTrialsLeft) {
+            <div class="row mt-2 ms-2 me-2">
+                <div class="col-md-12 alert-danger">
+                    <h1>{{ 'i18n_no_trials_left' | translate }}</h1>
+                </div>
+            </div>
+        }
+        @if (exam) {
+            <xm-enrolment-details [exam]="exam"></xm-enrolment-details>
+        }
+        @if (exams.length > 0) {
+            <div class="row mt-2 ms-2 me-2">
+                <div class="col-12 ms-4">
+                    <h3>{{ 'i18n_student_exams' | translate }}</h3>
+                </div>
+            </div>
+            @for (exam of exams; track exam) {
+                <div class="row mt-2 ms-4 me-4 ">
+                    <div class="col-12 ms-2">
+                        <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
                     </div>
                 </div>
             }
-            @if (exam) {
-                <xm-enrolment-details [exam]="exam"></xm-enrolment-details>
-            }
-            @if (exams.length > 0) {
-                <div class="row mt-2 ms-2 me-2">
-                    <div class="col-12 ms-4">
-                        <h3>{{ 'i18n_student_exams' | translate }}</h3>
-                    </div>
-                </div>
-                @for (exam of exams; track exam) {
-                    <div class="row mt-2 ms-4 me-4 ">
-                        <div class="col-12 ms-2">
-                            <xm-exam-search-result [exam]="exam"></xm-exam-search-result>
-                        </div>
-                    </div>
-                }
-            }
-        </div>
+        }
     `,
     standalone: true,
     imports: [EnrolmentDetailsComponent, ExamSearchResultComponent, TranslateModule],

@@ -36,10 +36,8 @@ import { ReportsService, UserRole } from './reports.service';
 @Component({
     selector: 'xm-reports',
     template: `
-        <div id="dashboard">
-            <xm-page-header text="i18n_reports" />
-            <xm-page-content [content]="content" />
-        </div>
+        <xm-page-header text="i18n_reports" />
+        <xm-page-content [content]="content" />
         <ng-template #content>
             <div class="report-category"><xm-rooms-report [rooms]="rooms" /></div>
             <div class="report-category"><xm-exams-report [examNames]="examNames" /></div>

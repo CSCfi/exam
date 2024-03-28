@@ -22,6 +22,7 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { EnrolmentService } from '../../../enrolment/enrolment.service';
 import { DatePickerComponent } from '../../../shared/date/date-picker.component';
@@ -47,6 +48,7 @@ import { ExaminationEventConfiguration } from '../../exam.model';
         TranslateModule,
         OrderByPipe,
         PageHeaderComponent,
+        PageContentComponent,
     ],
 })
 export class ExaminationEventSearchComponent implements OnInit {

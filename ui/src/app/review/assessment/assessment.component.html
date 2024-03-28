@@ -1,9 +1,7 @@
-<div id="dashboard">
-    <xm-page-header text="i18n_exam_review" [history]="true" [appendTemplate]="printButton" />
-    @if (exam) {
-        <xm-page-content [content]="content" />
-    }
-</div>
+<xm-page-header text="i18n_exam_review" [history]="true" [appendTemplate]="printButton" />
+@if (exam) {
+    <xm-page-content [content]="content" />
+}
 <ng-template #printButton>
     <button (click)="print()" class="xm-ok-button float-end">
         {{ 'i18n_print' | translate }}<i class="bi bi-printer ps-2"></i>

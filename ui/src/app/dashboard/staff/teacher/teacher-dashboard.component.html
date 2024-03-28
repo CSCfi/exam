@@ -1,7 +1,5 @@
-<div id="dashboard">
-    <xm-page-header text="i18n_dashboard" [appendTemplate]="buttons" />
-    <xm-page-content [content]="content" />
-</div>
+<xm-page-header text="i18n_dashboard" [appendTemplate]="buttons" />
+<xm-page-content [content]="content" />
 <ng-template #buttons>
     <div class="float-end pe-3">
         <button [routerLink]="['/staff/exams']" class="xm-ok-button me-3">

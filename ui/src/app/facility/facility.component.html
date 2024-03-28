@@ -1,7 +1,5 @@
-<div id="dashboard">
-    <xm-page-header text="i18n_exam_rooms_administration" [appendWide]="true" [appendTemplate]="buttons" />
-    <xm-page-content [content]="content" />
-</div>
+<xm-page-header text="i18n_exam_rooms_administration" [appendWide]="true" [appendTemplate]="buttons" />
+<xm-page-content [content]="content" />
 <ng-template #buttons>
     <a class="float-end bi-building btn btn-success" (click)="editMultipleRooms()">
         <span class="ps-3">{{ 'i18n_edit_all_rooms' | translate }}</span>
