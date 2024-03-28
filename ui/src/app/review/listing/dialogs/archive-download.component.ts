@@ -23,9 +23,9 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
     selector: 'xm-archive-download',
     standalone: true,
     imports: [TranslateModule, DatePickerComponent],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+    template: `
         <div class="modal-header">
-            <div class="xm-page-header-title">{{ 'i18n_exam_validity' | translate }}</div>
+            <div class="xm-modal-title">{{ 'i18n_exam_validity' | translate }}</div>
         </div>
         <div class="modal-body mx-4">
             <div id="dashboard">
@@ -51,7 +51,7 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
                 {{ 'i18n_search' | translate }}
             </button>
         </div>
-    </div> `,
+    `,
 })
 export class ArchiveDownloadComponent {
     params: { startDate: Date | null; endDate: Date | null } = { startDate: new Date(), endDate: new Date() };

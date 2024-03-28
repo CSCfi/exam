@@ -24,9 +24,9 @@ import { Duration } from 'luxon';
 @Component({
     standalone: true,
     imports: [FormsModule, TranslateModule],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+    template: `
         <div class="modal-header">
-            <div class="xm-page-header-title">
+            <div class="xm-modal-title">
                 {{ 'i18n_custom' | translate }} {{ ('i18n_exam_time' | translate).toLowerCase() }}
             </div>
         </div>
@@ -76,7 +76,7 @@ import { Duration } from 'luxon';
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
-    </div>`,
+    `,
 })
 export class CustomDurationPickerDialogComponent implements OnInit {
     hours = signal(0);

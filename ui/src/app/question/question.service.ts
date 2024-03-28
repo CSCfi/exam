@@ -40,7 +40,6 @@ export type QuestionAmounts = {
     accepted: number;
     rejected: number;
     hasEssays: boolean;
-    totalSelectionEssays: number;
 };
 
 @Injectable({ providedIn: 'root' })
@@ -95,24 +94,15 @@ export class QuestionService {
     getQuestion = (id: number): Observable<ReverseQuestion> => this.http.get<ReverseQuestion>(this.questionsApi(id));
 
     getQuestionAmounts = (exam: Exam): QuestionAmounts => {
-        const data = { accepted: 0, rejected: 0, hasEssays: false, totalSelectionEssays: 0 };
-        exam.examSections.forEach((section) => {
-            section.sectionQuestions.forEach((sectionQuestion) => {
-                const question = sectionQuestion.question;
-                if (question.type === 'EssayQuestion') {
-                    if (sectionQuestion.evaluationType === 'Selection' && sectionQuestion.essayAnswer) {
-                        if (sectionQuestion.essayAnswer.evaluatedScore === 1) {
-                            data.accepted++;
-                        } else if (sectionQuestion.essayAnswer.evaluatedScore === 0) {
-                            data.rejected++;
-                        }
-                        data.totalSelectionEssays++;
-                    }
-                    data.hasEssays = true;
-                }
-            });
-        });
-        return data;
+        const essays = exam.examSections
+            .flatMap((es) => es.sectionQuestions)
+            .filter((esq) => esq.question.type === 'EssayQuestion');
+        const scores = essays
+            .filter((e) => e.evaluationType === 'Selection' && e.essayAnswer)
+            .map((e) => e.essayAnswer?.evaluatedScore);
+        const accepted = scores.filter((s) => s === 1).length;
+        const rejected = scores.filter((s) => s === 0).length;
+        return { accepted: accepted, rejected: rejected, hasEssays: essays.length > 0 };
     };
 
     getQuestionAmountsBySection = (section: ExamSection) => {

@@ -25,6 +25,16 @@ import { HistoryBackComponent } from '../history/history-back.component';
             }
         </div>
     `,
+    styles: [
+        `
+            .xm-page-header-title {
+                font-size: 1.75rem;
+                color: #2c2c2c;
+                border-bottom: 2px solid #2c7639;
+                padding-bottom: 7px;
+            }
+        `,
+    ],
 })
 export class PageHeaderComponent {
     @Input() text = ''; // header title text

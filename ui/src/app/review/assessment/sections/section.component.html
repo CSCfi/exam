@@ -1,123 +1,115 @@
-<div class="tab-wrapper-exams review">
-    <div class="xm-bordered-area m-3 p-3">
-        <div class="p-3">
-            <h4 class="col-md-12 ps-0">
-                {{ index }}. &nbsp; &nbsp;{{ section.name }}
-                <span class="float-end">
-                    @if (getSectionMaxScore() > 0) {
-                        <small>
-                            {{ 'i18n_word_points' | translate }}:&nbsp;
-                            <span style="color: #2c2c2c"
-                                >{{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}</span
-                            >
-                        </small>
-                    }
-                    &nbsp;
-                    @if ((selectionEssays?.totalSelectionEssays || 0) > 0) {
-                        <span>
-                            {{ 'i18n_section_accepted_and_rejected' | translate }}&nbsp;
-                            <span style="color: #2c2c2c"
-                                >{{ selectionEvaluatedAmounts.accepted }} /
-                                {{ selectionEvaluatedAmounts.rejected }}</span
-                            >
-                        </span>
-                    }
-                    @if ((selectionEssays?.totalSelectionEssays || 0) > 0) {
-                        <span> {{ 'i18n_total' | translate }}: {{ selectionEssays?.totalSelectionEssays }} </span>
-                    }
-                </span>
-            </h4>
-        </div>
-        @if (section.description) {
-            <div class="row pe-0 ps-0 m-0">
-                <div class="col-md-12 pe-0 ps-0">
-                    <div class="ps-3 mt-2" role="note">
-                        <img src="/assets/images/icon_info.svg" alt="" />
-                        <span class="ps-2 notice-text">{{ section.description }}</span>
+<div class="xm-bordered-area my-3 p-3">
+    <div class="row p-3">
+        <h4 class="col-md-8 ps-0">{{ index }}. &nbsp; &nbsp;{{ section.name }}</h4>
+        <div class="col-md-4">
+            @if (getSectionMaxScore() > 0) {
+                <div class="row">
+                    <div class="col-12">
+                        <div class="float-end">
+                            {{ 'i18n_word_points' | translate }}: {{ getSectionTotalScore() }} /
+                            {{ getSectionMaxScore() }}
+                        </div>
                     </div>
                 </div>
+            }
+            @if (questionAmounts.accepted + questionAmounts.rejected > 0) {
+                <div class="row">
+                    <div class="col-12">
+                        <div class="float-end">
+                            {{ 'i18n_accepted_and_rejected' | translate }}: {{ questionAmounts.accepted }} /
+                            {{ questionAmounts.rejected }}
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    @if (section.description) {
+        <div class="row mb-2">
+            <div class="col-12" role="note">
+                <img src="/assets/images/icon_info.svg" alt="" />
+                <span class="ps-2 notice-text">{{ section.description }}</span>
+            </div>
+        </div>
+    }
+
+    @for (sq of section.sectionQuestions | orderBy: 'sequenceNumber'; track sq) {
+        <div class="row">
+            <div class="col-md-12 mt-2">
+                @if (sq.question.type === 'MultipleChoiceQuestion') {
+                    <div>
+                        <xm-r-multi-choice-question
+                            [sectionQuestion]="sq"
+                            [participation]="participation"
+                            [isScorable]="isScorable"
+                            [collaborative]="collaborative"
+                            (scored)="scoreSet($event)"
+                        >
+                        </xm-r-multi-choice-question>
+                    </div>
+                }
+                @if (sq.question.type === 'EssayQuestion') {
+                    <div>
+                        <xm-r-essay-question
+                            [sectionQuestion]="sq"
+                            [participation]="participation"
+                            [exam]="exam"
+                            [isScorable]="isScorable"
+                            [collaborative]="collaborative"
+                            (scored)="scoreSet($event)"
+                        >
+                        </xm-r-essay-question>
+                    </div>
+                }
+                @if (sq.question.type === 'WeightedMultipleChoiceQuestion') {
+                    <div>
+                        <xm-r-multi-choice-question
+                            [sectionQuestion]="sq"
+                            [participation]="participation"
+                            [isScorable]="isScorable"
+                            [collaborative]="collaborative"
+                            (scored)="scoreSet($event)"
+                        >
+                        </xm-r-multi-choice-question>
+                    </div>
+                }
+                @if (sq.question.type === 'ClozeTestQuestion') {
+                    <div>
+                        <xm-r-cloze-test
+                            [sectionQuestion]="sq"
+                            [participation]="participation"
+                            [isScorable]="isScorable"
+                            [collaborative]="collaborative"
+                            (scored)="scoreSet($event)"
+                        >
+                        </xm-r-cloze-test>
+                    </div>
+                }
+                @if (sq.question.type === 'ClaimChoiceQuestion') {
+                    <div>
+                        <xm-r-multi-choice-question
+                            [sectionQuestion]="sq"
+                            [participation]="participation"
+                            [isScorable]="isScorable"
+                            [collaborative]="collaborative"
+                            (scored)="scoreSet($event)"
+                        >
+                        </xm-r-multi-choice-question>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="row mt-4">
+        @if (getSectionMaxScore() > 0) {
+            <div>{{ 'i18n_word_points' | translate }}: {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}</div>
+        }
+        @if (questionAmounts.accepted + questionAmounts.rejected > 0) {
+            <div>
+                {{ 'i18n_accepted_and_rejected' | translate }}: {{ questionAmounts.accepted }} /
+                {{ questionAmounts.rejected }}
             </div>
         }
-        <div class="row ms-2 me-2">
-            @for (sq of section.sectionQuestions | orderBy: 'sequenceNumber'; track sq) {
-                <div class="col-md-12 mt-4">
-                    @if (sq.question.type === 'MultipleChoiceQuestion') {
-                        <div>
-                            <xm-r-multi-choice-question
-                                [sectionQuestion]="sq"
-                                [participation]="participation"
-                                [isScorable]="isScorable"
-                                [collaborative]="collaborative"
-                                (scored)="scoreSet($event)"
-                            >
-                            </xm-r-multi-choice-question>
-                        </div>
-                    }
-                    @if (sq.question.type === 'EssayQuestion') {
-                        <div>
-                            <xm-r-essay-question
-                                [sectionQuestion]="sq"
-                                [participation]="participation"
-                                [exam]="exam"
-                                [isScorable]="isScorable"
-                                [collaborative]="collaborative"
-                                (scored)="scoreSet($event)"
-                            >
-                            </xm-r-essay-question>
-                        </div>
-                    }
-                    @if (sq.question.type === 'WeightedMultipleChoiceQuestion') {
-                        <div>
-                            <xm-r-multi-choice-question
-                                [sectionQuestion]="sq"
-                                [participation]="participation"
-                                [isScorable]="isScorable"
-                                [collaborative]="collaborative"
-                                (scored)="scoreSet($event)"
-                            >
-                            </xm-r-multi-choice-question>
-                        </div>
-                    }
-                    @if (sq.question.type === 'ClozeTestQuestion') {
-                        <div>
-                            <xm-r-cloze-test
-                                [sectionQuestion]="sq"
-                                [participation]="participation"
-                                [isScorable]="isScorable"
-                                [collaborative]="collaborative"
-                                (scored)="scoreSet($event)"
-                            >
-                            </xm-r-cloze-test>
-                        </div>
-                    }
-                    @if (sq.question.type === 'ClaimChoiceQuestion') {
-                        <div>
-                            <xm-r-multi-choice-question
-                                [sectionQuestion]="sq"
-                                [participation]="participation"
-                                [isScorable]="isScorable"
-                                [collaborative]="collaborative"
-                                (scored)="scoreSet($event)"
-                            >
-                            </xm-r-multi-choice-question>
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-        <div class="row mx-2 mt-4">
-            @if (getSectionMaxScore() > 0) {
-                <div>
-                    {{ 'i18n_word_points' | translate }}:
-                    <span> {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }} </span>
-                </div>
-            }
-            @if ((selectionEssays?.totalSelectionEssays || 0) > 0) {
-                <div>
-                    {{ 'i18n_section_accepted_and_rejected' | translate }}
-                    <span> {{ selectionEvaluatedAmounts.accepted }} / {{ selectionEvaluatedAmounts.rejected }} </span>
-                </div>
-            }
-        </div>
     </div>
 </div>

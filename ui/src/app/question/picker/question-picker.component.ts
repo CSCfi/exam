@@ -29,7 +29,7 @@ import { LibrarySearchComponent } from '../library/search/library-search.compone
         <div id="dashboard">
             <!-- title row and add new question button -->
             <div class="modal-header">
-                <div class="xm-page-header-title">{{ 'i18n_library_choose' | translate }}</div>
+                <div class="xm-modal-title">{{ 'i18n_library_choose' | translate }}</div>
             </div>
             <div class="modal-body pt-3">
                 <!-- search bar and search parameters -->

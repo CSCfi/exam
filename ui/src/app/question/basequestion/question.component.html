@@ -10,9 +10,9 @@
     <img (click)="cancel()" class="pointer arrow_icon pe-3" src="/assets/images/icon_history.png" alt="go back" />
 </ng-template>
 <ng-template #content>
-    <div class="row me-2">
+    <div class="row">
         <!-- Question body //-->
-        <div class="col-md-12 question-border px-4">
+        <div class="col-md-12">
             <form role="form" #questionForm="ngForm" name="questionForm" novalidate>
                 @if (question) {
                     <xm-question-body

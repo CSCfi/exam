@@ -29,20 +29,17 @@ import { MaturityService } from './maturity.service';
         @if (isOwnerOrAdmin() || isUnderLanguageInspection()) {
             <div class="d-flex flex-row-reverse">
                 <span [hidden]="isUnderLanguageInspection()">
-                    @if (!isReadOnly()) {
-                        <div class="ms-1">
+                    <div class="ms-1">
+                        @if (!isReadOnly()) {
                             <button (click)="saveAssessment()" [disabled]="!valid" class="xm-ok-button">
                                 {{ 'i18n_save' | translate }}
                             </button>
-                        </div>
-                    }
-                    @if (isReadOnly()) {
-                        <div class="ms-2">
+                        } @else {
                             <button class="xm-cancel-button" [routerLink]="['/staff/exams', exam.parent?.id, '5']">
                                 {{ 'i18n_close' | translate }}
                             </button>
-                        </div>
-                    }
+                        }
+                    </div>
                 </span>
                 @if (!isReadOnly() && !isDisabled()) {
                     <div class="ms-1">

@@ -10,7 +10,7 @@
     </button>
 </ng-template>
 <ng-template #content>
-    <h3 class="px-3">
+    <h3>
         @if (exam.course) {
             <xm-course-code [course]="exam.course"></xm-course-code>
         }
@@ -48,8 +48,10 @@
         >
         </xm-r-section>
     }
-    <div class="tab-wrapper-exams review">
-        <h4 class="px-3">
+
+    <!-- Grading -->
+    <h4 class="row mt-2">
+        <div class="col-12">
             {{ 'i18n_grading_info' | translate }}
             <a (click)="hideGradeInfo = !hideGradeInfo">
                 @if (hideGradeInfo) {
@@ -57,46 +59,45 @@
                 }
                 <img [hidden]="hideGradeInfo" src="/assets/images/icon_list_show_down.svg" alt="" />
             </a>
-        </h4>
-
-        <!-- Grading -->
-        <div class="row" [ngbCollapse]="hideGradeInfo">
-            <div class="col-12">
-                @if (exam && !exam.subjectToLanguageInspection) {
-                    <xm-r-grading
-                        [exam]="exam"
-                        [questionSummary]="questionSummary"
-                        [participation]="participation"
-                        [collaborative]="collaborative"
-                        [user]="user"
-                        (updated)="gradingUpdated()"
-                    >
-                    </xm-r-grading>
-                }
-                @if (exam && exam.executionType.type === 'MATURITY' && exam.subjectToLanguageInspection) {
-                    <xm-r-maturity-grading
-                        (updated)="gradingUpdated()"
-                        [user]="user"
-                        [exam]="exam"
-                        [questionSummary]="questionSummary"
-                    >
-                    </xm-r-maturity-grading>
-                }
-            </div>
         </div>
+    </h4>
 
-        <!-- Floating feedback window -->
-        @if (exam.examFeedback && !isUnderLanguageInspection()) {
-            <xm-r-feedback
-                [exam]="exam"
-                [collaborative]="collaborative"
-                [participation]="participation"
-                [hidden]="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
-            >
-            </xm-r-feedback>
-        }
-        @if (exam && isUnderLanguageInspection()) {
-            <xm-r-statement [exam]="exam"></xm-r-statement>
-        }
+    <div class="row" [ngbCollapse]="hideGradeInfo">
+        <div class="col-12">
+            @if (exam && !exam.subjectToLanguageInspection) {
+                <xm-r-grading
+                    [exam]="exam"
+                    [questionSummary]="questionSummary"
+                    [participation]="participation"
+                    [collaborative]="collaborative"
+                    [user]="user"
+                    (updated)="gradingUpdated()"
+                >
+                </xm-r-grading>
+            }
+            @if (exam && exam.executionType.type === 'MATURITY' && exam.subjectToLanguageInspection) {
+                <xm-r-maturity-grading
+                    (updated)="gradingUpdated()"
+                    [user]="user"
+                    [exam]="exam"
+                    [questionSummary]="questionSummary"
+                >
+                </xm-r-maturity-grading>
+            }
+        </div>
     </div>
+
+    <!-- Floating feedback window -->
+    @if (exam.examFeedback && !isUnderLanguageInspection()) {
+        <xm-r-feedback
+            [exam]="exam"
+            [collaborative]="collaborative"
+            [participation]="participation"
+            [hidden]="(isGraded() && !isOwnerOrAdmin()) || isReadOnly()"
+        >
+        </xm-r-feedback>
+    }
+    @if (exam && isUnderLanguageInspection()) {
+        <xm-r-statement [exam]="exam"></xm-r-statement>
+    }
 </ng-template>

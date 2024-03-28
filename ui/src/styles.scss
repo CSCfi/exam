@@ -22,9 +22,8 @@
 .fc-timegrid-event-harness-inset .fc-timegrid-event {
     cursor: pointer;
 }
-/* overrides for tab titles */
+/* overrides for bootstrap nav tab titles */
 .nav-tabs {
-    font-size: 16px;
     .nav-link.active {
         font-weight: bold;
     }
@@ -32,20 +31,14 @@
         color: #555555;
     }
 }
-/* dropdown without caret */
-.no-caret {
+/* bootstrap dropdown toggle without caret */
+.xm-no-caret {
     .dropdown-toggle::after {
         display: none;
     }
 }
-/* dropdown menu that scrolls */
-.xm-scrollable-menu {
-    height: auto;
-    max-height: 400px;
-    overflow-y: scroll;
-}
-/* extra extra large modal */
-.xxl-modal .modal-dialog {
+/* extra extra large bootstrap modal */
+.xm-xxl-modal .modal-dialog {
     min-width: 80vw;
 }
 /* form validation overrides */
@@ -55,34 +48,28 @@ form .ng-invalid {
 form .exclude {
     border: 0 !important;
 }
-ng-form {
-    border: 0 !important;
+/* dropdown menu that scrolls */
+.xm-scrollable-menu {
+    height: auto;
+    max-height: 400px;
+    overflow-y: scroll;
 }
-/* to highlight ck-editor content marked with this class */
+/* to highlight ck-editor (cloze test) content marked with this class */
 .marker {
     background-color: yellow;
 }
-/* to be seen if needed really */
-#exam-dialog {
-    h1 {
-        font-size: 1.5em;
-    }
-}
-/* page title */
-.xm-page-header-title {
-    font-size: 2em;
-    color: #2c2c2c;
-    border-bottom: 2px solid #2c7639;
-    padding-bottom: 7px;
+/* modal title */
+.xm-modal-title {
+    font-size: 1.5rem;
 }
 /* paragraph title */
 .xm-paragraph-title {
-    font-size: 22px;
+    font-size: 1.5rem;
     color: #2c2c2c;
-    padding-bottom: 5px;
+    padding-bottom: 0.25rem;
     border-bottom: 1px solid #b1b1b1;
 }
-/* basically the list item box that's green or grey on the left side */
+/* basically the list item box that's green, grey or red on the left side */
 .xm-study-item-container {
     border-radius: 4px;
     border: 2px solid #ededed;
@@ -110,12 +97,9 @@ ng-form {
     border: 1px solid $border;
     background-color: $bgc1;
     color: $color1;
-    padding-left: 20px;
-    padding-right: 20px;
+    padding: 10px 20px;
     line-height: 1.5;
     border-radius: 3px;
-    padding-top: 10px;
-    padding-bottom: 10px;
     text-decoration: none;
     &:disabled {
         opacity: 0.3;
@@ -147,10 +131,8 @@ ng-form {
 }
 /* Generic table styling */
 .xm-data-table {
-    font-size: 14px;
     th {
         border: 0;
-        font-size: 14px;
         font-weight: bold;
         text-transform: uppercase;
         white-space: nowrap;

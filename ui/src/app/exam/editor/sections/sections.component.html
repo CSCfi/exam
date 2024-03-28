@@ -1,7 +1,7 @@
 <!-- Sections -->
 
 @if (exam.hasEnrolmentsInEffect) {
-    <div class="row ms-2 me-2">
+    <div class="row mx-2">
         <div class="col-md-12">
             <div class="row xm-study-item-container--warning m-3">
                 <div class="col-md-1">
@@ -15,7 +15,7 @@
     </div>
 }
 
-<div class="row ms-2 me-2" cdkDropList [cdkDropListData]="exam.examSections" (cdkDropListDropped)="moveSection($event)">
+<div class="row mx-2" cdkDropList [cdkDropListData]="exam.examSections" (cdkDropListDropped)="moveSection($event)">
     <div class="col-md-12">
         @for (section of exam.examSections | orderBy: 'sequenceNumber'; track section; let i = $index) {
             <div cdkDrag cdkDragLockAxis="y">
@@ -85,12 +85,12 @@
     </div>
 </div>
 <div class="row mt-2">
-    <div class="col-md-2 grey-top mb-3 pt-2">
+    <div class="col-md-2 grey-top mb-3 pt-3">
         <button class="xm-neutral-button" (click)="previousTab()">
             &#171; {{ 'i18n_exam_basic_information_tab' | translate }}
         </button>
     </div>
-    <div class="col grey-top mb-3 pt-2">
+    <div class="col grey-top mb-3 pt-3">
         <div class="float-end">
             <button class="xm-neutral-button" (click)="nextTab()">
                 {{ 'i18n_exam_assessment_settings' | translate }} &#187;

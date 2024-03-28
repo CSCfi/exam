@@ -1,4 +1,4 @@
-<div class="row me-3 mt-4">
+<div class="row ms-2 mt-4">
     <div class="col-md-12">
         <div class="xm-paragraph-title">
             <span class="pointer" (click)="autoevaluationDisplay.visible = !autoevaluationDisplay.visible">
@@ -27,7 +27,11 @@
     </div>
 </div>
 
-<div class="row" [ngbCollapse]="!autoevaluationDisplay.visible" [attr.aria-expanded]="autoevaluationDisplay.visible">
+<div
+    class="row ms-2"
+    [ngbCollapse]="!autoevaluationDisplay.visible"
+    [attr.aria-expanded]="autoevaluationDisplay.visible"
+>
     <div class="col-md-12 my-3">
         <span class="autoevaluation-info">
             {{ 'i18n_autoevaluation_instructions' | translate }}
@@ -51,7 +55,7 @@
     </div>
 </div>
 
-<div class="row" [hidden]="!autoevaluationDisplay.visible">
+<div class="row ms-2" [hidden]="!autoevaluationDisplay.visible">
     <div class="col-md-2 autoevaluation-titles">
         <strong>{{ 'i18n_exam_grade' | translate }}</strong>
     </div>
@@ -63,7 +67,7 @@
     </div>
 </div>
 
-<div class="row" [hidden]="!autoevaluationDisplay.visible">
+<div class="row ms-2" [hidden]="!autoevaluationDisplay.visible">
     <div
         class="col-md-12 pt-2"
         [ngStyle]="gradesForm?.invalid ? { border: 'red 1px solid' } : { border: 'white 1px solid' }"
@@ -102,7 +106,7 @@
     </div>
 </div>
 
-<div class="row" [hidden]="!autoevaluationDisplay.visible">
+<div class="row ms-2" [hidden]="!autoevaluationDisplay.visible">
     <div class="col-md-12">
         {{ 'i18n_autoevaluation_release_type' | translate }}:
         <div class="dropdown" ngbDropdown>
@@ -127,7 +131,7 @@
         </div>
     </div>
 </div>
-<div class="row" [hidden]="!autoevaluationDisplay.visible">
+<div class="row ms-2" [hidden]="!autoevaluationDisplay.visible">
     <div class="col-md-12">
         <form role="form">
             @if (selectedReleaseType()?.name === 'GIVEN_DATE') {

@@ -1,4 +1,4 @@
-<div class="row mx-2">
+<div class="row">
     <div class="col-md-2">{{ 'i18n_total_score' | translate }}:</div>
     <div class="col-md-4">{{ getExamTotalScore() }} / {{ getExamMaxPossibleScore() }}</div>
     <div class="col-md-2">{{ 'i18n_grading_inspector' | translate }}:</div>
@@ -16,13 +16,13 @@
         }
     </div>
 </div>
-<div class="row mx-2">
+<div class="row">
     <div class="col-md-2">{{ 'i18n_approved' | translate }} / {{ 'i18n_rejected' | translate }}:</div>
     <div class="col-md-4">{{ questionSummary.accepted }} / {{ questionSummary.rejected }}</div>
     <div class="col-md-2">&nbsp;</div>
     <div class="col-md-4">&nbsp;</div>
 </div>
-<div class="row mx-2 mt-3">
+<div class="row mt-3">
     <div class="col-md-2">{{ 'i18n_exam_owners' | translate }}:</div>
     <div class="col-md-4">
         @if (!collaborative) {
@@ -51,7 +51,7 @@
 </div>
 
 @if (exam.state === 'GRADED_LOGGED') {
-    <div class="row mx-2">
+    <div class="row">
         <div class="col-md-4">{{ 'i18n_graded' | translate }}:</div>
         <div class="col-md-8">
             {{ exam.gradedTime | date: 'dd.MM.yyyy' }}
@@ -59,7 +59,7 @@
     </div>
 }
 
-<div class="row mx-2 mt-3 align-items-center">
+<div class="row mt-3 align-items-center">
     <div class="col-md-2">
         {{ 'i18n_additional_info_for_registry' | translate }}:
         <sup
@@ -79,7 +79,7 @@
         </textarea>
     </div>
 </div>
-<div class="row mx-2 mt-3 align-items-center" [hidden]="!isReadOnly() || !isOwnerOrAdmin()">
+<div class="row mt-3 align-items-center" [hidden]="!isReadOnly() || !isOwnerOrAdmin()">
     <div class="col-md-2">
         {{ 'i18n_additional_info_for_student' | translate }}:
         <sup
@@ -98,7 +98,7 @@
         </button>
     </div>
 </div>
-<div class="row mx-2 mt-3 align-items-center" [hidden]="getTeacherCount() === 0">
+<div class="row mt-3 align-items-center" [hidden]="getTeacherCount() === 0">
     <div class="col-md-2">
         {{ 'i18n_send_to_other_reviewers' | translate }}:
         <sup
@@ -117,7 +117,7 @@
         </button>
     </div>
 </div>
-<div class="row mx-2 mt-2" [hidden]="!isReadOnly()">
+<div class="row mt-2" [hidden]="!isReadOnly()">
     <div class="col-md-2">
         {{ 'i18n_teachers_comment' | translate }}
         @if (!!isCommentRead()) {
@@ -143,7 +143,7 @@
         </div>
     }
 </div>
-<div class="row mx-2 mt-3">
+<div class="row mt-3">
     <div class="col-md-12">
         <form #gradingForm="ngForm" name="gradingForm" role="form" novalidate>
             <div class="row">

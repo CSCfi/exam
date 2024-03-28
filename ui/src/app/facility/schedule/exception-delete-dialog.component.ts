@@ -20,9 +20,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ExceptionWorkingHours } from '../../reservation/reservation.model';
 
 @Component({
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+    template: `
         <div class="modal-header">
-            <div class="xm-page-header-title">{{ 'i18n_remove_exception_confirmation' | translate }}</div>
+            <div class="xm-modal-title">{{ 'i18n_remove_exception_confirmation' | translate }}</div>
         </div>
         <div class="modal-body">
             <div class="d-flex">
@@ -49,7 +49,7 @@ import { ExceptionWorkingHours } from '../../reservation/reservation.model';
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
-    </div>`,
+    `,
     styleUrls: ['../rooms/rooms.component.scss'],
     standalone: true,
     imports: [TranslateModule],

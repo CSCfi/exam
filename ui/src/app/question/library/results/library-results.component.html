@@ -109,7 +109,7 @@
                                 value="{{ question.id }}"
                             />
                         </td>
-                        <td class="question-table-name">
+                        <td>
                             @if (question.question) {
                                 <span [xmMathJax]="question.question | slice: 0 : 360"> </span>
                             }
@@ -178,7 +178,7 @@
                                 </span>
                             }
                         </td>
-                        <td class="question-table-name">
+                        <td>
                             @if (question.attachment) {
                                 <a class="pointer" (click)="downloadQuestionAttachment(question)">
                                     <i class="bi-paperclip"></i>{{ question.attachment.fileName }}
@@ -186,7 +186,7 @@
                             }
                         </td>
                         <td>{{ printTags(question) }}</td>
-                        <td class="question-table-name">
+                        <td>
                             @if (user.isAdmin) {
                                 <span>
                                     @for (owner of question.questionOwners; track owner; let isLast = $last) {

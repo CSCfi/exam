@@ -1,4 +1,4 @@
-<div class="row me-3 mt-4">
+<div class="row ms-2 mt-4">
     <div class="col-md-12">
         <div class="xm-paragraph-title">
             <span class="pointer" (click)="examFeedbackConfigDisplay.visible = !examFeedbackConfigDisplay.visible">
@@ -27,7 +27,7 @@
     </div>
 </div>
 
-<div class="row" [ngbCollapse]="!examFeedbackConfigDisplay.visible">
+<div class="row ms-2" [ngbCollapse]="!examFeedbackConfigDisplay.visible">
     <div class="col-md-12 mt-3">
         <span class="config-info">
             {{ 'i18n_exam_feedback_config_instructions' | translate }}
@@ -59,7 +59,7 @@
     </div>
 </div>
 
-<div class="row mt-2 align-items-end" [hidden]="!examFeedbackConfigDisplay.visible">
+<div class="row ms-2 mt-2 align-items-end" [hidden]="!examFeedbackConfigDisplay.visible">
     <div class="col-6">
         {{ 'i18n_exam_feedback_release_type' | translate }}:
         <div class="dropdown" ngbDropdown>

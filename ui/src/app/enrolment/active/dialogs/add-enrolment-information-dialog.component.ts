@@ -24,9 +24,9 @@ import type { EnrolmentInfo } from '../../enrolment.model';
     standalone: true,
     imports: [FormsModule, TranslateModule],
     template: `
-        <div id="exam-modal">
+        <div id="exam-modal" role="dialog" aria-modal="true">
             <div class="modal-header">
-                <h1 class="xm-page-header-title">{{ 'i18n_student_enrolment_info' | translate }}</h1>
+                <h1 class="xm-modal-title">{{ 'i18n_student_enrolment_info' | translate }}</h1>
             </div>
             <div class="modal-body">
                 <form role="form" id="infoForm" name="infoForm" novalidate>

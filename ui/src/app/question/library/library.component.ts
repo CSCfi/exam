@@ -48,7 +48,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
             </div>
         </ng-template>
         <ng-template #content>
-            <div class="reservation-border">
+            <div class="xm-bordered-area">
                 <div class="row ms-4 mt-2">
                     <div class="col-12">
                         <strong>{{ 'i18n_search' | translate }}:</strong>
