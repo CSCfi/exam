@@ -10,9 +10,9 @@
 <ng-template #content>
     <h3>
         @if (exam.course) {
-            <xm-course-code [course]="exam.course"></xm-course-code>
+            <xm-course-code [course]="exam.course"></xm-course-code> -
         }
-        - {{ exam.name }}
+        {{ exam.name }}
         <a class="pointer" (click)="hideGeneralInfo = !hideGeneralInfo">
             @if (hideGeneralInfo) {
                 <img src="/assets/images/icon_list_show_right.svg" alt="" />

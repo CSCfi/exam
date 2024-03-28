@@ -106,7 +106,7 @@ export class CollaborativeAssesmentService {
                 this.saveFeedback$(id, ref, participation).subscribe(() => {
                     this.toast.info(this.translate.instant('i18n_saved'));
                     const state = this.Assessment.getExitStateById(id, true);
-                    this.router.navigate(state.fragments, state.params);
+                    this.router.navigate(state.fragments, { queryParams: state.params });
                 });
             }
         } else {
@@ -174,7 +174,7 @@ export class CollaborativeAssesmentService {
                         } else {
                             this.toast.info(this.translate.instant('i18n_review_graded'));
                             const state = this.Assessment.getExitStateById(examId, true);
-                            this.router.navigate(state.fragments, state.params);
+                            this.router.navigate(state.fragments, { queryParams: state.params });
                         }
                     },
                     error: (err) => this.toast.error(err),
@@ -192,7 +192,7 @@ export class CollaborativeAssesmentService {
                 participation._rev = data.rev;
                 this.toast.info(this.translate.instant('i18n_review_recorded'));
                 const state = this.Assessment.getExitStateById(examId, true);
-                this.router.navigate(state.fragments, state.params);
+                this.router.navigate(state.fragments, { queryParams: state.params });
             },
             error: (err) => this.toast.error(err),
         });
