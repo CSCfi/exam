@@ -4,10 +4,11 @@
             <div class="col-6">
                 <strong class="review-list-subtitle">{{ 'i18n_teachers' | translate }}:&nbsp;</strong>
                 @for (owner of exam.examOwners; track owner; let isLast = $last) {
-                    <span class="review-list-subtitle"
-                        >{{ owner.firstName }} {{ owner.lastName }}
-                        @if (!isLast) {
-                            <span>,&nbsp;</span>
+                    <span class="review-list-subtitle">
+                        @if (!collaborative) {
+                            {{ owner.firstName }} {{ owner.lastName }}
+                        } @else {
+                            {{ owner.email }}
                         }
                     </span>
                 }
