@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
-import { Observable, Subject, interval, map, startWith, switchMap, take } from 'rxjs';
+import { Observable, Subject, filter, interval, map, startWith, switchMap, take } from 'rxjs';
 
 @Component({
     selector: 'xm-examination-clock',
@@ -40,9 +40,13 @@ import { Observable, Subject, interval, map, startWith, switchMap, take } from '
                                 class="exam-clock"
                                 role="region"
                                 [ngClass]="(isTimeScarce$ | async) ? 'text-warning' : ''"
-                                [attr.aria-live]="(isTimeScarce$ | async) ? 'polite' : 'off'"
                                 >{{ remainingTime$ | async }}</span
                             >
+                        }
+                        @if (ariaLiveTime) {
+                            <span class="exam-clock skip" role="region" [attr.aria-live]="'polite'">{{
+                                ('i18n_examination_time_warning' | translate) + ': ' + ariaLiveTime
+                            }}</span>
                         }
                     </div>
                     <div class="col-2">
@@ -68,6 +72,7 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
     showRemainingTime = signal(false);
     remainingTime$?: Observable<string>;
     isTimeScarce$?: Observable<boolean>;
+    ariaLiveTime?: string;
 
     private syncInterval = 60;
     private alarmThreshold = 300;
@@ -95,6 +100,12 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
             .subscribe(this.subject);
 
         this.remainingTime$ = this.subject.pipe(map((n) => Duration.fromObject({ seconds: n }).toFormat('hh:mm:ss')));
+        this.subject
+            .pipe(
+                filter((t) => t % (60 * 30) === 0 || [1, 5, 10].some((n) => t === 60 * n)),
+                map((t) => Duration.fromObject({ seconds: t }).toFormat('hh:mm:ss')),
+            )
+            .subscribe((time) => (this.ariaLiveTime = time));
         this.isTimeScarce$ = this.subject.pipe(map((n) => n <= this.alarmThreshold));
         this.subject.subscribe((n) => {
             if (n === 0) this.timedOut.emit();

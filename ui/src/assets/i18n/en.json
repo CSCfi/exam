@@ -1166,5 +1166,6 @@
     "i18n_total_simultaneous_byod_capacity": "Maximum number of participants for all overlapping exam events",
     "i18n_simultaneous_events": "Overlapping exam events with maximum number of participants.",
     "i18n_available_capacity": "Possible maximum number of participants in this event (approx.)",
-    "i18n_no_events": "No exam events"
+    "i18n_no_events": "No exam events",
+    "i18n_examination_time_warning": "Examination time warning"
 }

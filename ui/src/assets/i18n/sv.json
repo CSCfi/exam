@@ -1166,5 +1166,6 @@
     "i18n_total_simultaneous_byod_capacity": "Systemets maximala antal deltagare",
     "i18n_simultaneous_events": " Samtidigt ordnade tentamenstilffällen och deras maximala deltagarantal.",
     "i18n_available_capacity": "Maximalt antal deltagare i det här tillfället (uppskattning)",
-    "i18n_no_events": "Inga händelser"
+    "i18n_no_events": "Inga händelser",
+    "i18n_examination_time_warning": "Tenttiaika varoitus SV"
 }
