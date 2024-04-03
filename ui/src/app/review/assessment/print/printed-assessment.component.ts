@@ -55,7 +55,7 @@ type PreviousParticipation = Omit<Partial<ExamParticipation>, 'exam'> & { exam: 
 })
 export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
     collaborative = false;
-    questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false, totalSelectionEssays: 0 };
+    questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
     exam!: Exam;
     user: User;
     participation!: ExamParticipation;

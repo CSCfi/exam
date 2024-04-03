@@ -12,74 +12,72 @@ export type ExamConfig = { type: string; name: string; examinationTypes: { type:
     standalone: true,
     imports: [TranslateModule, NgbAccordionModule, NgClass],
     template: `
-        <div id="exam-dialog" role="dialog" aria-modal="true">
-            <div class="modal-header">
-                <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'i18n_choose' | translate }}</h4>
-            </div>
-            <div class="modal-body">
-                <div ngbAccordion #acc="ngbAccordion">
-                    <div ngbAccordionItem="executionType">
-                        <h2 ngbAccordionHeader>
-                            <button ngbAccordionButton>
-                                {{ 'i18n_choose_execution_type' | translate }}
-                            </button>
-                        </h2>
-                        <div ngbAccordionCollapse>
-                            <div ngbAccordionBody>
-                                <ng-template>
-                                    @for (type of executionTypes; track type) {
-                                        <div>
-                                            @if (type.examinationTypes.length > 0) {
-                                                <a
-                                                    class="pointer"
-                                                    [ngClass]="{ 'selected-type': selectedType === type }"
-                                                    (click)="selectType(type)"
-                                                    autofocus
-                                                >
-                                                    {{ type.name | translate }}
-                                                </a>
-                                            }
-                                            @if (type.examinationTypes.length === 0) {
-                                                <a class="pointer" (click)="selectConfig(type.type)">
-                                                    {{ type.name | translate }}
-                                                </a>
-                                            }
-                                        </div>
-                                    }
-                                </ng-template>
-                            </div>
+        <div class="modal-header">
+            <h4 class="modal-title"><i class="bi-person"></i>&nbsp;&nbsp;{{ 'i18n_choose' | translate }}</h4>
+        </div>
+        <div class="modal-body">
+            <div ngbAccordion #acc="ngbAccordion">
+                <div ngbAccordionItem="executionType">
+                    <h2 ngbAccordionHeader>
+                        <button ngbAccordionButton>
+                            {{ 'i18n_choose_execution_type' | translate }}
+                        </button>
+                    </h2>
+                    <div ngbAccordionCollapse>
+                        <div ngbAccordionBody>
+                            <ng-template>
+                                @for (type of executionTypes; track type) {
+                                    <div>
+                                        @if (type.examinationTypes.length > 0) {
+                                            <a
+                                                class="pointer"
+                                                [ngClass]="{ 'selected-type': selectedType === type }"
+                                                (click)="selectType(type)"
+                                                autofocus
+                                            >
+                                                {{ type.name | translate }}
+                                            </a>
+                                        }
+                                        @if (type.examinationTypes.length === 0) {
+                                            <a class="pointer" (click)="selectConfig(type.type)">
+                                                {{ type.name | translate }}
+                                            </a>
+                                        }
+                                    </div>
+                                }
+                            </ng-template>
                         </div>
                     </div>
-                    <div
-                        ngbAccordionItem="examinationType"
-                        [disabled]="!selectedType || selectedType.examinationTypes.length === 0"
-                    >
-                        <h2 ngbAccordionHeader>
-                            <button ngbAccordionButton>
-                                {{ 'i18n_examination_type' | translate }}
-                            </button>
-                        </h2>
-                        <div ngbAccordionCollapse>
-                            <div ngbAccordionBody>
-                                <ng-template>
-                                    @for (et of selectedType.examinationTypes; track et) {
-                                        <div>
-                                            <a class="pointer" (click)="selectConfig(selectedType.type, et.type)">
-                                                {{ et.name | translate }}
-                                            </a>
-                                        </div>
-                                    }
-                                </ng-template>
-                            </div>
+                </div>
+                <div
+                    ngbAccordionItem="examinationType"
+                    [disabled]="!selectedType || selectedType.examinationTypes.length === 0"
+                >
+                    <h2 ngbAccordionHeader>
+                        <button ngbAccordionButton>
+                            {{ 'i18n_examination_type' | translate }}
+                        </button>
+                    </h2>
+                    <div ngbAccordionCollapse>
+                        <div ngbAccordionBody>
+                            <ng-template>
+                                @for (et of selectedType.examinationTypes; track et) {
+                                    <div>
+                                        <a class="pointer" (click)="selectConfig(selectedType.type, et.type)">
+                                            {{ et.name | translate }}
+                                        </a>
+                                    </div>
+                                }
+                            </ng-template>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-sm btn-danger" (click)="cancel()">
-                    {{ 'i18n_button_cancel' | translate }}
-                </button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-sm btn-danger" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
         </div>
     `,
     styles: [

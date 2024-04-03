@@ -1,9 +1,7 @@
-<div id="dashboard">
-    <xm-page-header text="i18n_speed_review" [history]="true" />
-    <xm-page-content [content]="content" />
-</div>
+<xm-page-header text="i18n_speed_review" [history]="true" />
+<xm-page-content [content]="content" />
 <ng-template #content>
-    <div class="col-md-12 p-3">
+    <div class="col-md-12">
         @if (examInfo?.examOwners) {
             <div class="speed-review-title">
                 {{ examInfo?.title }}
@@ -187,8 +185,8 @@
     }
 
     <!-- Buttons -->
-    <div class="pe-3 mb-2 d-flex justify-content-between">
-        <div class="speed-review-csv ms-3 mb-1">
+    <div class="d-flex justify-content-between">
+        <div class="speed-review-csv">
             <a class="pointer" (click)="importGrades()">{{ 'i18n_import_grades_from_csv' | translate }}</a>
             <sup
                 ngbPopover="{{ 'i18n_grade_import_file_description' | translate }}"

@@ -23,21 +23,19 @@ import { TranslateModule } from '@ngx-translate/core';
     standalone: true,
     imports: [TranslateModule],
     template: `
-        <div id="exam-dialog" role="dialog" aria-modal="true">
-            <div class="modal-header">
-                <h1 class="xm-page-header-title">{{ 'i18n_accept_useragreement' | translate }}</h1>
-            </div>
-            <div class="modal-body">
-                <div [innerHtml]="settings.eula.value"></div>
-            </div>
-            <div class="modal-footer">
-                <button class="xm-ok-button" (click)="activeModal.close()" autofocus>
-                    {{ 'i18n_button_accept' | translate }}
-                </button>
-                <button class="xm-cancel-button float-start" (click)="activeModal.dismiss()">
-                    {{ 'i18n_button_decline' | translate }}
-                </button>
-            </div>
+        <div class="modal-header">
+            <h1 class="xm-modal-title">{{ 'i18n_accept_useragreement' | translate }}</h1>
+        </div>
+        <div class="modal-body">
+            <div [innerHtml]="settings.eula.value"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="xm-ok-button" (click)="activeModal.close()" autofocus>
+                {{ 'i18n_button_accept' | translate }}
+            </button>
+            <button class="xm-cancel-button float-start" (click)="activeModal.dismiss()">
+                {{ 'i18n_button_decline' | translate }}
+            </button>
         </div>
     `,
 })

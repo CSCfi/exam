@@ -1,110 +1,86 @@
 <!-- Exam assessment data -->
-<div class="row ms-2 me-2">
+<div class="row ms-2 mt-2">
     <div class="col-md-12">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="col-md-12 mt-3">
-                        <div class="row me-3">
-                            <div class="col-md-12">
-                                <div class="xm-paragraph-title">{{ 'i18n_exam_review_settings' | translate }}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- EXAM TYPE PICKER -->
-                <div class="row">
-                    <div class="col-md-12 mt-3">
-                        <div class="row">
-                            <div class="col-md-3">
-                                {{ 'i18n_exam_credit_type' | translate }}
-                                <sup
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'i18n_exam_credit_type_description' | translate }}"
-                                >
-                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                </sup>
-                            </div>
-                            <div class="col-md-9">
-                                @for (examType of examTypes; track examType) {
-                                    <span>
-                                        <button
-                                            [disabled]="examTypes.length < 2"
-                                            class="btn selection-button-narrow"
-                                            [ngClass]="checkExamType(examType.type)"
-                                            (click)="setExamType(examType.type)"
-                                        >
-                                            {{ examType.name }}</button
-                                        >&nbsp;
-                                    </span>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- GRADE SCALE PICKER -->
-                <div class="row">
-                    <div class="col-md-12 mt-3">
-                        <div class="row">
-                            <div class="col-md-3">
-                                {{ 'i18n_grade_scale' | translate }}
-                                <sup
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                    ngbPopover="{{ 'i18n_exam_grade_scale_description' | translate }}"
-                                >
-                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                </sup>
-                            </div>
-                            <div class="col-md-9">
-                                @for (gradeScale of getSelectableScales(); track gradeScale) {
-                                    <span>
-                                        <button
-                                            class="btn selection-button-narrow"
-                                            [ngClass]="checkScale(gradeScale)"
-                                            (click)="setScale(gradeScale)"
-                                            [disabled]="checkScaleDisabled(gradeScale)"
-                                        >
-                                            {{ gradeScale.name }}</button
-                                        >&nbsp;</span
-                                    >
-                                }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Autoevaluation -->
-                @if (canBeAutoEvaluated()) {
-                    <div>
-                        <xm-auto-evaluation
-                            [exam]="exam"
-                            (updated)="autoEvaluationConfigChanged($event)"
-                            (disabled)="autoEvaluationDisabled()"
-                            (enabled)="autoEvaluationEnabled()"
-                        >
-                        </xm-auto-evaluation>
-                    </div>
-                }
-                @if (!collaborative && exam.executionType?.type !== 'MATURITY') {
-                    <div>
-                        <xm-exam-feedback-config
-                            [exam]="exam"
-                            [modifiable]="isAllowedToUpdateFeedbackConfig"
-                            (updated)="feedbackConfigChanged($event)"
-                            (disabled)="feedbackConfigDisabled()"
-                            (enabled)="feedbackConfigEnabled()"
-                        ></xm-exam-feedback-config>
-                    </div>
-                }
-            </div>
-        </div>
+        <div class="xm-paragraph-title">{{ 'i18n_exam_review_settings' | translate }}</div>
     </div>
 </div>
+
+<!-- EXAM TYPE PICKER -->
+<div class="row ms-2 mt-2 align-items-center">
+    <div class="col-md-3">
+        {{ 'i18n_exam_credit_type' | translate }}
+        <sup
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
+            ngbPopover="{{ 'i18n_exam_credit_type_description' | translate }}"
+        >
+            <img src="/assets/images/icon_tooltip.svg" alt="" />
+        </sup>
+    </div>
+    <div class="col-md-9">
+        @for (examType of examTypes; track examType) {
+            <span>
+                <button
+                    [disabled]="examTypes.length < 2"
+                    class="btn selection-button-narrow"
+                    [ngClass]="checkExamType(examType.type)"
+                    (click)="setExamType(examType.type)"
+                >
+                    {{ examType.name }}</button
+                >&nbsp;
+            </span>
+        }
+    </div>
+</div>
+
+<!-- GRADE SCALE PICKER -->
+<div class="row ms-2 mt-2 align-items-center">
+    <div class="col-md-3">
+        {{ 'i18n_grade_scale' | translate }}
+        <sup
+            popoverTitle="{{ 'i18n_instructions' | translate }}"
+            triggers="mouseenter:mouseleave"
+            ngbPopover="{{ 'i18n_exam_grade_scale_description' | translate }}"
+        >
+            <img src="/assets/images/icon_tooltip.svg" alt="" />
+        </sup>
+    </div>
+    <div class="col-md-9">
+        @for (gradeScale of getSelectableScales(); track gradeScale) {
+            <span>
+                <button
+                    class="btn selection-button-narrow"
+                    [ngClass]="checkScale(gradeScale)"
+                    (click)="setScale(gradeScale)"
+                    [disabled]="checkScaleDisabled(gradeScale)"
+                >
+                    {{ gradeScale.name }}</button
+                >&nbsp;</span
+            >
+        }
+    </div>
+</div>
+<!-- Autoevaluation -->
+@if (canBeAutoEvaluated()) {
+    <xm-auto-evaluation
+        [exam]="exam"
+        (updated)="autoEvaluationConfigChanged($event)"
+        (disabled)="autoEvaluationDisabled()"
+        (enabled)="autoEvaluationEnabled()"
+    >
+    </xm-auto-evaluation>
+}
+@if (!collaborative && exam.executionType?.type !== 'MATURITY') {
+    <xm-exam-feedback-config
+        [exam]="exam"
+        [modifiable]="isAllowedToUpdateFeedbackConfig"
+        (updated)="feedbackConfigChanged($event)"
+        (disabled)="feedbackConfigDisabled()"
+        (enabled)="feedbackConfigEnabled()"
+    ></xm-exam-feedback-config>
+}
 <!-- Buttons -->
-<div class="row mt-3 me-3">
+<div class="row mt-3">
     <div class="col-md-12 mb-3">
         <div class="float-end">
             <button class="xm-ok-button" (click)="updateExam(false)">{{ 'i18n_save' | translate }}</button>
@@ -113,10 +89,10 @@
 </div>
 
 <div class="row mt-4">
-    <div class="col-md-2 grey-top mb-3 pt-2">
+    <div class="col-md-2 grey-top mb-3 pt-3">
         <button class="xm-neutral-button" (click)="previousTab()">&#171; {{ 'i18n_questions' | translate }}</button>
     </div>
-    <div class="col grey-top mb-3 pt-2">
+    <div class="col grey-top mb-3 pt-3">
         <div class="float-end">
             <button class="xm-neutral-button" (click)="nextTab()">
                 {{ 'i18n_exam_publish_tab' | translate }} &#187;

@@ -48,6 +48,7 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
         this.getTextNodes(doc.body).forEach((n) => {
             if (n.textContent) {
                 n.textContent = n.textContent.replace(/\{/g, '&#123;');
+                n.textContent = n.textContent.replace(/\}/g, '&#125;');
             }
         });
 
@@ -65,7 +66,10 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
                         .flatMap((e: Element) => Array.from(e.childNodes))
                         .filter((n) => n.nodeName === '#text')
                         .forEach((n) => {
-                            if (n.textContent) n.textContent = n.textContent.replace(/&#123;/g, '{');
+                            if (n.textContent) {
+                                n.textContent = n.textContent.replace(/&#123;/g, '{');
+                                n.textContent = n.textContent.replace(/&#125;/g, '}');
+                            }
                         });
                     MathJax.Hub.Queue(['Typeset', MathJax.Hub, this.el.nativeElement]);
                 }

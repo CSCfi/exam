@@ -22,7 +22,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable, Unsubscribable } from 'rxjs';
-import { defer, from, interval, of, Subject, throwError } from 'rxjs';
+import { Subject, defer, from, interval, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
@@ -39,7 +39,6 @@ export interface User {
     eppn: string;
     firstName: string;
     lastName: string;
-    name?: string;
     email: string;
     lang: string;
     loginRole: string | null;

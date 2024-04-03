@@ -31,10 +31,8 @@ type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };
 @Component({
     selector: 'xm-room-mass-edit',
     template: `
-        <div id="dashboard">
-            <xm-page-header text="i18n_edit_all_rooms" />
-            <xm-page-content [content]="content" />
-        </div>
+        <xm-page-header text="i18n_edit_all_rooms" />
+        <xm-page-content [content]="content" />
         <ng-template #content>
             <div class="row">
                 <div class="col-md-12">

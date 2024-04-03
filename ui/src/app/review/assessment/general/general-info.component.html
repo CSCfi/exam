@@ -1,4 +1,4 @@
-<div class="row ms-3 mt-3">
+<div class="row">
     <div class="col-md-2">{{ 'i18n_name' | translate }}:</div>
     <div class="col-md-4">
         {{ studentName }}
@@ -13,7 +13,7 @@
         }
     </div>
 </div>
-<div class="row ms-3">
+<div class="row">
     <div class="col-md-2">{{ 'i18n_exam_reservation' | translate }}:</div>
     @if (!participation.examinationEvent) {
         <div class="col-md-4">
@@ -30,13 +30,13 @@
     <div class="col-md-4">{{ participation.duration | date: 'HH:mm' : 'UTC' }}</div>
 </div>
 @if (enrolment?.information) {
-    <div class="row ms-3">
+    <div class="row">
         <div class="col-md-2">{{ 'i18n_student_enrolment_info' | translate }}:</div>
         <div class="col-md-10">{{ enrolment?.information }}</div>
     </div>
 }
 @if (reservation) {
-    <div class="row ms-3">
+    <div class="row">
         <div class="col-md-2">{{ 'i18n_examination_location' | translate }}:</div>
         @if (reservation.machine?.room) {
             <div class="col-md-4">{{ reservation.machine.room.name }} ({{ reservation.machine.room.roomCode }})</div>
@@ -56,7 +56,7 @@
     </div>
 }
 @if (enrolment?.examinationEventConfiguration) {
-    <div class="row ms-3">
+    <div class="row">
         <div class="col-md-2">{{ 'i18n_examination_event' | translate }}:</div>
         <div class="col-md-4">
             {{ enrolment?.examinationEventConfiguration?.examinationEvent?.start | date }}
@@ -68,7 +68,7 @@
     </div>
 }
 @if (participations.length === 0 && noShows.length === 0) {
-    <div class="row ms-3 mt-2">
+    <div class="row mt-2">
         <div class="col-md-2">{{ 'i18n_previous_exam_participations' | translate }}:</div>
         <div class="col-md-10">
             {{ 'i18n_exam_no_previous_participations' | translate }}
@@ -76,14 +76,14 @@
     </div>
 }
 @if (participations.length > 0 || noShows.length > 0) {
-    <div class="row ms-3 mt-2">
+    <div class="row mt-2">
         <div class="col-md-12">{{ 'i18n_previous_exam_participations' | translate }}:</div>
     </div>
 }
 @for (participation of participations; track participation) {
     <div [hidden]="participations.length === 0">
         <xm-r-participation
-            class="row ms-3"
+            class="row"
             [participation]="participation"
             [collaborative]="collaborative"
         ></xm-r-participation>
@@ -91,12 +91,12 @@
 }
 @for (noShow of noShows; track noShow) {
     <div [hidden]="noShows.length === 0">
-        <xm-r-no-show class="row ms-3" [enrolment]="noShow" [collaborative]="collaborative"></xm-r-no-show>
+        <xm-r-no-show class="row" [enrolment]="noShow" [collaborative]="collaborative"></xm-r-no-show>
     </div>
 }
 
 @if (exam.instruction) {
-    <div class="row ms-3 mt-3">
+    <div class="row mt-3">
         <div class="col-md-2" role="note">
             <img src="/assets/images/icon_info.svg" alt="" />
             <span class="ps-2 notice-text">{{ 'i18n_exam_instruction' | translate }}:</span>
@@ -107,7 +107,7 @@
     </div>
 }
 @if (exam.attachment) {
-    <div class="row ms-3 mt-3">
+    <div class="row mt-3">
         <div class="col-md-2">{{ 'i18n_exam_attachment' | translate }}:</div>
         <div class="col-md-10 xm-link">
             <a class="pointer" (click)="downloadExamAttachment()">{{ exam.attachment?.fileName }}</a>

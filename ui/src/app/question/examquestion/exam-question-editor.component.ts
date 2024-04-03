@@ -25,20 +25,15 @@ import { ExamQuestionComponent } from './exam-question.component';
     standalone: true,
     imports: [ExamQuestionComponent],
     template: `
-        <div id="exam-dialog" role="dialog" aria-modal="true">
-            <div class="modal-body">
-                @if (examQuestion) {
-                    <xm-exam-question
-                        [examQuestion]="examQuestion"
-                        (saved)="save($event)"
-                        (cancelled)="cancel($event)"
-                        [lotteryOn]="lotteryOn"
-                        autofocus
-                    ></xm-exam-question>
-                }
-            </div>
-            <div class="modal-footer"></div>
-        </div>
+        @if (examQuestion) {
+            <xm-exam-question
+                [examQuestion]="examQuestion"
+                (saved)="save($event)"
+                (cancelled)="cancel($event)"
+                [lotteryOn]="lotteryOn"
+                autofocus
+            ></xm-exam-question>
+        }
     `,
 })
 export class ExamQuestionEditorComponent {

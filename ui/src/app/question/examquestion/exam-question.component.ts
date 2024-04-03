@@ -186,7 +186,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         if (!optionType) {
             return '';
         }
-        return this.Question.returnClaimChoiceOptionClass(optionType);
+        return this.Question.determineClaimChoiceOptionClass(optionType);
     };
 
     determineOptionType = (option: ExamSectionQuestionOption) =>
@@ -197,7 +197,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         if (!optionType) {
             return;
         }
-        return this.Question.returnOptionDescriptionTranslation(optionType);
+        return this.Question.determineOptionDescriptionTranslation(optionType);
     };
 
     validate = () => {

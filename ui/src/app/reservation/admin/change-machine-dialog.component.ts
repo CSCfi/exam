@@ -27,9 +27,11 @@ import type { ExamMachine, Reservation } from '../reservation.model';
     selector: 'xm-change-machine-dialog',
     standalone: true,
     imports: [TranslateModule, DropdownSelectComponent],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
-        <div class="terms-dialog-header">
-            <h4><i class="bi-info-circle"></i>&nbsp;&nbsp;{{ 'i18n_change_reservation_machine' | translate }}</h4>
+    template: `
+        <div class="modal-header">
+            <h4 class="xm-modal-title">
+                <i class="bi-info-circle"></i>&nbsp;&nbsp;{{ 'i18n_change_reservation_machine' | translate }}
+            </h4>
         </div>
         <div class="modal-body">
             <strong>{{ 'i18n_exam_machine' | translate }}</strong>
@@ -50,7 +52,7 @@ import type { ExamMachine, Reservation } from '../reservation.model';
                 {{ 'i18n_button_save' | translate }}
             </button>
         </div>
-    </div> `,
+    `,
 })
 export class ChangeMachineDialogComponent implements OnInit {
     @Input() reservation!: Reservation;

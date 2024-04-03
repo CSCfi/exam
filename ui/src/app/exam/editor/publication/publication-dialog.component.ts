@@ -23,9 +23,9 @@ import type { Exam } from '../../exam.model';
     selector: 'xm-publication-dialog',
     standalone: true,
     imports: [TranslateModule],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+    template: `
         <div class="modal-header">
-            <div class="xm-page-header-title">{{ getTitle() | translate }}</div>
+            <div class="xm-modal-title">{{ getTitle() | translate }}</div>
         </div>
         <div class="modal-body">
             <p>
@@ -45,7 +45,7 @@ import type { Exam } from '../../exam.model';
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
-    </div>`,
+    `,
 })
 export class PublicationDialogComponent {
     @Input() exam!: Exam;

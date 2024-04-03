@@ -120,7 +120,6 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
                     next: () => this.questions.splice(this.questions.indexOf(question), 1),
                     error: () => this.toast.info(this.translate.instant('i18n_question_removed')),
                 }),
-            error: (err) => this.toast.error(err),
         });
 
     copyQuestion = (question: SelectableQuestion) =>
@@ -136,7 +135,6 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
                     },
                     error: (err) => this.toast.error(err),
                 }),
-            error: (err) => this.toast.error(err),
         });
 
     downloadQuestionAttachment = (question: LibraryQuestion) => this.Attachment.downloadQuestionAttachment(question);
@@ -144,13 +142,7 @@ export class LibraryResultsComponent implements OnInit, OnChanges {
     printOwners = (question: LibraryQuestion) =>
         question.questionOwners.map((o) => this.printOwner(o, false)).join(', ');
 
-    renderMailTo = (owner?: User) => {
-        if (!(owner && owner.email)) {
-            return '';
-        }
-
-        return `mailto:${owner.email}`;
-    };
+    renderMailTo = (owner?: User) => (owner?.email ? `mailto:${owner.email}` : '');
 
     printOwner = (owner: User, showId: boolean): string => {
         if (!owner) {

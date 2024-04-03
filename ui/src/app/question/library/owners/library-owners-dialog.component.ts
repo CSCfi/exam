@@ -26,30 +26,28 @@ import { QuestionService } from '../../question.service';
 
 @Component({
     template: `
-        <div id="exam-dialog" role="dialog" aria-modal="true">
-            <div class="modal-header">
-                <h1 class="xm-page-header-title">{{ 'i18n_add_question_owner' | translate }}</h1>
-            </div>
-            <div class="modal-body">
-                <div class="form-group input-group">
-                    <input
-                        class="form-control"
-                        [ngbTypeahead]="listTeachers$"
-                        (selectItem)="setQuestionOwner($event)"
-                        [inputFormatter]="nameFormatter"
-                        [resultFormatter]="nameFormatter"
-                    />
+        <div class="modal-header">
+            <h1 class="xm-modal-title">{{ 'i18n_add_question_owner' | translate }}</h1>
+        </div>
+        <div class="modal-body">
+            <div class="form-group input-group">
+                <input
+                    class="form-control"
+                    [ngbTypeahead]="listTeachers$"
+                    (selectItem)="setQuestionOwner($event)"
+                    [inputFormatter]="nameFormatter"
+                    [resultFormatter]="nameFormatter"
+                />
 
-                    <button class="xm-ok-button" (click)="addOwnerForSelected()">
-                        {{ 'i18n_add' | translate }}
-                    </button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="xm-cancel-button" (click)="close()" autofocus>
-                    {{ 'i18n_close' | translate }}
+                <button class="xm-ok-button" (click)="addOwnerForSelected()">
+                    {{ 'i18n_add' | translate }}
                 </button>
             </div>
+        </div>
+        <div class="modal-footer">
+            <button class="xm-cancel-button" (click)="close()" autofocus>
+                {{ 'i18n_close' | translate }}
+            </button>
         </div>
     `,
     selector: 'xm-library-owners-dialog',
@@ -117,6 +115,6 @@ export class LibraryOwnersDialogComponent implements OnInit {
 
     private filterByName = (src: User[], q: string): User[] => {
         if (!q) return src;
-        return src.filter((u) => u.name?.toLowerCase().includes(q.toLowerCase()));
+        return src.filter((u) => `${u.firstName} ${u.lastName}`.toLowerCase().includes(q.toLowerCase()));
     };
 }

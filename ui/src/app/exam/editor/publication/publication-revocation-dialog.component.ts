@@ -21,9 +21,9 @@ import { TranslateModule } from '@ngx-translate/core';
     selector: 'xm-publication-revoke-dialog',
     standalone: true,
     imports: [TranslateModule],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+    template: `
         <div class="modal-header">
-            <div class="xm-page-header-title">{{ 'i18n_unpublish_exam_confirm_dialog_title' | translate }}</div>
+            <div class="xm-modal-title">{{ 'i18n_unpublish_exam_confirm_dialog_title' | translate }}</div>
         </div>
         <div class="modal-body">
             <p>
@@ -38,7 +38,7 @@ import { TranslateModule } from '@ngx-translate/core';
                 {{ 'i18n_close' | translate }}
             </button>
         </div>
-    </div> `,
+    `,
 })
 export class PublicationRevocationDialogComponent {
     constructor(public activeModal: NgbActiveModal) {}

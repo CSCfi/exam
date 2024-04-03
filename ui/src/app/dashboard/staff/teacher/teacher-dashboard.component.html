@@ -1,7 +1,5 @@
-<div id="dashboard">
-    <xm-page-header text="i18n_dashboard" [appendTemplate]="buttons" />
-    <xm-page-content [content]="content" />
-</div>
+<xm-page-header text="i18n_dashboard" [appendTemplate]="buttons" />
+<xm-page-content [content]="content" />
 <ng-template #buttons>
     <div class="float-end pe-3">
         <button [routerLink]="['/staff/exams']" class="xm-ok-button me-3">
@@ -13,7 +11,7 @@
     </div>
 </ng-template>
 <ng-template #content>
-    <div class="row me-2">
+    <div class="row">
         <div class="col-12">
             <ul ngbNav #nav="ngbNav" [(activeId)]="activeTab" class="nav-tabs">
                 <li [ngbNavItem]="1">

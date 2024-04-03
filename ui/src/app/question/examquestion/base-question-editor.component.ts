@@ -25,23 +25,21 @@ import type { QuestionDraft } from '../question.service';
     standalone: true,
     imports: [QuestionComponent],
     template: `
-        <div id="exam-dialog" role="dialog" aria-modal="true">
-            <div class="modal-body">
-                <xm-question
-                    [newQuestion]="newQuestion"
-                    [questionId]="questionId"
-                    (saved)="onSave($event)"
-                    (cancelled)="cancel()"
-                    [questionDraft]="questionDraft"
-                    [collaborative]="collaborative"
-                    [lotteryOn]="lotteryOn"
-                    [examId]="examId"
-                    [sectionQuestion]="sectionQuestion"
-                    autofocus
-                ></xm-question>
-            </div>
-            <div class="modal-footer"></div>
+        <div class="modal-body">
+            <xm-question
+                [newQuestion]="newQuestion"
+                [questionId]="questionId"
+                (saved)="onSave($event)"
+                (cancelled)="cancel()"
+                [questionDraft]="questionDraft"
+                [collaborative]="collaborative"
+                [lotteryOn]="lotteryOn"
+                [examId]="examId"
+                [sectionQuestion]="sectionQuestion"
+                autofocus
+            ></xm-question>
         </div>
+        <div class="modal-footer"></div>
     `,
 })
 export class BaseQuestionEditorComponent {

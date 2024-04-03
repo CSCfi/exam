@@ -60,7 +60,7 @@ import { ExamSectionComponent } from './sections/section.component';
 })
 export class AssessmentComponent implements OnInit {
     collaborative = false;
-    questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false, totalSelectionEssays: 0 };
+    questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
     exam!: Examination;
     participation!: ExamParticipation;
     user: User;

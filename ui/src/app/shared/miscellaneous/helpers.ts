@@ -18,3 +18,5 @@ export const updateList = <T>(items: T[], key: keyof T, value: T): T[] => {
     items.splice(index, 1, value);
     return items;
 };
+export const deduplicate = <T>(items: T[], key: keyof T) =>
+    items.filter((item, i, xs) => xs.findIndex((item2) => item2[key] === item[key]) === i);

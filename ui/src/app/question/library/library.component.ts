@@ -33,10 +33,9 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
 
 @Component({
     selector: 'xm-library',
-    template: `<div id="dashboard">
-            <xm-page-header text="i18n_library_new" [appendTemplate]="buttons" />
-            <xm-page-content [content]="content" />
-        </div>
+    template: `
+        <xm-page-header text="i18n_library_new" [appendWide]="true" [appendTemplate]="buttons" />
+        <xm-page-content [content]="content" />
         <ng-template #buttons>
             <div class="float-end pe-3">
                 <button (click)="import()" class="xm-ok-button me-3">
@@ -48,7 +47,7 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
             </div>
         </ng-template>
         <ng-template #content>
-            <div class="reservation-border">
+            <div class="xm-bordered-area">
                 <div class="row ms-4 mt-2">
                     <div class="col-12">
                         <strong>{{ 'i18n_search' | translate }}:</strong>
@@ -139,7 +138,8 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
                     </xm-library-results>
                 </div>
             </div>
-        </ng-template>`,
+        </ng-template>
+    `,
     standalone: true,
     imports: [
         RouterLink,

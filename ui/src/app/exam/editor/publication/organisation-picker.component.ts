@@ -13,15 +13,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
-import {
-    NgbDropdown,
-    NgbDropdownItem,
-    NgbDropdownMenu,
-    NgbDropdownToggle,
-    NgbPopover,
-} from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Exam } from '../../exam.model';
 import { ExamService } from '../../exam.service';
@@ -81,19 +76,22 @@ type Organisation = {
                     @for (org of selectedOrganisations; track org) {
                         {{ org.name }} ({{ org.code }})
                         <button
-                            class="btn btn-sm btn-light"
+                            class="btn btn-sm btn-link px-0"
                             [disabled]="exam.state === 'PUBLISHED'"
                             (click)="removeOrganisation(org)"
                             title="{{ 'i18n_remove' | translate }}"
                         >
-                            <i class="bi bi-x"></i>
+                            <i
+                                class="bi bi-x-lg"
+                                [ngClass]="exam.state === 'PUBLISHED' ? 'text-danger' : 'text-success'"
+                            ></i>
                         </button>
                     }
                 </div>
             </div>
         }`,
     standalone: true,
-    imports: [NgbPopover, NgbDropdown, NgbDropdownToggle, NgbDropdownMenu, NgbDropdownItem, TranslateModule],
+    imports: [NgClass, NgbPopover, NgbDropdownModule, TranslateModule],
 })
 export class OrganisationSelectorComponent implements OnInit {
     @Input() exam!: Exam;
