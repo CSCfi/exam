@@ -29,10 +29,9 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
 
 @Component({
     selector: 'xm-collaborative-exam-search',
-    template: `<div id="dashboard">
-            <xm-page-header text="i18n_collaborative_exams" />
-            <xm-page-content [content]="content" />
-        </div>
+    template: `
+        <xm-page-header text="i18n_collaborative_exams" />
+        <xm-page-content [content]="content" />
         <ng-template #content>
             <div class="row">
                 <div class="col-12">
@@ -85,7 +84,8 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
                     }
                 </div>
             </div>
-        </ng-template> `,
+        </ng-template>
+    `,
     standalone: true,
     imports: [FormsModule, ExamSearchResultComponent, TranslateModule, PageHeaderComponent, PageContentComponent],
 })

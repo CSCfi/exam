@@ -22,24 +22,22 @@ import { TranslateModule } from '@ngx-translate/core';
     standalone: true,
     imports: [FormsModule, TranslateModule],
     template: `
-        <div id="exam-dialog" role="dialog" aria-modal="true">
-            <div class="modal-header">
-                <h1 class="xm-page-header-title">{{ 'i18n_inspection_comment_title' | translate }}</h1>
-            </div>
-            <div class="modal-body">
-                <form role="form" id="infoForm" name="infoForm" novalidate>
-                    <label for="infoForm">{{ 'i18n_inspection_comment_description' | translate }}</label>
-                    <textarea rows="10" name="message" class="w-100" [(ngModel)]="data.comment" autofocus> </textarea>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="xm-ok-button" [disabled]="!data.comment" (click)="ok()">
-                    {{ 'i18n_add' | translate }}
-                </button>
-                <button class="xm-cancel-button float-start" (click)="cancel()">
-                    {{ 'i18n_button_cancel' | translate }}
-                </button>
-            </div>
+        <div class="modal-header">
+            <h1 class="xm-modal-title">{{ 'i18n_inspection_comment_title' | translate }}</h1>
+        </div>
+        <div class="modal-body">
+            <form role="form" id="infoForm" name="infoForm" novalidate>
+                <label for="infoForm">{{ 'i18n_inspection_comment_description' | translate }}</label>
+                <textarea rows="10" name="message" class="w-100" [(ngModel)]="data.comment" autofocus> </textarea>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="xm-ok-button" [disabled]="!data.comment" (click)="ok()">
+                {{ 'i18n_add' | translate }}
+            </button>
+            <button class="xm-cancel-button float-start" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
         </div>
     `,
 })

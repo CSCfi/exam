@@ -24,9 +24,11 @@ import type { Reservation } from '../reservation.model';
     selector: 'xm-remove-reservation-dialog',
     standalone: true,
     imports: [FormsModule, TranslateModule],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
-        <div class="terms-dialog-header">
-            <h4><i class="bi-trash"></i>&nbsp;&nbsp;{{ 'i18n_remove_reservation' | translate }}</h4>
+    template: `
+        <div class="modal-header">
+            <h4 class="xm-modal-title">
+                <i class="bi-trash"></i>&nbsp;&nbsp;{{ 'i18n_remove_reservation' | translate }}
+            </h4>
         </div>
         <div class="modal-body">
             <strong>{{ 'i18n_message' | translate }}</strong>
@@ -38,7 +40,7 @@ import type { Reservation } from '../reservation.model';
             </button>
             <button class="btn btn-sm btn-primary" (click)="ok()">{{ 'i18n_send' | translate }}</button>
         </div>
-    </div> `,
+    `,
 })
 export class RemoveReservationDialogComponent {
     @Input() reservation!: Reservation;

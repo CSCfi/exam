@@ -36,10 +36,8 @@ import { ReportsService, UserRole } from './reports.service';
 @Component({
     selector: 'xm-reports',
     template: `
-        <div id="dashboard">
-            <xm-page-header text="i18n_reports" />
-            <xm-page-content [content]="content" />
-        </div>
+        <xm-page-header text="i18n_reports" />
+        <xm-page-content [content]="content" />
         <ng-template #content>
             <div class="report-category"><xm-rooms-report [rooms]="rooms" /></div>
             <div class="report-category"><xm-exams-report [examNames]="examNames" /></div>
@@ -99,7 +97,7 @@ export class ReportsComponent implements OnInit {
         this.Users.listUsersByRole$(UserRole.TEACHER).subscribe((resp) => {
             this.teachers = resp.map((t) => ({
                 id: t.id,
-                label: t.name as string,
+                label: t.firstName + ' ' + t.lastName,
                 value: t,
             }));
         });
@@ -107,7 +105,7 @@ export class ReportsComponent implements OnInit {
         this.Users.listUsersByRole$(UserRole.STUDENT).subscribe((resp) => {
             this.students = resp.map((t) => ({
                 id: t.id,
-                label: t.name as string,
+                label: t.firstName + ' ' + t.lastName,
                 value: t,
             }));
         });

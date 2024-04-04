@@ -56,11 +56,11 @@
                 @for (inspection of examInspections; track inspection) {
                     {{ inspection.user.firstName }} {{ inspection.user.lastName }} ({{ inspection.user.email }})
                     <button
-                        class="btn btn-sm btn-light"
+                        class="btn btn-sm btn-link px-0"
                         (click)="removeInspector(inspection.id)"
                         title="{{ 'i18n_remove' | translate }}"
                     >
-                        <i class="bi bi-x"></i>
+                        <i class="bi bi-x-lg"></i>
                     </button>
                 }
             </div>

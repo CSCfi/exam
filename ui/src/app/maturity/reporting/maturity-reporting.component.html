@@ -1,7 +1,5 @@
-<div id="dashboard">
-    <xm-page-header text="i18n_monthly_language_inspection_report" [appendTemplate]="print" />
-    <xm-page-content [content]="content" />
-</div>
+<xm-page-header text="i18n_monthly_language_inspection_report" [appendTemplate]="print" />
+<xm-page-content [content]="content" />
 <ng-template #print>
     <span class="print-only compact-header-text">{{ month | date: 'MM/yyyy' }}</span>
     <div class="float-end me-2 no-print">

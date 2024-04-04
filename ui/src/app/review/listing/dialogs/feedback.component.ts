@@ -25,9 +25,9 @@ import { AssessmentService } from '../../assessment/assessment.service';
     selector: 'xm-speed-review-feedback',
     standalone: true,
     imports: [FormsModule, TranslateModule, CKEditorComponent],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+    template: `
         <div class="modal-header">
-            <div class="xm-page-header-title">{{ 'i18n_give_feedback' | translate }}</div>
+            <div class="xm-modal-title">{{ 'i18n_give_feedback' | translate }}</div>
         </div>
         <div class="modal-body ms-2">
             <div class="row">
@@ -51,7 +51,7 @@ import { AssessmentService } from '../../assessment/assessment.service';
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
-    </div>`,
+    `,
 })
 export class SpeedReviewFeedbackComponent implements OnInit {
     @Input() exam!: Exam;

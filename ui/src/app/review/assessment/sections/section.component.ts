@@ -17,7 +17,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnIni
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { Exam, ExamParticipation, ExamSection } from '../../../exam/exam.model';
-import { QuestionAmounts, QuestionService } from '../../../question/question.service';
+import { QuestionService } from '../../../question/question.service';
 import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
 import { ClozeTestComponent } from '../questions/cloze-test.component';
 import { EssayQuestionComponent } from '../questions/essay-question.component';
@@ -39,8 +39,7 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
     @Input() collaborative = false;
     @Output() scored = new EventEmitter<string>();
 
-    selectionEvaluatedAmounts: { accepted: number; rejected: number } = { accepted: 0, rejected: 0 };
-    selectionEssays?: QuestionAmounts;
+    questionAmounts = { rejected: 0, accepted: 0 };
 
     constructor(
         private Exam: ExamService,
@@ -49,8 +48,7 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
     ) {}
 
     ngOnInit() {
-        this.selectionEssays = this.Question.getQuestionAmounts(this.exam);
-        this.selectionEvaluatedAmounts = this.Question.getQuestionAmountsBySection(this.section);
+        this.questionAmounts = this.Question.getQuestionAmountsBySection(this.section);
     }
 
     ngAfterViewInit() {
@@ -59,7 +57,7 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
 
     scoreSet = (revision: string) => {
         this.scored.emit(revision);
-        this.selectionEvaluatedAmounts = this.Question.getQuestionAmountsBySection(this.section);
+        this.questionAmounts = this.Question.getQuestionAmountsBySection(this.section);
     };
 
     getSectionMaxScore = () => this.Exam.getSectionMaxScore(this.section);

@@ -25,7 +25,7 @@
         >
     </div>
     <div class="col-md-3">
-        <button class="btn btn-outline-secondary" (click)="openMaterialEditor()">
+        <button class="btn btn-sm btn-outline-secondary px-0" (click)="openMaterialEditor()">
             {{ 'i18n_modify_materials' | translate }}
         </button>
     </div>
@@ -35,11 +35,11 @@
     <div class="col-md-9">
         @for (material of section.examMaterials; track material) {
             <button
-                class="btn btn-sm btn-light"
+                class="btn btn-sm btn-light px-0"
                 (click)="removeMaterial(material)"
                 title="{{ 'i18n_remove' | translate }}"
             >
-                <i class="bi bi-x"></i>
+                <i class="bi bi-x-lg"></i>
             </button>
         }
     </div>

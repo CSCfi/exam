@@ -67,7 +67,7 @@ import { QuestionDraft } from '../question.service';
                     @for (tag of ownTags; track tag) {
                         {{ tag.name }}
                         <button
-                            class="btn btn-sm btn-light"
+                            class="btn btn-sm btn-link"
                             ngbPopover="{{ 'i18n_remove' | translate }}"
                             popoverTitle="{{ 'i18n_instructions' | translate }}"
                             triggers="mouseenter:mouseleave"
@@ -135,5 +135,8 @@ export class TagPickerComponent implements OnInit {
         this.tagName = '';
     };
 
-    removeTag = (tag: Tag) => this.question.tags.splice(this.question.tags.indexOf(tag), 1);
+    removeTag = (tag: Tag) => {
+        this.question.tags.splice(this.question.tags.indexOf(tag), 1);
+        this.ownTags = this.question.tags.filter((t) => t.creator?.id === this.Session.getUser().id);
+    };
 }

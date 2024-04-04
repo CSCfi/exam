@@ -76,17 +76,8 @@ export class ReviewListComponent implements OnInit, OnChanges {
             this.reviews = data.reviews;
             this.exam = this.Tabs.getExam();
             this.collaborative = this.Tabs.isCollaborative();
-
             this.refreshLists();
-            // No-shows
-            if (this.collaborative) {
-                //TODO: Fetch collaborative no-shows from xm.
-                this.noShows = [];
-            } else {
-                this.http
-                    .get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`)
-                    .subscribe((resp) => (this.noShows = resp));
-            }
+            this.http.get<ExamEnrolment[]>(`/app/noshows/${this.exam.id}`).subscribe((resp) => (this.noShows = resp));
             this.Tabs.notifyTabChange(5);
         });
     }

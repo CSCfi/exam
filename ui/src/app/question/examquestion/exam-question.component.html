@@ -1,48 +1,178 @@
-<div id="dashboard">
-    <div class="row ms-4 mt-2">
-        <div class="col-md-12">
-            <span class="xm-page-header-title">{{ 'i18n_questions_edit' | translate }}</span>
-        </div>
-    </div>
+<div class="modal-header">
+    <span class="xm-modal-title">{{ 'i18n_questions_edit' | translate }}</span>
+</div>
 
-    <div class="ms-5 me-5">
-        <!-- Question body //-->
-        <div class="row question-border px-3">
-            <div class="col-md-12">
-                <form role="form" class="form-horizontal" #questionForm="ngForm" name="form">
-                    @if (examNames.length > 0) {
-                        <div class="xm-study-item-container--warning mt-3">
-                            <!-- Exam contexts -->
-                            <div class="row">
-                                <div class="col-auto p-1">
-                                    <img src="/assets/images/icon_warning.png" />
-                                </div>
-                                <div class="col warning-text">
-                                    @if (showWarning()) {
-                                        {{ 'i18n_exam_question_edit_instructions' | translate }}
-                                    } @else {
-                                        {{ 'i18n_added_to_exams' | translate }}
-                                    }
-                                    <ul class="list-inline m-1">
-                                        <li class="list-inline-item">
-                                            <div class="exists-text">
-                                                {{ examNames.join(', ') }}
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </div>
+<div class="modal-body">
+    <!-- Question body //-->
+    <div class="row">
+        <div class="col-md-12">
+            <form role="form" class="form-horizontal" #questionForm="ngForm" name="form">
+                @if (examNames.length > 0) {
+                    <div class="xm-study-item-container--warning mt-3">
+                        <!-- Exam contexts -->
+                        <div class="row">
+                            <div class="col-auto p-1">
+                                <img src="/assets/images/icon_warning.png" />
+                            </div>
+                            <div class="col warning-text">
+                                @if (showWarning()) {
+                                    {{ 'i18n_exam_question_edit_instructions' | translate }}
+                                } @else {
+                                    {{ 'i18n_added_to_exams' | translate }}
+                                }
+                                <ul class="list-inline m-1">
+                                    <li class="list-inline-item">
+                                        <div class="exists-text">
+                                            {{ examNames.join(', ') }}
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
-                    }
+                    </div>
+                }
 
-                    <div class="row mt-2">
+                <div class="row mt-2">
+                    <div class="col-md-12 pe-0">
+                        <div class="xm-paragraph-title edit-warning-container">
+                            {{ 'i18n_exam_basic_information_tab' | translate }}
+                            @if (showWarning()) {
+                                <i class="bi-exclamation-circle ps-4 text-danger"></i>
+                            }
+                            @if (showWarning()) {
+                                <span class="warning-text-small ps-2">
+                                    {{ 'i18n_shared_question_property_info' | translate }}
+                                </span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-3">{{ 'i18n_question_id' | translate }}</div>
+                    <div class="col-md-9">#{{ question?.id }}</div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        {{ 'i18n_new_question_type' | translate }}
+                        <sup
+                            ngbPopover="{{ 'i18n_question_type_description' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
+                            <img src="/assets/images/icon_tooltip.svg" alt="" />
+                        </sup>
+                    </div>
+                    <div class="col-md-9">
+                        @if (question?.type === 'EssayQuestion') {
+                            <span>{{ 'i18n_toolbar_essay_question' | translate }}</span>
+                        }
+                        @if (question?.type === 'ClozeTestQuestion') {
+                            <span>{{ 'i18n_toolbar_cloze_test_question' | translate }}</span>
+                        }
+                        @if (question?.type === 'MultipleChoiceQuestion') {
+                            <span>{{ 'i18n_toolbar_multiplechoice_question' | translate }}</span>
+                        }
+                        @if (question?.type === 'WeightedMultipleChoiceQuestion') {
+                            <span>{{ 'i18n_toolbar_weighted_multiplechoice_question' | translate }}</span>
+                        }
+                        @if (question?.type === 'ClaimChoiceQuestion') {
+                            <span>
+                                {{ 'i18n_toolbar_claim_choice_question' | translate }}
+                            </span>
+                        }
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        {{ 'i18n_question_text' | translate }}
+                        <sup
+                            ngbPopover="{{ 'i18n_question_text_description' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
+                            <img src="/assets/images/icon_tooltip.svg" />
+                        </sup>
+                    </div>
+                    @if (question?.type) {
+                        <div class="col-md-9" [ngClass]="ck.invalid ? 'ng-invalid' : ''">
+                            <xm-ckeditor
+                                id="editor"
+                                name="editor"
+                                #ck="ngModel"
+                                [enableClozeTest]="question!.type === 'ClozeTestQuestion'"
+                                rows="10"
+                                cols="60"
+                                [(ngModel)]="question!.question"
+                                [required]="true"
+                            >
+                            </xm-ckeditor>
+                        </div>
+                    }
+                </div>
+
+                <!-- TODO: Refactor these to  components -->
+                <!-- Type specific content - essay -->
+                <!-- Evaluation -->
+                @if (question?.type === 'EssayQuestion') {
+                    <div class="row">
+                        <div class="col-md-12 mt-2 pr-0">
+                            <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
+                        </div>
+                    </div>
+                }
+
+                @if (question?.type === 'EssayQuestion') {
+                    <div class="row mt-3">
+                        <div class="col-md-3">
+                            {{ 'i18n_essay_length_recommendation' | translate }}
+                        </div>
+                        <span class="col-md-4">
+                            <div class="input-group" id="expectedWordCount">
+                                <input
+                                    name="expectedWordCount"
+                                    type="number"
+                                    lang="en"
+                                    class="form-control"
+                                    [(ngModel)]="examQuestion.expectedWordCount"
+                                    [min]="1"
+                                    [max]="1000000"
+                                    #wordCount="ngModel"
+                                />
+                                <span
+                                    class="input-group-text"
+                                    title="{{ 'i18n_average_word_length_finnish' | translate }}"
+                                >
+                                    {{ 'i18n_approximately' | translate }} {{ estimateCharacters() }}
+                                    {{ 'i18n_characters' | translate }}
+                                </span>
+                            </div>
+                            @if (wordCount.invalid) {
+                                <div class="warning-text-small m-1 edit-warning-container">
+                                    <i class="bi-exclamation-circle text-danger me-2"></i>
+                                    {{ 'i18n_essay_length_recommendation_bounds' | translate }}
+                                </div>
+                            }
+                        </span>
+                    </div>
+                }
+
+                <!-- Multiple choises - title -->
+                @if (
+                    question?.type === 'MultipleChoiceQuestion' ||
+                    question?.type === 'WeightedMultipleChoiceQuestion' ||
+                    question?.type === 'ClaimChoiceQuestion'
+                ) {
+                    <div class="row mt-3 mb-2">
                         <div class="col-md-12 pe-0">
                             <div class="xm-paragraph-title edit-warning-container">
-                                {{ 'i18n_exam_basic_information_tab' | translate }}
-                                @if (showWarning()) {
+                                {{ 'i18n_question_options' | translate }}
+                                @if (showWarning() && question?.type !== 'MultipleChoiceQuestion') {
                                     <i class="bi-exclamation-circle ps-4 text-danger"></i>
                                 }
-                                @if (showWarning()) {
+                                @if (showWarning() && question?.type !== 'MultipleChoiceQuestion') {
                                     <span class="warning-text-small ps-2">
                                         {{ 'i18n_shared_question_property_info' | translate }}
                                     </span>
@@ -50,510 +180,396 @@
                             </div>
                         </div>
                     </div>
+                }
 
-                    <div class="row mt-3">
-                        <div class="col-md-3">{{ 'i18n_question_id' | translate }}</div>
-                        <div class="col-md-9">#{{ question?.id }}</div>
-                    </div>
-
+                <!-- Type specific content - multiple choices table titles -->
+                @if (question?.type === 'WeightedMultipleChoiceQuestion') {
                     <div class="row">
-                        <div class="col-md-3">
-                            {{ 'i18n_new_question_type' | translate }}
-                            <sup
-                                ngbPopover="{{ 'i18n_question_type_description' | translate }}"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                            >
-                                <img src="/assets/images/icon_tooltip.svg" alt="" />
-                            </sup>
+                        <div class="col-6">
+                            <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
                         </div>
-                        <div class="col-md-9">
-                            @if (question?.type === 'EssayQuestion') {
-                                <span>{{ 'i18n_toolbar_essay_question' | translate }}</span>
-                            }
-                            @if (question?.type === 'ClozeTestQuestion') {
-                                <span>{{ 'i18n_toolbar_cloze_test_question' | translate }}</span>
-                            }
-                            @if (question?.type === 'MultipleChoiceQuestion') {
-                                <span>{{ 'i18n_toolbar_multiplechoice_question' | translate }}</span>
-                            }
-                            @if (question?.type === 'WeightedMultipleChoiceQuestion') {
-                                <span>{{ 'i18n_toolbar_weighted_multiplechoice_question' | translate }}</span>
-                            }
-                            @if (question?.type === 'ClaimChoiceQuestion') {
-                                <span>
-                                    {{ 'i18n_toolbar_claim_choice_question' | translate }}
-                                </span>
-                            }
+                        <div class="col question-option-title">
+                            {{ 'i18n_word_points' | translate | uppercase }}
                         </div>
                     </div>
+                }
 
+                <!-- Type specific content - weighted option -->
+                @if (question?.type === 'WeightedMultipleChoiceQuestion') {
                     <div class="row">
-                        <div class="col-md-3">
-                            {{ 'i18n_question_text' | translate }}
-                            <sup
-                                ngbPopover="{{ 'i18n_question_text_description' | translate }}"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                            >
-                                <img src="/assets/images/icon_tooltip.svg" />
-                            </sup>
-                        </div>
-                        @if (question?.type) {
-                            <div class="col-md-9">
-                                <xm-ckeditor
-                                    id="editor"
-                                    name="editor"
-                                    #ck="ngModel"
-                                    [enableClozeTest]="question!.type === 'ClozeTestQuestion'"
-                                    rows="10"
-                                    cols="60"
-                                    [(ngModel)]="question!.question"
-                                    [required]="true"
-                                >
-                                </xm-ckeditor>
-                            </div>
-                        }
-                    </div>
-
-                    <!-- TODO: Refactor these to  components -->
-                    <!-- Type specific content - essay -->
-                    <!-- Evaluation -->
-                    @if (question?.type === 'EssayQuestion') {
-                        <div class="row">
-                            <div class="col-md-12 mt-2 pr-0">
-                                <div class="xm-paragraph-title">{{ 'i18n_comments' | translate }}</div>
-                            </div>
-                        </div>
-                    }
-
-                    @if (question?.type === 'EssayQuestion') {
-                        <div class="row mt-3">
-                            <div class="col-md-3">
-                                {{ 'i18n_essay_length_recommendation' | translate }}
-                            </div>
-                            <span class="col-md-4">
-                                <div class="input-group" id="expectedWordCount">
-                                    <input
-                                        name="expectedWordCount"
-                                        type="number"
-                                        lang="en"
-                                        class="form-control"
-                                        [(ngModel)]="examQuestion.expectedWordCount"
-                                        [min]="1"
-                                        [max]="1000000"
-                                        #wordCount="ngModel"
-                                    />
-                                    <span
-                                        class="input-group-text"
-                                        title="{{ 'i18n_average_word_length_finnish' | translate }}"
-                                    >
-                                        {{ 'i18n_approximately' | translate }} {{ estimateCharacters() }}
-                                        {{ 'i18n_characters' | translate }}
-                                    </span>
-                                </div>
-                                @if (wordCount.invalid) {
-                                    <div class="warning-text-small m-1 edit-warning-container">
-                                        <i class="bi-exclamation-circle text-danger me-2"></i>
-                                        {{ 'i18n_essay_length_recommendation_bounds' | translate }}
-                                    </div>
-                                }
-                            </span>
-                        </div>
-                    }
-
-                    <!-- Multiple choises - title -->
-                    @if (
-                        question?.type === 'MultipleChoiceQuestion' ||
-                        question?.type === 'WeightedMultipleChoiceQuestion' ||
-                        question?.type === 'ClaimChoiceQuestion'
-                    ) {
-                        <div class="row mt-3 mb-2">
-                            <div class="col-md-12 pe-0">
-                                <div class="xm-paragraph-title edit-warning-container">
-                                    {{ 'i18n_question_options' | translate }}
-                                    @if (showWarning() && question?.type !== 'MultipleChoiceQuestion') {
-                                        <i class="bi-exclamation-circle ps-4 text-danger"></i>
-                                    }
-                                    @if (showWarning() && question?.type !== 'MultipleChoiceQuestion') {
-                                        <span class="warning-text-small ps-2">
-                                            {{ 'i18n_shared_question_property_info' | translate }}
-                                        </span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Type specific content - multiple choices table titles -->
-                    @if (question?.type === 'WeightedMultipleChoiceQuestion') {
-                        <div class="row">
-                            <div class="col-6">
-                                <span class="question-option-title">{{ 'i18n_option' | translate }}</span>
-                            </div>
-                            <div class="col question-option-title">
-                                {{ 'i18n_word_points' | translate | uppercase }}
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Type specific content - weighted option -->
-                    @if (question?.type === 'WeightedMultipleChoiceQuestion') {
-                        <div class="row">
-                            <div class="col-md-12">
-                                @for (option of examQuestion.options; track option.id) {
-                                    <div class="row form-horizontal m-0 p-0 mb-3">
-                                        @if (option.option) {
-                                            <div
-                                                class="col-md-6 question-option-empty"
-                                                [ngClass]="
-                                                    option.score.valueOf() > 0
-                                                        ? 'question-correct-option'
-                                                        : option.score.valueOf() < 0
-                                                          ? 'question-incorrect-option'
-                                                          : ''
-                                                "
-                                            >
-                                                <textarea
-                                                    id="weightedOptionText_{{ option.id }}"
-                                                    type="text"
-                                                    rows="1"
-                                                    name="weightedOptionText_{{ option.id }}"
-                                                    class="question-option-input form-control mb-1"
-                                                    [(ngModel)]="option.option!.option"
-                                                    required
-                                                ></textarea>
-                                            </div>
-                                        }
+                        <div class="col-md-12">
+                            @for (option of examQuestion.options; track option.id) {
+                                <div class="row form-horizontal m-0 p-0 mb-3">
+                                    @if (option.option) {
                                         <div
-                                            class="col-md-2 question-option-empty-radio"
+                                            class="col-md-6 question-option-empty"
                                             [ngClass]="
                                                 option.score.valueOf() > 0
-                                                    ? 'question-correct-option-radio'
+                                                    ? 'question-correct-option'
                                                     : option.score.valueOf() < 0
-                                                      ? 'question-incorrect-option-radio'
+                                                      ? 'question-incorrect-option'
                                                       : ''
                                             "
                                         >
+                                            <textarea
+                                                id="weightedOptionText_{{ option.id }}"
+                                                type="text"
+                                                rows="1"
+                                                name="weightedOptionText_{{ option.id }}"
+                                                class="question-option-input form-control mb-1"
+                                                [(ngModel)]="option.option!.option"
+                                                required
+                                            ></textarea>
+                                        </div>
+                                    }
+                                    <div
+                                        class="col-md-2 question-option-empty-radio"
+                                        [ngClass]="
+                                            option.score.valueOf() > 0
+                                                ? 'question-correct-option-radio'
+                                                : option.score.valueOf() < 0
+                                                  ? 'question-incorrect-option-radio'
+                                                  : ''
+                                        "
+                                    >
+                                        <input
+                                            xmFixedPrecision
+                                            id="optionScore_{{ option.id }}"
+                                            name="maxScore_{{ option.id }}"
+                                            class="question-option-input points"
+                                            type="number"
+                                            lang="en"
+                                            [(ngModel)]="option.score"
+                                            required
+                                            [disabled]="lotteryOn"
+                                        />
+                                    </div>
+                                    <div
+                                        class="col-md-1 question-option-trash pointer"
+                                        [hidden]="lotteryOn"
+                                        (click)="removeOption(option)"
+                                    >
+                                        <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
+                                    </div>
+                                </div>
+                            }
+                            <div class="row">
+                                <div class="col-md-6">&nbsp;</div>
+                                <div class="col-md-2 question-option-title">
+                                    {{ 'i18n_max_score' | translate | uppercase }}:
+                                    {{ calculateWeightedMaxPoints() }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Type specific content - option -->
+                @for (option of examQuestion.options; track option.id) {
+                    <div class="row" [hidden]="question?.type !== 'MultipleChoiceQuestion'">
+                        <div
+                            class="col-md-6 question-option-empty"
+                            [ngClass]="{ 'question-correct-option': option.option?.correctOption }"
+                        >
+                            @if (option.option) {
+                                <textarea
+                                    id="optionText_{{ option.id }}"
+                                    name="optionText_{{ option.id }}"
+                                    type="text"
+                                    rows="1"
+                                    class="make-inline question-option-input radiobut form-control"
+                                    [(ngModel)]="option.option!.option"
+                                    required
+                                ></textarea>
+                            }
+                        </div>
+                        <div
+                            class="col-md-2 question-option-empty-radio"
+                            [ngClass]="{ 'question-correct-option-radio': option.option?.correctOption }"
+                        >
+                            @if (option.option) {
+                                <input
+                                    name="correctOption_{{ option.id }}"
+                                    type="radio"
+                                    [(ngModel)]="option.option!.correctOption"
+                                    [value]="true"
+                                    (click)="correctAnswerToggled(option)"
+                                    [disabled]="optionDisabled(option)"
+                                    class="make-inline question-option-radio"
+                                />
+                            }
+                        </div>
+                        <div [hidden]="lotteryOn" (click)="removeOption(option)" class="col-md-1 question-option-trash">
+                            <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
+                        </div>
+                    </div>
+                }
+
+                <!-- Type specific content - claim choice option -->
+                @if (question?.type === 'ClaimChoiceQuestion') {
+                    <div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p>{{ 'i18n_claim_choice_question_instruction' | translate }}</p>
+                                <p>{{ 'i18n_claim_choice_options_description' | translate }}</p>
+                                <ul>
+                                    <li>{{ 'i18n_claim_choice_correct_points_description' | translate }}</li>
+                                    <li>{{ 'i18n_claim_choice_incorrect_points_description' | translate }}</li>
+                                    <li>{{ 'i18n_claim_choice_skip_option_description' | translate }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 m-1 claim-choice-option-labels">
+                                <div class="claim-choice-option-label">
+                                    <span class="question-option-title">{{
+                                        'i18n_question_options' | translate | uppercase
+                                    }}</span>
+                                </div>
+                                <div class="claim-choice-option-label points">
+                                    <span class="question-option-title">
+                                        {{ 'i18n_word_points' | translate | uppercase }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 m-1">
+                                @for (opt of examQuestion.options; track opt.id) {
+                                    <div
+                                        class="question-editor-claim-choice-option row"
+                                        [ngClass]="returnOptionClass(opt)"
+                                    >
+                                        @if (opt.option) {
+                                            <div class="claim-choice-option-inputs col-md-9">
+                                                <textarea
+                                                    [(ngModel)]="opt.option!.option"
+                                                    name="claimChoiceOption_{{ opt.id }}"
+                                                    type="text"
+                                                    rows="1"
+                                                    class="make-inline form-control"
+                                                    required
+                                                    [disabled]="
+                                                        lotteryOn || opt.option?.claimChoiceType === 'SkipOption'
+                                                    "
+                                                ></textarea>
+                                            </div>
+                                        }
+                                        <div class="col-md-2">
                                             <input
-                                                xmFixedPrecision
-                                                id="optionScore_{{ option.id }}"
-                                                name="maxScore_{{ option.id }}"
+                                                name="claimChoiceOptionScore_{{ opt.id }}"
                                                 class="question-option-input points"
                                                 type="number"
                                                 lang="en"
-                                                [(ngModel)]="option.score"
+                                                xmFixedPrecision
+                                                [(ngModel)]="opt.score"
                                                 required
-                                                [disabled]="lotteryOn"
+                                                [disabled]="lotteryOn || opt.option!.claimChoiceType === 'SkipOption'"
+                                                (change)="validate()"
                                             />
                                         </div>
-                                        <div
-                                            class="col-md-1 question-option-trash pointer"
-                                            [hidden]="lotteryOn"
-                                            (click)="removeOption(option)"
-                                        >
-                                            <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
+                                        <div class="claim-choice-option-description">
+                                            {{ returnOptionDescriptionTranslation(opt) }}
                                         </div>
                                     </div>
                                 }
-                                <div class="row">
-                                    <div class="col-md-6">&nbsp;</div>
-                                    <div class="col-md-2 question-option-title">
-                                        {{ 'i18n_max_score' | translate | uppercase }}:
-                                        {{ calculateWeightedMaxPoints() }}
-                                    </div>
-                                </div>
                             </div>
                         </div>
-                    }
-
-                    <!-- Type specific content - option -->
-                    @for (option of examQuestion.options; track option.id) {
-                        <div class="row" [hidden]="question?.type !== 'MultipleChoiceQuestion'">
-                            <div
-                                class="col-md-6 question-option-empty"
-                                [ngClass]="{ 'question-correct-option': option.option?.correctOption }"
-                            >
-                                @if (option.option) {
-                                    <textarea
-                                        id="optionText_{{ option.id }}"
-                                        name="optionText_{{ option.id }}"
-                                        type="text"
-                                        rows="1"
-                                        class="make-inline question-option-input radiobut form-control"
-                                        [(ngModel)]="option.option!.option"
-                                        required
-                                    ></textarea>
-                                }
-                            </div>
-                            <div
-                                class="col-md-2 question-option-empty-radio"
-                                [ngClass]="{ 'question-correct-option-radio': option.option?.correctOption }"
-                            >
-                                @if (option.option) {
-                                    <input
-                                        name="correctOption_{{ option.id }}"
-                                        type="radio"
-                                        [(ngModel)]="option.option!.correctOption"
-                                        [value]="true"
-                                        (click)="correctAnswerToggled(option)"
-                                        [disabled]="optionDisabled(option)"
-                                        class="make-inline question-option-radio"
-                                    />
-                                }
-                            </div>
-                            <div
-                                [hidden]="lotteryOn"
-                                (click)="removeOption(option)"
-                                class="col-md-1 question-option-trash"
-                            >
-                                <i class="bi-trash" title="{{ 'i18n_remove' | translate }}"></i>
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Type specific content - claim choice option -->
-                    @if (question?.type === 'ClaimChoiceQuestion') {
-                        <div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <p>{{ 'i18n_claim_choice_question_instruction' | translate }}</p>
-                                    <p>{{ 'i18n_claim_choice_options_description' | translate }}</p>
-                                    <ul>
-                                        <li>{{ 'i18n_claim_choice_correct_points_description' | translate }}</li>
-                                        <li>{{ 'i18n_claim_choice_incorrect_points_description' | translate }}</li>
-                                        <li>{{ 'i18n_claim_choice_skip_option_description' | translate }}</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12 m-1 claim-choice-option-labels">
-                                    <div class="claim-choice-option-label">
-                                        <span class="question-option-title">{{
-                                            'i18n_question_options' | translate | uppercase
-                                        }}</span>
-                                    </div>
-                                    <div class="claim-choice-option-label points">
-                                        <span class="question-option-title">
-                                            {{ 'i18n_word_points' | translate | uppercase }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12 m-1">
-                                    @for (opt of examQuestion.options; track opt.id) {
-                                        <div
-                                            class="question-editor-claim-choice-option row"
-                                            [ngClass]="returnOptionClass(opt)"
-                                        >
-                                            @if (opt.option) {
-                                                <div class="claim-choice-option-inputs col-md-9">
-                                                    <textarea
-                                                        [(ngModel)]="opt.option!.option"
-                                                        name="claimChoiceOption_{{ opt.id }}"
-                                                        type="text"
-                                                        rows="1"
-                                                        class="make-inline form-control"
-                                                        required
-                                                        [disabled]="
-                                                            lotteryOn || opt.option?.claimChoiceType === 'SkipOption'
-                                                        "
-                                                    ></textarea>
-                                                </div>
+                        <div class="row">
+                            <div class="col-md-12 claim-choice-warning-wrapper">
+                                @if (missingOptions.length > 0) {
+                                    <div class="claim-choice-warning">
+                                        <i class="bi-exclamation-triangle" style="color: #e8172f"></i>
+                                        <span style="color: #e8172f">
+                                            {{ 'i18n_claim_choice_missing_options_warning' | translate }}
+                                            @for (opt of missingOptions; track $index; let l = $last) {
+                                                <span> {{ opt | translate }}{{ l ? '' : ',' }} </span>
                                             }
-                                            <div class="col-md-2">
-                                                <input
-                                                    name="claimChoiceOptionScore_{{ opt.id }}"
-                                                    class="question-option-input points"
-                                                    type="number"
-                                                    lang="en"
-                                                    xmFixedPrecision
-                                                    [(ngModel)]="opt.score"
-                                                    required
-                                                    [disabled]="
-                                                        lotteryOn || opt.option!.claimChoiceType === 'SkipOption'
-                                                    "
-                                                    (change)="validate()"
-                                                />
-                                            </div>
-                                            <div class="claim-choice-option-description">
-                                                {{ returnOptionDescriptionTranslation(opt) }}
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12 claim-choice-warning-wrapper">
-                                    @if (missingOptions.length > 0) {
-                                        <div class="claim-choice-warning">
-                                            <i class="bi-exclamation-triangle" style="color: #e8172f"></i>
-                                            <span style="color: #e8172f">
-                                                {{ 'i18n_claim_choice_missing_options_warning' | translate }}
-                                                @for (opt of missingOptions; track $index; let l = $last) {
-                                                    <span> {{ opt | translate }}{{ l ? '' : ',' }} </span>
-                                                }
-                                            </span>
-                                        </div>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    }
-
-                    @if (
-                        question?.type === 'MultipleChoiceQuestion' ||
-                        question?.type === 'WeightedMultipleChoiceQuestion'
-                    ) {
-                        <div class="row mt-2">
-                            <div class="col-md-12">
-                                <a (click)="addNewOption()" class="attachment-link pointer">
-                                    <i class="bi-plus"></i>
-                                    {{ 'i18n_question_add_new_option' | translate }}
-                                </a>
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Evaluation type - essay -->
-                    @if (question?.type === 'EssayQuestion') {
-                        <div class="row mt-2">
-                            <div class="col-md-3">
-                                {{ 'i18n_evaluation_type' | translate }}
-                            </div>
-                            <div class="col-md-2">
-                                <select
-                                    id="evaluationType"
-                                    class="form-select w-50"
-                                    name="evaluationType"
-                                    [(ngModel)]="examQuestion.evaluationType"
-                                    (change)="updateEvaluationType()"
-                                    required="question.type == 'EssayQuestion'"
-                                >
-                                    <option value="Points">{{ 'i18n_word_points' | translate }}</option>
-                                    <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
-                                </select>
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Max score -->
-                    @if (
-                        question?.type === 'MultipleChoiceQuestion' ||
-                        question?.type === 'ClozeTestQuestion' ||
-                        examQuestion.evaluationType === 'Points'
-                    ) {
-                        <div class="row mt-2">
-                            <div class="col-md-3">
-                                {{ 'i18n_max_score' | translate }}
-                            </div>
-                            <div class="col-md-2">
-                                <input
-                                    id="maxScore"
-                                    name="maxScore"
-                                    type="number"
-                                    lang="en"
-                                    class="form-control w-25"
-                                    [(ngModel)]="examQuestion.maxScore"
-                                    [min]="0"
-                                    [max]="1000"
-                                    xmFixedPrecision
-                                    required
-                                    [disabled]="lotteryOn"
-                                />
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Additional info -->
-                    <div class="row mt-2">
-                        <div class="col-md-12 mt-2 pe-0">
-                            <div class="xm-paragraph-title">{{ 'i18n_additional_info' | translate }}</div>
-                        </div>
-                    </div>
-
-                    <!-- Exam owners -->
-                    <div class="row mt-2">
-                        <div class="col-md-3">
-                            {{ 'i18n_question_owners' | translate }}
-                            <sup
-                                ngbPopover="{{ 'i18n_question_owners_description' | translate }}"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                            >
-                                <img src="/assets/images/icon_tooltip.svg" alt="" />
-                            </sup>
-                        </div>
-                        <div class="col-md-9">
-                            @if (question?.questionOwners) {
-                                <ul class="list-inline ps-2">
-                                    @for (user of question!.questionOwners; track user.id) {
-                                        <li class="list-inline-item">{{ user.firstName }} {{ user.lastName }}</li>
-                                    }
-                                </ul>
-                            }
-                        </div>
-                    </div>
-
-                    <!-- Attachment -->
-                    <div class="row">
-                        <div class="col-md-3">
-                            {{ 'i18n_question_attachment' | translate }}
-                            <sup
-                                ngbPopover="{{ 'i18n_attachment_description' | translate }}"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                            >
-                                <img src="/assets/images/icon_tooltip.svg" alt="" />
-                            </sup>
-                        </div>
-
-                        <div class="col-md-9" id="attachment">
-                            <button class="xm-ok-button" (click)="selectFile()">
-                                {{ 'i18n_attach_file' | translate }}
-                            </button>
-
-                            @if (question?.attachment && !question!.attachment?.removed) {
-                                <div class="make-inline ps-2">
-                                    <!-- Uploaded -->
-                                    @if (question!.attachment?.id) {
-                                        <a class="pointer attachment-link" (click)="downloadQuestionAttachment()">
-                                            <i class="bi-paperclip"></i> {{ question!.attachment?.fileName }}
-                                        </a>
-                                    }
-                                    <!-- Not yet uploaded -->
-                                    @if (!question?.attachment?.id) {
-                                        <span class="attachment-link">
-                                            <i class="bi-paperclip"></i> {{ question?.attachment?.fileName }}
-                                            <small> ({{ getFileSize() }})</small>
                                         </span>
-                                    }
-                                    <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
-                                        <img
-                                            src="/assets/images/icon_remove.svg"
-                                            alt="{{ 'i18n_remove_attachment' | translate }}"
-                                        />
-                                    </span>
-                                </div>
-                            }
-                            @if (showWarning()) {
-                                <div class="mt-1 mb-2 edit-warning-container">
-                                    <i class="bi-exclamation-circle text-danger"></i>
-                                    <span class="warning-text-small ps-2">{{
-                                        'i18n_shared_question_property_info' | translate
-                                    }}</span>
-                                </div>
-                            }
+                                    </div>
+                                }
+                            </div>
                         </div>
                     </div>
+                }
 
-                    <!-- Instructions -->
+                @if (
+                    question?.type === 'MultipleChoiceQuestion' || question?.type === 'WeightedMultipleChoiceQuestion'
+                ) {
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <a (click)="addNewOption()" class="attachment-link pointer">
+                                <i class="bi-plus"></i>
+                                {{ 'i18n_question_add_new_option' | translate }}
+                            </a>
+                        </div>
+                    </div>
+                }
+
+                <!-- Evaluation type - essay -->
+                @if (question?.type === 'EssayQuestion') {
                     <div class="row mt-2">
                         <div class="col-md-3">
-                            {{ 'i18n_question_instruction' | translate }}
+                            {{ 'i18n_evaluation_type' | translate }}
+                        </div>
+                        <div class="col-md-2">
+                            <select
+                                id="evaluationType"
+                                class="form-select w-75"
+                                name="evaluationType"
+                                [(ngModel)]="examQuestion.evaluationType"
+                                (change)="updateEvaluationType()"
+                                required="question.type == 'EssayQuestion'"
+                            >
+                                <option value="Points">{{ 'i18n_word_points' | translate }}</option>
+                                <option value="Selection">{{ 'i18n_evaluation_select' | translate }}</option>
+                            </select>
+                        </div>
+                    </div>
+                }
+
+                <!-- Max score -->
+                @if (
+                    question?.type === 'MultipleChoiceQuestion' ||
+                    question?.type === 'ClozeTestQuestion' ||
+                    examQuestion.evaluationType === 'Points'
+                ) {
+                    <div class="row mt-2">
+                        <div class="col-md-3">
+                            {{ 'i18n_max_score' | translate }}
+                        </div>
+                        <div class="col-md-2">
+                            <input
+                                id="maxScore"
+                                name="maxScore"
+                                type="number"
+                                lang="en"
+                                class="form-control xm-numeric-input"
+                                [(ngModel)]="examQuestion.maxScore"
+                                [min]="0"
+                                [max]="1000"
+                                required
+                                xmFixedPrecision
+                                [disabled]="lotteryOn"
+                            />
+                        </div>
+                    </div>
+                }
+
+                <!-- Additional info -->
+                <div class="row mt-2">
+                    <div class="col-md-12 mt-2 pe-0">
+                        <div class="xm-paragraph-title">{{ 'i18n_additional_info' | translate }}</div>
+                    </div>
+                </div>
+
+                <!-- Exam owners -->
+                <div class="row mt-2">
+                    <div class="col-md-3">
+                        {{ 'i18n_question_owners' | translate }}
+                        <sup
+                            ngbPopover="{{ 'i18n_question_owners_description' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
+                            <img src="/assets/images/icon_tooltip.svg" alt="" />
+                        </sup>
+                    </div>
+                    <div class="col-md-9">
+                        @if (question?.questionOwners) {
+                            <ul class="list-inline ps-2">
+                                @for (user of question!.questionOwners; track user.id) {
+                                    <li class="list-inline-item">{{ user.firstName }} {{ user.lastName }}</li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+
+                <!-- Attachment -->
+                <div class="row">
+                    <div class="col-md-3">
+                        {{ 'i18n_question_attachment' | translate }}
+                        <sup
+                            ngbPopover="{{ 'i18n_attachment_description' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
+                            <img src="/assets/images/icon_tooltip.svg" alt="" />
+                        </sup>
+                    </div>
+
+                    <div class="col-md-9" id="attachment">
+                        <button class="xm-ok-button" (click)="selectFile()">
+                            {{ 'i18n_attach_file' | translate }}
+                        </button>
+
+                        @if (question?.attachment && !question!.attachment?.removed) {
+                            <div class="make-inline ps-2">
+                                <!-- Uploaded -->
+                                @if (question!.attachment?.id) {
+                                    <a class="pointer attachment-link" (click)="downloadQuestionAttachment()">
+                                        <i class="bi-paperclip"></i> {{ question!.attachment?.fileName }}
+                                    </a>
+                                }
+                                <!-- Not yet uploaded -->
+                                @if (!question?.attachment?.id) {
+                                    <span class="attachment-link">
+                                        <i class="bi-paperclip"></i> {{ question?.attachment?.fileName }}
+                                        <small> ({{ getFileSize() }})</small>
+                                    </span>
+                                }
+                                <span class="pointer remove-attachment" (click)="removeQuestionAttachment()">
+                                    <img
+                                        src="/assets/images/icon_remove.svg"
+                                        alt="{{ 'i18n_remove_attachment' | translate }}"
+                                    />
+                                </span>
+                            </div>
+                        }
+                        @if (showWarning()) {
+                            <div class="mt-1 mb-2 edit-warning-container">
+                                <i class="bi-exclamation-circle text-danger"></i>
+                                <span class="warning-text-small ps-2">{{
+                                    'i18n_shared_question_property_info' | translate
+                                }}</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Instructions -->
+                <div class="row mt-2">
+                    <div class="col-md-3">
+                        {{ 'i18n_question_instruction' | translate }}
+                        <sup
+                            ngbPopover="{{ 'i18n_question_instruction_description' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
+                            <img src="/assets/images/icon_tooltip.svg" alt="" />
+                        </sup>
+                    </div>
+                    <div class="col-md-9">
+                        <textarea
+                            id="instruction"
+                            name="instruction"
+                            class="form-control"
+                            rows="3"
+                            [(ngModel)]="examQuestion.answerInstructions"
+                            placeholder="{{ 'i18n_question_instruction' | translate }}"
+                        >
+                        </textarea>
+                    </div>
+                </div>
+
+                <!-- Evaluation criteria -->
+                @if (question?.type === 'EssayQuestion') {
+                    <div class="row mt-2">
+                        <div class="col-md-3">
+                            {{ 'i18n_exam_evaluation_criteria' | translate }}
                             <sup
-                                ngbPopover="{{ 'i18n_question_instruction_description' | translate }}"
+                                ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
                                 popoverTitle="{{ 'i18n_instructions' | translate }}"
                                 triggers="mouseenter:mouseleave"
                             >
@@ -562,107 +578,78 @@
                         </div>
                         <div class="col-md-9">
                             <textarea
-                                id="instruction"
-                                name="instruction"
+                                id="evaluationCriteria"
+                                name="evaluationCriteria"
                                 class="form-control"
                                 rows="3"
-                                [(ngModel)]="examQuestion.answerInstructions"
-                                placeholder="{{ 'i18n_question_instruction' | translate }}"
+                                [(ngModel)]="examQuestion.evaluationCriteria"
+                                placeholder="{{ 'i18n_exam_evaluation_criteria' | translate }}"
                             >
                             </textarea>
                         </div>
                     </div>
+                }
 
-                    <!-- Evaluation criteria -->
-                    @if (question?.type === 'EssayQuestion') {
-                        <div class="row mt-2">
-                            <div class="col-md-3">
-                                {{ 'i18n_exam_evaluation_criteria' | translate }}
-                                <sup
-                                    ngbPopover="{{ 'i18n_question_evaluation_criteria_description' | translate }}"
-                                    popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                    triggers="mouseenter:mouseleave"
-                                >
-                                    <img src="/assets/images/icon_tooltip.svg" alt="" />
-                                </sup>
-                            </div>
-                            <div class="col-md-9">
-                                <textarea
-                                    id="evaluationCriteria"
-                                    name="evaluationCriteria"
-                                    class="form-control"
-                                    rows="3"
-                                    [(ngModel)]="examQuestion.evaluationCriteria"
-                                    placeholder="{{ 'i18n_exam_evaluation_criteria' | translate }}"
-                                >
-                                </textarea>
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Tags -->
-                    <div class="row mt-2">
-                        <div class="col-md-3">
-                            {{ 'i18n_added_to_categories' | translate }}
-                            <sup
-                                ngbPopover="{{ 'i18n_question_tag_question_description' | translate }}"
-                                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                                triggers="mouseenter:mouseleave"
-                            >
-                                <img src="/assets/images/icon_tooltip.svg" alt="" />
-                            </sup>
-                        </div>
-                        <div class="col-md-9">
-                            @if (question?.tags) {
-                                <ul class="list-inline">
-                                    @for (tag of question!.tags; track tag.id) {
-                                        <li class="list-inline-item">{{ tag.name }}</li>
-                                    }
-                                </ul>
-                            }
-                        </div>
+                <!-- Tags -->
+                <div class="row mt-2">
+                    <div class="col-md-3">
+                        {{ 'i18n_added_to_categories' | translate }}
+                        <sup
+                            ngbPopover="{{ 'i18n_question_tag_question_description' | translate }}"
+                            popoverTitle="{{ 'i18n_instructions' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        >
+                            <img src="/assets/images/icon_tooltip.svg" alt="" />
+                        </sup>
                     </div>
-
-                    <!-- Categories -->
-                    <div class="row mt-2">
-                        <div class="col-md-3">
-                            {{ 'i18n_added_to_sections' | translate }}
-                        </div>
-                        <div class="col-md-9">
+                    <div class="col-md-9">
+                        @if (question?.tags) {
                             <ul class="list-inline">
-                                @for (name of sectionNames; track $index) {
-                                    <li class="list-inline-item">{{ name }}</li>
+                                @for (tag of question!.tags; track tag.id) {
+                                    <li class="list-inline-item">{{ tag.name }}</li>
                                 }
                             </ul>
-                        </div>
+                        }
                     </div>
-                </form>
-            </div>
-        </div>
-        <div class="row px-3">
-            <div class="col-md-12 mt-3">
-                <div class="d-flex flex-row-reverse">
-                    <button
-                        [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"
-                        (click)="save()"
-                        type="submit"
-                        class="xm-ok-button"
-                    >
-                        {{ 'i18n_save' | translate }}
-                    </button>
-                    <button (click)="cancel()" type="submit" class="xm-cancel-button me-2">
-                        {{ 'i18n_button_cancel' | translate }}
-                    </button>
-                    <button
-                        (click)="openPreview()"
-                        type="submit"
-                        class="xm-neutral-button me-2"
-                        [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"
-                    >
-                        {{ 'i18n_button_preview' | translate }}
-                    </button>
                 </div>
-            </div>
+
+                <!-- Categories -->
+                <div class="row mt-2">
+                    <div class="col-md-3">
+                        {{ 'i18n_added_to_sections' | translate }}
+                    </div>
+                    <div class="col-md-9">
+                        <ul class="list-inline">
+                            @for (name of sectionNames; track $index) {
+                                <li class="list-inline-item">{{ name }}</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </form>
         </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <div class="d-flex flex-row-reverse">
+        <button
+            [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"
+            (click)="save()"
+            type="submit"
+            class="xm-ok-button"
+        >
+            {{ 'i18n_save' | translate }}
+        </button>
+        <button (click)="cancel()" type="submit" class="xm-cancel-button me-2">
+            {{ 'i18n_button_cancel' | translate }}
+        </button>
+        <!--button
+            (click)="openPreview()"
+            type="submit"
+            class="xm-neutral-button me-2"
+            [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"
+        >
+            {{ 'i18n_button_preview' | translate }}
+        </button-->
     </div>
 </div>

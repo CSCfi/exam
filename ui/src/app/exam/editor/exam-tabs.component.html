@@ -1,7 +1,5 @@
-<div id="dashboard">
-    <xm-page-header [text]="examInfo.title || 'loading'" [prependTemplate]="linkBack" [appendTemplate]="status" />
-    <xm-page-content [content]="content" />
-</div>
+<xm-page-header [text]="examInfo.title || 'loading'" [prependTemplate]="linkBack" [appendTemplate]="status" />
+<xm-page-content [content]="content" />
 <ng-template #linkBack>
     <a [routerLink]="[user.isAdmin ? '/staff/admin' : '/staff/teacher']">
         <img class="pointer arrow_icon pe-4" src="/assets/images/icon_history.png" alt="go back" />

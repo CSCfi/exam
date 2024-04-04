@@ -155,7 +155,6 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
                         },
                         error: (err) => this.toast.error(err),
                     }),
-                error: (err) => this.toast.error(err),
             });
         } else {
             this.toast.warning(this.translate.instant('i18n_exam_removal_not_possible'));

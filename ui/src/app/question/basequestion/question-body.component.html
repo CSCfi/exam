@@ -1,12 +1,12 @@
-<style>
+<!--style>
     #questionBody.ng-invalid {
         border-color: transparent;
     }
     #editor.ng-invalid {
         border-color: transparent;
     }
-</style>
-<div ngModelGroup="questionBody" id="questionBody">
+</style-->
+<div ngModelGroup="questionBody" id="questionBody" class="exclude">
     @if (showWarning()) {
         <div class="xm-study-item-container--warning mt-3">
             <!-- Exam contexts -->
@@ -267,12 +267,15 @@
                             @for (user of currentOwners; track user.id) {
                                 {{ user.firstName }} {{ user.lastName }}
                                 <button
-                                    class="btn btn-sm btn-light"
+                                    class="btn btn-sm btn-link"
                                     [disabled]="removeOwnerDisabled(user)"
                                     (click)="removeOwner(user)"
                                     title="{{ 'i18n_remove' | translate }}"
                                 >
-                                    <i class="bi bi-x"></i>
+                                    <i
+                                        class="bi bi-x"
+                                        [ngClass]="removeOwnerDisabled(user) ? 'text-danger' : 'text-success'"
+                                    ></i>
                                 </button>
                             }
                         </div>

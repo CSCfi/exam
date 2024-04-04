@@ -1,19 +1,16 @@
-<div id="dashboard">
-    <div class="row">
-        <div class="col-md-8 essay-question-review-column">
-            <!-- answers column -->
-            <xm-page-header text="i18n_question_based_review" [history]="true" [appendTemplate]="status" />
-            <xm-page-content [content]="leftContent" />
-        </div>
-        <div class="col-md-4">
-            <!-- question flow column -->
-            @if (reviews) {
-                <xm-question-flow [reviews]="reviews" (selected)="questionSelected($event)"> </xm-question-flow>
-            }
-        </div>
+<div class="row">
+    <div class="col-md-8 essay-question-review-column">
+        <!-- answers column -->
+        <xm-page-header text="i18n_question_based_review" [history]="true" [appendTemplate]="status" />
+        <xm-page-content [content]="leftContent" />
+    </div>
+    <div class="col-md-4">
+        <!-- question flow column -->
+        @if (reviews) {
+            <xm-question-flow [reviews]="reviews" (selected)="questionSelected($event)"> </xm-question-flow>
+        }
     </div>
 </div>
-
 <ng-template #status>
     <div class="essay-review-status">
         <!-- Assessment status in progress / done -->

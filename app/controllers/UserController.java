@@ -154,20 +154,9 @@ public class UserController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getUsersByRole(String role) {
+        PathProperties pp = PathProperties.parse("(*, roles(*), permissions(*))");
         List<User> users = DB.find(User.class).where().eq("roles.name", role).orderBy("lastName").findList();
-        ArrayNode array = Json.newArray();
-        array.addAll(
-            users
-                .stream()
-                .map(u -> {
-                    ObjectNode part = Json.newObject();
-                    part.put("id", u.getId());
-                    part.put("name", String.format("%s %s", u.getFirstName(), u.getLastName()));
-                    return part;
-                })
-                .toList()
-        );
-        return ok(Json.toJson(array));
+        return ok(users, pp);
     }
 
     private static ArrayNode asArray(List<User> users) {

@@ -17,6 +17,7 @@ import { Inject, Injectable } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { UserService } from 'src/app/shared/user/user.service';
 import type { Course, Exam, ExamSection, ReverseQuestion, Tag } from '../../exam/exam.model';
 import { User } from '../../session/session.service';
 import { QuestionService } from '../question.service';
@@ -35,6 +36,7 @@ export class LibraryService {
         private http: HttpClient,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
         private Question: QuestionService,
+        private User: UserService,
     ) {}
 
     listExams$ = (
@@ -74,7 +76,7 @@ export class LibraryService {
 
     listAllTags$ = (): Observable<Tag[]> => this.http.get<Tag[]>('/app/tags');
 
-    listAllOwners$ = (): Observable<User[]> => this.http.get<User[]>('/app/users');
+    listAllOwners$ = (): Observable<User[]> => this.User.listUsersByRole$('TEACHER');
 
     addTagForQuestions$ = (tagId: number, questionIds: number[]) =>
         this.http.post<void>('/app/tags/questions', { questionIds: questionIds, tagId: tagId });

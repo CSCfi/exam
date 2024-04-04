@@ -37,10 +37,9 @@ export interface LanguageInspectionData extends LanguageInspection {
 
 @Component({
     selector: 'xm-language-inspections',
-    template: `<div id="dashboard">
-            <xm-page-header text="i18n_language_inspections" />
-            <xm-page-content [content]="content" />
-        </div>
+    template: `
+        <xm-page-header text="i18n_language_inspections" />
+        <xm-page-content [content]="content" />
         <ng-template #content>
             <div class="tab-wrapper-exams">
                 <!-- Under review language inspection -->
@@ -58,7 +57,8 @@ export interface LanguageInspectionData extends LanguageInspection {
                     </xm-reviewed-inspections>
                 }
             </div>
-        </ng-template> `,
+        </ng-template>
+    `,
     standalone: true,
     imports: [
         UnfinishedInspectionsComponent,

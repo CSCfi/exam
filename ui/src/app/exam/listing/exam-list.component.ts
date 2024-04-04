@@ -151,7 +151,6 @@ export class ExamListingComponent implements OnInit, OnDestroy {
                     error: (err) => this.toast.error(err),
                 });
             },
-            error: (err) => this.toast.error(err),
         });
 
     filterByStateAndExpiration = (state: string, expired: boolean) =>
