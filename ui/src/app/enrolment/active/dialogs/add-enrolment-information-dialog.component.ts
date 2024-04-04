@@ -24,31 +24,29 @@ import type { EnrolmentInfo } from '../../enrolment.model';
     standalone: true,
     imports: [FormsModule, TranslateModule],
     template: `
-        <div id="exam-modal">
-            <div class="modal-header">
-                <h1 class="xm-page-header-title">{{ 'i18n_student_enrolment_info' | translate }}</h1>
-            </div>
-            <div class="modal-body">
-                <form role="form" id="infoForm" name="infoForm" novalidate>
-                    {{ 'i18n_student_enrolment_info_description' | translate }}
-                    <textarea
-                        name="info"
-                        aria-label="write additional information for the examiner"
-                        rows="10"
-                        class="mt-1 w-100"
-                        [(ngModel)]="information"
-                    >
-                    </textarea>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="xm-ok-button" (click)="ok()">
-                    {{ 'i18n_button_save' | translate }}
-                </button>
-                <button class="xm-cancel-button float-start" (click)="cancel()">
-                    {{ 'i18n_button_cancel' | translate }}
-                </button>
-            </div>
+        <div class="modal-header">
+            <h1 class="xm-modal-title">{{ 'i18n_student_enrolment_info' | translate }}</h1>
+        </div>
+        <div class="modal-body">
+            <form role="form" id="infoForm" name="infoForm" novalidate>
+                {{ 'i18n_student_enrolment_info_description' | translate }}
+                <textarea
+                    name="info"
+                    aria-label="write additional information for the examiner"
+                    rows="10"
+                    class="mt-1 w-100"
+                    [(ngModel)]="information"
+                >
+                </textarea>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="xm-ok-button" (click)="ok()">
+                {{ 'i18n_button_save' | translate }}
+            </button>
+            <button class="xm-cancel-button float-start" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
         </div>
     `,
 })

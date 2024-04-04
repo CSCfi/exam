@@ -21,9 +21,9 @@ import { TranslateModule } from '@ngx-translate/core';
     selector: 'xm-inspection-statement-dialog',
     standalone: true,
     imports: [TranslateModule],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+    template: `
         <div class="modal-header">
-            <div class="xm-page-header-title">{{ 'i18n_give_feedback' | translate }}</div>
+            <div class="xm-modal-title">{{ 'i18n_give_feedback' | translate }}</div>
         </div>
         <div class="modal-body">
             <div class="mt-2">
@@ -35,7 +35,7 @@ import { TranslateModule } from '@ngx-translate/core';
                 {{ 'i18n_close' | translate }}
             </button>
         </div>
-    </div> `,
+    `,
 })
 export class InspectionStatementDialogComponent {
     @Input() statement: unknown;

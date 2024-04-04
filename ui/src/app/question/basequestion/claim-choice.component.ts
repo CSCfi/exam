@@ -25,64 +25,68 @@ import { QuestionDraft, QuestionService } from '../question.service';
     viewProviders: [{ provide: ControlContainer, useExisting: NgForm }],
     template: `
         <div ngModelGroup="claimChoice" name="claimChoice">
-            <div class="col-md-9 col-md-offset-3">
-                <p>{{ 'i18n_claim_choice_question_instruction' | translate }}</p>
-                <p>{{ 'i18n_claim_choice_options_description' | translate }}</p>
-                <ul>
-                    <li>{{ 'i18n_claim_choice_correct_points_description' | translate }}</li>
-                    <li>{{ 'i18n_claim_choice_incorrect_points_description' | translate }}</li>
-                    <li>{{ 'i18n_claim_choice_skip_option_description' | translate }}</li>
-                </ul>
-                <br />
-                @if (showWarning) {
-                    <div class="edit-warning-container">
-                        <i class="bi-exclamation-circle text-danger me-2"></i>
-                        <small>{{ 'i18n_shared_question_property_info' | translate }}</small>
-                    </div>
-                }
+            <div class="row">
+                <div class="col-md-9 col-md-offset-3">
+                    <p>{{ 'i18n_claim_choice_question_instruction' | translate }}</p>
+                    <p>{{ 'i18n_claim_choice_options_description' | translate }}</p>
+                    <ul>
+                        <li>{{ 'i18n_claim_choice_correct_points_description' | translate }}</li>
+                        <li>{{ 'i18n_claim_choice_incorrect_points_description' | translate }}</li>
+                        <li>{{ 'i18n_claim_choice_skip_option_description' | translate }}</li>
+                    </ul>
+                    <br />
+                    @if (showWarning) {
+                        <div class="edit-warning-container">
+                            <i class="bi-exclamation-circle text-danger me-2"></i>
+                            <small>{{ 'i18n_shared_question_property_info' | translate }}</small>
+                        </div>
+                    }
+                </div>
             </div>
-            <div class="col-md-9 col-md-offset-3 m-2 ps-0 pe-0 claim-choice-option-labels">
-                <div class="claim-choice-option-label">
+            <div class="row ms-2 w-50 px-3 pb-2">
+                <div class="col-9">
                     <span class="question-option-title">{{ 'i18n_question_options' | translate | uppercase }}</span>
                 </div>
-                <div class="claim-choice-option-label points">
+                <div class="col ms-1">
                     <span class="question-option-title">
                         {{ 'i18n_word_points' | translate | uppercase }}
                     </span>
                 </div>
             </div>
-            <div class="col-md-9 col-md-offset-3 m-2 ps-0 pe-0">
-                @for (opt of question.options; track opt.id) {
-                    <div class="form-horizontal question-editor-claim-choice-option" [ngClass]="returnOptionClass(opt)">
-                        <div class="claim-choice-option-inputs">
-                            <textarea
-                                name="{{ opt.claimChoiceType }}-question"
-                                [(ngModel)]="opt.option"
-                                type="text"
-                                rows="1"
-                                class="question-option-input form-control"
-                                required
-                                (change)="updateOptionTypes()"
-                                [disabled]="lotteryOn || opt.claimChoiceType === 'SkipOption'"
-                            ></textarea>
-                            <input
-                                name="{{ opt.claimChoiceType }}-score"
-                                class="question-option-input points"
-                                type="number"
-                                lang="en"
-                                xmFixedPrecision
-                                [(ngModel)]="opt.defaultScore"
-                                required
-                                (change)="updateOptionTypes()"
-                                [disabled]="lotteryOn || opt.claimChoiceType === 'SkipOption'"
-                            />
-                        </div>
-                        <div class="claim-choice-option-description">
-                            {{ returnOptionDescriptionTranslation(opt) | translate }}
-                        </div>
+            @for (opt of question.options; track opt.id) {
+                <div class="row ms-2 w-50 question-editor-claim-choice-option" [ngClass]="getOptionClass(opt)">
+                    <div class="col-9">
+                        <textarea
+                            name="{{ opt.claimChoiceType }}-question"
+                            [(ngModel)]="opt.option"
+                            type="text"
+                            rows="1"
+                            class="question-option-input form-control"
+                            required
+                            (change)="updateOptionTypes()"
+                            [disabled]="lotteryOn || opt.claimChoiceType === 'SkipOption'"
+                        ></textarea>
                     </div>
-                }
-            </div>
+                    <div class="col">
+                        <input
+                            name="{{ opt.claimChoiceType }}-score"
+                            class="question-option-input points"
+                            type="number"
+                            lang="en"
+                            xmFixedPrecision
+                            [(ngModel)]="opt.defaultScore"
+                            required
+                            (change)="updateOptionTypes()"
+                            [disabled]="lotteryOn || opt.claimChoiceType === 'SkipOption'"
+                        />
+                    </div>
+                    <div class="claim-choice-option-description m-2">
+                        {{ getOptionDescriptionTranslation(opt) | translate }}
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="row">
             <div class="col-md-9 col-md-offset-3 claim-choice-warning-wrapper">
                 @if (missingOptions.length > 0) {
                     <div class="claim-choice-warning">
@@ -143,11 +147,11 @@ export class ClaimChoiceEditorComponent implements OnInit {
 
     displayMissingOptions = () => this.missingOptions.map(this.translate.instant).join();
 
-    returnOptionDescriptionTranslation = (option: MultipleChoiceOption): string =>
-        this.Question.returnOptionDescriptionTranslation(option.claimChoiceType as string);
+    getOptionDescriptionTranslation = (option: MultipleChoiceOption): string =>
+        this.Question.determineOptionDescriptionTranslation(option.claimChoiceType as string);
 
-    returnOptionClass = (option: MultipleChoiceOption) =>
-        this.Question.returnClaimChoiceOptionClass(option.claimChoiceType as string);
+    getOptionClass = (option: MultipleChoiceOption) =>
+        this.Question.determineClaimChoiceOptionClass(option.claimChoiceType as string);
 
     updateOptionTypes = () => {
         this.question.options.forEach((opt, index) => {

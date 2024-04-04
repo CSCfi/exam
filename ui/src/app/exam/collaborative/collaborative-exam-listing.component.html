@@ -1,7 +1,5 @@
-<div id="dashboard">
-    <xm-page-header text="i18n_collaborative_exams" [appendTemplate]="button" />
-    <xm-page-content [content]="content" />
-</div>
+<xm-page-header text="i18n_collaborative_exams" [appendTemplate]="button" />
+<xm-page-content [content]="content" />
 <ng-template #button>
     @if (user.isAdmin) {
         <a class="float-end btn btn-success" (click)="createExam()">

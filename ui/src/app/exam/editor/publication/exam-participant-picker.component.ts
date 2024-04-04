@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
@@ -53,7 +54,8 @@ import type { Exam, ExamParticipation } from '../../exam.model';
                 <!-- Students not having finished the exam -->
                 @for (enrolment of exam.examEnrolments; track enrolment) {
                     <button
-                        class="badge text-bg-secondary ms-1"
+                        class="badge ms-1"
+                        [ngClass]="exam.state === 'PUBLISHED' ? 'bg-secondary' : 'bg-light text-dark'"
                         [disabled]="exam.state === 'PUBLISHED'"
                         (click)="removeParticipant(enrolment.id)"
                         title="{{ 'i18n_remove' | translate }}"
@@ -66,7 +68,7 @@ import type { Exam, ExamParticipation } from '../../exam.model';
                 }
                 <!-- Students that have finished the exam -->
                 @for (participant of participants; track participant) {
-                    <button class="badge text-bg-light ms-1" [disabled]="true">
+                    <button class="badge bg-light text-dark ms-1" [disabled]="true">
                         {{ participant.firstName }} {{ participant.lastName }}
                         @if (participant.userIdentifier) {
                             ({{ participant.userIdentifier }})
@@ -76,7 +78,7 @@ import type { Exam, ExamParticipation } from '../../exam.model';
             </span>
         </div>`,
     standalone: true,
-    imports: [FormsModule, NgbTypeahead, TranslateModule],
+    imports: [FormsModule, NgClass, NgbTypeahead, TranslateModule],
 })
 export class ExamParticipantSelectorComponent implements OnInit {
     @Input() exam!: Exam;

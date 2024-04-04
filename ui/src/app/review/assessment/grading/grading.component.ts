@@ -56,7 +56,7 @@ import { ToolbarComponent } from './toolbar.component';
 })
 export class GradingComponent extends GradingBaseComponent implements OnInit {
     @Input() exam!: Examination;
-    @Input() questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false, totalSelectionEssays: 0 };
+    @Input() questionSummary: QuestionAmounts = { accepted: 0, rejected: 0, hasEssays: false };
     @Input() participation!: ExamParticipation;
     @Input() collaborative = false;
     @Input() user!: User;

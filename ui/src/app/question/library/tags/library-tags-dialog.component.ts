@@ -25,35 +25,33 @@ import { LibraryService } from '../library.service';
 
 @Component({
     template: `
-        <div id="exam-dialog" role="dialog" aria-modal="true">
-            <div class="modal-header">
-                <h1 class="xm-page-header-title">{{ 'i18n_tag_questions' | translate }}</h1>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-6">
-                        <div class="form-group input-group">
-                            <input
-                                class="form-control"
-                                [ngbTypeahead]="listTags$"
-                                (selectItem)="setQuestionTag($event)"
-                                [inputFormatter]="nameFormatter"
-                                [resultFormatter]="nameFormatter"
-                            />
-                            <div class="input-group-append">
-                                <button class="btn btn-success" (click)="addTagForSelected()">
-                                    {{ 'i18n_add' | translate }}
-                                </button>
-                            </div>
+        <div class="modal-header">
+            <h1 class="xm-modal-title">{{ 'i18n_tag_questions' | translate }}</h1>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group input-group">
+                        <input
+                            class="form-control"
+                            [ngbTypeahead]="listTags$"
+                            (selectItem)="setQuestionTag($event)"
+                            [inputFormatter]="nameFormatter"
+                            [resultFormatter]="nameFormatter"
+                        />
+                        <div class="input-group-append">
+                            <button class="btn btn-success" (click)="addTagForSelected()">
+                                {{ 'i18n_add' | translate }}
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button class="xm-cancel-button" (click)="close()" autofocus>
-                    {{ 'i18n_close' | translate }}
-                </button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="xm-cancel-button" (click)="close()" autofocus>
+                {{ 'i18n_close' | translate }}
+            </button>
         </div>
     `,
     standalone: true,

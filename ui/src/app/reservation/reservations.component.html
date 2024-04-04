@@ -1,11 +1,9 @@
-<div id="dashboard">
-    @if (isAdminView()) {
-        <xm-page-header text="i18n_reservations_administration" />
-    } @else {
-        <xm-page-header text="i18n_reservations_new" />
-    }
-    <xm-page-content [content]="content" />
-</div>
+@if (isAdminView()) {
+    <xm-page-header text="i18n_reservations_administration" />
+} @else {
+    <xm-page-header text="i18n_reservations_new" />
+}
+<xm-page-content [content]="content" />
 <ng-template #content>
     <div class="row">
         <div class="col-md-2 pt-1 reservation-search-form-label">

@@ -27,7 +27,7 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
 @Component({
     selector: 'xm-r-toolbar',
     template: `<!-- Buttons -->
-        <div class="pt-4 ps-0 pe-0 m2-2 me-4">
+        <div class="pt-4 ps-0 pe-0 mt-2">
             <div class="d-flex flex-row-reverse">
                 <div [hidden]="isReadOnly()" class="ms-2">
                     <span

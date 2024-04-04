@@ -455,6 +455,7 @@ public class ReviewController extends BaseController {
             .or()
             .eq("exam.id", eid)
             .eq("exam.parent.id", eid)
+            .eq("collaborativeExam.id", eid)
             .endOr()
             .eq("noShow", true)
             .orderBy("reservation.endAt")

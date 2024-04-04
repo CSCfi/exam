@@ -25,9 +25,9 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
     selector: 'xm-select-examination-event-dialog',
     standalone: true,
     imports: [TranslateModule, DatePipe],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+    template: `
         <div class="modal-header">
-            <h1 class="xm-page-header-title">
+            <h1 class="xm-modal-title">
                 <i class="bi-calendar-event"></i>&nbsp;&nbsp;{{ 'i18n_pick_examination_event' | translate }}
             </h1>
         </div>
@@ -65,7 +65,7 @@ import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.mod
                 </button>
             </div>
         </div>
-    </div>`,
+    `,
 })
 export class SelectExaminationEventDialogComponent implements OnInit {
     @Input() exam!: Exam;

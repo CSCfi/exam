@@ -26,50 +26,48 @@ import { LibrarySearchComponent } from '../library/search/library-search.compone
     standalone: true,
     imports: [TranslateModule, LibrarySearchComponent, LibraryResultsComponent],
     template: `
-        <div id="dashboard">
-            <!-- title row and add new question button -->
-            <div class="modal-header">
-                <div class="xm-page-header-title">{{ 'i18n_library_choose' | translate }}</div>
-            </div>
-            <div class="modal-body pt-3">
-                <!-- search bar and search parameters -->
-                <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
+        <!-- title row and add new question button -->
+        <div class="modal-header">
+            <div class="xm-modal-title">{{ 'i18n_library_choose' | translate }}</div>
+        </div>
+        <div class="modal-body pt-3">
+            <!-- search bar and search parameters -->
+            <xm-library-search (updated)="resultsUpdated($event)"></xm-library-search>
 
-                <div class="row ms-3 mb-3">
-                    <div class="col-md-12">
+            <div class="row ms-3 mb-3">
+                <div class="col-md-12">
+                    <button class="xm-ok-button" (click)="addQuestions()">
+                        {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <xm-library-results
+                        [questions]="questions"
+                        (selected)="questionSelected($event)"
+                        (copied)="questionCopied()"
+                        [disableLinks]="true"
+                    ></xm-library-results>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="modal-footer">
+            <div class="row align-items-center">
+                <div class="col-12">
+                    <span class="float-end">
+                        <button class="xm-cancel-button" (click)="cancel()">
+                            {{ 'i18n_button_cancel' | translate }}
+                        </button>
+                    </span>
+                    <span class="me-3 float-end">
                         <button class="xm-ok-button" (click)="addQuestions()">
                             {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
                         </button>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <xm-library-results
-                            [questions]="questions"
-                            (selected)="questionSelected($event)"
-                            (copied)="questionCopied()"
-                            [disableLinks]="true"
-                        ></xm-library-results>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Buttons -->
-            <div class="modal-footer">
-                <div class="row align-items-center">
-                    <div class="col-12">
-                        <span class="float-end">
-                            <button class="xm-cancel-button" (click)="cancel()">
-                                {{ 'i18n_button_cancel' | translate }}
-                            </button>
-                        </span>
-                        <span class="me-3 float-end">
-                            <button class="xm-ok-button" (click)="addQuestions()">
-                                {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
-                            </button>
-                        </span>
-                    </div>
+                    </span>
                 </div>
             </div>
         </div>

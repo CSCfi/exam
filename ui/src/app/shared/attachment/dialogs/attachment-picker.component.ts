@@ -37,11 +37,10 @@ export interface FileResult {
     selector: 'xm-attachment-selector',
     standalone: true,
     imports: [TranslateModule],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+    template: `
         <div class="modal-header">
-            <h2>{{ title | translate }}</h2>
+            <h2 class="xm-modal-title">{{ title | translate }}</h2>
         </div>
-
         <div class="modal-body">
             <div class="row">
                 <div class="col-3">
@@ -82,7 +81,7 @@ export interface FileResult {
                 {{ 'i18n_button_save' | translate }}
             </button>
         </div>
-    </div>`,
+    `,
     styleUrls: ['./attachment-picker.component.scss'],
 })
 export class AttachmentSelectorComponent implements OnInit {

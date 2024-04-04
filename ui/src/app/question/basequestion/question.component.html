@@ -1,19 +1,17 @@
-<div id="dashboard">
-    @if (newQuestion) {
-        <xm-page-header text="i18n_toolbar_new_question" [prependTemplate]="linkBack" />
-    } @else {
-        <xm-page-header text="i18n_questions_edit" [prependTemplate]="linkBack" />
-    }
-    <xm-page-content [content]="content" />
-</div>
+@if (newQuestion) {
+    <xm-page-header text="i18n_toolbar_new_question" [prependTemplate]="linkBack" />
+} @else {
+    <xm-page-header text="i18n_questions_edit" [prependTemplate]="linkBack" />
+}
+<xm-page-content [content]="content" />
 <ng-template #linkBack>
     <img (click)="cancel()" class="pointer arrow_icon pe-3" src="/assets/images/icon_history.png" alt="go back" />
 </ng-template>
 <ng-template #content>
-    <div class="row me-2">
+    <div class="row">
         <!-- Question body //-->
-        <div class="col-md-12 question-border px-4">
-            <form role="form" #questionForm="ngForm" class="form-horizontal" name="questionForm" novalidate>
+        <div class="col-md-12">
+            <form role="form" #questionForm="ngForm" name="questionForm" novalidate>
                 @if (question) {
                     <xm-question-body
                         [question]="question"
@@ -46,7 +44,7 @@
                 <button (click)="cancel()" type="submit" class="xm-cancel-button me-2">
                     {{ 'i18n_button_cancel' | translate }}
                 </button>
-                <button
+                <!--button
                     (click)="openPreview()"
                     type="submit"
                     class="xm-neutral-button me-2"
@@ -59,7 +57,7 @@
                     "
                 >
                     {{ 'i18n_button_preview' | translate }}
-                </button>
+                </button-->
             </div>
         </div>
     </div>

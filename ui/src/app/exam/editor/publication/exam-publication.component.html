@@ -1,5 +1,5 @@
 <!-- Publish settings container -->
-<div class="row ms-2 me-2">
+<div class="row mx-2">
     <div class="col-md-12">
         <div class="row pt-3">
             <div class="col-md-12">
@@ -24,11 +24,11 @@
                 @for (ed of exam.examinationDates | orderBy: 'date'; track ed) {
                     {{ ed.date | date: 'dd.MM.yyyy' }}
                     <button
-                        class="btn btn-sm btn-light"
+                        class="btn btn-sm btn-link px-0"
                         (click)="removeExaminationDate(ed)"
                         title="{{ 'i18n_remove' | translate }}"
                     >
-                        <i class="bi bi-x"></i>
+                        <i class="bi bi-x-lg"></i>
                     </button>
                 }
             </div>
@@ -337,7 +337,7 @@
             </div>
         </div>
         <div class="row me-3">
-            <div class="col-md-12 mb-3 pt-2 grey-top">
+            <div class="col-md-12 mb-3 pt-3 grey-top">
                 <button class="xm-neutral-button" (click)="previousTab()">
                     &#171; {{ 'i18n_exam_assessment_settings' | translate }}
                 </button>

@@ -1,9 +1,7 @@
-<div id="dashboard">
-    <xm-page-header text="i18n_examination_location" />
-    @if (room) {
-        <xm-page-content [content]="content" />
-    }
-</div>
+<xm-page-header text="i18n_examination_location" />
+@if (room) {
+    <xm-page-content [content]="content" />
+}
 <ng-template #content>
     <div class="row">
         <div class="col-md-12">
@@ -18,12 +16,11 @@
                 <div class="row">
                     <span class="col-md-6 font-6">
                         <span [hidden]="!showName" onclick="document.getElementById('name_field').select();">
-                            <span class="room-name me-2" (click)="showName = !showName">
+                            <span class="me-2" (click)="showName = !showName">
                                 {{ room.name || 'i18n_no_name' | translate }}
                                 <i class="bi-pencil ms-2"></i>
                             </span>
                             <a
-                                class="room-name"
                                 (click)="disableRoom()"
                                 triggers="mouseenter:mouseleave"
                                 popoverTitle="{{ 'i18n_instructions' | translate }}"

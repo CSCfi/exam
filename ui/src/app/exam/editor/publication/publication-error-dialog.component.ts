@@ -22,9 +22,9 @@ import { TranslateModule } from '@ngx-translate/core';
     selector: 'xm-publication-error-dialog',
     standalone: true,
     imports: [TranslateModule],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+    template: `<div role="dialog" aria-modal="true">
         <div class="modal-header">
-            <div class="xm-page-header-title">{{ 'i18n_please_check_following_infos' | translate }}</div>
+            <div class="xm-modal-title">{{ 'i18n_please_check_following_infos' | translate }}</div>
         </div>
         <div class="modal-body">
             @for (error of errors; track error) {

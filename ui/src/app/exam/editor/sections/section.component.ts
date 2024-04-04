@@ -238,7 +238,7 @@ export class SectionComponent {
         const modal = this.modal.open(QuestionSelectorComponent, {
             backdrop: 'static',
             keyboard: true,
-            windowClass: 'xxl-modal',
+            windowClass: 'xm-xxl-modal',
         });
         modal.componentInstance.examId = this.examId;
         modal.componentInstance.sectionId = this.section.id;

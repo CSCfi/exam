@@ -12,6 +12,7 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+import { Point } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
@@ -26,7 +27,6 @@ import { isRealGrade } from '../../exam/exam.model';
 import { SessionService } from '../../session/session.service';
 import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
-import { Point } from '@angular/cdk/drag-drop';
 
 type Payload = {
     id: number;
@@ -121,7 +121,7 @@ export class AssessmentService {
         if (user && user.isAdmin) {
             return { fragments: ['/staff/admin'] };
         }
-        const id = exam.parent ? exam.parent.id : exam.id; // TODO: check this
+        const id = exam.parent ? exam.parent.id : exam.id;
         return this.getExitStateById(id, collaborative);
     };
 
@@ -134,24 +134,17 @@ export class AssessmentService {
             messages.forEach((msg) => this.toast.error(this.translate.instant(msg)));
             return of();
         } else {
-            let dialogNote, res: string;
-            if (exam.gradeless) {
-                dialogNote = this.translate.instant('i18n_confirm_archiving_without_grade');
-                res = '/app/exam/register';
-            } else {
-                dialogNote = this.getRecordReviewConfirmationDialogContent(
-                    (exam.examFeedback as Feedback).comment,
-                    needsWarning,
-                );
-                res = '/app/exam/record';
-            }
+            const content = exam.gradeless
+                ? this.translate.instant('i18n_confirm_archiving_without_grade')
+                : this.getRecordReviewConfirmationDialogContent((exam.examFeedback as Feedback).comment, needsWarning);
+            const resource = exam.gradeless ? '/app/exam/register' : '/app/exam/record';
             const payload = this.getPayload(exam, 'GRADED');
             if (needsConfirmation) {
-                return this.Confirmation.open$(this.translate.instant('i18n_confirm'), dialogNote).pipe(
-                    switchMap(() => this.register$(exam, res, payload)),
+                return this.Confirmation.open$(this.translate.instant('i18n_confirm'), content).pipe(
+                    switchMap(() => this.register$(exam, resource, payload)),
                 );
             } else {
-                return this.sendToRegistry$(payload, res);
+                return this.sendToRegistry$(payload, resource);
             }
         }
     };

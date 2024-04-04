@@ -23,25 +23,15 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
     selector: 'xm-archive-download',
     standalone: true,
     imports: [TranslateModule, DatePickerComponent],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+    template: `
         <div class="modal-header">
-            <div class="xm-page-header-title">{{ 'i18n_exam_validity' | translate }}</div>
+            <div class="xm-modal-title">{{ 'i18n_exam_validity' | translate }}</div>
         </div>
         <div class="modal-body mx-4">
-            <div id="dashboard">
-                <div>
-                    <label for="archive-download-start">{{ 'i18n_begin' | translate }}:</label>
-                    <xm-date-picker
-                        id="archive-download-start"
-                        (updated)="startDateChanged($event)"
-                        autofocus
-                    ></xm-date-picker>
-                </div>
-                <div>
-                    <label for="archive-download-end">{{ 'i18n_end' | translate }}:</label>
-                    <xm-date-picker id="archive-download-end" (updated)="endDateChanged($event)"></xm-date-picker>
-                </div>
-            </div>
+            <label for="archive-download-start">{{ 'i18n_begin' | translate }}:</label>
+            <xm-date-picker id="archive-download-start" (updated)="startDateChanged($event)" autofocus></xm-date-picker>
+            <label for="archive-download-end">{{ 'i18n_end' | translate }}:</label>
+            <xm-date-picker id="archive-download-end" (updated)="endDateChanged($event)"></xm-date-picker>
         </div>
         <div class="modal-footer">
             <button class="btn btn-outline-secondary" (click)="cancel()">
@@ -51,7 +41,7 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
                 {{ 'i18n_search' | translate }}
             </button>
         </div>
-    </div> `,
+    `,
 })
 export class ArchiveDownloadComponent {
     params: { startDate: Date | null; endDate: Date | null } = { startDate: new Date(), endDate: new Date() };

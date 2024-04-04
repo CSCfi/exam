@@ -30,10 +30,8 @@ import type { Exam } from '../exam.model';
 @Component({
     selector: 'xm-printout-listing',
     template: `
-        <div id="dashboard">
-            <xm-page-header text="i18n_printout_exams" />
-            <xm-page-content [content]="content" />
-        </div>
+        <xm-page-header text="i18n_printout_exams" />
+        <xm-page-content [content]="content" />
         <ng-template #content>
             <div class="row">
                 <div class="col-md-12">

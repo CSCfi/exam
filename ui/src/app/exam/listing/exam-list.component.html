@@ -1,7 +1,5 @@
-<div id="dashboard">
-    <xm-page-header text="i18n_exams" [appendTemplate]="button" />
-    <xm-page-content [content]="content" />
-</div>
+<xm-page-header text="i18n_exams" [appendTemplate]="button" />
+<xm-page-content [content]="content" />
 <ng-template #button>
     <button class="btn btn-success float-end" (click)="newExam()">
         {{ 'i18n_toolbar_new_exam' | translate }}

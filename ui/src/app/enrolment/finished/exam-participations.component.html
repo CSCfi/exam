@@ -1,11 +1,9 @@
-<div id="dashboard">
-    @if (collaborative) {
-        <xm-page-header text="i18n_collaborative_exam_responses" />
-    } @else {
-        <xm-page-header text="i18n_exam_responses" />
-    }
-    <xm-page-content [content]="content" />
-</div>
+@if (collaborative) {
+    <xm-page-header text="i18n_collaborative_exam_responses" />
+} @else {
+    <xm-page-header text="i18n_exam_responses" />
+}
+<xm-page-content [content]="content" />
 <ng-template #content>
     <!-- Finished exams list -->
     <div class="row">

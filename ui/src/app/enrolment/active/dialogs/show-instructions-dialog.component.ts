@@ -22,10 +22,10 @@ import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
     selector: 'xm-show-instructions-dialog',
     standalone: true,
     imports: [TranslateModule, MathJaxDirective],
-    template: `<div id="exam-dialog" role="dialog" aria-modal="true">
+    template: `
         <div class="modal-header">
             <div class="modal-title">
-                <div class="xm-page-header-title">{{ title | translate }}</div>
+                <div class="xm-modal-title">{{ title | translate }}</div>
             </div>
         </div>
         <div class="modal-body" [xmMathJax]="instructions"></div>
@@ -34,7 +34,7 @@ import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
                 {{ 'i18n_button_ok' | translate }}
             </button>
         </div>
-    </div> `,
+    `,
 })
 export class ShowInstructionsDialogComponent {
     @Input() instructions = '';
