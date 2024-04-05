@@ -15,16 +15,60 @@
                     <img src="/assets/images/icon_warning.png" />
                 </div>
                 <div class="col warning-text">
-                    {{ 'i18n_exam_question_edit_instructions' | translate }}
-                    <ul class="list-inline m-2">
-                        <li class="list-inline-item">
-                            @for (name of examNames; track $index) {
-                                <span class="exists-text">
-                                    <span class="pe-1">{{ name }}</span>
+                    @if (examNames.length > 1) {
+                        <div class="col warning-text">
+                            {{ 'i18n_exam_question_edit_instructions' | translate }}
+                        </div>
+                    }
+                    @if (examNames.length === 1) {
+                        <div class="col warning-text">
+                            {{ 'i18n_exam_question_edit_instructions_for_one' | translate }}
+                        </div>
+                    }
+                    @if (examNames.length <= 0) {
+                        <div class="col warning-text">
+                            {{ 'i18n_exam_question_edit_instructions_for_none' | translate }}
+                        </div>
+                    }
+                    <div class="col-12 justify-content-center m-4">
+                        <ul class="list-inline row">
+                            <li class="list-inline-item relation-text mb-3 col-12">
+                                <span class="text-nowrap">
+                                    {{ 'i18n_exam_question_in_use' | translate }}: {{ examNames.length }}
                                 </span>
+                            </li>
+
+                            @for (name of sortByString(examNames); track name) {
+                                <li [hidden]="hideRestExams" class="list-inline-item relation-text col-12">
+                                    <span class="text-nowrap">
+                                        {{ name }}
+                                    </span>
+                                </li>
                             }
-                        </li>
-                    </ul>
+
+                            @if (examNames.length > 5 && hideRestExams) {
+                                <li>
+                                    <i
+                                        class="bi-three-dots"
+                                        alt=""
+                                        [attr.aria-label]="'i18n_more_hidden' | translate"
+                                    ></i>
+                                </li>
+                            }
+
+                            @if (examNames.length > 5) {
+                                <li>
+                                    <button (click)="hideRestExams = !hideRestExams" class="btn btn-secondary">
+                                        {{
+                                            !hideRestExams
+                                                ? ('i18n_hide' | translate)
+                                                : ('i18n_open_list_of_exams' | translate)
+                                        }}
+                                    </button>
+                                </li>
+                            }
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
