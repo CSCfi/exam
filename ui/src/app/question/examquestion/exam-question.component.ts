@@ -64,6 +64,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     sectionNames: string[] = [];
     missingOptions: string[] = [];
     isInPublishedExam = false;
+    hideRestExams = true;
 
     constructor(
         private http: HttpClient,
@@ -212,6 +213,8 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         this.examQuestion.question.type === 'ClaimChoiceQuestion' &&
         this.Question.getInvalidDistributedClaimOptionTypes(this.examQuestion.options as ExamSectionQuestionOption[])
             .length > 0;
+
+    sortByString = (prop: string[]): string[] => prop.sort();
 
     private init = () =>
         this.http.get<ReverseQuestion>(`/app/questions/${this.examQuestion.question.id}`).subscribe((question) => {
