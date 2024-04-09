@@ -27,6 +27,7 @@ public class SessionControllerTest extends IntegrationTestCase {
         assertThat(user.getFirstName()).isEqualTo("George");
         assertThat(user.getLastName()).isEqualTo("Lazenby");
         assertThat(user.getUserIdentifier()).isEqualTo("org1.org:11111 org2.org:22222 org3.org:33333");
+        assertThat(user.getLanguage().getCode()).isEqualTo("en"); // was de originally, but not supported
     }
 
     @Test
