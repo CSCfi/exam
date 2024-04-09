@@ -214,8 +214,6 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         this.Question.getInvalidDistributedClaimOptionTypes(this.examQuestion.options as ExamSectionQuestionOption[])
             .length > 0;
 
-    sortByString = (prop: string[]): string[] => prop.sort();
-
     private init = () =>
         this.http.get<ReverseQuestion>(`/app/questions/${this.examQuestion.question.id}`).subscribe((question) => {
             this.question = question;
@@ -228,7 +226,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
             });
             const sectionNames = sections.map((s) => s.name);
             // remove duplicates
-            this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
+            this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort();
             this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
             this.validate();
             window.addEventListener('beforeunload', this.onUnload);
