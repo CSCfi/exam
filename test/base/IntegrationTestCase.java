@@ -70,7 +70,7 @@ public class IntegrationTestCase extends WithApplication {
         HAKA_HEADERS.put("displayName", "George%20Lazenby");
         HAKA_HEADERS.put("eppn", "george.lazenby@funet.fi");
         HAKA_HEADERS.put("sn", "Lazenby");
-        HAKA_HEADERS.put("preferredLanguage", "fi");
+        HAKA_HEADERS.put("preferredLanguage", "de"); // use an unsupported UI language
         HAKA_HEADERS.put("Shib-Session-ID", "_5d9a583a894275c15edef02c5602c4d7");
         HAKA_HEADERS.put("mail", "glazenby%40funet.fi");
         HAKA_HEADERS.put("unscoped-affiliation", "member;employee;faculty");

@@ -49,6 +49,7 @@ public interface ConfigReader {
     String getCsrfCookie();
     boolean isMultiStudentIdEnabled();
     String getMultiStudentOrganisations();
+    List<String> getSupportedLanguages();
 
     boolean hasPath(String path);
     String getString(String path);
