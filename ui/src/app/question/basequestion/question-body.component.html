@@ -37,7 +37,7 @@
                             </span>
                         </li>
 
-                        @for (name of sortByString(examNames).slice(0, 5); track name) {
+                        @for (name of examNames.slice(0, 5); track name) {
                             <li class="list-inline-item relation-text col-12">
                                 <span class="text-nowrap">
                                     {{ name }}
@@ -45,7 +45,7 @@
                             </li>
                         }
 
-                        @for (name of sortByString(examNames).slice(5); track name) {
+                        @for (name of examNames.slice(5); track name) {
                             <li [hidden]="hideRestExams" class="list-inline-item relation-text col-12">
                                 <span class="text-nowrap">
                                     {{ name }}
