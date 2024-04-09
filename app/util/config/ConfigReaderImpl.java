@@ -276,6 +276,11 @@ public class ConfigReaderImpl implements ConfigReader {
     }
 
     @Override
+    public List<String> getSupportedLanguages() {
+        return config.getStringList("play.i18n.langs");
+    }
+
+    @Override
     public boolean hasPath(String path) {
         return config.hasPath(path);
     }

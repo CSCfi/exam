@@ -242,12 +242,13 @@ public class SessionController extends BaseController {
             .thenApplyAsync(e -> e == null ? internalServerError() : ok());
     }
 
-    private static Language getLanguage(String code) {
+    private Language getLanguage(String code) {
         Language language = null;
         if (code != null) {
             // for example: en-US -> en
             String lcCode = code.split("-")[0].toLowerCase();
-            language = DB.find(Language.class, lcCode);
+            var lang = configReader.getSupportedLanguages().contains(lcCode) ? lcCode : "en";
+            language = DB.find(Language.class, lang);
         }
         if (language == null) {
             // Default to English
