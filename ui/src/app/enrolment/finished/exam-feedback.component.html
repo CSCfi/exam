@@ -120,7 +120,7 @@
             <div class="row">
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_feedback_attachment' | translate }}:</div>
                 <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                    <button class="btn btn-link" (click)="downloadFeedbackAttachment()">
+                    <button class="btn btn-outline-secondary" (click)="downloadFeedbackAttachment()">
                         {{ assessment.examFeedback?.attachment?.fileName }}
                     </button>
                 </div>
@@ -166,7 +166,7 @@
             <div class="row">
                 <div class="col-6 col-sm-6 col-md-2 col-lg-2">{{ 'i18n_statement_attachment' | translate }}:</div>
                 <div class="col-6 col-sm-6 col-md-3 col-lg-3">
-                    <button class="btn btn-link" (click)="downloadStatementAttachment()">
+                    <button class="btn btn-outline-secondary" (click)="downloadStatementAttachment()">
                         {{ assessment.languageInspection.statement.attachment?.fileName }}
                     </button>
                 </div>
@@ -202,7 +202,11 @@
         <div class="row">
             @if (assessmentWithAnswers) {
                 <div class="col-12">
-                    <button class="btn btn-link" (keydown.enter)="showAnswers()" (click)="showAnswers()">
+                    <button
+                            class="btn btn-outline-secondary"
+                            (keydown.enter)="showAnswers()"
+                            (click)="showAnswers()"
+                        >
                         {{ 'i18n_show' | translate }}
                     </button>
                 </div>
@@ -232,7 +236,7 @@
             <div class="row">
                 <div class="col-12">
                     <button
-                        class="btn btn-link"
+                        class="btn btn-outline-secondary"
                         (keydown.enter)="downloadScoreReport()"
                         (click)="downloadScoreReport()"
                     >
