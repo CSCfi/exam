@@ -204,7 +204,7 @@ export class QuestionBodyComponent implements OnInit {
         });
         const sectionNames = sections.map((s) => s.name);
         // remove duplicates
-        this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
+        this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort();
         this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
     };
 }

@@ -7,72 +7,74 @@
     }
 </style-->
 <div ngModelGroup="questionBody" id="questionBody" class="exclude">
-    @if (showWarning()) {
-        <div class="xm-study-item-container--warning mt-3">
-            <!-- Exam contexts -->
-            <div class="row">
-                <div class="col-auto p-1">
-                    <img src="/assets/images/icon_warning.png" />
-                </div>
-                <div class="col warning-text">
-                    @if (examNames.length > 1) {
-                        <div class="col warning-text">
-                            {{ 'i18n_exam_question_edit_instructions' | translate }}
-                        </div>
-                    }
-                    @if (examNames.length === 1) {
-                        <div class="col warning-text">
-                            {{ 'i18n_exam_question_edit_instructions_for_one' | translate }}
-                        </div>
-                    }
-                    @if (examNames.length <= 0) {
-                        <div class="col warning-text">
-                            {{ 'i18n_exam_question_edit_instructions_for_none' | translate }}
-                        </div>
-                    }
-                    <div class="col-12 justify-content-center m-4">
-                        <ul class="list-inline row">
-                            <li class="list-inline-item relation-text mb-3 col-12">
+    <div class="xm-study-item-container--warning mt-3">
+        <!-- Exam contexts -->
+        <div class="row">
+            <div class="col-auto p-1">
+                <img src="/assets/images/icon_warning.png" />
+            </div>
+            <div class="col warning-text">
+                @if (examNames.length > 1) {
+                    <div class="col warning-text">
+                        {{ 'i18n_exam_question_edit_instructions' | translate }}
+                    </div>
+                }
+                @if (examNames.length === 1) {
+                    <div class="col warning-text">
+                        {{ 'i18n_exam_question_edit_instructions_for_one' | translate }}
+                    </div>
+                }
+                @if (examNames.length < 1) {
+                    <div class="col warning-text">
+                        {{ 'i18n_exam_question_edit_instructions_for_none' | translate }}
+                    </div>
+                }
+                <div class="col-12 justify-content-center m-4">
+                    <ul class="list-inline row">
+                        <li class="list-inline-item relation-text mb-3 col-12">
+                            <span class="text-nowrap">
+                                {{ 'i18n_exam_question_in_use' | translate }}: {{ examNames.length }}
+                            </span>
+                        </li>
+
+                        @for (name of examNames.slice(0, 5); track name) {
+                            <li class="list-inline-item relation-text col-12">
                                 <span class="text-nowrap">
-                                    {{ 'i18n_exam_question_in_use' | translate }}: {{ examNames.length }}
+                                    {{ name }}
                                 </span>
                             </li>
+                        }
 
-                            @for (name of sortByString(examNames); track name) {
-                                <li [hidden]="hideRestExams" class="list-inline-item relation-text col-12">
-                                    <span class="text-nowrap">
-                                        {{ name }}
-                                    </span>
-                                </li>
-                            }
+                        @for (name of examNames.slice(5); track name) {
+                            <li [hidden]="hideRestExams" class="list-inline-item relation-text col-12">
+                                <span class="text-nowrap">
+                                    {{ name }}
+                                </span>
+                            </li>
+                        }
 
-                            @if (examNames.length > 5 && hideRestExams) {
-                                <li>
-                                    <i
-                                        class="bi-three-dots"
-                                        alt=""
-                                        [attr.aria-label]="'i18n_more_hidden' | translate"
-                                    ></i>
-                                </li>
-                            }
+                        @if (examNames.length > 5 && hideRestExams) {
+                            <li>
+                                <i class="bi-three-dots" alt="" [attr.aria-label]="'i18n_more_hidden' | translate"></i>
+                            </li>
+                        }
 
-                            @if (examNames.length > 5) {
-                                <li>
-                                    <button (click)="hideRestExams = !hideRestExams" class="btn btn-secondary">
-                                        {{
-                                            !hideRestExams
-                                                ? ('i18n_hide' | translate)
-                                                : ('i18n_open_list_of_exams' | translate)
-                                        }}
-                                    </button>
-                                </li>
-                            }
-                        </ul>
-                    </div>
+                        @if (examNames.length > 5) {
+                            <li>
+                                <button (click)="hideRestExams = !hideRestExams" class="btn btn-secondary">
+                                    {{
+                                        !hideRestExams
+                                            ? ('i18n_hide' | translate)
+                                            : ('i18n_open_list_of_exams' | translate)
+                                    }}
+                                </button>
+                            </li>
+                        }
+                    </ul>
                 </div>
             </div>
         </div>
-    }
+    </div>
 
     <!-- Question editor -->
     <div class="row mt-3">
