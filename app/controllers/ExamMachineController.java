@@ -148,17 +148,15 @@ public class ExamMachineController extends BaseController {
     }
 
     @Restrict({ @Group("ADMIN") })
-    public Result insertExamMachine(Long id, Http.Request request) {
-        ExamRoom room = DB.find(ExamRoom.class, id);
+    public Result insertExamMachine(Long id) {
+        var room = DB.find(ExamRoom.class, id);
         if (room == null) {
             return notFound();
         }
-        ExamMachine machine = bindForm(ExamMachine.class, request);
+        var machine = new ExamMachine();
         room.getExamMachines().add(machine);
         room.save();
-
         machine.save();
-
         return ok(machine);
     }
 
@@ -196,9 +194,9 @@ public class ExamMachineController extends BaseController {
 
     @Restrict(@Group({ "ADMIN" }))
     public Result addSoftware(String name, Http.Request request) {
-        Software software = bindForm(Software.class, request);
         return checkSoftwareName(name)
             .orElseGet(() -> {
+                Software software = new Software();
                 software.setName(name);
                 software.save();
                 return ok(software);
