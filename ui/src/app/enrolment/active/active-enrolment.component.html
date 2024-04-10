@@ -181,25 +181,27 @@
                     }})
                 </div>
             </div>
-            <div class="row mt-3">
-                <div class="col">
-                    <button
-                        class="btn btn-outline-secondary"
-                        (click)="showGuide = !showGuide"
-                        (keydown.enter)="showGuide = !showGuide"
-                        [attr.aria-expanded]="showGuide"
-                    >
-                        {{ 'i18n_room_guidance' | translate }}
-                        <img class="arrow_icon" [hidden]="showGuide" alt="" src="/assets/images/arrow_right.png" />
-                        <img class="arrow_icon" [hidden]="!showGuide" alt="" src="/assets/images/arrow_down.png" />
-                    </button>
-                </div>
-                <div class="row mt-3" [ngbCollapse]="!showGuide">
-                    <div class="col-12">
-                        {{ getRoomInstruction() }}
+            @if (getRoomInstruction()) {
+                <div class="row mt-3">
+                    <div class="col">
+                        <button
+                            class="btn btn-outline-secondary"
+                            (click)="showGuide = !showGuide"
+                            (keydown.enter)="showGuide = !showGuide"
+                            [attr.aria-expanded]="showGuide"
+                        >
+                            {{ 'i18n_room_guidance' | translate }}
+                            <img class="arrow_icon" [hidden]="showGuide" alt="" src="/assets/images/arrow_right.png" />
+                            <img class="arrow_icon" [hidden]="!showGuide" alt="" src="/assets/images/arrow_down.png" />
+                        </button>
+                    </div>
+                    <div class="row mt-3" [ngbCollapse]="!showGuide">
+                        <div class="col-12">
+                            {{ getRoomInstruction() }}
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
     }
     @if (!enrolment.reservation && enrolment.reservationCanceled) {

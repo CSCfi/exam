@@ -18,7 +18,6 @@ package controllers.base;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
-import exceptions.MalformedDataException;
 import impl.NoShowHandler;
 import io.ebean.DB;
 import io.ebean.ExpressionList;
@@ -27,7 +26,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -37,7 +35,6 @@ import models.Role;
 import models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.data.Form;
 import play.data.FormFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.libs.typedmap.TypedKey;
@@ -60,44 +57,36 @@ public class BaseController extends Controller {
     @Inject
     protected NoShowHandler noShowHandler;
 
-    protected <T> T bindForm(final Class<T> clazz, Http.Request request) {
-        final Form<T> form = formFactory.form(clazz);
-        if (form.hasErrors()) {
-            throw new MalformedDataException(form.errorsAsJson().asText());
-        }
-        return form.bindFromRequest(request).get();
-    }
-
     protected Result ok(Object object) {
-        String body = DB.json().toJson(object);
+        var body = DB.json().toJson(object);
         return ok(body).as("application/json");
     }
 
     protected Result ok(Object object, PathProperties props) {
-        String body = DB.json().toJson(object, props);
+        var body = DB.json().toJson(object, props);
         return ok(body).as("application/json");
     }
 
     protected Result created(Object object) {
-        String body = DB.json().toJson(object);
+        var body = DB.json().toJson(object);
         return created(body).as("application/json");
     }
 
     protected Result created(Object object, PathProperties props) {
-        String body = DB.json().toJson(object, props);
+        var body = DB.json().toJson(object, props);
         return created(body).as("application/json");
     }
 
     protected <T> ExpressionList<T> applyUserFilter(String prefix, ExpressionList<T> query, String filter) {
-        ExpressionList<T> result = query;
-        String rawFilter = filter.replaceAll(" +", " ").trim();
-        String condition = String.format("%%%s%%", rawFilter);
-        String fnField = prefix == null ? "firstName" : String.format("%s.firstName", prefix);
-        String lnField = prefix == null ? "lastName" : String.format("%s.lastName", prefix);
+        var result = query;
+        var rawFilter = filter.replaceAll(" +", " ").trim();
+        var condition = String.format("%%%s%%", rawFilter);
+        var fnField = prefix == null ? "firstName" : String.format("%s.firstName", prefix);
+        var lnField = prefix == null ? "lastName" : String.format("%s.lastName", prefix);
         if (rawFilter.contains(" ")) {
             // Possible that user provided us two names. Let's try out some combinations of first and last names
-            String name1 = rawFilter.split(" ")[0];
-            String name2 = rawFilter.split(" ")[1];
+            var name1 = rawFilter.split(" ")[0];
+            var name2 = rawFilter.split(" ")[1];
             result =
                 result
                     .or()
@@ -117,7 +106,7 @@ public class BaseController extends Controller {
     }
 
     private void handleNoShow(User user, Long examId) {
-        List<ExamEnrolment> enrolments = DB
+        var enrolments = DB
             .find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("exam")
@@ -151,7 +140,7 @@ public class BaseController extends Controller {
         if (trialCount == null) {
             return true;
         }
-        List<ExamEnrolment> trials = DB
+        var trials = DB
             .find(ExamEnrolment.class)
             .fetch("exam")
             .where()
@@ -183,12 +172,12 @@ public class BaseController extends Controller {
     }
 
     protected Result writeAnonymousResult(Http.Request request, Result result, boolean anonymous) {
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        var user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return writeAnonymousResult(request, result, anonymous, user.hasRole(Role.Name.ADMIN));
     }
 
     protected Result writeAnonymousResult(Http.Request request, Result result, Set<Long> anonIds) {
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        var user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (!anonIds.isEmpty() && !user.hasRole(Role.Name.ADMIN)) {
             return withAnonymousHeader(result, request, anonIds);
         }
@@ -202,9 +191,9 @@ public class BaseController extends Controller {
     }
 
     protected JsonNode serialize(Object o) {
-        ObjectMapper mapper = new ObjectMapper();
+        var mapper = new ObjectMapper();
         try {
-            String json = mapper.writeValueAsString(o);
+            var json = mapper.writeValueAsString(o);
             return mapper.readTree(json);
         } catch (IOException e) {
             logger.error("unable to serialize");
@@ -213,9 +202,9 @@ public class BaseController extends Controller {
     }
 
     protected JsonNode serialize(Object o, PathProperties pp) {
-        ObjectMapper mapper = new ObjectMapper();
+        var mapper = new ObjectMapper();
         try {
-            String json = DB.json().toJson(o, pp);
+            var json = DB.json().toJson(o, pp);
             return mapper.readTree(json);
         } catch (IOException e) {
             logger.error("unable to serialize");

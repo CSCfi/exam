@@ -76,12 +76,12 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
     case "string" | "data" =>
       val text = if node.child.nonEmpty then node.child.head.text else ""
       Some(JsString(text.trim.filterNot(_ == '\n')))
-    case "true"    => Some(JsBoolean(true))
-    case "false"   => Some(JsBoolean(false))
-    case "integer" => Some(JsNumber(node.child.head.text.toInt))
-    case "array"   => Some(JsArray(node.child.flatMap(nodeToJson)))
-    case "dict"    => dictToJson(node)
-    case _         => throw new NoSuchElementException
+    case "true"             => Some(JsBoolean(true))
+    case "false"            => Some(JsBoolean(false))
+    case "integer" | "real" => Some(JsNumber(node.child.head.text.toInt))
+    case "array"            => Some(JsArray(node.child.flatMap(nodeToJson)))
+    case "dict"             => dictToJson(node)
+    case _                  => throw new NoSuchElementException
 
   private def dictToJson(dict: Node): Option[JsValue] = dict.child match
     case Seq() => None

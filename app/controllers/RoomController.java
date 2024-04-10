@@ -20,6 +20,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalFacilityAPI;
+import exceptions.MalformedDataException;
 import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
@@ -49,6 +50,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.data.Form;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -223,6 +225,14 @@ public class RoomController extends BaseController {
         existing.setZip(address.getZip());
         existing.update();
         return updateRemote(room.get());
+    }
+
+    private <T> T bindForm(final Class<T> clazz, Http.Request request) {
+        final Form<T> form = formFactory.form(clazz);
+        if (form.hasErrors()) {
+            throw new MalformedDataException(form.errorsAsJson().asText());
+        }
+        return form.bindFromRequest(request).get();
     }
 
     private DefaultWorkingHours parseWorkingHours(JsonNode root) {
