@@ -2,22 +2,12 @@
     <div class="row p-3">
         <h4 class="col-md-8 ps-0">{{ index }}. &nbsp; &nbsp;{{ section.name }}</h4>
         <div class="col-md-4">
-            @if (getSectionMaxScore() > 0) {
+            @if (getSectionMaxScore() > 0 || essayQuestionAmounts.total > 0) {
                 <div class="row">
                     <div class="col-12">
                         <div class="float-end">
-                            {{ 'i18n_word_points' | translate }}: {{ getSectionTotalScore() }} /
-                            {{ getSectionMaxScore() }}
-                        </div>
-                    </div>
-                </div>
-            }
-            @if (questionAmounts.accepted + questionAmounts.rejected > 0) {
-                <div class="row">
-                    <div class="col-12">
-                        <div class="float-end">
-                            {{ 'i18n_accepted_and_rejected' | translate }}: {{ questionAmounts.accepted }} /
-                            {{ questionAmounts.rejected }}
+                            {{ 'i18n_reviewed_questions' | translate }}: {{ getReviewProgress() }} /
+                            {{ getTotalQuestionAmount() }}
                         </div>
                     </div>
                 </div>
@@ -105,10 +95,10 @@
         @if (getSectionMaxScore() > 0) {
             <div>{{ 'i18n_word_points' | translate }}: {{ getSectionTotalScore() }} / {{ getSectionMaxScore() }}</div>
         }
-        @if (questionAmounts.accepted + questionAmounts.rejected > 0) {
+        @if (essayQuestionAmounts.total > 0) {
             <div>
-                {{ 'i18n_accepted_and_rejected' | translate }}: {{ questionAmounts.accepted }} /
-                {{ questionAmounts.rejected }}
+                {{ 'i18n_accepted_and_rejected' | translate }}: {{ essayQuestionAmounts.accepted }} /
+                {{ essayQuestionAmounts.rejected }}
             </div>
         }
     </div>
