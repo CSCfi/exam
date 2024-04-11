@@ -1172,5 +1172,6 @@
     "i18n_exam_question_edit_instructions_for_none": "Tämä kysymys ei ole käytössä yhdessäkään tentissä",
     "i18n_open_list_of_exams": "Näytä lista tenteistä",
     "i18n_more_hidden": "Lisää piilotettuna",
-    "i18n_exam_question_in_use": "Tenttejä, joissa kysymys on käytössä"
+    "i18n_exam_question_in_use": "Tenttejä, joissa kysymys on käytössä",
+    "i18n_reviewed_questions": "Kysymyksistä arvioitu"
 }
