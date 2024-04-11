@@ -13,7 +13,8 @@
                         [routerLink]="['/calendar', enrolment.collaborativeExam.id, 'collaborative']"
                         >{{ 'i18n_student_change_reservation' | translate }}
                     </a>
-                } @else {
+                }
+                @if (enrolment.reservation.machine && !enrolment.collaborativeExam) {
                     <a class="btn btn-outline-secondary" [routerLink]="['/calendar', enrolment.exam.id]"
                         >{{ 'i18n_student_change_reservation' | translate }}
                     </a>
