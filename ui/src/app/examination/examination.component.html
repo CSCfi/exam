@@ -1,6 +1,6 @@
 <!-- HEADER ROW -->
 @if (exam) {
-    <xm-examination-header [exam]="exam" (timedOut)="timedOut()" [isPreview]="isPreview"> </xm-examination-header>
+    <xm-examination-header [exam]="exam" (timedOut)="timedOut()" [isPreview]="isPreview" />
 }
 <div class="row ms-2 mt-2">
     <!-- RIGHT COLUMN -->
@@ -28,19 +28,21 @@
                 [exam]="exam"
                 [isPreview]="isPreview"
                 [isCollaborative]="isCollaborative"
-            >
-            </xm-examination-section>
+            />
         }
 
         <!-- ANSWER INSTRUCTIONS -->
         @if (!activeSection && exam) {
-            <xm-answer-instructions [exam]="exam"></xm-answer-instructions>
+            <xm-answer-instructions [exam]="exam" />
         }
 
         <!-- NAVIGATION -->
         @if (exam) {
-            <xm-examination-navigation [exam]="exam" [activeSection]="activeSection" (selected)="selectNewPage($event)">
-            </xm-examination-navigation>
+            <xm-examination-navigation
+                [exam]="exam"
+                [activeSection]="activeSection"
+                (selected)="selectNewPage($event)"
+            />
         }
         <a class="skip" id="skip-button" [href]="getSkipLinkPath('#examination-section')">
             {{ 'i18n_skip_to_content' | translate }}

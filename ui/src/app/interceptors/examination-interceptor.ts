@@ -65,7 +65,7 @@ export class ExaminationInterceptor implements HttpInterceptor {
                         }
                     } else if (hash) {
                         // Start/continue exam
-                        this.ExaminationStatus.notfityStartOfExamination();
+                        this.ExaminationStatus.notifyStartOfExamination();
                         this.router.navigate(['/exam', hash]);
                     }
                 }

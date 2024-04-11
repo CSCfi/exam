@@ -15,21 +15,13 @@
 /// <reference types="ckeditor" />
 import { DOCUMENT } from '@angular/common';
 import type { AfterViewChecked, AfterViewInit, OnDestroy } from '@angular/core';
-import { Component, ElementRef, forwardRef, Inject, Input, NgZone, ViewChild } from '@angular/core';
+import { Component, ElementRef, Inject, Input, NgZone, ViewChild } from '@angular/core';
 import type { ControlValueAccessor } from '@angular/forms';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { debounce } from '../miscellaneous/helpers';
 
 @Component({
     selector: 'xm-ckeditor',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => CKEditorComponent),
-            multi: true,
-        },
-    ],
     template: ` <textarea #host [required]="required"></textarea> `,
     standalone: true,
     styles: [
