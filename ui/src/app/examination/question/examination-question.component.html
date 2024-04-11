@@ -17,27 +17,18 @@
                 <!-- question text -->
                 <div class="col mt-3">
                     @if (sq.question.type !== 'ClozeTestQuestion') {
-                        <div>
-                            @if (expanded) {
-                                <div class="section-box-title" [xmMathJax]="sq.question.question"></div>
-                            }
-                            @if (!expanded) {
-                                <div
-                                    class="section-box-title"
-                                    [xmMathJax]="sq.question.question | slice: 0 : 240"
-                                ></div>
-                            }
-                        </div>
-                    }
-                    @if (sq.question.type === 'ClozeTestQuestion') {
-                        <div>
-                            <div class="section-box-title">
-                                <xm-dynamic-cloze-test
-                                    [content]="sq.clozeTestAnswer?.question || ''"
-                                    [answer]="clozeAnswer"
-                                    (answerChanged)="answered($event)"
-                                ></xm-dynamic-cloze-test>
-                            </div>
+                        @if (expanded) {
+                            <div class="section-box-title" [xmMathJax]="sq.question.question"></div>
+                        } @else {
+                            <div class="section-box-title" [xmMathJax]="sq.question.question | slice: 0 : 240"></div>
+                        }
+                    } @else {
+                        <div class="section-box-title">
+                            <xm-dynamic-cloze-test
+                                [content]="sq.clozeTestAnswer?.question || ''"
+                                [answer]="clozeAnswer"
+                                (answerChanged)="answered($event)"
+                            />
                         </div>
                     }
                 </div>
@@ -70,17 +61,21 @@
             @if (sq.question.attachment && expanded) {
                 <div class="row mt-3">
                     <div class="col-md-12">
-                        <div class="float-end">
-                            <button
-                                class="btn btn-success"
-                                tabindex="0"
-                                (click)="downloadQuestionAttachment()"
-                                (keydown.enter)="downloadQuestionAttachment()"
-                            >
-                                {{ 'i18n_download_section_question_attachment' | translate }}
-                                <img src="/assets/images/icon_attachment.svg" alt="" />
-                            </button>
-                            <div class="attachment-name">{{ sq.question.attachment?.fileName | uppercase }}</div>
+                        <button
+                            class="btn btn-success float-end"
+                            tabindex="0"
+                            (click)="downloadQuestionAttachment()"
+                            (keydown.enter)="downloadQuestionAttachment()"
+                        >
+                            {{ 'i18n_download_section_question_attachment' | translate }}
+                            <img src="/assets/images/icon_attachment.svg" alt="" />
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="attachment-name float-end">
+                            {{ sq.question.attachment?.fileName | uppercase }}
                         </div>
                     </div>
                 </div>
@@ -93,16 +88,14 @@
                         <div class="question">
                             @switch (sq.question.type) {
                                 @case ('EssayQuestion') {
-                                    <xm-examination-essay-question [sq]="sq" [exam]="exam" [isPreview]="isPreview">
-                                    </xm-examination-essay-question>
+                                    <xm-examination-essay-question [sq]="sq" [exam]="exam" [isPreview]="isPreview" />
                                 }
                                 @case ('ClozeTestQuestion') {
                                     <xm-examination-cloze-test
                                         [sq]="sq"
                                         [examHash]="exam?.hash || ''"
                                         [isPreview]="isPreview"
-                                    >
-                                    </xm-examination-cloze-test>
+                                    />
                                 }
                                 @case ('MultipleChoiceQuestion') {
                                     <xm-examination-multi-choice-question
