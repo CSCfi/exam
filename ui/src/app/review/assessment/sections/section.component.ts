@@ -16,7 +16,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ExamService } from 'src/app/exam/exam.service';
-import type { Exam, ExamParticipation, ExamSection } from '../../../exam/exam.model';
+import type { Exam, ExamParticipation, ExamSection, ExamSectionQuestion } from '../../../exam/exam.model';
 import { QuestionService } from '../../../question/question.service';
 import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
 import { ClozeTestComponent } from '../questions/cloze-test.component';
@@ -39,7 +39,7 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
     @Input() collaborative = false;
     @Output() scored = new EventEmitter<string>();
 
-    questionAmounts = { rejected: 0, accepted: 0 };
+    essayQuestionAmounts = { rejected: 0, accepted: 0, total: 0 };
 
     constructor(
         private Exam: ExamService,
@@ -48,7 +48,7 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
     ) {}
 
     ngOnInit() {
-        this.questionAmounts = this.Question.getQuestionAmountsBySection(this.section);
+        this.essayQuestionAmounts = this.Question.getEssayQuestionAmountsBySection(this.section);
     }
 
     ngAfterViewInit() {
@@ -57,7 +57,17 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
 
     scoreSet = (revision: string) => {
         this.scored.emit(revision);
-        this.questionAmounts = this.Question.getQuestionAmountsBySection(this.section);
+        this.essayQuestionAmounts = this.Question.getEssayQuestionAmountsBySection(this.section);
+    };
+
+    getReviewProgress = () => {
+        return this.section.sectionQuestions.filter((q: ExamSectionQuestion) => {
+            return q.forcedScore || q.essayAnswer?.evaluatedScore;
+        }).length;
+    };
+
+    getTotalQuestionAmount = () => {
+        return this.section.sectionQuestions.length;
     };
 
     getSectionMaxScore = () => this.Exam.getSectionMaxScore(this.section);

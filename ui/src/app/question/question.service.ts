@@ -105,11 +105,15 @@ export class QuestionService {
         return { accepted: accepted, rejected: rejected, hasEssays: essays.length > 0 };
     };
 
-    getQuestionAmountsBySection = (section: ExamSection) => {
+    getEssayQuestionAmountsBySection = (section: ExamSection) => {
         const scores = section.sectionQuestions
             .filter((sq) => sq.question.type === 'EssayQuestion' && sq.evaluationType === 'Selection' && sq.essayAnswer)
             .map((sq) => sq.essayAnswer?.evaluatedScore);
-        return { accepted: scores.filter((s) => s === 1).length, rejected: scores.filter((s) => s === 0).length };
+        return {
+            accepted: scores.filter((s) => s === 1).length,
+            rejected: scores.filter((s) => s === 0).length,
+            total: scores.length,
+        };
     };
 
     calculateDefaultMaxPoints = (question: Question) =>
