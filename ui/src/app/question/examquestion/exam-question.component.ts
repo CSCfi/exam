@@ -64,6 +64,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
     sectionNames: string[] = [];
     missingOptions: string[] = [];
     isInPublishedExam = false;
+    hideRestExams = true;
 
     constructor(
         private http: HttpClient,
@@ -225,7 +226,7 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
             });
             const sectionNames = sections.map((s) => s.name);
             // remove duplicates
-            this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos);
+            this.examNames = examNames.filter((n, pos) => examNames.indexOf(n) === pos).sort();
             this.sectionNames = sectionNames.filter((n, pos) => sectionNames.indexOf(n) === pos);
             this.validate();
             window.addEventListener('beforeunload', this.onUnload);
