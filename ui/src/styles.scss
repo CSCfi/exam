@@ -22,6 +22,26 @@
 .fc-timegrid-event-harness-inset .fc-timegrid-event {
     cursor: pointer;
 }
+/* cloze test styles, need to be defined here because of view encapsulation */
+@mixin xm-cloze-test($bc, $bgc) {
+    margin-right: 3px;
+    padding-right: 3px;
+    border-radius: 3px;
+    min-width: 30px;
+    display: inline-block;
+    box-shadow: 4px 4px 9px 0px rgba(0, 0, 0, 0.75);
+    border: 1px solid $bc;
+    background: $bgc;
+}
+.cloze-correct {
+    @include xm-cloze-test(green, #ccffcc);
+}
+.cloze-incorrect {
+    @include xm-cloze-test(red, #feeeef);
+}
+.cloze-neutral {
+    @include xm-cloze-test(gray, white);
+}
 /* overrides for bootstrap nav tab titles */
 .nav-tabs {
     .nav-link.active {
