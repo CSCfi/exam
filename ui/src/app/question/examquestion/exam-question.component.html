@@ -29,53 +29,58 @@
                                     {{ 'i18n_exam_question_edit_instructions_for_none' | translate }}
                                 </div>
                             }
-                            <div class="col-12 justify-content-center m-4">
-                                <ul class="list-inline row">
-                                    <li class="list-inline-item relation-text mb-3 col-12">
-                                        <span class="text-nowrap">
-                                            {{ 'i18n_exam_question_in_use' | translate }}: {{ examNames.length }}
-                                        </span>
-                                    </li>
-
-                                    @for (name of examNames.slice(0, 5); track name) {
-                                        <li class="list-inline-item relation-text col-12">
+                            @if (examNames.length > 0) {
+                                <div class="col-12 justify-content-center m-4">
+                                    <ul class="list-inline row">
+                                        <li class="list-inline-item relation-text mb-3 col-12">
                                             <span class="text-nowrap">
-                                                {{ name }}
+                                                {{ 'i18n_exam_question_in_use' | translate }}: {{ examNames.length }}
                                             </span>
                                         </li>
-                                    }
 
-                                    @for (name of examNames.slice(5); track name) {
-                                        <li [hidden]="hideRestExams" class="list-inline-item relation-text col-12">
-                                            <span class="text-nowrap">
-                                                {{ name }}
-                                            </span>
-                                        </li>
-                                    }
+                                        @for (name of examNames.slice(0, 5); track name) {
+                                            <li class="list-inline-item relation-text col-12">
+                                                <span class="text-nowrap">
+                                                    {{ name }}
+                                                </span>
+                                            </li>
+                                        }
 
-                                    @if (examNames.length > 5 && hideRestExams) {
-                                        <li>
-                                            <i
-                                                class="bi-three-dots"
-                                                alt=""
-                                                [attr.aria-label]="'i18n_more_hidden' | translate"
-                                            ></i>
-                                        </li>
-                                    }
+                                        @for (name of examNames.slice(5); track name) {
+                                            <li [hidden]="hideRestExams" class="list-inline-item relation-text col-12">
+                                                <span class="text-nowrap">
+                                                    {{ name }}
+                                                </span>
+                                            </li>
+                                        }
 
-                                    @if (examNames.length > 5) {
-                                        <li>
-                                            <button (click)="hideRestExams = !hideRestExams" class="btn btn-secondary">
-                                                {{
-                                                    !hideRestExams
-                                                        ? ('i18n_hide' | translate)
-                                                        : ('i18n_open_list_of_exams' | translate)
-                                                }}
-                                            </button>
-                                        </li>
-                                    }
-                                </ul>
-                            </div>
+                                        @if (examNames.length > 5 && hideRestExams) {
+                                            <li>
+                                                <i
+                                                    class="bi-three-dots"
+                                                    alt=""
+                                                    [attr.aria-label]="'i18n_more_hidden' | translate"
+                                                ></i>
+                                            </li>
+                                        }
+
+                                        @if (examNames.length > 5) {
+                                            <li>
+                                                <button
+                                                    (click)="hideRestExams = !hideRestExams"
+                                                    class="btn btn-secondary"
+                                                >
+                                                    {{
+                                                        !hideRestExams
+                                                            ? ('i18n_hide' | translate)
+                                                            : ('i18n_open_list_of_exams' | translate)
+                                                    }}
+                                                </button>
+                                            </li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>

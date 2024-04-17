@@ -241,7 +241,7 @@ GET           /app/machines                                            controlle
 GET           /app/machines/:id                                        controllers.ExamMachineController.getExamMachine(id: Long)
 GET           /app/machines/:id/reservations                           controllers.ExamMachineController.getExamMachineReservationsFromNow(id: Long)
 PUT           /app/machines/:id                                        controllers.ExamMachineController.updateExamMachine(id: Long, request: Request)
-POST          /app/machines/:id                                        controllers.ExamMachineController.insertExamMachine(id: Long, request: Request)
+POST          /app/machines/:id                                        controllers.ExamMachineController.insertExamMachine(id: Long)
 DELETE        /app/machines/:id                                        controllers.ExamMachineController.removeExamMachine(id: Long)
 
 POST          /app/machine/:mid/software/:sid                          controllers.ExamMachineController.updateMachineSoftware(mid: Long, sid: Long)

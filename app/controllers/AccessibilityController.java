@@ -30,14 +30,16 @@ public class AccessibilityController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result addAccessibility(Http.Request request) {
-        Accessibility accessibility = bindForm(Accessibility.class, request);
+        Accessibility accessibility = new Accessibility();
+        accessibility.setName(request.body().asJson().get("name").asText());
         accessibility.save();
         return ok(Json.toJson(accessibility));
     }
 
     @Restrict({ @Group("ADMIN") })
     public Result updateAccessibility(Http.Request request) {
-        Accessibility accessibility = bindForm(Accessibility.class, request);
+        Accessibility accessibility = new Accessibility();
+        accessibility.setName(request.body().asJson().get("name").asText());
         accessibility.update();
         return ok(Json.toJson(accessibility));
     }

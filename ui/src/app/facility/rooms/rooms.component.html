@@ -1,5 +1,5 @@
 @for (room of rooms; track room) {
-    <div class="row" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
+    <div class="row mt-4" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
         <div class="col-12">
             <h4>
                 {{ room.name || 'i18n_no_name' | translate }}
