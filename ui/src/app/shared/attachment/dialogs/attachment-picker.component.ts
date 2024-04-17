@@ -73,12 +73,12 @@ export interface FileResult {
                 <div class="col-12">{{ 'i18n_max_file_size' | translate }} {{ (maxFileSize || 0) / 1000000 }} MB.</div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary float-start" (click)="activeModal.dismiss()">
-                {{ 'i18n_button_cancel' | translate }}
-            </button>
-            <button class="btn btn btn-success float-end" (click)="confirmed()" [disabled]="!fileObject">
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-success " (click)="confirmed()" [disabled]="!fileObject">
                 {{ 'i18n_button_save' | translate }}
+            </button>
+            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
+                {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
     `,

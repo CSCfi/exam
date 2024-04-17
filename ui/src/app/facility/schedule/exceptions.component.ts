@@ -49,7 +49,9 @@ import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.compon
                     {{ exception.outOfService ? ('i18n_room_out_of_service' | translate) : '' }}
                 </div>
                 <div class="col-3">
-                    <a class="pointer" (click)="deleteException(exception)">{{ 'i18n_exam_remove' | translate }}</a>
+                    <button class="btn btn-outline-danger pointer" (click)="deleteException(exception)">
+                        {{ 'i18n_exam_remove' | translate }}
+                    </button>
                 </div>
             </div>
         }

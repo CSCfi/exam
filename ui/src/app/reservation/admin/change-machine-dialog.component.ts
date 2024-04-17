@@ -43,13 +43,12 @@ import type { ExamMachine, Reservation } from '../reservation.model';
                 autofocus
             ></xm-dropdown-select>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-sm btn-danger" (click)="cancel()">
-                {{ 'i18n_button_cancel' | translate }}
-            </button>
-
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn-sm btn-primary" (click)="ok()" [disabled]="!selection?.id">
                 {{ 'i18n_button_save' | translate }}
+            </button>
+            <button class="btn btn-sm btn-danger me-3" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
     `,

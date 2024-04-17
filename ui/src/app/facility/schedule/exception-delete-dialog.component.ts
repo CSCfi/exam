@@ -41,11 +41,11 @@ import { ExceptionWorkingHours } from '../../reservation/reservation.model';
                 }
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="xm-ok-button" (click)="activeModal.close()" autofocus>
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-success" (click)="activeModal.close()" autofocus>
                 {{ 'i18n_confirm' | translate }}
             </button>
-            <button class="xm-cancel-button" (click)="activeModal.dismiss()">
+            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>

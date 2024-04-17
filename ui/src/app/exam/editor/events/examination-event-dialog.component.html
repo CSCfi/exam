@@ -124,10 +124,12 @@
     }
 </form>
 <div class="modal-footer">
-    <button class="xm-ok-button" [disabled]="eventForm.invalid" (click)="ok()">
-        {{ 'i18n_button_accept' | translate }}
-    </button>
-    <button class="xm-cancel-button float-start" (click)="cancel()">
-        {{ 'i18n_button_decline' | translate }}
-    </button>
+    <div class="d-flex flex-row-reverse flex-align-r">
+        <button class="xm-ok-button" [disabled]="eventForm.invalid" (click)="ok()">
+            {{ 'i18n_button_accept' | translate }}
+        </button>
+        <button class="xm-cancel-button" (click)="cancel()">
+            {{ 'i18n_button_decline' | translate }}
+        </button>
+    </div>
 </div>

@@ -1173,5 +1173,7 @@
     "i18n_open_list_of_exams": "Näytä lista tenteistä EN",
     "i18n_more_hidden": "Lisää piilotettuna EN",
     "i18n_exam_question_in_use": "Tenttejä joissa kysymys on käytössä EN",
-    "i18n_reviewed_questions": "Kysymyksistä arvioitu EN"
+    "i18n_reviewed_questions": "Kysymyksistä arvioitu EN",
+    "i18n_unanswered_questions_remain": "Aihealueessa on vastaamattomia kysymyksiä EN",
+    "i18n_unsaved_changes": "Unsaved changes"
 }

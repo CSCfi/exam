@@ -208,10 +208,10 @@
             </sup>
         </div>
         <div class="d-flex flex-row-reverse p-2">
-            <button class="xm-ok-button" [disabled]="!hasModifications()" (click)="gradeExams()">
+            <button class="btn btn-success" [disabled]="!hasModifications()" (click)="gradeExams()">
                 {{ 'i18n_grade_exams' | translate }}
             </button>
-            <button class="xm-cancel-button me-3" [routerLink]="['/staff/exams/', examId, '5']">
+            <button class="btn btn-outline-secondary me-3" [routerLink]="['/staff/exams/', examId, '5']">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>

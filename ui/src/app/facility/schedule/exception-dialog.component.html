@@ -463,11 +463,11 @@
         }
     </div>
 </div>
-<div class="modal-footer">
-    <button class="btn btn-danger float-end" (click)="cancel()">
-        {{ 'i18n_button_cancel' | translate }}
-    </button>
-    <button class="btn btn-primary" (click)="ok()">
+<div class="d-flex flex-row-reverse flex-align-r m-3">
+    <button class="btn btn-success" (click)="ok()">
         {{ 'i18n_button_save' | translate }}
+    </button>
+    <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+        {{ 'i18n_button_cancel' | translate }}
     </button>
 </div>

@@ -72,8 +72,8 @@ import { CollaborativeAssesmentService } from '../collaborative-assessment.servi
                     </span>
                 </div>
             }
-            <div class="d-flex justify-content-between mt-2">
-                <button class="btn btn-outline-secondary" (click)="saveFeedback()">
+            <div class="d-flex justify-content-between flex-row-reverse mt-2">
+                <button class="btn btn-outline-success" (click)="saveFeedback()">
                     {{ 'i18n_save' | translate }}
                 </button>
                 <button type="button" class="btn btn-outline-secondary" (click)="selectFile()">

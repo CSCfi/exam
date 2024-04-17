@@ -30,11 +30,11 @@ import { TranslateModule } from '@ngx-translate/core';
                 {{ 'i18n_unpublish_exam_confirm' | translate }}
             </p>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer d-flex flex-row-reverse flex-align-r">
             <button class="xm-ok-button" (click)="activeModal.close()" autofocus>
                 {{ 'i18n_unpublish_exam' | translate }}
             </button>
-            <button class="xm-cancel-button float-start" (click)="activeModal.dismiss()">
+            <button class="xm-cancel-button" (click)="activeModal.dismiss()">
                 {{ 'i18n_close' | translate }}
             </button>
         </div>
