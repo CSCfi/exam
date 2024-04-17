@@ -118,7 +118,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
         this.delayTimerId = window.setTimeout(this.Session.checkSession, offset * 1000);
         this.delayCounter$ = interval(1000).pipe(
             startWith(0),
-            map((n) => Math.max(offset - n, 0)),
+            map((n) => offset - n),
         );
     };
 

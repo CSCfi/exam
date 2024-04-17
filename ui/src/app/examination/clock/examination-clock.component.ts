@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Duration } from 'luxon';
-import { Observable, Subject, filter, interval, map, startWith, switchMap, take } from 'rxjs';
+import { Observable, Subject, filter, interval, map, startWith, switchMap, take, takeUntil } from 'rxjs';
 
 @Component({
     selector: 'xm-examination-clock',
@@ -76,8 +76,8 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
 
     private syncInterval = 60;
     private alarmThreshold = 300;
-    private subject = new Subject<number>();
-    private destroy = new Subject();
+    private clock = new Subject<number>();
+    private ngUnsubscribe = new Subject();
 
     constructor(private http: HttpClient) {}
 
@@ -85,6 +85,7 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
         const sync$ = this.http.get<number>(`/app/time/${this.examHash}`);
         interval(this.syncInterval * 1000)
             .pipe(
+                takeUntil(this.ngUnsubscribe),
                 startWith(0),
                 switchMap(() =>
                     sync$.pipe(
@@ -97,24 +98,24 @@ export class ExaminationClockComponent implements OnInit, OnDestroy {
                     ),
                 ),
             )
-            .subscribe(this.subject);
+            .subscribe(this.clock);
 
-        this.remainingTime$ = this.subject.pipe(map((n) => Duration.fromObject({ seconds: n }).toFormat('hh:mm:ss')));
-        this.subject
+        this.remainingTime$ = this.clock.pipe(map((n) => Duration.fromObject({ seconds: n }).toFormat('hh:mm:ss')));
+        this.clock
             .pipe(
                 filter((t) => t % (60 * 30) === 0 || [1, 5, 10].some((n) => t === 60 * n)),
                 map((t) => Duration.fromObject({ seconds: t }).toFormat('hh:mm:ss')),
             )
             .subscribe((time) => (this.ariaLiveTime = time));
-        this.isTimeScarce$ = this.subject.pipe(map((n) => n <= this.alarmThreshold));
-        this.subject.subscribe((n) => {
+        this.isTimeScarce$ = this.clock.pipe(map((n) => n <= this.alarmThreshold));
+        this.clock.subscribe((n) => {
             if (n === 0) this.timedOut.emit();
         });
         this.showRemainingTime.set(true);
     }
 
     ngOnDestroy() {
-        this.destroy.next(undefined);
-        this.destroy.complete();
+        this.ngUnsubscribe.next(undefined);
+        this.ngUnsubscribe.complete();
     }
 }

@@ -17,7 +17,7 @@
                 cols="80"
                 #ck="ngModel"
                 [(ngModel)]="sq.essayAnswer.answer"
-            ></xm-ckeditor>
+            />
         </div>
     </div>
 }
@@ -34,12 +34,9 @@
 <div class="row mt-3">
     <div class="col-md-3 question-type-text">
         @if (sq.evaluationType === 'Selection') {
-            <span>
-                {{ 'i18n_evaluation_select' | translate }}
-            </span>
-        }
-        @if (sq.evaluationType !== 'Selection') {
-            <span> {{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }} </span>
+            {{ 'i18n_evaluation_select' | translate }}
+        } @else {
+            {{ sq.derivedMaxScore }} {{ 'i18n_unit_points' | translate }}
         }
     </div>
     @if (exam?.implementation !== 'CLIENT_AUTH' && sq.essayAnswer?.attachment?.fileName) {
