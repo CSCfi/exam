@@ -49,7 +49,6 @@ import models.Permission;
 import models.Reservation;
 import models.Role;
 import models.User;
-import models.dto.Credentials;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
@@ -152,18 +151,14 @@ public class SessionController extends BaseController {
         if (!environment.isDev()) {
             return wrapAsPromise(unauthorized("Developer login mode not allowed while in production!"));
         }
-        Credentials credentials = bindForm(Credentials.class, request);
-        logger.debug("User login with username: {}", credentials.getUsername() + "@funet.fi");
-        if (credentials.getPassword() == null || credentials.getUsername() == null) {
+        var username = request.body().asJson().get("username").asText();
+        var password = request.body().asJson().get("password").asText();
+        logger.debug("User login with username: {}", username + "@funet.fi");
+        if (password == null || username == null) {
             return wrapAsPromise(unauthorized("i18n_error_unauthenticated"));
         }
-        String pwd = DigestUtils.md5Hex(credentials.getPassword());
-        User user = DB
-            .find(User.class)
-            .where()
-            .eq("eppn", credentials.getUsername() + "@funet.fi")
-            .eq("password", pwd)
-            .findOne();
+        String pwd = DigestUtils.md5Hex(password);
+        User user = DB.find(User.class).where().eq("eppn", username + "@funet.fi").eq("password", pwd).findOne();
 
         if (user == null) {
             return wrapAsPromise(unauthorized("i18n_error_unauthenticated"));

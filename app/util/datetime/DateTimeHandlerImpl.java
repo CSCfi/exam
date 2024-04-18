@@ -257,6 +257,11 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
     }
 
     @Override
+    public int getTimezoneOffset(DateTime date) {
+        return configReader.getDefaultTimeZone().getOffset(date);
+    }
+
+    @Override
     public List<OpeningHours> getWorkingHoursForDate(LocalDate date, ExamRoom room) {
         List<OpeningHours> workingHours = getDefaultWorkingHours(date, room);
         List<Interval> extensionEvents = mergeSlots(

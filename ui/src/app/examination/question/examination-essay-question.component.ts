@@ -16,10 +16,10 @@ import { DatePipe, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import type { EssayAnswer } from '../../exam/exam.model';
 import type { AnsweredQuestion } from '../../shared/attachment/attachment.service';
 import { AttachmentService } from '../../shared/attachment/attachment.service';
-import { CKEditorComponent } from '../../shared/ckeditor/ckeditor.component';
 import { FileService } from '../../shared/file/file.service';
 import type { Examination, ExaminationQuestion } from '../examination.model';
 import { ExaminationService } from '../examination.service';
@@ -28,7 +28,7 @@ import { ExaminationService } from '../examination.service';
     selector: 'xm-examination-essay-question',
     templateUrl: './examination-essay-question.component.html',
     standalone: true,
-    imports: [CKEditorComponent, FormsModule, UpperCasePipe, DatePipe, TranslateModule],
+    imports: [FormsModule, TranslateModule, UpperCasePipe, DatePipe, CKEditorComponent],
     styleUrls: ['../examination.shared.scss', './question.shared.scss'],
 })
 export class ExaminationEssayQuestionComponent implements OnInit {

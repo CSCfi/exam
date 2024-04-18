@@ -158,13 +158,13 @@ export class MultiRoomComponent implements OnInit {
     addMultiRoomException = (outOfService: boolean) => {
         const allExceptions = this.rooms
             .filter((r) => r.selected)
-            .flatMap((room) => ({
-                ...room.calendarExceptionEvents.map((e) => {
+            .flatMap((room) =>
+                room.calendarExceptionEvents.map((e) => {
                     e.ownerRoom = room.name;
                     return e;
                 }),
-            }));
-        if (allExceptions.length === 0) {
+            );
+        if (!this.rooms.some((r) => r.selected)) {
             this.toast.error(this.translate.instant('i18n_select_room_error'));
             return;
         }
