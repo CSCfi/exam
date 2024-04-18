@@ -27,14 +27,16 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
                 <div class="ps-2 mb-2">
                     <div [ngClass]="getSelectedOptionClass(option)">
                         <div class="make-inline float-start">
-                            @if (determineClaimOptionType(option) === 'CorrectOption') {
-                                <img src="/assets/images/icon_correct_answer_radio.png" alt="" />
-                            }
-                            @if (determineClaimOptionType(option) === 'IncorrectOption') {
-                                <img src="/assets/images/icon_wrong_answer_radio.png" alt="" />
-                            }
-                            @if (determineClaimOptionType(option) === 'SkipOption') {
-                                <img src="/assets/images/icon_correct_answer_radio_grey.png" alt="" />
+                            @switch (determineClaimOptionType(option)) {
+                                @case ('CorrectOption') {
+                                    <img src="/assets/images/icon_correct_answer_radio.png" alt="" />
+                                }
+                                @case ('IncorrectOption') {
+                                    <img src="/assets/images/icon_wrong_answer_radio.png" alt="" />
+                                }
+                                @case ('SkipOption') {
+                                    <img src="/assets/images/icon_correct_answer_radio_grey.png" alt="" />
+                                }
                             }
                         </div>
                         <div class="make-inline w-75 my-1 ms-3">

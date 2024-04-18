@@ -39,8 +39,7 @@
                         <span class="me-2">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
                         @if (room.addressVisible) {
                             <i class="bi-chevron-down pointer" (click)="room.addressVisible = false"></i>
-                        }
-                        @if (!room.addressVisible) {
+                        } @else {
                             <i class="bi-chevron-right pointer" (click)="room.addressVisible = true"></i>
                         }
                     </div>
