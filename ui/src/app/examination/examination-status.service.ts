@@ -37,5 +37,5 @@ export class ExaminationStatusService {
     notifyEndOfExamination = () => this.examinationEndingSubscription.next();
     notifyWrongLocation = () => this.wrongLocationSubscription.next();
     notifyUpcomingExamination = () => this.upcomingExamSubscription.next();
-    notfityStartOfExamination = () => this.examinationStartingSubscription.next();
+    notifyStartOfExamination = () => this.examinationStartingSubscription.next();
 }

@@ -24,63 +24,58 @@ import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
     template: `@for (option of sectionQuestion.options | orderBy: 'id'; track option) {
         <div class="ps-2 mb-2" [hidden]="!reviewExpanded">
             @if (option.answered) {
-                <div>
-                    @if (option.option.correctOption) {
-                        <div class="exam-answered-correct">
-                            <div class="make-inline float-start">
-                                @if (option.answered) {
-                                    <img
-                                        src="/assets/images/icon_correct_answer_radio.svg"
-                                        [attr.aria-label]="'i18n_correct_answer' | translate"
-                                        alt=""
-                                    />
-                                }
-                            </div>
-                            <div class="make-inline w-75 my-1 ms-3">
-                                <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
-                            </div>
-                        </div>
-                    }
-                    @if (!option.option.correctOption) {
-                        <div class="exam-answered-wrong">
-                            <div class="make-inline float-start">
-                                @if (option.answered) {
-                                    <img
-                                        src="/assets/images/icon_wrong_answer_radio.svg"
-                                        [attr.aria-label]="'i18n_incorrect_answer' | translate"
-                                        alt=""
-                                    />
-                                }
-                            </div>
-                            <div class="make-inline w-75 my-1 ms-3">
-                                <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
-            @if (!option.answered) {
-                <div>
-                    <div class="exam-not-answered">
+                @if (option.option.correctOption) {
+                    <div class="exam-answered-correct">
                         <div class="make-inline float-start">
-                            @if (option.option.correctOption) {
+                            @if (option.answered) {
                                 <img
                                     src="/assets/images/icon_correct_answer_radio.svg"
                                     [attr.aria-label]="'i18n_correct_answer' | translate"
                                     alt=""
                                 />
                             }
-                            @if (!option.option.correctOption) {
+                        </div>
+                        <div class="make-inline w-75 my-1 ms-3">
+                            <span class="exam-question-option-text">{{ option.option.option }}</span>
+                        </div>
+                    </div>
+                }
+                @if (!option.option.correctOption) {
+                    <div class="exam-answered-wrong">
+                        <div class="make-inline float-start">
+                            @if (option.answered) {
                                 <img
-                                    src="/assets/images/icon_wrong_answer.png"
+                                    src="/assets/images/icon_wrong_answer_radio.svg"
                                     [attr.aria-label]="'i18n_incorrect_answer' | translate"
                                     alt=""
                                 />
                             }
                         </div>
                         <div class="make-inline w-75 my-1 ms-3">
-                            <span class="exam-question-option-text" [xmMathJax]="option.option.option"></span>
+                            <span class="exam-question-option-text">{{ option.option.option }}</span>
                         </div>
+                    </div>
+                }
+            } @else {
+                <div class="exam-not-answered">
+                    <div class="make-inline float-start">
+                        @if (option.option.correctOption) {
+                            <img
+                                src="/assets/images/icon_correct_answer_radio.svg"
+                                [attr.aria-label]="'i18n_correct_answer' | translate"
+                                alt=""
+                            />
+                        }
+                        @if (!option.option.correctOption) {
+                            <img
+                                src="/assets/images/icon_wrong_answer.png"
+                                [attr.aria-label]="'i18n_incorrect_answer' | translate"
+                                alt=""
+                            />
+                        }
+                    </div>
+                    <div class="make-inline w-75 my-1 ms-3">
+                        <span class="exam-question-option-text">{{ option.option.option }}</span>
                     </div>
                 </div>
             }

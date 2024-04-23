@@ -335,7 +335,7 @@ public class StudentActionsController extends CollaborationController {
             .idEq(enrolmentId)
             .eq("user", user)
             .eq("exam.implementation", Exam.Implementation.CLIENT_AUTH)
-            .eq("exam.state", Exam.State.PUBLISHED)
+            .in("exam.state", Exam.State.PUBLISHED, Exam.State.STUDENT_STARTED)
             .isNotNull("examinationEventConfiguration")
             .findOneOrEmpty();
         if (oee.isEmpty()) {

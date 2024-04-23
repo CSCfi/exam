@@ -1,25 +1,27 @@
 @for (room of rooms; track room) {
-    <div class="row" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
+    <div class="row mt-4" [ngClass]="{ 'text-muted': room.state === 'INACTIVE' }">
         <div class="col-12">
-            <h4>{{ room.name || 'i18n_no_name' | translate }}</h4>
-            <a
-                [hidden]="room.state === 'INACTIVE'"
-                (click)="disableRoom(room)"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-                ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
-            >
-                <i class="bi-trash ms-2 text-danger pointer"></i>
-            </a>
-            <a
-                [hidden]="room.state !== 'INACTIVE'"
-                (click)="enableRoom(room)"
-                popoverTitle="{{ 'i18n_instructions' | translate }}"
-                triggers="mouseenter:mouseleave"
-                ngbPopover="{{ 'i18n_activate_room' | translate }}"
-            >
-                <i class="bi-plus text-success pointer"></i>
-            </a>
+            <h4>
+                {{ room.name || 'i18n_no_name' | translate }}
+                <a
+                    [hidden]="room.state === 'INACTIVE'"
+                    (click)="disableRoom(room)"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                    ngbPopover="{{ 'i18n_inactivate_room' | translate }}"
+                >
+                    <i class="bi-trash ms-2 text-danger pointer"></i>
+                </a>
+                <a
+                    [hidden]="room.state !== 'INACTIVE'"
+                    (click)="enableRoom(room)"
+                    popoverTitle="{{ 'i18n_instructions' | translate }}"
+                    triggers="mouseenter:mouseleave"
+                    ngbPopover="{{ 'i18n_activate_room' | translate }}"
+                >
+                    <i class="bi-plus text-success pointer"></i>
+                </a>
+            </h4>
             <div class="toggleMessage col-md">
                 <div class="d-flex justify-content-between">
                     <div>
@@ -37,8 +39,7 @@
                         <span class="me-2">{{ room.roomCode }}, {{ room.buildingName }}, {{ room.campus }}</span>
                         @if (room.addressVisible) {
                             <i class="bi-chevron-down pointer" (click)="room.addressVisible = false"></i>
-                        }
-                        @if (!room.addressVisible) {
+                        } @else {
                             <i class="bi-chevron-right pointer" (click)="room.addressVisible = true"></i>
                         }
                     </div>
