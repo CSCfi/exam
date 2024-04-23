@@ -34,11 +34,11 @@ import type { Reservation } from '../reservation.model';
             <strong>{{ 'i18n_message' | translate }}</strong>
             <textarea class="form-control" [(ngModel)]="message.text" rows="3" autofocus> </textarea>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-sm btn-danger" (click)="cancel()">
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-sm btn-success" (click)="ok()">{{ 'i18n_send' | translate }}</button>
+            <button class="btn btn-sm btn-outline-secondary me-3" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
-            <button class="btn btn-sm btn-primary" (click)="ok()">{{ 'i18n_send' | translate }}</button>
         </div>
     `,
 })

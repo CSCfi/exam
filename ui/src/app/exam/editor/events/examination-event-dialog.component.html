@@ -125,10 +125,10 @@
 </form>
 <div class="modal-footer">
     <div class="d-flex flex-row-reverse flex-align-r">
-        <button class="xm-ok-button" [disabled]="eventForm.invalid" (click)="ok()">
+        <button class="btn btn-success" [disabled]="eventForm.invalid" (click)="ok()">
             {{ 'i18n_button_accept' | translate }}
         </button>
-        <button class="xm-cancel-button" (click)="cancel()">
+        <button class="btn btn-outline-secondary me-3" (click)="cancel()">
             {{ 'i18n_button_decline' | translate }}
         </button>
     </div>

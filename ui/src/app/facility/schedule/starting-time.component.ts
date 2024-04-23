@@ -86,7 +86,7 @@ import { RoomService } from '../rooms/room.service';
             <div class="col-6">
                 <button
                     class="btn btn-outline-dark float-end"
-                    (click)="toggleAllExamStartingHours(); unsavedProgress = false"
+                    (click)="toggleAllExamStartingHours(); unsavedProgress = true"
                 >
                     {{ 'i18n_add_remove_all' | translate }}
                 </button>
@@ -101,7 +101,7 @@ export class StartingTimeComponent implements OnInit {
 
     examStartingHours: WorkingHour[] = [];
     examStartingHourOffset = 0;
-    unsavedProgress = true;
+    unsavedProgress = false;
 
     constructor(private Room: RoomService) {}
 

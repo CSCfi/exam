@@ -683,26 +683,24 @@
         </div>
     </div>
 </div>
-<div class="modal-footer">
-    <div class="d-flex flex-row-reverse">
-        <button
-            [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"
-            (click)="save()"
-            type="submit"
-            class="xm-ok-button"
-        >
-            {{ 'i18n_save' | translate }}
-        </button>
-        <button (click)="cancel()" type="submit" class="xm-cancel-button me-2">
-            {{ 'i18n_button_cancel' | translate }}
-        </button>
-        <!--button
+<div class="d-flex flex-row-reverse flex-align-r m-3">
+    <button
+        [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"
+        (click)="save()"
+        type="submit"
+        class="btn btn-success"
+    >
+        {{ 'i18n_save' | translate }}
+    </button>
+    <button (click)="cancel()" type="submit" class="btn btn-outline-secondary me-3">
+        {{ 'i18n_button_cancel' | translate }}
+    </button>
+    <!--button
             (click)="openPreview()"
             type="submit"
-            class="xm-neutral-button me-2"
+            class="btn btn-outline-secondary me-3"
             [disabled]="questionForm.invalid || hasInvalidClaimChoiceOptions()"
         >
             {{ 'i18n_button_preview' | translate }}
         </button-->
-    </div>
 </div>
