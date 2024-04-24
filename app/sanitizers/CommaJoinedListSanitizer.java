@@ -23,9 +23,9 @@ import play.mvc.Http;
 public class CommaJoinedListSanitizer extends BaseSanitizer {
 
     protected Http.Request sanitize(Http.Request req, JsonNode body) throws SanitizingException {
-        String args = SanitizingHelper
-            .parse("ids", body, String.class)
-            .orElseThrow(() -> new SanitizingException("bad list"));
+        String args = SanitizingHelper.parse("ids", body, String.class).orElseThrow(
+            () -> new SanitizingException("bad list")
+        );
         List<Long> ids = Arrays.stream(args.split(",")).map(Long::parseLong).toList();
         if (ids.isEmpty()) {
             throw new SanitizingException("empty list");

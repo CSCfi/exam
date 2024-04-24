@@ -119,8 +119,8 @@ public class CollaborativeReviewController extends CollaborationController {
         // Manipulate cloze test answers so that they can be conveniently displayed for review
         stream(examNode.get("examSections"))
             .flatMap(es -> stream(es.get("sectionQuestions")))
-            .filter(esq ->
-                esq.get("question").get("type").textValue().equals(Question.Type.ClozeTestQuestion.toString())
+            .filter(
+                esq -> esq.get("question").get("type").textValue().equals(Question.Type.ClozeTestQuestion.toString())
             )
             .forEach(esq -> {
                 if (!esq.get("clozeTestAnswer").isObject() || esq.get("clozeTestAnswer").isEmpty()) {
@@ -174,16 +174,23 @@ public class CollaborativeReviewController extends CollaborationController {
     public CompletionStage<Result> listAssessments(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         return findCollaborativeExam(id)
-            .map(ce ->
-                getRequest(ce, null)
-                    .map(wsr ->
-                        wsr
-                            .get()
-                            .thenApplyAsync(response ->
-                                handleMultipleAssessmentResponse(request, response, user.hasRole(Role.Name.ADMIN))
-                            )
-                    )
-                    .getOrElseGet(Function.identity())
+            .map(
+                ce ->
+                    getRequest(ce, null)
+                        .map(
+                            wsr ->
+                                wsr
+                                    .get()
+                                    .thenApplyAsync(
+                                        response ->
+                                            handleMultipleAssessmentResponse(
+                                                request,
+                                                response,
+                                                user.hasRole(Role.Name.ADMIN)
+                                            )
+                                    )
+                        )
+                        .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }
@@ -279,12 +286,12 @@ public class CollaborativeReviewController extends CollaborationController {
                                     return internalServerError("i18n_error_creating_csv_file");
                                 }
                                 String contentDisposition = fileHandler.getContentDisposition(file);
-                                return ok(fileHandler.encodeAndDelete(file))
-                                    .withHeader("Content-Disposition", contentDisposition);
-                            })
-                    )
-                    .getOrElseGet(Function.identity())
-            )
+                                return ok(fileHandler.encodeAndDelete(file)).withHeader(
+                                    "Content-Disposition",
+                                    contentDisposition
+                                );
+                            }))
+                    .getOrElseGet(Function.identity()))
             .getOrElseGet(Function.identity());
     }
 
@@ -344,8 +351,7 @@ public class CollaborativeReviewController extends CollaborationController {
                         };
                         return wsRequest.get().thenComposeAsync(onSuccess);
                     })
-                    .getOrElseGet(Function.identity())
-            )
+                    .getOrElseGet(Function.identity()))
             .get();
     }
 
@@ -399,8 +405,7 @@ public class CollaborativeReviewController extends CollaborationController {
                         };
                         return wsRequest.get().thenComposeAsync(onSuccess);
                     })
-                    .getOrElseGet(Function.identity())
-            )
+                    .getOrElseGet(Function.identity()))
             .get();
     }
 
@@ -544,8 +549,7 @@ public class CollaborativeReviewController extends CollaborationController {
                         };
                         return wsRequest.get().thenComposeAsync(onSuccess);
                     })
-                    .getOrElseGet(Function.identity())
-            )
+                    .getOrElseGet(Function.identity()))
             .getOrElseGet(Function.identity());
     }
 
@@ -571,8 +575,7 @@ public class CollaborativeReviewController extends CollaborationController {
                         };
                         return wsRequest.get().thenComposeAsync(onSuccess);
                     })
-                    .getOrElseGet(Function.identity())
-            )
+                    .getOrElseGet(Function.identity()))
             .getOrElseGet(Function.identity());
     }
 
@@ -658,34 +661,31 @@ public class CollaborativeReviewController extends CollaborationController {
                                             JsonNode root = r.asJson();
                                             JsonNode examNode = root.get("exam");
                                             Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
-                                            return validateExamState(exam, !gradeless, user)
-                                                .orElseGet(() -> {
-                                                    ((ObjectNode) examNode).put(
-                                                            "state",
-                                                            Exam.State.GRADED_LOGGED.toString()
-                                                        );
-                                                    if (
-                                                        exam.getGradedByUser() == null &&
-                                                        exam.getAutoEvaluationConfig() != null
-                                                    ) {
-                                                        // Automatically graded by system, set graded by user at this point.
-                                                        ((ObjectNode) examNode).set("gradedByUser", serialize(user));
-                                                    }
-                                                    if (gradeless) {
-                                                        ((ObjectNode) examNode).put("gradeless", true);
-                                                        ((ObjectNode) examNode).set("grade", NullNode.getInstance());
-                                                    }
-                                                    ((ObjectNode) root).put("rev", revision);
-                                                    return upload(url, root);
-                                                });
+                                            return validateExamState(exam, !gradeless, user).orElseGet(() -> {
+                                                ((ObjectNode) examNode).put(
+                                                        "state",
+                                                        Exam.State.GRADED_LOGGED.toString()
+                                                    );
+                                                if (
+                                                    exam.getGradedByUser() == null &&
+                                                    exam.getAutoEvaluationConfig() != null
+                                                ) {
+                                                    // Automatically graded by system, set graded by user at this point.
+                                                    ((ObjectNode) examNode).set("gradedByUser", serialize(user));
+                                                }
+                                                if (gradeless) {
+                                                    ((ObjectNode) examNode).put("gradeless", true);
+                                                    ((ObjectNode) examNode).set("grade", NullNode.getInstance());
+                                                }
+                                                ((ObjectNode) root).put("rev", revision);
+                                                return upload(url, root);
+                                            });
                                         })
                                         .getOrElseGet(Function.identity());
                                 return wsr.get().thenComposeAsync(onSuccess);
                             })
-                            .getOrElseGet(Function.identity())
-                    )
-                    .getOrElseGet(Function.identity())
-            )
+                            .getOrElseGet(Function.identity()))
+                    .getOrElseGet(Function.identity()))
             .getOrElseGet(Function.identity());
     }
 

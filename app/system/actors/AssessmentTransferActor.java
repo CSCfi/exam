@@ -54,29 +54,25 @@ public class AssessmentTransferActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-            .match(
-                String.class,
-                s -> {
-                    logger.debug("Assessment transfer check started ->");
-                    List<ExamEnrolment> enrolments = DB
-                        .find(ExamEnrolment.class)
-                        .where()
-                        .isNotNull("externalExam")
-                        .isNull("externalExam.sent")
-                        .isNotNull("externalExam.started")
-                        .isNotNull("externalExam.finished")
-                        .isNotNull("reservation.externalRef")
-                        .findList();
-                    enrolments.forEach(e -> {
-                        try {
-                            send(e);
-                        } catch (IOException ex) {
-                            logger.error("I/O failure while sending assessment to proxy server", ex);
-                        }
-                    });
-                    logger.debug("<- done");
-                }
-            )
+            .match(String.class, s -> {
+                logger.debug("Assessment transfer check started ->");
+                List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
+                    .where()
+                    .isNotNull("externalExam")
+                    .isNull("externalExam.sent")
+                    .isNotNull("externalExam.started")
+                    .isNotNull("externalExam.finished")
+                    .isNotNull("reservation.externalRef")
+                    .findList();
+                enrolments.forEach(e -> {
+                    try {
+                        send(e);
+                    } catch (IOException ex) {
+                        logger.error("I/O failure while sending assessment to proxy server", ex);
+                    }
+                });
+                logger.debug("<- done");
+            })
             .build();
     }
 
@@ -103,8 +99,8 @@ public class AssessmentTransferActor extends AbstractActor {
     }
 
     private URL parseUrl(String reservationRef) throws MalformedURLException {
-        return URI
-            .create(configReader.getIopHost() + String.format("/api/enrolments/%s/assessment", reservationRef))
-            .toURL();
+        return URI.create(
+            configReader.getIopHost() + String.format("/api/enrolments/%s/assessment", reservationRef)
+        ).toURL();
     }
 }

@@ -47,28 +47,24 @@ public class ReservationReminderActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-            .match(
-                String.class,
-                s -> {
-                    logger.debug("Starting reservation reminder task ->");
-                    DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-                    DateTime tomorrow = now.plusDays(1);
-                    DB
-                        .find(Reservation.class)
-                        .fetch("enrolment.optionalSections")
-                        .fetch("enrolment.optionalSections.examMaterials")
-                        .fetch("enrolment")
-                        .fetch("enrolment.exam.examSections")
-                        .fetch("enrolment.exam.examSections.examMaterials")
-                        .where()
-                        .isNotNull("enrolment.exam")
-                        .between("startAt", now, tomorrow)
-                        .ne("reminderSent", true)
-                        .findList()
-                        .forEach(this::remind);
-                    logger.debug("<- done");
-                }
-            )
+            .match(String.class, s -> {
+                logger.debug("Starting reservation reminder task ->");
+                DateTime now = dateTimeHandler.adjustDST(DateTime.now());
+                DateTime tomorrow = now.plusDays(1);
+                DB.find(Reservation.class)
+                    .fetch("enrolment.optionalSections")
+                    .fetch("enrolment.optionalSections.examMaterials")
+                    .fetch("enrolment")
+                    .fetch("enrolment.exam.examSections")
+                    .fetch("enrolment.exam.examSections.examMaterials")
+                    .where()
+                    .isNotNull("enrolment.exam")
+                    .between("startAt", now, tomorrow)
+                    .ne("reminderSent", true)
+                    .findList()
+                    .forEach(this::remind);
+                logger.debug("<- done");
+            })
             .build();
     }
 }

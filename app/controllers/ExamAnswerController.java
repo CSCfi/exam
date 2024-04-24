@@ -42,8 +42,7 @@ public class ExamAnswerController extends BaseController {
     @Authenticated
     @Restrict(@Group({ "STUDENT" }))
     public Result getAnswers(Long eid, Http.Request request) {
-        Optional<Exam> oe = DB
-            .find(Exam.class)
+        Optional<Exam> oe = DB.find(Exam.class)
             .fetch("course", "name, code, credits")
             .fetch("grade", "name")
             .fetch("examFeedback")

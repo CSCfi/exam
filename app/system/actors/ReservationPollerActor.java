@@ -55,44 +55,39 @@ public class ReservationPollerActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-            .match(
-                String.class,
-                s -> {
-                    logger.debug("Starting no-show check ->");
-                    List<ExamEnrolment> enrolments = DB
-                        .find(ExamEnrolment.class)
-                        .fetch("exam")
-                        .fetch("collaborativeExam")
-                        .fetch("externalExam")
-                        .fetch("reservation")
-                        .fetch("examinationEventConfiguration.examinationEvent")
-                        .where()
-                        .eq("noShow", false)
-                        .isNull("reservation.externalReservation")
-                        .findList()
-                        .stream()
-                        .filter(this::isPast)
-                        .toList();
-                    // The following are cases where external user has made a reservation but did not log in before
-                    // reservation ended. Mark those as no-shows as well.
-                    List<Reservation> reservations = DB
-                        .find(Reservation.class)
-                        .where()
-                        .isNull("enrolment")
-                        .isNotNull("externalRef")
-                        .isNull("user")
-                        .isNotNull("externalUserRef")
-                        .eq("sentAsNoShow", false)
-                        .lt("endAt", dateTimeHandler.adjustDST(DateTime.now()))
-                        .findList();
-                    if (enrolments.isEmpty() && reservations.isEmpty()) {
-                        logger.debug("None found");
-                    } else {
-                        noShowHandler.handleNoShows(enrolments, reservations);
-                    }
-                    logger.debug("<- done");
+            .match(String.class, s -> {
+                logger.debug("Starting no-show check ->");
+                List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
+                    .fetch("exam")
+                    .fetch("collaborativeExam")
+                    .fetch("externalExam")
+                    .fetch("reservation")
+                    .fetch("examinationEventConfiguration.examinationEvent")
+                    .where()
+                    .eq("noShow", false)
+                    .isNull("reservation.externalReservation")
+                    .findList()
+                    .stream()
+                    .filter(this::isPast)
+                    .toList();
+                // The following are cases where external user has made a reservation but did not log in before
+                // reservation ended. Mark those as no-shows as well.
+                List<Reservation> reservations = DB.find(Reservation.class)
+                    .where()
+                    .isNull("enrolment")
+                    .isNotNull("externalRef")
+                    .isNull("user")
+                    .isNotNull("externalUserRef")
+                    .eq("sentAsNoShow", false)
+                    .lt("endAt", dateTimeHandler.adjustDST(DateTime.now()))
+                    .findList();
+                if (enrolments.isEmpty() && reservations.isEmpty()) {
+                    logger.debug("None found");
+                } else {
+                    noShowHandler.handleNoShows(enrolments, reservations);
                 }
-            )
+                logger.debug("<- done");
+            })
             .build();
     }
 }

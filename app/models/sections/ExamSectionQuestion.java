@@ -242,9 +242,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         }
         blueprint.save();
         options.forEach(option -> {
-            Optional<MultipleChoiceOption> parentOption = Optional
-                .ofNullable(option.getOption())
-                .filter(opt -> opt.getId() != null);
+            Optional<MultipleChoiceOption> parentOption = Optional.ofNullable(option.getOption()).filter(
+                opt -> opt.getId() != null
+            );
             if (parentOption.isPresent()) {
                 MultipleChoiceOption optionCopy = optionMap.get(parentOption.get().getId());
                 optionCopy.setQuestion(blueprint);

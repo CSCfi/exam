@@ -202,11 +202,7 @@
         <div class="row">
             @if (assessmentWithAnswers) {
                 <div class="col-12">
-                    <button
-                            class="btn btn-outline-secondary"
-                            (keydown.enter)="showAnswers()"
-                            (click)="showAnswers()"
-                        >
+                    <button class="btn btn-outline-secondary" (keydown.enter)="showAnswers()" (click)="showAnswers()">
                         {{ 'i18n_show' | translate }}
                     </button>
                 </div>

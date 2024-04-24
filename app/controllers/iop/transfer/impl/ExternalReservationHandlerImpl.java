@@ -95,8 +95,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     }
 
     private CompletionStage<Result> requestRemoval(String ref, User user, String msg) throws IOException {
-        final ExamEnrolment enrolment = DB
-            .find(ExamEnrolment.class)
+        final ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("reservation.machine")
             .fetch("reservation.machine.room")

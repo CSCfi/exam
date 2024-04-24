@@ -268,8 +268,7 @@ class SystemInitializer {
                     delay,
                     () -> {
                         logger.info("Running weekly email report");
-                        List<User> teachers = DB
-                            .find(User.class)
+                        List<User> teachers = DB.find(User.class)
                             .fetch("language")
                             .where()
                             .eq("roles.name", "TEACHER")
