@@ -130,7 +130,7 @@ public class EnrolmentRepository {
                     return true;
                 }
                 var start = ee.getExaminationEventConfiguration().getExaminationEvent().getStart();
-                return start.plusMinutes(ee.getExam().getDuration()).isAfter(now);
+                return start.plusMinutes(ee.getExam().getDuration()).isAfterNow();
             })
             .toList();
         enrolments.forEach(ee -> {
