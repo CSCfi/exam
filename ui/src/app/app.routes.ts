@@ -39,8 +39,8 @@ export const APP_ROUTES: Route[] = [
         data: {
             isPreview: false,
         },
-        title: () => buildTitle('i18n_examination_title'),
         loadComponent: () => import('./examination/examination.component').then((mod) => mod.ExaminationComponent),
+        title: () => buildTitle('i18n_examination_title'),
     },
     {
         path: 'waitingroom/:id/:hash',

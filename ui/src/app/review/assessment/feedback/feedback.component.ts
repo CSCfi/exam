@@ -92,11 +92,11 @@ export class FeedbackComponent implements OnInit {
     @Input() participation!: ExamParticipation;
     feedbackComment = '';
     title = '';
-
     fixPosition = this.Assessment.fixPosition;
     hideEditor = false;
-    id = 0;
-    ref = '';
+
+    private id = 0;
+    private ref = '';
 
     constructor(
         private route: ActivatedRoute,

@@ -4,36 +4,45 @@
     </div>
     <div class="col-md-9">
         @for (oh of openingHours; track oh) {
-            <span class="pe-2">{{ oh.name }}: {{ oh.periodText }}</span>
+            <span class="pe-2 row">{{ oh.name }}: {{ oh.periodText }}</span>
         }
     </div>
 </div>
 @if (room.calendarExceptionEvents.length > 0) {
-    <div class="row align-items-center">
+    <div class="row mt-3">
         <div class="col-md-3">
             {{ 'i18n_exception_datetimes' | translate }}
             <button
                 (click)="oldExceptionsHidden = !oldExceptionsHidden"
-                class="btn btn-sm btn-light"
+                class="btn btn-light"
                 ngbPopover="{{ 'i18n_hide_over_year_old' | translate }} ({{
                     oldExceptionsHidden ? ('i18n_on' | translate) : ('i18n_off' | translate)
                 }})"
                 popoverTitle="{{ 'i18n_instructions' | translate }}"
                 triggers="mouseenter:mouseleave"
             >
-                <i class="bi bi-filter"></i>
+                <i [ngClass]="'bi ' + (oldExceptionsHidden ? 'bi-eye' : 'bi-eye-slash')"></i>
             </button>
         </div>
-        <div class="col-md-9">
+        <div class="col">
             @for (eh of !oldExceptionsHidden ? exceptionHours : newExceptions; track eh) {
-                <span [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'">
-                    {{ eh.start }} - {{ eh.end }}
-                    <small>({{ eh.description | translate }})</small>
+                <span [ngClass]="eh.outOfService ? 'text-danger' : 'text-success'" class="row">
+                    {{ eh.start }} - {{ eh.end }} ({{ eh.description | translate }})
                     @if (isInFuture(eh.startDate)) {
-                        <i class="bi-dot" [attr.aria-label]="'i18n_coming_exception' | translate"></i>
+                        <i
+                            class="bi-dot w-auto"
+                            [attr.aria-label]="'i18n_coming_exception' | translate"
+                            ngbPopover="{{ 'i18n_coming_exception' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        ></i>
                     }
                     @if (isNow(eh.startDate, eh.endDate)) {
-                        <i class="bi-exclamation-circle" [attr.aria-label]="'i18n_ongoing_exception' | translate"></i>
+                        <i
+                            class="bi-exclamation-circle w-auto"
+                            [attr.aria-label]="'i18n_ongoing_exception' | translate"
+                            ngbPopover="{{ 'i18n_ongoing_exception' | translate }}"
+                            triggers="mouseenter:mouseleave"
+                        ></i>
                     }
                 </span>
             }

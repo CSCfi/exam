@@ -67,5 +67,6 @@ public interface DateTimeHandler {
     DateTime normalize(DateTime dateTime, DateTimeZone dtz);
     List<OpeningHours> getDefaultWorkingHours(LocalDate date, ExamRoom room);
     int getTimezoneOffset(LocalDate date, ExamRoom room);
+    int getTimezoneOffset(DateTime date);
     List<OpeningHours> getWorkingHoursForDate(LocalDate date, ExamRoom room);
 }

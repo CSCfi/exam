@@ -19,22 +19,17 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import exceptions.NotFoundException;
 import impl.EmailComposer;
 import io.ebean.DB;
-import io.ebean.ExpressionList;
 import io.ebean.FetchConfig;
-import io.ebean.Query;
 import io.ebean.text.PathProperties;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -50,13 +45,13 @@ import models.User;
 import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import play.data.DynamicForm;
 import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
 import security.Authenticated;
 import system.interceptors.Anonymous;
+import util.datetime.DateTimeHandler;
 
 public class ReservationController extends BaseController {
 
@@ -69,14 +64,17 @@ public class ReservationController extends BaseController {
     @Inject
     protected ExternalReservationHandler externalReservationHandler;
 
+    @Inject
+    protected DateTimeHandler dateTimeHandler;
+
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getExams(Http.Request request, Optional<String> filter) {
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        PathProperties props = PathProperties.parse("(id, name)");
-        Query<Exam> q = DB.createQuery(Exam.class);
+        var user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        var props = PathProperties.parse("(id, name)");
+        var q = DB.createQuery(Exam.class);
         props.apply(q);
-        ExpressionList<Exam> el = q
+        var el = q
             .where()
             .isNull("parent") // only Exam prototypes
             .eq("state", Exam.State.PUBLISHED);
@@ -94,24 +92,23 @@ public class ReservationController extends BaseController {
                     .eq("shared", true)
                     .endJunction();
         }
-        List<Exam> exams = el.findList();
-        return ok(exams, props);
+        return ok(el.findList(), props);
     }
 
     @Restrict({ @Group("ADMIN") })
     public Result getExamRooms() {
-        List<ExamRoom> examRooms = DB.find(ExamRoom.class).select("id, name").fetch("examMachines", "id").findList();
+        var examRooms = DB.find(ExamRoom.class).select("id, name").fetch("examMachines", "id").findList();
         return ok(examRooms);
     }
 
     private ArrayNode asJson(List<User> users) {
-        ArrayNode array = JsonNodeFactory.instance.arrayNode();
-        for (User u : users) {
-            String name = String.format("%s %s", u.getFirstName(), u.getLastName());
+        var array = JsonNodeFactory.instance.arrayNode();
+        for (var u : users) {
+            var name = String.format("%s %s", u.getFirstName(), u.getLastName());
             if (u.getUserIdentifier() != null) {
                 name += String.format(" (%s)", u.getUserIdentifier());
             }
-            ObjectNode part = Json.newObject();
+            var part = Json.newObject();
             part.put("id", u.getId());
             part.put("firstName", u.getFirstName());
             part.put("lastName", u.getLastName());
@@ -124,41 +121,33 @@ public class ReservationController extends BaseController {
 
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result getStudents(Optional<String> filter) {
-        ExpressionList<User> el = DB.find(User.class).where().eq("roles.name", "STUDENT");
+        var el = DB.find(User.class).where().eq("roles.name", "STUDENT");
         if (filter.isPresent()) {
             el = el.or().ilike("userIdentifier", String.format("%%%s%%", filter.get()));
             el = applyUserFilter(null, el, filter.get()).endOr();
         }
-        List<User> students = el.findList();
-        return ok(Json.toJson(asJson(students)));
+        return ok(Json.toJson(asJson(el.findList())));
     }
 
     @Restrict({ @Group("ADMIN") })
     public Result getTeachers(Optional<String> filter) {
-        ExpressionList<User> el = DB.find(User.class).where().eq("roles.name", "TEACHER");
+        var el = DB.find(User.class).where().eq("roles.name", "TEACHER");
         if (filter.isPresent()) {
             el = applyUserFilter(null, el.or(), filter.get()).endOr();
         }
-        List<User> teachers = el.findList();
-        return ok(Json.toJson(asJson(teachers)));
+        return ok(Json.toJson(asJson(el.findList())));
     }
 
     @Restrict({ @Group("ADMIN") })
     public CompletionStage<Result> removeReservation(long id, Http.Request request) throws NotFoundException {
-        DynamicForm df = formFactory.form().bindFromRequest(request);
-        String msg = df.get("msg");
-
-        ExamEnrolment enrolment = DB.find(ExamEnrolment.class).where().eq("reservation.id", id).findOne();
+        var msg = request.body().asJson().get("msg").asText("");
+        var enrolment = DB.find(ExamEnrolment.class).where().eq("reservation.id", id).findOne();
 
         if (enrolment == null) {
             throw new NotFoundException(String.format("No reservation with id %d for current user.", id));
         }
 
-        ExamParticipation participation = DB
-            .find(ExamParticipation.class)
-            .where()
-            .eq("exam", enrolment.getExam())
-            .findOne();
+        var participation = DB.find(ExamParticipation.class).where().eq("exam", enrolment.getExam()).findOne();
 
         if (participation != null) {
             return wrapAsPromise(
@@ -166,10 +155,10 @@ public class ReservationController extends BaseController {
             );
         }
 
-        Reservation reservation = enrolment.getReservation();
+        var reservation = enrolment.getReservation();
         // Let's not send emails about historical reservations
         if (reservation.getEndAt().isAfter(DateTime.now())) {
-            User student = enrolment.getUser();
+            var student = enrolment.getUser();
             emailComposer.composeReservationCancellationNotification(student, reservation, msg, false, enrolment);
         }
 
@@ -185,26 +174,26 @@ public class ReservationController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result findAvailableMachines(Long reservationId) throws ExecutionException, InterruptedException {
-        Reservation reservation = DB.find(Reservation.class, reservationId);
+        var reservation = DB.find(Reservation.class, reservationId);
         if (reservation == null) {
             return notFound();
         }
-        PathProperties props = PathProperties.parse("(id, name)");
-        Query<ExamMachine> query = DB.createQuery(ExamMachine.class);
+        var props = PathProperties.parse("(id, name)");
+        var query = DB.createQuery(ExamMachine.class);
         props.apply(query);
 
-        List<ExamMachine> candidates = query
+        var candidates = query
             .where()
             .eq("room", reservation.getMachine().getRoom())
             .ne("outOfService", true)
             .ne("archived", true)
             .findList();
 
-        final Exam exam = getReservationExam(reservation);
-        Iterator<ExamMachine> it = candidates.listIterator();
+        var exam = getReservationExam(reservation);
+        var it = candidates.listIterator();
         while (it.hasNext()) {
-            ExamMachine machine = it.next();
-            if (!machine.hasRequiredSoftware(exam)) {
+            var machine = it.next();
+            if (exam.isPresent() && !machine.hasRequiredSoftware(exam.get())) {
                 it.remove();
             }
             if (machine.isReservedDuring(reservation.toInterval())) {
@@ -217,26 +206,29 @@ public class ReservationController extends BaseController {
     @Restrict({ @Group("ADMIN") })
     public Result updateMachine(Long reservationId, Http.Request request)
         throws ExecutionException, InterruptedException {
-        Reservation reservation = DB.find(Reservation.class, reservationId);
+        var reservation = DB.find(Reservation.class, reservationId);
 
         if (reservation == null) {
             return notFound();
         }
-        DynamicForm df = formFactory.form().bindFromRequest(request);
-        Long machineId = Long.parseLong(df.get("machineId"));
-        PathProperties props = PathProperties.parse("(id, name, room(id, name))");
-        Query<ExamMachine> query = DB.createQuery(ExamMachine.class);
+        var machineId = request.body().asJson().get("machineId").asLong();
+        var props = PathProperties.parse("(id, name, room(id, name))");
+        var query = DB.createQuery(ExamMachine.class);
         props.apply(query);
-        ExamMachine previous = reservation.getMachine();
-        ExamMachine machine = query.where().idEq(machineId).findOne();
+        var previous = reservation.getMachine();
+        var machine = query.where().idEq(machineId).findOne();
         if (machine == null) {
             return notFound();
         }
         if (!machine.getRoom().equals(reservation.getMachine().getRoom())) {
             return forbidden("Not allowed to change to use a machine from a different room");
         }
-        Exam exam = getReservationExam(reservation);
-        if (!machine.hasRequiredSoftware(exam) || machine.isReservedDuring(reservation.toInterval())) {
+        var exam = getReservationExam(reservation);
+        if (
+            exam.isEmpty() ||
+            !machine.hasRequiredSoftware(exam.get()) ||
+            machine.isReservedDuring(reservation.toInterval())
+        ) {
             return forbidden("Machine not eligible for choosing");
         }
         reservation.setMachine(machine);
@@ -250,14 +242,13 @@ public class ReservationController extends BaseController {
         return ok(machine, props);
     }
 
-    private Exam getReservationExam(Reservation reservation) throws InterruptedException, ExecutionException {
+    private Optional<Exam> getReservationExam(Reservation reservation) throws InterruptedException, ExecutionException {
         return reservation.getEnrolment().getExam() != null
-            ? reservation.getEnrolment().getExam()
+            ? Optional.of(reservation.getEnrolment().getExam())
             : collaborativeExamLoader
                 .downloadExam(reservation.getEnrolment().getCollaborativeExam())
                 .toCompletableFuture()
-                .get()
-                .orElse(null);
+                .get();
     }
 
     @Authenticated
@@ -272,7 +263,7 @@ public class ReservationController extends BaseController {
         Optional<String> end,
         Http.Request request
     ) {
-        ExpressionList<ExamEnrolment> query = DB
+        var query = DB
             .find(ExamEnrolment.class)
             .fetch("user", "id, firstName, lastName, email, userIdentifier")
             .fetch("exam", "id, name, state, trialCount, implementation")
@@ -284,7 +275,7 @@ public class ReservationController extends BaseController {
             .where()
             .isNotNull("examinationEventConfiguration")
             .isNotNull("exam");
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        var user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (user.hasRole(Role.Name.TEACHER)) {
             query =
                 query
@@ -296,7 +287,7 @@ public class ReservationController extends BaseController {
         }
 
         if (start.isPresent()) {
-            DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
+            var startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
             query = query.ge("examinationEventConfiguration.examinationEvent.start", startDate.toDate());
         }
 
@@ -327,7 +318,7 @@ public class ReservationController extends BaseController {
         }
 
         if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN)) {
-            Long userId = ownerId.get();
+            var userId = ownerId.get();
             query =
                 query
                     .disjunction()
@@ -335,7 +326,7 @@ public class ReservationController extends BaseController {
                     .eq("exam.parent.examOwners.id", userId)
                     .endJunction();
         }
-        List<ExamEnrolment> enrolments = query
+        var enrolments = query
             .orderBy("examinationEventConfiguration.examinationEvent.start")
             .findList()
             .stream()
@@ -343,8 +334,8 @@ public class ReservationController extends BaseController {
                 if (end.isEmpty()) {
                     return true;
                 }
-                DateTime endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser());
-                DateTime eventEnd = ee
+                var endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser());
+                var eventEnd = ee
                     .getExaminationEventConfiguration()
                     .getExaminationEvent()
                     .getStart()
@@ -353,9 +344,8 @@ public class ReservationController extends BaseController {
             })
             .toList();
 
-        final Result result = ok(enrolments);
-
-        final Set<Long> anonIds = enrolments
+        var result = ok(enrolments);
+        var anonIds = enrolments
             .stream()
             .filter(ee -> ee.getExam().isAnonymous())
             .map(GeneratedIdentityModel::getId)
@@ -378,7 +368,7 @@ public class ReservationController extends BaseController {
         Optional<String> externalRef,
         Http.Request request
     ) {
-        ExpressionList<Reservation> query = DB
+        var query = DB
             .find(Reservation.class)
             .fetch("enrolment", "noShow, retrialPermitted")
             .fetch("user", "id, firstName, lastName, email, userIdentifier")
@@ -395,7 +385,7 @@ public class ReservationController extends BaseController {
             .fetch("machine.room", "id, name, roomCode")
             .where();
 
-        User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        var user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (user.hasRole(Role.Name.TEACHER)) {
             query =
                 query
@@ -409,13 +399,14 @@ public class ReservationController extends BaseController {
         }
 
         if (start.isPresent()) {
-            DateTime startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
+            var startDate = DateTime.parse(start.get(), ISODateTimeFormat.dateTimeParser());
             query = query.ge("startAt", startDate.toDate());
         }
 
         if (end.isPresent()) {
-            DateTime endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser());
-            query = query.lt("endAt", endDate.toDate());
+            var endDate = DateTime.parse(end.get(), ISODateTimeFormat.dateTimeParser());
+            var offset = dateTimeHandler.getTimezoneOffset(endDate);
+            query = query.lt("endAt", endDate.plusMillis(offset).toDate());
         }
 
         if (state.isPresent()) {
@@ -463,7 +454,7 @@ public class ReservationController extends BaseController {
         }
 
         if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN)) {
-            Long userId = ownerId.get();
+            var userId = ownerId.get();
             query =
                 query
                     .disjunction()
@@ -471,11 +462,9 @@ public class ReservationController extends BaseController {
                     .eq("enrolment.exam.parent.examOwners.id", userId)
                     .endJunction();
         }
-        Set<Reservation> reservations = query.orderBy("startAt").findSet();
-
-        final Result result = ok(reservations);
-
-        final Set<Long> anonIds = reservations
+        var reservations = query.orderBy("startAt").findSet();
+        var result = ok(reservations);
+        var anonIds = reservations
             .stream()
             .filter(r ->
                 r.getEnrolment() != null &&
