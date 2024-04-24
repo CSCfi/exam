@@ -145,8 +145,7 @@ public class ConfigReaderImpl implements ConfigReader {
 
     @Override
     public boolean isMaturitySupported() {
-        return DB
-            .find(ExamExecutionType.class)
+        return DB.find(ExamExecutionType.class)
             .where()
             .eq("type", ExamExecutionType.Type.MATURITY.toString())
             .findOneOrEmpty()
@@ -155,8 +154,7 @@ public class ConfigReaderImpl implements ConfigReader {
 
     @Override
     public boolean isPrintoutSupported() {
-        return DB
-            .find(ExamExecutionType.class)
+        return DB.find(ExamExecutionType.class)
             .where()
             .eq("type", ExamExecutionType.Type.PRINTOUT.toString())
             .findOneOrEmpty()

@@ -65,8 +65,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
         long qid = Long.parseLong(mf.getForm().get("questionId")[0]);
 
         // first check if answer already exists
-        ExamSectionQuestion question = DB
-            .find(ExamSectionQuestion.class)
+        ExamSectionQuestion question = DB.find(ExamSectionQuestion.class)
             .fetch("essayAnswer")
             .where()
             .idEq(qid)
@@ -83,14 +82,13 @@ public class AttachmentController extends BaseController implements LocalAttachm
 
         String newFilePath;
         try {
-            newFilePath =
-                copyFile(
-                    filePart.getRef(),
-                    "question",
-                    Long.toString(qid),
-                    "answer",
-                    question.getEssayAnswer().getId().toString()
-                );
+            newFilePath = copyFile(
+                filePart.getRef(),
+                "question",
+                Long.toString(qid),
+                "answer",
+                question.getEssayAnswer().getId().toString()
+            );
         } catch (IOException e) {
             return wrapAsPromise(internalServerError("i18n_error_creating_attachment"));
         }
@@ -125,8 +123,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     public CompletionStage<Result> addAttachmentToQuestion(Http.Request request) {
         MultipartForm mf = getForm(request);
         long qid = Long.parseLong(mf.getForm().get("questionId")[0]);
-        Question question = DB
-            .find(Question.class)
+        Question question = DB.find(Question.class)
             .fetch("examSectionQuestions.examSection.exam.parent")
             .where()
             .idEq(qid)
@@ -162,8 +159,11 @@ public class AttachmentController extends BaseController implements LocalAttachm
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExamSectionQuestion question;
         if (user.hasRole(Role.Name.STUDENT)) {
-            question =
-                DB.find(ExamSectionQuestion.class).where().idEq(qid).eq("examSection.exam.creator", user).findOne();
+            question = DB.find(ExamSectionQuestion.class)
+                .where()
+                .idEq(qid)
+                .eq("examSection.exam.creator", user)
+                .findOne();
         } else {
             question = DB.find(ExamSectionQuestion.class, qid);
         }
@@ -306,13 +306,11 @@ public class AttachmentController extends BaseController implements LocalAttachm
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         Question question;
         if (user.hasRole(Role.Name.STUDENT)) {
-            question =
-                DB
-                    .find(Question.class)
-                    .where()
-                    .idEq(id)
-                    .eq("examSectionQuestions.examSection.exam.creator", user)
-                    .findOne();
+            question = DB.find(Question.class)
+                .where()
+                .idEq(id)
+                .eq("examSectionQuestions.examSection.exam.creator", user)
+                .findOne();
         } else {
             question = DB.find(Question.class, id);
         }
@@ -369,8 +367,7 @@ public class AttachmentController extends BaseController implements LocalAttachm
     @Override
     public CompletionStage<Result> downloadStatementAttachment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<Exam> query = DB
-            .find(Exam.class)
+        ExpressionList<Exam> query = DB.find(Exam.class)
             .where()
             .idEq(id)
             .isNotNull("languageInspection.statement.attachment");

@@ -102,8 +102,7 @@ public class ReviewController extends BaseController {
             return notFound();
         }
 
-        List<ExamParticipation> participations = DB
-            .find(ExamParticipation.class)
+        List<ExamParticipation> participations = DB.find(ExamParticipation.class)
             .fetch("exam", "id, state, anonymous")
             .fetch("exam.grade", "id, name")
             .where()
@@ -127,8 +126,7 @@ public class ReviewController extends BaseController {
         if (exam == null) {
             return notFound();
         }
-        List<ExamEnrolment> enrolments = DB
-            .find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
             .fetch("reservation", "startAt, endAt")
             .fetch("examinationEventConfiguration.examinationEvent", "start")
             .where()
@@ -278,8 +276,7 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result forceScoreExamQuestion(Long id, Http.Request request) {
         DynamicForm df = formFactory.form().bindFromRequest(request);
-        Optional<ExamSectionQuestion> oeq = DB
-            .find(ExamSectionQuestion.class)
+        Optional<ExamSectionQuestion> oeq = DB.find(ExamSectionQuestion.class)
             .fetch("examSection.exam.parent.examOwners")
             .where()
             .idEq(id)
@@ -312,8 +309,7 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER") })
     public Result updateAssessmentInfo(Long id, Http.Request request) {
         String info = request.body().asJson().get("assessmentInfo").asText();
-        Optional<Exam> option = DB
-            .find(Exam.class)
+        Optional<Exam> option = DB.find(Exam.class)
             .fetch("parent.creator")
             .where()
             .idEq(id)
@@ -409,8 +405,7 @@ public class ReviewController extends BaseController {
         }
         User loggedUser = request.attrs().get(Attrs.AUTHENTICATED_USER);
 
-        List<ExamInspection> inspections = DB
-            .find(ExamInspection.class)
+        List<ExamInspection> inspections = DB.find(ExamInspection.class)
             .fetch("user")
             .fetch("exam")
             .where()
@@ -442,9 +437,9 @@ public class ReviewController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Anonymous(filteredProperties = { "user" })
     public Result listNoShows(Long eid, Http.Request request) {
-        List<ExamEnrolment> enrolments = DB
-            .find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
             .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
+            .fetch("collaborativeExam")
             .fetch("exam.executionType")
             .fetch("reservation")
             .fetch("examinationEventConfiguration.examinationEvent")
@@ -463,7 +458,7 @@ public class ReviewController extends BaseController {
         final Result result = ok(enrolments);
         Set<Long> anonIds = enrolments
             .stream()
-            .filter(e -> e.getExam().isAnonymous())
+            .filter(e -> e.getCollaborativeExam() != null || e.getExam().isAnonymous())
             .map(GeneratedIdentityModel::getId)
             .collect(Collectors.toSet());
         return writeAnonymousResult(request, result, anonIds);
@@ -564,8 +559,7 @@ public class ReviewController extends BaseController {
         // if no assessments => everything
         // if assessments and type == locked => none
         // else date only
-        Set<Exam> assessments = DB
-            .find(Exam.class)
+        Set<Exam> assessments = DB.find(Exam.class)
             .where()
             .eq("parent.id", eid)
             .in("state", Exam.State.GRADED_LOGGED, Exam.State.ARCHIVED, Exam.State.REJECTED)
@@ -645,8 +639,7 @@ public class ReviewController extends BaseController {
     }
 
     private static Query<ExamParticipation> createQuery() {
-        return DB
-            .find(ExamParticipation.class)
+        return DB.find(ExamParticipation.class)
             .fetch(
                 "exam",
                 "state, name, additionalInfo, gradedTime, gradeless, assessmentInfo, subjectToLanguageInspection, answerLanguage, customCredit"
