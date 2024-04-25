@@ -192,7 +192,9 @@
         </div>
     </div>
 }
-@if (!collaborative && assessment.state === 'GRADED_LOGGED' && !assessment.gradeless) {
+@if (
+    !collaborative && (assessment.state === 'GRADED_LOGGED' || assessment.state === 'ARCHIVED') && !assessment.gradeless
+) {
     <div>
         <div class="row mt-2">
             <div class="col-12">
