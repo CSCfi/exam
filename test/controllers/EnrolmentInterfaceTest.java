@@ -42,11 +42,10 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
 
     @BeforeClass
     public static void startServer() throws Exception {
-        server =
-            RemoteServerHelper.createAndStartServer(
-                31246,
-                ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments"))
-            );
+        server = RemoteServerHelper.createAndStartServer(
+            31246,
+            ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments"))
+        );
     }
 
     @Before
@@ -55,8 +54,7 @@ public class EnrolmentInterfaceTest extends IntegrationTestCase {
         super.setUp();
         // Fake API shall return a course with code 810136P. Lets make a referenced exam active in the DB so it should
         // pop up in the search results
-        Exam exam = DB
-            .find(Exam.class)
+        Exam exam = DB.find(Exam.class)
             .where()
             .eq("course.code", "810136P")
             .eq("state", Exam.State.PUBLISHED)

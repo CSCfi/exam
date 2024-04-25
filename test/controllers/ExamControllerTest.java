@@ -37,8 +37,7 @@ public class ExamControllerTest extends IntegrationTestCase {
     @RunAsTeacher
     public void testGetActiveExams() {
         // Setup
-        List<Exam> activeExams = DB
-            .find(Exam.class)
+        List<Exam> activeExams = DB.find(Exam.class)
             .where()
             .eq("creator.id", userId)
             .in("state", Exam.State.PUBLISHED, Exam.State.SAVED, Exam.State.DRAFT)
