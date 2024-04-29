@@ -194,24 +194,23 @@ form .exclude {
 .background-none {
     background: none;
 }
-/* Accessability stuff? */
+/* Accessibility */
 .skip {
-    left: -9999px;
-    display: flex;
-    position: absolute;
-    top: auto;
-    z-index: -999;
-    margin: 5px;
-    white-space: nowrap;
-    background-color: #e6e6e6;
-    border: #4c4c4c;
-    color: black;
-
-    :focus,
-    :active {
+  left: -9999px;
+  display: flex;
+  position: absolute;
+  top: auto;
+  z-index: -999;
+  margin: 5px;
+  white-space: nowrap;
+  background-color: black;
+  border: #e7e7e7;
+  color: white;
+}
+.skip:focus,
+.skip:active {
         left: auto;
         z-index: 999;
-    }
 }
 .important-clear-focus:focus {
     box-shadow:
