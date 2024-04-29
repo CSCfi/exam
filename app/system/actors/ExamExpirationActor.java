@@ -36,38 +36,34 @@ public class ExamExpirationActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-            .match(
-                String.class,
-                s -> {
-                    logger.debug("Starting exam expiration check ->");
-                    List<Exam> exams = DB
-                        .find(Exam.class)
-                        .where()
-                        .disjunction()
-                        .eq("state", Exam.State.GRADED_LOGGED)
-                        .eq("state", Exam.State.ARCHIVED)
-                        .eq("state", Exam.State.ABORTED)
-                        .eq("state", Exam.State.REJECTED)
-                        .endJunction()
-                        .findList();
+            .match(String.class, s -> {
+                logger.debug("Starting exam expiration check ->");
+                List<Exam> exams = DB.find(Exam.class)
+                    .where()
+                    .disjunction()
+                    .eq("state", Exam.State.GRADED_LOGGED)
+                    .eq("state", Exam.State.ARCHIVED)
+                    .eq("state", Exam.State.ABORTED)
+                    .eq("state", Exam.State.REJECTED)
+                    .endJunction()
+                    .findList();
 
-                    DateTime now = DateTime.now();
-                    for (Exam exam : exams) {
-                        DateTime expirationDate = exam.getState() == Exam.State.ABORTED
-                            ? exam.getExamParticipation().getEnded()
-                            : exam.getGradedTime();
-                        if (expirationDate == null) {
-                            logger.error("no grading time for exam {}", exam.getId());
-                            continue;
-                        }
-                        if (configReader.getExamExpirationDate(expirationDate).isBefore(now)) {
-                            cleanExamData(exam);
-                            logger.info("Marked exam {} as expired", exam.getId());
-                        }
+                DateTime now = DateTime.now();
+                for (Exam exam : exams) {
+                    DateTime expirationDate = exam.getState() == Exam.State.ABORTED
+                        ? exam.getExamParticipation().getEnded()
+                        : exam.getGradedTime();
+                    if (expirationDate == null) {
+                        logger.error("no grading time for exam {}", exam.getId());
+                        continue;
                     }
-                    logger.debug("<- done");
+                    if (configReader.getExamExpirationDate(expirationDate).isBefore(now)) {
+                        cleanExamData(exam);
+                        logger.info("Marked exam {} as expired", exam.getId());
+                    }
                 }
-            )
+                logger.debug("<- done");
+            })
             .build();
     }
 

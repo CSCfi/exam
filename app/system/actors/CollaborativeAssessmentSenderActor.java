@@ -41,25 +41,22 @@ public class CollaborativeAssessmentSenderActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-            .match(
-                String.class,
-                s -> {
-                    logger.debug("Starting collaborative assessment sending check ->");
-                    Query<ExamParticipation> query = DB.find(ExamParticipation.class);
-                    PathProperties pp = collaborativeExamLoader.getAssessmentPath();
-                    pp.apply(query);
-                    List<ExamParticipation> enrolments = query
-                        .where()
-                        .isNotNull("collaborativeExam")
-                        .in("exam.state", Exam.State.ABORTED, Exam.State.REVIEW)
-                        .isNull("sentForReview")
-                        .isNotNull("started")
-                        .isNotNull("ended")
-                        .findList();
-                    enrolments.forEach(collaborativeExamLoader::createAssessmentWithAttachments);
-                    logger.debug("<- done");
-                }
-            )
+            .match(String.class, s -> {
+                logger.debug("Starting collaborative assessment sending check ->");
+                Query<ExamParticipation> query = DB.find(ExamParticipation.class);
+                PathProperties pp = collaborativeExamLoader.getAssessmentPath();
+                pp.apply(query);
+                List<ExamParticipation> enrolments = query
+                    .where()
+                    .isNotNull("collaborativeExam")
+                    .in("exam.state", Exam.State.ABORTED, Exam.State.REVIEW)
+                    .isNull("sentForReview")
+                    .isNotNull("started")
+                    .isNotNull("ended")
+                    .findList();
+                enrolments.forEach(collaborativeExamLoader::createAssessmentWithAttachments);
+                logger.debug("<- done");
+            })
             .build();
     }
 }

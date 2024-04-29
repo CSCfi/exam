@@ -38,9 +38,10 @@ export class NoShowsComponent implements OnInit {
 
     //TODO: This could be combined with the aborted exams component by adding some more bindings for customization.
     ngOnInit() {
-        this.noShows.forEach(
-            (r) => (r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : r.exam.id.toString()),
-        );
+        this.noShows.forEach((r) => {
+            const id = (r.exam ? r.exam.id : r.collaborativeExam.id).toString();
+            r.displayName = r.user ? `${r.user.lastName} ${r.user.firstName}` : id;
+        });
     }
 
     cancel = () => this.modal.dismiss();

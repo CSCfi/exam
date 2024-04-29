@@ -51,7 +51,6 @@ import { ExamSearchService } from './exam-search.service';
                     <div class="col-5">
                         <div class="input-group">
                             <input
-                                xmAutoFocus
                                 (ngModelChange)="search($event)"
                                 [(ngModel)]="filter.text"
                                 type="text"

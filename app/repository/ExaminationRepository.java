@@ -119,13 +119,12 @@ public class ExaminationRepository {
                     }
                     DateTime now = DateTime.now();
                     if (enrolment.getExaminationEventConfiguration() == null) {
-                        now =
-                            reservation == null
-                                ? dateTimeHandler.adjustDST(DateTime.now())
-                                : dateTimeHandler.adjustDST(
-                                    DateTime.now(),
-                                    enrolment.getReservation().getMachine().getRoom()
-                                );
+                        now = reservation == null
+                            ? dateTimeHandler.adjustDST(DateTime.now())
+                            : dateTimeHandler.adjustDST(
+                                DateTime.now(),
+                                enrolment.getReservation().getMachine().getRoom()
+                            );
                     }
                     examParticipation.setStarted(now);
                     db.save(examParticipation);
