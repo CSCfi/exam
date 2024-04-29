@@ -218,8 +218,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
         if (enrolment.getCollaborativeExam() != null) {
             return collaborativeExamLoader
                 .createAssessment(ep)
-                .thenComposeAsync(ok ->
-                    CompletableFuture.supplyAsync(ok ? Results::created : Results::internalServerError)
+                .thenComposeAsync(
+                    ok -> CompletableFuture.supplyAsync(ok ? Results::created : Results::internalServerError)
                 );
         } else {
             // Fetch external attachments to local exam.
@@ -229,12 +229,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
     }
 
     private void notifyTeachers(Exam exam) {
-        Set<User> recipients = Stream
-            .concat(
-                exam.getParent().getExamOwners().stream(),
-                exam.getExamInspections().stream().map(ExamInspection::getUser)
-            )
-            .collect(Collectors.toSet());
+        Set<User> recipients = Stream.concat(
+            exam.getParent().getExamOwners().stream(),
+            exam.getExamInspections().stream().map(ExamInspection::getUser)
+        ).collect(Collectors.toSet());
         actor
             .scheduler()
             .scheduleOnce(
@@ -294,11 +292,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .map(ExamSectionQuestion::getQuestion)
                 .filter(question -> question.getAttachment() != null)
                 .distinct()
-                .forEach(question ->
-                    futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
+                .forEach(
+                    question -> futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
                 );
-            return CompletableFuture
-                .allOf(futures.toArray(new CompletableFuture[0]))
+            return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                 .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
                 .exceptionally(t -> {
                     logger.error("Could not provide enrolment [id=" + enrolment.getId() + "]", t);
@@ -343,8 +340,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             ArrayNode optionalSectionsNode = root.has("optionalSections")
                 ? (ArrayNode) root.get("optionalSections")
                 : Json.newArray();
-            Set<Long> ids = StreamSupport
-                .stream(optionalSectionsNode.spliterator(), false)
+            Set<Long> ids = StreamSupport.stream(optionalSectionsNode.spliterator(), false)
                 .map(JsonNode::asLong)
                 .collect(Collectors.toSet());
             document.setExamSections(
@@ -361,16 +357,16 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .forEach(esq -> {
-                    Optional<Question.Type> questionType = Optional
-                        .ofNullable(esq.getQuestion())
-                        .map(Question::getType);
+                    Optional<Question.Type> questionType = Optional.ofNullable(esq.getQuestion()).map(
+                        Question::getType
+                    );
                     if (questionType.isPresent() && questionType.get() == Question.Type.ClaimChoiceQuestion) {
                         Set<ExamSectionQuestionOption> sorted = esq
                             .getOptions()
                             .stream()
                             .collect(
-                                Collectors.toCollection(() ->
-                                    new TreeSet<>(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
+                                Collectors.toCollection(
+                                    () -> new TreeSet<>(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
                                 )
                             );
                         esq.setOptions(sorted);

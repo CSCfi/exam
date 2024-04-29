@@ -96,8 +96,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getExamParticipations(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        List<ExamEnrolment> enrolments = DB
-            .find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
             .fetch("exam", "id, created")
             .fetch("externalExam", "id, started")
             .where()
@@ -195,8 +194,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getPublishedExams(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Exam> query = DB
-            .find(Exam.class)
+        ExpressionList<Exam> query = DB.find(Exam.class)
             .fetch("course", "code")
             .where()
             .isNull("parent")
@@ -221,15 +219,14 @@ public class ReportController extends BaseController {
     @Restrict({ @Group("ADMIN") })
     public Result getReservations(Optional<String> dept, Optional<String> start, Optional<String> end) {
         ExpressionList<Reservation> query = DB.find(Reservation.class).where();
-        query =
-            applyFilters(
-                query,
-                "enrolment.exam.course",
-                "startAt",
-                dept.orElse(null),
-                start.orElse(null),
-                end.orElse(null)
-            );
+        query = applyFilters(
+            query,
+            "enrolment.exam.course",
+            "startAt",
+            dept.orElse(null),
+            start.orElse(null),
+            end.orElse(null)
+        );
         return ok(query.findList());
     }
 

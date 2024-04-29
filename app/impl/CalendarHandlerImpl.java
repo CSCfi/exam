@@ -93,8 +93,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
                 return Results.notFound();
             }
             // users reservations starting from now
-            List<Reservation> reservations = DB
-                .find(Reservation.class)
+            List<Reservation> reservations = DB.find(Reservation.class)
                 .fetch("enrolment.exam")
                 .where()
                 .eq("user", user)
@@ -103,14 +102,14 @@ public class CalendarHandlerImpl implements CalendarHandler {
             // Resolve eligible machines based on software and accessibility requirements
             List<ExamMachine> machines = getEligibleMachines(room, aids, exam);
             // Maintenance periods
-            List<Interval> periods = DB
-                .find(MaintenancePeriod.class)
+            List<Interval> periods = DB.find(MaintenancePeriod.class)
                 .where()
                 .gt("endsAt", searchDate.toDate())
                 .findList()
                 .stream()
-                .map(p ->
-                    new Interval(normalizeMaintenanceTime(p.getStartsAt()), normalizeMaintenanceTime(p.getEndsAt()))
+                .map(
+                    p ->
+                        new Interval(normalizeMaintenanceTime(p.getStartsAt()), normalizeMaintenanceTime(p.getEndsAt()))
                 )
                 .toList();
             LocalDate endOfSearch = getEndSearchDate(searchDate, new LocalDate(exam.getPeriodEnd()));
@@ -130,8 +129,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
         DateTimeZone dtz = DateTimeZone.forID(reservation.getMachine().getRoom().getLocalTimezone());
         LocalDate searchDate = dateTimeHandler.normalize(reservation.getStartAt().withZone(dtz), dtz).toLocalDate();
         // users reservations starting from now
-        List<Reservation> reservations = DB
-            .find(Reservation.class)
+        List<Reservation> reservations = DB.find(Reservation.class)
             .fetch("enrolment.exam")
             .where()
             .eq("user", reservation.getUser())
@@ -144,8 +142,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
             reservation.getEnrolment().getExam()
         );
         // Maintenance periods
-        List<Interval> periods = DB
-            .find(MaintenancePeriod.class)
+        List<Interval> periods = DB.find(MaintenancePeriod.class)
             .where()
             .gt("endsAt", searchDate.toDate())
             .findList()
@@ -199,8 +196,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
     }
 
     private List<ExamMachine> getEligibleMachines(ExamRoom room, Collection<Integer> access, Exam exam) {
-        List<ExamMachine> candidates = DB
-            .find(ExamMachine.class)
+        List<ExamMachine> candidates = DB.find(ExamMachine.class)
             .fetch("room")
             .where()
             .eq("room.id", room.getId())
@@ -404,9 +400,11 @@ public class CalendarHandlerImpl implements CalendarHandler {
 
     @Override
     public int getReservationWindowSize() {
-        String reservationWindow = SettingsController
-            .getOrCreateSettings("reservation_window_size", null, null)
-            .getValue();
+        String reservationWindow = SettingsController.getOrCreateSettings(
+            "reservation_window_size",
+            null,
+            null
+        ).getValue();
         return reservationWindow != null ? Integer.parseInt(reservationWindow) : 0;
     }
 
@@ -428,8 +426,7 @@ public class CalendarHandlerImpl implements CalendarHandler {
             ArrayNode root = (ArrayNode) node;
             LocalDate searchDate = LocalDate.parse(date, ISODateTimeFormat.dateParser());
             // users reservations starting from now
-            List<Reservation> reservations = DB
-                .find(Reservation.class)
+            List<Reservation> reservations = DB.find(Reservation.class)
                 .fetch("enrolment.exam")
                 .where()
                 .eq("user", user)
@@ -451,14 +448,14 @@ public class CalendarHandlerImpl implements CalendarHandler {
                     LinkedHashMap::new
                 )
             );
-            List<Interval> periods = DB
-                .find(MaintenancePeriod.class)
+            List<Interval> periods = DB.find(MaintenancePeriod.class)
                 .where()
                 .ge("endsAt", searchDate.withDayOfWeek(DateTimeConstants.MONDAY).toDate())
                 .findList()
                 .stream()
-                .map(p ->
-                    new Interval(normalizeMaintenanceTime(p.getStartsAt()), normalizeMaintenanceTime(p.getEndsAt()))
+                .map(
+                    p ->
+                        new Interval(normalizeMaintenanceTime(p.getStartsAt()), normalizeMaintenanceTime(p.getEndsAt()))
                 )
                 .toList();
             // Filter out slots that overlap a local maintenance period

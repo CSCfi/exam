@@ -56,21 +56,17 @@ public class ExamAutoSaverActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-            .match(
-                String.class,
-                s -> {
-                    logger.debug("Starting check for ongoing exams ->");
-                    checkLocalExams();
-                    checkExternalExams();
-                    logger.debug("<- done");
-                }
-            )
+            .match(String.class, s -> {
+                logger.debug("Starting check for ongoing exams ->");
+                checkLocalExams();
+                checkExternalExams();
+                logger.debug("<- done");
+            })
             .build();
     }
 
     private void checkLocalExams() {
-        List<ExamParticipation> participations = DB
-            .find(ExamParticipation.class)
+        List<ExamParticipation> participations = DB.find(ExamParticipation.class)
             .fetch("exam")
             .fetch("reservation")
             .fetch("reservation.machine.room")
@@ -137,8 +133,7 @@ public class ExamAutoSaverActor extends AbstractActor {
     }
 
     private void checkExternalExams() {
-        List<ExamEnrolment> enrolments = DB
-            .find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
             .fetch("externalExam")
             .fetch("reservation")
             .fetch("reservation.machine.room")

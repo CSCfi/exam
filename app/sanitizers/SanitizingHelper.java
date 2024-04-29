@@ -24,8 +24,7 @@ import play.mvc.Http;
 
 public final class SanitizingHelper {
 
-    private static final Safelist SAFELIST = Safelist
-        .relaxed()
+    private static final Safelist SAFELIST = Safelist.relaxed()
         .addAttributes("a", "target")
         .addAttributes("span", "class", "id", "style", "case-sensitive", "cloze", "numeric", "precision")
         .addAttributes("table", "cellspacing", "cellpadding", "border", "style", "caption");
@@ -79,16 +78,18 @@ public final class SanitizingHelper {
     // Exception thrown if value is null or not found
     static <T> Http.Request sanitize(String key, JsonNode node, Class<T> type, TypedKey<T> attr, Http.Request request)
         throws SanitizingException {
-        T value = parse(key, node, type)
-            .orElseThrow(() -> new SanitizingException("Missing or invalid data for key: " + key));
+        T value = parse(key, node, type).orElseThrow(
+            () -> new SanitizingException("Missing or invalid data for key: " + key)
+        );
         return request.addAttr(attr, value);
     }
 
     // Exception thrown if value is null or not found
     static Http.Request sanitizeHtml(String key, JsonNode node, TypedKey<String> attr, Http.Request request)
         throws SanitizingException {
-        String value = parse(key, node, String.class)
-            .orElseThrow(() -> new SanitizingException("Missing or invalid data for key: " + key));
+        String value = parse(key, node, String.class).orElseThrow(
+            () -> new SanitizingException("Missing or invalid data for key: " + key)
+        );
         return request.addAttr(attr, Jsoup.clean(value, SAFELIST));
     }
 

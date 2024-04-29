@@ -15,9 +15,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint --fix",
-    "format": "prettier --write \"ui/src/app/**/*.{ts,html}\" --write \"app/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
+    "format": "prettier --write \"ui/src/app/**/*.{ts,html}\" --write \"{app,test}/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
     "prepare": "lefthook install",
-    "check-format": "prettier --check \"ui/src/app/**/*.{ts,html}\" --check \"app/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
+    "check-format": "prettier --check \"ui/src/app/**/*.{ts,html}\" --check \"{app,test}/**/*.java\" --plugin=prettier-plugin-java --print-width=120 --tab-width=4; exit 0",
     "check-lint": "ng lint"
   },
   "dependencies": {

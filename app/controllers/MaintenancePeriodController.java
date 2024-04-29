@@ -31,8 +31,7 @@ public class MaintenancePeriodController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result listMaintenancePeriods() {
-        List<MaintenancePeriod> periods = DB
-            .find(MaintenancePeriod.class)
+        List<MaintenancePeriod> periods = DB.find(MaintenancePeriod.class)
             .where()
             .gt("endsAt", DateTime.now())
             .findList();

@@ -66,43 +66,39 @@ public class ExternalExamExpirationActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-            .match(
-                String.class,
-                s -> {
-                    logger.debug("Starting external exam expiration check ->");
-                    Set<ExternalExam> exams = DB
-                        .find(ExternalExam.class)
-                        .where()
-                        .isNotNull("sent")
-                        .jsonExists("content", "id")
-                        .findSet();
+            .match(String.class, s -> {
+                logger.debug("Starting external exam expiration check ->");
+                Set<ExternalExam> exams = DB.find(ExternalExam.class)
+                    .where()
+                    .isNotNull("sent")
+                    .jsonExists("content", "id")
+                    .findSet();
 
-                    for (ExternalExam ee : exams) {
-                        if (ee.getSent() == null) {
-                            continue;
-                        }
-                        Set<Attachment> attachments = ee
-                            .deserialize()
-                            .getExamSections()
-                            .stream()
-                            .flatMap(es -> es.getSectionQuestions().stream())
-                            .map(ExamSectionQuestion::getEssayAnswer)
-                            .filter(ea -> ea != null && ea.getAttachment() != null)
-                            .map(EssayAnswer::getAttachment)
-                            .collect(Collectors.toSet());
-                        CompletableFuture
-                            .allOf(attachments.stream().map(this::deleteAttachment).toArray(CompletableFuture[]::new))
-                            .thenRunAsync(() -> {
-                                if (ee.getSent().plusMonths(MONTHS_UNTIL_EXPIRATION).isBeforeNow()) {
-                                    ee.setContent(Collections.emptyMap());
-                                    ee.update();
-                                    logger.info("Marked external exam {} as expired", ee.getId());
-                                }
-                            });
+                for (ExternalExam ee : exams) {
+                    if (ee.getSent() == null) {
+                        continue;
                     }
-                    logger.debug("<- done");
+                    Set<Attachment> attachments = ee
+                        .deserialize()
+                        .getExamSections()
+                        .stream()
+                        .flatMap(es -> es.getSectionQuestions().stream())
+                        .map(ExamSectionQuestion::getEssayAnswer)
+                        .filter(ea -> ea != null && ea.getAttachment() != null)
+                        .map(EssayAnswer::getAttachment)
+                        .collect(Collectors.toSet());
+                    CompletableFuture.allOf(
+                        attachments.stream().map(this::deleteAttachment).toArray(CompletableFuture[]::new)
+                    ).thenRunAsync(() -> {
+                        if (ee.getSent().plusMonths(MONTHS_UNTIL_EXPIRATION).isBeforeNow()) {
+                            ee.setContent(Collections.emptyMap());
+                            ee.update();
+                            logger.info("Marked external exam {} as expired", ee.getId());
+                        }
+                    });
                 }
-            )
+                logger.debug("<- done");
+            })
             .build();
     }
 }
