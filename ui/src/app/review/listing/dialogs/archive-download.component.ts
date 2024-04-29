@@ -33,12 +33,12 @@ import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
             <label for="archive-download-end">{{ 'i18n_end' | translate }}:</label>
             <xm-date-picker id="archive-download-end" (updated)="endDateChanged($event)"></xm-date-picker>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-outline-secondary" (click)="cancel()">
-                {{ 'i18n_button_cancel' | translate }}
-            </button>
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn btn-success" (click)="ok()">
                 {{ 'i18n_search' | translate }}
+            </button>
+            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
     `,

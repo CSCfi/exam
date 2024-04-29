@@ -23,7 +23,6 @@ import type { MaintenancePeriod } from '../../exam/exam.model';
                             class="form-control"
                             id="description"
                             name="description"
-                            class="form-control"
                             [(ngModel)]="description"
                             required
                         />
@@ -55,12 +54,12 @@ import type { MaintenancePeriod } from '../../exam/exam.model';
                 </div>
             </form>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-danger float-end" (click)="cancel()">
-                {{ 'i18n_button_cancel' | translate }}
-            </button>
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button class="btn btn-primary" [disabled]="periodForm.invalid" (click)="ok()">
                 {{ 'i18n_button_save' | translate }}
+            </button>
+            <button class="btn btn-danger float-end me-3" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>
     </div> `,

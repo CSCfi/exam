@@ -11,11 +11,11 @@ import { TranslateModule } from '@ngx-translate/core';
             <div class="xm-modal-title">{{ title | translate }}</div>
         </div>
         <div class="modal-body" [innerHTML]="description"></div>
-        <div class="modal-footer">
-            <button class="xm-ok-button" (click)="activeModal.close(true)" autofocus>
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-success" (click)="activeModal.close(true)" autofocus>
                 {{ 'i18n_button_accept' | translate }}
             </button>
-            <button class="xm-cancel-button float-start" (click)="activeModal.dismiss(false)">
+            <button class="btn btn-secondary me-3" (click)="activeModal.dismiss(false)">
                 {{ 'i18n_button_decline' | translate }}
             </button>
         </div>

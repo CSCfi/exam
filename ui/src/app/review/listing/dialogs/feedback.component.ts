@@ -43,11 +43,11 @@ import { AssessmentService } from '../../assessment/assessment.service';
                 }
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn btn-success float-end" (click)="ok()">
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn btn-success" (click)="ok()">
                 {{ 'i18n_save' | translate }}
             </button>
-            <button class="btn btn-outline-secondary float-end" (click)="cancel()">
+            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>

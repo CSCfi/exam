@@ -41,12 +41,14 @@ import type { EnrolmentInfo } from '../../enrolment.model';
             </form>
         </div>
         <div class="modal-footer">
-            <button class="xm-ok-button" (click)="ok()">
-                {{ 'i18n_button_save' | translate }}
-            </button>
-            <button class="xm-cancel-button float-start" (click)="cancel()">
-                {{ 'i18n_button_cancel' | translate }}
-            </button>
+            <div class="d-flex flex-row-reverse flex-align-r">
+                <button class="btn btn-success" (click)="ok()">
+                    {{ 'i18n_button_save' | translate }}
+                </button>
+                <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+                    {{ 'i18n_button_cancel' | translate }}
+                </button>
+            </div>
         </div>
     `,
 })

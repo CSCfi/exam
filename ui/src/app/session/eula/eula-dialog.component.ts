@@ -29,11 +29,11 @@ import { TranslateModule } from '@ngx-translate/core';
         <div class="modal-body">
             <div [innerHtml]="settings.eula.value"></div>
         </div>
-        <div class="modal-footer">
-            <button class="xm-ok-button" (click)="activeModal.close()" autofocus>
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-success" (click)="activeModal.close()" autofocus>
                 {{ 'i18n_button_accept' | translate }}
             </button>
-            <button class="xm-cancel-button float-start" (click)="activeModal.dismiss()">
+            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
                 {{ 'i18n_button_decline' | translate }}
             </button>
         </div>

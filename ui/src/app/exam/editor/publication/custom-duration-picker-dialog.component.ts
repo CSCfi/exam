@@ -63,16 +63,16 @@ import { Duration } from 'luxon';
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
             <button
-                class="xm-ok-button"
+                class="btn btn-success"
                 (click)="activeModal.close({ hours: this.hours(), minutes: this.minutes() })"
                 [disabled]="!allowSaving()"
                 autofocus
             >
                 {{ 'i18n_button_ok' | translate }}
             </button>
-            <button class="xm-cancel-button" (click)="activeModal.dismiss()">
+            <button class="btn btn-outline-secondary me-3" (click)="activeModal.dismiss()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>

@@ -31,11 +31,11 @@ import { TranslateModule } from '@ngx-translate/core';
                 <textarea rows="10" name="message" class="w-100" [(ngModel)]="data.comment" autofocus> </textarea>
             </form>
         </div>
-        <div class="modal-footer">
-            <button class="xm-ok-button" [disabled]="!data.comment" (click)="ok()">
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-success" [disabled]="!data.comment" (click)="ok()">
                 {{ 'i18n_add' | translate }}
             </button>
-            <button class="xm-cancel-button float-start" (click)="cancel()">
+            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
                 {{ 'i18n_button_cancel' | translate }}
             </button>
         </div>

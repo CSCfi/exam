@@ -55,21 +55,13 @@ import { LibrarySearchComponent } from '../library/search/library-search.compone
         </div>
 
         <!-- Buttons -->
-        <div class="modal-footer">
-            <div class="row align-items-center">
-                <div class="col-12">
-                    <span class="float-end">
-                        <button class="xm-cancel-button" (click)="cancel()">
-                            {{ 'i18n_button_cancel' | translate }}
-                        </button>
-                    </span>
-                    <span class="me-3 float-end">
-                        <button class="xm-ok-button" (click)="addQuestions()">
-                            {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
-                        </button>
-                    </span>
-                </div>
-            </div>
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <button class="btn btn-success" (click)="addQuestions()">
+                {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
+            </button>
+            <button class="btn btn-outline-secondary me-3" (click)="cancel()">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
         </div>
     `,
 })
