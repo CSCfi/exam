@@ -119,12 +119,13 @@ public class ExaminationRepository {
                     }
                     DateTime now = DateTime.now();
                     if (enrolment.getExaminationEventConfiguration() == null) {
-                        now = reservation == null
-                            ? dateTimeHandler.adjustDST(DateTime.now())
-                            : dateTimeHandler.adjustDST(
-                                DateTime.now(),
-                                enrolment.getReservation().getMachine().getRoom()
-                            );
+                        now =
+                            reservation == null
+                                ? dateTimeHandler.adjustDST(DateTime.now())
+                                : dateTimeHandler.adjustDST(
+                                    DateTime.now(),
+                                    enrolment.getReservation().getMachine().getRoom()
+                                );
                     }
                     examParticipation.setStarted(now);
                     db.save(examParticipation);
@@ -149,7 +150,7 @@ public class ExaminationRepository {
                 Optional<Exam> exam = db.find(Exam.class).where().eq("hash", hash).findOneOrEmpty();
                 if (exam.isPresent()) {
                     if (!exam.get().getExamEnrolments().isEmpty()) {
-                        CollaborativeExam ce2 = exam.get().getExamEnrolments().get(0).getCollaborativeExam();
+                        CollaborativeExam ce2 = exam.get().getExamEnrolments().getFirst().getCollaborativeExam();
                         return ce2 == null ? Optional.empty() : Optional.of(ce2);
                     }
                 }
@@ -245,7 +246,7 @@ public class ExaminationRepository {
                 if (enrolments.size() > 1) {
                     logger.error("multiple enrolments found during examination");
                 }
-                return enrolments.isEmpty() ? Optional.empty() : Optional.of(enrolments.get(0));
+                return enrolments.isEmpty() ? Optional.empty() : Optional.of(enrolments.getFirst());
             },
             ec
         );

@@ -87,10 +87,9 @@ public class ExamInspection extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof ExamInspection)) {
+        if (!(other instanceof ExamInspection otherInspection)) {
             return false;
         }
-        ExamInspection otherInspection = (ExamInspection) other;
         return new EqualsBuilder().append(id, otherInspection.id).build();
     }
 

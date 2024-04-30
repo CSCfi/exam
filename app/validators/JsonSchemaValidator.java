@@ -20,7 +20,6 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +53,7 @@ class JsonSchemaValidator extends Action<JsonValidator> {
             configuration.schema()
         );
         JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4);
-        InputStream is = new FileInputStream(new File(fileName));
+        InputStream is = new FileInputStream(fileName);
         JsonSchema schema = factory.getSchema(is);
         is.close();
         return schema;
@@ -62,8 +61,8 @@ class JsonSchemaValidator extends Action<JsonValidator> {
 
     private boolean isValid(JsonNode input) throws Exception {
         Set<ValidationMessage> errors = getSchema().validate(input);
-        errors.forEach(
-            e -> logger.error("JSON validation error: schema={}, err={}", configuration.schema(), e.getMessage())
+        errors.forEach(e ->
+            logger.error("JSON validation error: schema={}, err={}", configuration.schema(), e.getMessage())
         );
         return errors.isEmpty();
     }

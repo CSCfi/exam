@@ -97,9 +97,7 @@ public class LanguageInspection extends OwnedModel {
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (!(o instanceof LanguageInspection)) return false;
-
-        LanguageInspection that = (LanguageInspection) o;
+        if (!(o instanceof LanguageInspection that)) return false;
 
         return new EqualsBuilder().append(id, that.id).isEquals();
     }

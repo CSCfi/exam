@@ -55,7 +55,7 @@ public class CollaborativeStudentActionController extends CollaborationControlle
         if (url.isEmpty()) {
             return wrapAsPromise(internalServerError());
         }
-        final WSRequest wsRequest = wsClient.url(url.get().toString() + user.getEppn());
+        final WSRequest wsRequest = wsClient.url(url.get() + user.getEppn());
         return wsRequest
             .get()
             .thenComposeAsync(response -> {

@@ -21,7 +21,7 @@ abstract class BaseSanitizer extends play.mvc.Action.Simple {
         try {
             return delegate.call(sanitize(request, body));
         } catch (SanitizingException e) {
-            logger().error("Sanitizing error: " + e.getMessage(), e);
+            logger().error(String.format("Sanitizing error: %s", e.getMessage()), e);
             return CompletableFuture.completedFuture(Results.badRequest());
         }
     }

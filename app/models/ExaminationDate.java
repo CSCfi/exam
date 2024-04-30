@@ -54,10 +54,9 @@ public class ExaminationDate extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof ExaminationDate)) {
+        if (!(other instanceof ExaminationDate otherException)) {
             return false;
         }
-        ExaminationDate otherException = (ExaminationDate) other;
         return new EqualsBuilder().append(id, otherException.id).build();
     }
 

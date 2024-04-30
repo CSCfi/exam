@@ -103,7 +103,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private Set<Course> getLocalCourses(String code) {
-        return DB.find(Course.class)
+        return DB
+            .find(Course.class)
             .where()
             .ilike("code", code + "%")
             .disjunction()
@@ -113,10 +114,9 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             .orderBy("code")
             .findSet()
             .stream()
-            .filter(
-                c ->
-                    c.getStartDate() == null ||
-                    configReader.getCourseValidityDate(new DateTime(c.getStartDate())).isBeforeNow()
+            .filter(c ->
+                c.getStartDate() == null ||
+                configReader.getCourseValidityDate(new DateTime(c.getStartDate())).isBeforeNow()
             )
             .collect(Collectors.toSet());
     }
@@ -129,13 +129,14 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         // Hit the remote end for possible matches. Update local records with matching remote records.
         // Finally return all matches (local & remote)
         URL url = parseUrl(user.getOrganisation(), code);
-        return downloadCourses(url).thenApplyAsync(remotes -> {
-            remotes.forEach(this::saveOrUpdate);
-            Supplier<TreeSet<Course>> supplier = () -> new TreeSet<>(Comparator.comparing(Course::getCode));
-            return Stream.concat(getLocalCourses(code).stream(), remotes.stream()).collect(
-                Collectors.toCollection(supplier)
-            );
-        });
+        return downloadCourses(url)
+            .thenApplyAsync(remotes -> {
+                remotes.forEach(this::saveOrUpdate);
+                Supplier<TreeSet<Course>> supplier = () -> new TreeSet<>(Comparator.comparing(Course::getCode));
+                return Stream
+                    .concat(getLocalCourses(code).stream(), remotes.stream())
+                    .collect(Collectors.toCollection(supplier));
+            });
     }
 
     @Override
@@ -153,7 +154,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             if (root.has("exception")) {
                 throw new RemoteException(root.get("exception").asText());
             } else if (root.has("data")) {
-                return StreamSupport.stream(root.get("data").spliterator(), false)
+                return StreamSupport
+                    .stream(root.get("data").spliterator(), false)
                     .filter(c -> c.has("course_code") || c.has("courseUnitCode"))
                     .map(c -> c.has("course_code") ? c.get("course_code").asText() : c.get("courseUnitCode").asText())
                     .collect(Collectors.toSet());
@@ -166,7 +168,8 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
     }
 
     private void saveOrUpdate(Course external) {
-        DB.find(Course.class)
+        DB
+            .find(Course.class)
             .where()
             .eq("code", external.getCode())
             .findOneOrEmpty()
@@ -253,7 +256,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         if (
             configReader.getPermissionCheckUserIdentifier().equals("userIdentifier") && user.getUserIdentifier() == null
         ) {
-            throw new MalformedURLException("User has no identier number!");
+            throw new MalformedURLException("User has no identifier number!");
         }
         String url = configReader.getPermissionCheckUrl();
         if (url == null || !url.contains(USER_ID_PLACEHOLDER)) {
@@ -279,11 +282,11 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         gs.setDescription(GradeScale.Type.OTHER.toString());
         gs.setExternalRef(externalRef);
         gs.setDisplayName(node.get("name").asText());
-        logger.info("saving scale " + externalRef);
+        logger.info("saving scale {}", externalRef);
         gs.save();
-        Stream<JsonNode> gradesNode = StreamSupport.stream(node.get("grades").spliterator(), false).filter(
-            n -> n.has("description")
-        );
+        Stream<JsonNode> gradesNode = StreamSupport
+            .stream(node.get("grades").spliterator(), false)
+            .filter(n -> n.has("description"));
         Set<Grade> grades = gradesNode
             .map(n -> {
                 Grade grade = new Grade();
@@ -306,9 +309,11 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
         if (!scaleNode.isEmpty()) {
             Set<JsonNode> scales;
             if (scaleNode.isArray()) {
-                scales = StreamSupport.stream(scaleNode.spliterator(), false)
-                    .filter(s -> s.has("type"))
-                    .collect(Collectors.toSet());
+                scales =
+                    StreamSupport
+                        .stream(scaleNode.spliterator(), false)
+                        .filter(s -> s.has("type"))
+                        .collect(Collectors.toSet());
             } else {
                 scales = Set.of(scaleNode);
             }
@@ -390,7 +395,7 @@ public class ExternalCourseHandlerImpl implements ExternalCourseHandler {
             List<GradeScale> scales = getGradeScales(node);
             if (!scales.isEmpty()) {
                 // For now support just a single scale per course
-                course.setGradeScale(scales.get(0));
+                course.setGradeScale(scales.getFirst());
             }
             // in array form
             course.setCampus(getFirstName(node, "campus"));

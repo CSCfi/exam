@@ -73,10 +73,9 @@ public class Grade extends Model {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof Grade)) {
+        if (!(other instanceof Grade otherGrade)) {
             return false;
         }
-        Grade otherGrade = (Grade) other;
         return new EqualsBuilder().append(id, otherGrade.id).build();
     }
 

@@ -90,22 +90,26 @@ public class ExternalCalendarController extends CalendarController {
     }
 
     private URL parseUrl(String orgRef, String facilityRef) throws MalformedURLException {
-        return URI.create(
-            configReader.getIopHost() +
-            String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
-        ).toURL();
+        return URI
+            .create(
+                configReader.getIopHost() +
+                String.format("/api/organisations/%s/facilities/%s/reservations", orgRef, facilityRef)
+            )
+            .toURL();
     }
 
     private URL parseUrl(String orgRef, String facilityRef, String reservationRef) throws MalformedURLException {
-        return URI.create(
-            configReader.getIopHost() +
-            String.format(
-                "/api/organisations/%s/facilities/%s/reservations/%s/force",
-                orgRef,
-                facilityRef,
-                reservationRef
+        return URI
+            .create(
+                configReader.getIopHost() +
+                String.format(
+                    "/api/organisations/%s/facilities/%s/reservations/%s/force",
+                    orgRef,
+                    facilityRef,
+                    reservationRef
+                )
             )
-        ).toURL();
+            .toURL();
     }
 
     // Actions invoked by central IOP server
@@ -152,7 +156,8 @@ public class ExternalCalendarController extends CalendarController {
     // Initiated by originator of reservation (the student)
     @SubjectNotPresent
     public Result acknowledgeReservationRemoval(String ref) {
-        Reservation reservation = DB.find(Reservation.class)
+        Reservation reservation = DB
+            .find(Reservation.class)
             .fetch("machine")
             .fetch("machine.room")
             .where()
@@ -177,7 +182,8 @@ public class ExternalCalendarController extends CalendarController {
     // Initiated by administrator of organisation where reservation takes place
     @SubjectNotPresent
     public Result acknowledgeReservationRevocation(String ref) {
-        ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
+        ExamEnrolment enrolment = DB
+            .find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("reservation.externalReservation")
             .fetch("reservation.machine")
@@ -221,24 +227,25 @@ public class ExternalCalendarController extends CalendarController {
                 } catch (NotFoundException e) {
                     return notFound();
                 }
-                List<ExamMachine> machines = DB.find(ExamMachine.class)
+                List<ExamMachine> machines = DB
+                    .find(ExamMachine.class)
                     .where()
                     .eq("room.id", room.getId())
                     .ne("outOfService", true)
                     .ne("archived", true)
                     .findList();
                 // Maintenance periods
-                List<Interval> periods = DB.find(MaintenancePeriod.class)
+                List<Interval> periods = DB
+                    .find(MaintenancePeriod.class)
                     .where()
                     .gt("endsAt", searchDate.toDate())
                     .findList()
                     .stream()
-                    .map(
-                        p ->
-                            new Interval(
-                                calendarHandler.normalizeMaintenanceTime(p.getStartsAt()),
-                                calendarHandler.normalizeMaintenanceTime(p.getEndsAt())
-                            )
+                    .map(p ->
+                        new Interval(
+                            calendarHandler.normalizeMaintenanceTime(p.getStartsAt()),
+                            calendarHandler.normalizeMaintenanceTime(p.getEndsAt())
+                        )
                     )
                     .toList();
                 LocalDate endOfSearch = getEndSearchDate(end.get(), searchDate);
@@ -281,7 +288,8 @@ public class ExternalCalendarController extends CalendarController {
 
         //TODO: See if this offset thing works as intended
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        Optional<ExamEnrolment> oe = DB.find(ExamEnrolment.class)
+        Optional<ExamEnrolment> oe = DB
+            .find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("exam.examSections")
             .fetch("exam.examSections.examMaterials")
@@ -302,7 +310,7 @@ public class ExternalCalendarController extends CalendarController {
         if (error.isPresent()) {
             return wrapAsPromise(error.get());
         }
-        // Lets do this
+        // Let's do this
         URL url = parseUrl(orgRef, roomRef);
         String homeOrgRef = configReader.getHomeOrganisationRef();
         ObjectNode body = Json.newObject();
@@ -355,7 +363,8 @@ public class ExternalCalendarController extends CalendarController {
     @Restrict(@Group("ADMIN"))
     public CompletionStage<Result> requestReservationRevocation(String ref, Http.Request request)
         throws MalformedURLException {
-        Optional<Reservation> or = DB.find(Reservation.class)
+        Optional<Reservation> or = DB
+            .find(Reservation.class)
             .where()
             .isNotNull("machine")
             .eq("externalRef", ref)
@@ -469,12 +478,14 @@ public class ExternalCalendarController extends CalendarController {
             : configReader.getDefaultTimeZone().getOffset(DateTime.now());
         LocalDate now = DateTime.now().plusMillis(offset).toLocalDate();
         LocalDate reservationWindowDate = now.plusDays(windowSize);
-        LocalDate examEndDate = DateTime.parse(endDate, ISODateTimeFormat.dateTimeParser())
+        LocalDate examEndDate = DateTime
+            .parse(endDate, ISODateTimeFormat.dateTimeParser())
             .plusMillis(offset)
             .toLocalDate();
         LocalDate searchEndDate = reservationWindowDate.isBefore(examEndDate) ? reservationWindowDate : examEndDate;
 
-        LocalDate examStartDate = DateTime.parse(startDate, ISODateTimeFormat.dateTimeParser())
+        LocalDate examStartDate = DateTime
+            .parse(startDate, ISODateTimeFormat.dateTimeParser())
             .plusMillis(offset)
             .toLocalDate();
         LocalDate searchDate = day.isEmpty() ? now : LocalDate.parse(day, ISODateTimeFormat.dateParser());

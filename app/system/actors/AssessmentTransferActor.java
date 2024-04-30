@@ -54,41 +54,45 @@ public class AssessmentTransferActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-            .match(String.class, s -> {
-                logger.debug("Assessment transfer check started ->");
-                List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
-                    .where()
-                    .isNotNull("externalExam")
-                    .isNull("externalExam.sent")
-                    .isNotNull("externalExam.started")
-                    .isNotNull("externalExam.finished")
-                    .isNotNull("reservation.externalRef")
-                    .findList();
-                enrolments.forEach(e -> {
-                    try {
-                        send(e);
-                    } catch (IOException ex) {
-                        logger.error("I/O failure while sending assessment to proxy server", ex);
-                    }
-                });
-                logger.debug("<- done");
-            })
+            .match(
+                String.class,
+                s -> {
+                    logger.debug("Assessment transfer check started ->");
+                    List<ExamEnrolment> enrolments = DB
+                        .find(ExamEnrolment.class)
+                        .where()
+                        .isNotNull("externalExam")
+                        .isNull("externalExam.sent")
+                        .isNotNull("externalExam.started")
+                        .isNotNull("externalExam.finished")
+                        .isNotNull("reservation.externalRef")
+                        .findList();
+                    enrolments.forEach(e -> {
+                        try {
+                            send(e);
+                        } catch (IOException ex) {
+                            logger.error("I/O failure while sending assessment to proxy server", ex);
+                        }
+                    });
+                    logger.debug("<- done");
+                }
+            )
             .build();
     }
 
     private void send(ExamEnrolment enrolment) throws IOException {
         String ref = enrolment.getReservation().getExternalRef();
-        logger.debug("Transferring back assessment for reservation " + ref);
+        logger.debug("Transferring back assessment for reservation {}", ref);
         URL url = parseUrl(ref);
         WSRequest request = wsClient.url(url.toString());
         ExternalExam ee = enrolment.getExternalExam();
         Function<WSResponse, Void> onSuccess = response -> {
             if (response.getStatus() != Http.Status.CREATED) {
-                logger.error("Failed in transferring assessment for reservation " + ref);
+                logger.error("Failed in transferring assessment for reservation {}", ref);
             } else {
                 ee.setSent(DateTime.now());
                 ee.update();
-                logger.info("Assessment transfer for reservation " + ref + " processed successfully");
+                logger.info("Assessment transfer for reservation {} processed successfully", ref);
             }
             return null;
         };
@@ -99,8 +103,8 @@ public class AssessmentTransferActor extends AbstractActor {
     }
 
     private URL parseUrl(String reservationRef) throws MalformedURLException {
-        return URI.create(
-            configReader.getIopHost() + String.format("/api/enrolments/%s/assessment", reservationRef)
-        ).toURL();
+        return URI
+            .create(configReader.getIopHost() + String.format("/api/enrolments/%s/assessment", reservationRef))
+            .toURL();
     }
 }

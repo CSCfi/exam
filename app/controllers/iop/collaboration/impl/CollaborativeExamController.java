@@ -52,12 +52,8 @@ import sanitizers.EmailSanitizer;
 import sanitizers.ExamUpdateSanitizer;
 import scala.concurrent.duration.Duration;
 import security.Authenticated;
-import util.config.ConfigReader;
 
 public class CollaborativeExamController extends CollaborationController {
-
-    @Inject
-    private ConfigReader configReader;
 
     @Inject
     private ActorSystem as;
@@ -66,7 +62,8 @@ public class CollaborativeExamController extends CollaborationController {
     private EmailComposer composer;
 
     private Exam prepareDraft(User user) {
-        ExamExecutionType examExecutionType = DB.find(ExamExecutionType.class)
+        ExamExecutionType examExecutionType = DB
+            .find(ExamExecutionType.class)
             .where()
             .eq("type", ExamExecutionType.Type.PUBLIC.toString())
             .findOne();
@@ -92,8 +89,8 @@ public class CollaborativeExamController extends CollaborationController {
         DateTime start = DateTime.now().withTimeAtStartOfDay();
         exam.setPeriodStart(start);
         exam.setPeriodEnd(start.plusDays(1));
-        exam.setDuration(configReader.getExamDurations().get(0)); // check
-        exam.setGradeScale(DB.find(GradeScale.class).findList().get(0)); // check
+        exam.setDuration(configReader.getExamDurations().getFirst()); // check
+        exam.setGradeScale(DB.find(GradeScale.class).findList().getFirst()); // check
 
         exam.setTrialCount(1);
         exam.setAnonymous(true);
@@ -135,17 +132,19 @@ public class CollaborativeExamController extends CollaborationController {
         String homeOrg = configReader.getHomeOrganisationRef();
         return findCollaborativeExam(id)
             .map(ce ->
-                downloadExam(ce).thenApplyAsync(result -> {
-                    if (result.isEmpty()) {
-                        return notFound("i18n_error_exam_not_found");
-                    }
-                    Exam exam = result.get();
-                    if (!isAuthorizedToView(exam, user, homeOrg)) {
-                        return notFound("i18n_error_exam_not_found");
-                    }
-                    postProcessor.accept(exam);
-                    return ok(serialize(exam));
-                }))
+                downloadExam(ce)
+                    .thenApplyAsync(result -> {
+                        if (result.isEmpty()) {
+                            return notFound("i18n_error_exam_not_found");
+                        }
+                        Exam exam = result.get();
+                        if (!isAuthorizedToView(exam, user, homeOrg)) {
+                            return notFound("i18n_error_exam_not_found");
+                        }
+                        postProcessor.accept(exam);
+                        return ok(serialize(exam));
+                    })
+            )
             .getOrElseGet(Function.identity());
     }
 
@@ -221,47 +220,55 @@ public class CollaborativeExamController extends CollaborationController {
         return findCollaborativeExam(id)
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                return downloadExam(ce).thenComposeAsync(result -> {
-                    if (result.isPresent()) {
-                        Exam exam = result.get();
-                        if (isAuthorizedToView(exam, user, homeOrg)) {
-                            Exam.State previousState = exam.getState();
-                            Optional<Result> error = Stream.of(
-                                examUpdater.updateTemporalFieldsAndValidate(exam, user, request),
-                                examUpdater.updateStateAndValidate(exam, user, request)
-                            )
-                                .filter(Optional::isPresent)
-                                .map(Optional::get)
-                                .findFirst();
-                            if (error.isPresent()) {
-                                return wrapAsPromise(error.get());
-                            }
-                            Exam.State nextState = exam.getState();
-                            boolean isPrePublication =
-                                previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED;
-                            examUpdater.update(exam, request, user.getLoginRole());
-                            return uploadExam(ce, exam, user).thenApplyAsync(result2 -> {
-                                if (result2.status() == OK && isPrePublication) {
-                                    Set<String> receivers = exam
-                                        .getExamOwners()
-                                        .stream()
-                                        .map(User::getEmail)
-                                        .collect(Collectors.toSet());
-                                    as
-                                        .scheduler()
-                                        .scheduleOnce(
-                                            Duration.create(1, TimeUnit.SECONDS),
-                                            () -> composer.composeCollaborativeExamAnnouncement(receivers, user, exam),
-                                            as.dispatcher()
-                                        );
+                return downloadExam(ce)
+                    .thenComposeAsync(result -> {
+                        if (result.isPresent()) {
+                            Exam exam = result.get();
+                            if (isAuthorizedToView(exam, user, homeOrg)) {
+                                Exam.State previousState = exam.getState();
+                                Optional<Result> error = Stream
+                                    .of(
+                                        examUpdater.updateTemporalFieldsAndValidate(exam, user, request),
+                                        examUpdater.updateStateAndValidate(exam, user, request)
+                                    )
+                                    .filter(Optional::isPresent)
+                                    .map(Optional::get)
+                                    .findFirst();
+                                if (error.isPresent()) {
+                                    return wrapAsPromise(error.get());
                                 }
-                                return result2;
-                            });
+                                Exam.State nextState = exam.getState();
+                                boolean isPrePublication =
+                                    previousState != Exam.State.PRE_PUBLISHED && nextState == Exam.State.PRE_PUBLISHED;
+                                examUpdater.update(exam, request, user.getLoginRole());
+                                return uploadExam(ce, exam, user)
+                                    .thenApplyAsync(result2 -> {
+                                        if (result2.status() == OK && isPrePublication) {
+                                            Set<String> receivers = exam
+                                                .getExamOwners()
+                                                .stream()
+                                                .map(User::getEmail)
+                                                .collect(Collectors.toSet());
+                                            as
+                                                .scheduler()
+                                                .scheduleOnce(
+                                                    Duration.create(1, TimeUnit.SECONDS),
+                                                    () ->
+                                                        composer.composeCollaborativeExamAnnouncement(
+                                                            receivers,
+                                                            user,
+                                                            exam
+                                                        ),
+                                                    as.dispatcher()
+                                                );
+                                        }
+                                        return result2;
+                                    });
+                            }
+                            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
                         }
-                        return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
-                    }
-                    return wrapAsPromise(notFound());
-                });
+                        return wrapAsPromise(notFound());
+                    });
             })
             .getOrElseGet(Function.identity());
     }
@@ -272,14 +279,15 @@ public class CollaborativeExamController extends CollaborationController {
         return findCollaborativeExam(id)
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                return downloadExam(ce).thenComposeAsync(result -> {
-                    if (result.isPresent()) {
-                        Exam exam = result.get();
-                        Optional<Result> error = examUpdater.updateLanguage(exam, code, user);
-                        return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, user);
-                    }
-                    return wrapAsPromise(notFound());
-                });
+                return downloadExam(ce)
+                    .thenComposeAsync(result -> {
+                        if (result.isPresent()) {
+                            Exam exam = result.get();
+                            Optional<Result> error = examUpdater.updateLanguage(exam, code, user);
+                            return error.isPresent() ? wrapAsPromise(error.get()) : uploadExam(ce, exam, user);
+                        }
+                        return wrapAsPromise(notFound());
+                    });
             })
             .getOrElseGet(Function.identity());
     }
@@ -291,15 +299,16 @@ public class CollaborativeExamController extends CollaborationController {
         return findCollaborativeExam(id)
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                return downloadExam(ce).thenComposeAsync(result -> {
-                    if (result.isPresent()) {
-                        Exam exam = result.get();
-                        User owner = createOwner(request.attrs().get(Attrs.EMAIL));
-                        exam.getExamOwners().add(owner);
-                        return uploadExam(ce, exam, user, owner, null);
-                    }
-                    return wrapAsPromise(notFound());
-                });
+                return downloadExam(ce)
+                    .thenComposeAsync(result -> {
+                        if (result.isPresent()) {
+                            Exam exam = result.get();
+                            User owner = createOwner(request.attrs().get(Attrs.EMAIL));
+                            exam.getExamOwners().add(owner);
+                            return uploadExam(ce, exam, user, owner, null);
+                        }
+                        return wrapAsPromise(notFound());
+                    });
             })
             .getOrElseGet(Function.identity());
     }
@@ -310,16 +319,17 @@ public class CollaborativeExamController extends CollaborationController {
         return findCollaborativeExam(id)
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                return downloadExam(ce).thenComposeAsync(result -> {
-                    if (result.isPresent()) {
-                        Exam exam = result.get();
-                        User owner = new User();
-                        owner.setId(oid);
-                        exam.getExamOwners().remove(owner);
-                        return uploadExam(ce, exam, user);
-                    }
-                    return wrapAsPromise(notFound());
-                });
+                return downloadExam(ce)
+                    .thenComposeAsync(result -> {
+                        if (result.isPresent()) {
+                            Exam exam = result.get();
+                            User owner = new User();
+                            owner.setId(oid);
+                            exam.getExamOwners().remove(owner);
+                            return uploadExam(ce, exam, user);
+                        }
+                        return wrapAsPromise(notFound());
+                    });
             })
             .getOrElseGet(Function.identity());
     }

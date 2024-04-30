@@ -17,6 +17,7 @@ package system;
 
 import impl.EmailComposer;
 import io.ebean.DB;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +95,7 @@ class SystemInitializer {
         this.ec = ec;
         this.defaultTimeZone = configReader.getDefaultTimeZone();
 
-        String encoding = System.getProperty("file.encoding");
+        String encoding = Charset.defaultCharset().displayName();
         if (!encoding.equals("UTF-8")) {
             logger.warn(
                 "Default encoding is other than UTF-8 ({}). " +
@@ -248,7 +249,7 @@ class SystemInitializer {
             nextRun = nextRun.plusHours(1);
         }
 
-        logger.info("Scheduled next weekly report to be run at {}", nextRun.toString());
+        logger.info("Scheduled next weekly report to be run at {}", nextRun);
         // Increase delay with one second so that this won't fire off before intended time. This may happen because of
         // millisecond-level rounding issues and possibly cause resending of messages.
         return Seconds.secondsBetween(now, nextRun).getSeconds() + 1;
@@ -268,7 +269,8 @@ class SystemInitializer {
                     delay,
                     () -> {
                         logger.info("Running weekly email report");
-                        List<User> teachers = DB.find(User.class)
+                        List<User> teachers = DB
+                            .find(User.class)
                             .fetch("language")
                             .where()
                             .eq("roles.name", "TEACHER")

@@ -56,8 +56,8 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
         // create a sub-list that excludes interval which does not overlap with
         // searchInterval
         List<Interval> subReservedList = removeNonOverlappingIntervals(reserved, searchInterval);
-        DateTime subEarliestStart = subReservedList.get(0).getStart();
-        DateTime subLatestEnd = subReservedList.get(subReservedList.size() - 1).getEnd();
+        DateTime subEarliestStart = subReservedList.getFirst().getStart();
+        DateTime subLatestEnd = subReservedList.getLast().getEnd();
 
         // in case the searchInterval is wider than the union of the existing
         // include searchInterval.start => earliestExisting.start
@@ -77,7 +77,7 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
 
     private List<Interval> getExistingIntervalGaps(List<Interval> reserved) {
         List<Interval> gaps = new ArrayList<>();
-        Interval current = reserved.get(0);
+        Interval current = reserved.getFirst();
         for (int i = 1; i < reserved.size(); i++) {
             Interval next = reserved.get(i);
             Interval gap = current.gap(next);
@@ -94,8 +94,8 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
     }
 
     private boolean hasNoOverlap(List<Interval> reserved, DateTime searchStart, DateTime searchEnd) {
-        DateTime earliestStart = reserved.get(0).getStart();
-        DateTime latestStop = reserved.get(reserved.size() - 1).getEnd();
+        DateTime earliestStart = reserved.getFirst().getStart();
+        DateTime latestStop = reserved.getLast().getEnd();
         return (!searchEnd.isAfter(earliestStart) || !searchStart.isBefore(latestStop));
     }
 
@@ -280,7 +280,7 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
                 LocalTime lt = LocalTime.now().withHourOfDay(java.time.LocalTime.NOON.getHour());
                 tzOffset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(date.toDateTime(lt));
             } else {
-                tzOffset = workingHours.get(0).getTimezoneOffset();
+                tzOffset = workingHours.getFirst().getTimezoneOffset();
             }
             workingHours.clear();
             workingHours.addAll(

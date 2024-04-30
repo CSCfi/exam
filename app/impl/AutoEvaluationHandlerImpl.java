@@ -79,7 +79,7 @@ public class AutoEvaluationHandlerImpl implements AutoEvaluationHandler {
             exam.setCreditType(exam.getExamType());
             // NOTE: do not set graded by person here, one who makes a record will get the honor
             if (!exam.getExamLanguages().isEmpty()) {
-                exam.setAnswerLanguage(exam.getExamLanguages().get(0).getCode());
+                exam.setAnswerLanguage(exam.getExamLanguages().getFirst().getCode());
             } else {
                 throw new RuntimeException("No exam language found!");
             }

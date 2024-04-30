@@ -95,7 +95,8 @@ public class StudentActionsController extends CollaborationController {
 
     @Authenticated
     public Result getExamFeedback(Long id, Http.Request request) {
-        Exam exam = DB.find(Exam.class)
+        Exam exam = DB
+            .find(Exam.class)
             .fetch("creator", "firstName, lastName, email")
             .fetch("course", "code, name, credits")
             .fetch("grade")
@@ -132,7 +133,8 @@ public class StudentActionsController extends CollaborationController {
 
     @Authenticated
     public Result getExamScore(Long eid, Http.Request request) {
-        Exam exam = DB.find(Exam.class)
+        Exam exam = DB
+            .find(Exam.class)
             .fetch("examSections.sectionQuestions.question")
             .where()
             .eq("id", eid)
@@ -160,7 +162,8 @@ public class StudentActionsController extends CollaborationController {
 
     @Authenticated
     public Result getExamScoreReport(Long eid, Http.Request request) {
-        Exam exam = DB.find(Exam.class)
+        Exam exam = DB
+            .find(Exam.class)
             .fetch("examParticipation.user")
             .fetch("examSections.sectionQuestions.question")
             .fetch("examSections.sectionQuestions.clozeTestAnswer")
@@ -195,7 +198,8 @@ public class StudentActionsController extends CollaborationController {
     }
 
     private Set<ExamEnrolment> getNoShows(User user, String filter) {
-        ExpressionList<ExamEnrolment> noShows = DB.find(ExamEnrolment.class)
+        ExpressionList<ExamEnrolment> noShows = DB
+            .find(ExamEnrolment.class)
             .fetch("exam", "id, state, name")
             .fetch("exam.course", "code, name")
             .fetch("exam.examOwners", "firstName, lastName, id")
@@ -207,15 +211,16 @@ public class StudentActionsController extends CollaborationController {
             .eq("noShow", true);
         if (filter != null) {
             String condition = String.format("%%%s%%", filter);
-            noShows = noShows
-                .disjunction()
-                .ilike("exam.name", condition)
-                .ilike("exam.course.code", condition)
-                .ilike("exam.examOwners.firstName", condition)
-                .ilike("exam.examOwners.lastName", condition)
-                .ilike("exam.examInspections.user.firstName", condition)
-                .ilike("exam.examInspections.user.lastName", condition)
-                .endJunction();
+            noShows =
+                noShows
+                    .disjunction()
+                    .ilike("exam.name", condition)
+                    .ilike("exam.course.code", condition)
+                    .ilike("exam.examOwners.firstName", condition)
+                    .ilike("exam.examOwners.lastName", condition)
+                    .ilike("exam.examInspections.user.firstName", condition)
+                    .ilike("exam.examInspections.user.lastName", condition)
+                    .endJunction();
         }
         return noShows.findSet();
     }
@@ -223,7 +228,8 @@ public class StudentActionsController extends CollaborationController {
     @Authenticated
     public Result getFinishedExams(Optional<String> filter, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<ExamParticipation> query = DB.find(ExamParticipation.class)
+        ExpressionList<ExamParticipation> query = DB
+            .find(ExamParticipation.class)
             .fetch("exam", "id, state, name, autoEvaluationNotified, anonymous, gradeless")
             .fetch("exam.creator", "id")
             .fetch("exam.course", "code, name")
@@ -237,15 +243,16 @@ public class StudentActionsController extends CollaborationController {
             .eq("exam.creator", user);
         if (filter.isPresent()) {
             String condition = String.format("%%%s%%", filter.get());
-            query = query
-                .disjunction()
-                .ilike("exam.name", condition)
-                .ilike("exam.course.code", condition)
-                .ilike("exam.parent.examOwners.firstName", condition)
-                .ilike("exam.parent.examOwners.lastName", condition)
-                .ilike("exam.examInspections.user.firstName", condition)
-                .ilike("exam.examInspections.user.lastName", condition)
-                .endJunction();
+            query =
+                query
+                    .disjunction()
+                    .ilike("exam.name", condition)
+                    .ilike("exam.course.code", condition)
+                    .ilike("exam.parent.examOwners.firstName", condition)
+                    .ilike("exam.parent.examOwners.lastName", condition)
+                    .ilike("exam.examInspections.user.firstName", condition)
+                    .ilike("exam.examInspections.user.lastName", condition)
+                    .endJunction();
         }
         Set<ExamParticipation> participations = query.findSet();
         Set<ExamEnrolment> noShows = getNoShows(user, filter.orElse(null));
@@ -257,7 +264,8 @@ public class StudentActionsController extends CollaborationController {
 
     @Authenticated
     public CompletionStage<Result> getEnrolment(Long eid, Http.Request request) throws IOException {
-        ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
+        ExamEnrolment enrolment = DB
+            .find(ExamEnrolment.class)
             .fetch("exam")
             .fetch("externalExam")
             .fetch("collaborativeExam")
@@ -289,20 +297,21 @@ public class StudentActionsController extends CollaborationController {
         );
         if (enrolment.getCollaborativeExam() != null) {
             // Collaborative exam, we need to download
-            return downloadExam(enrolment.getCollaborativeExam()).thenComposeAsync(result -> {
-                if (result.isPresent()) {
-                    // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
-                    // Works in this particular use case
-                    Exam exam = result.get();
-                    enrolment.setExam(exam);
-                    return wrapAsPromise(ok(enrolment, pp));
-                } else {
-                    return wrapAsPromise(notFound());
-                }
-            });
+            return downloadExam(enrolment.getCollaborativeExam())
+                .thenComposeAsync(result -> {
+                    if (result.isPresent()) {
+                        // A bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+                        // Works in this particular use case
+                        Exam exam = result.get();
+                        enrolment.setExam(exam);
+                        return wrapAsPromise(ok(enrolment, pp));
+                    } else {
+                        return wrapAsPromise(notFound());
+                    }
+                });
         }
         if (enrolment.getExternalExam() != null) {
-            // Bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
+            // A bit of a hack so that we can pass the external exam as an ordinary one so the UI does not need to care
             // Works in this particular use case
             Exam exam = enrolment.getExternalExam().deserialize();
             enrolment.setExternalExam(null);
@@ -320,7 +329,8 @@ public class StudentActionsController extends CollaborationController {
     @Authenticated
     public Result getExamConfigFile(Long enrolmentId, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Optional<ExamEnrolment> oee = DB.find(ExamEnrolment.class)
+        Optional<ExamEnrolment> oee = DB
+            .find(ExamEnrolment.class)
             .where()
             .idEq(enrolmentId)
             .eq("user", user)
@@ -362,7 +372,8 @@ public class StudentActionsController extends CollaborationController {
 
     @Authenticated
     public Result getExamInfo(Long eid, Http.Request request) {
-        Exam exam = DB.find(Exam.class)
+        Exam exam = DB
+            .find(Exam.class)
             .fetch("course", "code, name")
             .fetch("examSections")
             .fetch("examSections.examMaterials")
@@ -397,7 +408,8 @@ public class StudentActionsController extends CollaborationController {
     }
 
     private Result listExams(String filter, Collection<String> courseCodes) {
-        ExpressionList<Exam> query = DB.find(Exam.class)
+        ExpressionList<Exam> query = DB
+            .find(Exam.class)
             .select("id, name, duration, periodStart, periodEnd, enrollInstruction, implementation")
             .fetch("course", "code, name")
             .fetch("examOwners", "firstName, lastName")
@@ -417,24 +429,24 @@ public class StudentActionsController extends CollaborationController {
             query = query.disjunction();
             applyUserFilter("examOwners", query, filter);
             applyUserFilter("examInspections.user", query, filter);
-            query = query
-                .ilike("name", condition)
-                .ilike("course.code", condition)
-                .ilike("course.name", condition)
-                .endJunction();
+            query =
+                query
+                    .ilike("name", condition)
+                    .ilike("course.code", condition)
+                    .ilike("course.name", condition)
+                    .endJunction();
         }
         List<Exam> exams = query
             .orderBy("course.code")
             .findList()
             .stream()
-            .filter(
-                e ->
-                    e.getImplementation() == Exam.Implementation.AQUARIUM ||
-                    e
-                        .getExaminationEventConfigurations()
-                        .stream()
-                        .map(ExaminationEventConfiguration::getExaminationEvent)
-                        .anyMatch(ee -> ee.getStart().isAfter(DateTime.now()))
+            .filter(e ->
+                e.getImplementation() == Exam.Implementation.AQUARIUM ||
+                e
+                    .getExaminationEventConfigurations()
+                    .stream()
+                    .map(ExaminationEventConfiguration::getExaminationEvent)
+                    .anyMatch(ee -> ee.getStart().isAfter(DateTime.now()))
             )
             .toList();
         return ok(exams);

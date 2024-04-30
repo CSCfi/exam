@@ -54,7 +54,7 @@ public final class JsonDeserializer {
                 try {
                     return new Date(json.getAsLong());
                 } catch (RuntimeException e2) {
-                    logger.warn("Failed to parse date " + json.getAsString());
+                    logger.warn("Failed to parse date {}", json.getAsString());
                 }
             }
             return null;
@@ -71,7 +71,7 @@ public final class JsonDeserializer {
                 try {
                     return new DateTime(json.getAsLong());
                 } catch (RuntimeException e2) {
-                    logger.warn("Failed to parse date " + json.getAsString());
+                    logger.warn("Failed to parse date {}", json.getAsString());
                 }
             }
             return null;

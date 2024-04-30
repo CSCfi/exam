@@ -162,9 +162,7 @@ public class ExaminationEventConfiguration extends GeneratedIdentityModel {
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (!(o instanceof ExaminationEventConfiguration)) return false;
-
-        ExaminationEventConfiguration that = (ExaminationEventConfiguration) o;
+        if (!(o instanceof ExaminationEventConfiguration that)) return false;
 
         return new EqualsBuilder().append(exam, that.exam).append(examinationEvent, that.examinationEvent).isEquals();
     }

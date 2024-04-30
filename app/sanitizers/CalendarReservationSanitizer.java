@@ -40,7 +40,7 @@ public class CalendarReservationSanitizer extends BaseSanitizer {
                 aids.add(it.next().asInt());
             }
         }
-        request = request.addAttr(Attrs.ACCESSABILITES, aids);
+        request = request.addAttr(Attrs.ACCESSIBILITIES, aids);
 
         // Optional section IDs
         Collection<Long> optionalSectionIds = new HashSet<>();

@@ -39,7 +39,7 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
   /* FIXME: have Apache provide us with X-Forwarded-Proto header so we can resolve this automatically */
   private val protocol = URI.create(configReader.getHostName).toURL.getProtocol
 
-  private def getTemplate(hash: String, quitPwdPlain: String): String =
+  private def getTemplate(hash: String, quitPwdPlain: String) =
     val path          = s"${env.rootPath.getAbsolutePath}/conf/seb.template.plist"
     val startUrl      = s"${configReader.getHostName}?exam=$hash"
     val quitLink      = configReader.getQuitExaminationLink
@@ -56,7 +56,7 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
     source.close
     template
 
-  private def compress(data: Array[Byte]): Array[Byte] =
+  private def compress(data: Array[Byte]) =
     val os   = new ByteArrayOutputStream
     val gzip = new GZIPOutputStream(os)
     gzip.write(data)
@@ -64,7 +64,7 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
     gzip.close()
     os.toByteArray
 
-  private def compressWithHeader(data: Array[Byte]): Array[Byte] =
+  private def compressWithHeader(data: Array[Byte]) =
     val header = PasswordEncryption.getBytes(StandardCharsets.UTF_8)
     val os     = new ByteArrayOutputStream()
     os.write(header)
@@ -83,7 +83,7 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
     case "dict"             => dictToJson(node)
     case _                  => throw new NoSuchElementException
 
-  private def dictToJson(dict: Node): Option[JsValue] = dict.child match
+  private def dictToJson(dict: Node) = dict.child match
     case Seq() => None
     case children =>
       val json: Seq[(String, JsValue)] = children

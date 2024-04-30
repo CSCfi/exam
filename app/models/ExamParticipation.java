@@ -156,10 +156,9 @@ public class ExamParticipation extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof ExamParticipation)) {
+        if (!(other instanceof ExamParticipation otherParticipation)) {
             return false;
         }
-        ExamParticipation otherParticipation = (ExamParticipation) other;
         return new EqualsBuilder().append(id, otherParticipation.id).build();
     }
 

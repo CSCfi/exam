@@ -99,10 +99,9 @@ public class ExceptionWorkingHours extends GeneratedIdentityModel {
     @Override
     public boolean equals(Object other) {
         if (this == other) return true;
-        if (!(other instanceof ExceptionWorkingHours)) {
+        if (!(other instanceof ExceptionWorkingHours otherException)) {
             return false;
         }
-        ExceptionWorkingHours otherException = (ExceptionWorkingHours) other;
         return new EqualsBuilder().append(id, otherException.id).build();
     }
 

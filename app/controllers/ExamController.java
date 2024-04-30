@@ -87,7 +87,8 @@ public class ExamController extends BaseController {
     }
 
     private static ExpressionList<Exam> createPrototypeQuery() {
-        return DB.find(Exam.class)
+        return DB
+            .find(Exam.class)
             .fetch("course")
             .fetch("creator")
             .fetch("examOwners")
@@ -135,7 +136,8 @@ public class ExamController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result listPrintouts() {
-        List<Exam> printouts = DB.find(Exam.class)
+        List<Exam> printouts = DB
+            .find(Exam.class)
             .where()
             .eq("executionType.type", ExamExecutionType.Type.PRINTOUT.toString())
             .eq("state", Exam.State.PUBLISHED)
@@ -302,7 +304,8 @@ public class ExamController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getExamPreview(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Exam exam = DB.find(Exam.class)
+        Exam exam = DB
+            .find(Exam.class)
             .fetch("course")
             .fetch("executionType")
             .fetch("examinationDates")
@@ -366,11 +369,10 @@ public class ExamController extends BaseController {
         if (exam.isOwnedOrCreatedBy(user) || user.hasRole(Role.Name.ADMIN)) {
             return examUpdater
                 .updateTemporalFieldsAndValidate(exam, user, request)
-                .orElseGet(
-                    () ->
-                        examUpdater
-                            .updateStateAndValidate(exam, user, request)
-                            .orElseGet(() -> handleExamUpdate(exam, user, request))
+                .orElseGet(() ->
+                    examUpdater
+                        .updateStateAndValidate(exam, user, request)
+                        .orElseGet(() -> handleExamUpdate(exam, user, request))
                 );
         } else {
             return forbidden("i18n_error_access_forbidden");
@@ -439,7 +441,8 @@ public class ExamController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result copyExam(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Exam prototype = DB.find(Exam.class) // TODO: check if all this fetching is necessary
+        Exam prototype = DB
+            .find(Exam.class) // TODO: check if all this fetching is necessary
             .fetch("creator", "id")
             .fetch("examType", "id, type")
             .fetch("examSections", "id, name, sequenceNumber")
@@ -497,7 +500,8 @@ public class ExamController extends BaseController {
     public Result createExamDraft(Http.Request request) {
         String executionType = request.body().asJson().get("executionType").asText();
         String implementation = request.body().asJson().get("implementation").asText();
-        ExamExecutionType examExecutionType = DB.find(ExamExecutionType.class)
+        ExamExecutionType examExecutionType = DB
+            .find(ExamExecutionType.class)
             .where()
             .eq("type", executionType)
             .findOne();
@@ -539,9 +543,9 @@ public class ExamController extends BaseController {
             exam.setPeriodStart(start);
             exam.setPeriodEnd(start.plusDays(1));
         }
-        exam.setDuration(configReader.getExamDurations().get(0));
+        exam.setDuration(configReader.getExamDurations().getFirst());
         if (configReader.isCourseGradeScaleOverridable()) {
-            exam.setGradeScale(DB.find(GradeScale.class).findList().get(0));
+            exam.setGradeScale(DB.find(GradeScale.class).findList().getFirst());
         }
 
         exam.save();
@@ -590,7 +594,8 @@ public class ExamController extends BaseController {
     }
 
     private static Query<Exam> prototypeQuery() {
-        return DB.find(Exam.class)
+        return DB
+            .find(Exam.class)
             .fetch("course")
             .fetch("course.organisation")
             .fetch("course.gradeScale")

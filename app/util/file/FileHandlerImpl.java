@@ -112,7 +112,7 @@ public class FileHandlerImpl implements FileHandler {
         Path path = FileSystems.getDefault().getPath(filePath);
         try {
             if (!java.nio.file.Files.deleteIfExists(path)) {
-                logger.error("Could not delete " + path + " because it does not exist.");
+                logger.error("Could not delete {} because it does not exist.", path);
             }
         } catch (IOException e) {
             logger.error("IO Exception occurred", e);

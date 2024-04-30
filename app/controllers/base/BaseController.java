@@ -46,8 +46,6 @@ import system.interceptors.AnonymousJsonAction;
 
 public class BaseController extends Controller {
 
-    private final Logger logger = LoggerFactory.getLogger(BaseController.class);
-
     @Inject
     protected FormFactory formFactory;
 
@@ -87,17 +85,18 @@ public class BaseController extends Controller {
             // Possible that user provided us two names. Let's try out some combinations of first and last names
             var name1 = rawFilter.split(" ")[0];
             var name2 = rawFilter.split(" ")[1];
-            result = result
-                .or()
-                .and()
-                .ilike(fnField, String.format("%%%s%%", name1))
-                .ilike(lnField, String.format("%%%s%%", name2))
-                .endAnd()
-                .and()
-                .ilike(fnField, String.format("%%%s%%", name2))
-                .ilike(lnField, String.format("%%%s%%", name1))
-                .endAnd()
-                .endOr();
+            result =
+                result
+                    .or()
+                    .and()
+                    .ilike(fnField, String.format("%%%s%%", name1))
+                    .ilike(lnField, String.format("%%%s%%", name2))
+                    .endAnd()
+                    .and()
+                    .ilike(fnField, String.format("%%%s%%", name2))
+                    .ilike(lnField, String.format("%%%s%%", name1))
+                    .endAnd()
+                    .endOr();
         } else {
             result = result.ilike(fnField, condition).ilike(lnField, condition);
         }
@@ -105,7 +104,8 @@ public class BaseController extends Controller {
     }
 
     private void handleNoShow(User user, Long examId) {
-        var enrolments = DB.find(ExamEnrolment.class)
+        var enrolments = DB
+            .find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("exam")
             .where()
@@ -115,8 +115,8 @@ public class BaseController extends Controller {
             .lt("reservation.endAt", new Date())
             .lt("examinationEventConfiguration.examinationEvent.start", new Date()) // FIXME: exam period
             .endOr()
-            // Either a) exam id matches and exam state is published OR
-            //        b) collaborative exam id matches and exam is NULL
+            // Either (a) exam id matches and exam state is published OR
+            //        (b) collaborative exam id matches and exam is NULL
             .or()
             .and()
             .eq("exam.id", examId)
@@ -138,7 +138,8 @@ public class BaseController extends Controller {
         if (trialCount == null) {
             return true;
         }
-        var trials = DB.find(ExamEnrolment.class)
+        var trials = DB
+            .find(ExamEnrolment.class)
             .fetch("exam")
             .where()
             .eq("user", user)
@@ -193,7 +194,6 @@ public class BaseController extends Controller {
             var json = mapper.writeValueAsString(o);
             return mapper.readTree(json);
         } catch (IOException e) {
-            logger.error("unable to serialize");
             throw new RuntimeException(e);
         }
     }
@@ -204,7 +204,6 @@ public class BaseController extends Controller {
             var json = DB.json().toJson(o, pp);
             return mapper.readTree(json);
         } catch (IOException e) {
-            logger.error("unable to serialize");
             throw new RuntimeException(e);
         }
     }

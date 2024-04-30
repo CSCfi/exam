@@ -121,10 +121,11 @@ public class QuestionController extends BaseController implements SectionQuestio
 
         Set<Question> questions = el.orderBy("created desc").findSet();
         if (user.hasRole(Role.Name.TEACHER) && !ownerIds.isEmpty()) {
-            questions = questions
-                .stream()
-                .filter(question -> question.getQuestionOwners().contains(user))
-                .collect(Collectors.toSet());
+            questions =
+                questions
+                    .stream()
+                    .filter(question -> question.getQuestionOwners().contains(user))
+                    .collect(Collectors.toSet());
         }
         return ok(questions, pp);
     }
@@ -197,14 +198,12 @@ public class QuestionController extends BaseController implements SectionQuestio
         String questionText = request.attrs().getOptional(Attrs.QUESTION_TEXT).orElse(null);
         Double defaultMaxScore = round(SanitizingHelper.parse("defaultMaxScore", node, Double.class).orElse(null));
         Integer defaultWordCount = SanitizingHelper.parse("defaultExpectedWordCount", node, Integer.class).orElse(null);
-        Question.EvaluationType defaultEvaluationType = SanitizingHelper.parseEnum(
-            "defaultEvaluationType",
-            node,
-            Question.EvaluationType.class
-        ).orElse(null);
-        String defaultInstructions = SanitizingHelper.parse("defaultAnswerInstructions", node, String.class).orElse(
-            null
-        );
+        Question.EvaluationType defaultEvaluationType = SanitizingHelper
+            .parseEnum("defaultEvaluationType", node, Question.EvaluationType.class)
+            .orElse(null);
+        String defaultInstructions = SanitizingHelper
+            .parse("defaultAnswerInstructions", node, String.class)
+            .orElse(null);
         String defaultCriteria = SanitizingHelper.parse("defaultEvaluationCriteria", node, String.class).orElse(null);
         Question.Type type = SanitizingHelper.parseEnum("type", node, Question.Type.class).orElse(null);
 
@@ -241,13 +240,14 @@ public class QuestionController extends BaseController implements SectionQuestio
                 if (tagNode.has("id")) {
                     tag = DB.find(Tag.class).where().idEq(tagNode.get("id").asLong()).findOneOrEmpty();
                 } else {
-                    List<Tag> tags = DB.find(Tag.class)
+                    List<Tag> tags = DB
+                        .find(Tag.class)
                         .where()
                         .eq("name", tagNode.get("name").asText())
                         .eq("creator", user)
                         .findList();
                     if (!tags.isEmpty()) {
-                        tag = Optional.of(tags.get(0));
+                        tag = Optional.of(tags.getFirst());
                     }
                 }
                 if (tag.isEmpty()) {
@@ -291,12 +291,13 @@ public class QuestionController extends BaseController implements SectionQuestio
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         ExpressionList<Question> query = DB.find(Question.class).where().idEq(id);
         if (user.hasRole(Role.Name.TEACHER)) {
-            query = query
-                .disjunction()
-                .eq("shared", true)
-                .eq("questionOwners", user)
-                .eq("examSectionQuestions.examSection.exam.examOwners", user)
-                .endJunction();
+            query =
+                query
+                    .disjunction()
+                    .eq("shared", true)
+                    .eq("questionOwners", user)
+                    .eq("examSectionQuestions.examSection.exam.examOwners", user)
+                    .endJunction();
         }
         Question question = query.findOne();
         if (question == null) {
@@ -363,12 +364,14 @@ public class QuestionController extends BaseController implements SectionQuestio
             .stream()
             .map(MultipleChoiceOption::getId)
             .collect(Collectors.toSet());
-        Set<Long> providedIds = StreamSupport.stream(node.spliterator(), false)
+        Set<Long> providedIds = StreamSupport
+            .stream(node.spliterator(), false)
             .filter(n -> SanitizingHelper.parse("id", n, Long.class).isPresent())
             .map(n -> SanitizingHelper.parse("id", n, Long.class).get())
             .collect(Collectors.toSet());
         // Updates
-        StreamSupport.stream(node.spliterator(), false)
+        StreamSupport
+            .stream(node.spliterator(), false)
             .filter(o -> {
                 Optional<Long> id = SanitizingHelper.parse("id", o, Long.class);
                 return id.isPresent() && persistedIds.contains(id.get());
@@ -377,7 +380,8 @@ public class QuestionController extends BaseController implements SectionQuestio
         // Removals
         question.getOptions().stream().filter(o -> !providedIds.contains(o.getId())).forEach(this::deleteOption);
         // Additions
-        StreamSupport.stream(node.spliterator(), false)
+        StreamSupport
+            .stream(node.spliterator(), false)
             .filter(o -> SanitizingHelper.parse("id", o, Long.class).isEmpty())
             .forEach(o -> createOption(question, o, user));
     }
@@ -390,11 +394,9 @@ public class QuestionController extends BaseController implements SectionQuestio
         Boolean correctOption = SanitizingHelper.parse("correctOption", node, Boolean.class, false);
         option.setCorrectOption(correctOption);
         option.setClaimChoiceType(
-            SanitizingHelper.parseEnum(
-                "claimChoiceType",
-                node,
-                MultipleChoiceOption.ClaimChoiceOptionType.class
-            ).orElse(null)
+            SanitizingHelper
+                .parseEnum("claimChoiceType", node, MultipleChoiceOption.ClaimChoiceOptionType.class)
+                .orElse(null)
         );
         saveOption(option, question, user);
         propagateOptionCreationToExamQuestions(question, null, option);
@@ -403,7 +405,8 @@ public class QuestionController extends BaseController implements SectionQuestio
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result addOwner(Long uid, Http.Request request) {
-        User newOwner = DB.find(User.class)
+        User newOwner = DB
+            .find(User.class)
             .select("id, firstName, lastName, userIdentifier")
             .where()
             .idEq(uid)
@@ -441,16 +444,18 @@ public class QuestionController extends BaseController implements SectionQuestio
     public Result exportQuestions(Http.Request request) {
         JsonNode body = request.body().asJson();
         ArrayNode node = (ArrayNode) body.get("params").get("ids");
-        Set<Long> ids = StreamSupport.stream(node.spliterator(), false)
+        Set<Long> ids = StreamSupport
+            .stream(node.spliterator(), false)
             .map(JsonNode::asLong)
             .collect(Collectors.toSet());
-        List<Question> questions = DB.find(Question.class)
+        List<Question> questions = DB
+            .find(Question.class)
             .where()
             .idIn(ids)
             .findList()
             .stream()
-            .filter(
-                q -> q.getType() != Question.Type.ClaimChoiceQuestion && q.getType() != Question.Type.ClozeTestQuestion
+            .filter(q ->
+                q.getType() != Question.Type.ClaimChoiceQuestion && q.getType() != Question.Type.ClozeTestQuestion
             )
             .toList();
         String document = xmlExporter.convert(CollectionConverters.asScala(questions).toSeq());
@@ -493,7 +498,8 @@ public class QuestionController extends BaseController implements SectionQuestio
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getQuestionPreview(Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<Question> el = DB.find(Question.class)
+        ExpressionList<Question> el = DB
+            .find(Question.class)
             .fetch("attachment", "fileName")
             .fetch("options")
             .where()
@@ -532,7 +538,8 @@ public class QuestionController extends BaseController implements SectionQuestio
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getExamSectionQuestionPreview(Long esqId, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExpressionList<ExamSectionQuestion> el = DB.find(ExamSectionQuestion.class)
+        ExpressionList<ExamSectionQuestion> el = DB
+            .find(ExamSectionQuestion.class)
             .fetch("question", "id, type, question")
             .fetch("question.attachment", "fileName")
             .fetch("options")

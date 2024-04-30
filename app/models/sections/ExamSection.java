@@ -211,7 +211,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
             .stream()
             .map(ExamSectionQuestion::getAssessedScore)
             .filter(Objects::nonNull)
-            .reduce(0.0, (sum, x) -> sum += x);
+            .reduce(0.0, Double::sum);
     }
 
     public double getMaxScore() {
@@ -219,7 +219,7 @@ public final class ExamSection extends OwnedModel implements Comparable<ExamSect
             .stream()
             .map(ExamSectionQuestion::getMaxAssessedScore)
             .filter(Objects::nonNull)
-            .reduce(0.0, (sum, x) -> sum += x);
+            .reduce(0.0, Double::sum);
     }
 
     public int getRejectedCount() {

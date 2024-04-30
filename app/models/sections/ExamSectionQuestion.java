@@ -225,7 +225,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     ExamSectionQuestion copyWithAnswers(Boolean hasParent) {
         ExamSectionQuestion esqCopy = new ExamSectionQuestion();
         BeanUtils.copyProperties(this, esqCopy, "id", "options", "essayAnswer", "clozeTestAnswer");
-        // This is a little bit tricky. Need to map the original question options with copied ones so they can be
+        // This is a little bit tricky. Need to map the original question options with copied ones, so they can be
         // associated with both question and exam section question options :)
 
         Map<Long, MultipleChoiceOption> optionMap;
@@ -242,9 +242,9 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
         }
         blueprint.save();
         options.forEach(option -> {
-            Optional<MultipleChoiceOption> parentOption = Optional.ofNullable(option.getOption()).filter(
-                opt -> opt.getId() != null
-            );
+            Optional<MultipleChoiceOption> parentOption = Optional
+                .ofNullable(option.getOption())
+                .filter(opt -> opt.getId() != null);
             if (parentOption.isPresent()) {
                 MultipleChoiceOption optionCopy = optionMap.get(parentOption.get().getId());
                 optionCopy.setQuestion(blueprint);
@@ -278,7 +278,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
             blueprint = question;
             options.forEach(o -> esqCopy.getOptions().add(o.copy()));
         } else {
-            // This is a little bit tricky. Need to map the original question options with copied ones so they can be
+            // This is a little bit tricky. Need to map the original question options with copied ones, so they can be
             // associated with both question and exam section question options :)
             Map<Long, MultipleChoiceOption> optionMap;
 
@@ -532,7 +532,7 @@ public class ExamSectionQuestion extends OwnedModel implements Comparable<ExamSe
     private void initOptionScore(Double score, List<ExamSectionQuestionOption> options) {
         BigDecimal delta = calculateOptionScores(score * -1, options);
         if (!options.isEmpty()) {
-            ExamSectionQuestionOption first = options.get(0);
+            ExamSectionQuestionOption first = options.getFirst();
             first.setScore(BigDecimal.valueOf(first.getScore()).add(delta).doubleValue());
         }
     }

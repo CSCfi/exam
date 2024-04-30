@@ -56,8 +56,7 @@ public class OrganisationController extends BaseController {
             if (response.getStatus() != 200) {
                 return internalServerError(root.get("message").asText("Connection refused"));
             }
-            if (root instanceof ArrayNode) {
-                ArrayNode node = (ArrayNode) root;
+            if (root instanceof ArrayNode node) {
                 for (JsonNode n : node) {
                     ((ObjectNode) n).put("homeOrg", n.get("_id").asText().equals(localRef));
                 }

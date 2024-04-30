@@ -317,9 +317,7 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     public Double getTotalScore() {
-        double totalScore = toFixed(
-            examSections.stream().map(ExamSection::getTotalScore).reduce(0.0, (sum, x) -> sum += x)
-        );
+        double totalScore = toFixed(examSections.stream().map(ExamSection::getTotalScore).reduce(0.0, Double::sum));
 
         return Math.max(totalScore, 0.0);
     }
@@ -329,11 +327,11 @@ public class Exam extends OwnedModel implements Comparable<Exam>, AttachmentCont
     }
 
     private int getApprovedAnswerCount() {
-        return examSections.stream().map(ExamSection::getApprovedCount).reduce(0, (sum, x) -> sum += x);
+        return examSections.stream().map(ExamSection::getApprovedCount).reduce(0, Integer::sum);
     }
 
     private int getRejectedAnswerCount() {
-        return examSections.stream().map(ExamSection::getRejectedCount).reduce(0, (sum, x) -> sum += x);
+        return examSections.stream().map(ExamSection::getRejectedCount).reduce(0, Integer::sum);
     }
 
     // These are dumb, required to be explicitly set by EBean

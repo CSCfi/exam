@@ -38,7 +38,7 @@ class CourseController @Inject() (
 ) extends InjectedController
     with JavaJsonResultProducer:
 
-  def listCourses(
+  private def listCourses(
       filterType: Option[String],
       criteria: Option[String],
       user: User

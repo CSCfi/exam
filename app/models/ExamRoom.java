@@ -281,8 +281,7 @@ public class ExamRoom extends GeneratedIdentityModel implements RoomLike {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ExamRoom)) return false;
-        ExamRoom examRoom = (ExamRoom) o;
+        if (!(o instanceof ExamRoom examRoom)) return false;
         return new EqualsBuilder().append(id, examRoom.id).build();
     }
 

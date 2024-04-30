@@ -116,7 +116,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     @Override
     public CompletionStage<Boolean> createAssessmentWithAttachments(ExamParticipation participation) {
         String ref = participation.getCollaborativeExam().getExternalRef();
-        logger.debug("Sending back collaborative assessment for exam " + ref);
+        logger.debug("Sending back collaborative assessment for exam {}", ref);
         Optional<URL> ou = parseAssessmentUrl(ref);
         if (ou.isEmpty()) {
             return CompletableFuture.completedFuture(false);
@@ -129,7 +129,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
     @Override
     public CompletionStage<Boolean> createAssessment(ExamParticipation participation) {
         String ref = participation.getCollaborativeExam().getExternalRef();
-        logger.debug("Sending back collaborative assessment for exam " + ref);
+        logger.debug("Sending back collaborative assessment for exam {}", ref);
         Optional<URL> ou = parseAssessmentUrl(ref);
         if (ou.isEmpty()) {
             return CompletableFuture.completedFuture(false);
@@ -137,12 +137,12 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
         WSRequest request = wsClient.url(ou.get().toString()).setContentType("application/json");
         Function<WSResponse, Boolean> onSuccess = response -> {
             if (response.getStatus() != Http.Status.CREATED) {
-                logger.error("Failed in sending assessment for exam " + ref);
+                logger.error("Failed in sending assessment for exam {}", ref);
                 return false;
             }
             participation.setSentForReview(DateTime.now());
             participation.update();
-            logger.info("Assessment for exam " + ref + " processed successfully");
+            logger.info("Assessment for exam {} processed successfully", ref);
             return true;
         };
 
@@ -150,7 +150,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
             .post(DB.json().toJson(participation, getAssessmentPath()))
             .thenApplyAsync(onSuccess)
             .exceptionally(t -> {
-                logger.error("Could not send assessment to xm! [id=" + participation.getId() + "]", t);
+                logger.error(String.format("Could not send assessment to xm! [id=%s]", participation.getId()), t);
                 return false;
             });
     }
@@ -187,7 +187,7 @@ public class CollaborativeExamLoaderImpl implements CollaborativeExamLoader {
                 }
                 ce.setRevision(root.get("_rev").asText());
                 Exam exam = ce.getExam(root);
-                // Save certain informative properties locally so we can display them right away in some cases
+                // Save certain informative properties locally, so we can display them right away in some cases
                 ce.setName(exam.getName());
                 ce.setPeriodStart(exam.getPeriodStart());
                 ce.setPeriodEnd(exam.getPeriodEnd());

@@ -22,6 +22,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import java.util.HashSet;
 import java.util.List;
 import models.base.GeneratedIdentityModel;
 import org.joda.time.Interval;
@@ -193,7 +194,7 @@ public class ExamMachine extends GeneratedIdentityModel {
     }
 
     public boolean hasRequiredSoftware(Exam exam) {
-        return softwareInfo.containsAll(exam.getSoftwareInfo());
+        return new HashSet<>(softwareInfo).containsAll(exam.getSoftwareInfo());
     }
 
     public boolean isReservedDuring(Interval interval) {

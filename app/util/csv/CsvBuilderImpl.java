@@ -58,7 +58,8 @@ public class CsvBuilderImpl implements CsvBuilder {
     public File build(Long startDate, Long endDate) throws IOException {
         Date start = new Date(startDate);
         Date end = new Date(endDate);
-        List<ExamRecord> examRecords = DB.find(ExamRecord.class)
+        List<ExamRecord> examRecords = DB
+            .find(ExamRecord.class)
             .fetch("examScore")
             .where()
             .between("timeStamp", start, end)
@@ -76,7 +77,8 @@ public class CsvBuilderImpl implements CsvBuilder {
 
     @Override
     public File build(Long examId, Collection<Long> childIds) throws IOException {
-        List<ExamRecord> examRecords = DB.find(ExamRecord.class)
+        List<ExamRecord> examRecords = DB
+            .find(ExamRecord.class)
             .fetch("examScore")
             .where()
             .eq("exam.parent.id", examId)
@@ -98,9 +100,9 @@ public class CsvBuilderImpl implements CsvBuilder {
         File file = File.createTempFile("csv-output-", ".tmp");
         CSVWriter writer = new CSVWriter(new FileWriter(file));
         writer.writeNext(getHeaders());
-        StreamSupport.stream(node.spliterator(), false).forEach(
-            assessment -> writer.writeNext(values(assessment).toArray(String[]::new))
-        );
+        StreamSupport
+            .stream(node.spliterator(), false)
+            .forEach(assessment -> writer.writeNext(values(assessment).toArray(String[]::new)));
         writer.close();
         return file;
     }
@@ -156,7 +158,8 @@ public class CsvBuilderImpl implements CsvBuilder {
                 logger.warn("Invalid input, unable to grade");
                 continue;
             }
-            ExpressionList<Exam> el = DB.find(Exam.class)
+            ExpressionList<Exam> el = DB
+                .find(Exam.class)
                 .where()
                 .idEq(examId)
                 .isNotNull("parent")
@@ -180,11 +183,11 @@ public class CsvBuilderImpl implements CsvBuilder {
             } else if (grades.size() > 1) {
                 logger.warn("Multiple grades found with name {}", gradeName);
             } else {
-                exam.setGrade(grades.get(0));
+                exam.setGrade(grades.getFirst());
                 exam.setGradedByUser(user);
                 exam.setGradedTime(DateTime.now());
                 exam.setState(Exam.State.GRADED);
-                exam.setAnswerLanguage(exam.getExamLanguages().get(0).getCode());
+                exam.setAnswerLanguage(exam.getExamLanguages().getFirst().getCode());
                 exam.setCreditType(exam.getExamType());
                 String feedback = records.length > 2 ? records[2] : null;
                 if (feedback != null && !feedback.isEmpty()) {
