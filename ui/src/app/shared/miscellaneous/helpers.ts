@@ -20,3 +20,6 @@ export const updateList = <T>(items: T[], key: keyof T, value: T): T[] => {
 };
 export const deduplicate = <T>(items: T[], key: keyof T) =>
     items.filter((item, i, xs) => xs.findIndex((item2) => item2[key] === item[key]) === i);
+
+export const hashString = (s: string): number =>
+    [...s].map((c) => c.charCodeAt(0)).reduce((a, b) => ((a << 5) - a + b) | 0);

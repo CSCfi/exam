@@ -14,6 +14,7 @@
  */
 import type { ComponentRef, OnDestroy, OnInit } from '@angular/core';
 import { Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewContainerRef } from '@angular/core';
+import { hashString } from 'src/app/shared/miscellaneous/helpers';
 
 type ClozeTestAnswer = { [key: string]: string };
 
@@ -55,7 +56,10 @@ export class DynamicClozeTestComponent implements OnInit, OnDestroy {
         // Replace temporary input attributes with Angular input-directives
         const clozeTemplate = doc.body.innerHTML.replace(/data-input-handler/g, '(input)');
         // Compile component and module with formatted cloze template
-        const clozeComponent = Component({ template: clozeTemplate, selector: 'xm-dyn-ct' })(
+        const clozeComponent = Component({
+            template: clozeTemplate,
+            selector: `xm-dyn-ct-${hashString(clozeTemplate)}`,
+        })(
             class ClozeComponent {
                 el!: ElementRef;
                 onInput!: (_: { target: HTMLInputElement }) => void;
