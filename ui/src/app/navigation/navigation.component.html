@@ -29,7 +29,11 @@
                 <ul class="links">
                     @for (link of links; track link.name) {
                         <li [hidden]="!link.visible">
-                            <a [routerLink]="link.route" routerLinkActive="selected">
+                            <a
+                                [routerLink]="link.route"
+                                routerLinkActive="selected"
+                                [attr.aria-current]="isActive(link)"
+                            >
                                 <img aria-hidden="true" width="18" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
                                 <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{
                                     link.name | translate
