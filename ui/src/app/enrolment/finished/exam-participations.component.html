@@ -26,8 +26,8 @@
         <div class="col-4">
             <div class="input-group">
                 <input
-                    xmAutoFocus
-                    aria-label="search"
+                    [attr.aria-label]="'i18n_search' | translate"
+                    [attr.aria-description]="'i18n_type_to_start_search' | translate"
                     [(ngModel)]="filter.text"
                     type="text"
                     (ngModelChange)="search($event)"
@@ -37,6 +37,7 @@
                 <div class="input-group-append search">
                     <img alt="" src="/assets/images/icon_search.png" width="49" height="40" />
                 </div>
+                <div class="invisible">{{ participations.length > 0 ? '' : '' }}</div>
             </div>
         </div>
         <div class="col-8" ngbDropdown>
