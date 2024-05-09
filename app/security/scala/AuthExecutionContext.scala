@@ -10,6 +10,6 @@ import scala.concurrent.ExecutionContext
 @ImplementedBy(classOf[AuthExecutionContextImpl])
 trait AuthExecutionContext extends ExecutionContext
 
-class AuthExecutionContextImpl @Inject()(system: ActorSystem)
+class AuthExecutionContextImpl @Inject() (system: ActorSystem)
     extends CustomExecutionContext(system, "database.dispatcher")
     with AuthExecutionContext

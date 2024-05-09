@@ -463,8 +463,8 @@ POST          /app/reports/questionreport/:id                          controlle
 
 ################# Maintenance period interface ##################
 GET           /app/maintenance                                         controllers.MaintenancePeriodController.listMaintenancePeriods
-POST          /app/maintenance                                         controllers.MaintenancePeriodController.createMaintenancePeriod(request: Request)
-PUT           /app/maintenance/:id                                     controllers.MaintenancePeriodController.updateMaintenancePeriod(id: Long, request: Request)
+POST          /app/maintenance                                         controllers.MaintenancePeriodController.createMaintenancePeriod
+PUT           /app/maintenance/:id                                     controllers.MaintenancePeriodController.updateMaintenancePeriod(id: Long)
 DELETE        /app/maintenance/:id                                     controllers.MaintenancePeriodController.removeMaintenancePeriod(id: Long)
 
 #######################################################
