@@ -14,11 +14,9 @@ import java.io.{BufferedOutputStream, File}
 import java.nio.file.{Files, Path}
 import java.util.Base64
 import javax.inject.Inject
-import scala.xml.*
+import scala.xml._
 
-class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
-    extends MoodleXmlImporter
-    with Logging:
+class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler) extends MoodleXmlImporter with Logging:
 
   import scala.jdk.CollectionConverters._
   import scala.jdk.StreamConverters._
