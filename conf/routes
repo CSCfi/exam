@@ -16,7 +16,7 @@ GET           /app/users                                               controlle
 POST          /app/users/:id/roles/:rname                              controllers.UserController.addRole(id: Long, rname: String)
 DELETE        /app/users/:id/roles/:rname                              controllers.UserController.removeRole(id: Long, rname: String)
 PUT           /app/users/roles/:rname                                  controllers.SessionController.setLoginRole(rname: String, request: Request)
-GET           /app/students/:eid                                        controllers.UserController.getUnenrolledStudents(eid: Long, q: String)
+GET           /app/students/:eid                                       controllers.UserController.getUnenrolledStudents(eid: Long, q: String)
 GET           /app/permissions                                         controllers.UserController.listPermissions
 POST          /app/permissions                                         controllers.UserController.grantUserPermission(request: Request)
 DELETE        /app/permissions                                         controllers.UserController.revokeUserPermission(request: Request)
