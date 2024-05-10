@@ -95,8 +95,9 @@ public class ClozeTestAnswer extends GeneratedIdentityModel {
             b.attr("class", "cloze-input mt-2");
             if (isNumeric) {
                 b.attr("step", "any");
-                // Should allow for using both comma and period as decimal separator
-                b.attr("lang", "en-150");
+                // Hacky, but this should allow for using both comma and period as decimal separator even in Firefox
+                // regardless of browser language.
+                b.attr("lang", "fi");
             }
         });
         this.question = doc.body().children().toString();

@@ -80,7 +80,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
                 next: (enrolment) => {
                     this.setOccasion(enrolment.reservation);
                     this.enrolment = enrolment;
-                    const offset = this.calculateOffset();
+                    const offset = Math.max(0, this.calculateOffset());
                     this.startTimerId = window.setTimeout(this.startScheduled, offset);
                     this.http
                         .post<void>(`/app/student/exam/${this.route.snapshot.params.hash}`, {})
@@ -115,7 +115,7 @@ export class WaitingRoomComponent implements OnInit, OnDestroy {
             DateTime.fromJSDate(this.getStart()).plus({ seconds: this.enrolment.delay }).toSeconds() -
                 DateTime.now().toSeconds(),
         );
-        this.delayTimerId = window.setTimeout(this.Session.checkSession, offset * 1000);
+        this.delayTimerId = window.setTimeout(this.Session.checkSession, Math.max(0, offset * 1000));
         this.delayCounter$ = interval(1000).pipe(
             startWith(0),
             map((n) => offset - n),
