@@ -37,6 +37,7 @@ import org.apache.pekko.actor.AbstractActor;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.jdk.javaapi.CollectionConverters;
 import util.AppUtil;
 import util.datetime.DateTimeHandler;
 
@@ -56,17 +57,21 @@ public class ExamAutoSaverActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-            .match(String.class, s -> {
-                logger.debug("Starting check for ongoing exams ->");
-                checkLocalExams();
-                checkExternalExams();
-                logger.debug("<- done");
-            })
+            .match(
+                String.class,
+                s -> {
+                    logger.debug("Starting check for ongoing exams ->");
+                    checkLocalExams();
+                    checkExternalExams();
+                    logger.debug("<- done");
+                }
+            )
             .build();
     }
 
     private void checkLocalExams() {
-        List<ExamParticipation> participations = DB.find(ExamParticipation.class)
+        List<ExamParticipation> participations = DB
+            .find(ExamParticipation.class)
             .fetch("exam")
             .fetch("reservation")
             .fetch("reservation.machine.room")
@@ -124,7 +129,7 @@ public class ExamAutoSaverActor extends AbstractActor {
                     recipients.addAll(
                         exam.getExamInspections().stream().map(ExamInspection::getUser).collect(Collectors.toSet())
                     );
-                    AppUtil.notifyPrivateExamEnded(recipients, exam, composer);
+                    AppUtil.notifyPrivateExamEnded(CollectionConverters.asScala(recipients).toSet(), exam, composer);
                 }
             } else {
                 logger.info("Exam {} is ongoing until {}", exam.getId(), participationTimeLimit);
@@ -133,7 +138,8 @@ public class ExamAutoSaverActor extends AbstractActor {
     }
 
     private void checkExternalExams() {
-        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = DB
+            .find(ExamEnrolment.class)
             .fetch("externalExam")
             .fetch("reservation")
             .fetch("reservation.machine.room")

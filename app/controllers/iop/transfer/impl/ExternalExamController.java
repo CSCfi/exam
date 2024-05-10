@@ -82,6 +82,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
+import scala.jdk.javaapi.CollectionConverters;
 import util.AppUtil;
 import util.config.ConfigReader;
 import util.json.JsonDeserializer;
@@ -238,7 +239,12 @@ public class ExternalExamController extends BaseController implements ExternalEx
             .scheduler()
             .scheduleOnce(
                 Duration.create(1, TimeUnit.SECONDS),
-                () -> AppUtil.notifyPrivateExamEnded(recipients, exam, emailComposer),
+                () ->
+                    AppUtil.notifyPrivateExamEnded(
+                        CollectionConverters.asScala(recipients).toSet(),
+                        exam,
+                        emailComposer
+                    ),
                 actor.dispatcher()
             );
     }

@@ -6,8 +6,7 @@ import play.api.mvc._
 import javax.inject._
 
 @Singleton
-class FrontendController @Inject() (assets: Assets, cc: ControllerComponents)
-    extends AbstractController(cc):
+class FrontendController @Inject() (assets: Assets, cc: ControllerComponents) extends AbstractController(cc):
 
   def index: Action[AnyContent] = assets.at("index.html")
 

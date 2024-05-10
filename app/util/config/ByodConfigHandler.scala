@@ -1,8 +1,8 @@
 package util.config
 
-import java.util.Optional
-
 import play.mvc.{Http, Result}
+
+import java.util.Optional
 
 trait ByodConfigHandler:
   def getExamConfig(hash: String, pwd: Array[Byte], salt: String, quitPwd: String): Array[Byte]
