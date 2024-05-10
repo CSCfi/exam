@@ -17,6 +17,7 @@
 package system.interceptors;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -27,6 +28,7 @@ import play.http.HttpEntity;
 import play.libs.Json;
 import play.mvc.Action;
 import play.mvc.Result;
+import scala.jdk.javaapi.CollectionConverters;
 import util.json.JsonFilter;
 
 abstract class JsonFilterAction<T> extends Action<T> {
@@ -53,7 +55,11 @@ abstract class JsonFilterAction<T> extends Action<T> {
             .consumeData(materializer)
             .thenApply(body -> {
                 JsonNode json = Json.parse(body.decodeString("UTF-8"));
-                JsonFilter.filterProperties(json, true, ids, properties);
+                JsonFilter.filterProperties(
+                    json,
+                    CollectionConverters.asScala(ids).toSet(),
+                    CollectionConverters.asScala(Arrays.asList(properties)).toSeq()
+                );
                 return new Result(
                     result.status(),
                     result.headers(),
