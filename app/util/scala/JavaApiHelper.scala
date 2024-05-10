@@ -17,7 +17,7 @@ package util.scala
 
 import io.ebean.{ExpressionList, Model}
 import play.api.mvc.{InjectedController, Result}
-import play.libs.Json as JavaJson
+import play.libs.{Json => JavaJson}
 
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
@@ -28,9 +28,9 @@ trait JavaApiHelper:
   extension [T <: Model](model: T) def toResult(status: Status): Result = status(JavaJson.toJson(model).toString)
 
   extension [T <: Model](model: Iterable[T])
-    def toResult(status: Status): Result = status(JavaJson.toJson(model.asJava).toString)
+    def toResult(status: Status): Result = status(JavaJson.toJson(model).toString)
 
   extension [T <: Model](el: ExpressionList[T])
-    def find: Option[T]     = el.findOneOrEmpty().toScala
-    def list: List[T]   = el.findList().asScala.toList
+    def find: Option[T]  = el.findOneOrEmpty().toScala
+    def list: List[T]    = el.findList().asScala.toList
     def distinct: Set[T] = el.findSet().asScala.toSet

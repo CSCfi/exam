@@ -3,8 +3,8 @@ package security.scala
 import io.ebean.DB
 import models.{Role, User}
 import play.api.libs.typedmap.TypedKey
-import play.api.mvc.Results.*
-import play.api.mvc.*
+import play.api.mvc.Results._
+import play.api.mvc._
 import util.scala.JavaApiHelper
 
 import javax.inject.Inject
