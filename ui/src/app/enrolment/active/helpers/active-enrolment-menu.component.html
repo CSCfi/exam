@@ -7,6 +7,7 @@
         <!-- enrolment with reservation, allow changing -->
         @if (enrolment.reservation && canChangeReservation(enrolment.reservation)) {
             <div ngbDropdownItem>
+                <!-- collaborative exam taken here -->
                 @if (enrolment.reservation.machine && enrolment.collaborativeExam) {
                     <a
                         class="btn btn-outline-secondary"
@@ -14,20 +15,23 @@
                         >{{ 'i18n_student_change_reservation' | translate }}
                     </a>
                 }
+                <!-- regular exam taken here -->
                 @if (enrolment.reservation.machine && !enrolment.collaborativeExam) {
                     <a class="btn btn-outline-secondary" [routerLink]="['/calendar', enrolment.exam.id]"
                         >{{ 'i18n_student_change_reservation' | translate }}
                     </a>
                 }
+                <!-- regular exam taken elsewhere -->
                 @if (enrolment.reservation.externalReservation && enrolment.exam) {
                     <a class="btn btn-outline-secondary" [routerLink]="['/calendar', enrolment.exam.id, 'external']"
                         >{{ 'i18n_student_change_reservation' | translate }}
                     </a>
                 }
+                <!-- collaborative exam taken elsewhere -->
                 @if (enrolment.reservation.externalReservation && enrolment.collaborativeExam) {
                     <a
                         class="btn btn-outline-secondary"
-                        [routerLink]="['/calendar', enrolment.exam.id, 'external']"
+                        [routerLink]="['/calendar', enrolment.collaborativeExam.id, 'external']"
                         [queryParams]="{ isCollaborative: true }"
                         >{{ 'i18n_student_change_reservation' | translate }}
                     </a>
