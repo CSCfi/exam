@@ -221,7 +221,7 @@
 @if (
     !collaborative &&
     assessment.executionType.type !== 'MATURITY' &&
-    assessment.state === 'GRADED_LOGGED' &&
+    (assessment.state === 'GRADED_LOGGED' || assessment.state === 'ARCHIVED') &&
     !assessment.gradeless
 ) {
     <div class="row mt-2">
