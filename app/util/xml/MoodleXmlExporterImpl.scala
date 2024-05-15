@@ -1,12 +1,12 @@
 package util.xml
 
-import java.io.File
-import java.nio.file.Files
-import java.util.Base64
 import models.Tag
 import models.questions.{MultipleChoiceOption, Question}
 import org.jsoup.Jsoup
 
+import java.io.File
+import java.nio.file.Files
+import java.util.Base64
 import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.xml._
@@ -49,9 +49,8 @@ class MoodleXmlExporterImpl extends MoodleXmlExporter:
         <shuffleanswers>1</shuffleanswers>
         <single>false</single>
         <answernumbering>none</answernumbering>
-      val options = question.getOptions.asScala.map(o =>
-        convertWeightedMultiChoiceOption(o, question.getMaxDefaultScore)
-      )
+      val options =
+        question.getOptions.asScala.map(o => convertWeightedMultiChoiceOption(o, question.getMaxDefaultScore))
       config ++= options
     case "EssayQuestion" =>
       val criteria = question.getDefaultEvaluationCriteria match

@@ -13,31 +13,17 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package system;
+package util
 
-/**
- *  Model to easily return JSend like error messages as JSON
- *  @see <a href="http://labs.omniti.com/labs/jsend">JSend</a>
- */
-class ApiError {
+import impl.EmailComposer
+import models.Exam
+import models.User
+import play.api.Logger
 
-    private static final String STATUS = "error";
-
-    private String message;
-
-    ApiError(String message) {
-        this.message = message;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getStatus() {
-        return STATUS;
-    }
-}
+object AppUtil:
+  private val logger = Logger(this.getClass)
+  def notifyPrivateExamEnded(recipients: Set[User], exam: Exam, composer: EmailComposer): Unit =
+    recipients.foreach(r =>
+      composer.composePrivateExamEnded(r, exam)
+      logger.info(s"Email sent to ${r.getEmail}")
+    )

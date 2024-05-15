@@ -16,6 +16,7 @@ import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
 import util.csv.CsvBuilder
 import util.file.FileHandler
+import util.scala.JavaApiHelper
 
 import java.io._
 import java.text.SimpleDateFormat
@@ -28,19 +29,18 @@ import scala.jdk.OptionConverters._
 import scala.util.Using
 
 class ReviewDocumentsController @Inject() (
-    cc: ControllerComponents,
     csvBuilder: CsvBuilder,
     fileHandler: FileHandler,
     authenticated: AuthenticatedAction,
     implicit val ec: AuthExecutionContext
-) extends AbstractController(cc)
+) extends InjectedController
+    with JavaApiHelper
     with Logging:
 
   def importGrades: Action[MultipartFormData[Files.TemporaryFile]] =
     authenticated(parse.multipartFormData)
       .andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
-        val body = request.body
-        body.file("file") match
+        request.body.file("file") match
           case Some(file) =>
             val user = request.attrs(Auth.ATTR_USER)
             val role = if user.hasRole(Role.Name.ADMIN) then Role.Name.ADMIN else Role.Name.TEACHER
@@ -59,7 +59,7 @@ class ReviewDocumentsController @Inject() (
       end: Option[String]
   ): Action[AnyContent] =
     Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
-      DB.find(classOf[Exam]).where().idEq(eid).findOneOrEmpty().toScala match
+      DB.find(classOf[Exam]).where().idEq(eid).find match
         case Some(exam) =>
           val df = new SimpleDateFormat("dd.MM.yyyy")
           val startDate =
@@ -143,23 +143,22 @@ class ReviewDocumentsController @Inject() (
       questions: Map[Long, String]
   ): Unit =
     val file = File.createTempFile("summary", ".txt")
-    Using.resource(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)))) {
-      writer =>
-        if start.isDefined || end.isDefined then
-          val dtf = DateTimeFormat.forPattern("dd.MM.yyyy")
-          val s   = start.map(dtf.print).getOrElse("")
-          val e   = end.map(dtf.print).getOrElse("")
-          writer.write(s"period: $s-$e")
-          writer.newLine()
-        writer.write(s"exam id: ${exam.getId}")
+    Using.resource(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)))) { writer =>
+      if start.isDefined || end.isDefined then
+        val dtf = DateTimeFormat.forPattern("dd.MM.yyyy")
+        val s   = start.map(dtf.print).getOrElse("")
+        val e   = end.map(dtf.print).getOrElse("")
+        writer.write(s"period: $s-$e")
         writer.newLine()
-        writer.write(s"exam name: ${exam.getName}")
+      writer.write(s"exam id: ${exam.getId}")
+      writer.newLine()
+      writer.write(s"exam name: ${exam.getName}")
+      writer.newLine()
+      writer.newLine()
+      writer.write("questions")
+      writer.newLine()
+      for ((k, v) <- questions)
+        writer.write(s"$k: ${Jsoup.parse(v).text}")
         writer.newLine()
-        writer.newLine()
-        writer.write("questions")
-        writer.newLine()
-        for ((k, v) <- questions)
-          writer.write(s"$k: ${Jsoup.parse(v).text}")
-          writer.newLine()
     }
     addFileEntry("summary.txt", file, aos)

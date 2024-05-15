@@ -15,7 +15,6 @@
 
 package system
 
-import javax.inject.Inject
 import play.api.http.HttpFilters
 import play.api.mvc.EssentialFilter
 import play.filters.cors.CORSFilter
@@ -23,6 +22,8 @@ import play.filters.csp.CSPFilter
 import play.filters.csrf.CSRFFilter
 import play.filters.gzip.GzipFilter
 import play.filters.headers.SecurityHeadersFilter
+
+import javax.inject.Inject
 
 class AppFilters @Inject() (
     securityHeadersFilter: SecurityHeadersFilter,
