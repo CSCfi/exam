@@ -1,11 +1,11 @@
 package system
 
 import org.apache.pekko.stream.Materializer
-import javax.inject.Inject
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import play.api.mvc.{Filter, RequestHeader, Result}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 object ResultImplicits {
@@ -15,7 +15,7 @@ object ResultImplicits {
   }
 }
 
-class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
+class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
 
   val Headers: Seq[(String, String)] = Seq(
     ("x-exam-start-exam", "ongoingExamHash"),
@@ -37,9 +37,11 @@ class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContex
         }
       case s => Some(s)
     }
-    val result = src.withHeaders(("Cache-Control", "no-cache;no-store"),
-                                 ("Pragma", "no-cache"),
-                                 ("Expires", "0"))
+    val result = src.withHeaders(
+      ("Cache-Control", "no-cache;no-store"),
+      ("Pragma", "no-cache"),
+      ("Expires", "0")
+    )
     session match {
       case None => result.withNewSession
       case Some(s) =>
@@ -51,8 +53,7 @@ class SystemFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContex
           case path if path == "/app/session" && request.method == "GET" =>
             s.get("upcomingExamHash") match {
               case Some(_) => // Don't let session expire when awaiting exam to start
-                response.withSession(
-                  s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now)))
+                response.withSession(s + ("since" -> ISODateTimeFormat.dateTime.print(DateTime.now)))
               case _ => response.withSession(s)
             }
           case path if path.contains("logout") => response.withSession(s)

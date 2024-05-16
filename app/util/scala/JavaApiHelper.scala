@@ -13,25 +13,24 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package util;
+package util.scala
 
-import impl.EmailComposer;
-import java.util.Collection;
-import models.Exam;
-import models.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.ebean.{ExpressionList, Model}
+import play.api.mvc.{InjectedController, Result}
+import play.libs.{Json => JavaJson}
 
-public final class AppUtil {
+import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
 
-    private static final Logger logger = LoggerFactory.getLogger(AppUtil.class);
+trait JavaApiHelper:
+  self: InjectedController =>
 
-    private AppUtil() {}
+  extension [T <: Model](model: T) def toResult(status: Status): Result = status(JavaJson.toJson(model).toString)
 
-    public static void notifyPrivateExamEnded(Collection<User> recipients, Exam exam, EmailComposer composer) {
-        for (User r : recipients) {
-            composer.composePrivateExamEnded(r, exam);
-            logger.info("Email sent to {}", r.getEmail());
-        }
-    }
-}
+  extension [T <: Model](model: Iterable[T])
+    def toResult(status: Status): Result = status(JavaJson.toJson(model).toString)
+
+  extension [T <: Model](el: ExpressionList[T])
+    def find: Option[T]  = el.findOneOrEmpty().toScala
+    def list: List[T]    = el.findList().asScala.toList
+    def distinct: Set[T] = el.findSet().asScala.toSet

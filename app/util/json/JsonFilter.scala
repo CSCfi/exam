@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 The members of the EXAM Consortium (https://confluence.csc.fi/display/EXAM/Konsortio-organisaatio)
+ * Copyright (c) 2018 Exam Consortium
  *
  * Licensed under the EUPL, Version 1.1 or - as soon they will be approved by the European Commission - subsequent
  * versions of the EUPL (the "Licence");
@@ -11,21 +11,22 @@
  * Unless required by applicable law or agreed to in writing, software distributed under the Licence is distributed
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
  */
 
-package util.scala
+package util.json
 
-import io.ebean.Model
-import play.api.mvc.{InjectedController, Result}
-import play.libs.{Json => JavaJson}
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 
 import scala.jdk.CollectionConverters._
 
-trait JavaJsonResultProducer:
-  self: InjectedController =>
+object JsonFilter:
+  // TODO: make immutable
+  def filterProperties(node: JsonNode, ids: Set[Long], properties: String*): Unit =
+    def helper(acc: JsonNode): Unit =
+      if ids.isEmpty || !acc.has("id") || ids.contains(acc.get("id").asLong) then
+        (if acc.isObject then acc.asInstanceOf[ObjectNode].remove(properties.asJava) else acc).elements.asScala
+          .foreach(helper)
 
-  implicit class JavaModelToResult[T <: Model](model: T):
-    def toResult(status: Int): Result = Status(status)(JavaJson.toJson(model).toString)
-
-  implicit class JavaModelsToResult[T <: Model](model: Iterable[T]):
-    def toResult(status: Int): Result = Status(status)(JavaJson.toJson(model.asJava).toString)
+    helper(node)

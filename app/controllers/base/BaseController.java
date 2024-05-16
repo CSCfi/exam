@@ -33,8 +33,6 @@ import models.Exam;
 import models.ExamEnrolment;
 import models.Role;
 import models.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import play.data.FormFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.libs.typedmap.TypedKey;

@@ -5,6 +5,7 @@ import be.objectify.deadbolt.java.actions.Restrict;
 import impl.CalendarHandler;
 import impl.EmailComposer;
 import io.ebean.DB;
+import io.ebean.Transaction;
 import io.ebean.text.PathProperties;
 import java.util.Collection;
 import java.util.Collections;
@@ -137,8 +138,7 @@ public class CollaborativeCalendarController extends CollaborationController {
                 }
                 // We are good to go :)
                 // Start manual transaction.
-                DB.beginTransaction();
-                try {
+                try (Transaction tx = DB.beginTransaction()) {
                     // Take pessimistic lock for user to prevent multiple reservations creating.
                     DB.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
                     Reservation oldReservation = enrolment.getReservation();
@@ -150,11 +150,8 @@ public class CollaborativeCalendarController extends CollaborationController {
                         oldReservation.delete();
                     }
                     Result newReservation = makeNewReservation(enrolment, exam, reservation, user, sectionIds);
-                    DB.commitTransaction();
+                    tx.commit();
                     return newReservation;
-                } finally {
-                    // End transaction to release lock.
-                    DB.endTransaction();
                 }
             });
     }
