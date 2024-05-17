@@ -11,7 +11,7 @@ import { HistoryBackComponent } from '../history/history-back.component';
         <div class="row mx-3 mt-4 mb-2 align-items-center">
             <div [ngClass]="appendWide ? 'col-md-6' : 'col-md-9'" class="col-s-3">
                 @if (history) {
-                    <span class="pe-4"><xm-history-back xmAutoFocus></xm-history-back></span>
+                    <span class="pe-4"><xm-history-back></xm-history-back></span>
                 }
                 @if (prependTemplate) {
                     <ng-container [ngTemplateOutlet]="prependTemplate"></ng-container>
