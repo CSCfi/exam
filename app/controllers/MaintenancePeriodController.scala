@@ -21,16 +21,17 @@ import models.calendar.MaintenancePeriod
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.json.JsValue
-import play.api.mvc._
+import play.api.mvc.*
 import security.scala.Auth.authorized
 import security.scala.AuthExecutionContext
-import util.scala.JavaApiHelper
+import util.scala.{DbApiHelper, JavaApiHelper}
 
 import javax.inject.Inject
 
 class MaintenancePeriodController @Inject() (implicit val ec: AuthExecutionContext)
     extends InjectedController
-    with JavaApiHelper:
+    with JavaApiHelper
+    with DbApiHelper:
 
   def listMaintenancePeriods: Action[AnyContent] =
     Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
