@@ -16,14 +16,14 @@
 package util.scala
 
 import io.ebean.{ExpressionList, Model}
-import play.api.mvc.{InjectedController, Result}
+import play.api.mvc.{BaseController, Result}
 import play.libs.{Json => JavaJson}
 
 import scala.jdk.CollectionConverters._
 import scala.jdk.OptionConverters._
 
 trait JavaApiHelper:
-  self: InjectedController =>
+  self: BaseController =>
 
   extension [T <: Model](model: T) def toResult(status: Status): Result = status(JavaJson.toJson(model).toString)
 
