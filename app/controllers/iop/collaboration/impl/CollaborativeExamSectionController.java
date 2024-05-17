@@ -118,7 +118,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 for (ExamSection sibling : exam.getExamSections()) {
                     int num = sibling.getSequenceNumber();
                     if (num >= seq) {
-                        es.setSequenceNumber(num - 1);
+                        sibling.setSequenceNumber(num - 1);
                     }
                 }
                 return Optional.empty();
