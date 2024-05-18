@@ -45,7 +45,7 @@ class ByodConfigHandlerImpl @Inject() (configReader: ConfigReader, env: Environm
   private val protocol = URI.create(configReader.getHostName).toURL.getProtocol
 
   private def getTemplate(hash: String, quitPwdPlain: String) =
-    val path          = s"${env.rootPath.getAbsolutePath}/conf/seb.template.plist"
+    val path          = s"${env.rootPath.getAbsolutePath}/conf/template/seb.template.plist"
     val startUrl      = s"${configReader.getHostName}?exam=$hash"
     val quitLink      = configReader.getQuitExaminationLink
     val adminPwd      = DigestUtils.sha256Hex(configReader.getExaminationAdminPassword)

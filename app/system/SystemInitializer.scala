@@ -54,37 +54,40 @@ class SystemInitializer @Inject() (
         s"Default encoding is other than UTF-8 ($encoding). This might cause problems with non-ASCII character handling!"
       )
   DateTimeZone.setDefault(DateTimeZone.forID("UTC"))
-  private var tasks: Map[String, Cancellable] = env.mode match
-    case Mode.Test => Map.empty
+  private val tasks: Seq[Cancellable] = env.mode match
+    case Mode.Test => Seq.empty
     case _ =>
-      Map(
-        "auto-saver"              -> schedule(examAutoSaver, 15, 1),
-        "reservation-poller"      -> schedule(reservationChecker, 30, 60),
-        "auto-evaluator"          -> schedule(autoEvaluationNotifier, 60, 15),
-        "expiration-checker"      -> schedule(examExpirationChecker, 45, 60 * 24),
-        "assessment-transferor"   -> schedule(assessmentTransferrer, 70, 60),
-        "c-assessment-transferor" -> schedule(collaborativeAssessmentSender, 80, 15),
-        "reservation-reminder"    -> schedule(reservationReminder, 90, 10),
-        "ext-expiration-checker"  -> schedule(externalExamExpirationChecker, 100, 60 * 24)
+      Seq(
+        schedule(examAutoSaver, 15, 1),
+        schedule(reservationChecker, 30, 60),
+        schedule(autoEvaluationNotifier, 60, 15),
+        schedule(examExpirationChecker, 45, 60 * 24),
+        schedule(assessmentTransferrer, 70, 60),
+        schedule(collaborativeAssessmentSender, 80, 15),
+        schedule(reservationReminder, 90, 10),
+        schedule(externalExamExpirationChecker, 100, 60 * 24)
       )
+  private var reporter: Option[Cancellable] = None
+
   scheduleWeeklyReport()
   lifecycle.addStopHook { () =>
     logger.info("running shutdown hooks")
-    tasks.values.foreach(_.cancel())
+    tasks.foreach(_.cancel())
+    if reporter.nonEmpty then reporter.get.cancel()
     Future.successful(())
   }
 
   private def schedule(actor: ActorRef, delay: Int, interval: Int): Cancellable =
     system.scheduler.scheduleAtFixedRate(
       Duration.create(delay, TimeUnit.SECONDS),
-      Duration.create(interval, TimeUnit.HOURS),
+      Duration.create(interval, TimeUnit.MINUTES),
       actor,
       "tick"
     )
 
   private def scheduleWeeklyReport(): Unit =
     val delay = Duration.create(secondsUntilNextMondayRun(), TimeUnit.SECONDS)
-    if tasks.contains("weekly-reporter") then tasks("weekly-reporter").cancel()
+    if reporter.nonEmpty then reporter.get.cancel()
     val newTask = system.scheduler.scheduleOnce(
       delay,
       () => {
@@ -103,7 +106,7 @@ class SystemInitializer @Inject() (
         scheduleWeeklyReport() // Reschedule
       }
     )
-    tasks = tasks + ("weekly-reporter" -> newTask)
+    reporter = Some(newTask)
 
   private def secondsUntilNextMondayRun() =
     val now             = DateTime.now

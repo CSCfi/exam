@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 -- !Ups
 ALTER TABLE exam ADD requires_user_agent_auth BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE exam ADD encrypted_settings_password BYTEA NULL;

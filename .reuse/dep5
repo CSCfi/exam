@@ -11,7 +11,52 @@ Files: ui/src/assets/components/vendor/ckeditor/*
 Copyright: 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
 License: GPL-2.0-or-later
 
-Files: ui/src/assets/components/vendor/ckeditor/plugins/clozetest
+Files: ui/src/assets/fonts/arimo-v17-latin/*
+Copyright: 2013 Steve Matteson
+License: Apache-2.0
+
+Files: ui/src/assets/components/vendor/ckeditor/plugins/clozetest/*
 Copyright: 2024 Exam Consortium
 License: EUPL-1.2
+
+Files: ui/src/favicon.ico
+Copyright: 2024 Exam Consortium
+License: EUPL-1.2
+
+Files: ui/src/assets/images/*
+Copyright: 2024 Exam Consortium
+License: EUPL-1.2
+
+Files: ui/src/assets/i18n/*
+Copyright: 2024 Exam Consortium
+License: EUPL-1.2
+
+Files: ui/*.json
+Copyright: 2024 Exam Consortium
+License: EUPL-1.2
+
+Files: conf/template/*
+Copyright: 2024 Exam Consortium
+License: EUPL-1.2
+
+Files: conf/routes
+Copyright: 2024 Exam Consortium
+License: EUPL-1.2
+
+Files: conf/*.conf
+Copyright: 2024 Exam Consortium
+License: EUPL-1.2
+
+Files: conf/messages.*
+Copyright: 2024 Exam Consortium
+License: EUPL-1.2
+
+Files: test/resources/*
+Copyright: 2024 Exam Consortium
+License: EUPL-1.2
+
+Files: *.json
+Copyright: 2024 Exam Consortium
+License: EUPL-1.2
+
 

@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 # --- !Ups
 DROP TABLE user_language CASCADE;
 DROP SEQUENCE user_language_seq;

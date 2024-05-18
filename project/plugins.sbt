@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.2")
 
 addSbtPlugin("org.playframework" % "sbt-play-ebean" % "8.0.0")

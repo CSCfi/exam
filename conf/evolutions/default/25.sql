@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 # --- !Ups
 ALTER TABLE exam ADD credit_type_id INTEGER;
 UPDATE exam SET credit_type_id=1 where credit_type ilike 'PARTIAL';

@@ -1,3 +1,7 @@
+-- SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+--
+-- SPDX-License-Identifier: EUPL-1.2
+
 # --- !Ups
 ALTER TABLE question DROP COLUMN question_type;
 ALTER TABLE question ALTER type SET NOT NULL;

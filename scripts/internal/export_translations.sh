@@ -1,4 +1,9 @@
 #! /bin/bash
+
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
 if [ "$#" -ne 1 ]; then
   echo "Script that reads translation entries from json file and outputs them separately as keys and values"
   echo "so that they can be easily copy pasted to Google Drive sheet"

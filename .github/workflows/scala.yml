@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
 name: Build
 
 on: [push]
@@ -36,6 +40,9 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20.x
+
+    - name: Check REUSE compliance
+      uses: fsfe/reuse-action@v3
 
     - name: Build UI
       run: |
