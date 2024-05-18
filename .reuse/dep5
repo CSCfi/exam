@@ -1,11 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: exam
-Upstream-Contact: Exam Consortium <https://wiki.eduuni.fi/display/CSCEXAM/EXAM-konsortio>>
+Upstream-Contact: Exam Consortium <https://wiki.eduuni.fi/display/CSCEXAM/EXAM-konsortio>
 Source: https://github.com/CSCFi/exam
-
-Files: ui/src/assets/components/vendor/mathjax/*
-Copyright: 2009-2018 The MathJax Consortium
-License: Apache-2.0
 
 Files: ui/src/assets/components/vendor/ckeditor/*
 Copyright: 2003-2022, CKSource Holding sp. z o.o. All rights reserved.

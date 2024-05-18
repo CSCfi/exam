@@ -12,3 +12,4 @@ default-create-all.sql
 /data/
 .angular
 dist
+ui/src/assets/components/vendor/mathjax
