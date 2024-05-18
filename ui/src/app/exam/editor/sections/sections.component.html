@@ -15,34 +15,38 @@
     </div>
 }
 
-<div class="row mx-2" cdkDropList [cdkDropListData]="exam.examSections" (cdkDropListDropped)="moveSection($event)">
+<div class="row mx-2">
     <div class="col-md-12">
-        @for (section of exam.examSections | orderBy: 'sequenceNumber'; track section; let i = $index) {
-            <div cdkDrag cdkDragLockAxis="y">
-                <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
-                <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
-                <div class="row section-handle">
-                    <xm-section
-                        class="col-md-12 pt-2"
-                        [section]="section"
-                        [index]="i + 1"
-                        [examId]="exam.id"
-                        [collaborative]="collaborative"
-                        [canBeOptional]="exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'"
-                        (removed)="removeSection(section)"
-                        (materialsChanged)="loadMaterials()"
-                    >
-                        <i
-                            cdkDragHandle
-                            class="bi bi-arrows-move"
-                            ngbPopover="{{ 'i18n_move_section' | translate }}"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                        ></i>
-                    </xm-section>
+        <div cdkDropList [cdkDropListData]="exam.examSections" (cdkDropListDropped)="moveSection($event)">
+            @for (section of exam.examSections | orderBy: 'sequenceNumber'; track section; let i = $index) {
+                <div cdkDrag cdkDragLockAxis="y">
+                    <div class="dragdrop-placeholder" *cdkDragPlaceholder></div>
+                    <div class="drag-preview" *cdkDragPreview>#{{ i }} {{ section.name }}</div>
+                    <div class="row section-handle">
+                        <xm-section
+                            class="col-md-12 pt-2"
+                            [section]="section"
+                            [index]="i + 1"
+                            [examId]="exam.id"
+                            [collaborative]="collaborative"
+                            [canBeOptional]="
+                                exam.executionType.type !== 'MATURITY' && exam.implementation === 'AQUARIUM'
+                            "
+                            (removed)="removeSection(section)"
+                            (materialsChanged)="loadMaterials()"
+                        >
+                            <i
+                                cdkDragHandle
+                                class="bi bi-arrows-move"
+                                ngbPopover="{{ 'i18n_move_section' | translate }}"
+                                popoverTitle="{{ 'i18n_instructions' | translate }}"
+                                triggers="mouseenter:mouseleave"
+                            ></i>
+                        </xm-section>
+                    </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
 </div>
 
