@@ -24,17 +24,19 @@ import play.api.libs.json.JsValue
 import play.api.mvc.*
 import security.scala.Auth.authorized
 import security.scala.AuthExecutionContext
+import system.AuditedAction
 import util.scala.{DbApiHelper, JavaApiHelper}
 
-import javax.inject.Inject
-
-class MaintenancePeriodController @Inject() (implicit val ec: AuthExecutionContext)
-    extends InjectedController
-    with JavaApiHelper
-    with DbApiHelper:
+class MaintenancePeriodController @Inject() (
+    val controllerComponents: ControllerComponents,
+    val audited: AuditedAction,
+    implicit val ec: AuthExecutionContext
+) extends BaseController
+     with DbApiHelper
+     with JavaApiHelper:
 
   def listMaintenancePeriods: Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
+    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { _ =>
       DB.find(classOf[MaintenancePeriod])
         .where()
         .gt("endsAt", DateTime.now())
@@ -43,7 +45,7 @@ class MaintenancePeriodController @Inject() (implicit val ec: AuthExecutionConte
     }
 
   def createMaintenancePeriod: Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
+    Action.andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) { request =>
       request.body.asJson match
         case Some(body) =>
           parseBody(body) match
@@ -56,7 +58,7 @@ class MaintenancePeriodController @Inject() (implicit val ec: AuthExecutionConte
     }
 
   def updateMaintenancePeriod(id: Long): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN))) { request =>
+    Action.andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) { request =>
       request.body.asJson match
         case Some(body) =>
           DB.find(classOf[MaintenancePeriod]).where().idEq(id).find match
@@ -72,7 +74,7 @@ class MaintenancePeriodController @Inject() (implicit val ec: AuthExecutionConte
     }
 
   def removeMaintenancePeriod(id: Long): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
+    Action.andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) { _ =>
       DB.find(classOf[MaintenancePeriod]).where().idEq(id).find match
         case Some(mp) =>
           mp.delete()

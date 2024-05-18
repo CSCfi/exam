@@ -353,6 +353,12 @@
                 </sup>
             </div>
             <div class="col-md-9" id="attachment">
+                @if (showWarning()) {
+                    <div class="mt-1 edit-warning-container">
+                        <i class="bi-exclamation-circle text-danger me-2"></i>
+                        <span class="warning-text-small">{{ 'i18n_shared_question_property_info' | translate }}</span>
+                    </div>
+                }
                 <button class="xm-ok-button" (click)="selectFile()">{{ 'i18n_attach_file' | translate }}</button>
                 @if (question.attachment && !question.attachment?.removed) {
                     <div class="make-inline ps-2">
@@ -374,12 +380,6 @@
                                 alt="{{ 'i18n_remove_attachment' | translate }}"
                             />
                         </span>
-                    </div>
-                }
-                @if (showWarning()) {
-                    <div class="mt-1 edit-warning-container">
-                        <i class="bi-exclamation-circle text-danger me-2"></i>
-                        <span class="warning-text-small">{{ 'i18n_shared_question_property_info' | translate }}</span>
                     </div>
                 }
             </div>

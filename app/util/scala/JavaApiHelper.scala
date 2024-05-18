@@ -20,7 +20,7 @@ import play.api.mvc.{InjectedController, Result}
 import play.libs.{Json => JavaJson}
 
 trait JavaApiHelper:
-  self: InjectedController =>
+  self: BaseController =>
 
   extension [T <: Model](model: T) def toResult(status: Status): Result = status(JavaJson.toJson(model).toString)
 
