@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';

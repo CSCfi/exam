@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';

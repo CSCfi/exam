@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';

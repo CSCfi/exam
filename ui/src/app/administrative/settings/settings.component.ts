@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { KeyValuePipe } from '@angular/common';
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';

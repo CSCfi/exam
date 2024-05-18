@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+// SPDX-FileCopyrightText: 2024. The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 package util.xml
 
 import io.ebean.DB
@@ -9,6 +14,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.{Element, TextNode}
 import play.api.Logging
 import util.file.FileHandler
+import util.scala.DbApiHelper
 
 import java.io.{BufferedOutputStream, File}
 import java.nio.file.{Files, Path}
@@ -16,27 +22,27 @@ import java.util.Base64
 import javax.inject.Inject
 import scala.xml._
 
-class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler) extends MoodleXmlImporter with Logging:
+class MoodleXmlImporterImpl @Inject() (fileHandler: FileHandler)
+    extends MoodleXmlImporter
+    with DbApiHelper
+    with Logging:
 
   import scala.jdk.CollectionConverters._
   import scala.jdk.StreamConverters._
 
   private def tags(src: Node, user: User): Seq[Tag] =
     (src \\ "tag" \ "text")
-      .map(_.text)
-      .map(text =>
-        val userTags = DB
+      .map(node =>
+        DB
           .find(classOf[Tag])
           .where
-          .eq("name", text)
+          .eq("name", node.text)
           .eq("creator", user)
-          .findList
-          .asScala
-        userTags.toList match
+          .list match
           case h :: _ => h
           case _ =>
             val t = new Tag
-            t.setName(text.toLowerCase)
+            t.setName(node.text.toLowerCase)
             t.setCreator(user)
             t
       )

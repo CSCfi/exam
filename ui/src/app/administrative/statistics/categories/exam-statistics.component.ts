@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';

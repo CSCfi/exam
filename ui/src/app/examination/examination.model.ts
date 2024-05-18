@@ -1,5 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
 import type { Exam, ExamSection, ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/exam/exam.model';
-
 export interface Examination extends Exam {
     cloned: boolean;
     external: boolean;

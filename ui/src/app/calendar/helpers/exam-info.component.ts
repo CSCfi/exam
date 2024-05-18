@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { DatePipe } from '@angular/common';
 import { Component, Input, OnInit, computed, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 export const isNumber = (a: unknown): a is number => typeof a === 'number';
 export const isObject = (a: unknown): a is Record<string, unknown> => a instanceof Object;
 export const isString = (a: unknown): a is string => typeof a === 'string';

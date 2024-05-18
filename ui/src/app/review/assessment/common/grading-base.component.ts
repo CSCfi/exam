@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import type { HttpClient } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 import type { Exam, ExamLanguage, ExamType, GradeScale, NoGrade, SelectableGrade } from 'src/app/exam/exam.model';

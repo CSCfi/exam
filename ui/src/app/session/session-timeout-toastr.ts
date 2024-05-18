@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+//
+// SPDX-License-Identifier: EUPL-1.2
+
 import { HttpClient } from '@angular/common/http';
 import { Component, HostListener } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
