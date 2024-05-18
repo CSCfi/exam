@@ -22,6 +22,7 @@ import org.joda.time.DateTime
 import play.api.mvc._
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
+import system.AuditedAction
 import util.config.ConfigReader
 import util.scala.JavaApiHelper
 
@@ -34,6 +35,7 @@ class CourseController @Inject() (
     externalApi: ExternalCourseHandler,
     configReader: ConfigReader,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     implicit val ec: AuthExecutionContext
 ) extends InjectedController
     with JavaApiHelper:
@@ -92,13 +94,13 @@ class CourseController @Inject() (
 
   // Actions ->
   def getCourses(filterType: Option[String], criteria: Option[String]): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).andThen(audited).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
       listCourses(filterType, criteria, user)
     }
 
   def getCourse(id: Long): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
+    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { _ =>
       DB.find(classOf[Course], id).toResult(Ok)
     }
 
@@ -108,7 +110,7 @@ class CourseController @Inject() (
       tagIds: Option[List[Long]],
       ownerIds: Option[List[Long]]
   ): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       getUserCourses(user, examIds, sectionIds, tagIds, ownerIds)
     }
