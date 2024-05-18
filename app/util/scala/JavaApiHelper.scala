@@ -17,10 +17,10 @@ package util.scala
 
 import io.ebean.Model
 import play.api.mvc.{InjectedController, Result}
-import play.libs.{Json => JavaJson}
+import play.api.mvc.Results.Status
+import play.libs.Json as JavaJson
 
 trait JavaApiHelper:
-  self: BaseController =>
 
   extension [T <: Model](model: T) def toResult(status: Status): Result = status(JavaJson.toJson(model).toString)
 

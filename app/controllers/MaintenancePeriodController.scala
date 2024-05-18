@@ -27,13 +27,15 @@ import security.scala.AuthExecutionContext
 import system.AuditedAction
 import util.scala.{DbApiHelper, JavaApiHelper}
 
+import javax.inject.Inject
+
 class MaintenancePeriodController @Inject() (
     val controllerComponents: ControllerComponents,
     val audited: AuditedAction,
     implicit val ec: AuthExecutionContext
 ) extends BaseController
-     with DbApiHelper
-     with JavaApiHelper:
+    with DbApiHelper
+    with JavaApiHelper:
 
   def listMaintenancePeriods: Action[AnyContent] =
     Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { _ =>
@@ -41,7 +43,7 @@ class MaintenancePeriodController @Inject() (
         .where()
         .gt("endsAt", DateTime.now())
         .list
-        .toResult(Ok)
+        .toResult(Results.Ok)
     }
 
   def createMaintenancePeriod: Action[AnyContent] =
@@ -52,7 +54,7 @@ class MaintenancePeriodController @Inject() (
             case (Some(s), Some(e), Some(d)) =>
               val period = update(new MaintenancePeriod, s, e, d)
               period.save()
-              period.toResult(Created)
+              period.toResult(Results.Created)
             case _ => BadRequest
         case _ => BadRequest
     }
