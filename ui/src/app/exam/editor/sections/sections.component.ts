@@ -15,7 +15,6 @@
 import {
     CdkDrag,
     CdkDragDrop,
-    CdkDragHandle,
     CdkDragPlaceholder,
     CdkDragPreview,
     CdkDropList,
@@ -47,7 +46,6 @@ import { SectionComponent } from './section.component';
         CdkDragPlaceholder,
         CdkDragPreview,
         SectionComponent,
-        CdkDragHandle,
         NgbPopover,
         TranslateModule,
         OrderByPipe,

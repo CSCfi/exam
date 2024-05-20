@@ -19,24 +19,27 @@ import impl.ExternalCourseHandler
 import io.ebean.DB
 import models.{Course, Role, User}
 import org.joda.time.DateTime
-import play.api.mvc._
-import security.scala.Auth.{AuthenticatedAction, authorized}
+import play.api.mvc.*
+import security.scala.Auth.{authorized, AuthenticatedAction}
 import security.scala.{Auth, AuthExecutionContext}
+import system.AuditedAction
 import util.config.ConfigReader
-import util.scala.JavaApiHelper
+import util.scala.{DbApiHelper, JavaApiHelper}
 
 import javax.inject.Inject
 import scala.concurrent.Future
-import scala.jdk.CollectionConverters._
-import scala.jdk.FutureConverters._
+import scala.jdk.CollectionConverters.*
+import scala.jdk.FutureConverters.*
 
 class CourseController @Inject() (
     externalApi: ExternalCourseHandler,
     configReader: ConfigReader,
     authenticated: AuthenticatedAction,
+    audited: AuditedAction,
     implicit val ec: AuthExecutionContext
 ) extends InjectedController
-    with JavaApiHelper:
+    with JavaApiHelper
+    with DbApiHelper:
 
   private def listCourses(
       filterType: Option[String],
@@ -45,7 +48,7 @@ class CourseController @Inject() (
   ): Future[Result] =
     (filterType, criteria) match
       case (Some("code"), Some(c)) =>
-        externalApi.getCoursesByCode(user, c).asScala.map(_.asScala.toResult(Ok))
+        externalApi.getCoursesByCode(user, c).asScala.map(_.asScala.toResult(Results.Ok))
       case (Some("name"), Some(x)) if x.length >= 2 =>
         Future {
           DB.find(classOf[Course])
@@ -62,13 +65,13 @@ class CourseController @Inject() (
                 .getCourseValidityDate(new DateTime(c.getStartDate))
                 .isBeforeNow
             )
-        }.map(_.toResult(Ok))
+        }.map(_.toResult(Results.Ok))
       case (Some("name"), Some(_)) =>
         throw new IllegalArgumentException("Too short criteria")
       case _ =>
         Future {
-          DB.find(classOf[Course]).where.isNotNull("name").orderBy("code").findList
-        }.map(_.asScala.toResult(Ok))
+          DB.find(classOf[Course]).where.isNotNull("name").orderBy("code").list
+        }.map(_.toResult(Results.Ok))
 
   private def getUserCourses(
       user: User,
@@ -88,18 +91,18 @@ class CourseController @Inject() (
 
     if (ownerIds.getOrElse(Nil).nonEmpty)
       query = query.in("exams.examOwners.id", ownerIds.get.asJava)
-    query.orderBy("name desc").findList.asScala.toResult(Ok)
+    query.orderBy("name desc").findList.asScala.toResult(Results.Ok)
 
   // Actions ->
   def getCourses(filterType: Option[String], criteria: Option[String]): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).andThen(audited).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
       listCourses(filterType, criteria, user)
     }
 
   def getCourse(id: Long): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
-      DB.find(classOf[Course], id).toResult(Ok)
+    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { _ =>
+      DB.find(classOf[Course], id).toResult(Results.Ok)
     }
 
   def listUsersCourses(
@@ -108,7 +111,7 @@ class CourseController @Inject() (
       tagIds: Option[List[Long]],
       ownerIds: Option[List[Long]]
   ): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       getUserCourses(user, examIds, sectionIds, tagIds, ownerIds)
     }
