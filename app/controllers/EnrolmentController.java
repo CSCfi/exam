@@ -45,6 +45,8 @@ import sanitizers.EnrolmentCourseInformationSanitizer;
 import sanitizers.EnrolmentInformationSanitizer;
 import sanitizers.StudentEnrolmentSanitizer;
 import scala.concurrent.duration.Duration;
+import scala.jdk.javaapi.CollectionConverters;
+import scala.jdk.javaapi.FutureConverters;
 import security.Authenticated;
 import util.config.ConfigReader;
 import util.datetime.DateTimeHandler;
@@ -92,8 +94,7 @@ public class EnrolmentController extends BaseController {
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result listEnrolledExams(String code) {
-        List<Exam> exams = DB
-            .find(Exam.class)
+        List<Exam> exams = DB.find(Exam.class)
             .fetch("creator", "firstName, lastName")
             .fetch("examLanguages")
             .fetch("examOwners", "firstName, lastName")
@@ -111,8 +112,7 @@ public class EnrolmentController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result enrolmentsByReservation(Long id) {
-        List<ExamEnrolment> enrolments = DB
-            .find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
             .fetch("user", "firstName, lastName, email")
             .fetch("exam")
             .fetch("exam.course", "code, name")
@@ -126,8 +126,7 @@ public class EnrolmentController extends BaseController {
 
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result getEnrolledExamInfo(String code, Long id) {
-        Exam exam = DB
-            .find(Exam.class)
+        Exam exam = DB.find(Exam.class)
             .fetch("course")
             .fetch("course.organisation")
             .fetch("course.gradeScale")
@@ -177,8 +176,7 @@ public class EnrolmentController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (isAllowedToParticipate(exam, user)) {
             DateTime now = dateTimeHandler.adjustDST(new DateTime());
-            List<ExamEnrolment> enrolments = DB
-                .find(ExamEnrolment.class)
+            List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
                 .where()
                 .eq("user", user)
                 .eq("exam.id", id)
@@ -251,8 +249,7 @@ public class EnrolmentController extends BaseController {
     }
 
     private Optional<Exam> getExam(Long eid, ExamExecutionType.Type type) {
-        return DB
-            .find(Exam.class)
+        return DB.find(Exam.class)
             .where()
             .eq("id", eid)
             .disjunction()
@@ -275,8 +272,7 @@ public class EnrolmentController extends BaseController {
             Exam exam = possibleExam.get();
 
             // Find existing enrolments for exam and user
-            List<ExamEnrolment> enrolments = DB
-                .find(ExamEnrolment.class)
+            List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("examinationEventConfiguration")
                 .fetch("examinationEventConfiguration.examinationEvent")
@@ -288,9 +284,10 @@ public class EnrolmentController extends BaseController {
                 .endOr()
                 .findList()
                 .stream()
-                .filter(ee ->
-                    (ee.getUser() != null && ee.getUser().equals(user)) ||
-                    (ee.getPreEnrolledUserEmail() != null && ee.getPreEnrolledUserEmail().equals(user.getEmail()))
+                .filter(
+                    ee ->
+                        (ee.getUser() != null && ee.getUser().equals(user)) ||
+                        (ee.getPreEnrolledUserEmail() != null && ee.getPreEnrolledUserEmail().equals(user.getEmail()))
                 )
                 .toList();
 
@@ -298,8 +295,10 @@ public class EnrolmentController extends BaseController {
             if (
                 enrolments
                     .stream()
-                    .anyMatch(e ->
-                        e.getExam().getImplementation() == Exam.Implementation.AQUARIUM && e.getReservation() == null
+                    .anyMatch(
+                        e ->
+                            e.getExam().getImplementation() == Exam.Implementation.AQUARIUM &&
+                            e.getReservation() == null
                     )
             ) {
                 return wrapAsPromise(forbidden("i18n_error_enrolment_exists"));
@@ -308,9 +307,10 @@ public class EnrolmentController extends BaseController {
             if (
                 enrolments
                     .stream()
-                    .anyMatch(e ->
-                        e.getExam().getImplementation() != Exam.Implementation.AQUARIUM &&
-                        e.getExaminationEventConfiguration() == null
+                    .anyMatch(
+                        e ->
+                            e.getExam().getImplementation() != Exam.Implementation.AQUARIUM &&
+                            e.getExaminationEventConfiguration() == null
                     )
             ) {
                 return wrapAsPromise(forbidden("i18n_error_enrolment_exists"));
@@ -328,22 +328,24 @@ public class EnrolmentController extends BaseController {
             if (
                 enrolments
                     .stream()
-                    .anyMatch(e ->
-                        e.getExaminationEventConfiguration() != null &&
-                        e
-                            .getExaminationEventConfiguration()
-                            .getExaminationEvent()
-                            .toInterval(e.getExam())
-                            .contains(dateTimeHandler.adjustDST(DateTime.now()))
+                    .anyMatch(
+                        e ->
+                            e.getExaminationEventConfiguration() != null &&
+                            e
+                                .getExaminationEventConfiguration()
+                                .getExaminationEvent()
+                                .toInterval(e.getExam())
+                                .contains(dateTimeHandler.adjustDST(DateTime.now()))
                     )
             ) {
                 return wrapAsPromise(forbidden("i18n_reservation_in_effect"));
             }
             List<ExamEnrolment> enrolmentsWithFutureReservations = enrolments
                 .stream()
-                .filter(ee ->
-                    ee.getReservation() != null &&
-                    ee.getReservation().toInterval().isAfter(dateTimeHandler.adjustDST(DateTime.now()))
+                .filter(
+                    ee ->
+                        ee.getReservation() != null &&
+                        ee.getReservation().toInterval().isAfter(dateTimeHandler.adjustDST(DateTime.now()))
                 )
                 .toList();
             if (enrolmentsWithFutureReservations.size() > 1) {
@@ -368,9 +370,10 @@ public class EnrolmentController extends BaseController {
             }
             List<ExamEnrolment> enrolmentsWithFutureExaminationEvents = enrolments
                 .stream()
-                .filter(e ->
-                    e.getExaminationEventConfiguration() != null &&
-                    e.getExaminationEventConfiguration().getExaminationEvent().toInterval(e.getExam()).isAfterNow()
+                .filter(
+                    e ->
+                        e.getExaminationEventConfiguration() != null &&
+                        e.getExaminationEventConfiguration().getExaminationEvent().toInterval(e.getExam()).isAfterNow()
                 )
                 .toList();
             if (enrolmentsWithFutureExaminationEvents.size() > 1) {
@@ -426,9 +429,9 @@ public class EnrolmentController extends BaseController {
         if (!permCheckActive) {
             return doCreateEnrolment(id, ExamExecutionType.Type.PUBLIC, user);
         }
-        return externalCourseHandler
-            .getPermittedCourses(user)
-            .thenApplyAsync(codes -> checkPermission(id, codes, code, user))
+        var future = externalCourseHandler.getPermittedCourses(user);
+        return FutureConverters.asJava(future)
+            .thenApplyAsync(codes -> checkPermission(id, CollectionConverters.asJava(codes), code, user))
             .thenCompose(Function.identity())
             .exceptionally(throwable -> internalServerError(throwable.getMessage()));
     }
@@ -452,8 +455,7 @@ public class EnrolmentController extends BaseController {
                 return wrapAsPromise(badRequest("user not found"));
             }
         } else if (email.isPresent()) {
-            List<User> users = DB
-                .find(User.class)
+            List<User> users = DB.find(User.class)
                 .where()
                 .or()
                 .ieq("email", email.get())
@@ -463,8 +465,7 @@ public class EnrolmentController extends BaseController {
             if (users.isEmpty()) {
                 // Pre-enrolment
                 // Check that we will not create duplicate enrolments for same email address
-                List<ExamEnrolment> enrolments = DB
-                    .find(ExamEnrolment.class)
+                List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
                     .where()
                     .eq("exam.id", eid)
                     .ieq("preEnrolledUserEmail", email.get())
@@ -487,34 +488,32 @@ public class EnrolmentController extends BaseController {
         }
 
         final User sender = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return doCreateEnrolment(eid, executionType, user)
-            .thenApplyAsync(result -> {
-                if (exam.getState() != Exam.State.PUBLISHED) {
-                    return result;
-                }
-                if (result.status() != Http.Status.OK) {
-                    return result;
-                }
-                actor
-                    .scheduler()
-                    .scheduleOnce(
-                        Duration.create(1, TimeUnit.SECONDS),
-                        () -> {
-                            emailComposer.composePrivateExamParticipantNotification(user, sender, exam);
-                            logger.info("Exam participation notification email sent to {}", user.getEmail());
-                        },
-                        actor.dispatcher()
-                    );
+        return doCreateEnrolment(eid, executionType, user).thenApplyAsync(result -> {
+            if (exam.getState() != Exam.State.PUBLISHED) {
                 return result;
-            });
+            }
+            if (result.status() != Http.Status.OK) {
+                return result;
+            }
+            actor
+                .scheduler()
+                .scheduleOnce(
+                    Duration.create(1, TimeUnit.SECONDS),
+                    () -> {
+                        emailComposer.composePrivateExamParticipantNotification(user, sender, exam);
+                        logger.info("Exam participation notification email sent to {}", user.getEmail());
+                    },
+                    actor.dispatcher()
+                );
+            return result;
+        });
     }
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result removeStudentEnrolment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExamEnrolment enrolment = DB
-            .find(ExamEnrolment.class)
+        ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
             .where()
             .idEq(id)
             .ne("exam.executionType.type", ExamExecutionType.Type.PUBLIC.toString())
@@ -551,8 +550,7 @@ public class EnrolmentController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result addExaminationEventConfig(Long enrolmentId, Long configId, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Optional<ExamEnrolment> oee = DB
-            .find(ExamEnrolment.class)
+        Optional<ExamEnrolment> oee = DB.find(ExamEnrolment.class)
             .where()
             .idEq(enrolmentId)
             .eq("user", user)
@@ -562,8 +560,7 @@ public class EnrolmentController extends BaseController {
             return notFound("enrolment not found");
         }
         ExamEnrolment enrolment = oee.get();
-        Optional<ExaminationEventConfiguration> optionalConfig = DB
-            .find(ExaminationEventConfiguration.class)
+        Optional<ExaminationEventConfiguration> optionalConfig = DB.find(ExaminationEventConfiguration.class)
             .fetch("examEnrolments")
             .where()
             .idEq(configId)
@@ -597,8 +594,7 @@ public class EnrolmentController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result removeExaminationEventConfig(Long enrolmentId, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Optional<ExamEnrolment> oee = DB
-            .find(ExamEnrolment.class)
+        Optional<ExamEnrolment> oee = DB.find(ExamEnrolment.class)
             .where()
             .idEq(enrolmentId)
             .eq("user", user)
@@ -636,8 +632,7 @@ public class EnrolmentController extends BaseController {
         }
         ExaminationEvent event = config.getExaminationEvent();
         Exam exam = config.getExam();
-        Set<ExamEnrolment> enrolments = DB
-            .find(ExamEnrolment.class)
+        Set<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
             .fetch("user")
             .where()
             .eq("examinationEventConfiguration.id", configId)

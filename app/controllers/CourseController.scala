@@ -18,8 +18,8 @@ import util.scala.{DbApiHelper, JavaApiHelper}
 
 import javax.inject.Inject
 import scala.concurrent.Future
+
 import scala.jdk.CollectionConverters.*
-import scala.jdk.FutureConverters.*
 
 class CourseController @Inject() (
     externalApi: ExternalCourseHandler,
@@ -38,7 +38,7 @@ class CourseController @Inject() (
   ): Future[Result] =
     (filterType, criteria) match
       case (Some("code"), Some(c)) =>
-        externalApi.getCoursesByCode(user, c).asScala.map(_.asScala.toResult(Results.Ok))
+        externalApi.getCoursesByCode(user, c).map(_.toResult(Results.Ok))
       case (Some("name"), Some(x)) if x.length >= 2 =>
         Future {
           DB.find(classOf[Course])

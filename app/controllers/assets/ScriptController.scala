@@ -16,5 +16,5 @@ class ScriptController @Inject() (assets: Assets, cc: ControllerComponents) exte
   def index: Action[AnyContent] = assets.at("index.html")
 
   def assetOrDefault(resource: String): Action[AnyContent] =
-    //if resource.contains("assets/scripts") then assets.at("../../node_modules/mathjax/MathJax.js")
+    // if resource.contains("assets/scripts") then assets.at("../../node_modules/mathjax/MathJax.js")
     if resource.contains(".") then assets.at(resource) else index

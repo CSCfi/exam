@@ -255,7 +255,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                         assertThat(r.status()).isEqualTo(Helpers.OK);
                         break;
                     case ClozeTestQuestion:
-                        ObjectNode content = (ObjectNode) Json
+                        ObjectNode content = Json
                             .newObject()
                             .set(
                                 "answer",
@@ -283,7 +283,7 @@ public class ExaminationControllerTest extends IntegrationTestCase {
                             .eq("examSection.exam", studentExam)
                             .eq("question.type", Question.Type.MultipleChoiceQuestion)
                             .findList()
-                            .get(0);
+                            .getFirst();
                         Iterator<ExamSectionQuestionOption> it = sectionQuestion.getOptions().iterator();
                         ExamSectionQuestionOption option = it.next();
                         r =
