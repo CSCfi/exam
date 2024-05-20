@@ -35,14 +35,6 @@ Files: conf/template/*
 Copyright: 2024 Exam Consortium
 License: EUPL-1.2
 
-Files: conf/routes
-Copyright: 2024 Exam Consortium
-License: EUPL-1.2
-
-Files: conf/*.conf
-Copyright: 2024 Exam Consortium
-License: EUPL-1.2
-
 Files: conf/messages.*
 Copyright: 2024 Exam Consortium
 License: EUPL-1.2
@@ -54,5 +46,3 @@ License: EUPL-1.2
 Files: *.json
 Copyright: 2024 Exam Consortium
 License: EUPL-1.2
-
-

@@ -67,7 +67,7 @@ class MaintenancePeriodController @Inject() (
     }
 
   def removeMaintenancePeriod(id: Long): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.ADMIN))).andThen(audited) { _ =>
+    Action.andThen(authorized(Seq(Role.Name.ADMIN))) { _ =>
       DB.find(classOf[MaintenancePeriod]).where().idEq(id).find match
         case Some(mp) =>
           mp.delete()

@@ -76,6 +76,10 @@ class ExternalCourseHandlerImpl @Inject (
         val nodes = root \ "data" \\ "course_code" ++ root \ "data" \\ "courseUnitCode"
         nodes.map(_.as[String]).toSet
       )
+      .recover { case e: Exception =>
+        logger.error("Unable to check for permitted courses due to exception in network connection", e)
+        Set.empty
+      }
 
   private def saveOrUpdate(external: Course): Unit =
     DB.find(classOf[Course])
@@ -110,6 +114,10 @@ class ExternalCourseHandlerImpl @Inject (
           logger.info(s"Non-OK response received for URL: %url. Status: $status")
           Seq.empty
       })
+      .recover { case e: Exception =>
+        logger.error("Unable to download course data due to exception in network connection", e)
+        Seq.empty
+      }
 
   private def parseCourses(root: JsValue): Seq[CourseUnitInfo] =
     val single = (root \\ "CourseUnitInfo").map(_.asOpt[CourseUnitInfo])
@@ -209,12 +217,11 @@ class ExternalCourseHandlerImpl @Inject (
 
   private def parseUrl(organisation: Organisation, courseCode: String) =
     val urlConfigPrefix = "exam.integration.courseUnitInfo.url"
-    val configPath =
+    val configPathForOrg =
       Option(organisation).map(_.getCode).flatMap(c => Some(s"$urlConfigPrefix.$c").filter(configReader.hasPath))
-    val cp2 = configPath.orElse {
+    val configPath = configPathForOrg.orElse {
       val path = String.format("%s.%s", urlConfigPrefix, "default")
-      if configReader.hasPath(path) then Some(configPath)
-      else None
+      Some(path).filter(configReader.hasPath)
     }
     val path = configReader.getString(configPath.getOrElse(""))
     if (!path.contains(COURSE_CODE_PLACEHOLDER))

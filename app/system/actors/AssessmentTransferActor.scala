@@ -22,12 +22,15 @@ import models.enrolment.ExamEnrolment
 import java.io.IOException
 import java.net.URI
 import javax.inject.Inject
-import scala.concurrent.Await
+import scala.concurrent.{Await, ExecutionContext}
 import scala.concurrent.duration.Duration
 import scala.util.control.Exception.catching
 
-class AssessmentTransferActor @Inject (private val wsClient: WSClient, private val configReader: ConfigReader)
-    extends AbstractActor
+class AssessmentTransferActor @Inject (
+    private val wsClient: WSClient,
+    private val configReader: ConfigReader,
+    implicit val ec: ExecutionContext
+) extends AbstractActor
     with Logging
     with DbApiHelper
     with JavaApiHelper:
@@ -46,12 +49,7 @@ class AssessmentTransferActor @Inject (private val wsClient: WSClient, private v
           .isNotNull("externalExam.finished")
           .isNotNull("reservation.externalRef")
           .list
-          .foreach(e =>
-            catching(classOf[IOException]).either(send(e)) match
-              case Left(ex) =>
-                logger.error("I/O failure while sending assessment to proxy server", ex)
-              case _ => // Nothing to do here
-          )
+          .foreach(send)
         logger.debug("<- done")
     )
     .build
@@ -65,13 +63,21 @@ class AssessmentTransferActor @Inject (private val wsClient: WSClient, private v
     val json    = DB.json.toJson(ee, PathProperties.parse("(*, creator(id))"))
     val om      = new ObjectMapper().registerModule(new PlayJsonMapperModule(JsonParserSettings.settings))
     val node    = om.readTree(json)
-    Await.result(request.addHttpHeaders("Content-Type" -> "application/json").post(node.toString), Duration.Inf) match
-      case resp if resp.status != Http.Status.CREATED =>
-        logger.error("Failed in transferring assessment for reservation $ref")
-      case _ =>
-        ee.setSent(DateTime.now)
-        ee.update()
-        logger.info("Assessment transfer for reservation $ref processed successfully")
+    request
+      .addHttpHeaders("Content-Type" -> "application/json")
+      .post(node.toString)
+      .map(resp =>
+        resp.status match
+          case Http.Status.CREATED =>
+            ee.setSent(DateTime.now)
+            ee.update()
+            logger.info("Assessment transfer for reservation $ref processed successfully")
+          case _ =>
+            logger.error("Failed in transferring assessment for reservation $ref")
+      )
+      .recover { case e: Exception =>
+        logger.error("I/O failure while sending assessment to proxy server", e)
+      }
 
   private def parseUrl(reservationRef: String) =
     URI.create(s"${configReader.getIopHost}/api/enrolments/$reservationRef/assessment").toURL

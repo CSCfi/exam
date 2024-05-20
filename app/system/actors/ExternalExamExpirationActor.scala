@@ -33,7 +33,7 @@ class ExternalExamExpirationActor @Inject (
     with Logging:
 
   private def parseUrl(id: String) =
-    val url = configReader.getIopHost + "/api/attachments/" + id
+    val url = s"${configReader.getIopHost}/api/attachments/$id"
     catching(classOf[MalformedURLException]).either(URI.create(url).toURL) match
       case Left(_)  => None
       case Right(u) => Some(u)

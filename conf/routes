@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
+#
+# SPDX-License-Identifier: EUPL-1.2
+
 GET           /                                                               controllers.assets.FrontendController.index()
 
 ############### Session interface ############
@@ -181,9 +185,9 @@ DELETE        /app/enrolments/configs/:eecid                                   c
 
 
 ############### Courses interface ###############
-GET           /app/courses                                                     controllers.CourseController.getCourses(filter: Option[String], q: Option[String])
-GET           /app/courses/user                                                controllers.CourseController.listUsersCourses(examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]], ownerIds: Option[List[Long]])
-GET           /app/courses/:id                                                 controllers.CourseController.getCourse(id: Long)
+GET           /app/courses                                                     controllers.exam.CourseController.getCourses(filter: Option[String], q: Option[String])
+GET           /app/courses/user                                                controllers.exam.CourseController.listUsersCourses(examIds: Option[List[Long]], sectionIds: Option[List[Long]], tagIds: Option[List[Long]], ownerIds: Option[List[Long]])
+GET           /app/courses/:id                                                 controllers.exam.CourseController.getCourse(id: Long)
 
 ############### Question interface ###############
 
@@ -472,4 +476,3 @@ GET           /attributes                                                       
 
 # static assets
 GET           /*path                                                              controllers.assets.FrontendController.assetOrDefault(path)
-

@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-package controllers
+package controllers.exam
 
 import impl.ExternalCourseHandler
 import io.ebean.DB
@@ -11,7 +11,6 @@ import org.joda.time.DateTime
 import play.api.mvc._
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
-import system.AuditedAction
 import miscellaneous.config.ConfigReader
 import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.exam.Course
@@ -25,7 +24,6 @@ class CourseController @Inject() (
     externalApi: ExternalCourseHandler,
     configReader: ConfigReader,
     authenticated: AuthenticatedAction,
-    audited: AuditedAction,
     implicit val ec: AuthExecutionContext
 ) extends InjectedController
     with JavaApiHelper
@@ -83,13 +81,13 @@ class CourseController @Inject() (
 
   // Actions ->
   def getCourses(filterType: Option[String], criteria: Option[String]): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).andThen(audited).async { request =>
+    authenticated.andThen(authorized(Seq(Role.Name.ADMIN, Role.Name.TEACHER))).async { request =>
       val user = request.attrs(Auth.ATTR_USER)
       listCourses(filterType, criteria, user)
     }
 
   def getCourse(id: Long): Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { _ =>
+    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
       Ok(DB.find(classOf[Course], id).toJson)
     }
 
@@ -99,7 +97,7 @@ class CourseController @Inject() (
       tagIds: Option[List[Long]],
       ownerIds: Option[List[Long]]
   ): Action[AnyContent] =
-    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { request =>
+    authenticated.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))) { request =>
       val user = request.attrs(Auth.ATTR_USER)
       getUserCourses(user, examIds, sectionIds, tagIds, ownerIds)
     }

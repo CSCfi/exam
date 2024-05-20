@@ -21,7 +21,7 @@ class SystemErrorHandler extends HttpErrorHandler with Logging:
     Future.successful(Status(status))
 
   override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] =
-    logger.error(s"onServerError: ${request.method}, ${request.uri}", exception)
+    logger.error(s"onServerError: ${request.method} ${request.uri}", exception)
     val cause        = exception.getCause
     val errorMessage = if cause == null then exception.getMessage else cause.getMessage
     val result = Failure(cause) match
