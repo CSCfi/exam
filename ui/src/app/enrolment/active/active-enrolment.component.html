@@ -353,6 +353,7 @@
                 [attr.aria-expanded]="showInstructions"
                 [hidden]="!enrolment.exam?.enrollInstruction && !enrolment.collaborativeExam?.enrollInstruction"
                 (click)="showInstructions = !showInstructions"
+                [attr.aria-expanded]="showInstructions"
             >
                 {{ 'i18n_view_instructions' | translate }}
                 <i [hidden]="showInstructions" class="bi bi-chevron-right"></i>
