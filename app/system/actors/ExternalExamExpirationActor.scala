@@ -5,13 +5,13 @@
 package system.actors
 
 import io.ebean.DB
-import models.Attachment
-import models.json.ExternalExam
+import models.iop.ExternalExam
 import org.apache.pekko.actor.AbstractActor
 import play.api.Logging
 import play.api.libs.ws.WSClient
-import util.config.ConfigReader
-import util.scala.DbApiHelper
+import miscellaneous.config.ConfigReader
+import miscellaneous.scala.DbApiHelper
+import models.attachment.Attachment
 
 import java.net.MalformedURLException
 import java.net.URI

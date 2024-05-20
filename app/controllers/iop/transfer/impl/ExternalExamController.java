@@ -1,6 +1,5 @@
 // SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
-// SPDX-FileCopyrightText: 2024. The members of the EXAM Consortium
-//
+
 // SPDX-License-Identifier: EUPL-1.2
 
 package controllers.iop.transfer.impl;
@@ -9,9 +8,9 @@ import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import controllers.ExaminationController;
-import controllers.SettingsController;
+import controllers.admin.SettingsController;
 import controllers.base.BaseController;
+import controllers.examination.ExaminationController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import controllers.iop.transfer.api.ExternalExamAPI;
@@ -44,20 +43,22 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
-import models.Attachment;
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamInspection;
-import models.ExamParticipation;
-import models.GeneralSettings;
-import models.Reservation;
-import models.User;
-import models.json.ExternalExam;
+import miscellaneous.config.ConfigReader;
+import miscellaneous.json.JsonDeserializer;
+import models.admin.GeneralSettings;
+import models.assessment.AutoEvaluationConfig;
+import models.assessment.ExamInspection;
+import models.attachment.Attachment;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExamParticipation;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.iop.ExternalExam;
 import models.questions.Question;
 import models.sections.ExamSection;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
+import models.user.User;
 import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -72,10 +73,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
-import scala.jdk.javaapi.CollectionConverters;
-import util.AppUtil;
-import util.config.ConfigReader;
-import util.json.JsonDeserializer;
 
 public class ExternalExamController extends BaseController implements ExternalExamAPI {
 
@@ -208,8 +205,8 @@ public class ExternalExamController extends BaseController implements ExternalEx
         if (enrolment.getCollaborativeExam() != null) {
             return collaborativeExamLoader
                 .createAssessment(ep)
-                .thenComposeAsync(ok ->
-                    CompletableFuture.supplyAsync(ok ? Results::created : Results::internalServerError)
+                .thenComposeAsync(
+                    ok -> CompletableFuture.supplyAsync(ok ? Results::created : Results::internalServerError)
                 );
         } else {
             // Fetch external attachments to local exam.
@@ -219,22 +216,20 @@ public class ExternalExamController extends BaseController implements ExternalEx
     }
 
     private void notifyTeachers(Exam exam) {
-        Set<User> recipients = Stream
-            .concat(
-                exam.getParent().getExamOwners().stream(),
-                exam.getExamInspections().stream().map(ExamInspection::getUser)
-            )
-            .collect(Collectors.toSet());
+        Set<User> recipients = Stream.concat(
+            exam.getParent().getExamOwners().stream(),
+            exam.getExamInspections().stream().map(ExamInspection::getUser)
+        ).collect(Collectors.toSet());
         actor
             .scheduler()
             .scheduleOnce(
                 Duration.create(1, TimeUnit.SECONDS),
-                () ->
-                    AppUtil.notifyPrivateExamEnded(
-                        CollectionConverters.asScala(recipients).toSet(),
-                        exam,
-                        emailComposer
-                    ),
+                () -> {
+                    recipients.forEach(r -> {
+                        emailComposer.composePrivateExamEnded(r, exam);
+                        logger.info("Email sent to {}", r.getEmail());
+                    });
+                },
                 actor.dispatcher()
             );
     }
@@ -289,11 +284,10 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .map(ExamSectionQuestion::getQuestion)
                 .filter(question -> question.getAttachment() != null)
                 .distinct()
-                .forEach(question ->
-                    futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
+                .forEach(
+                    question -> futures.add(externalAttachmentLoader.createExternalAttachment(question.getAttachment()))
                 );
-            return CompletableFuture
-                .allOf(futures.toArray(new CompletableFuture[0]))
+            return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
                 .thenComposeAsync(aVoid -> wrapAsPromise(ok(exam, getPath())))
                 .exceptionally(t -> {
                     logger.error(String.format("Could not provide enrolment [id=%s]", enrolment.getId()), t);
@@ -338,8 +332,7 @@ public class ExternalExamController extends BaseController implements ExternalEx
             ArrayNode optionalSectionsNode = root.has("optionalSections")
                 ? (ArrayNode) root.get("optionalSections")
                 : Json.newArray();
-            Set<Long> ids = StreamSupport
-                .stream(optionalSectionsNode.spliterator(), false)
+            Set<Long> ids = StreamSupport.stream(optionalSectionsNode.spliterator(), false)
                 .map(JsonNode::asLong)
                 .collect(Collectors.toSet());
             document.setExamSections(
@@ -356,16 +349,16 @@ public class ExternalExamController extends BaseController implements ExternalEx
                 .stream()
                 .flatMap(es -> es.getSectionQuestions().stream())
                 .forEach(esq -> {
-                    Optional<Question.Type> questionType = Optional
-                        .ofNullable(esq.getQuestion())
-                        .map(Question::getType);
+                    Optional<Question.Type> questionType = Optional.ofNullable(esq.getQuestion()).map(
+                        Question::getType
+                    );
                     if (questionType.isPresent() && questionType.get() == Question.Type.ClaimChoiceQuestion) {
                         Set<ExamSectionQuestionOption> sorted = esq
                             .getOptions()
                             .stream()
                             .collect(
-                                Collectors.toCollection(() ->
-                                    new TreeSet<>(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
+                                Collectors.toCollection(
+                                    () -> new TreeSet<>(Comparator.comparingLong(esqo -> esqo.getOption().getId()))
                                 )
                             );
                         esq.setOptions(sorted);

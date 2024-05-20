@@ -9,9 +9,9 @@ import com.google.inject.ImplementedBy;
 import controllers.iop.transfer.impl.ExternalExamController;
 import java.net.MalformedURLException;
 import java.util.concurrent.CompletionStage;
-import models.ExamEnrolment;
-import models.Reservation;
-import models.User;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.Reservation;
+import models.user.User;
 
 @FunctionalInterface
 @ImplementedBy(ExternalExamController.class)

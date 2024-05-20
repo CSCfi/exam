@@ -17,11 +17,11 @@ import java.net.URL;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
+import miscellaneous.config.ConfigReader;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
-import util.config.ConfigReader;
 
 public class OrganisationController extends BaseController {
 

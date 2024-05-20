@@ -30,10 +30,13 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
-import models.Attachment;
-import models.Tag;
-import models.User;
+import miscellaneous.config.ConfigReader;
+import miscellaneous.file.FileHandler;
+import miscellaneous.json.JsonDeserializer;
+import models.attachment.Attachment;
 import models.questions.Question;
+import models.questions.Tag;
+import models.user.User;
 import org.apache.pekko.stream.IOResult;
 import org.apache.pekko.stream.javadsl.FileIO;
 import org.apache.pekko.stream.javadsl.Source;
@@ -51,9 +54,6 @@ import play.mvc.Result;
 import play.mvc.Results;
 import sanitizers.Attrs;
 import security.Authenticated;
-import util.config.ConfigReader;
-import util.file.FileHandler;
-import util.json.JsonDeserializer;
 
 public class DataTransferController extends BaseController {
 
@@ -135,8 +135,7 @@ public class DataTransferController extends BaseController {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (body.get("type").asText().equals(DataType.QUESTION.toString()) && !body.withArray("ids").isEmpty()) {
             String path = "/integration/iop/import";
-            Set<Long> ids = StreamSupport
-                .stream(body.get("ids").spliterator(), false)
+            Set<Long> ids = StreamSupport.stream(body.get("ids").spliterator(), false)
                 .map(JsonNode::asLong)
                 .collect(Collectors.toSet());
             PathProperties pp = PathProperties.parse("(*, options(*), tags(name))");
@@ -166,9 +165,9 @@ public class DataTransferController extends BaseController {
                     if (response.getStatus() != Http.Status.CREATED) {
                         return wrapAsPromise(internalServerError(root.get("message").asText("Connection refused")));
                     }
-                    Map<Long, Long> entries = StreamSupport
-                        .stream(root.get("ids").spliterator(), false)
-                        .collect(Collectors.toMap(id -> id.get("src").asLong(), id -> id.get("dst").asLong()));
+                    Map<Long, Long> entries = StreamSupport.stream(root.get("ids").spliterator(), false).collect(
+                        Collectors.toMap(id -> id.get("src").asLong(), id -> id.get("dst").asLong())
+                    );
                     Map<Long, Attachment> localAttachments = questions
                         .stream()
                         .filter(q -> q.getAttachment() != null && new File(q.getAttachment().getFilePath()).exists())
@@ -179,29 +178,26 @@ public class DataTransferController extends BaseController {
                         .stream()
                         .filter(e -> entries.containsKey(e.getKey()))
                         .collect(Collectors.toMap(e -> entries.get(e.getKey()), Map.Entry::getValue));
-                    return CompletableFuture
-                        .allOf(
-                            remoteAttachments
-                                .entrySet()
-                                .stream()
-                                .map(ra -> {
-                                    String host = uploadUrl.replace("/id/", String.format("/%d/", ra.getKey()));
-                                    WSRequest req = wsClient.url(host);
-                                    return CompletableFuture.runAsync(() ->
-                                        req
-                                            .post(createSource(ra.getValue()))
-                                            .exceptionally(e -> {
-                                                logger.error(
-                                                    String.format("failed in uploading attachment id %s", ra.getKey()),
-                                                    e
-                                                );
-                                                return null;
-                                            })
-                                    );
-                                })
-                                .toArray(CompletableFuture[]::new)
-                        )
-                        .thenComposeAsync(__ -> wrapAsPromise(created()));
+                    return CompletableFuture.allOf(
+                        remoteAttachments
+                            .entrySet()
+                            .stream()
+                            .map(ra -> {
+                                String host = uploadUrl.replace("/id/", String.format("/%d/", ra.getKey()));
+                                WSRequest req = wsClient.url(host);
+                                return CompletableFuture.runAsync(() ->
+                                    req
+                                        .post(createSource(ra.getValue()))
+                                        .exceptionally(e -> {
+                                            logger.error(
+                                                String.format("failed in uploading attachment id %s", ra.getKey()),
+                                                e
+                                            );
+                                            return null;
+                                        }));
+                            })
+                            .toArray(CompletableFuture[]::new)
+                    ).thenComposeAsync(__ -> wrapAsPromise(created()));
                 });
         }
         return wrapAsPromise(badRequest());
@@ -249,8 +245,7 @@ public class DataTransferController extends BaseController {
         }
         User user = ou.get();
         ArrayNode questionNode = node.withArray("questions");
-        List<QuestionEntry> entries = StreamSupport
-            .stream(questionNode.spliterator(), false)
+        List<QuestionEntry> entries = StreamSupport.stream(questionNode.spliterator(), false)
             .map(n -> {
                 Question question = JsonDeserializer.deserialize(Question.class, n);
                 Question copy = question.copy();

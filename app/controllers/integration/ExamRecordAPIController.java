@@ -8,8 +8,8 @@ import be.objectify.deadbolt.java.actions.SubjectNotPresent;
 import controllers.base.BaseController;
 import io.ebean.DB;
 import java.util.List;
-import models.ExamRecord;
-import models.dto.ExamScore;
+import models.admin.ExamScore;
+import models.assessment.ExamRecord;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;
@@ -24,8 +24,7 @@ public class ExamRecordAPIController extends BaseController {
 
     private List<ExamScore> getScores(String startDate) {
         DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(startDate);
-        return DB
-            .find(ExamRecord.class)
+        return DB.find(ExamRecord.class)
             .fetch("examScore")
             .where()
             .gt("timeStamp", start)

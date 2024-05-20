@@ -6,11 +6,11 @@ package impl;
 
 import com.google.inject.ImplementedBy;
 import java.util.Optional;
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.ExamFeedbackConfig;
-import models.Role;
-import models.User;
+import models.assessment.AutoEvaluationConfig;
+import models.assessment.ExamFeedbackConfig;
+import models.exam.Exam;
+import models.user.Role;
+import models.user.User;
 import play.mvc.Http;
 import play.mvc.Result;
 

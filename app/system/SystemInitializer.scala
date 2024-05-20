@@ -6,7 +6,6 @@ package system
 
 import impl.EmailComposer
 import io.ebean.DB
-import models.User
 import org.apache.pekko.actor.ActorRef
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.actor.Cancellable
@@ -17,7 +16,8 @@ import org.joda.time.Seconds
 import play.api.inject.ApplicationLifecycle
 import play.api.{Environment, Logging, Mode}
 import repository.DatabaseExecutionContext
-import util.config.ConfigReader
+import miscellaneous.config.ConfigReader
+import models.user.User
 
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit

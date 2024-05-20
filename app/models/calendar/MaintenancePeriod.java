@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import miscellaneous.datetime.DateTimeAdapter;
 import models.base.GeneratedIdentityModel;
 import org.joda.time.DateTime;
-import util.datetime.DateTimeAdapter;
 
 @Entity
 public class MaintenancePeriod extends GeneratedIdentityModel {

@@ -21,7 +21,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import javax.inject.Inject;
-import models.ExamRoom;
+import miscellaneous.config.ConfigReader;
+import models.facility.ExamRoom;
 import play.libs.Json;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
@@ -29,7 +30,6 @@ import play.libs.ws.WSResponse;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
-import util.config.ConfigReader;
 
 public class FacilityController extends BaseController implements ExternalFacilityAPI {
 
@@ -50,9 +50,9 @@ public class FacilityController extends BaseController implements ExternalFacili
     }
 
     private URL parseExternalUrl(String orgRef) throws MalformedURLException {
-        return URI
-            .create(configReader.getIopHost() + String.format("/api/organisations/%s/facilities", orgRef))
-            .toURL();
+        return URI.create(
+            configReader.getIopHost() + String.format("/api/organisations/%s/facilities", orgRef)
+        ).toURL();
     }
 
     private String toJson(ExamRoom room) {

@@ -8,7 +8,7 @@ package controllers.iop.transfer.api;
 import controllers.iop.collaboration.api.CollaborativeAttachmentInterface;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import models.json.ExternalExam;
+import models.iop.ExternalExam;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;

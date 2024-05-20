@@ -8,8 +8,8 @@ package controllers.iop.transfer.api;
 import com.google.inject.ImplementedBy;
 import controllers.iop.transfer.impl.ExternalAttachmentLoaderImpl;
 import java.util.concurrent.CompletableFuture;
-import models.Attachment;
-import models.Exam;
+import models.attachment.Attachment;
+import models.exam.Exam;
 
 @ImplementedBy(ExternalAttachmentLoaderImpl.class)
 public interface ExternalAttachmentLoader {

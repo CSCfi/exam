@@ -13,14 +13,14 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Exam;
-import models.Role;
-import models.User;
-import models.json.ExternalExam;
+import miscellaneous.config.ConfigReader;
+import models.exam.Exam;
+import models.iop.ExternalExam;
+import models.user.Role;
+import models.user.User;
 import play.libs.ws.WSClient;
 import play.mvc.Http;
 import play.mvc.Result;
-import util.config.ConfigReader;
 
 public class ExternalAttachmentController extends BaseController implements ExternalAttachmentInterface {
 

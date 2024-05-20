@@ -19,10 +19,12 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javax.inject.Inject;
-import models.ExamEnrolment;
-import models.Reservation;
-import models.User;
-import models.iop.ExternalReservation;
+import miscellaneous.config.ConfigReader;
+import miscellaneous.datetime.DateTimeHandler;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExternalReservation;
+import models.enrolment.Reservation;
+import models.user.User;
 import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -34,8 +36,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
-import util.config.ConfigReader;
-import util.datetime.DateTimeHandler;
 
 public class ExternalReservationHandlerImpl implements ExternalReservationHandler {
 
@@ -85,8 +85,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
     }
 
     private CompletionStage<Result> requestRemoval(String ref, User user, String msg) throws IOException {
-        final ExamEnrolment enrolment = DB
-            .find(ExamEnrolment.class)
+        final ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("reservation.machine")
             .fetch("reservation.machine.room")

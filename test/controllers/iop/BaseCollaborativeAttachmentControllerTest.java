@@ -18,9 +18,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
-import models.Attachment;
-import models.Exam;
-import models.ExamExecutionType;
+import models.attachment.Attachment;
+import models.exam.Exam;
+import models.exam.ExamExecutionType;
 import models.questions.EssayAnswer;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
@@ -113,8 +113,9 @@ public abstract class BaseCollaborativeAttachmentControllerTest<T> extends Integ
     }
 
     void assertDownloadResult(Result result) throws IOException {
-        assertThat(result.header("Content-Disposition").orElse(null))
-            .isEqualTo("attachment; filename*=UTF-8''\"test_image.png\"");
+        assertThat(result.header("Content-Disposition").orElse(null)).isEqualTo(
+            "attachment; filename*=UTF-8''\"test_image.png\""
+        );
         ActorSystem actorSystem = ActorSystem.create("TestSystem");
         Materializer mat = Materializer.createMaterializer(actorSystem);
         final String content = Helpers.contentAsString(result, mat);

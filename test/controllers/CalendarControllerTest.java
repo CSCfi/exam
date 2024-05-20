@@ -19,14 +19,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamExecutionType;
-import models.ExamRoom;
-import models.Language;
-import models.Reservation;
-import models.User;
 import models.calendar.DefaultWorkingHours;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.exam.ExamExecutionType;
+import models.facility.ExamRoom;
+import models.user.Language;
+import models.user.User;
 import net.jodah.concurrentunit.Waiter;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
@@ -46,22 +46,21 @@ public class CalendarControllerTest extends IntegrationTestCase {
     private Reservation reservation;
 
     @Rule
-    public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
-        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
+    public final GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP).withConfiguration(
+        new GreenMailConfiguration().withDisabledAuthentication()
+    );
 
     private void setWorkingHours() {
         String[] dates = { "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" };
-        Arrays
-            .stream(dates)
-            .forEach(d -> {
-                DefaultWorkingHours dwh = new DefaultWorkingHours();
-                dwh.setWeekday(d);
-                dwh.setRoom(room);
-                dwh.setStartTime(DateTime.now().withTimeAtStartOfDay());
-                dwh.setEndTime(dwh.getStartTime().withTime(20, 59, 59, 999));
-                dwh.setTimezoneOffset(7200000);
-                dwh.save();
-            });
+        Arrays.stream(dates).forEach(d -> {
+            DefaultWorkingHours dwh = new DefaultWorkingHours();
+            dwh.setWeekday(d);
+            dwh.setRoom(room);
+            dwh.setStartTime(DateTime.now().withTimeAtStartOfDay());
+            dwh.setEndTime(dwh.getStartTime().withTime(20, 59, 59, 999));
+            dwh.setTimezoneOffset(7200000);
+            dwh.save();
+        });
     }
 
     @Override
@@ -92,15 +91,13 @@ public class CalendarControllerTest extends IntegrationTestCase {
         exam.setExecutionType(DB.find(ExamExecutionType.class, 2));
         exam.getExamOwners().add(DB.find(User.class, 4));
         exam.save();
-        DateTime start = DateTime
-            .now()
+        DateTime start = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
             .plusDays(1)
             .withHourOfDay(12);
-        DateTime end = DateTime
-            .now()
+        DateTime end = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
@@ -109,16 +106,14 @@ public class CalendarControllerTest extends IntegrationTestCase {
         final int callCount = 10;
         final Waiter waiter = new Waiter();
         List<Integer> status = new ArrayList<>();
-        IntStream
-            .range(0, callCount)
+        IntStream.range(0, callCount)
             .parallel()
             .forEach(i ->
                 new Thread(() -> {
                     final Result result = request(
                         Helpers.POST,
                         "/app/calendar/reservation",
-                        Json
-                            .newObject()
+                        Json.newObject()
                             .put("roomId", room.getId())
                             .put("examId", exam.getId())
                             .put("start", ISODateTimeFormat.dateTime().print(start))
@@ -126,9 +121,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
                     );
                     status.add(result.status());
                     waiter.resume();
-                })
-                    .start()
-            );
+                }).start());
         waiter.await(MAIL_TIMEOUT + 1000, callCount);
         assertThat(status).containsOnly(200);
         greenMail.purgeEmailFromAllMailboxes();
@@ -145,15 +138,13 @@ public class CalendarControllerTest extends IntegrationTestCase {
         exam.setExecutionType(DB.find(ExamExecutionType.class, 2));
         exam.getExamOwners().add(DB.find(User.class, 4));
         exam.save();
-        DateTime start = DateTime
-            .now()
+        DateTime start = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
             .plusDays(1)
             .withHourOfDay(12);
-        DateTime end = DateTime
-            .now()
+        DateTime end = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
@@ -164,8 +155,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/calendar/reservation",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("roomId", room.getId())
                 .put("examId", exam.getId())
                 .put("start", ISODateTimeFormat.dateTime().print(start))
@@ -198,15 +188,13 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservationPreviousInFuture() throws Exception {
         // Setup
-        DateTime start = DateTime
-            .now()
+        DateTime start = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
             .plusDays(1)
             .withHourOfDay(12);
-        DateTime end = DateTime
-            .now()
+        DateTime end = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
@@ -224,8 +212,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/calendar/reservation",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("roomId", room.getId())
                 .put("examId", exam.getId())
                 .put("start", ISODateTimeFormat.dateTime().print(start))
@@ -257,15 +244,13 @@ public class CalendarControllerTest extends IntegrationTestCase {
     @RunAsStudent
     public void testCreateReservationPreviousInPast() throws Exception {
         // Setup
-        DateTime start = DateTime
-            .now()
+        DateTime start = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
             .plusDays(1)
             .withHourOfDay(12);
-        DateTime end = DateTime
-            .now()
+        DateTime end = DateTime.now()
             .withMinuteOfHour(0)
             .withSecondOfMinute(0)
             .withMillisOfSecond(0)
@@ -291,8 +276,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/calendar/reservation",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("roomId", room.getId())
                 .put("examId", exam.getId())
                 .put("start", ISODateTimeFormat.dateTime().print(start))
@@ -331,8 +315,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/calendar/reservation",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("roomId", room.getId())
                 .put("examId", exam.getId())
                 .put("start", ISODateTimeFormat.dateTime().print(start))
@@ -356,8 +339,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/calendar/reservation",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("roomId", room.getId())
                 .put("examId", exam.getId())
                 .put("start", ISODateTimeFormat.dateTime().print(start))
@@ -388,8 +370,7 @@ public class CalendarControllerTest extends IntegrationTestCase {
         Result result = request(
             Helpers.POST,
             "/app/calendar/reservation",
-            Json
-                .newObject()
+            Json.newObject()
                 .put("roomId", room.getId())
                 .put("examId", exam.getId())
                 .put("start", ISODateTimeFormat.dateTime().print(start))

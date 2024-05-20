@@ -6,14 +6,14 @@ package impl;
 
 import com.google.inject.ImplementedBy;
 import java.util.Set;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamMachine;
-import models.ExaminationEvent;
-import models.LanguageInspection;
-import models.Reservation;
-import models.User;
-import models.json.CollaborativeExam;
+import models.assessment.LanguageInspection;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExaminationEvent;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.facility.ExamMachine;
+import models.iop.CollaborativeExam;
+import models.user.User;
 
 @ImplementedBy(value = EmailComposerImpl.class)
 public interface EmailComposer {

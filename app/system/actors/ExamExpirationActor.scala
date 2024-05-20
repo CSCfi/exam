@@ -5,12 +5,13 @@
 package system.actors
 
 import io.ebean.DB
-import models.{Exam, ExamRecord}
 import org.apache.pekko.actor.AbstractActor
 import org.joda.time.DateTime
 import play.api.Logging
-import util.config.ConfigReader
-import util.scala.DbApiHelper
+import miscellaneous.config.ConfigReader
+import miscellaneous.scala.DbApiHelper
+import models.assessment.ExamRecord
+import models.exam.Exam
 
 import javax.inject.Inject
 import scala.jdk.CollectionConverters._

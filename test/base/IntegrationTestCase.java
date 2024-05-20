@@ -30,15 +30,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeSet;
 import javax.validation.constraints.NotNull;
-import models.Attachment;
-import models.Exam;
-import models.ExamInspection;
-import models.Language;
-import models.User;
+import miscellaneous.json.JsonDeserializer;
+import models.assessment.ExamInspection;
+import models.attachment.Attachment;
+import models.exam.Exam;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
+import models.user.Language;
+import models.user.User;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -57,7 +58,6 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.test.Helpers;
 import play.test.WithApplication;
-import util.json.JsonDeserializer;
 
 public class IntegrationTestCase extends WithApplication {
 

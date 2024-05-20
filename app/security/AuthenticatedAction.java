@@ -9,8 +9,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Role;
-import models.User;
+import models.user.Role;
+import models.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.concurrent.ClassLoaderExecutionContext;
@@ -56,17 +56,16 @@ public class AuthenticatedAction extends Action<Authenticated> {
 
     @Override
     public CompletionStage<Result> call(Http.Request request) {
-        return getLoggedInUser(request)
-            .thenComposeAsync(
-                ou -> {
-                    if (ou.isPresent()) {
-                        User user = ou.get();
-                        return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
-                    }
-                    logger.info("Blocked unauthorized access to {}", request.path());
-                    return CompletableFuture.completedFuture(Results.unauthorized());
-                },
-                ec.current()
-            );
+        return getLoggedInUser(request).thenComposeAsync(
+            ou -> {
+                if (ou.isPresent()) {
+                    User user = ou.get();
+                    return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
+                }
+                logger.info("Blocked unauthorized access to {}", request.path());
+                return CompletableFuture.completedFuture(Results.unauthorized());
+            },
+            ec.current()
+        );
     }
 }

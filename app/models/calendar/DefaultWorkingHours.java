@@ -10,12 +10,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import models.ExamRoom;
+import miscellaneous.datetime.DateTimeAdapter;
 import models.base.GeneratedIdentityModel;
+import models.facility.ExamRoom;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
-import util.datetime.DateTimeAdapter;
 
 @Entity
 public class DefaultWorkingHours extends GeneratedIdentityModel {

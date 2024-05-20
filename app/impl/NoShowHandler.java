@@ -6,8 +6,8 @@ package impl;
 
 import com.google.inject.ImplementedBy;
 import java.util.List;
-import models.ExamEnrolment;
-import models.Reservation;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.Reservation;
 
 @ImplementedBy(NoShowHandlerImpl.class)
 public interface NoShowHandler {

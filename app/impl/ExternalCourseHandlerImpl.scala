@@ -5,7 +5,7 @@
 package impl
 
 import io.ebean.DB
-import models._
+import models.*
 import org.apache.pekko.util.ByteString
 import org.joda.time.DateTime
 import org.springframework.beans.BeanUtils
@@ -13,9 +13,12 @@ import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.mvc.Http
-import util.config.ConfigReader
-import util.scala.DbApiHelper
-import validators.ExternalCourseValidator.{CourseUnitInfo, GradeScale => ExtGradeScale}
+import miscellaneous.config.ConfigReader
+import miscellaneous.scala.DbApiHelper
+import models.exam.{Course, Grade, GradeScale}
+import models.facility.Organisation
+import models.user.User
+import validators.ExternalCourseValidator.{CourseUnitInfo, GradeScale as ExtGradeScale}
 
 import java.net.MalformedURLException
 import java.net.{URI, URL, URLEncoder}
@@ -24,7 +27,7 @@ import java.text.SimpleDateFormat
 import javax.inject.Inject
 import scala.collection.immutable.TreeSet
 import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 class ExternalCourseHandlerImpl @Inject (
     private val wsClient: WSClient,

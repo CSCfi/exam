@@ -5,10 +5,10 @@
 package system.modules
 
 import com.google.inject.AbstractModule
-import util.xml.MoodleXmlExporter
-import util.xml.MoodleXmlExporterImpl
-import util.xml.MoodleXmlImporter
-import util.xml.MoodleXmlImporterImpl
+import miscellaneous.xml.MoodleXmlExporter
+import miscellaneous.xml.MoodleXmlExporterImpl
+import miscellaneous.xml.MoodleXmlImporter
+import miscellaneous.xml.MoodleXmlImporterImpl
 
 class MoodleXmlConverterModule extends AbstractModule:
   override def configure(): Unit =

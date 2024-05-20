@@ -4,20 +4,20 @@
 
 package system.actors
 
-import controllers.SettingsController
+import controllers.admin.SettingsController
 import impl.EmailComposer
 import io.ebean.DB
-import models.{Exam, ExamEnrolment, ExamParticipation}
+import miscellaneous.datetime.DateTimeHandler
+import miscellaneous.scala.DbApiHelper
+import models.enrolment.{ExamEnrolment, ExamParticipation}
+import models.exam.Exam
 import org.apache.pekko.actor.AbstractActor
 import org.joda.time.DateTime
 import play.api.Logging
-import util.AppUtil
-import util.datetime.DateTimeHandler
-import util.scala.DbApiHelper
 
 import java.io.IOException
 import javax.inject.Inject
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.util.control.Exception.catching
 
 class ExamAutoSaverActor @Inject (private val composer: EmailComposer, private val dateTimeHandler: DateTimeHandler)
@@ -83,7 +83,10 @@ class ExamAutoSaverActor @Inject (private val composer: EmailComposer, private v
         if exam.isPrivate then
           // Notify teachers
           val recipients = exam.getParent.getExamOwners.asScala ++ exam.getExamInspections.asScala.map(_.getUser)
-          AppUtil.notifyPrivateExamEnded(recipients.toSet, exam, composer)
+          recipients.foreach(r =>
+            composer.composePrivateExamEnded(r, exam)
+            logger.info(s"Email sent to ${r.getEmail}")
+          )
       else logger.info(s"Exam ${exam.getId} is ongoing until $participationTimeLimit")
     )
 

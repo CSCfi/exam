@@ -15,11 +15,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import miscellaneous.json.JsonFilter;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import play.libs.Json;
 import scala.jdk.javaapi.CollectionConverters;
-import util.json.JsonFilter;
 
 public class JsonFilterTest {
 

@@ -25,12 +25,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import models.Attachment;
-import models.Tag;
-import models.User;
-import models.api.AttachmentContainer;
+import models.attachment.Attachment;
+import models.attachment.AttachmentContainer;
 import models.base.OwnedModel;
 import models.sections.ExamSectionQuestion;
+import models.user.User;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.jsoup.Jsoup;
@@ -291,12 +290,13 @@ public class Question extends OwnedModel implements AttachmentContainer {
     private boolean getClaimChoiceOptionsValidationResult(ArrayNode options) {
         // Check that all required option conditions are met, discarding possible duplicates
         return (
-            StreamSupport
-                .stream(options.spliterator(), false)
+            StreamSupport.stream(options.spliterator(), false)
                 .filter(n -> {
-                    MultipleChoiceOption.ClaimChoiceOptionType type = SanitizingHelper
-                        .parseEnum("claimChoiceType", n, MultipleChoiceOption.ClaimChoiceOptionType.class)
-                        .orElse(null);
+                    MultipleChoiceOption.ClaimChoiceOptionType type = SanitizingHelper.parseEnum(
+                        "claimChoiceType",
+                        n,
+                        MultipleChoiceOption.ClaimChoiceOptionType.class
+                    ).orElse(null);
                     double defaultScore = n.get("defaultScore").asDouble();
                     String option = n.get("option").asText();
 
@@ -316,10 +316,13 @@ public class Question extends OwnedModel implements AttachmentContainer {
                             !option.isEmpty())
                     );
                 })
-                .map(n ->
-                    SanitizingHelper
-                        .parseEnum("claimChoiceType", n, MultipleChoiceOption.ClaimChoiceOptionType.class)
-                        .orElse(null)
+                .map(
+                    n ->
+                        SanitizingHelper.parseEnum(
+                            "claimChoiceType",
+                            n,
+                            MultipleChoiceOption.ClaimChoiceOptionType.class
+                        ).orElse(null)
                 )
                 .filter(Objects::nonNull)
                 .distinct()
@@ -348,9 +351,9 @@ public class Question extends OwnedModel implements AttachmentContainer {
                         if (an.size() < 2) {
                             reason = "i18n_minimum_of_two_options_required";
                         } else if (
-                            StreamSupport
-                                .stream(an.spliterator(), false)
-                                .noneMatch(n -> n.get("correctOption").asBoolean())
+                            StreamSupport.stream(an.spliterator(), false).noneMatch(
+                                n -> n.get("correctOption").asBoolean()
+                            )
                         ) {
                             reason = "i18n_correct_option_required";
                         }
@@ -364,9 +367,9 @@ public class Question extends OwnedModel implements AttachmentContainer {
                     } else {
                         ArrayNode options = (ArrayNode) node.get("options");
                         if (
-                            StreamSupport
-                                .stream(options.spliterator(), false)
-                                .noneMatch(n -> n.get("defaultScore").asDouble() > 0)
+                            StreamSupport.stream(options.spliterator(), false).noneMatch(
+                                n -> n.get("defaultScore").asDouble() > 0
+                            )
                         ) {
                             reason = "i18n_correct_option_required";
                         }

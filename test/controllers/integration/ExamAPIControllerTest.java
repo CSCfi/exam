@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.ebean.DB;
 import java.util.List;
 import java.util.Optional;
-import models.Exam;
-import models.ExamExecutionType;
+import models.exam.Exam;
+import models.exam.ExamExecutionType;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 import org.junit.Before;
@@ -83,8 +83,8 @@ public class ExamAPIControllerTest extends IntegrationTestCase {
         assertThat(records).hasSize(exams.size() - 3);
         records
             .elements()
-            .forEachRemaining(n ->
-                assertThat(n.get("id").asLong()).isNotIn(second.getId(), third.getId(), fourth.getId())
+            .forEachRemaining(
+                n -> assertThat(n.get("id").asLong()).isNotIn(second.getId(), third.getId(), fourth.getId())
             );
 
         String filter = DateTime.now().minusDays(3).toString("yyyy-MM-dd");

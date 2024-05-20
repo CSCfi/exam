@@ -9,8 +9,8 @@ import static org.fest.assertions.Assertions.assertThat;
 import base.IntegrationTestCase;
 import com.google.common.collect.ImmutableMap;
 import io.ebean.DB;
-import models.Role;
-import models.User;
+import models.user.Role;
+import models.user.User;
 import org.junit.Test;
 
 public class SessionControllerTest extends IntegrationTestCase {

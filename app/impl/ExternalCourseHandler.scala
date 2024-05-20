@@ -5,8 +5,8 @@
 package impl
 
 import com.google.inject.ImplementedBy
-import models.Course
-import models.User
+import models.exam.Course
+import models.user.User
 
 import scala.concurrent.Future
 

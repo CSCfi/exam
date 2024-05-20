@@ -9,7 +9,7 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import controllers.ExaminationController;
+import controllers.examination.ExaminationController;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import impl.AutoEvaluationHandler;
 import impl.EmailComposer;
@@ -28,14 +28,16 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;
 import javax.inject.Inject;
-import models.Exam;
-import models.ExamEnrolment;
-import models.User;
-import models.json.ExternalExam;
+import miscellaneous.config.ByodConfigHandler;
+import miscellaneous.datetime.DateTimeHandler;
+import models.enrolment.ExamEnrolment;
+import models.exam.Exam;
+import models.iop.ExternalExam;
 import models.questions.ClozeTestAnswer;
 import models.questions.EssayAnswer;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
+import models.user.User;
 import org.apache.pekko.actor.ActorSystem;
 import org.joda.time.DateTime;
 import play.Environment;
@@ -48,8 +50,6 @@ import sanitizers.Attrs;
 import sanitizers.EssayAnswerSanitizer;
 import security.Authenticated;
 import system.interceptors.SensitiveDataPolicy;
-import util.config.ByodConfigHandler;
-import util.datetime.DateTimeHandler;
 
 @SensitiveDataPolicy(sensitiveFieldNames = { "score", "defaultScore", "correctOption", "configKey" })
 @Restrict({ @Group("STUDENT") })
@@ -95,31 +95,30 @@ public class ExternalExaminationController extends ExaminationController {
         }
         ExamEnrolment enrolment = optionalEnrolment.get();
         Exam newExam = externalExam.deserialize();
-        return getEnrolmentError(enrolment, request)
-            .thenApplyAsync(error -> {
-                if (error.isPresent()) {
-                    return error.get();
+        return getEnrolmentError(enrolment, request).thenApplyAsync(error -> {
+            if (error.isPresent()) {
+                return error.get();
+            }
+            if (newExam.getState().equals(Exam.State.PUBLISHED)) {
+                newExam.setState(Exam.State.STUDENT_STARTED);
+                try {
+                    externalExam.serialize(newExam);
+                } catch (IOException e) {
+                    return internalServerError();
                 }
-                if (newExam.getState().equals(Exam.State.PUBLISHED)) {
-                    newExam.setState(Exam.State.STUDENT_STARTED);
-                    try {
-                        externalExam.serialize(newExam);
-                    } catch (IOException e) {
-                        return internalServerError();
-                    }
-                    DateTime now = dateTimeHandler.adjustDST(
-                        DateTime.now(),
-                        enrolment.getReservation().getMachine().getRoom()
-                    );
-                    externalExam.setStarted(now);
-                    externalExam.update();
-                }
-                newExam.setCloned(false);
-                newExam.setExternal(true);
-                newExam.setDerivedMaxScores();
-                processClozeTestQuestions(newExam);
-                return ok(newExam, getPath(false));
-            });
+                DateTime now = dateTimeHandler.adjustDST(
+                    DateTime.now(),
+                    enrolment.getReservation().getMachine().getRoom()
+                );
+                externalExam.setStarted(now);
+                externalExam.update();
+            }
+            newExam.setCloned(false);
+            newExam.setExternal(true);
+            newExam.setDerivedMaxScores();
+            processClozeTestQuestions(newExam);
+            return ok(newExam, getPath(false));
+        });
     }
 
     private void processClozeTestQuestions(Exam exam) {
@@ -161,24 +160,19 @@ public class ExternalExaminationController extends ExaminationController {
     @Override
     public CompletionStage<Result> answerMultiChoice(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, user, request)
-            .thenApplyAsync(err ->
-                err.orElseGet(() -> {
-                    Optional<ExternalExam> optional = getExternalExam(hash, user);
-                    if (optional.isEmpty()) {
-                        return forbidden();
-                    }
-                    ExternalExam ee = optional.get();
-                    ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
-                    List<Long> optionIds = StreamSupport
-                        .stream(node.spliterator(), false)
-                        .map(JsonNode::asLong)
-                        .toList();
-                    return findSectionQuestion(ee, qid)
-                        .map(t -> processOptions(optionIds, t._2, ee, t._1))
-                        .getOrElseGet(Function.identity());
-                })
-            );
+        return getEnrolmentError(hash, user, request).thenApplyAsync(err ->
+            err.orElseGet(() -> {
+                Optional<ExternalExam> optional = getExternalExam(hash, user);
+                if (optional.isEmpty()) {
+                    return forbidden();
+                }
+                ExternalExam ee = optional.get();
+                ArrayNode node = (ArrayNode) request.body().asJson().get("oids");
+                List<Long> optionIds = StreamSupport.stream(node.spliterator(), false).map(JsonNode::asLong).toList();
+                return findSectionQuestion(ee, qid)
+                    .map(t -> processOptions(optionIds, t._2, ee, t._1))
+                    .getOrElseGet(Function.identity());
+            }));
     }
 
     @Authenticated
@@ -186,48 +180,46 @@ public class ExternalExaminationController extends ExaminationController {
     @Override
     public CompletionStage<Result> answerEssay(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, user, request)
-            .thenApplyAsync(err ->
-                err.orElseGet(() -> {
-                    Optional<ExternalExam> optional = getExternalExam(hash, user);
-                    if (optional.isEmpty()) {
-                        return forbidden();
+        return getEnrolmentError(hash, user, request).thenApplyAsync(err ->
+            err.orElseGet(() -> {
+                Optional<ExternalExam> optional = getExternalExam(hash, user);
+                if (optional.isEmpty()) {
+                    return forbidden();
+                }
+                ExternalExam ee = optional.get();
+                String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
+                Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
+                Optional<ExamSectionQuestion> optionalQuestion;
+                Exam content;
+                try {
+                    content = ee.deserialize();
+                    optionalQuestion = findQuestion(qid, content);
+                } catch (IOException e) {
+                    return internalServerError();
+                }
+                if (optionalQuestion.isEmpty()) {
+                    return forbidden();
+                }
+                ExamSectionQuestion question = optionalQuestion.get();
+                EssayAnswer answer = question.getEssayAnswer();
+                if (answer == null) {
+                    answer = new EssayAnswer();
+                } else if (objectVersion.isPresent()) {
+                    if (answer.getObjectVersion() > objectVersion.get()) {
+                        // Optimistic locking problem
+                        return forbidden("i18n_error_data_has_changed");
                     }
-                    ExternalExam ee = optional.get();
-                    String essayAnswer = request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null);
-                    Optional<Long> objectVersion = request.attrs().getOptional(Attrs.OBJECT_VERSION);
-                    Optional<ExamSectionQuestion> optionalQuestion;
-                    Exam content;
-                    try {
-                        content = ee.deserialize();
-                        optionalQuestion = findQuestion(qid, content);
-                    } catch (IOException e) {
-                        return internalServerError();
-                    }
-                    if (optionalQuestion.isEmpty()) {
-                        return forbidden();
-                    }
-                    ExamSectionQuestion question = optionalQuestion.get();
-                    EssayAnswer answer = question.getEssayAnswer();
-                    if (answer == null) {
-                        answer = new EssayAnswer();
-                    } else if (objectVersion.isPresent()) {
-                        if (answer.getObjectVersion() > objectVersion.get()) {
-                            // Optimistic locking problem
-                            return forbidden("i18n_error_data_has_changed");
-                        }
-                        answer.setObjectVersion(objectVersion.get() + 1);
-                    }
-                    answer.setAnswer(essayAnswer);
-                    question.setEssayAnswer(answer);
-                    try {
-                        ee.serialize(content);
-                    } catch (IOException e) {
-                        return internalServerError();
-                    }
-                    return ok(answer);
-                })
-            );
+                    answer.setObjectVersion(objectVersion.get() + 1);
+                }
+                answer.setAnswer(essayAnswer);
+                question.setEssayAnswer(answer);
+                try {
+                    ee.serialize(content);
+                } catch (IOException e) {
+                    return internalServerError();
+                }
+                return ok(answer);
+            }));
     }
 
     private Either<Result, Tuple2<Exam, ExamSectionQuestion>> findSectionQuestion(ExternalExam ee, Long qid) {
@@ -240,8 +232,8 @@ public class ExternalExaminationController extends ExaminationController {
             return Either.left(internalServerError());
         }
         return optionalQuestion
-            .<Either<Result, Tuple2<Exam, ExamSectionQuestion>>>map(examSectionQuestion ->
-                Either.right(Tuple.of(content, examSectionQuestion))
+            .<Either<Result, Tuple2<Exam, ExamSectionQuestion>>>map(
+                examSectionQuestion -> Either.right(Tuple.of(content, examSectionQuestion))
             )
             .orElseGet(() -> Either.left(forbidden()));
     }
@@ -251,40 +243,38 @@ public class ExternalExaminationController extends ExaminationController {
     @Override
     public CompletionStage<Result> answerClozeTest(String hash, Long qid, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getEnrolmentError(hash, user, request)
-            .thenApplyAsync(err ->
-                err.orElseGet(() -> {
-                    Optional<ExternalExam> optional = getExternalExam(hash, user);
-                    if (optional.isEmpty()) {
-                        return forbidden();
-                    }
-                    ExternalExam ee = optional.get();
-                    return findSectionQuestion(ee, qid)
-                        .map(t -> {
-                            ExamSectionQuestion esq = t._2;
-                            ClozeTestAnswer answer = esq.getClozeTestAnswer();
-                            if (answer == null) {
-                                answer = new ClozeTestAnswer();
-                                esq.setClozeTestAnswer(answer);
-                            } else {
-                                long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
-                                if (answer.getObjectVersion() > objectVersion) {
-                                    // Optimistic locking problem
-                                    return forbidden("i18n_error_data_has_changed");
-                                }
-                                answer.setObjectVersion(objectVersion + 1);
+        return getEnrolmentError(hash, user, request).thenApplyAsync(err ->
+            err.orElseGet(() -> {
+                Optional<ExternalExam> optional = getExternalExam(hash, user);
+                if (optional.isEmpty()) {
+                    return forbidden();
+                }
+                ExternalExam ee = optional.get();
+                return findSectionQuestion(ee, qid)
+                    .map(t -> {
+                        ExamSectionQuestion esq = t._2;
+                        ClozeTestAnswer answer = esq.getClozeTestAnswer();
+                        if (answer == null) {
+                            answer = new ClozeTestAnswer();
+                            esq.setClozeTestAnswer(answer);
+                        } else {
+                            long objectVersion = request.attrs().get(Attrs.OBJECT_VERSION);
+                            if (answer.getObjectVersion() > objectVersion) {
+                                // Optimistic locking problem
+                                return forbidden("i18n_error_data_has_changed");
                             }
-                            answer.setAnswer(request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
-                            try {
-                                ee.serialize(t._1);
-                            } catch (IOException e) {
-                                return internalServerError();
-                            }
-                            return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
-                        })
-                        .getOrElseGet(Function.identity());
-                })
-            );
+                            answer.setObjectVersion(objectVersion + 1);
+                        }
+                        answer.setAnswer(request.attrs().getOptional(Attrs.ESSAY_ANSWER).orElse(null));
+                        try {
+                            ee.serialize(t._1);
+                        } catch (IOException e) {
+                            return internalServerError();
+                        }
+                        return ok(answer, PathProperties.parse("(id, objectVersion, answer)"));
+                    })
+                    .getOrElseGet(Function.identity());
+            }));
     }
 
     private Optional<ExamSectionQuestion> findQuestion(Long qid, Exam content) {
@@ -312,8 +302,7 @@ public class ExternalExaminationController extends ExaminationController {
 
     private Optional<ExamEnrolment> getEnrolment(User user, ExternalExam prototype) {
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        ExamEnrolment enrolment = DB
-            .find(ExamEnrolment.class)
+        ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("reservation.machine")
             .fetch("reservation.machine.room")
@@ -328,8 +317,7 @@ public class ExternalExaminationController extends ExaminationController {
     }
 
     private CompletionStage<Optional<Result>> getEnrolmentError(String hash, User user, Http.Request request) {
-        ExamEnrolment enrolment = DB
-            .find(ExamEnrolment.class)
+        ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
             .where()
             .eq("externalExam.hash", hash)
             .eq("externalExam.creator", user)

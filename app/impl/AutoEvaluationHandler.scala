@@ -5,7 +5,7 @@
 package impl
 
 import com.google.inject.ImplementedBy
-import models.Exam
+import models.exam.Exam
 
 @ImplementedBy(classOf[AutoEvaluationHandlerImpl])
 trait AutoEvaluationHandler:

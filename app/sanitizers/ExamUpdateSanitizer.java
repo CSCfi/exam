@@ -8,11 +8,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.ExamFeedbackConfig;
-import models.Grade;
-import models.GradeEvaluation;
+import models.assessment.AutoEvaluationConfig;
+import models.assessment.ExamFeedbackConfig;
+import models.assessment.GradeEvaluation;
+import models.exam.Exam;
+import models.exam.Grade;
 import org.joda.time.DateTime;
 import play.mvc.Http;
 
@@ -62,22 +62,30 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
         request = SanitizingHelper.sanitizeOptional("grading", body, Integer.class, Attrs.GRADE_ID, request);
         request = SanitizingHelper.sanitizeOptional("answerLanguage", body, String.class, Attrs.LANG, request);
         request = SanitizingHelper.sanitizeOptionalHtml("instruction", body, Attrs.INSTRUCTION, request);
-        request =
-            SanitizingHelper.sanitizeOptionalHtml("enrollInstruction", body, Attrs.ENROLMENT_INFORMATION, request);
+        request = SanitizingHelper.sanitizeOptionalHtml(
+            "enrollInstruction",
+            body,
+            Attrs.ENROLMENT_INFORMATION,
+            request
+        );
         request = SanitizingHelper.sanitizeOptional("trialCount", body, Integer.class, Attrs.TRIAL_COUNT, request);
-        request =
-            SanitizingHelper.sanitizeOptional(
-                "subjectToLanguageInspection",
-                body,
-                Boolean.class,
-                Attrs.LANG_INSPECTION_REQUIRED,
-                request
-            );
+        request = SanitizingHelper.sanitizeOptional(
+            "subjectToLanguageInspection",
+            body,
+            Boolean.class,
+            Attrs.LANG_INSPECTION_REQUIRED,
+            request
+        );
         request = SanitizingHelper.sanitizeOptional("internalRef", body, String.class, Attrs.REFERENCE, request);
         request = SanitizingHelper.sanitizeOptional("anonymous", body, Boolean.class, Attrs.ANONYMOUS, request);
         request = SanitizingHelper.sanitizeOptional("organisations", body, String.class, Attrs.ORGANISATIONS, request);
-        request =
-            SanitizingHelper.sanitizeOptional("settingsPassword", body, String.class, Attrs.SETTINGS_PASSWORD, request);
+        request = SanitizingHelper.sanitizeOptional(
+            "settingsPassword",
+            body,
+            String.class,
+            Attrs.SETTINGS_PASSWORD,
+            request
+        );
         if (body.has("examType")) {
             final JsonNode examTypeNode = body.get("examType");
             request = SanitizingHelper.sanitizeOptional("type", examTypeNode, String.class, Attrs.TYPE, request);
@@ -89,9 +97,9 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
             if (node.isObject()) {
                 final ExamFeedbackConfig config = new ExamFeedbackConfig();
                 config.setReleaseType(
-                    SanitizingHelper
-                        .parseEnum("releaseType", node, ExamFeedbackConfig.ReleaseType.class)
-                        .orElseThrow(() -> new SanitizingException("bad releaseType"))
+                    SanitizingHelper.parseEnum("releaseType", node, ExamFeedbackConfig.ReleaseType.class).orElseThrow(
+                        () -> new SanitizingException("bad releaseType")
+                    )
                 );
                 Optional<Long> releaseDateMs = SanitizingHelper.parse("releaseDate", node, Long.class);
                 releaseDateMs.ifPresent(rd -> config.setReleaseDate(new DateTime(rd)));
@@ -107,9 +115,9 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
             if (node.isObject()) {
                 final AutoEvaluationConfig config = new AutoEvaluationConfig();
                 config.setReleaseType(
-                    SanitizingHelper
-                        .parseEnum("releaseType", node, AutoEvaluationConfig.ReleaseType.class)
-                        .orElseThrow(() -> new SanitizingException("bad releaseType"))
+                    SanitizingHelper.parseEnum("releaseType", node, AutoEvaluationConfig.ReleaseType.class).orElseThrow(
+                        () -> new SanitizingException("bad releaseType")
+                    )
                 );
                 config.setAmountDays(SanitizingHelper.parse("amountDays", node, Integer.class).orElse(null));
                 Optional<Long> releaseDateMs = SanitizingHelper.parse("releaseDate", node, Long.class);
@@ -122,15 +130,15 @@ public class ExamUpdateSanitizer extends BaseSanitizer {
                     }
                     Grade grade = new Grade();
                     grade.setId(
-                        SanitizingHelper
-                            .parse("id", evaluation.get("grade"), Integer.class)
-                            .orElseThrow(() -> new SanitizingException("invalid grade"))
+                        SanitizingHelper.parse("id", evaluation.get("grade"), Integer.class).orElseThrow(
+                            () -> new SanitizingException("invalid grade")
+                        )
                     );
                     ge.setGrade(grade);
                     ge.setPercentage(
-                        SanitizingHelper
-                            .parse("percentage", evaluation, Integer.class)
-                            .orElseThrow(() -> new SanitizingException("no percentage"))
+                        SanitizingHelper.parse("percentage", evaluation, Integer.class).orElseThrow(
+                            () -> new SanitizingException("no percentage")
+                        )
                     );
                     config.getGradeEvaluations().add(ge);
                 }

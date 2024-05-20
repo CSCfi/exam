@@ -18,8 +18,10 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.Attachment;
-import models.Exam;
+import miscellaneous.config.ConfigReader;
+import miscellaneous.file.FileHandler;
+import models.attachment.Attachment;
+import models.exam.Exam;
 import org.apache.pekko.actor.ActorSystem;
 import org.apache.pekko.stream.IOResult;
 import org.apache.pekko.stream.Materializer;
@@ -32,8 +34,6 @@ import org.springframework.util.ObjectUtils;
 import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
-import util.config.ConfigReader;
-import util.file.FileHandler;
 
 public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
 
@@ -79,10 +79,11 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
             })
             .filter(question -> question.getAttachment() != null)
             .distinct()
-            .forEach(question ->
-                futures.add(
-                    createFromExternalAttachment(question.getAttachment(), "question", question.getId().toString())
-                )
+            .forEach(
+                question ->
+                    futures.add(
+                        createFromExternalAttachment(question.getAttachment(), "question", question.getId().toString())
+                    )
             );
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
@@ -118,8 +119,9 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                 }
                 final WSRequest updateRequest;
                 try {
-                    updateRequest =
-                        wsClient.url(parseUrl("/api/attachments/%s", attachment.getExternalId()).toString());
+                    updateRequest = wsClient.url(
+                        parseUrl("/api/attachments/%s", attachment.getExternalId()).toString()
+                    );
                 } catch (MalformedURLException e) {
                     logger.error("Invalid URL!", e);
                     return;

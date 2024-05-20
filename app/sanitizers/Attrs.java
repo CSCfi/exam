@@ -5,10 +5,10 @@
 package sanitizers;
 
 import java.util.Collection;
-import models.AutoEvaluationConfig;
-import models.Exam;
-import models.ExamFeedbackConfig;
-import models.User;
+import models.assessment.AutoEvaluationConfig;
+import models.assessment.ExamFeedbackConfig;
+import models.exam.Exam;
+import models.user.User;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import play.libs.typedmap.TypedKey;

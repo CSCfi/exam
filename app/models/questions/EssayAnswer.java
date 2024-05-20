@@ -8,8 +8,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
-import models.Attachment;
-import models.api.AttachmentContainer;
+import models.attachment.Attachment;
+import models.attachment.AttachmentContainer;
 import models.base.OwnedModel;
 
 @Entity

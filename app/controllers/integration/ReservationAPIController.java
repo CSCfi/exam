@@ -14,14 +14,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
-import models.Exam;
-import models.ExamRoom;
-import models.Reservation;
+import miscellaneous.datetime.DateTimeHandler;
+import models.enrolment.Reservation;
+import models.exam.Exam;
+import models.facility.ExamRoom;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
 import play.mvc.Result;
-import util.datetime.DateTimeHandler;
 
 public class ReservationAPIController extends BaseController {
 

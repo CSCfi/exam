@@ -11,10 +11,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.stream.Collectors;
-import models.Exam;
+import miscellaneous.json.JsonDeserializer;
+import models.exam.Exam;
 import net.jodah.concurrentunit.Waiter;
 import play.libs.Json;
-import util.json.JsonDeserializer;
 
 public class ExamServlet extends BaseServlet {
 

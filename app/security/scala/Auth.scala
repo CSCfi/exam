@@ -6,7 +6,7 @@
 package security.scala
 
 import io.ebean.DB
-import models.{Role, User}
+import models.user.{Role, User}
 import play.api.libs.typedmap.TypedKey
 import play.api.mvc.Results._
 import play.api.mvc._

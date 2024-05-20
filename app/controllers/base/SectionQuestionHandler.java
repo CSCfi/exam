@@ -9,12 +9,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.DB;
 import java.util.Collection;
 import java.util.Optional;
-import models.User;
-import models.api.Sortable;
 import models.questions.MultipleChoiceOption;
 import models.questions.Question;
 import models.sections.ExamSectionQuestion;
 import models.sections.ExamSectionQuestionOption;
+import models.sections.Sortable;
+import models.user.User;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 import play.mvc.Result;
@@ -121,9 +121,11 @@ public interface SectionQuestionHandler {
         if (option != null) {
             option.setOption(SanitizingHelper.parse("option", node, String.class).orElse(null));
             option.setClaimChoiceType(
-                SanitizingHelper
-                    .parseEnum("claimChoiceType", node, MultipleChoiceOption.ClaimChoiceOptionType.class)
-                    .orElse(null)
+                SanitizingHelper.parseEnum(
+                    "claimChoiceType",
+                    node,
+                    MultipleChoiceOption.ClaimChoiceOptionType.class
+                ).orElse(null)
             );
             if (defaults == OptionUpdateOptions.HANDLE_DEFAULTS) {
                 option.setDefaultScore(round(SanitizingHelper.parse("defaultScore", node, Double.class).orElse(null)));

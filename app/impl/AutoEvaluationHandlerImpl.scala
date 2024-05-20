@@ -4,11 +4,8 @@
 
 package impl
 
-import models.AutoEvaluationConfig
-import models.Exam
-import models.Grade
-import models.GradeEvaluation
-import models.GradeScale
+import models.assessment.{AutoEvaluationConfig, GradeEvaluation}
+import models.exam.{Exam, Grade, GradeScale}
 import org.apache.pekko.actor.ActorSystem
 import org.joda.time.DateTime
 import play.api.Logging

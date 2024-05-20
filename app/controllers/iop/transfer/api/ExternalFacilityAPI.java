@@ -9,7 +9,7 @@ import com.google.inject.ImplementedBy;
 import controllers.iop.transfer.impl.FacilityController;
 import java.net.MalformedURLException;
 import java.util.concurrent.CompletionStage;
-import models.ExamRoom;
+import models.facility.ExamRoom;
 import play.mvc.Result;
 
 @ImplementedBy(FacilityController.class)

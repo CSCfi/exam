@@ -41,7 +41,7 @@ libraryDependencies += "org.yaml"                 % "snakeyaml"             % "2
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation", "-proc:full")
 
-routesImport += "util.scala.Binders._"
+routesImport += "system.Binders._"
 
 routesGenerator := InjectedRoutesGenerator
 

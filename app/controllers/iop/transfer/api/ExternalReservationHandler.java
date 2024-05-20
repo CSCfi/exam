@@ -9,8 +9,8 @@ import com.google.inject.ImplementedBy;
 import controllers.iop.transfer.impl.ExternalReservationHandlerImpl;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
-import models.Reservation;
-import models.User;
+import models.enrolment.Reservation;
+import models.user.User;
 import play.mvc.Result;
 
 @ImplementedBy(ExternalReservationHandlerImpl.class)

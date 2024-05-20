@@ -12,11 +12,12 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import javax.inject.Inject;
-import models.Exam;
-import models.ExamEnrolment;
-import models.ExamInspection;
-import models.ExaminationEventConfiguration;
-import models.Reservation;
+import miscellaneous.config.ConfigReader;
+import models.assessment.ExamInspection;
+import models.enrolment.ExamEnrolment;
+import models.enrolment.ExaminationEventConfiguration;
+import models.enrolment.Reservation;
+import models.exam.Exam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Json;
@@ -24,7 +25,6 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Http;
-import util.config.ConfigReader;
 
 public class NoShowHandlerImpl implements NoShowHandler {
 

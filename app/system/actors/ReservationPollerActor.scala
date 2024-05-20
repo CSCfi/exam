@@ -6,13 +6,12 @@ package system.actors
 
 import impl.NoShowHandler
 import io.ebean.DB
-import models.ExamEnrolment
-import models.Reservation
 import org.apache.pekko.actor.AbstractActor
 import org.joda.time.DateTime
 import play.api.Logging
-import util.datetime.DateTimeHandler
-import util.scala.DbApiHelper
+import miscellaneous.datetime.DateTimeHandler
+import miscellaneous.scala.DbApiHelper
+import models.enrolment.{ExamEnrolment, Reservation}
 
 import javax.inject.Inject
 import scala.jdk.CollectionConverters._

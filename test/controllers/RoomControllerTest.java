@@ -12,7 +12,7 @@ import base.RunAsAdmin;
 import base.RunAsStudent;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.ebean.DB;
-import models.ExamRoom;
+import models.facility.ExamRoom;
 import org.junit.Test;
 import play.libs.Json;
 import play.mvc.Result;
