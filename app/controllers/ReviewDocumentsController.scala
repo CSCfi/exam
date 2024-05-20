@@ -16,20 +16,20 @@ import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
 import play.api.Logging
 import play.api.libs.Files
-import play.api.mvc.*
-import security.scala.Auth.{authorized, AuthenticatedAction}
+import play.api.mvc._
+import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
 import util.csv.CsvBuilder
 import util.file.FileHandler
 import util.scala.{DbApiHelper, JavaApiHelper}
 
-import java.io.*
+import java.io._
 import java.text.SimpleDateFormat
 import java.util.Base64
 import java.util.zip.GZIPOutputStream
 import javax.inject.Inject
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 import scala.util.Using
 
 class ReviewDocumentsController @Inject() (

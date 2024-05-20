@@ -13,7 +13,6 @@ import play.api.Logging
 import util.config.ConfigReader
 import util.scala.DbApiHelper
 
-
 import javax.inject.Inject
 import scala.jdk.CollectionConverters._
 

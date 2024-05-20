@@ -77,9 +77,9 @@ public class NoShowHandlerImpl implements NoShowHandler {
     }
 
     private URL parseUrl(String reservationRef) throws MalformedURLException {
-        return URI
-            .create(configReader.getIopHost() + String.format("/api/enrolments/%s/noshow", reservationRef))
-            .toURL();
+        return URI.create(
+            configReader.getIopHost() + String.format("/api/enrolments/%s/noshow", reservationRef)
+        ).toURL();
     }
 
     private boolean isLocal(ExamEnrolment ee) {
@@ -106,11 +106,12 @@ public class NoShowHandlerImpl implements NoShowHandler {
         locals.forEach(this::handleNoShowAndNotify);
         Stream<ExamEnrolment> externals = noShows
             .stream()
-            .filter(ns ->
-                ns.getReservation() != null &&
-                ns.getReservation().getExternalRef() != null &&
-                !ns.getReservation().isSentAsNoShow() &&
-                (ns.getUser() == null || ns.getExternalExam() == null || ns.getExternalExam().getStarted() == null)
+            .filter(
+                ns ->
+                    ns.getReservation() != null &&
+                    ns.getReservation().getExternalRef() != null &&
+                    !ns.getReservation().isSentAsNoShow() &&
+                    (ns.getUser() == null || ns.getExternalExam() == null || ns.getExternalExam().getStarted() == null)
             );
         // Send to XM for further processing
         // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed
@@ -161,12 +162,13 @@ public class NoShowHandlerImpl implements NoShowHandler {
         composer.composeNoShowMessage(enrolment.getUser(), examName, courseCode);
         if (exam != null && exam.isPrivate()) {
             // Notify teachers
-            Stream
-                .concat(exam.getExamOwners().stream(), exam.getExamInspections().stream().map(ExamInspection::getUser))
-                .forEach(teacher -> {
-                    composer.composeNoShowMessage(teacher, enrolment.getUser(), exam);
-                    logger.info("Email sent to {}", teacher.getEmail());
-                });
+            Stream.concat(
+                exam.getExamOwners().stream(),
+                exam.getExamInspections().stream().map(ExamInspection::getUser)
+            ).forEach(teacher -> {
+                composer.composeNoShowMessage(teacher, enrolment.getUser(), exam);
+                logger.info("Email sent to {}", teacher.getEmail());
+            });
         }
     }
 }

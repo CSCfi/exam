@@ -4,9 +4,9 @@
 
 package validators
 
-import play.api.libs.functional.syntax.*
-import play.api.libs.json.*
-import play.api.libs.json.Reads.*
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
+import play.api.libs.json._
 
 object ExternalCourseValidator:
   val asInt: Reads[Int]       = implicitly[Reads[String]].map(_.toInt)

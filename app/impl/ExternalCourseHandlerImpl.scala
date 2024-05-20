@@ -4,18 +4,18 @@
 
 package impl
 
-import validators.ExternalCourseValidator.{CourseUnitInfo, GradeScale => ExtGradeScale}
 import io.ebean.DB
-import models.*
+import models._
 import org.apache.pekko.util.ByteString
 import org.joda.time.DateTime
 import org.springframework.beans.BeanUtils
 import play.api.Logging
-import play.api.libs.json.{Json, JsValue}
+import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.mvc.Http
 import util.config.ConfigReader
 import util.scala.DbApiHelper
+import validators.ExternalCourseValidator.{CourseUnitInfo, GradeScale => ExtGradeScale}
 
 import java.net.MalformedURLException
 import java.net.{URI, URL, URLEncoder}
@@ -24,7 +24,7 @@ import java.text.SimpleDateFormat
 import javax.inject.Inject
 import scala.collection.immutable.TreeSet
 import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
 class ExternalCourseHandlerImpl @Inject (
     private val wsClient: WSClient,

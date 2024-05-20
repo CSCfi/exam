@@ -5,7 +5,6 @@
 package util.scala
 
 import io.ebean.Model
-
 import play.api.mvc.Result
 import play.api.mvc.Results.Status
 import play.libs.{Json => JavaJson}

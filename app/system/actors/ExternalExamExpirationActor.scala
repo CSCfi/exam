@@ -17,8 +17,7 @@ import java.net.MalformedURLException
 import java.net.URI
 import java.net.URL
 import javax.inject.Inject
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.jdk.CollectionConverters._
 import scala.util.control.Exception.catching
 import scala.util.{Failure, Success, Try}

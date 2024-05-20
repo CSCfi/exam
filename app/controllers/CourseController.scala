@@ -9,8 +9,8 @@ import impl.ExternalCourseHandler
 import io.ebean.DB
 import models.{Course, Role, User}
 import org.joda.time.DateTime
-import play.api.mvc.*
-import security.scala.Auth.{authorized, AuthenticatedAction}
+import play.api.mvc._
+import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
 import system.AuditedAction
 import util.config.ConfigReader
@@ -18,8 +18,7 @@ import util.scala.{DbApiHelper, JavaApiHelper}
 
 import javax.inject.Inject
 import scala.concurrent.Future
-
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
 class CourseController @Inject() (
     externalApi: ExternalCourseHandler,

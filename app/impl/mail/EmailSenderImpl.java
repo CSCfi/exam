@@ -2,12 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-package impl;
+package impl.mail;
 
 import com.typesafe.config.Config;
-import java.util.Collections;
 import java.util.Set;
-import java.util.stream.Stream;
 import javax.inject.Inject;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailAttachment;
@@ -26,7 +24,7 @@ public class EmailSenderImpl implements EmailSender {
         this.config = config;
     }
 
-    private void mockSending(HtmlEmail email, String content, EmailAttachment... attachments) {
+    private void mockSending(HtmlEmail email, String content, Set<EmailAttachment> attachments) {
         logger.info("mock implementation, send email");
         logger.info("subject: {}", email.getSubject());
         logger.info("from: {}", email.getFromAddress());
@@ -34,7 +32,7 @@ public class EmailSenderImpl implements EmailSender {
         email.getToAddresses().forEach(a -> logger.info("to: {}", a));
         email.getReplyToAddresses().forEach(a -> logger.info("replyTo: {}", a));
         email.getCcAddresses().forEach(a -> logger.info("cc: {}", a));
-        Stream.of(attachments).forEach(a -> logger.info("attachment: {}", a.getName()));
+        attachments.forEach(a -> logger.info("attachment: {}", a.getName()));
     }
 
     private void doSend(
@@ -44,7 +42,7 @@ public class EmailSenderImpl implements EmailSender {
         Set<String> bcc,
         String subject,
         String content,
-        EmailAttachment... attachments
+        Set<EmailAttachment> attachments
     ) throws EmailException {
         HtmlEmail email = new HtmlEmail();
         email.setCharset("utf-8");
@@ -79,44 +77,9 @@ public class EmailSenderImpl implements EmailSender {
     }
 
     @Override
-    public void send(String recipient, String sender, String subject, String content, EmailAttachment... attachments) {
+    public void send(Mail mail) {
         try {
-            doSend(
-                Set.of(recipient),
-                sender,
-                Collections.emptySet(),
-                Collections.emptySet(),
-                subject,
-                content,
-                attachments
-            );
-        } catch (EmailException e) {
-            logger.error("Creating mail failed. Stacktrace follows", e);
-        }
-    }
-
-    @Override
-    public void send(String recipient, String sender, Set<String> cc, String subject, String content) {
-        try {
-            doSend(Set.of(recipient), sender, cc, Collections.emptySet(), subject, content);
-        } catch (EmailException e) {
-            logger.error("Creating mail failed. Stacktrace follows", e);
-        }
-    }
-
-    @Override
-    public void send(Set<String> recipients, String sender, Set<String> cc, String subject, String content) {
-        try {
-            doSend(recipients, sender, cc, Collections.emptySet(), subject, content);
-        } catch (EmailException e) {
-            logger.error("Creating mail failed. Stacktrace follows", e);
-        }
-    }
-
-    @Override
-    public void send(String sender, Set<String> bcc, String subject, String content) {
-        try {
-            doSend(Collections.emptySet(), sender, Collections.emptySet(), bcc, subject, content);
+            doSend(mail.recipients, mail.sender, mail.cc, mail.bcc, mail.subject, mail.content, mail.attachments);
         } catch (EmailException e) {
             logger.error("Creating mail failed. Stacktrace follows", e);
         }
