@@ -5,8 +5,7 @@
 package system.actors
 
 import io.ebean.DB
-import models.Exam
-import models.ExamRecord
+import models.{Exam, ExamRecord}
 import org.apache.pekko.actor.AbstractActor
 import org.joda.time.DateTime
 import play.api.Logging
@@ -24,7 +23,7 @@ class ExamExpirationActor @Inject (private val configReader: ConfigReader)
   override def createReceive(): AbstractActor.Receive = receiveBuilder()
     .`match`(
       classOf[String],
-      (s: String) =>
+      (_: String) =>
         logger.debug("Starting exam expiration check ->")
         val exams = DB
           .find(classOf[Exam])

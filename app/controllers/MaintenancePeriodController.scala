@@ -27,12 +27,14 @@ class MaintenancePeriodController @Inject() (
     with JavaApiHelper:
 
   def listMaintenancePeriods: Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.STUDENT, Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { _ =>
-      DB.find(classOf[MaintenancePeriod])
-        .where()
-        .gt("endsAt", DateTime.now())
-        .list
-        .toResult(Results.Ok)
+    Action.andThen(authorized(Seq(Role.Name.STUDENT, Role.Name.TEACHER, Role.Name.ADMIN))) { _ =>
+      Ok(
+        DB.find(classOf[MaintenancePeriod])
+          .where()
+          .gt("endsAt", DateTime.now())
+          .list
+          .toJson
+      )
     }
 
   def createMaintenancePeriod: Action[AnyContent] =
@@ -43,7 +45,7 @@ class MaintenancePeriodController @Inject() (
             case (Some(s), Some(e), Some(d)) =>
               val period = update(new MaintenancePeriod, s, e, d)
               period.save()
-              period.toResult(Results.Created)
+              Created(period.toJson)
             case _ => BadRequest
         case _ => BadRequest
     }

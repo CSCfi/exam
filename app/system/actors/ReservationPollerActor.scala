@@ -37,7 +37,7 @@ class ReservationPollerActor @Inject (
   override def createReceive(): AbstractActor.Receive = receiveBuilder()
     .`match`(
       classOf[String],
-      (s: String) =>
+      (_: String) =>
         logger.debug("Starting no-show check ->")
         val enrolments = DB
           .find(classOf[ExamEnrolment])

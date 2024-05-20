@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.mail.EmailAttachment;
 
+@FunctionalInterface
 @ImplementedBy(EmailSenderImpl.class)
 public interface EmailSender {
     void send(Mail mail);

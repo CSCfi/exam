@@ -28,7 +28,7 @@ class ExamAutoSaverActor @Inject (private val composer: EmailComposer, private v
   override def createReceive(): AbstractActor.Receive = receiveBuilder()
     .`match`(
       classOf[String],
-      (s: String) =>
+      (_: String) =>
         logger.debug("Starting check for ongoing exams ->")
         checkLocalExams()
         checkExternalExams()

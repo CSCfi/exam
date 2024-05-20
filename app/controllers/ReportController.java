@@ -30,7 +30,6 @@ import models.Course;
 import models.Exam;
 import models.ExamEnrolment;
 import models.ExamRoom;
-import models.Reservation;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import play.libs.Json;

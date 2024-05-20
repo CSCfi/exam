@@ -65,18 +65,8 @@ class ExternalCourseHandlerImpl @Inject (
     )
 
   override def getPermittedCourses(user: User): Future[Set[String]] =
-    val url   = parseUrl(user)
-    val host  = url.toString.split("\\?").head
-    val query = url.getQuery.split("&").collectFirst { case s"$k=$v" => k -> v }
-    val _req = query match
-      case None     => wsClient.url(host)
-      case Some(qp) => wsClient.url(host).withQueryStringParameters(qp)
-    val request =
-      if configReader.isApiKeyUsed then
-        val header = (configReader.getApiKeyName, configReader.getApiKeyValue)
-        _req.addHttpHeaders(header)
-      else _req
-    request
+    val url = parseUrl(user)
+    queryRequest(url)
       .get()
       .map(response =>
         val root  = response.json
@@ -106,18 +96,7 @@ class ExternalCourseHandlerImpl @Inject (
     else response.json
 
   private def downloadCourses(url: URL) =
-    val host  = url.toString.split("\\?").head
-    val query = url.getQuery.split("&").collectFirst { case s"$k=$v" => k -> v }
-    val _req = query match
-      case None     => wsClient.url(host)
-      case Some(qp) => wsClient.url(host).withQueryStringParameters(qp)
-    val request =
-      if configReader.isApiKeyUsed then
-        val header = (configReader.getApiKeyName, configReader.getApiKeyValue)
-        _req.addHttpHeaders(header)
-      else _req
-
-    request
+    queryRequest(url)
       .get()
       .map(response => {
         val status = response.status
@@ -213,6 +192,17 @@ class ExternalCourseHandlerImpl @Inject (
     case Some(d) =>
       val date = new DateTime(DF.parse(d))
       if date.isBeforeNow then Left("too late") else Right(Some(date))
+
+  private def queryRequest(url: URL) =
+    val host  = url.toString.split("\\?").head
+    val query = url.getQuery.split("&").collectFirst { case s"$k=$v" => k -> v }
+    val request = query match
+      case None     => wsClient.url(host)
+      case Some(qp) => wsClient.url(host).withQueryStringParameters(qp)
+    if configReader.isApiKeyUsed then
+      val header = (configReader.getApiKeyName, configReader.getApiKeyValue)
+      request.addHttpHeaders(header)
+    else request
 
   private def parseUrl(organisation: Organisation, courseCode: String) =
     val urlConfigPrefix = "exam.integration.courseUnitInfo.url"

@@ -30,7 +30,7 @@ class ReservationReminderActor @Inject (
   override def createReceive(): AbstractActor.Receive = receiveBuilder()
     .`match`(
       classOf[String],
-      (s: String) =>
+      (_: String) =>
         logger.debug("Starting reservation reminder task ->")
         val now      = dateTimeHandler.adjustDST(DateTime.now)
         val tomorrow = now.plusDays(1)
