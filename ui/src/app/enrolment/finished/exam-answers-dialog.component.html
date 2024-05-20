@@ -65,80 +65,77 @@
                     </div>
                     <!-- ESSAY -->
                     @if (esq.question.type === 'EssayQuestion') {
-                        <div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>{{ 'i18n_exam_answer' | translate }}:</strong>
-                                </div>
-                                <div class="col-md-8" [xmMathJax]="esq.essayAnswer?.answer"></div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>{{ 'i18n_exam_answer' | translate }}:</strong>
                             </div>
-                            @if (esq.essayAnswer?.attachment) {
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <strong>{{ 'i18n_answer_attachment' | translate }}:</strong>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <a
-                                            class="pointer"
-                                            (click)="downloadAttachment(esq)"
-                                            (ngEnter)="downloadAttachment(esq)"
-                                            tabindex="0"
-                                        >
-                                            {{ esq.essayAnswer?.attachment?.fileName }}
-                                        </a>
-                                    </div>
-                                </div>
-                            }
+                            <div class="col-md-8" [xmMathJax]="esq.essayAnswer?.answer"></div>
+                        </div>
+                        @if (esq.essayAnswer?.attachment) {
                             <div class="row">
                                 <div class="col-md-4">
-                                    <strong>{{ 'i18n_answer_length' | translate }}:</strong>
+                                    <strong>{{ 'i18n_answer_attachment' | translate }}:</strong>
                                 </div>
                                 <div class="col-md-8">
-                                    {{ countWords(esq) }} {{ 'i18n_words' | translate }},
-                                    {{ 'i18n_approximately' | translate }} {{ countCharacters(esq) }}
-                                    {{ 'i18n_characters' | translate }}
+                                    <a
+                                        class="pointer"
+                                        (click)="downloadAttachment(esq)"
+                                        (ngEnter)="downloadAttachment(esq)"
+                                        tabindex="0"
+                                    >
+                                        {{ esq.essayAnswer?.attachment?.fileName }}
+                                    </a>
                                 </div>
                             </div>
-                            @if (esq.expectedWordCount) {
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <strong>{{ 'i18n_essay_length_recommendation' | translate }}:</strong>
-                                    </div>
-                                    <div class="col-md-8">
-                                        {{ esq.expectedWordCount }} ({{ 'i18n_approximately' | translate }}
-                                        {{ (esq.expectedWordCount || 0) * 8 }}
-                                        {{ 'i18n_characters' | translate }})
-                                    </div>
-                                </div>
-                            }
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>{{ 'i18n_comments' | translate }}:</strong>
-                                </div>
-                                @if (esq.evaluationType === 'Points') {
-                                    <div class="col-md-8">
-                                        <strong>{{ 'i18n_word_points' | translate }}: &nbsp;</strong>
-                                        {{ esq.essayAnswer?.evaluatedScore }} / {{ esq.maxScore }}
-                                    </div>
-                                }
-                                @if (esq.evaluationType === 'Selection') {
-                                    <div class="col-md-8">
-                                        @if (esq.essayAnswer?.evaluatedScore === 1) {
-                                            <div>
-                                                {{ 'i18n_approved' | translate | uppercase }}
-                                            </div>
-                                        }
-                                        @if (esq.essayAnswer?.evaluatedScore !== 1) {
-                                            <div>
-                                                {{ 'i18n_rejected' | translate | uppercase }}
-                                            </div>
-                                        }
-                                    </div>
-                                }
+                        }
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>{{ 'i18n_answer_length' | translate }}:</strong>
+                            </div>
+                            <div class="col-md-8">
+                                {{ countWords(esq) }} {{ 'i18n_words' | translate }},
+                                {{ 'i18n_approximately' | translate }} {{ countCharacters(esq) }}
+                                {{ 'i18n_characters' | translate }}
                             </div>
                         </div>
+                        @if (esq.expectedWordCount) {
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>{{ 'i18n_essay_length_recommendation' | translate }}:</strong>
+                                </div>
+                                <div class="col-md-8">
+                                    {{ esq.expectedWordCount }} ({{ 'i18n_approximately' | translate }}
+                                    {{ (esq.expectedWordCount || 0) * 8 }}
+                                    {{ 'i18n_characters' | translate }})
+                                </div>
+                            </div>
+                        }
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>{{ 'i18n_comments' | translate }}:</strong>
+                            </div>
+                            @if (esq.evaluationType === 'Points') {
+                                <div class="col-md-8">
+                                    <strong>{{ 'i18n_word_points' | translate }}: &nbsp;</strong>
+                                    {{ esq.essayAnswer?.evaluatedScore }} / {{ esq.maxScore }}
+                                </div>
+                            }
+                            @if (esq.evaluationType === 'Selection') {
+                                <div class="col-md-8">
+                                    @if (esq.essayAnswer?.evaluatedScore === 1) {
+                                        <div>
+                                            {{ 'i18n_approved' | translate | uppercase }}
+                                        </div>
+                                    }
+                                    @if (esq.essayAnswer?.evaluatedScore !== 1) {
+                                        <div>
+                                            {{ 'i18n_rejected' | translate | uppercase }}
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
                     }
-                    <!-- ESSAY -->
                     <!-- MULTICHOICE -->
                     @if (isMultiChoice(esq)) {
                         <div>
@@ -149,7 +146,7 @@
                                 <div class="col-md-8">
                                     @for (option of getAnsweredOptions(esq); track option) {
                                         <div class="row">
-                                            <div class="col-md-7" [xmMathJax]="option.option.option"></div>
+                                            <div class="col-md-12" [xmMathJax]="option.option.option"></div>
                                         </div>
                                     }
                                 </div>
