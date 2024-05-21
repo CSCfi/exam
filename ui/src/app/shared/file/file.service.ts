@@ -18,7 +18,7 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { ToastrService } from 'ngx-toastr';
-import type { Attachment, EssayAnswer } from '../../exam/exam.model';
+import type { Attachment, EssayAnswer } from 'src/app/exam/exam.model';
 
 type Container = { attachment?: Attachment; objectVersion?: number };
 

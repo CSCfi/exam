@@ -18,12 +18,12 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
-import { FileService } from '../../shared/file/file.service';
-import { MathJaxDirective } from '../../shared/math/math-jax.directive';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
-import { TeacherListComponent } from '../../shared/user/teacher-list.component';
-import type { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuestion } from '../exam.model';
+import type { Attachment, ClozeTestAnswer, Exam, ExamLanguage, ExamSectionQuestion } from 'src/app/exam/exam.model';
+import { FileService } from 'src/app/shared/file/file.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 type Printout = Omit<Exam, 'examLanguages'> & { examLanguages: (ExamLanguage & { ord: number })[] };
 

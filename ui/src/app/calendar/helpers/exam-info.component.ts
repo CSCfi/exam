@@ -2,10 +2,10 @@ import { DatePipe } from '@angular/common';
 import { Component, Input, OnInit, computed, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { DateTimeService } from '../../shared/date/date.service';
-import { MathJaxDirective } from '../../shared/math/math-jax.directive';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import type { ExamInfo } from '../calendar.service';
+import type { ExamInfo } from 'src/app/calendar/calendar.service';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
 @Component({
     selector: 'xm-calendar-exam-info',

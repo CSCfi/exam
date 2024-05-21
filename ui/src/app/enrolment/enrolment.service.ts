@@ -20,12 +20,17 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, from, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { CollaborativeParticipation } from '../exam/collaborative/collaborative-exam.service';
-import type { CollaborativeExam, Exam, ExaminationEventConfiguration, ExamParticipation } from '../exam/exam.model';
-import type { ExamRoom } from '../reservation/reservation.model';
-import type { User } from '../session/session.service';
-import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
-import { isObject } from '../shared/miscellaneous/helpers';
+import { CollaborativeParticipation } from 'src/app/exam/collaborative/collaborative-exam.service';
+import type {
+    CollaborativeExam,
+    Exam,
+    ExaminationEventConfiguration,
+    ExamParticipation,
+} from 'src/app/exam/exam.model';
+import type { ExamRoom } from 'src/app/reservation/reservation.model';
+import type { User } from 'src/app/session/session.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { isObject } from 'src/app/shared/miscellaneous/helpers';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/add-enrolment-information-dialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/select-examination-event-dialog.component';
 import { ShowInstructionsDialogComponent } from './active/dialogs/show-instructions-dialog.component';

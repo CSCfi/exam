@@ -1,5 +1,5 @@
-import type { Attachment, Exam } from '../exam/exam.model';
-import type { User } from '../session/session.service';
+import type { Attachment, Exam } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
 
 export interface LanguageInspection {
     id: number;

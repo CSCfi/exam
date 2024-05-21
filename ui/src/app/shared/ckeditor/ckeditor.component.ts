@@ -18,7 +18,7 @@ import type { AfterViewChecked, AfterViewInit, OnDestroy } from '@angular/core';
 import { Component, ElementRef, Inject, Input, NgZone, ViewChild, forwardRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, type ControlValueAccessor } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { debounce } from '../miscellaneous/helpers';
+import { debounce } from 'src/app/shared/miscellaneous/helpers';
 
 @Component({
     selector: 'xm-ckeditor',

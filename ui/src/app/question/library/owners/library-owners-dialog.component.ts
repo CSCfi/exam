@@ -20,9 +20,9 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
-import type { User } from '../../../session/session.service';
-import { UserService } from '../../../shared/user/user.service';
-import { QuestionService } from '../../question.service';
+import { QuestionService } from 'src/app/question/question.service';
+import type { User } from 'src/app/session/session.service';
+import { UserService } from 'src/app/shared/user/user.service';
 
 @Component({
     template: `

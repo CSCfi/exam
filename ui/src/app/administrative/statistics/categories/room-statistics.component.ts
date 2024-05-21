@@ -15,9 +15,9 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamParticipation } from '../../../exam/exam.model';
-import type { Participations, QueryParams } from '../statistics.service';
-import { StatisticsService } from '../statistics.service';
+import type { Participations, QueryParams } from 'src/app/administrative/statistics/statistics.service';
+import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
+import type { ExamParticipation } from 'src/app/exam/exam.model';
 
 @Component({
     template: `

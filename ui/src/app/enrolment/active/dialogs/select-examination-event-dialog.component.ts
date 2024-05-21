@@ -19,7 +19,7 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import type { Exam, ExaminationEventConfiguration } from '../../../exam/exam.model';
+import type { Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 
 @Component({
     selector: 'xm-select-examination-event-dialog',

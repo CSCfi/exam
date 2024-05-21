@@ -19,13 +19,13 @@ import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { map } from 'rxjs/operators';
+import type { Exam } from 'src/app/exam/exam.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
-import { TableSortComponent } from '../../shared/sorting/table-sort.component';
-import { TeacherListComponent } from '../../shared/user/teacher-list.component';
-import type { Exam } from '../exam.model';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 @Component({
     selector: 'xm-printout-listing',

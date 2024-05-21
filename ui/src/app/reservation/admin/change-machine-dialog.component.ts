@@ -20,8 +20,8 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { DropdownSelectComponent, Option } from '../../shared/select/dropdown-select.component';
-import type { ExamMachine, Reservation } from '../reservation.model';
+import type { ExamMachine, Reservation } from 'src/app/reservation/reservation.model';
+import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-select.component';
 
 @Component({
     selector: 'xm-change-machine-dialog',

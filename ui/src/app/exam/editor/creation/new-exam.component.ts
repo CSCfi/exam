@@ -19,12 +19,12 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import type { ExamExecutionType, Implementation } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { HistoryBackComponent } from '../../../shared/history/history-back.component';
-import type { ExamExecutionType, Implementation } from '../../exam.model';
-import { ExamService } from '../../exam.service';
+import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 
 @Component({
     selector: 'xm-new-exam',

@@ -16,7 +16,7 @@
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Examination, ExaminationSection, NavigationPage } from '../examination.model';
+import type { Examination, ExaminationSection, NavigationPage } from 'src/app/examination/examination.model';
 
 @Component({
     selector: 'xm-examination-navigation',

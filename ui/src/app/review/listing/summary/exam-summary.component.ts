@@ -19,14 +19,14 @@ import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Chart } from 'chart.js';
 import { format } from 'date-fns';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import type { Exam, ExamParticipation } from '../../../exam/exam.model';
-import { FileService } from '../../../shared/file/file.service';
-import type { Review } from '../../review.model';
-import { AbortedExamsComponent } from '../dialogs/aborted.component';
-import { NoShowsComponent } from '../dialogs/no-shows.component';
-import { ReviewListService } from '../review-list.service';
+import type { Exam, ExamParticipation } from 'src/app/exam/exam.model';
+import { AbortedExamsComponent } from 'src/app/review/listing/dialogs/aborted.component';
+import { NoShowsComponent } from 'src/app/review/listing/dialogs/no-shows.component';
+import { ReviewListService } from 'src/app/review/listing/review-list.service';
+import type { Review } from 'src/app/review/review.model';
+import { FileService } from 'src/app/shared/file/file.service';
 import { ExamSummaryService } from './exam-summary.service';
 
 @Component({

@@ -15,8 +15,8 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ReviewedExam } from '../../enrolment/enrolment.model';
-import type { Exam, GradeScale, Implementation } from '../../exam/exam.model';
+import { ReviewedExam } from 'src/app/enrolment/enrolment.model';
+import type { Exam, GradeScale, Implementation } from 'src/app/exam/exam.model';
 import { isNumber } from './helpers';
 
 @Injectable({ providedIn: 'root' })

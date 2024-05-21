@@ -18,10 +18,10 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamRoom } from '../../../reservation/reservation.model';
-import { DatePickerComponent } from '../../../shared/date/date-picker.component';
-import { FileService } from '../../../shared/file/file.service';
-import { DropdownSelectComponent, Option } from '../../../shared/select/dropdown-select.component';
+import type { ExamRoom } from 'src/app/reservation/reservation.model';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { FileService } from 'src/app/shared/file/file.service';
+import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-select.component';
 
 @Component({
     template: `

@@ -5,7 +5,7 @@ import type {
     Question,
     ReverseExamSectionQuestion,
     SelectableGrade,
-} from '../exam/exam.model';
+} from 'src/app/exam/exam.model';
 
 export interface ScorableEssayAnswer extends EssayAnswer {
     id: number;

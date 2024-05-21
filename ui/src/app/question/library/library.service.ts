@@ -17,10 +17,10 @@ import { Inject, Injectable } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import type { Course, Exam, ExamSection, ReverseQuestion, Tag } from 'src/app/exam/exam.model';
+import { QuestionService } from 'src/app/question/question.service';
+import { User } from 'src/app/session/session.service';
 import { UserService } from 'src/app/shared/user/user.service';
-import type { Course, Exam, ExamSection, ReverseQuestion, Tag } from '../../exam/exam.model';
-import { User } from '../../session/session.service';
-import { QuestionService } from '../question.service';
 
 export interface LibraryQuestion extends ReverseQuestion {
     icon: string;

@@ -1,4 +1,4 @@
-import type { Exam, ExamSection, ExamSectionQuestion, ExamSectionQuestionOption } from '../exam/exam.model';
+import type { Exam, ExamSection, ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/exam/exam.model';
 
 export interface Examination extends Exam {
     cloned: boolean;

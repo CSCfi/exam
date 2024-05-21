@@ -12,9 +12,9 @@
  * on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
-import type { ExamEnrolment } from '../enrolment/enrolment.model';
-import type { Address, WorkingHour } from '../facility/rooms/room.service';
-import type { User } from '../session/session.service';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { Address, WorkingHour } from 'src/app/facility/rooms/room.service';
+import type { User } from 'src/app/session/session.service';
 
 export type DefaultWorkingHours = {
     id?: number;

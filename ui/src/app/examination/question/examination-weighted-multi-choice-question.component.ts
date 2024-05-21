@@ -16,8 +16,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExaminationQuestion } from '../examination.model';
-import { ExaminationService } from '../examination.service';
+import type { ExaminationQuestion } from 'src/app/examination/examination.model';
+import { ExaminationService } from 'src/app/examination/examination.service';
 
 @Component({
     selector: 'xm-examination-weighted-multi-choice-question',

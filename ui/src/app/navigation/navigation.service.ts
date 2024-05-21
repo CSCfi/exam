@@ -15,8 +15,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import type { User } from '../session/session.service';
-import { SessionService } from '../session/session.service';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
 
 export interface Link {
     route: string;

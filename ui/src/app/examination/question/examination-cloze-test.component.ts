@@ -15,8 +15,8 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExaminationQuestion } from '../examination.model';
-import { ExaminationService } from '../examination.service';
+import type { ExaminationQuestion } from 'src/app/examination/examination.model';
+import { ExaminationService } from 'src/app/examination/examination.service';
 
 @Component({
     selector: 'xm-examination-cloze-test',

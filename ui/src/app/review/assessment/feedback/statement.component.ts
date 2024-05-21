@@ -18,13 +18,13 @@ import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Exam } from '../../../exam/exam.model';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import type { FileResult } from '../../../shared/attachment/dialogs/attachment-picker.component';
-import { CKEditorComponent } from '../../../shared/ckeditor/ckeditor.component';
-import { FileService } from '../../../shared/file/file.service';
-import { MaturityService } from '../maturity/maturity.service';
-import { AssessmentService } from '../assessment.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import { MaturityService } from 'src/app/review/assessment/maturity/maturity.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import type { FileResult } from 'src/app/shared/attachment/dialogs/attachment-picker.component';
+import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
+import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-r-statement',

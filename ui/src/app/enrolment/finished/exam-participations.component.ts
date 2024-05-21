@@ -21,13 +21,13 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
-import { PageContentComponent } from '../../shared/components/page-content.component';
-import { PageHeaderComponent } from '../../shared/components/page-header.component';
-import { PaginatorComponent } from '../../shared/paginator/paginator.component';
-import { AutoFocusDirective } from '../../shared/select/auto-focus.directive';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
-import type { ParticipationLike } from '../enrolment.service';
-import { EnrolmentService } from '../enrolment.service';
+import type { ParticipationLike } from 'src/app/enrolment/enrolment.service';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { AutoFocusDirective } from 'src/app/shared/select/auto-focus.directive';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { ExamParticipationComponent } from './exam-participation.component';
 
 @Component({

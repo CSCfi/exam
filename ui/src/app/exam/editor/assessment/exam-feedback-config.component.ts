@@ -24,8 +24,8 @@ import {
     NgbPopover,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { DatePickerComponent } from '../../../shared/date/date-picker.component';
-import type { Exam, ExamFeedbackConfig } from '../../exam.model';
+import type { Exam, ExamFeedbackConfig } from 'src/app/exam/exam.model';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
 

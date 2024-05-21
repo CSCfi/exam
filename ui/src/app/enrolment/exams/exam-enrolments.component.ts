@@ -18,10 +18,10 @@ import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { SessionService } from '../../session/session.service';
-import type { EnrolmentInfo } from '../enrolment.model';
-import { EnrolmentService } from '../enrolment.service';
-import { ExamSearchResultComponent } from '../search/exam-search-result.component';
+import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import { ExamSearchResultComponent } from 'src/app/enrolment/search/exam-search-result.component';
+import { SessionService } from 'src/app/session/session.service';
 import { EnrolmentDetailsComponent } from './exam-enrolment-details.component';
 
 @Component({

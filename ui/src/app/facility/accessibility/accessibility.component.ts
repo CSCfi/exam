@@ -18,7 +18,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Accessibility } from '../../reservation/reservation.model';
+import type { Accessibility } from 'src/app/reservation/reservation.model';
 import { AccessibilityService } from './accessibility.service';
 
 @Component({

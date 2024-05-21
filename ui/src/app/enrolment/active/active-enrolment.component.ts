@@ -17,14 +17,14 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import type { ExamRoom } from '../../reservation/reservation.model';
-import { ApplyDstPipe } from '../../shared/date/apply-dst.pipe';
-import { FileService } from '../../shared/file/file.service';
-import { MathJaxDirective } from '../../shared/math/math-jax.directive';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import { TeacherListComponent } from '../../shared/user/teacher-list.component';
-import type { ExamEnrolment } from '../enrolment.model';
-import { EnrolmentService } from '../enrolment.service';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { ExamRoom } from 'src/app/reservation/reservation.model';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { FileService } from 'src/app/shared/file/file.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.component';
 
 @Component({

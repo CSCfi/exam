@@ -18,7 +18,7 @@ import { Component, Input } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Accessibility, ExamRoom } from '../../reservation/reservation.model';
+import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 import { AccessibilityService } from './accessibility.service';
 
 @Component({

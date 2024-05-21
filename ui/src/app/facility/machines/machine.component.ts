@@ -19,11 +19,11 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import type { Software } from 'src/app/exam/exam.model';
+import type { ExamMachine } from 'src/app/reservation/reservation.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import type { Software } from '../../exam/exam.model';
-import type { ExamMachine } from '../../reservation/reservation.model';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { MachineService } from './machines.service';
 
 interface SoftwareWithClass extends Software {

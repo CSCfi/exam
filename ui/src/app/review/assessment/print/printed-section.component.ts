@@ -14,8 +14,8 @@
  */
 
 import { Component, Input } from '@angular/core';
-import type { ExamSection } from '../../../exam/exam.model';
-import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
+import type { ExamSection } from 'src/app/exam/exam.model';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { PrintedClozeTestComponent } from './printed-cloze-test.component';
 import { PrintedEssayComponent } from './printed-essay.component';
 import { PrintedMultiChoiceComponent } from './printed-multi-choice.component';

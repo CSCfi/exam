@@ -17,8 +17,8 @@ import { HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
-import { WrongLocationService } from '../enrolment/wrong-location/wrong-location.service';
-import { ExaminationStatusService } from '../examination/examination-status.service';
+import { WrongLocationService } from 'src/app/enrolment/wrong-location/wrong-location.service';
+import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExaminationInterceptor implements HttpInterceptor {

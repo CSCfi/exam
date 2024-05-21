@@ -13,11 +13,11 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import type { User } from '../../session/session.service';
-import { SessionService } from '../../session/session.service';
-import { PaginatorComponent } from '../../shared/paginator/paginator.component';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
 import type { Permission } from './users.service';
 import { PermissionType, UserManagementService } from './users.service';
 

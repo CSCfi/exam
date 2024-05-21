@@ -21,7 +21,7 @@ import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
 import { Tag } from 'src/app/exam/exam.model';
-import { LibraryService } from '../library.service';
+import { LibraryService } from 'src/app/question/library/library.service';
 
 @Component({
     template: `

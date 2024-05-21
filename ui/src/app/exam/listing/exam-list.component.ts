@@ -21,16 +21,16 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { ExaminationTypeSelectorComponent } from 'src/app/exam/editor/common/examination-type-picker.component';
+import type { Exam, Implementation } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
-import { TableSortComponent } from '../../shared/sorting/table-sort.component';
-import { TeacherListComponent } from '../../shared/user/teacher-list.component';
-import { ExaminationTypeSelectorComponent } from '../editor/common/examination-type-picker.component';
-import type { Exam, Implementation } from '../exam.model';
-import { ExamService } from '../exam.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 type ExamListExam = Exam & { expired: boolean; ownerAggregate: string };
 

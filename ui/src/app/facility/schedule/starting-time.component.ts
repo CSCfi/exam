@@ -19,8 +19,8 @@ import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
-import type { WorkingHour } from '../rooms/room.service';
-import { RoomService } from '../rooms/room.service';
+import type { WorkingHour } from 'src/app/facility/rooms/room.service';
+import { RoomService } from 'src/app/facility/rooms/room.service';
 
 @Component({
     selector: 'xm-starting-time',

@@ -18,12 +18,12 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import type { ExamParticipation, ExamSectionQuestion } from 'src/app/exam/exam.model';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
-import type { ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
-import { FixedPrecisionValidatorDirective } from '../../../shared/validation/fixed-precision.directive';
-import { AssessmentService } from '../assessment.service';
+import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
     selector: 'xm-r-cloze-test',

@@ -1,8 +1,8 @@
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamInfo, QueryParams } from '../statistics.service';
-import { StatisticsService } from '../statistics.service';
+import type { ExamInfo, QueryParams } from 'src/app/administrative/statistics/statistics.service';
+import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
 @Component({
     template: `

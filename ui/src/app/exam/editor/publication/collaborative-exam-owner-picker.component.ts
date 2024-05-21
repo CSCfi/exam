@@ -20,9 +20,9 @@ import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { User } from '../../../session/session.service';
-import { SessionService } from '../../../session/session.service';
-import type { Exam } from '../../exam.model';
+import type { Exam } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-collaborative-exam-owner-selector',

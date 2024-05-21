@@ -21,16 +21,16 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, interval, map, startWith } from 'rxjs';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { Reservation } from 'src/app/reservation/reservation.model';
+import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import type { Reservation } from '../../reservation/reservation.model';
-import { SessionService } from '../../session/session.service';
-import { ApplyDstPipe } from '../../shared/date/apply-dst.pipe';
-import { DateTimeService } from '../../shared/date/date.service';
-import { MathJaxDirective } from '../../shared/math/math-jax.directive';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import { TeacherListComponent } from '../../shared/user/teacher-list.component';
-import type { ExamEnrolment } from '../enrolment.model';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 type WaitingReservation = Reservation & { occasion: { startAt: string; endAt: string } };
 type WaitingEnrolment = Omit<ExamEnrolment, 'reservation'> & {

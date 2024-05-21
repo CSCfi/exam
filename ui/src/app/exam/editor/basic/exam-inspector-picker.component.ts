@@ -23,8 +23,8 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
-import type { User } from '../../../session/session.service';
-import type { Exam, ExamInspection } from '../../exam.model';
+import type { Exam, ExamInspection } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-exam-inspector-picker',

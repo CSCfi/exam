@@ -21,9 +21,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
+import type { Question, Tag } from 'src/app/exam/exam.model';
+import { QuestionDraft } from 'src/app/question/question.service';
 import { SessionService } from 'src/app/session/session.service';
-import type { Question, Tag } from '../../exam/exam.model';
-import { QuestionDraft } from '../question.service';
 
 @Component({
     selector: 'xm-tag-picker',

@@ -17,7 +17,7 @@ import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import type { User } from '../session.service';
+import type { User } from 'src/app/session/session.service';
 
 @Component({
     standalone: true,
