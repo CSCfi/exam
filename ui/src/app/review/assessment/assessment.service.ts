@@ -21,12 +21,12 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
-import type { ReviewedExam } from '../../enrolment/enrolment.model';
-import type { Exam, ExamLanguage, ExamSectionQuestion, Feedback } from '../../exam/exam.model';
-import { isRealGrade } from '../../exam/exam.model';
-import { SessionService } from '../../session/session.service';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
+import type { ReviewedExam } from 'src/app/enrolment/enrolment.model';
+import type { Exam, ExamLanguage, ExamSectionQuestion, Feedback } from 'src/app/exam/exam.model';
+import { isRealGrade } from 'src/app/exam/exam.model';
+import { SessionService } from 'src/app/session/session.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 type Payload = {
     id: number;

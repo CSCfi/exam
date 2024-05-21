@@ -1,7 +1,7 @@
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { Component, Input, TemplateRef } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { HistoryBackComponent } from '../history/history-back.component';
+import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 
 @Component({
     selector: 'xm-page-header',

@@ -1,11 +1,11 @@
 import type { HttpClient } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
-import type { Exam, ExamLanguage, ExamType, GradeScale, NoGrade, SelectableGrade } from '../../../exam/exam.model';
-import { isRealGrade } from '../../../exam/exam.model';
-import type { ExamService } from '../../../exam/exam.service';
-import type { LanguageService } from '../../../shared/language/language.service';
-import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
-import type { AssessmentService } from '../assessment.service';
+import type { Exam, ExamLanguage, ExamType, GradeScale, NoGrade, SelectableGrade } from 'src/app/exam/exam.model';
+import { isRealGrade } from 'src/app/exam/exam.model';
+import type { ExamService } from 'src/app/exam/exam.service';
+import type { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import type { LanguageService } from 'src/app/shared/language/language.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 export abstract class GradingBaseComponent {
     selections: { grade: SelectableGrade | null; type: ExamType | null; language: ExamLanguage | null };

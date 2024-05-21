@@ -18,13 +18,13 @@ import { Router, RouterLink } from '@angular/router';
 import { NgbDropdownModule, NgbModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { from, tap } from 'rxjs';
+import { from, noop, tap } from 'rxjs';
+import type { Question, Tag } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { FileService } from 'src/app/shared/file/file.service';
-import type { Question, Tag } from '../../exam/exam.model';
-import type { User } from '../../session/session.service';
 import { LibraryTransferDialogComponent } from './export/library-transfer-dialog.component';
 import { LibraryOwnersDialogComponent } from './owners/library-owners-dialog.component';
 import { LibraryResultsComponent } from './results/library-results.component';
@@ -189,7 +189,7 @@ export class LibraryComponent {
                 );
                 this.toast.success(`${this.translate.instant('i18n_questions_imported_successfully')}`);
             })
-            .catch((err) => this.toast.error(err));
+            .catch(noop);
     }
 
     export() {

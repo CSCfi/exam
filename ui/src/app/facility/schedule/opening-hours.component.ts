@@ -26,10 +26,10 @@ import {
 import { TranslateService } from '@ngx-translate/core';
 import { areIntervalsOverlapping, formatISO, setDayOfYear } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import { DefaultWorkingHours, ExamRoom } from '../../reservation/reservation.model';
-import { DateTimeService } from '../../shared/date/date.service';
-import { RoomService } from '../rooms/room.service';
-import { DefaultWorkingHoursWithEditing } from '../rooms/rooms.component';
+import { RoomService } from 'src/app/facility/rooms/room.service';
+import { DefaultWorkingHoursWithEditing } from 'src/app/facility/rooms/rooms.component';
+import { DefaultWorkingHours, ExamRoom } from 'src/app/reservation/reservation.model';
+import { DateTimeService } from 'src/app/shared/date/date.service';
 interface RoomWithAddressVisibility extends ExamRoom {
     addressVisible: boolean;
     availabilityVisible: boolean;

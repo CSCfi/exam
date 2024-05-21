@@ -19,20 +19,20 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { PageContentComponent } from 'src/app/shared/components/page-content.component';
-import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import type {
     ExamSectionQuestion,
     ExamSectionQuestionOption,
     MultipleChoiceOption,
     Question,
     ReverseQuestion,
-} from '../../exam/exam.model';
-import { AttachmentService } from '../../shared/attachment/attachment.service';
-import { CKEditorComponent } from '../../shared/ckeditor/ckeditor.component';
-import { FixedPrecisionValidatorDirective } from '../../shared/validation/fixed-precision.directive';
-import { QuestionPreviewDialogComponent } from '../preview/question-preview-dialog.component';
-import { QuestionService } from '../question.service';
+} from 'src/app/exam/exam.model';
+import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
+import { QuestionService } from 'src/app/question/question.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 // This component depicts a distributed exam question. Only used thru a modal.
 @Component({

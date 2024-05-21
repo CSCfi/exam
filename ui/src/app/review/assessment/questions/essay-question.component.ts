@@ -19,14 +19,14 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import type { Exam, ExamParticipation, ExamSectionQuestion } from 'src/app/exam/exam.model';
+import type { ExaminationQuestion } from 'src/app/examination/examination.model';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import type { ReviewQuestion } from 'src/app/review/review.model';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
-import type { Exam, ExamParticipation, ExamSectionQuestion } from '../../../exam/exam.model';
-import type { ExaminationQuestion } from '../../../examination/examination.model';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
-import { FixedPrecisionValidatorDirective } from '../../../shared/validation/fixed-precision.directive';
-import type { ReviewQuestion } from '../../review.model';
-import { AssessmentService } from '../assessment.service';
+import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
     selector: 'xm-r-essay-question',

@@ -14,11 +14,11 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { NgbActiveModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
-import { ToastrService } from 'ngx-toastr';
-import type { ExamMaterial } from '../../exam.model';
 import { FormsModule } from '@angular/forms';
+import { NgbActiveModal, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { ToastrService } from 'ngx-toastr';
+import type { ExamMaterial } from 'src/app/exam/exam.model';
 
 @Component({
     selector: 'xm-exam-material',

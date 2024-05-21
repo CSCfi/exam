@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import type { Accessibility } from '../../reservation/reservation.model';
+import type { Accessibility } from 'src/app/reservation/reservation.model';
 
 @Injectable({ providedIn: 'root' })
 export class AccessibilityService {

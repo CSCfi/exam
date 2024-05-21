@@ -16,13 +16,13 @@
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { RoomService } from 'src/app/facility/rooms/room.service';
+import { ExamRoom } from 'src/app/reservation/reservation.model';
+import { User } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { RoomService } from '../../facility/rooms/room.service';
-import { ExamRoom } from '../../reservation/reservation.model';
-import { User } from '../../session/session.service';
-import { Option } from '../../shared/select/dropdown-select.component';
-import { UserService } from '../../shared/user/user.service';
+import { Option } from 'src/app/shared/select/dropdown-select.component';
+import { UserService } from 'src/app/shared/user/user.service';
 import { AnswersReportComponent } from './categories/answers-report.component';
 import { EnrolmentsReportComponent } from './categories/enrolments-report.component';
 import { ExamsReportComponent } from './categories/exams-report.component';

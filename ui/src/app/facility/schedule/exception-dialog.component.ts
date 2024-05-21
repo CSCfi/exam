@@ -6,11 +6,11 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { areIntervalsOverlapping, eachDayOfInterval } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { range } from 'ramda';
+import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
-import { ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { DateTimeService, REPEAT_OPTION } from '../../shared/date/date.service';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import { DateTimeService, REPEAT_OPTION } from 'src/app/shared/date/date.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 enum ORDINAL {
     First = 'FIRST',

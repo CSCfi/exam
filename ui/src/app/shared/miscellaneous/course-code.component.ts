@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import type { Course } from '../../exam/exam.model';
+import type { Course } from 'src/app/exam/exam.model';
 import { CourseCodeService } from './course-code.service';
 
 @Component({

@@ -18,14 +18,14 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { Exam } from 'src/app/exam/exam.model';
+import type { Review } from 'src/app/review/review.model';
+import { SessionService } from 'src/app/session/session.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
-import { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import type { Exam } from '../../../exam/exam.model';
-import { SessionService } from '../../../session/session.service';
-import type { Review } from '../../review.model';
 
 @Component({
     selector: 'xm-aborted-exams',

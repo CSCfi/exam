@@ -20,13 +20,13 @@ import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { CollaborativeParticipation } from 'src/app/exam/collaborative/collaborative-exam.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import type { CollaborativeParticipation } from '../../exam/collaborative/collaborative-exam.service';
-import { PaginatorComponent } from '../../shared/paginator/paginator.component';
-import { AutoFocusDirective } from '../../shared/select/auto-focus.directive';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
-import { EnrolmentService } from '../enrolment.service';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { AutoFocusDirective } from 'src/app/shared/select/auto-focus.directive';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { ExamParticipationComponent } from './exam-participation.component';
 
 @Component({

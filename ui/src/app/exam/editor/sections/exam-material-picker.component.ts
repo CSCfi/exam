@@ -22,7 +22,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { distinctUntilChanged, map } from 'rxjs/operators';
-import type { ExamMaterial, ExamSection } from '../../exam.model';
+import type { ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
 import { ExamMaterialComponent } from './exam-material.component';
 
 @Component({

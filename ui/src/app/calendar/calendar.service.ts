@@ -16,16 +16,16 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DateTime, Interval } from 'luxon';
 import type { Observable } from 'rxjs';
-import { ExamEnrolment } from '../enrolment/enrolment.model';
-import { Course, Exam, ExamSection, MaintenancePeriod } from '../exam/exam.model';
+import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { Course, Exam, ExamSection, MaintenancePeriod } from 'src/app/exam/exam.model';
 import type {
     Accessibility,
     DefaultWorkingHours,
     ExamRoom,
     ExceptionWorkingHours,
-} from '../reservation/reservation.model';
-import { SessionService } from '../session/session.service';
-import { DateTimeService } from '../shared/date/date.service';
+} from 'src/app/reservation/reservation.model';
+import { SessionService } from 'src/app/session/session.service';
+import { DateTimeService } from 'src/app/shared/date/date.service';
 
 type WeekdayNames = Record<string, { ord: number; name: string }>;
 

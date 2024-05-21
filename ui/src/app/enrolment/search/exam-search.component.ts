@@ -21,10 +21,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { AutoFocusDirective } from '../../shared/select/auto-focus.directive';
-import type { EnrolmentInfo } from '../enrolment.model';
+import { AutoFocusDirective } from 'src/app/shared/select/auto-focus.directive';
 import { ExamSearchResultComponent } from './exam-search-result.component';
 import { ExamSearchService } from './exam-search.service';
 

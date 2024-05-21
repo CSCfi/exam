@@ -20,10 +20,10 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
-import { BookingCalendarComponent } from '../../calendar/booking-calendar.component';
-import type { OpeningHours } from '../../calendar/calendar.service';
-import { CalendarService } from '../../calendar/calendar.service';
-import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { BookingCalendarComponent } from 'src/app/calendar/booking-calendar.component';
+import type { OpeningHours } from 'src/app/calendar/calendar.service';
+import { CalendarService } from 'src/app/calendar/calendar.service';
+import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import type { Availability } from './room.service';
 import { RoomService } from './room.service';
 

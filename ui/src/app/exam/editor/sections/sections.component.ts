@@ -29,11 +29,11 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { catchError, tap } from 'rxjs/operators';
-import { SessionService } from '../../../session/session.service';
-import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
-import type { Exam, ExamMaterial, ExamSection } from '../../exam.model';
-import { ExamService } from '../../exam.service';
-import { ExamTabService } from '../exam-tabs.service';
+import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
+import type { Exam, ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { SessionService } from 'src/app/session/session.service';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { SectionComponent } from './section.component';
 
 @Component({

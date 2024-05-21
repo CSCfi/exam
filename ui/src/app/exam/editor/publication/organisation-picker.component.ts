@@ -18,8 +18,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbDropdownModule, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Exam } from '../../exam.model';
-import { ExamService } from '../../exam.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
 
 type Organisation = {
     _id: string;

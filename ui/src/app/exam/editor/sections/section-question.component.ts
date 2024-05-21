@@ -29,15 +29,15 @@ import { ToastrService } from 'ngx-toastr';
 import { mergeDeepRight } from 'ramda';
 import { Observable, from, noop, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { BaseQuestionEditorComponent } from '../../../question/examquestion/base-question-editor.component';
-import { ExamQuestionEditorComponent } from '../../../question/examquestion/exam-question-editor.component';
-import { QuestionService } from '../../../question/question.service';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import { FileService } from '../../../shared/file/file.service';
-import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
-import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
-import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from '../../exam.model';
+import type { ExamSection, ExamSectionQuestion, ExamSectionQuestionOption, Question } from 'src/app/exam/exam.model';
+import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
+import { ExamQuestionEditorComponent } from 'src/app/question/examquestion/exam-question-editor.component';
+import { QuestionService } from 'src/app/question/question.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { FileService } from 'src/app/shared/file/file.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-section-question',

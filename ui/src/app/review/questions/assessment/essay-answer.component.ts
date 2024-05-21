@@ -18,10 +18,10 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import type { ReviewQuestion } from 'src/app/review/review.model';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
-import { AttachmentService } from '../../../shared/attachment/attachment.service';
-import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
-import type { ReviewQuestion } from '../../review.model';
 
 @Component({
     selector: 'xm-essay-answer',

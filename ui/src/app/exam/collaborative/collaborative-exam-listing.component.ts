@@ -21,14 +21,14 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import type { CollaborativeExam } from 'src/app/exam/exam.model';
+import { CollaborativeExamState } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import type { User } from '../../session/session.service';
-import { SessionService } from '../../session/session.service';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
-import { TableSortComponent } from '../../shared/sorting/table-sort.component';
-import type { CollaborativeExam } from '../exam.model';
-import { CollaborativeExamState } from '../exam.model';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 import { CollaborativeExamService } from './collaborative-exam.service';
 
 enum ListingView {

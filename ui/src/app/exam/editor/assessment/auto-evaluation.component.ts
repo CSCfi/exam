@@ -25,12 +25,12 @@ import {
     NgbPopover,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { DatePickerComponent } from '../../../shared/date/date-picker.component';
-import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
-import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
-import { UniqueValuesValidatorDirective } from '../../../shared/validation/unique-values.directive';
-import type { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from '../../exam.model';
-import { ExamService } from '../../exam.service';
+import type { AutoEvaluationConfig, Exam, Grade, GradeEvaluation } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { UniqueValuesValidatorDirective } from 'src/app/shared/validation/unique-values.directive';
 
 type ReleaseType = { name: string; translation: string; filtered?: boolean };
 

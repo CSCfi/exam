@@ -15,13 +15,13 @@
 
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import type { Exam, ExamParticipation, ExamSection, ExamSectionQuestion } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
-import type { Exam, ExamParticipation, ExamSection, ExamSectionQuestion } from '../../../exam/exam.model';
-import { QuestionService } from '../../../question/question.service';
-import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
-import { ClozeTestComponent } from '../questions/cloze-test.component';
-import { EssayQuestionComponent } from '../questions/essay-question.component';
-import { MultiChoiceQuestionComponent } from '../questions/multi-choice-question.component';
+import { QuestionService } from 'src/app/question/question.service';
+import { ClozeTestComponent } from 'src/app/review/assessment/questions/cloze-test.component';
+import { EssayQuestionComponent } from 'src/app/review/assessment/questions/essay-question.component';
+import { MultiChoiceQuestionComponent } from 'src/app/review/assessment/questions/multi-choice-question.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-section',

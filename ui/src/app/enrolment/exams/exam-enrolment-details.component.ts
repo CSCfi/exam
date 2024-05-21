@@ -16,16 +16,16 @@ import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { DateTimeService } from '../../shared/date/date.service';
-import { HistoryBackComponent } from '../../shared/history/history-back.component';
-import { MathJaxDirective } from '../../shared/math/math-jax.directive';
-import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import { TeacherListComponent } from '../../shared/user/teacher-list.component';
-import type { EnrolmentInfo } from '../enrolment.model';
-import { EnrolmentService } from '../enrolment.service';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 @Component({
     selector: 'xm-enrolment-details',

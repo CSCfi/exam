@@ -18,12 +18,12 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import type { ReviewedExam } from '../../enrolment/enrolment.model';
-import type { Exam, ExamParticipation, ExamSectionQuestion, Question } from '../../exam/exam.model';
-import type { Examination } from '../../examination/examination.model';
-import type { ReviewQuestion } from '../../review/review.model';
-import { ConfirmationDialogService } from '../dialogs/confirmation-dialog.service';
-import { FileService } from '../file/file.service';
+import type { ReviewedExam } from 'src/app/enrolment/enrolment.model';
+import type { Exam, ExamParticipation, ExamSectionQuestion, Question } from 'src/app/exam/exam.model';
+import type { Examination } from 'src/app/examination/examination.model';
+import type { ReviewQuestion } from 'src/app/review/review.model';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { FileService } from 'src/app/shared/file/file.service';
 import type { FileResult } from './dialogs/attachment-picker.component';
 import { AttachmentSelectorComponent } from './dialogs/attachment-picker.component';
 

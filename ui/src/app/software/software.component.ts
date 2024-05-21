@@ -18,8 +18,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Software } from '../exam/exam.model';
-import { OrderByPipe } from '../shared/sorting/order-by.pipe';
+import type { Software } from 'src/app/exam/exam.model';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-software',

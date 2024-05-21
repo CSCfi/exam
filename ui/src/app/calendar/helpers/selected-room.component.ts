@@ -3,11 +3,11 @@ import { Component, Input, OnChanges, OnInit, signal } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import { MaintenancePeriod } from '../../exam/exam.model';
-import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
-import type { OpeningHours } from '../calendar.service';
-import { CalendarService } from '../calendar.service';
+import type { OpeningHours } from 'src/app/calendar/calendar.service';
+import { CalendarService } from 'src/app/calendar/calendar.service';
+import { MaintenancePeriod } from 'src/app/exam/exam.model';
+import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-calendar-selected-room',

@@ -17,8 +17,8 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Address } from '../rooms/room.service';
-import { RoomService } from '../rooms/room.service';
+import type { Address } from 'src/app/facility/rooms/room.service';
+import { RoomService } from 'src/app/facility/rooms/room.service';
 
 @Component({
     selector: 'xm-room-address',

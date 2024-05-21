@@ -19,11 +19,11 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin, Subject } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ExaminationStatusService } from '../examination/examination-status.service';
-import type { User } from '../session/session.service';
-import { SessionService } from '../session/session.service';
+import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
 import type { Link } from './navigation.service';
 import { NavigationService } from './navigation.service';
 

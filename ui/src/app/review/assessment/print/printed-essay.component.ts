@@ -15,9 +15,9 @@
 
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import type { ExamSectionQuestion } from 'src/app/exam/exam.model';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
-import type { ExamSectionQuestion } from '../../../exam/exam.model';
-import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
 
 @Component({
     selector: 'xm-printed-essay',

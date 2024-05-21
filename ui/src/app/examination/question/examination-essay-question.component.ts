@@ -16,13 +16,13 @@ import { DatePipe, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import type { EssayAnswer } from 'src/app/exam/exam.model';
+import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
+import { ExaminationService } from 'src/app/examination/examination.service';
+import type { AnsweredQuestion } from 'src/app/shared/attachment/attachment.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
-import type { EssayAnswer } from '../../exam/exam.model';
-import type { AnsweredQuestion } from '../../shared/attachment/attachment.service';
-import { AttachmentService } from '../../shared/attachment/attachment.service';
-import { FileService } from '../../shared/file/file.service';
-import type { Examination, ExaminationQuestion } from '../examination.model';
-import { ExaminationService } from '../examination.service';
+import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     selector: 'xm-examination-essay-question',

@@ -16,9 +16,9 @@ import { NgClass, UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
-import { FixedPrecisionValidatorDirective } from '../../shared/validation/fixed-precision.directive';
-import { QuestionDraft, QuestionService } from '../question.service';
+import type { MultipleChoiceOption, Question } from 'src/app/exam/exam.model';
+import { QuestionDraft, QuestionService } from 'src/app/question/question.service';
+import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
     selector: 'xm-claim-choice-editor',

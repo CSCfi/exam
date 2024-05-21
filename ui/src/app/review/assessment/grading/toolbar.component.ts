@@ -18,11 +18,11 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamParticipation } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
-import type { Examination } from '../../../examination/examination.model';
-import { AssessmentService } from '../assessment.service';
-import { CollaborativeAssesmentService } from '../collaborative-assessment.service';
+import type { ExamParticipation } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import type { Examination } from 'src/app/examination/examination.model';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import { CollaborativeAssesmentService } from 'src/app/review/assessment/collaborative-assessment.service';
 
 @Component({
     selector: 'xm-r-toolbar',

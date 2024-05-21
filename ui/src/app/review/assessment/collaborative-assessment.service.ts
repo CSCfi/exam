@@ -20,8 +20,8 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import type { Exam, ExamParticipation, Feedback, SelectableGrade } from '../../exam/exam.model';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
+import type { Exam, ExamParticipation, Feedback, SelectableGrade } from 'src/app/exam/exam.model';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { AssessmentService } from './assessment.service';
 
 interface Payload {

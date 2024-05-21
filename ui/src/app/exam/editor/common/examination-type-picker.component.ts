@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgbAccordionDirective, NgbAccordionModule, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ExamService } from '../../exam.service';
+import { ExamService } from 'src/app/exam/exam.service';
 
 export type ExamConfig = { type: string; name: string; examinationTypes: { type: string; name: string }[] };
 

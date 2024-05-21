@@ -20,10 +20,10 @@ import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
+import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import type { ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { ExceptionListComponent } from '../schedule/exceptions.component';
 import { RoomService } from './room.service';
 
 type SelectableRoom = ExamRoom & { selected: boolean; showBreaks: boolean };

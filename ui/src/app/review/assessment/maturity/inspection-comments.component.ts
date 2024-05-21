@@ -19,8 +19,8 @@ import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import type { Exam } from '../../../exam/exam.model';
-import type { User } from '../../../session/session.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
 import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-dialog.component';
 
 @Component({

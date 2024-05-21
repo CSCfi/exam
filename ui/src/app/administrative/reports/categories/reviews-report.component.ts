@@ -16,8 +16,8 @@ import { Component } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { format } from 'date-fns';
-import { DatePickerComponent } from '../../../shared/date/date-picker.component';
-import { FileService } from '../../../shared/file/file.service';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { FileService } from 'src/app/shared/file/file.service';
 
 @Component({
     template: `

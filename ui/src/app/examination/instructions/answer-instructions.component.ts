@@ -15,10 +15,10 @@
 
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { DateTimeService } from '../../shared/date/date.service';
-import { MathJaxDirective } from '../../shared/math/math-jax.directive';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import type { Examination } from '../examination.model';
+import type { Examination } from 'src/app/examination/examination.model';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
 @Component({
     selector: 'xm-answer-instructions',

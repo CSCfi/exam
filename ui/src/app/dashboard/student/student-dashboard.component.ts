@@ -16,10 +16,10 @@
 import type { OnInit } from '@angular/core';
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { ActiveEnrolmentComponent } from 'src/app/enrolment/active/active-enrolment.component';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { ActiveEnrolmentComponent } from '../../enrolment/active/active-enrolment.component';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import type { DashboardEnrolment } from './student-dashboard.service';
 import { StudentDashboardService } from './student-dashboard.service';
 

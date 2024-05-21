@@ -6,9 +6,9 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, takeUntil } from 'rxjs';
-import { AutoEvaluationConfig, Exam, ExamFeedbackConfig, ExamType, GradeScale } from '../../exam.model';
-import { ExamService } from '../../exam.service';
-import { ExamTabService } from '../exam-tabs.service';
+import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
+import { AutoEvaluationConfig, Exam, ExamFeedbackConfig, ExamType, GradeScale } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
 import { AutoEvaluationComponent } from './auto-evaluation.component';
 import { ExamFeedbackConfigComponent } from './exam-feedback-config.component';
 

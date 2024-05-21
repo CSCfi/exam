@@ -17,7 +17,7 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { ExceptionWorkingHours } from '../../reservation/reservation.model';
+import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 
 @Component({
     template: `

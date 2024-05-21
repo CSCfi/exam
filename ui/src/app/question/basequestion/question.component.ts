@@ -19,14 +19,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import type { ExamSectionQuestion, Question, ReverseQuestion } from 'src/app/exam/exam.model';
+import { CanComponentDeactivate } from 'src/app/question/has-unsaved-changes.quard';
+import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
+import type { QuestionDraft } from 'src/app/question/question.service';
+import { QuestionService } from 'src/app/question/question.service';
+import type { User } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import type { ExamSectionQuestion, Question, ReverseQuestion } from '../../exam/exam.model';
-import type { User } from '../../session/session.service';
-import { CanComponentDeactivate } from '../has-unsaved-changes.quard';
-import { QuestionPreviewDialogComponent } from '../preview/question-preview-dialog.component';
-import type { QuestionDraft } from '../question.service';
-import { QuestionService } from '../question.service';
 import { QuestionBodyComponent } from './question-body.component';
 
 @Component({

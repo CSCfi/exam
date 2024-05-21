@@ -17,9 +17,9 @@ import { Component, Input } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
-import { FixedPrecisionValidatorDirective } from '../../shared/validation/fixed-precision.directive';
-import { QuestionDraft } from '../question.service';
+import type { MultipleChoiceOption, Question } from 'src/app/exam/exam.model';
+import { QuestionDraft } from 'src/app/question/question.service';
+import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
 
 @Component({
     selector: 'xm-wmc-option-editor',

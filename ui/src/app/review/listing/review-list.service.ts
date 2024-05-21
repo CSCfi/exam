@@ -19,8 +19,8 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { ExamParticipation } from '../../exam/exam.model';
-import type { Review } from '../review.model';
+import type { ExamParticipation } from 'src/app/exam/exam.model';
+import type { Review } from 'src/app/review/review.model';
 
 type Selection = { [k: string]: boolean };
 

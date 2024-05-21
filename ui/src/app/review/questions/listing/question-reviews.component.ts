@@ -18,9 +18,9 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { ExamTabService } from '../../../exam/editor/exam-tabs.service';
-import type { QuestionReview } from '../../review.model';
-import { QuestionReviewService } from '../question-review.service';
+import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
+import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
+import type { QuestionReview } from 'src/app/review/review.model';
 import { QuestionReviewComponent } from './question-review.component';
 
 @Component({

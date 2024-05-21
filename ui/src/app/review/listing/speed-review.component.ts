@@ -24,9 +24,6 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { forkJoin, noop, throwError } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
-import { PageContentComponent } from 'src/app/shared/components/page-content.component';
-import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import type {
     Course,
     Exam,
@@ -35,24 +32,27 @@ import type {
     GradeScale,
     NoGrade,
     SelectableGrade,
-} from '../../exam/exam.model';
-import { isRealGrade } from '../../exam/exam.model';
-import { ExamService } from '../../exam/exam.service';
-import type { User } from '../../session/session.service';
-import { AttachmentService } from '../../shared/attachment/attachment.service';
-import { ApplyDstPipe } from '../../shared/date/apply-dst.pipe';
-import { DateTimeService } from '../../shared/date/date.service';
-import { DiffInDaysPipe } from '../../shared/date/day-diff.pipe';
-import { DiffInMinutesPipe } from '../../shared/date/minute-diff.pipe';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { FileService } from '../../shared/file/file.service';
-import { HistoryBackComponent } from '../../shared/history/history-back.component';
-import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
-import { PageFillPipe } from '../../shared/paginator/page-fill.pipe';
-import { PaginatorComponent } from '../../shared/paginator/paginator.component';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
-import { TableSortComponent } from '../../shared/sorting/table-sort.component';
-import type { Review } from '../review.model';
+} from 'src/app/exam/exam.model';
+import { isRealGrade } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import type { Review } from 'src/app/review/review.model';
+import type { User } from 'src/app/session/session.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { PageContentComponent } from 'src/app/shared/components/page-content.component';
+import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
+import { DiffInMinutesPipe } from 'src/app/shared/date/minute-diff.pipe';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { FileService } from 'src/app/shared/file/file.service';
+import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
+import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 import { SpeedReviewFeedbackComponent } from './dialogs/feedback.component';
 
 @Component({

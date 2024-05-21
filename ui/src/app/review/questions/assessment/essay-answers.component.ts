@@ -15,8 +15,8 @@
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ReviewQuestion } from '../../review.model';
-import { QuestionReviewService } from '../question-review.service';
+import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
+import type { ReviewQuestion } from 'src/app/review/review.model';
 import { EssayAnswerComponent } from './essay-answer.component';
 
 @Component({

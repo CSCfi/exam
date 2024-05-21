@@ -15,10 +15,10 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import type { User } from '../session.service';
-import { SessionService } from '../session.service';
 
 @Component({
     selector: 'xm-dev-login',

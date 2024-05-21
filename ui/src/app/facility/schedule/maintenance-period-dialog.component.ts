@@ -3,8 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import type { MaintenancePeriod } from 'src/app/exam/exam.model';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
-import type { MaintenancePeriod } from '../../exam/exam.model';
 
 @Component({
     standalone: true,
