@@ -65,7 +65,7 @@ class ReservationPollerActor @Inject (
           .list
 
         if enrolments.isEmpty && reservations.isEmpty then logger.debug("None found")
-        else noShowHandler.handleNoShows(enrolments.asJava, reservations.asJava)
+        else noShowHandler.handleNoShows(enrolments, reservations)
         logger.debug("<- done")
     )
     .build

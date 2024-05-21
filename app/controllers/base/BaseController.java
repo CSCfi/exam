@@ -12,6 +12,7 @@ import io.ebean.DB;
 import io.ebean.ExpressionList;
 import io.ebean.text.PathProperties;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -19,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import models.enrolment.ExamEnrolment;
+import models.enrolment.Reservation;
 import models.exam.Exam;
 import models.user.Role;
 import models.user.User;
@@ -29,6 +31,7 @@ import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
+import scala.jdk.javaapi.CollectionConverters;
 import system.interceptors.AnonymousJsonAction;
 
 public class BaseController extends Controller {
@@ -114,7 +117,10 @@ public class BaseController extends Controller {
             .endOr()
             .isNull("reservation.externalReservation")
             .findList();
-        noShowHandler.handleNoShows(enrolments, Collections.emptyList());
+        noShowHandler.handleNoShows(
+            CollectionConverters.asScala(enrolments).toList(),
+            CollectionConverters.asScala(new ArrayList<Reservation>()).toList()
+        );
     }
 
     protected boolean isAllowedToParticipate(Exam exam, User user) {
