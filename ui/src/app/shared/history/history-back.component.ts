@@ -18,9 +18,9 @@ import { Component } from '@angular/core';
 @Component({
     selector: 'xm-history-back',
     template: `
-        <a (click)="goBack($event)" (keydown)="onKeyDown($event)">
+        <button class="btn btn-link" (click)="goBack($event)" (keydown)="onKeyDown($event)">
             <img class="pointer arrow_icon" src="/assets/images/icon_history.png" alt="go back" />
-        </a>
+        </button>
     `,
     standalone: true,
 })
