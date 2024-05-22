@@ -54,6 +54,7 @@ import play.mvc.Result;
 import play.mvc.With;
 import sanitizers.Attrs;
 import sanitizers.ExternalCalendarReservationSanitizer;
+import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 
 public class ExternalCalendarController extends CalendarController {
@@ -370,7 +371,10 @@ public class ExternalCalendarController extends CalendarController {
                 return internalServerError(root.get("message").asText("Connection refused"));
             }
             String msg = request.body().asJson().path("msg").asText("");
-            emailComposer.composeExternalReservationCancellationNotification(reservation, msg);
+            emailComposer.composeExternalReservationCancellationNotification(
+                reservation,
+                OptionConverters.toScala(Optional.of(msg))
+            );
             reservation.delete();
             return ok();
         };

@@ -1,5 +1,4 @@
 // SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
-// SPDX-FileCopyrightText: 2024. The members of the EXAM Consortium
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -8,6 +7,7 @@ package impl;
 import static play.mvc.Results.badRequest;
 import static play.mvc.Results.forbidden;
 
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import java.util.ArrayList;
 import java.util.HashSet;

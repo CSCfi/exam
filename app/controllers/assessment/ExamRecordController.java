@@ -7,7 +7,7 @@ package controllers.assessment;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
-import impl.EmailComposer;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

@@ -4,8 +4,10 @@
 
 package impl
 
+import impl.mail.EmailComposer
 import io.ebean.Model
 import miscellaneous.config.ConfigReader
+import miscellaneous.scala.DbApiHelper
 import models.enrolment.{ExamEnrolment, Reservation}
 import models.exam.Exam
 import play.api.Logging
@@ -16,7 +18,7 @@ import play.mvc.Http
 import java.net.URI
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
 class NoShowHandlerImpl @Inject (
     private val composer: EmailComposer,
@@ -24,6 +26,7 @@ class NoShowHandlerImpl @Inject (
     private val configReader: ConfigReader,
     implicit val ec: ExecutionContext
 ) extends NoShowHandler
+    with DbApiHelper
     with Logging:
 
   private def send[A <: Model](ref: String, item: A)(success: A => Unit) =
@@ -38,7 +41,7 @@ class NoShowHandlerImpl @Inject (
           item.update()
           logger.info(s"Successfully sent no-show #$ref to XM")
       )
-      .recover(logger.error("Failed in sending no-show back", _))
+      .recover(logger.error("Failed in sending no-shows back", _))
 
   private def parseUrl(reservationRef: String) =
     URI.create(s"${configReader.getIopHost}/api/enrolments/$reservationRef/noshow").toURL
@@ -54,8 +57,9 @@ class NoShowHandlerImpl @Inject (
     val locals = noShows.filter(isNoShow).filter(ns => isLocal(ns) || isCollaborative(ns))
     locals.foreach(handleNoShowAndNotify)
     val externals = noShows.filter(ns =>
-      Option(ns.getReservation).map(_.getExternalRef).nonEmpty && !ns.getReservation.isSentAsNoShow &&
-        (Option(ns.getUser).isEmpty || Option(ns.getExternalExam).map(_.getStarted).isEmpty)
+      val ref = Option(ns.getReservation).map(_.getExternalRef).nonNull
+      ref.nonEmpty && !ns.getReservation.isSentAsNoShow &&
+      (Option(ns.getUser).isEmpty || Option(ns.getExternalExam).map(_.getStarted).nonNull.isEmpty)
     )
     // Send to XM for further processing
     // NOTE: Possible performance bottleneck here. It is not impossible that there are a lot of unprocessed

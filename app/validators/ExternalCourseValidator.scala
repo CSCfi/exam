@@ -22,7 +22,7 @@ object ExternalCourseValidator:
         (JsPath \ "description").read[String] and
         (JsPath \ "scale").read[Int] and
         (JsPath \ "isFailed").readWithDefault(false)(readString)
-    )(Grade.apply _)
+    )(Grade.apply)
 
   case class Grade(grade: String, description: String, scale: Int, isFailed: Boolean = false)
 
@@ -32,7 +32,7 @@ object ExternalCourseValidator:
         (JsPath \ "type").read[String] and
         (JsPath \ "code").read[String](readInt) and
         (JsPath \ "grades").read[Map[String, Grade]]
-    )(GradeScale.apply _)
+    )(GradeScale.apply )
   case class GradeScale(name: String, `type`: String, code: String, grades: Map[String, Grade])
 
   object Organisation:
@@ -86,7 +86,7 @@ object ExternalCourseValidator:
         (JsPath \ "lecturer").readNullable[Seq[Lecturer]] and
         (JsPath \ "creditsLanguage").readNullable[Seq[CreditLanguage]] and
         (JsPath \ "gradeScale").readNullable[Seq[GradeScale]](readScale)
-    )(CourseUnitInfo.apply _)
+    )(CourseUnitInfo.apply)
   case class CourseUnitInfo(
       identifier: String,
       code: String,

@@ -8,7 +8,7 @@ package controllers.iop.collaboration.impl;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import impl.CalendarHandler;
-import impl.EmailComposer;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.Transaction;
 import io.ebean.text.PathProperties;

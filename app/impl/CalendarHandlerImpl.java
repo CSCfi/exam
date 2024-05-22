@@ -1,5 +1,4 @@
 // SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
-// SPDX-FileCopyrightText: 2024. The members of the EXAM Consortium
 //
 // SPDX-License-Identifier: EUPL-1.2
 
@@ -10,6 +9,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import controllers.admin.SettingsController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import exceptions.NotFoundException;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import java.util.ArrayList;
 import java.util.Collection;

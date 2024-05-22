@@ -52,8 +52,8 @@ class SystemFilter @Inject() (implicit val mat: Materializer, ec: ExecutionConte
       case Some(s) =>
         val (remaining, discarded) = Headers.partition(h => s.get(h._2).isDefined)
         val response = result
-          .withHeaders(remaining.map(h => (h._1, s.get(h._2).get)): _*)
-          .discardingHeaders(discarded.map(_._1): _*)
+          .withHeaders(remaining.map(h => (h._1, s.get(h._2).get))*)
+          .discardingHeaders(discarded.map(_._1)*)
         request.path match {
           case path if path == "/app/session" && request.method == "GET" =>
             s.get("upcomingExamHash") match {

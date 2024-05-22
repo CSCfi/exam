@@ -8,7 +8,7 @@ package controllers.iop.collaboration.impl;
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import com.fasterxml.jackson.databind.JsonNode;
-import impl.EmailComposer;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import java.net.URL;
 import java.util.List;
@@ -41,6 +41,7 @@ import sanitizers.Attrs;
 import sanitizers.EmailSanitizer;
 import sanitizers.ExamUpdateSanitizer;
 import scala.concurrent.duration.Duration;
+import scala.jdk.javaapi.CollectionConverters;
 import security.Authenticated;
 
 public class CollaborativeExamController extends CollaborationController {
@@ -232,7 +233,12 @@ public class CollaborativeExamController extends CollaborationController {
                                         .scheduler()
                                         .scheduleOnce(
                                             Duration.create(1, TimeUnit.SECONDS),
-                                            () -> composer.composeCollaborativeExamAnnouncement(receivers, user, exam),
+                                            () ->
+                                                composer.composeCollaborativeExamAnnouncement(
+                                                    CollectionConverters.asScala(receivers).toSet(),
+                                                    user,
+                                                    exam
+                                                ),
                                             as.dispatcher()
                                         );
                                 }

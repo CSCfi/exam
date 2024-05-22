@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import controllers.examination.ExaminationController;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import impl.AutoEvaluationHandler;
-import impl.EmailComposer;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import io.vavr.Tuple;

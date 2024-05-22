@@ -7,7 +7,7 @@ package controllers.iop.transfer.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import controllers.iop.transfer.api.ExternalReservationHandler;
-import impl.EmailComposer;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -36,6 +36,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
 import scala.concurrent.duration.Duration;
+import scala.jdk.javaapi.OptionConverters;
 
 public class ExternalReservationHandlerImpl implements ExternalReservationHandler {
 
@@ -128,7 +129,7 @@ public class ExternalReservationHandlerImpl implements ExternalReservationHandle
                         emailComposer.composeReservationCancellationNotification(
                             enrolment.getUser(),
                             reservation,
-                            msg,
+                            OptionConverters.toScala(Optional.of(msg)),
                             isStudentUser,
                             enrolment
                         );

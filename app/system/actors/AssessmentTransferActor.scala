@@ -7,24 +7,20 @@ package system.actors
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.ebean.DB
 import io.ebean.text.PathProperties
+import miscellaneous.config.ConfigReader
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
+import models.enrolment.ExamEnrolment
 import org.apache.pekko.actor.AbstractActor
 import org.joda.time.DateTime
 import play.api.Logging
 import play.api.libs.json.JsonParserSettings
 import play.api.libs.json.jackson.PlayJsonMapperModule
-import play.api.libs.ws.WSClient
-import play.api.libs.ws.writeableOf_String
+import play.api.libs.ws.{WSClient, writeableOf_String}
 import play.mvc.Http
-import miscellaneous.config.ConfigReader
-import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
-import models.enrolment.ExamEnrolment
 
-import java.io.IOException
 import java.net.URI
 import javax.inject.Inject
-import scala.concurrent.{Await, ExecutionContext}
-import scala.concurrent.duration.Duration
-import scala.util.control.Exception.catching
+import scala.concurrent.ExecutionContext
 
 class AssessmentTransferActor @Inject (
     private val wsClient: WSClient,
@@ -73,7 +69,7 @@ class AssessmentTransferActor @Inject (
             ee.update()
             logger.info("Assessment transfer for reservation $ref processed successfully")
           case _ =>
-            logger.error("Failed in transferring assessment for reservation $ref")
+            logger.error(s"Failed in transferring assessment for reservation $ref")
       )
       .recover { case e: Exception =>
         logger.error("I/O failure while sending assessment to proxy server", e)

@@ -4,8 +4,10 @@
 
 package impl
 
-import models.assessment.{AutoEvaluationConfig, GradeEvaluation}
-import models.exam.{Exam, Grade, GradeScale}
+import impl.mail.EmailComposer
+import miscellaneous.scala.DbApiHelper
+import models.assessment.AutoEvaluationConfig
+import models.exam.{Exam, GradeScale}
 import org.apache.pekko.actor.ActorSystem
 import org.joda.time.DateTime
 import play.api.Logging
@@ -21,6 +23,7 @@ class AutoEvaluationHandlerImpl @Inject (
     private val actor: ActorSystem,
     implicit val executionContext: ExecutionContext
 ) extends AutoEvaluationHandler
+    with DbApiHelper
     with Logging:
 
   override def autoEvaluate(exam: Exam): Unit =
@@ -76,6 +79,6 @@ class AutoEvaluationHandlerImpl @Inject (
   private def resolveScale(exam: Exam): Option[GradeScale] = Option(exam.getGradeScale) match
     case scale @ Some(_) => scale
     case _ =>
-      Option(exam.getCourse).map(_.getGradeScale) match
+      Option(exam.getCourse).map(_.getGradeScale).nonNull match
         case scale @ Some(_) => scale
-        case _               => Option(exam.getParent).map(_.getCourse).map(_.getGradeScale)
+        case _               => Option(exam.getParent).map(_.getCourse).nonNull.map(_.getGradeScale).nonNull

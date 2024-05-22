@@ -5,7 +5,9 @@
 package controllers
 
 import io.ebean.DB
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.calendar.MaintenancePeriod
+import models.user.Role
 import org.joda.time.DateTime
 import org.joda.time.format.ISODateTimeFormat
 import play.api.libs.json.JsValue
@@ -13,8 +15,6 @@ import play.api.mvc._
 import security.scala.Auth.authorized
 import security.scala.AuthExecutionContext
 import system.AuditedAction
-import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
-import models.user.Role
 
 import javax.inject.Inject
 

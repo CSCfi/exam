@@ -8,8 +8,8 @@ import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
-import impl.EmailComposer;
 import impl.ExternalCourseHandler;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.Transaction;
 import java.io.IOException;
@@ -644,13 +644,14 @@ public class EnrolmentController extends BaseController {
         });
         config.delete();
         event.delete();
+        var users = enrolments.stream().map(ExamEnrolment::getUser).collect(Collectors.toSet());
         actor
             .scheduler()
             .scheduleOnce(
                 Duration.create(1, TimeUnit.SECONDS),
                 () -> {
                     emailComposer.composeExaminationEventCancellationNotification(
-                        enrolments.stream().map(ExamEnrolment::getUser).collect(Collectors.toSet()),
+                        CollectionConverters.asScala(users).toSet(),
                         exam,
                         event
                     );

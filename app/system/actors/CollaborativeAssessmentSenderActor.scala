@@ -6,11 +6,11 @@ package system.actors
 
 import controllers.iop.collaboration.api.CollaborativeExamLoader
 import io.ebean.DB
-import org.apache.pekko.actor.AbstractActor
-import play.api.Logging
 import miscellaneous.scala.DbApiHelper
 import models.enrolment.ExamParticipation
 import models.exam.Exam
+import org.apache.pekko.actor.AbstractActor
+import play.api.Logging
 
 import javax.inject.Inject
 

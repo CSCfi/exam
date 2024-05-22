@@ -7,14 +7,14 @@ package controllers.exam
 
 import impl.ExternalCourseHandler
 import io.ebean.DB
-import org.joda.time.DateTime
-import play.api.mvc._
-import security.scala.Auth.{AuthenticatedAction, authorized}
-import security.scala.{Auth, AuthExecutionContext}
 import miscellaneous.config.ConfigReader
 import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.exam.Course
 import models.user.{Role, User}
+import org.joda.time.DateTime
+import play.api.mvc._
+import security.scala.Auth.{AuthenticatedAction, authorized}
+import security.scala.{Auth, AuthExecutionContext}
 
 import javax.inject.Inject
 import scala.concurrent.Future

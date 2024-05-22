@@ -5,7 +5,7 @@
 package system.actors
 
 import controllers.admin.SettingsController
-import impl.EmailComposer
+import impl.mail.EmailComposer
 import io.ebean.DB
 import miscellaneous.datetime.DateTimeHandler
 import miscellaneous.scala.DbApiHelper
@@ -17,7 +17,7 @@ import play.api.Logging
 
 import java.io.IOException
 import javax.inject.Inject
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 import scala.util.control.Exception.catching
 
 class ExamAutoSaverActor @Inject (private val composer: EmailComposer, private val dateTimeHandler: DateTimeHandler)

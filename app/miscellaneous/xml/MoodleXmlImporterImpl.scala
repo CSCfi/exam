@@ -6,16 +6,16 @@
 package miscellaneous.xml
 
 import io.ebean.DB
+import miscellaneous.file.FileHandler
+import miscellaneous.scala.DbApiHelper
+import models.attachment.Attachment
 import models.questions.{MultipleChoiceOption, Question, Tag}
+import models.user.User
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
 import org.apache.commons.compress.compressors.CompressorStreamFactory
 import org.jsoup.Jsoup
 import org.jsoup.nodes.{Element, TextNode}
 import play.api.Logging
-import miscellaneous.file.FileHandler
-import miscellaneous.scala.DbApiHelper
-import models.attachment.Attachment
-import models.user.User
 
 import java.io.{BufferedOutputStream, File}
 import java.nio.file.{Files, Path}

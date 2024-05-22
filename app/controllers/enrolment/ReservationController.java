@@ -12,7 +12,7 @@ import controllers.base.BaseController;
 import controllers.iop.collaboration.api.CollaborativeExamLoader;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import exceptions.NotFoundException;
-import impl.EmailComposer;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.FetchConfig;
 import io.ebean.text.PathProperties;
@@ -40,6 +40,7 @@ import play.libs.Json;
 import play.mvc.Http;
 import play.mvc.Result;
 import sanitizers.Attrs;
+import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 import system.interceptors.Anonymous;
 
@@ -145,7 +146,13 @@ public class ReservationController extends BaseController {
         // Let's not send emails about historical reservations
         if (reservation.getEndAt().isAfter(DateTime.now())) {
             var student = enrolment.getUser();
-            emailComposer.composeReservationCancellationNotification(student, reservation, msg, false, enrolment);
+            emailComposer.composeReservationCancellationNotification(
+                student,
+                reservation,
+                OptionConverters.toScala(Optional.of(msg)),
+                false,
+                enrolment
+            );
         }
         if (reservation.getExternalReservation() != null) {
             return externalReservationHandler.removeReservation(reservation, enrolment.getUser(), msg);

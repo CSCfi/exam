@@ -6,7 +6,12 @@
 package controllers
 
 import io.ebean.DB
+import miscellaneous.csv.CsvBuilder
+import miscellaneous.file.FileHandler
+import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
+import models.exam.Exam
 import models.questions.Question
+import models.user.Role
 import org.apache.commons.compress.archivers.ArchiveOutputStream
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
 import org.apache.commons.compress.utils.IOUtils
@@ -18,11 +23,6 @@ import play.api.libs.Files
 import play.api.mvc._
 import security.scala.Auth.{AuthenticatedAction, authorized}
 import security.scala.{Auth, AuthExecutionContext}
-import miscellaneous.csv.CsvBuilder
-import miscellaneous.file.FileHandler
-import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
-import models.exam.Exam
-import models.user.Role
 
 import java.io._
 import java.text.SimpleDateFormat

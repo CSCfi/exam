@@ -10,7 +10,7 @@ import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalReservationHandler;
 import exceptions.NotFoundException;
 import impl.CalendarHandler;
-import impl.EmailComposer;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.Transaction;
 import java.util.Collection;
@@ -40,6 +40,7 @@ import play.mvc.With;
 import sanitizers.Attrs;
 import sanitizers.CalendarReservationSanitizer;
 import scala.concurrent.duration.Duration;
+import scala.jdk.javaapi.OptionConverters;
 import security.Authenticated;
 
 public class CalendarController extends BaseController {
@@ -101,7 +102,7 @@ public class CalendarController extends BaseController {
                     emailComposer.composeReservationCancellationNotification(
                         enrolment.getUser(),
                         reservation,
-                        "",
+                        OptionConverters.toScala(Optional.empty()),
                         isStudentUser,
                         enrolment
                     );

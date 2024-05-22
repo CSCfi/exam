@@ -4,14 +4,14 @@
 
 package system.actors
 
-import impl.EmailComposer
+import impl.mail.EmailComposer
 import io.ebean.DB
-import org.apache.pekko.actor.AbstractActor
-import org.joda.time.DateTime
-import play.api.Logging
 import miscellaneous.datetime.DateTimeHandler
 import miscellaneous.scala.DbApiHelper
 import models.enrolment.Reservation
+import org.apache.pekko.actor.AbstractActor
+import org.joda.time.DateTime
+import play.api.Logging
 
 import javax.inject.Inject
 

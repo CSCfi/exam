@@ -5,7 +5,12 @@
 package impl
 
 import io.ebean.DB
-import models.*
+import miscellaneous.config.ConfigReader
+import miscellaneous.scala.DbApiHelper
+import models._
+import models.exam.{Course, Grade, GradeScale}
+import models.facility.Organisation
+import models.user.User
 import org.apache.pekko.util.ByteString
 import org.joda.time.DateTime
 import org.springframework.beans.BeanUtils
@@ -13,21 +18,15 @@ import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.mvc.Http
-import miscellaneous.config.ConfigReader
-import miscellaneous.scala.DbApiHelper
-import models.exam.{Course, Grade, GradeScale}
-import models.facility.Organisation
-import models.user.User
-import validators.ExternalCourseValidator.{CourseUnitInfo, GradeScale as ExtGradeScale}
+import validators.ExternalCourseValidator.{CourseUnitInfo, GradeScale => ExtGradeScale}
 
-import java.net.MalformedURLException
-import java.net.{URI, URL, URLEncoder}
+import java.net._
 import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 import javax.inject.Inject
 import scala.collection.immutable.TreeSet
 import scala.concurrent.{ExecutionContext, Future}
-import scala.jdk.CollectionConverters.*
+import scala.jdk.CollectionConverters._
 
 class ExternalCourseHandlerImpl @Inject (
     private val wsClient: WSClient,
@@ -218,7 +217,10 @@ class ExternalCourseHandlerImpl @Inject (
   private def parseUrl(organisation: Organisation, courseCode: String) =
     val urlConfigPrefix = "exam.integration.courseUnitInfo.url"
     val configPathForOrg =
-      Option(organisation).map(_.getCode).flatMap(c => Some(s"$urlConfigPrefix.$c").filter(configReader.hasPath))
+      Option(organisation)
+        .map(_.getCode)
+        .nonNull
+        .flatMap(c => Option(s"$urlConfigPrefix.$c").filter(configReader.hasPath))
     val configPath = configPathForOrg.orElse {
       val path = String.format("%s.%s", urlConfigPrefix, "default")
       Some(path).filter(configReader.hasPath)

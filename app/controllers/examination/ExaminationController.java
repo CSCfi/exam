@@ -12,7 +12,7 @@ import controllers.admin.SettingsController;
 import controllers.base.BaseController;
 import controllers.iop.transfer.api.ExternalAttachmentLoader;
 import impl.AutoEvaluationHandler;
-import impl.EmailComposer;
+import impl.mail.EmailComposer;
 import io.ebean.DB;
 import io.ebean.text.PathProperties;
 import java.io.IOException;
