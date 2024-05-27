@@ -29,25 +29,32 @@
                 <ul class="links">
                     @for (link of links; track link.name) {
                         <li [hidden]="!link.visible">
-                            <a
+                            <button
+                                class="btn important-clear-focus"
                                 [routerLink]="link.route"
                                 routerLinkActive="selected"
                                 [attr.aria-current]="isActive(link)"
+                                (click)="link.submenu.hidden = !link.submenu.hidden"
                             >
                                 <img aria-hidden="true" width="18" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
-                                <span class="menu-item" (click)="link.submenu.hidden = !link.submenu.hidden">{{
-                                    link.name | translate
-                                }}</span>
-                            </a>
+                                <span class="menu-item">{{ link.name | translate }}</span>
+                            </button>
                             @if (isActive(link)) {
                                 <a class="skip" id="skip-button" [href]="getSkipLinkPath('#mainView')">{{
                                     'i18n_skip_to_content' | translate
                                 }}</a>
                             }
-                            <ul class="submenu" [ngbCollapse]="link.submenu.hidden && link.submenu.items.length > 0">
+                            <ul
+                                class="submenu ms-4"
+                                [ngbCollapse]="link.submenu.hidden && link.submenu.items.length > 0"
+                            >
                                 @for (subitem of link.submenu.items; track subitem.name) {
                                     <li [hidden]="!subitem.visible">
-                                        <a [routerLink]="subitem.route" routerLinkActive="selected">
+                                        <button
+                                            [routerLink]="subitem.route"
+                                            routerLinkActive="selected"
+                                            class="btn important-clear-focus"
+                                        >
                                             <div>
                                                 <img
                                                     aria-hidden="true"
@@ -57,8 +64,8 @@
                                                 />
                                                 {{ subitem.name | translate }}
                                             </div>
-                                        </a>
-                                        @if (isActive(link)) {
+                                        </button>
+                                        @if (isActive(subitem)) {
                                             <a
                                                 class="skip"
                                                 id="skip-button-sub"
@@ -77,18 +84,28 @@
                 <ul class="links">
                     @for (link of links; track link.name) {
                         <li [hidden]="!link.visible">
-                            <a
+                            <button
+                                class="btn important-clear-focus w-100"
                                 [routerLink]="link.route"
                                 routerLinkActive="selected"
                                 (click)="link.submenu.hidden = !link.submenu.hidden"
                             >
                                 <img aria-hidden="true" width="18" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
                                 <span class="menu-item">{{ link.name | translate }}</span>
-                            </a>
+                            </button>
+                            @if (isActive(link)) {
+                                <a class="skip" id="skip-button-mobile" [href]="getSkipLinkPath('#mainView')">{{
+                                    'i18n_skip_to_content' | translate
+                                }}</a>
+                            }
                             <ul class="submenu" [ngbCollapse]="!link.submenu.hidden && link.submenu.items.length > 0">
                                 @for (subitem of link.submenu.items; track subitem.name) {
                                     <li [hidden]="!subitem.visible">
-                                        <a [routerLink]="subitem.route" routerLinkActive="selected">
+                                        <button
+                                            [routerLink]="subitem.route"
+                                            routerLinkActive="selected"
+                                            class="btn important-clear-focus w-100"
+                                        >
                                             <div>
                                                 <img
                                                     aria-hidden="true"
@@ -98,7 +115,15 @@
                                                 />
                                                 {{ subitem.name | translate }}
                                             </div>
-                                        </a>
+                                        </button>
+                                        @if (isActive(subitem)) {
+                                            <a
+                                                class="skip"
+                                                id="skip-button-sub-mobile"
+                                                [href]="getSkipLinkPath('#mainView')"
+                                                >{{ 'i18n_skip_to_content' | translate }}</a
+                                            >
+                                        }
                                     </li>
                                 }
                             </ul>

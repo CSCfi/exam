@@ -56,16 +56,12 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
                     </div>
                 </div>
             </div>
-
-            @if (exams.length > 0 && filter.text.length > 2) {
-                <div class="row mt-2">
-                    <div class="col-12">
-                        {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
-                        {{ 'i18n_student_exam_search_result_continues' | translate }}
-                        <b>"{{ filter.text }}"</b>
-                    </div>
+            <div class="row mt-2">
+                <div class="col-md-12" aria-live="polite">
+                    {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
+                    {{ 'i18n_student_exam_search_result_continues' | translate }}
                 </div>
-            }
+            </div>
             <div class="row mt-2">
                 <div class="col" [hidden]="!loader.loading">
                     <button class="btn btn-success" type="button" disabled>

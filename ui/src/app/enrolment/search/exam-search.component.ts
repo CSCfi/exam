@@ -66,15 +66,12 @@ import { ExamSearchService } from './exam-search.service';
                 </div>
             }
 
-            @if (exams.length > 0) {
-                <div class="row my-2">
-                    <div class="col-md-12">
-                        {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
-                        {{ 'i18n_student_exam_search_result_continues' | translate }}
-                        <b>"{{ filter.text }}"</b>
-                    </div>
+            <div class="row my-2">
+                <div class="col-md-12" aria-live="polite">
+                    {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
+                    {{ 'i18n_student_exam_search_result_continues' | translate }}
                 </div>
-            }
+            </div>
 
             <div [@listAnimation]="exams.length">
                 @for (exam of exams; track exam.id) {
