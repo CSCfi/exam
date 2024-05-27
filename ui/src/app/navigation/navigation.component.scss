@@ -44,15 +44,16 @@
         }
     }
 
-    a {
+  button {
         display: flex;
         text-decoration: none;
         padding-left: 1.5em;
         border-left: 3px solid #212121;
+        border-radius: 0px;
         font-size: 16px;
         color: #e7e7e7;
         letter-spacing: 0.27px;
-        line-height: 18px;
+        height: auto;
         text-align: left;
         align-items: center;
         @media (max-width: $mobile-width) {
@@ -70,7 +71,7 @@
         }
     }
 
-    a:hover {
+  button:hover {
         border-left: 3px solid $exam-dark-green;
         @media (max-width: $mobile-width) {
             border: 3px solid white;
@@ -124,7 +125,6 @@
         background-color: #212121;
         top: 162px;
         bottom: 105px;
-        overflow-y: auto;
         width: 17.125em;
 
         @media (max-width: $mobile-width) {
@@ -145,6 +145,10 @@
         position: fixed;
         bottom: 0;
         width: 17.125em;
+        &.button {
+          height: 25px;
+
+        }
 
         @media (max-width: $mobile-width) {
             display: none;
@@ -207,7 +211,7 @@
         font-weight: 300;
         letter-spacing: 1px;
         display: inline-block;
-
+        height: auto;
         color: white;
         padding: 0.5em;
         margin-left: 1.5em;
@@ -253,8 +257,10 @@
         line-height: 16px;
         text-align: left;
 
-        a {
-            margin: 0 10px 0 10px;
+        button {
+            height: 20px;
+            border-radius: 0px;
+            color: #e7e7e7;
             @media (max-width: $mobile-width) {
                 margin: 0;
             }
