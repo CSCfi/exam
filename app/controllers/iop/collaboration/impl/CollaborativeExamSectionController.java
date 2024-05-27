@@ -54,18 +54,19 @@ public class CollaborativeExamSectionController extends CollaborationController 
         return findCollaborativeExam(examId)
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-                return downloadExam(ce).thenComposeAsync(result -> {
-                    if (result.isPresent()) {
-                        Exam exam = result.get();
-                        if (isAuthorizedToView(exam, user, homeOrg)) {
-                            ExamSection section = createDraft(exam, user);
-                            exam.getExamSections().add(section);
-                            return uploadExam(ce, exam, user, section, null);
+                return downloadExam(ce)
+                    .thenComposeAsync(result -> {
+                        if (result.isPresent()) {
+                            Exam exam = result.get();
+                            if (isAuthorizedToView(exam, user, homeOrg)) {
+                                ExamSection section = createDraft(exam, user);
+                                exam.getExamSections().add(section);
+                                return uploadExam(ce, exam, user, section, null);
+                            }
+                            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
                         }
-                        return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
-                    }
-                    return wrapAsPromise(notFound());
-                });
+                        return wrapAsPromise(notFound());
+                    });
             })
             .get();
     }
@@ -80,23 +81,24 @@ public class CollaborativeExamSectionController extends CollaborationController 
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
                 String homeOrg = configReader.getHomeOrganisationRef();
-                return downloadExam(ce).thenComposeAsync(result -> {
-                    if (result.isPresent()) {
-                        Exam exam = result.get();
-                        if (isAuthorizedToView(exam, user, homeOrg)) {
-                            Optional<Result> err = updater.apply(exam, user);
-                            if (err.isPresent()) {
-                                return wrapAsPromise(err.get());
+                return downloadExam(ce)
+                    .thenComposeAsync(result -> {
+                        if (result.isPresent()) {
+                            Exam exam = result.get();
+                            if (isAuthorizedToView(exam, user, homeOrg)) {
+                                Optional<Result> err = updater.apply(exam, user);
+                                if (err.isPresent()) {
+                                    return wrapAsPromise(err.get());
+                                }
+                                PathProperties pp = PathProperties.parse(
+                                    "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
+                                );
+                                return uploadExam(ce, exam, user, resultProvider.apply(exam).orElse(null), pp);
                             }
-                            PathProperties pp = PathProperties.parse(
-                                "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
-                            );
-                            return uploadExam(ce, exam, user, resultProvider.apply(exam).orElse(null), pp);
+                            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
                         }
-                        return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
-                    }
-                    return wrapAsPromise(notFound());
-                });
+                        return wrapAsPromise(notFound());
+                    });
             })
             .get();
     }
@@ -112,13 +114,13 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 .findFirst();
             if (section.isPresent()) {
                 ExamSection es = section.get();
-                exam.getExamSections().remove(section.get());
+                exam.getExamSections().remove(es);
                 // Decrease sequences for the entries above the inserted one
                 int seq = es.getSequenceNumber();
                 for (ExamSection sibling : exam.getExamSections()) {
                     int num = sibling.getSequenceNumber();
                     if (num >= seq) {
-                        es.setSequenceNumber(num - 1);
+                        sibling.setSequenceNumber(num - 1);
                     }
                 }
                 return Optional.empty();
@@ -255,7 +257,8 @@ public class CollaborativeExamSectionController extends CollaborationController 
                     // Naturally order generated ids before saving them to question options
                     // Option ids will be used to retain option order on collaborative exams
                     List<MultipleChoiceOption> options = question.getOptions();
-                    List<Long> generatedIds = Stream.generate(this::newId)
+                    List<Long> generatedIds = Stream
+                        .generate(this::newId)
                         .limit(options.size())
                         .sorted(Comparator.naturalOrder())
                         .toList();
@@ -388,52 +391,53 @@ public class CollaborativeExamSectionController extends CollaborationController 
             .map(ce -> {
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
                 String homeOrg = configReader.getHomeOrganisationRef();
-                return downloadExam(ce).thenComposeAsync(result -> {
-                    if (result.isPresent()) {
-                        Exam exam = result.get();
-                        if (isAuthorizedToView(exam, user, homeOrg)) {
-                            Optional<ExamSection> section = exam
-                                .getExamSections()
-                                .stream()
-                                .filter(es -> es.getId().equals(sectionId))
-                                .findFirst();
-                            if (section.isPresent()) {
-                                ExamSection es = section.get();
-                                Optional<ExamSectionQuestion> question = es
-                                    .getSectionQuestions()
+                return downloadExam(ce)
+                    .thenComposeAsync(result -> {
+                        if (result.isPresent()) {
+                            Exam exam = result.get();
+                            if (isAuthorizedToView(exam, user, homeOrg)) {
+                                Optional<ExamSection> section = exam
+                                    .getExamSections()
                                     .stream()
-                                    .filter(esq -> esq.getId().equals(questionId))
+                                    .filter(es -> es.getId().equals(sectionId))
                                     .findFirst();
-                                if (question.isPresent()) {
-                                    ExamSectionQuestion esq = question.get();
-                                    JsonNode payload = request.body().asJson().get("question");
-                                    Question questionBody = JsonDeserializer.deserialize(Question.class, payload);
-                                    Optional<Result> error = questionBody.getValidationResult(payload);
-                                    if (error.isPresent()) {
-                                        return wrapAsPromise(error.get());
-                                    }
-                                    questionBody
-                                        .getOptions()
+                                if (section.isPresent()) {
+                                    ExamSection es = section.get();
+                                    Optional<ExamSectionQuestion> question = es
+                                        .getSectionQuestions()
                                         .stream()
-                                        .filter(o -> o.getId() == null)
-                                        .forEach(o -> o.setId(newId()));
-                                    updateExamQuestion(esq, questionBody);
-                                    esq.getOptions().forEach(o -> o.setId(newId()));
-                                    PathProperties pp = PathProperties.parse(
-                                        "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
-                                    );
-                                    return uploadExam(ce, exam, user, esq, pp);
+                                        .filter(esq -> esq.getId().equals(questionId))
+                                        .findFirst();
+                                    if (question.isPresent()) {
+                                        ExamSectionQuestion esq = question.get();
+                                        JsonNode payload = request.body().asJson().get("question");
+                                        Question questionBody = JsonDeserializer.deserialize(Question.class, payload);
+                                        Optional<Result> error = questionBody.getValidationResult(payload);
+                                        if (error.isPresent()) {
+                                            return wrapAsPromise(error.get());
+                                        }
+                                        questionBody
+                                            .getOptions()
+                                            .stream()
+                                            .filter(o -> o.getId() == null)
+                                            .forEach(o -> o.setId(newId()));
+                                        updateExamQuestion(esq, questionBody);
+                                        esq.getOptions().forEach(o -> o.setId(newId()));
+                                        PathProperties pp = PathProperties.parse(
+                                            "(*, question(*, attachment(*), questionOwners(*), tags(*), options(*)), options(*, option(*)))"
+                                        );
+                                        return uploadExam(ce, exam, user, esq, pp);
+                                    } else {
+                                        return wrapAsPromise(notFound("i18n_error_not_found"));
+                                    }
                                 } else {
                                     return wrapAsPromise(notFound("i18n_error_not_found"));
                                 }
-                            } else {
-                                return wrapAsPromise(notFound("i18n_error_not_found"));
                             }
+                            return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
                         }
-                        return wrapAsPromise(forbidden("i18n_error_access_forbidden"));
-                    }
-                    return wrapAsPromise(notFound());
-                });
+                        return wrapAsPromise(notFound());
+                    });
             })
             .get();
     }
