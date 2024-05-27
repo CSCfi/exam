@@ -21,15 +21,15 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { groupBy } from 'ramda';
-import type { DefaultWorkingHours, ExamRoom } from '../../reservation/reservation.model';
-import { ExceptionWorkingHours } from '../../reservation/reservation.model';
-import type { User } from '../../session/session.service';
-import { SessionService } from '../../session/session.service';
-import { DateTimeService } from '../../shared/date/date.service';
-import { MachineListComponent } from '../machines/machines.component';
-import { ExceptionListComponent } from '../schedule/exceptions.component';
-import { OpenHoursComponent } from '../schedule/opening-hours.component';
-import { StartingTimeComponent } from '../schedule/starting-time.component';
+import { MachineListComponent } from 'src/app/facility/machines/machines.component';
+import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
+import { OpenHoursComponent } from 'src/app/facility/schedule/opening-hours.component';
+import { StartingTimeComponent } from 'src/app/facility/schedule/starting-time.component';
+import type { DefaultWorkingHours, ExamRoom } from 'src/app/reservation/reservation.model';
+import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
+import { DateTimeService } from 'src/app/shared/date/date.service';
 import { RoomService } from './room.service';
 
 interface ExtendedRoom extends ExamRoom {

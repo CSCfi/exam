@@ -17,9 +17,9 @@ import { Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { Exam, ExamExecutionType } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
-import { ReservationService } from '../../../reservation/reservation.service';
+import type { Exam, ExamExecutionType } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { ReservationService } from 'src/app/reservation/reservation.service';
 
 export interface DashboardExam extends Exam {
     ownerAggregate: string;

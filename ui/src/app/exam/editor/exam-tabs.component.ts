@@ -20,12 +20,12 @@ import { NgbNav, NgbNavChangeEvent, NgbNavItem, NgbNavItemRole, NgbNavLink } fro
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import type { Exam } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
-import type { User } from '../../session/session.service';
-import { SessionService } from '../../session/session.service';
-import type { Exam } from '../exam.model';
 import type { UpdateProps } from './exam-tabs.service';
 import { ExamTabService } from './exam-tabs.service';
 

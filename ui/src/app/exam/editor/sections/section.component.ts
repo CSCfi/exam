@@ -36,13 +36,13 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { noop } from 'rxjs';
+import type { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { QuestionSelectorComponent } from 'src/app/question/picker/question-picker.component';
+import { QuestionService } from 'src/app/question/question.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { FileService } from 'src/app/shared/file/file.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
-import { QuestionSelectorComponent } from '../../../question/picker/question-picker.component';
-import { QuestionService } from '../../../question/question.service';
-import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import { FileService } from '../../../shared/file/file.service';
-import type { ExamMaterial, ExamSection, ExamSectionQuestion, Question } from '../../exam.model';
-import { ExamService } from '../../exam.service';
 import { SectionQuestionComponent } from './section-question.component';
 
 @Component({

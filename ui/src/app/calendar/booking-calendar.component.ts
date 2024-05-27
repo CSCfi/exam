@@ -35,7 +35,7 @@ import luxon2Plugin from '@fullcalendar/luxon2';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
-import type { Accessibility, ExamRoom } from '../reservation/reservation.model';
+import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 import { CalendarService } from './calendar.service';
 
 @Component({

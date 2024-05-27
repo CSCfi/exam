@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { CanDeactivateFn } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
-import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 export interface CanComponentDeactivate {
     canDeactivate: () => boolean;

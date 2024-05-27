@@ -14,18 +14,18 @@
  *
  */
 import { DatePipe, NgClass } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import type { OnInit } from '@angular/core';
 import { Component, Input, computed, effect, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { map } from 'rxjs';
+import type { ExaminationEvent, ExaminationEventConfiguration, MaintenancePeriod } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
-import type { ExaminationEvent, ExaminationEventConfiguration, MaintenancePeriod } from '../../exam.model';
-import { ExamService } from '../../exam.service';
-import { HttpClient } from '@angular/common/http';
-import { map } from 'rxjs';
 
 @Component({
     selector: 'xm-examination-event-dialog',

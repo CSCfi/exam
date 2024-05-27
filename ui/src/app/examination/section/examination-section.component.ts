@@ -15,10 +15,10 @@
 
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
-import type { Examination, ExaminationSection } from '../examination.model';
-import { ExaminationService } from '../examination.service';
-import { ExaminationQuestionComponent } from '../question/examination-question.component';
+import type { Examination, ExaminationSection } from 'src/app/examination/examination.model';
+import { ExaminationService } from 'src/app/examination/examination.service';
+import { ExaminationQuestionComponent } from 'src/app/examination/question/examination-question.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-examination-section',

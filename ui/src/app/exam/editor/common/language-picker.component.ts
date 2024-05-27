@@ -19,8 +19,8 @@ import { Component, Input } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { LanguageService } from '../../../shared/language/language.service';
-import type { Exam, ExamLanguage } from '../../exam.model';
+import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
+import { LanguageService } from 'src/app/shared/language/language.service';
 
 @Component({
     selector: 'xm-language-picker',

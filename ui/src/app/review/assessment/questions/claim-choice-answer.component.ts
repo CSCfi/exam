@@ -15,9 +15,9 @@
 import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamSectionQuestion, ExamSectionQuestionOption } from '../../../exam/exam.model';
-import { QuestionService } from '../../../question/question.service';
-import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
+import type { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/exam/exam.model';
+import { QuestionService } from 'src/app/question/question.service';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-r-claim-choice-answer',

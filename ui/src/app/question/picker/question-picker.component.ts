@@ -17,9 +17,9 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamSection, Question } from '../../exam/exam.model';
-import { LibraryResultsComponent } from '../library/results/library-results.component';
-import { LibrarySearchComponent } from '../library/search/library-search.component';
+import type { ExamSection, Question } from 'src/app/exam/exam.model';
+import { LibraryResultsComponent } from 'src/app/question/library/results/library-results.component';
+import { LibrarySearchComponent } from 'src/app/question/library/search/library-search.component';
 
 @Component({
     selector: 'xm-question-selector',

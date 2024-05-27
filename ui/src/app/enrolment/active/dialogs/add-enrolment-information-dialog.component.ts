@@ -17,7 +17,7 @@ import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import type { EnrolmentInfo } from '../../enrolment.model';
+import type { EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
 
 @Component({
     selector: 'xm-add-enrolment-information-dialog',

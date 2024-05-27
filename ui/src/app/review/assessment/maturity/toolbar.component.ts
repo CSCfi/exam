@@ -16,10 +16,10 @@ import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Exam } from '../../../exam/exam.model';
-import { ExamService } from '../../../exam/exam.service';
-import { SessionService } from '../../../session/session.service';
-import { AssessmentService } from '../assessment.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import { SessionService } from 'src/app/session/session.service';
 import type { StateName } from './maturity.service';
 import { MaturityService } from './maturity.service';
 

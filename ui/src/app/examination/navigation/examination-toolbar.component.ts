@@ -21,14 +21,14 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
-import { EnrolmentService } from '../../enrolment/enrolment.service';
-import type { ExamRoom } from '../../reservation/reservation.model';
-import { SessionService } from '../../session/session.service';
-import { AttachmentService } from '../../shared/attachment/attachment.service';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
-import type { Examination, ExaminationSection } from '../examination.model';
-import { ExaminationService } from '../examination.service';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { Examination, ExaminationSection } from 'src/app/examination/examination.model';
+import { ExaminationService } from 'src/app/examination/examination.service';
+import type { ExamRoom } from 'src/app/reservation/reservation.model';
+import { SessionService } from 'src/app/session/session.service';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-examination-toolbar',

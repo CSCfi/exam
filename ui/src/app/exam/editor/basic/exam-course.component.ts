@@ -17,9 +17,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
-import type { Course, Exam } from '../../exam.model';
-import { CoursePickerComponent } from '../common/course-picker.component';
+import { CoursePickerComponent } from 'src/app/exam/editor/common/course-picker.component';
+import type { Course, Exam } from 'src/app/exam/exam.model';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 @Component({
     selector: 'xm-exam-course',

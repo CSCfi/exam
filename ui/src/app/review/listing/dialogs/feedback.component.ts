@@ -17,9 +17,9 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import type { Exam } from 'src/app/exam/exam.model';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
-import type { Exam } from '../../../exam/exam.model';
-import { AssessmentService } from '../../assessment/assessment.service';
 
 @Component({
     selector: 'xm-speed-review-feedback',

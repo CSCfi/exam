@@ -19,14 +19,14 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { formatISO, startOfMonth } from 'date-fns';
 import { range } from 'ramda';
+import type { Attachment } from 'src/app/exam/exam.model';
+import { LanguageInspectionService } from 'src/app/maturity/language-inspections.service';
+import type { LanguageInspection } from 'src/app/maturity/maturity.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import type { Attachment } from '../../exam/exam.model';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import { DropdownSelectComponent, Option } from '../../shared/select/dropdown-select.component';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
-import { LanguageInspectionService } from '../language-inspections.service';
-import type { LanguageInspection } from '../maturity.model';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-select.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({
     selector: 'xm-maturity-reporting',

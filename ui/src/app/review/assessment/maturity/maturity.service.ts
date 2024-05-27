@@ -20,11 +20,11 @@ import { ToastrService } from 'ngx-toastr';
 import { of } from 'ramda';
 import { throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
-import type { Exam } from '../../../exam/exam.model';
-import type { LanguageInspection } from '../../../maturity/maturity.model';
-import { SessionService } from '../../../session/session.service';
-import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import { AssessmentService } from '../assessment.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import type { LanguageInspection } from 'src/app/maturity/maturity.model';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import { SessionService } from 'src/app/session/session.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 type State = {
     id: number;

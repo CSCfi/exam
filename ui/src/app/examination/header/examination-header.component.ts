@@ -14,10 +14,10 @@
  */
 
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { SessionService } from '../../session/session.service';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import { ExaminationClockComponent } from '../clock/examination-clock.component';
-import type { Examination } from '../examination.model';
+import { ExaminationClockComponent } from 'src/app/examination/clock/examination-clock.component';
+import type { Examination } from 'src/app/examination/examination.model';
+import { SessionService } from 'src/app/session/session.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 
 @Component({
     selector: 'xm-examination-header',

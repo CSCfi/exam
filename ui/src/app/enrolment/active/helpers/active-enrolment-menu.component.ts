@@ -4,10 +4,10 @@ import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
 import { Reservation } from 'src/app/reservation/reservation.model';
-import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import type { ExamEnrolment } from '../../enrolment.model';
-import { EnrolmentService } from '../../enrolment.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 @Component({
     selector: 'xm-active-enrolment-menu',

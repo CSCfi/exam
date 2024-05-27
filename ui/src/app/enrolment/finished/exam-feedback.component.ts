@@ -18,10 +18,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
+import type { ReviewedExam, Scores } from 'src/app/enrolment/enrolment.model';
 import { Exam } from 'src/app/exam/exam.model';
-import { AttachmentService } from '../../shared/attachment/attachment.service';
-import { FileService } from '../../shared/file/file.service';
-import type { ReviewedExam, Scores } from '../enrolment.model';
+import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
+import { FileService } from 'src/app/shared/file/file.service';
 import { ExamAnswersDialogComponent } from './exam-answers-dialog.component';
 
 @Component({

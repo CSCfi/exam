@@ -16,9 +16,9 @@
 import type { SimpleChanges } from '@angular/core';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { SessionService } from '../../../session/session.service';
-import type { QuestionReview } from '../../review.model';
-import { QuestionReviewService } from '../question-review.service';
+import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
+import type { QuestionReview } from 'src/app/review/review.model';
+import { SessionService } from 'src/app/session/session.service';
 import { QuestionFlowCategoryComponent } from './question-flow-category.component';
 
 @Component({

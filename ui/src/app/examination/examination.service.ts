@@ -19,7 +19,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { concat, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import type { ClozeTestAnswer, EssayAnswer } from '../exam/exam.model';
+import type { ClozeTestAnswer, EssayAnswer } from 'src/app/exam/exam.model';
 import type { Examination, ExaminationQuestion, ExaminationSection } from './examination.model';
 
 @Injectable({ providedIn: 'root' })

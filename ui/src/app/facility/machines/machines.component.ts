@@ -20,7 +20,7 @@ import { RouterLink } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamMachine, ExamRoom } from '../../reservation/reservation.model';
+import type { ExamMachine, ExamRoom } from 'src/app/reservation/reservation.model';
 
 @Component({
     templateUrl: './machines.component.html',

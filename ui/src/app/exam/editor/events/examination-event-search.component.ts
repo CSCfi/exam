@@ -22,15 +22,15 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import { ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { EnrolmentService } from '../../../enrolment/enrolment.service';
-import { DatePickerComponent } from '../../../shared/date/date-picker.component';
-import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import { CourseCodeComponent } from '../../../shared/miscellaneous/course-code.component';
-import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
-import { TableSortComponent } from '../../../shared/sorting/table-sort.component';
-import { ExaminationEventConfiguration } from '../../exam.model';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 @Component({
     selector: 'xm-examination-event-search',

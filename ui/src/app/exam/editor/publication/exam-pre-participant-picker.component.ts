@@ -19,10 +19,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
-import { EnrolmentService } from '../../../enrolment/enrolment.service';
-import { User } from '../../../session/session.service';
-import type { Exam, ExamParticipation } from '../../exam.model';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { Exam, ExamParticipation } from 'src/app/exam/exam.model';
+import { User } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-exam-pre-participant-selector',

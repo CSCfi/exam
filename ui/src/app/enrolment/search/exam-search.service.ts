@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import type { EnrolmentInfo, ExamEnrolment } from '../enrolment.model';
+import type { EnrolmentInfo, ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 
 @Injectable({ providedIn: 'root' })
 export class ExamSearchService {

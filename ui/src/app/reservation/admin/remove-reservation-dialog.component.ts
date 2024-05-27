@@ -18,7 +18,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Reservation } from '../reservation.model';
+import type { Reservation } from 'src/app/reservation/reservation.model';
 
 @Component({
     selector: 'xm-remove-reservation-dialog',

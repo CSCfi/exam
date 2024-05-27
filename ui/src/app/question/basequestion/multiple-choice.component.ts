@@ -16,8 +16,8 @@ import { UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { MultipleChoiceOption, Question } from '../../exam/exam.model';
-import { QuestionDraft, QuestionService } from '../question.service';
+import type { MultipleChoiceOption, Question } from 'src/app/exam/exam.model';
+import { QuestionDraft, QuestionService } from 'src/app/question/question.service';
 import { MultipleChoiceOptionEditorComponent } from './multiple-choice-option.component';
 import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple-choice-option.component';
 

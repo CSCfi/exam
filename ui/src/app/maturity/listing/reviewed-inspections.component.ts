@@ -19,14 +19,14 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { DatePickerComponent } from '../../shared/date/date-picker.component';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import { PageFillPipe } from '../../shared/paginator/page-fill.pipe';
-import { PaginatorComponent } from '../../shared/paginator/paginator.component';
-import { OrderByPipe } from '../../shared/sorting/order-by.pipe';
-import { TableSortComponent } from '../../shared/sorting/table-sort.component';
-import type { LanguageInspectionData } from '../language-inspections.component';
-import { LanguageInspectionService } from '../language-inspections.service';
+import type { LanguageInspectionData } from 'src/app/maturity/language-inspections.component';
+import { LanguageInspectionService } from 'src/app/maturity/language-inspections.service';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 @Component({
     selector: 'xm-reviewed-inspections',

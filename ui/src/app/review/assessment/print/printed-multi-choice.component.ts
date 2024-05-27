@@ -15,10 +15,10 @@
 import { NgClass, NgStyle } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import type { ExamSectionQuestion } from 'src/app/exam/exam.model';
 import { QuestionService } from 'src/app/question/question.service';
+import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
-import type { ExamSectionQuestion } from '../../../exam/exam.model';
-import { MathJaxDirective } from '../../../shared/math/math-jax.directive';
 
 @Component({
     selector: 'xm-printed-multi-choice',

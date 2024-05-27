@@ -2,8 +2,8 @@ import { NgClass } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Organisation } from '../calendar.service';
-import { CalendarService } from '../calendar.service';
+import type { Organisation } from 'src/app/calendar/calendar.service';
+import { CalendarService } from 'src/app/calendar/calendar.service';
 
 @Component({
     selector: 'xm-calendar-organisation-picker',

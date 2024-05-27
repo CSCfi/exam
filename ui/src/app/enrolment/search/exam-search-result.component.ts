@@ -16,11 +16,11 @@ import { DatePipe, NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Exam } from '../../exam/exam.model';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import { TeacherListComponent } from '../../shared/user/teacher-list.component';
-import type { CollaborativeExamInfo, EnrolmentInfo } from '../enrolment.model';
-import { EnrolmentService } from '../enrolment.service';
+import type { CollaborativeExamInfo, EnrolmentInfo } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 
 @Component({
     selector: 'xm-exam-search-result',

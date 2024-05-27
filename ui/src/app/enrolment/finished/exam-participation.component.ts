@@ -19,15 +19,15 @@ import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import type { CollaborativeParticipation } from '../../exam/collaborative/collaborative-exam.service';
-import type { Exam } from '../../exam/exam.model';
-import { ApplyDstPipe } from '../../shared/date/apply-dst.pipe';
-import { CommonExamService } from '../../shared/miscellaneous/common-exam.service';
-import { CourseCodeComponent } from '../../shared/miscellaneous/course-code.component';
-import { TeacherListComponent } from '../../shared/user/teacher-list.component';
-import type { ReviewedExam } from '../enrolment.model';
-import type { ParticipationLike } from '../enrolment.service';
-import { EnrolmentService } from '../enrolment.service';
+import type { ReviewedExam } from 'src/app/enrolment/enrolment.model';
+import type { ParticipationLike } from 'src/app/enrolment/enrolment.service';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { CollaborativeParticipation } from 'src/app/exam/collaborative/collaborative-exam.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
+import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 import { ExamFeedbackComponent } from './exam-feedback.component';
 
 type Scores = {

@@ -20,10 +20,10 @@ import { parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { QuestionService } from '../question/question.service';
-import { SessionService } from '../session/session.service';
-import { ConfirmationDialogService } from '../shared/dialogs/confirmation-dialog.service';
-import { CommonExamService } from '../shared/miscellaneous/common-exam.service';
+import { QuestionService } from 'src/app/question/question.service';
+import { SessionService } from 'src/app/session/session.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 import type {
     Exam,
     ExamExecutionType,

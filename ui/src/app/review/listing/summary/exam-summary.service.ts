@@ -23,8 +23,8 @@ import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { Exam, ExamParticipation, Question } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { QuestionService } from 'src/app/question/question.service';
+import { ReviewListService } from 'src/app/review/listing/review-list.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
-import { ReviewListService } from '../review-list.service';
 
 @Injectable({ providedIn: 'root' })
 export class ExamSummaryService {

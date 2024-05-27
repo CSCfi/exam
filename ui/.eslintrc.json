@@ -15,6 +15,7 @@
                 "plugin:@angular-eslint/template/process-inline-templates",
                 "plugin:deprecation/recommended"
             ],
+            "plugins": ["no-relative-import-paths"],
             "rules": {
                 "@typescript-eslint/no-explicit-any": "error",
                 "@angular-eslint/directive-selector": [
@@ -33,7 +34,11 @@
                         "style": "kebab-case"
                     }
                 ],
-                "@typescript-eslint/member-ordering": "error"
+                "@typescript-eslint/member-ordering": "error",
+                "no-relative-import-paths/no-relative-import-paths": [
+                    "error",
+                    { "allowSameFolder": true, "rootDir": "ui" }
+                  ]
             }
         },
         {

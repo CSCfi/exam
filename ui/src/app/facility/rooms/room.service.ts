@@ -5,11 +5,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { format, formatISO, parseISO, setHours, setMinutes } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import { noop } from 'rxjs';
-import { MaintenancePeriod } from '../../exam/exam.model';
-import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { DateTimeService } from '../../shared/date/date.service';
-import { ConfirmationDialogService } from '../../shared/dialogs/confirmation-dialog.service';
-import { ExceptionDialogComponent } from '../schedule/exception-dialog.component';
+import { MaintenancePeriod } from 'src/app/exam/exam.model';
+import { ExceptionDialogComponent } from 'src/app/facility/schedule/exception-dialog.component';
+import type { DefaultWorkingHours, ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import { DateTimeService } from 'src/app/shared/date/date.service';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 export type Weekday = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY';
 

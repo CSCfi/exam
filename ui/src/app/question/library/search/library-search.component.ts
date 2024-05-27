@@ -21,13 +21,13 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import type { Course, Exam, ExamSection, Tag } from 'src/app/exam/exam.model';
+import type { LibraryQuestion } from 'src/app/question/library/library.service';
+import { LibraryService } from 'src/app/question/library/library.service';
+import type { User } from 'src/app/session/session.service';
+import { SessionService } from 'src/app/session/session.service';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import { UserService } from 'src/app/shared/user/user.service';
-import type { Course, Exam, ExamSection, Tag } from '../../../exam/exam.model';
-import type { User } from '../../../session/session.service';
-import { SessionService } from '../../../session/session.service';
-import type { LibraryQuestion } from '../library.service';
-import { LibraryService } from '../library.service';
 
 interface Filterable<T> {
     id: number;

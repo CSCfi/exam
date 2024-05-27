@@ -18,9 +18,9 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { from } from 'rxjs';
-import type { ExceptionWorkingHours } from '../../reservation/reservation.model';
-import { FilterByPipe } from '../../shared/filter/filter-by.pipe';
-import { RoomService } from '../rooms/room.service';
+import { RoomService } from 'src/app/facility/rooms/room.service';
+import type { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
+import { FilterByPipe } from 'src/app/shared/filter/filter-by.pipe';
 import { ExceptionDeleteDialogComponent } from './exception-delete-dialog.component';
 
 @Component({

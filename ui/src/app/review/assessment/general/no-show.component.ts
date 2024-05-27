@@ -15,7 +15,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamEnrolment } from '../../../enrolment/enrolment.model';
+import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 
 @Component({
     selector: 'xm-r-no-show',

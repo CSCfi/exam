@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ExaminationStatusService } from '../examination-status.service';
+import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
 
 @Component({
     selector: 'xm-examination-logout',

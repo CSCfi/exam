@@ -16,9 +16,9 @@ import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamParticipation } from '../../../exam/exam.model';
-import { SessionService } from '../../../session/session.service';
-import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
+import type { ExamParticipation } from 'src/app/exam/exam.model';
+import { SessionService } from 'src/app/session/session.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 
 @Component({
     selector: 'xm-r-participation',

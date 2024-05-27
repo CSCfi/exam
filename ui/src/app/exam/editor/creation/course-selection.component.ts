@@ -21,14 +21,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { ExamCourseComponent } from 'src/app/exam/editor/basic/exam-course.component';
+import { LanguageSelectorComponent } from 'src/app/exam/editor/common/language-picker.component';
+import type { Course, Exam } from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { SessionService } from '../../../session/session.service';
-import { HistoryBackComponent } from '../../../shared/history/history-back.component';
-import type { Course, Exam } from '../../exam.model';
-import { ExamService } from '../../exam.service';
-import { ExamCourseComponent } from '../basic/exam-course.component';
-import { LanguageSelectorComponent } from '../common/language-picker.component';
+import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 
 @Component({
     selector: 'xm-course-selection',

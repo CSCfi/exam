@@ -17,7 +17,7 @@ import type { OnInit } from '@angular/core';
 import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { FileService } from '../../file/file.service';
+import { FileService } from 'src/app/shared/file/file.service';
 
 export interface FileResult {
     $value: { attachmentFile: File };

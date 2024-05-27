@@ -29,20 +29,20 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin } from 'rxjs';
-import type { Exam } from '../../../exam/exam.model';
-import { SessionService } from '../../../session/session.service';
-import { ApplyDstPipe } from '../../../shared/date/apply-dst.pipe';
-import { DiffInDaysPipe } from '../../../shared/date/day-diff.pipe';
-import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import { CommonExamService } from '../../../shared/miscellaneous/common-exam.service';
-import { PageFillPipe } from '../../../shared/paginator/page-fill.pipe';
-import { PaginatorComponent } from '../../../shared/paginator/paginator.component';
-import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
-import { TableSortComponent } from '../../../shared/sorting/table-sort.component';
-import { AssessmentService } from '../../assessment/assessment.service';
-import type { Review } from '../../review.model';
-import type { ReviewListView } from '../review-list.service';
-import { ReviewListService } from '../review-list.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import { AssessmentService } from 'src/app/review/assessment/assessment.service';
+import type { ReviewListView } from 'src/app/review/listing/review-list.service';
+import { ReviewListService } from 'src/app/review/listing/review-list.service';
+import type { Review } from 'src/app/review/review.model';
+import { SessionService } from 'src/app/session/session.service';
+import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
+import { DiffInDaysPipe } from 'src/app/shared/date/day-diff.pipe';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { PageFillPipe } from 'src/app/shared/paginator/page-fill.pipe';
+import { PaginatorComponent } from 'src/app/shared/paginator/paginator.component';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
+import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 
 @Component({
     selector: 'xm-rl-graded',

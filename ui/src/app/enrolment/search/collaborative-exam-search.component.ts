@@ -19,12 +19,12 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, takeUntil, tap } from 'rxjs/operators';
+import type { CollaborativeExamInfo } from 'src/app/enrolment/enrolment.model';
+import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
+import type { CollaborativeExam } from 'src/app/exam/exam.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { isObject } from 'src/app/shared/miscellaneous/helpers';
-import type { CollaborativeExam } from '../../exam/exam.model';
-import type { CollaborativeExamInfo } from '../enrolment.model';
-import { EnrolmentService } from '../enrolment.service';
 import { ExamSearchResultComponent } from './exam-search-result.component';
 
 @Component({

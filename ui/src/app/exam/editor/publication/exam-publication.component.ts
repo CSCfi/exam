@@ -25,21 +25,21 @@ import { Duration } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { Observable, from, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { isBoolean } from 'src/app/shared/miscellaneous/helpers';
-import { SessionService } from '../../../session/session.service';
-import { DatePickerComponent } from '../../../shared/date/date-picker.component';
-import { ConfirmationDialogService } from '../../../shared/dialogs/confirmation-dialog.service';
-import { OrderByPipe } from '../../../shared/sorting/order-by.pipe';
+import { ExaminationEventDialogComponent } from 'src/app/exam/editor/events/examination-event-dialog.component';
+import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type {
     AutoEvaluationConfig,
     Exam,
     ExaminationDate,
     ExaminationEventConfiguration,
     MaintenancePeriod,
-} from '../../exam.model';
-import { ExamService } from '../../exam.service';
-import { ExaminationEventDialogComponent } from '../events/examination-event-dialog.component';
-import { ExamTabService } from '../exam-tabs.service';
+} from 'src/app/exam/exam.model';
+import { ExamService } from 'src/app/exam/exam.service';
+import { SessionService } from 'src/app/session/session.service';
+import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
+import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
+import { isBoolean } from 'src/app/shared/miscellaneous/helpers';
+import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { CollaborativeExamOwnerSelectorComponent } from './collaborative-exam-owner-picker.component';
 import { CustomDurationPickerDialogComponent } from './custom-duration-picker-dialog.component';
 import { ExamParticipantSelectorComponent } from './exam-participant-picker.component';
