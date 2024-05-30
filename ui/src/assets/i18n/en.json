@@ -736,6 +736,7 @@
     "i18n_question_removal_disallowed": "Question cannot be deleted because it is currently attached in published exam.",
     "i18n_action_disabled_lottery_on": "Action is not allowed, because it is part of randomized questions.",
     "i18n_shared_question_property_info": "If you make modifications to this information, it will have an effect to other exams.",
+    "i18n_shared_question_property_info_multi_choice": "The text changes to the options are updated for all exams where the question is used.",
     "i18n_exam_requirements": "Special requirements for the exam computers and attachments",
     "i18n_interoperable": "In shared use",
     "i18n_external_reservation": "Select room for exam visit",
