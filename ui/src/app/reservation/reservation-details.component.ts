@@ -20,6 +20,7 @@ import { Component, Input, OnChanges } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { noop } from 'rxjs';
 import { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
@@ -85,7 +86,7 @@ export class ReservationDetailsComponent implements OnChanges {
                 this.fixedReservations.splice(this.fixedReservations.indexOf(reservation), 1);
                 this.toast.info(this.translate.instant('i18n_reservation_removed'));
             })
-            .catch((err) => this.toast.error(err));
+            .catch(noop);
     }
 
     permitRetrial(enrolment: ExamEnrolment) {
