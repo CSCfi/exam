@@ -71,25 +71,19 @@
             </form>
         </div>
     </div>
-    <div class="row justify-content-end">
-        <!-- buttons -->
-        <div class="col-auto">
-            <div [hidden]="exam.state !== 'DRAFT'">
-                <button class="xm-cancel-button" (click)="cancelNewExam()">
-                    {{ 'i18n_button_cancel' | translate }}
-                </button>
-            </div>
-        </div>
-        <div class="col-auto">
-            <div class="flex">
-                <button
-                    class="xm-ok-button"
-                    [disabled]="!exam.course || !exam.name || exam.examLanguages.length < 1"
-                    (click)="continueToExam()"
-                >
-                    {{ 'i18n_save' | translate }}
-                </button>
-            </div>
+    <div class="row m-3 justify-content-end d-flex">
+        <div class="d-flex flex-row-reverse flex-align-r m-3">
+            <!-- buttons -->
+            <button
+                class="btn btn-success"
+                [disabled]="!exam.course || !exam.name || exam.examLanguages.length < 1"
+                (click)="continueToExam()"
+            >
+                {{ 'i18n_save' | translate }}
+            </button>
+            <button class="btn btn-outline-secondary me-3" (click)="cancelNewExam()" [hidden]="exam.state !== 'DRAFT'">
+                {{ 'i18n_button_cancel' | translate }}
+            </button>
         </div>
     </div>
 </ng-template>
