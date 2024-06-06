@@ -39,12 +39,14 @@
                 </div>
             </div>
         </div>
-        <div class="row my-2">
-            <div class="col-md-12" aria-live="polite">
-                {{ 'i18n_student_exam_search_result' | translate }} {{ participations.length }}
-                {{ 'i18n_student_exam_search_result_continues' | translate }}
+        @if (searchDone) {
+            <div class="row my-2">
+                <div class="col-md-12" aria-live="polite">
+                    {{ 'i18n_student_exam_search_result' | translate }} {{ participations.length }}
+                    {{ 'i18n_student_exam_search_result_continues' | translate }}
+                </div>
             </div>
-        </div>
+        }
         <div class="col-8" ngbDropdown>
             <button class="btn btn-outline-secondary" type="button" ngbDropdownToggle aria-expanded="true">
                 {{ 'i18n_set_ordering' | translate }}
