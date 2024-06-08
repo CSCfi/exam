@@ -23,7 +23,7 @@ import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 import type { Question, Tag } from 'src/app/exam/exam.model';
 import { QuestionDraft } from 'src/app/question/question.service';
-import { SessionService } from 'src/app/session/session.service';
+import { SessionService, User } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-tag-picker',
@@ -87,16 +87,19 @@ import { SessionService } from 'src/app/session/session.service';
 export class TagPickerComponent implements OnInit {
     @Input() question!: Question | QuestionDraft;
     tagName = '';
+    user: User;
     newTag: Tag = { name: '', questions: [] };
     ownTags: Tag[] = [];
 
     constructor(
         private http: HttpClient,
         private Session: SessionService,
-    ) {}
+    ) {
+        this.user = this.Session.getUser();
+    }
 
     ngOnInit() {
-        this.ownTags = this.question.tags.filter((t) => t.creator?.id === this.Session.getUser().id);
+        this.ownTags = this.question.tags.filter((t) => t.creator?.id === this.user.id);
     }
 
     getTags$ = (text$: Observable<string>): Observable<Tag[]> =>
@@ -118,7 +121,11 @@ export class TagPickerComponent implements OnInit {
                 }
                 // filter out the ones already tagged for this question and slice
                 return tags
-                    .filter((tag) => !this.question.tags || this.question.tags.every((qt) => qt.name !== tag.name))
+                    .filter(
+                        (tag) =>
+                            !this.question.tags ||
+                            this.question.tags.every((qt) => qt.name !== tag.name || qt.creator?.id !== this.user.id),
+                    )
                     .slice(0, 15);
             }),
         );
@@ -137,6 +144,6 @@ export class TagPickerComponent implements OnInit {
 
     removeTag = (tag: Tag) => {
         this.question.tags.splice(this.question.tags.indexOf(tag), 1);
-        this.ownTags = this.question.tags.filter((t) => t.creator?.id === this.Session.getUser().id);
+        this.ownTags = this.question.tags.filter((t) => t.creator?.id === this.user.id);
     };
 }
