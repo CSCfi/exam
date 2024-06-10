@@ -101,13 +101,8 @@ public class CollaborativeExamController extends CollaborationController {
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public CompletionStage<Result> searchExams(Http.Request request, final Optional<String> filter) {
-        Optional<URL> url = filter.orElse("").isEmpty() ? parseUrl() : parseUrlWithSearchParam(filter.get(), false);
-        if (url.isEmpty()) {
-            return wrapAsPromise(internalServerError("i18n_internal_error"));
-        }
-
+        WSRequest wsRequest = getSearchRequest(filter);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        WSRequest wsRequest = wsClient.url(url.get().toString());
         String homeOrg = configReader.getHomeOrganisationRef();
 
         Function<WSResponse, Result> onSuccess = response ->
