@@ -13,8 +13,6 @@ import io.vavr.control.Either;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.libs.Json;
 import play.libs.ws.WSClient;
+import play.libs.ws.WSRequest;
 import play.libs.ws.WSResponse;
 import play.mvc.Result;
 import util.config.ConfigReader;
@@ -68,22 +67,20 @@ public class CollaborationController extends BaseController {
         }
     }
 
-    Optional<URL> parseUrlWithSearchParam(String filter, boolean anonymous) {
-        try {
-            if (filter == null) {
-                return Optional.empty();
-            }
-            String paramStr = String.format(
-                "filter=%s&anonymous=%s",
-                URLEncoder.encode(filter, StandardCharsets.UTF_8),
-                anonymous
-            );
-            URI uri = URI.create(String.format("%s/api/exams/search?%s", configReader.getIopHost(), paramStr));
-            return Optional.of(uri.toURL());
-        } catch (MalformedURLException e) {
-            logger.error("Malformed URL", e);
-            return Optional.empty();
-        }
+    WSRequest getSearchRequest(Optional<String> filter) {
+        String host = configReader.getIopHost();
+        return filter
+            .map(s -> {
+                URI uri = URI.create(String.format("%s/api/exams/search", host));
+                return wsClient
+                    .url(uri.toString())
+                    .addQueryParameter("filter", s)
+                    .addQueryParameter("anonymous", "false");
+            })
+            .orElseGet(() -> {
+                URI uri = URI.create(String.format("%s/api/exams", host));
+                return wsClient.url(uri.toString());
+            });
     }
 
     protected CompletionStage<Optional<Exam>> downloadExam(CollaborativeExam ce) {

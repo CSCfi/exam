@@ -6,7 +6,6 @@ import io.ebean.DB;
 import io.ebean.Transaction;
 import io.ebean.text.PathProperties;
 import io.vavr.control.Either;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -68,12 +67,7 @@ public class CollaborativeEnrolmentController extends CollaborationController {
 
     @Restrict({ @Group("STUDENT") })
     public CompletionStage<Result> searchExams(Optional<String> filter) {
-        Optional<URL> url = filter.orElse("").isEmpty() ? parseUrl() : parseUrlWithSearchParam(filter.get(), false);
-        if (url.isEmpty()) {
-            return wrapAsPromise(internalServerError("i18n_internal_error"));
-        }
-
-        WSRequest request = wsClient.url(url.get().toString());
+        WSRequest request = getSearchRequest(filter);
         String homeOrg = configReader.getHomeOrganisationRef();
         Function<WSResponse, Result> onSuccess = response ->
             findExamsToProcess(response)
