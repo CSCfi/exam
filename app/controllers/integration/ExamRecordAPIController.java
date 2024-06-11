@@ -24,7 +24,8 @@ public class ExamRecordAPIController extends BaseController {
 
     private List<ExamScore> getScores(String startDate) {
         DateTime start = ISODateTimeFormat.dateTimeParser().parseDateTime(startDate);
-        return DB.find(ExamRecord.class)
+        return DB
+            .find(ExamRecord.class)
             .fetch("examScore")
             .where()
             .gt("timeStamp", start)

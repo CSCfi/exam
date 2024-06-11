@@ -43,7 +43,8 @@ public class StatisticsController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getStudents() {
-        List<User> students = DB.find(User.class)
+        List<User> students = DB
+            .find(User.class)
             .select("id, firstName, lastName")
             .where()
             .eq("roles.name", "STUDENT")
@@ -53,7 +54,8 @@ public class StatisticsController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getExamNames() {
-        List<Exam> exams = DB.find(Exam.class)
+        List<Exam> exams = DB
+            .find(Exam.class)
             .select("id, name")
             .fetch("course", "id, name, code")
             .where()
@@ -136,7 +138,8 @@ public class StatisticsController extends BaseController {
     public Result getTeacherExamsByDate(Long uid, String from, String to) throws IOException {
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
-        List<Exam> exams = DB.find(Exam.class)
+        List<Exam> exams = DB
+            .find(Exam.class)
             .fetch("creator")
             .fetch("examType")
             .fetch("course")
@@ -181,11 +184,12 @@ public class StatisticsController extends BaseController {
             data[1] = ISODateTimeFormat.date().print(new DateTime(parent.getCreated()));
             data[2] = parent.getState().toString();
             data[3] = parent.getCourse().getCode();
-            data[4] = String.format(
-                "%s - %s",
-                ISODateTimeFormat.date().print(new DateTime(parent.getPeriodStart())),
-                ISODateTimeFormat.date().print(new DateTime(parent.getPeriodEnd()))
-            );
+            data[4] =
+                String.format(
+                    "%s - %s",
+                    ISODateTimeFormat.date().print(new DateTime(parent.getPeriodStart())),
+                    ISODateTimeFormat.date().print(new DateTime(parent.getPeriodEnd()))
+                );
             data[5] = parent.getCourse().getCredits() == null ? "" : Double.toString(parent.getCourse().getCredits());
             data[6] = parent.getExamType().getType();
             data[7] = Integer.toString(inReview);
@@ -202,7 +206,8 @@ public class StatisticsController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getExamEnrollments(Long id) throws IOException {
-        Exam proto = DB.find(Exam.class)
+        Exam proto = DB
+            .find(Exam.class)
             .fetch("examEnrolments")
             .fetch("examEnrolments.user")
             .fetch("examEnrolments.reservation")
@@ -223,9 +228,10 @@ public class StatisticsController extends BaseController {
             data[0] = String.format("%s %s", e.getUser().getFirstName(), e.getUser().getLastName());
             data[1] = forceNotNull(e.getUser().getIdentifier());
             data[2] = e.getUser().getEppn();
-            data[3] = e.getReservation() == null
-                ? ""
-                : ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getReservation().getStartAt()));
+            data[3] =
+                e.getReservation() == null
+                    ? ""
+                    : ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getReservation().getStartAt()));
             data[4] = ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getEnrolledOn()));
             Row dataRow = sheet.createRow(proto.getExamEnrolments().indexOf(e) + 1);
             for (int i = 0; i < data.length; ++i) {
@@ -251,7 +257,8 @@ public class StatisticsController extends BaseController {
     public Result getReviewsByDate(String from, String to) throws IOException {
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
-        List<Exam> exams = DB.find(Exam.class)
+        List<Exam> exams = DB
+            .find(Exam.class)
             .fetch("course")
             .where()
             .between("gradedTime", start, end)
@@ -285,9 +292,10 @@ public class StatisticsController extends BaseController {
             data[2] = e.getCourse().getCode();
             data[3] = ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getCreated()));
             data[4] = ISODateTimeFormat.dateTimeNoMillis().print(new DateTime(e.getGradedTime()));
-            data[5] = parse(
-                () -> String.format("%s %s", e.getGradedByUser().getFirstName(), e.getGradedByUser().getLastName())
-            );
+            data[5] =
+                parse(() ->
+                    String.format("%s %s", e.getGradedByUser().getFirstName(), e.getGradedByUser().getLastName())
+                );
 
             data[6] = e.getCourse().getCredits() == null ? "" : Double.toString(e.getCourse().getCredits()); // custom credits?
             data[7] = parse(() -> e.getGrade().getName());
@@ -305,7 +313,8 @@ public class StatisticsController extends BaseController {
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
 
-        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = DB
+            .find(ExamEnrolment.class)
             .fetch("user")
             .fetch("exam")
             .where()
@@ -339,24 +348,26 @@ public class StatisticsController extends BaseController {
         addHeader(sheet, headers);
 
         for (ExamEnrolment e : enrolments) {
-            String[] data = Arrays.asList(
-                Long.toString(e.getId()),
-                ISODateTimeFormat.date().print(new DateTime(e.getEnrolledOn())),
-                Long.toString(e.getUser().getId()),
-                e.getUser().getFirstName(),
-                e.getUser().getLastName(),
-                Long.toString(e.getExam().getId()),
-                e.getExam().getName(),
-                Long.toString(e.getReservation().getId()),
-                ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation().getStartAt())),
-                ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation().getEndAt())),
-                Long.toString(e.getReservation().getMachine().getId()),
-                e.getReservation().getMachine().getName(),
-                e.getReservation().getMachine().getIpAddress(),
-                Long.toString(e.getReservation().getMachine().getRoom().getId()),
-                e.getReservation().getMachine().getRoom().getName(),
-                e.getReservation().getMachine().getRoom().getRoomCode()
-            ).toArray(new String[0]);
+            String[] data = Arrays
+                .asList(
+                    Long.toString(e.getId()),
+                    ISODateTimeFormat.date().print(new DateTime(e.getEnrolledOn())),
+                    Long.toString(e.getUser().getId()),
+                    e.getUser().getFirstName(),
+                    e.getUser().getLastName(),
+                    Long.toString(e.getExam().getId()),
+                    e.getExam().getName(),
+                    Long.toString(e.getReservation().getId()),
+                    ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation().getStartAt())),
+                    ISODateTimeFormat.dateTime().print(new DateTime(e.getReservation().getEndAt())),
+                    Long.toString(e.getReservation().getMachine().getId()),
+                    e.getReservation().getMachine().getName(),
+                    e.getReservation().getMachine().getIpAddress(),
+                    Long.toString(e.getReservation().getMachine().getRoom().getId()),
+                    e.getReservation().getMachine().getRoom().getName(),
+                    e.getReservation().getMachine().getRoom().getRoomCode()
+                )
+                .toArray(new String[0]);
             createRow(sheet, data, enrolments, e);
         }
         IntStream.range(0, headers.length + 1).forEach(i -> sheet.autoSizeColumn(i, true));
@@ -370,7 +381,8 @@ public class StatisticsController extends BaseController {
         final DateTime start = DateTime.parse(from, DTF);
         final DateTime end = DateTime.parse(to, DTF);
 
-        List<ExamParticipation> participations = DB.find(ExamParticipation.class)
+        List<ExamParticipation> participations = DB
+            .find(ExamParticipation.class)
             .fetch("exam")
             .where()
             .gt("started", start)
@@ -410,7 +422,8 @@ public class StatisticsController extends BaseController {
         dataRow.createCell(index++).setCellValue(student.getEmail());
         dataRow.createCell(index).setCellValue(student.getLanguage().getCode());
 
-        List<ExamParticipation> participations = DB.find(ExamParticipation.class)
+        List<ExamParticipation> participations = DB
+            .find(ExamParticipation.class)
             .fetch("exam")
             .fetch("reservation")
             .fetch("reservation.externalReservation")

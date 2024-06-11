@@ -166,9 +166,8 @@ public class SessionController extends BaseController {
     ) {
         if (reservation != null) {
             try {
-                return handleExternalReservation(user, reservation).thenComposeAsync(
-                    r -> createSession(user, true, request)
-                );
+                return handleExternalReservation(user, reservation)
+                    .thenComposeAsync(r -> createSession(user, true, request));
             } catch (MalformedURLException e) {
                 return wrapAsPromise(internalServerError());
             }
@@ -183,7 +182,8 @@ public class SessionController extends BaseController {
 
     private void associateWithPreEnrolments(User user) {
         // Associate pre-enrolment with a real user now that he/she is logged in
-        DB.find(ExamEnrolment.class)
+        DB
+            .find(ExamEnrolment.class)
             .where()
             .isNotNull("preEnrolledUserEmail")
             .findSet()
@@ -200,7 +200,8 @@ public class SessionController extends BaseController {
         DateTime now = dateTimeHandler.adjustDST(new DateTime());
         int lookAheadMinutes = Minutes.minutesBetween(now, now.plusDays(1).withMillisOfDay(0)).getMinutes();
         DateTime future = now.plusMinutes(lookAheadMinutes);
-        List<Reservation> reservations = DB.find(Reservation.class)
+        List<Reservation> reservations = DB
+            .find(Reservation.class)
             .where()
             .eq("externalUserRef", eppn)
             .isNotNull("externalRef")
@@ -267,7 +268,8 @@ public class SessionController extends BaseController {
             // No specific handling
             return src.substring(src.lastIndexOf(":") + 1);
         } else {
-            return Arrays.stream(src.split(";"))
+            return Arrays
+                .stream(src.split(";"))
                 .filter(s -> (s.contains("int:") || s.contains("fi:")) && !s.contains("esi:")) // TODO: make configurable?
                 .collect(
                     Collectors.toMap(
@@ -283,11 +285,10 @@ public class SessionController extends BaseController {
                         },
                         () ->
                             new TreeMap<>(
-                                Comparator.comparingInt(
-                                    o ->
-                                        !configReader.getMultiStudentOrganisations().contains(o)
-                                            ? 1000
-                                            : configReader.getMultiStudentOrganisations().indexOf(o)
+                                Comparator.comparingInt(o ->
+                                    !configReader.getMultiStudentOrganisations().contains(o)
+                                        ? 1000
+                                        : configReader.getMultiStudentOrganisations().indexOf(o)
                                 )
                             )
                     )
@@ -300,15 +301,13 @@ public class SessionController extends BaseController {
     }
 
     private Optional<String> parseDisplayName(Http.Request request) {
-        return parse(request.header("displayName").orElse("")).map(
-            n -> n.indexOf(" ") > 0 ? n.substring(0, n.lastIndexOf(" ")) : n
-        );
+        return parse(request.header("displayName").orElse(""))
+            .map(n -> n.indexOf(" ") > 0 ? n.substring(0, n.lastIndexOf(" ")) : n);
     }
 
     private String parseGivenName(Http.Request request) {
-        return parse(request.header("givenName").orElse("")).orElse(
-            parseDisplayName(request).orElseThrow(IllegalArgumentException::new)
-        );
+        return parse(request.header("givenName").orElse(""))
+            .orElse(parseDisplayName(request).orElseThrow(IllegalArgumentException::new));
     }
 
     private Organisation findOrganisation(String attribute) {
@@ -324,7 +323,8 @@ public class SessionController extends BaseController {
         );
         // Grant BYOD permission automatically for teachers if configuration so mandates
         if (user.hasRole(Role.Name.TEACHER) && configReader.isByodExamCreationPermissionGrantedForNewUsers()) {
-            Permission permission = DB.find(Permission.class)
+            Permission permission = DB
+                .find(Permission.class)
                 .where()
                 .eq("type", Permission.Type.CAN_CREATE_BYOD_EXAM)
                 .findOne();
@@ -349,9 +349,8 @@ public class SessionController extends BaseController {
             .getRoles()
             .addAll(
                 parseRoles(
-                    parse(request.header("unscoped-affiliation").orElse("")).orElseThrow(
-                        () -> new NotFoundException("role not found")
-                    ),
+                    parse(request.header("unscoped-affiliation").orElse(""))
+                        .orElseThrow(() -> new NotFoundException("role not found")),
                     ignoreRoleNotFound
                 )
             );
@@ -408,7 +407,7 @@ public class SessionController extends BaseController {
     private Set<Role> parseRoles(String attribute, boolean ignoreRoleNotFound) throws NotFoundException {
         Set<Role> userRoles = new HashSet<>();
         for (String affiliation : attribute.split(";")) {
-            for (Map.Entry<Role, List<String>> entry : configReader.getRoleMapping().entrySet()) {
+            for (Map.Entry<Role, List<String>> entry : configReader.getRoleMappingJava().entrySet()) {
                 if (entry.getValue().contains(affiliation)) {
                     userRoles.add(entry.getKey());
                     break;
@@ -469,7 +468,8 @@ public class SessionController extends BaseController {
             logger.info("Session not found");
             return wrapAsPromise(ok("no_session"));
         }
-        DateTime expirationTime = ISODateTimeFormat.dateTimeParser()
+        DateTime expirationTime = ISODateTimeFormat
+            .dateTimeParser()
             .parseDateTime(session.get("since").get())
             .plusMinutes(SESSION_TIMEOUT_MINUTES);
         DateTime alarmTime = expirationTime.minusMinutes(2);
@@ -501,11 +501,13 @@ public class SessionController extends BaseController {
 
     private Http.Session updateSession(Http.Session session, Map<String, String> headers) {
         Map<String, String> payload = new HashMap<>(session.data());
-        SESSION_HEADER_MAP.entrySet()
+        SESSION_HEADER_MAP
+            .entrySet()
             .stream()
             .filter(e -> headers.containsKey(e.getKey()))
             .forEach(e -> payload.put(e.getValue(), headers.get(e.getKey())));
-        SESSION_HEADER_MAP.entrySet()
+        SESSION_HEADER_MAP
+            .entrySet()
             .stream()
             .filter(e -> !headers.containsKey(e.getKey()))
             .forEach(e -> payload.remove(e.getValue()));

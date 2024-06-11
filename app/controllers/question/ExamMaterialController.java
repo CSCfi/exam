@@ -45,7 +45,8 @@ public class ExamMaterialController extends QuestionController implements Sectio
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result listMaterials(Http.Request request) {
-        Set<ExamMaterial> materials = DB.find(ExamMaterial.class)
+        Set<ExamMaterial> materials = DB
+            .find(ExamMaterial.class)
             .where()
             .eq("creator", request.attrs().get(Attrs.AUTHENTICATED_USER))
             .findSet();
@@ -90,16 +91,17 @@ public class ExamMaterialController extends QuestionController implements Sectio
     public Result addMaterialForSection(Long sectionId, Long materialId, Http.Request request) {
         ExamMaterial em = DB.find(ExamMaterial.class, materialId);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getOwnershipError(em, user).orElseGet(() -> {
-            Optional<ExamSection> oes = getSection(sectionId, user);
-            if (oes.isPresent()) {
-                ExamSection es = oes.get();
-                es.getExamMaterials().add(em);
-                es.update();
-                return ok();
-            }
-            return notFound();
-        });
+        return getOwnershipError(em, user)
+            .orElseGet(() -> {
+                Optional<ExamSection> oes = getSection(sectionId, user);
+                if (oes.isPresent()) {
+                    ExamSection es = oes.get();
+                    es.getExamMaterials().add(em);
+                    es.update();
+                    return ok();
+                }
+                return notFound();
+            });
     }
 
     @Authenticated
@@ -107,15 +109,16 @@ public class ExamMaterialController extends QuestionController implements Sectio
     public Result removeMaterialFromSection(Long sectionId, Long materialId, Http.Request request) {
         ExamMaterial em = DB.find(ExamMaterial.class, materialId);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        return getOwnershipError(em, user).orElseGet(() -> {
-            Optional<ExamSection> oes = getSection(sectionId, user);
-            if (oes.isPresent()) {
-                ExamSection es = oes.get();
-                es.getExamMaterials().remove(em);
-                es.update();
-                return ok();
-            }
-            return notFound();
-        });
+        return getOwnershipError(em, user)
+            .orElseGet(() -> {
+                Optional<ExamSection> oes = getSection(sectionId, user);
+                if (oes.isPresent()) {
+                    ExamSection es = oes.get();
+                    es.getExamMaterials().remove(em);
+                    es.update();
+                    return ok();
+                }
+                return notFound();
+            });
     }
 }

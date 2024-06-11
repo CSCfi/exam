@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2024 The members of the EXAM Consortium
 //
-// SPDX-License-Identifier: EUPL-1.2import type { Organisation } from 'src/app/calendar/calendar.service';
+// SPDX-License-Identifier: EUPL-1.2
+
 import { Organisation } from 'src/app/calendar/calendar.service';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { LanguageInspection } from 'src/app/maturity/maturity.model';

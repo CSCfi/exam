@@ -59,9 +59,8 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
     private static Server server;
 
     @Rule
-    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(
-        ServerSetupTest.SMTP
-    ).withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
+    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
+        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     public static class CourseInfoServlet extends HttpServlet {
 
@@ -73,10 +72,11 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
 
     @BeforeClass
     public static void startServer() throws Exception {
-        server = RemoteServerHelper.createAndStartServer(
-            31246,
-            ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments"))
-        );
+        server =
+            RemoteServerHelper.createAndStartServer(
+                31246,
+                ImmutableMap.of(CourseInfoServlet.class, List.of("/enrolments"))
+            );
     }
 
     @AfterClass
@@ -202,7 +202,8 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         assertThat(result.status()).isEqualTo(200);
 
         // Verify
-        ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
+        ExamEnrolment enrolment = DB
+            .find(ExamEnrolment.class)
             .where()
             .eq("exam.id", exam.getId())
             .eq("user.id", user.getId())
@@ -216,7 +217,8 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
         final int callCount = 10;
         final Waiter waiter = new Waiter();
 
-        IntStream.range(0, callCount)
+        IntStream
+            .range(0, callCount)
             .parallel()
             .forEach(i ->
                 new Thread(() -> {
@@ -226,10 +228,13 @@ public class EnrolmentControllerTest extends IntegrationTestCase {
                         Json.newObject().put("code", exam.getCourse().getCode())
                     );
                     waiter.resume();
-                }).start());
+                })
+                    .start()
+            );
 
         waiter.await(5000, callCount);
-        final int count = DB.find(ExamEnrolment.class)
+        final int count = DB
+            .find(ExamEnrolment.class)
             .where()
             .eq("exam.id", exam.getId())
             .eq("user.id", user.getId())

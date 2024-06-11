@@ -47,7 +47,8 @@ public class CsvBuilderImpl implements CsvBuilder {
     public File build(Long startDate, Long endDate) throws IOException {
         Date start = new Date(startDate);
         Date end = new Date(endDate);
-        List<ExamRecord> examRecords = DB.find(ExamRecord.class)
+        List<ExamRecord> examRecords = DB
+            .find(ExamRecord.class)
             .fetch("examScore")
             .where()
             .between("timeStamp", start, end)
@@ -65,7 +66,8 @@ public class CsvBuilderImpl implements CsvBuilder {
 
     @Override
     public File build(Long examId, Collection<Long> childIds) throws IOException {
-        List<ExamRecord> examRecords = DB.find(ExamRecord.class)
+        List<ExamRecord> examRecords = DB
+            .find(ExamRecord.class)
             .fetch("examScore")
             .where()
             .eq("exam.parent.id", examId)
@@ -87,9 +89,9 @@ public class CsvBuilderImpl implements CsvBuilder {
         File file = File.createTempFile("csv-output-", ".tmp");
         CSVWriter writer = new CSVWriter(new FileWriter(file));
         writer.writeNext(getHeaders());
-        StreamSupport.stream(node.spliterator(), false).forEach(
-            assessment -> writer.writeNext(values(assessment).toArray(String[]::new))
-        );
+        StreamSupport
+            .stream(node.spliterator(), false)
+            .forEach(assessment -> writer.writeNext(values(assessment).toArray(String[]::new)));
         writer.close();
         return file;
     }
@@ -145,7 +147,8 @@ public class CsvBuilderImpl implements CsvBuilder {
                 logger.warn("Invalid input, unable to grade");
                 continue;
             }
-            ExpressionList<Exam> el = DB.find(Exam.class)
+            ExpressionList<Exam> el = DB
+                .find(Exam.class)
                 .where()
                 .idEq(examId)
                 .isNotNull("parent")

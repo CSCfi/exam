@@ -558,9 +558,8 @@ class EmailComposerImpl @Inject() (
     )(lang)
     val teacherName = messaging("email.template.participant.notification.teacher", getTeachers(exam))(lang)
     val events = exam.getExaminationEventConfigurations.asScala.toList
-      .map(_.getExaminationEvent.getStart)
+      .map(c => new DateTime(c.getExaminationEvent.getStart, timeZone))
       .sorted
-      .map(c => new DateTime(c, timeZone))
       .map(EmailComposerImpl.DTF.print)
       .mkString(", ")
     val examPeriod =

@@ -42,7 +42,8 @@ public class ExamMachineController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getExamMachineReservationsFromNow(Long id) {
-        List<Reservation> reservations = DB.find(Reservation.class)
+        List<Reservation> reservations = DB
+            .find(Reservation.class)
             .where()
             .eq("machine.id", id)
             .gt("endAt", DateTime.now()) //.minus(1000 * 60 * 60 * 24))
@@ -156,7 +157,8 @@ public class ExamMachineController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result listSoftware() {
-        List<Software> software = DB.find(Software.class)
+        List<Software> software = DB
+            .find(Software.class)
             .where()
             .or()
             .isNull("status")
@@ -181,12 +183,13 @@ public class ExamMachineController extends BaseController {
 
     @Restrict(@Group({ "ADMIN" }))
     public Result addSoftware(String name) {
-        return checkSoftwareName(name).orElseGet(() -> {
-            Software software = new Software();
-            software.setName(name);
-            software.save();
-            return ok(software);
-        });
+        return checkSoftwareName(name)
+            .orElseGet(() -> {
+                Software software = new Software();
+                software.setName(name);
+                software.save();
+                return ok(software);
+            });
     }
 
     @Restrict(@Group({ "ADMIN" }))
@@ -195,11 +198,12 @@ public class ExamMachineController extends BaseController {
         if (software == null) {
             return notFound();
         }
-        return checkSoftwareName(name).orElseGet(() -> {
-            software.setName(name);
-            software.update();
-            return ok(software);
-        });
+        return checkSoftwareName(name)
+            .orElseGet(() -> {
+                software.setName(name);
+                software.update();
+                return ok(software);
+            });
     }
 
     @Restrict(@Group({ "ADMIN" }))

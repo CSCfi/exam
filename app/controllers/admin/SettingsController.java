@@ -33,6 +33,7 @@ import play.libs.ws.WSClient;
 import play.libs.ws.WSRequest;
 import play.mvc.Http;
 import play.mvc.Result;
+import scala.jdk.javaapi.CollectionConverters;
 
 public class SettingsController extends BaseController {
 
@@ -93,7 +94,8 @@ public class SettingsController extends BaseController {
             return wrapAsPromise(badRequest("Language not supported"));
         }
         if (hash.isPresent()) {
-            ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
+            ExamEnrolment enrolment = DB
+                .find(ExamEnrolment.class)
                 .where()
                 .eq("externalExam.hash", hash.get())
                 .findOne();
@@ -176,7 +178,7 @@ public class SettingsController extends BaseController {
     public Result getExamDurations() {
         ObjectNode node = Json.newObject();
         ArrayNode durations = node.putArray("examDurations");
-        configReader.getExamDurations().forEach(durations::add);
+        configReader.getExamDurationsJava().forEach(durations::add);
         return ok(Json.toJson(node));
     }
 
@@ -266,16 +268,16 @@ public class SettingsController extends BaseController {
         node.put("hasCourseSearchIntegration", configReader.isCourseSearchActive());
         node.put("anonymousReviewEnabled", configReader.isAnonymousReviewEnabled());
         ObjectNode courseIntegrationUrls = Json.newObject();
-        configReader.getCourseIntegrationUrls().forEach(courseIntegrationUrls::put);
+        CollectionConverters.asJava(configReader.getCourseIntegrationUrls()).forEach(courseIntegrationUrls::put);
         node.set("courseSearchIntegrationUrls", courseIntegrationUrls);
 
         ArrayNode durations = Json.newArray();
-        configReader.getExamDurations().forEach(durations::add);
+        configReader.getExamDurationsJava().forEach(durations::add);
         node.set("examDurations", durations);
 
         ObjectNode roles = Json.newObject();
         configReader
-            .getRoleMapping()
+            .getRoleMappingJava()
             .forEach((k, v) -> {
                 ArrayNode role = Json.newArray();
                 v.forEach(role::add);
@@ -321,8 +323,8 @@ public class SettingsController extends BaseController {
     }
 
     private URL parseExternalUrl(String reservationRef) throws MalformedURLException {
-        return URI.create(
-            configReader.getIopHost() + String.format("/api/enrolments/%s/instructions", reservationRef)
-        ).toURL();
+        return URI
+            .create(configReader.getIopHost() + String.format("/api/enrolments/%s/instructions", reservationRef))
+            .toURL();
     }
 }

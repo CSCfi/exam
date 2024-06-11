@@ -101,11 +101,10 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     @Override
     default CompletionStage<Result> deleteExamAttachment(T id, Http.Request request) {
         return findExternalExam(id, request)
-            .map(
-                ee ->
-                    findExam(ee)
-                        .map(e -> deleteExternalAttachment(e, ee, e, getUser(request)))
-                        .getOrElseGet(Function.identity())
+            .map(ee ->
+                findExam(ee)
+                    .map(e -> deleteExternalAttachment(e, ee, e, getUser(request)))
+                    .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }
@@ -118,11 +117,10 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         Http.MultipartFormData.FilePart<Files.TemporaryFile> filePart = mf.getFilePart();
         final String id = mf.getForm().get("examId")[0];
         return findExternalExam(parseId(id), request)
-            .map(
-                ee ->
-                    findExam(ee)
-                        .map(e -> uploadAttachment(filePart, ee, e, e, getUser(request)))
-                        .getOrElseGet(Function.identity())
+            .map(ee ->
+                findExam(ee)
+                    .map(e -> uploadAttachment(filePart, ee, e, e, getUser(request)))
+                    .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }
@@ -146,16 +144,14 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         final String id = mf.getForm().get("examId")[0];
         final Long qid = Long.parseLong(mf.getForm().get("questionId")[0]);
         return findExternalExam(parseId(id), request)
-            .map(
-                ee ->
-                    findExam(ee)
-                        .map(
-                            e ->
-                                findSectionQuestion(qid, e)
-                                    .map(sq -> uploadAttachment(filePart, ee, e, sq.getQuestion(), getUser(request)))
-                                    .getOrElseGet(Function.identity())
-                        )
-                        .getOrElseGet(Function.identity())
+            .map(ee ->
+                findExam(ee)
+                    .map(e ->
+                        findSectionQuestion(qid, e)
+                            .map(sq -> uploadAttachment(filePart, ee, e, sq.getQuestion(), getUser(request)))
+                            .getOrElseGet(Function.identity())
+                    )
+                    .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }
@@ -174,16 +170,14 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     default CompletionStage<Result> deleteQuestionAttachment(T eid, Long qid, Http.Request request) {
         return findExternalExam(eid, request)
-            .map(
-                ee ->
-                    findExam(ee)
-                        .map(
-                            e ->
-                                findSectionQuestion(qid, e)
-                                    .map(sq -> deleteExternalAttachment(sq.getQuestion(), ee, e, getUser(request)))
-                                    .getOrElseGet(Function.identity())
-                        )
-                        .getOrElseGet(Function.identity())
+            .map(ee ->
+                findExam(ee)
+                    .map(e ->
+                        findSectionQuestion(qid, e)
+                            .map(sq -> deleteExternalAttachment(sq.getQuestion(), ee, e, getUser(request)))
+                            .getOrElseGet(Function.identity())
+                    )
+                    .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }
@@ -207,8 +201,10 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
                                 }
                                 return uploadAttachment(filePart, ee, e, sq.getEssayAnswer(), getUser(request));
                             })
-                            .getOrElseGet(Function.identity()))
-                    .getOrElseGet(Function.identity()))
+                            .getOrElseGet(Function.identity())
+                    )
+                    .getOrElseGet(Function.identity())
+            )
             .getOrElseGet(Function.identity());
     }
 
@@ -216,21 +212,18 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     default CompletionStage<Result> deleteQuestionAnswerAttachment(Long qid, T eid, Http.Request request) {
         return findExternalExam(eid, request)
-            .map(
-                ee ->
-                    findExam(ee)
-                        .map(
-                            e ->
-                                findSectionQuestion(qid, e)
-                                    .map(
-                                        sq ->
-                                            findEssayAnswerWithAttachment(sq)
-                                                .map(ea -> deleteExternalAttachment(ea, ee, e, getUser(request)))
-                                                .getOrElseGet(Function.identity())
-                                    )
+            .map(ee ->
+                findExam(ee)
+                    .map(e ->
+                        findSectionQuestion(qid, e)
+                            .map(sq ->
+                                findEssayAnswerWithAttachment(sq)
+                                    .map(ea -> deleteExternalAttachment(ea, ee, e, getUser(request)))
                                     .getOrElseGet(Function.identity())
-                        )
-                        .getOrElseGet(Function.identity())
+                            )
+                            .getOrElseGet(Function.identity())
+                    )
+                    .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }
@@ -282,8 +275,10 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
                                 }
                                 return uploadAttachment(filePart, ee, e, li.getStatement(), user);
                             })
-                            .getOrElseGet(Function.identity()))
-                    .getOrElseGet(Function.identity()))
+                            .getOrElseGet(Function.identity())
+                    )
+                    .getOrElseGet(Function.identity())
+            )
             .getOrElseGet(Function.identity());
     }
 
@@ -292,16 +287,14 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     @Override
     default CompletionStage<Result> downloadStatementAttachment(T id, Http.Request request) {
         return findExternalExam(id, request)
-            .map(
-                ee ->
-                    findExam(ee)
-                        .map(
-                            e ->
-                                findLanguageInspectionWithAttachment(e)
-                                    .map(li -> downloadExternalAttachment(li.getStatement().getAttachment()))
-                                    .getOrElseGet(Function.identity())
-                        )
-                        .getOrElseGet(Function.identity())
+            .map(ee ->
+                findExam(ee)
+                    .map(e ->
+                        findLanguageInspectionWithAttachment(e)
+                            .map(li -> downloadExternalAttachment(li.getStatement().getAttachment()))
+                            .getOrElseGet(Function.identity())
+                    )
+                    .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }
@@ -311,16 +304,14 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
     @Override
     default CompletionStage<Result> deleteStatementAttachment(T id, Http.Request request) {
         return findExternalExam(id, request)
-            .map(
-                ee ->
-                    findExam(ee)
-                        .map(
-                            e ->
-                                findLanguageInspectionWithAttachment(e)
-                                    .map(li -> deleteExternalAttachment(li.getStatement(), ee, e, getUser(request)))
-                                    .getOrElseGet(Function.identity())
-                        )
-                        .getOrElseGet(Function.identity())
+            .map(ee ->
+                findExam(ee)
+                    .map(e ->
+                        findLanguageInspectionWithAttachment(e)
+                            .map(li -> deleteExternalAttachment(li.getStatement(), ee, e, getUser(request)))
+                            .getOrElseGet(Function.identity())
+                    )
+                    .getOrElseGet(Function.identity())
             )
             .getOrElseGet(Function.identity());
     }
@@ -445,8 +436,8 @@ public interface CollaborativeAttachmentInterface<T, U> extends BaseAttachmentIn
         if (StringUtils.isEmpty(externalId)) {
             return request
                 .post(source)
-                .thenComposeAsync(
-                    wsResponse -> createExternalAttachment(externalExam, exam, container, wsResponse, user)
+                .thenComposeAsync(wsResponse ->
+                    createExternalAttachment(externalExam, exam, container, wsResponse, user)
                 );
         }
         return request

@@ -126,7 +126,8 @@ public class ExcelBuilderImpl implements ExcelBuilder {
 
     @Override
     public ByteArrayOutputStream build(Long examId, Collection<Long> childIds) throws IOException {
-        List<ExamRecord> examRecords = DB.find(ExamRecord.class)
+        List<ExamRecord> examRecords = DB
+            .find(ExamRecord.class)
             .fetch("examScore")
             .where()
             .eq("exam.parent.id", examId)
@@ -234,7 +235,8 @@ public class ExcelBuilderImpl implements ExcelBuilder {
         linkFont.setUnderline(HSSFFont.U_SINGLE);
         linkStyle.setFont(linkFont);
 
-        Optional<Exam> parentExamOption = DB.find(Exam.class)
+        Optional<Exam> parentExamOption = DB
+            .find(Exam.class)
             .fetch("examSections.sectionQuestions.question")
             .where()
             .eq("id", examId)
@@ -243,7 +245,8 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             throw new RuntimeException("parent exam not found");
         }
         Exam parentExam = parentExamOption.get();
-        List<Exam> childExams = DB.find(Exam.class)
+        List<Exam> childExams = DB
+            .find(Exam.class)
             .fetch("examParticipation.user")
             .fetch("examSections.sectionQuestions.question")
             .fetch("examRecord.examScore")

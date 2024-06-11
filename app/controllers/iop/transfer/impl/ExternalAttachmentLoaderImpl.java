@@ -79,11 +79,10 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
             })
             .filter(question -> question.getAttachment() != null)
             .distinct()
-            .forEach(
-                question ->
-                    futures.add(
-                        createFromExternalAttachment(question.getAttachment(), "question", question.getId().toString())
-                    )
+            .forEach(question ->
+                futures.add(
+                    createFromExternalAttachment(question.getAttachment(), "question", question.getId().toString())
+                )
             );
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
     }
@@ -119,9 +118,8 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                 }
                 final WSRequest updateRequest;
                 try {
-                    updateRequest = wsClient.url(
-                        parseUrl("/api/attachments/%s", attachment.getExternalId()).toString()
-                    );
+                    updateRequest =
+                        wsClient.url(parseUrl("/api/attachments/%s", attachment.getExternalId()).toString());
                 } catch (MalformedURLException e) {
                     logger.error("Invalid URL!", e);
                     return;
