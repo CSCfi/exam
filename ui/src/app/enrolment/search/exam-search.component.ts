@@ -67,7 +67,7 @@ import { ExamSearchService } from './exam-search.service';
             }
             @if (searchDone) {
                 <div class="row my-2">
-                    <div class="col-md-12" aria-live="polite">
+                    <div class="col-12" aria-live="polite">
                         {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
                         {{ 'i18n_student_exam_search_result_continues' | translate }}
                     </div>

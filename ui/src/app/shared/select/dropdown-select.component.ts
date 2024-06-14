@@ -44,21 +44,19 @@ export interface Option<V, I> {
         </button>
         <div ngbDropdownMenu class="xm-scrollable-menu" role="menu" aria-labelledby="dd1">
             @if (!noSearch) {
-                <button ngbDropdownItem>
-                    <div class="input-group">
-                        <input
-                            [(ngModel)]="searchFilter"
-                            class="form-control"
-                            (input)="filterOptions()"
-                            placeholder="{{ placeholder | translate }}"
-                        />
-                        <div class="input-group-append">
-                            <span class="input-group-text">
-                                <i class="bi-search"></i>
-                            </span>
-                        </div>
+                <div class="input-group" ngbDropdownItem>
+                    <input
+                        [(ngModel)]="searchFilter"
+                        class="form-control"
+                        (input)="filterOptions()"
+                        placeholder="{{ placeholder | translate }}"
+                    />
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            <i class="bi-search"></i>
+                        </span>
                     </div>
-                </button>
+                </div>
             }
             <button ngbDropdownItem (click)="clearSelection(); d.close()">
                 <i class="bi-x text text-danger"></i>

@@ -3,7 +3,7 @@
     <button ngbDropdownToggle class="btn btn-outline-secondary">
         <i class="bi-pencil me-2"></i>{{ 'i18n_edit_enrolment' | translate }}
     </button>
-    <div>
+    <div ngbDropdownMenu>
         <!-- enrolment with reservation, allow changing -->
         @if (enrolment.reservation && canChangeReservation(enrolment.reservation)) {
             <!-- collaborative exam taken here -->
