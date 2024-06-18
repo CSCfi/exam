@@ -836,29 +836,20 @@ class EmailComposerImpl implements EmailComposer {
             String.format("%s (%s)", exam.getName(), exam.getCourse().getCode().split("_")[0])
         );
         String teacherName = messaging.get(lang, "email.template.participant.notification.teacher", getTeachers(exam));
-        DateTimeFormatter dtf = DateTimeFormat.forPattern("dd.MM.yyyy HH:mm");
         String events = exam
             .getExaminationEventConfigurations()
             .stream()
-            .map(c -> c.getExaminationEvent().getStart())
+            .map(c -> new DateTime(c.getExaminationEvent().getStart(), timeZone))
             .sorted()
-            .map(dtf::print)
+            .map(DTF::print)
             .collect(Collectors.joining(", "));
         String examPeriod = isAquarium
             ? messaging.get(
                 lang,
                 "email.template.participant.notification.exam.period",
-                String.format(
-                    "%s - %s",
-                    DF.print(new DateTime(exam.getPeriodStart())),
-                    DF.print(new DateTime(exam.getPeriodEnd()))
-                )
+                String.format("%s - %s", DF.print(exam.getPeriodStart()), DF.print(exam.getPeriodEnd()))
             )
-            : messaging.get(
-                lang,
-                "email.template.participant.notification.exam.event",
-                String.format("%s (%s)", events, timeZone)
-            );
+            : messaging.get(lang, "email.template.participant.notification.exam.event", events);
         String examDuration = messaging.get(
             lang,
             "email.template.participant.notification.exam.duration",

@@ -736,6 +736,7 @@
     "i18n_question_removal_disallowed": "Du kan inte radera denna fråga, den används i publicerade tentamina",
     "i18n_action_disabled_lottery_on": "Du kan inte göra det för att utlottning är i bruk",
     "i18n_shared_question_property_info": "Ändringarna uppdateras till alla tentamen där denna fråga används.",
+    "i18n_shared_question_property_info_multi_choice": "Svaralternativs textändringarna uppdateras till alla tentamen där denna fråga används.",
     "i18n_exam_requirements": "Specialkrav för datorer och bilagan till tentamen",
     "i18n_interoperable": "Bokning vid annan högskola",
     "i18n_external_reservation": "Välja tentamensutrymme i en annan högskola",
