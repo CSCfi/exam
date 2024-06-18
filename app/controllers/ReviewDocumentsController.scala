@@ -28,11 +28,12 @@ import scala.jdk.CollectionConverters.*
 import scala.util.Using
 
 class ReviewDocumentsController @Inject() (
+    val controllerComponents: ControllerComponents,
     csvBuilder: CsvBuilder,
     fileHandler: FileHandler,
     authenticated: AuthenticatedAction,
     implicit val ec: AuthExecutionContext
-) extends InjectedController
+) extends BaseController
     with JavaApiHelper
     with DbApiHelper
     with Logging:

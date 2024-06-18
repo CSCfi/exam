@@ -94,7 +94,7 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
                 distinctUntilChanged(),
                 switchMap((text) => this.CollaborativeExam.searchExams$(text)),
                 tap(() => (this.loader.loading = true)),
-                map((exams) => this.returnListedCollaborativeExams(exams)),
+                map((exams) => this.searchExams(exams)),
                 tap((exams) => (this.exams = exams)),
                 tap(() => (this.loader.loading = false)),
                 takeUntil(this.ngUnsubscribe),
@@ -119,20 +119,6 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
     }
 
     listAllExams = () => this.filterChanged.next('');
-
-    returnListedCollaborativeExams(exams: CollaborativeExam[]): ListedCollaborativeExam[] {
-        const listedExams: ListedCollaborativeExam[] = exams
-            .map((e) => {
-                const ownerAggregate = e.examOwners.map((o) => o.email).join();
-                const stateTranslation = this.getStateTranslation(e);
-                const listingView = this.determineListingView(e);
-
-                return { ...e, ownerAggregate, stateTranslation, listingView };
-            })
-            .filter((e) => e.listingView !== ListingView.OTHER);
-
-        return listedExams;
-    }
 
     determineListingView(exam: CollaborativeExam) {
         if (
@@ -181,4 +167,15 @@ export class CollaborativeExamListingComponent implements OnInit, OnDestroy {
         const e = event.target as HTMLInputElement;
         return this.filterChanged.next(e.value);
     };
+
+    private searchExams = (exams: CollaborativeExam[]): ListedCollaborativeExam[] =>
+        exams
+            .map((e) => {
+                const ownerAggregate = e.examOwners.map((o) => o.email).join();
+                const stateTranslation = this.getStateTranslation(e);
+                const listingView = this.determineListingView(e);
+
+                return { ...e, ownerAggregate, stateTranslation, listingView };
+            })
+            .filter((e) => e.listingView !== ListingView.OTHER);
 }
