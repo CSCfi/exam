@@ -44,7 +44,7 @@ export class CollaborativeExamService {
     createExam$ = (): Observable<CollaborativeExam> => this.http.post<CollaborativeExam>('/app/iop/exams', {});
 
     searchExams$ = (searchTerm: string): Observable<CollaborativeExam[]> => {
-        const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? encodeURIComponent(searchTerm) : '');
+        const paramStr = searchTerm ? `?filter=${encodeURIComponent(searchTerm)}` : '';
         const path = `/app/iop/exams${paramStr}`;
         return this.http.get<CollaborativeExam[]>(path);
     };

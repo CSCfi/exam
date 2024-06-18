@@ -188,7 +188,7 @@ export class EnrolmentService {
         this.http.get<CollaborativeParticipation[]>('/app/iop/student/finishedExams');
 
     searchExams$ = (searchTerm: string): Observable<CollaborativeExam[]> => {
-        const paramStr = '?filter=' + (searchTerm && searchTerm.length > 0 ? encodeURIComponent(searchTerm) : '');
+        const paramStr = searchTerm ? `?filter=${encodeURIComponent(searchTerm)}` : '';
         const path = `/app/iop/enrolment${paramStr}`;
         return this.http.get<CollaborativeExam[]>(path);
     };

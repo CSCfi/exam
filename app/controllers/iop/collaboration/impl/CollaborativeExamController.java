@@ -100,7 +100,7 @@ public class CollaborativeExamController extends CollaborationController {
 
     @Authenticated
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
-    public CompletionStage<Result> searchExams(Http.Request request, final Optional<String> filter) {
+    public CompletionStage<Result> searchExams(Http.Request request, Optional<String> filter) {
         WSRequest wsRequest = getSearchRequest(filter);
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         String homeOrg = configReader.getHomeOrganisationRef();
