@@ -56,6 +56,7 @@ export class CollaborativeParticipationsComponent implements OnInit, AfterViewIn
     pageSize = 10;
     currentPage = 0;
     filter = { ordering: 'ended', reverse: true, text: '' };
+    searchDone = false;
 
     constructor(
         private changeDetector: ChangeDetectorRef,

@@ -60,6 +60,7 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
     collaborative = false;
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
+    searchDone = false;
 
     constructor(
         private toast: ToastrService,
@@ -91,6 +92,7 @@ export class ExamParticipationsComponent implements OnInit, OnDestroy {
                     (p) => (p.ended = p.reservation ? p.reservation.endAt : p.started),
                 );
                 this.participations = data.filter((d) => d.ended);
+                this.searchDone = true;
             },
             error: (err) => this.toast.error(err),
         });
