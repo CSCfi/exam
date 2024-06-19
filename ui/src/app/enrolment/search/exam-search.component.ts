@@ -65,13 +65,11 @@ import { ExamSearchService } from './exam-search.service';
                     </div>
                 </div>
             }
-
-            @if (exams.length > 0) {
+            @if (searchDone) {
                 <div class="row my-2">
-                    <div class="col-md-12">
+                    <div class="col-12" aria-live="polite">
                         {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
                         {{ 'i18n_student_exam_search_result_continues' | translate }}
-                        <b>"{{ filter.text }}"</b>
                     </div>
                 </div>
             }
@@ -116,6 +114,7 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
     ngUnsubscribe = new Subject();
     filter = { text: '' };
     permissionCheck = { active: false };
+    searchDone = false;
 
     constructor(
         private toast: ToastrService,
@@ -163,6 +162,7 @@ export class ExamSearchComponent implements OnInit, OnDestroy {
                 });
                 this.exams = exams;
                 this.checkEnrolment();
+                this.searchDone = true;
             },
             error: (err) => this.toast.error(err),
         });
