@@ -56,13 +56,11 @@ import { ExamSearchResultComponent } from './exam-search-result.component';
                     </div>
                 </div>
             </div>
-
-            @if (exams.length > 0 && filter.text.length > 2) {
+            @if (searchDone) {
                 <div class="row mt-2">
-                    <div class="col-12">
+                    <div class="col-12" aria-live="polite">
                         {{ 'i18n_student_exam_search_result' | translate }} {{ exams.length }}
                         {{ 'i18n_student_exam_search_result_continues' | translate }}
-                        <b>"{{ filter.text }}"</b>
                     </div>
                 </div>
             }
@@ -95,6 +93,7 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
     loader = { loading: false };
     filterChanged: Subject<string> = new Subject<string>();
     ngUnsubscribe = new Subject();
+    searchDone = false;
 
     constructor(private Enrolment: EnrolmentService) {
         this.filterChanged
@@ -140,7 +139,7 @@ export class CollaborativeExamSearchComponent implements OnInit, OnDestroy {
         if (text.length > 2) {
             this.filter.text = text;
             this.loader = { loading: true };
-
+            this.searchDone = true;
             this.Enrolment.searchExams$(text)
                 .pipe(
                     tap((exams) => this.updateExamList(exams)),

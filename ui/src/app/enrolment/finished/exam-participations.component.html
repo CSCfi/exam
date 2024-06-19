@@ -37,9 +37,16 @@
                 <div class="input-group-append search">
                     <img alt="" src="/assets/images/icon_search.png" width="49" height="40" />
                 </div>
-                <div class="invisible">{{ participations.length > 0 ? '' : '' }}</div>
             </div>
         </div>
+        @if (searchDone) {
+            <div class="row my-2">
+                <div class="col-12" aria-live="polite">
+                    {{ 'i18n_student_exam_search_result' | translate }} {{ participations.length }}
+                    {{ 'i18n_student_exam_search_result_continues' | translate }}
+                </div>
+            </div>
+        }
         <div class="col-8" ngbDropdown>
             <button class="btn btn-outline-secondary" type="button" ngbDropdownToggle aria-expanded="true">
                 {{ 'i18n_set_ordering' | translate }}
