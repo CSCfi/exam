@@ -107,7 +107,7 @@
                             (click)="setPredicate('examParticipation.deadline')"
                         ></xm-table-sort>
                     </th>
-                    <th class="with-space with-top">{{ 'i18n_inspection_status' | translate }}</th>
+                    <th class="with-space with-top">{{ 'i18n_grading_inspector' | translate }}</th>
                     <th class="with-space with-top">{{ 'i18n_exam_state' | translate }}</th>
                 </tr>
             </thead>
@@ -187,6 +187,14 @@
                                     <span [ngClass]="inspection.ready ? 'text-success' : 'text-danger'">
                                         <span [ngClass]="isOwner(inspection.user) ? 'fw-bold' : ''">
                                             {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                                        </span>
+                                        <span>
+                                            @if (inspection.ready) {
+                                                <span>({{ 'i18n_ready' | translate }})</span>
+                                            }
+                                            @if (!inspection.ready) {
+                                                <span>({{ 'i18n_in_progress' | translate }})</span>
+                                            }
                                         </span>
                                     </span>
                                 }
