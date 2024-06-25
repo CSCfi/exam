@@ -138,6 +138,7 @@ export class RoomService {
             })
             .catch(noop);
     };
+
     deleteException = (roomId: number, exceptionId: number) =>
         new Promise<void>((resolve, reject) => {
             this.removeException$(roomId, exceptionId).subscribe({
