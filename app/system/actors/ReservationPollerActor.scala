@@ -39,13 +39,13 @@ class ReservationPollerActor @Inject (
     with DbApiHelper:
 
   private def isPast(ee: ExamEnrolment): Boolean =
-    val now = dateTimeHandler.adjustDST(DateTime.now)
     if (ee.getExaminationEventConfiguration == null && ee.getReservation != null)
-      return ee.getReservation.getEndAt.isBefore(now)
+      val now = dateTimeHandler.adjustDST(DateTime.now)
+      ee.getReservation.getEndAt.isBefore(now)
     else if (ee.getExaminationEventConfiguration != null) {
       val duration = ee.getExam.getDuration
       val start    = ee.getExaminationEventConfiguration.getExaminationEvent.getStart
-      return start.plusMinutes(duration).isBefore(now)
+      start.plusMinutes(duration).isBeforeNow
     }
     false
 
@@ -79,6 +79,7 @@ class ReservationPollerActor @Inject (
           .eq("sentAsNoShow", false)
           .lt("endAt", dateTimeHandler.adjustDST(DateTime.now))
           .list
+
         if enrolments.isEmpty && reservations.isEmpty then logger.debug("None found")
         else noShowHandler.handleNoShows(enrolments.asJava, reservations.asJava)
         logger.debug("<- done")
