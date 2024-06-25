@@ -195,7 +195,7 @@ export class CalendarService {
         const extraDays = room.calendarExceptionEvents
             .filter((e) => !e.outOfService && e.startDate >= start && e.endDate <= end)
             .flatMap((d) => this.daysBetween(DateTime.fromISO(d.startDate), DateTime.fromISO(d.endDate)))
-            .map((d) => (d.start?.weekday === 7 ? 0 : (d.start as DateTime).weekday - 1)); // locale nuisances
+            .map((d) => (d.start?.weekday === 7 ? 0 : (d.start as DateTime).weekday)); // locale nuisances
 
         return [0, 1, 2, 3, 4, 5, 6].filter((x) => regularDays.concat(extraDays).indexOf(x) === -1);
     }
