@@ -55,7 +55,7 @@
                                 (click)="setPredicate('examParticipation.deadline')"
                             ></xm-table-sort>
                         </th>
-                        <th class="with-space">{{ 'i18n_inspection_status' | translate }}</th>
+                        <th class="with-space">{{ 'i18n_grading_inspector' | translate }}</th>
                         <th class="with-space">{{ 'i18n_exam_state' | translate }}</th>
                         <th class="with-space with-top">{{ 'i18n_total_score' | translate }}</th>
                         <th class="with-top">{{ 'i18n_grade' | translate }}</th>
@@ -107,6 +107,14 @@
                                                 "
                                             >
                                                 {{ inspection.user.firstName }} {{ inspection.user.lastName }}
+                                            </span>
+                                            <span>
+                                                @if (inspection.ready) {
+                                                    <span>({{ 'i18n_ready' | translate }})</span>
+                                                }
+                                                @if (!inspection.ready) {
+                                                    <span>({{ 'i18n_in_progress' | translate }})</span>
+                                                }
                                             </span>
                                         </span>
                                     </div>
