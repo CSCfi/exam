@@ -139,6 +139,7 @@ export class ExamListCategoryComponent implements OnInit, OnDestroy {
                     this.toast.success(this.translate.instant('i18n_exam_copied'));
                     this.router.navigate(['/staff/exams', resp.id, '1']);
                 },
+                error: () => this.toast.error(this.translate.instant('i18n_error_access_forbidden')),
             });
 
     deleteExam = (exam: DashboardExam) => {

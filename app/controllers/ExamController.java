@@ -441,6 +441,13 @@ public class ExamController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result copyExam(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        String examinationType = formFactory.form().bindFromRequest(request).get("examinationType");
+        if (
+            Exam.Implementation.valueOf(examinationType) != Exam.Implementation.AQUARIUM &&
+            !user.hasPermission(Permission.Type.CAN_CREATE_BYOD_EXAM)
+        ) {
+            return forbidden("i18n_access_forbidden");
+        }
         Exam prototype = DB
             .find(Exam.class) // TODO: check if all this fetching is necessary
             .fetch("creator", "id")
@@ -463,7 +470,6 @@ public class ExamController extends BaseController {
             return notFound("i18n_exam_not_found");
         }
         String type = formFactory.form().bindFromRequest(request).get("type");
-        String examinationType = formFactory.form().bindFromRequest(request).get("examinationType");
         ExamExecutionType executionType = DB.find(ExamExecutionType.class).where().eq("type", type).findOne();
         if (executionType == null) {
             return notFound("i18n_execution_type_not_found");
