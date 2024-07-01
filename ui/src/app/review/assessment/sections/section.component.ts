@@ -60,9 +60,11 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
         this.essayQuestionAmounts = this.Question.getEssayQuestionAmountsBySection(this.section);
     };
 
+    // getReviewProgress gathers the questions that have been reviewed by calculating essay answers that have been evaluated plus the rest of the questions.
+    // Since the essay questions are the only ones that need to be evaluated and the rest of the questions are evaluated automatically.
     getReviewProgress = () => {
         return this.section.sectionQuestions.filter((q: ExamSectionQuestion) => {
-            return q.forcedScore || q.essayAnswer?.evaluatedScore;
+            return q.question.type !== 'EssayQuestion' || q.essayAnswer?.evaluatedScore;
         }).length;
     };
 
