@@ -736,7 +736,7 @@
     "i18n_question_removal_disallowed": "Kysymystä ei voi poistaa, sillä se on käytössä voimassaolevissa tenteissä",
     "i18n_action_disabled_lottery_on": "Toiminto ei ole sallittu, kun arvonta on käytössä.",
     "i18n_shared_question_property_info": "Muutokset päivittyvät kaikkiin tentteihin, joissa kysymys on käytössä.",
-    "i18n_shared_question_property_info_multi_choice": "Vaihtehtojen tekstimuutokset päivittyvät kaikkiin tentteihin, joissa kysymys on käytössä.",
+    "i18n_shared_question_property_info_multi_choice": "Vaihtoehtojen tekstimuutokset päivittyvät kaikkiin tentteihin, joissa kysymys on käytössä.",
     "i18n_exam_requirements": "Erityisvaatimukset tenttikoneille ja tentin liitteet",
     "i18n_interoperable": "Yhteiskäytössä",
     "i18n_external_reservation": "Varaa tenttivierailutila",
