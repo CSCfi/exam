@@ -73,7 +73,7 @@
                 {{ 'i18n_simultaneous_events' | translate }}:
                 <ul>
                     @for (event of conflictingEvents(); track event.id) {
-                        <li>{{ event.start | date }}: {{ event.capacity }}</li>
+                        <li>{{ event.start | date: 'dd.MM.yyyy HH:mm' }}: {{ event.capacity }}</li>
                     } @empty {
                         <li>{{ 'i18n_no_events' | translate }}</li>
                     }

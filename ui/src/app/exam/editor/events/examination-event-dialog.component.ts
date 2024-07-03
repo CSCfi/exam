@@ -21,7 +21,6 @@ import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { map } from 'rxjs';
 import type { ExaminationEvent, ExaminationEventConfiguration, MaintenancePeriod } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
@@ -67,7 +66,6 @@ export class ExaminationEventDialogComponent implements OnInit {
                 .get<ExaminationEvent[]>('/app/examinationevents/conflicting', {
                     params: { start: this.start().toISOString(), duration: this.duration },
                 })
-                .pipe(map((events) => events.filter((e) => e.examinationEventConfiguration.exam.id !== this.examId)))
                 .subscribe((events) => this.conflictingEvents.set(events)),
         );
     }
