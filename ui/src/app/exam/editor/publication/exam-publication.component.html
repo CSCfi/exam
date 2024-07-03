@@ -97,7 +97,12 @@
                     </sup>
                 </div>
                 <div class="col-md-3">
-                    <button type="button" (click)="addExaminationEvent()" class="btn btn-success">
+                    <button
+                        type="button"
+                        (click)="addExaminationEvent()"
+                        [disabled]="isPeriodOver()"
+                        class="btn btn-success"
+                    >
                         {{ 'i18n_add_examination_event' | translate }}
                     </button>
                 </div>
