@@ -443,6 +443,7 @@ public class CollaborativeReviewController extends CollaborationController {
                 }
                 JsonNode body = request.body().asJson();
                 User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+                cleanUser(user);
                 WSRequest wsRequest = wsClient.url(url.get().toString());
                 Function<WSResponse, CompletionStage<Result>> onSuccess = response -> {
                     JsonNode root = response.asJson();
@@ -641,6 +642,7 @@ public class CollaborativeReviewController extends CollaborationController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public CompletionStage<Result> finalizeAssessment(Long id, String ref, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
+        cleanUser(user);
         JsonNode body = request.body().asJson();
         return findCollaborativeExam(id)
             .map(ce ->
