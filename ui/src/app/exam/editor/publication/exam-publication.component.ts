@@ -252,6 +252,8 @@ export class ExamPublicationComponent implements OnInit {
         }
     };
 
+    isPeriodOver = () => new Date(this.exam.periodEnd as string) < new Date();
+
     addExaminationEvent = () => {
         const modalRef = this.modal.open(ExaminationEventDialogComponent, {
             backdrop: 'static',

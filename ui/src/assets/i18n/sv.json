@@ -1176,7 +1176,7 @@
     "i18n_exam_question_in_use": "Tenter där frågan används",
     "i18n_reviewed_questions": "Bedömda frågor",
     "i18n_unanswered_questions_remain": "Det finns obesvarade frågor i sektionen",
-    "i18n_unsaved_changes": "Unsaved changes SV",
-    "i18n_type_to_start_search": "Skriv för att börja söka SV",
-    "i18n_datepicker": "Välj datum SV"
+    "i18n_unsaved_changes": "Osparade ändringar",
+    "i18n_type_to_start_search": "Skriv för att börja söka",
+    "i18n_datepicker": "Välj datum"
 }
