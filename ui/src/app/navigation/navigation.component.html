@@ -15,9 +15,10 @@
                             class="mobile-menu"
                             (click)="openMenu()"
                             [hidden]="!user"
-                            [attr.aria-open]="mobileMenuOpen"
+                            [attr.aria-expanded]="mobileMenuOpen"
+                            [attr.aria-label]="'i18n_open_main_menu' | translate"
                         >
-                            <img src="/assets/images/icon_menu_mobile.svg" alt="{{ 'i18n_mobile_menu' | translate }}" />
+                            <img src="/assets/images/icon_menu_mobile.svg" alt="" />
                         </button>
                     </div>
                 </div>
