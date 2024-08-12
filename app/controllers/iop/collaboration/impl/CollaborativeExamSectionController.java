@@ -246,6 +246,7 @@ public class CollaborativeExamSectionController extends CollaborationController 
                 ExamSection es = section.get();
                 JsonNode questionBody = request.body().asJson().get("question");
                 Question question = JsonDeserializer.deserialize(Question.class, questionBody);
+                question.getQuestionOwners().forEach(this::cleanUser);
                 Optional<Result> error = question.getValidationResult(questionBody);
                 if (error.isPresent()) {
                     return error;
