@@ -32,7 +32,6 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import util.config.ConfigReader;
 
 public class DateTimeHandlerImpl implements DateTimeHandler {
@@ -115,13 +114,25 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
                 DateTime end = new DateTime(ewh.getEndDate()).plusMillis(ewh.getEndDateTimezoneOffset());
                 Interval exception = new Interval(start, end);
                 Interval wholeDay = date.toInterval();
+                // exception covers this day fully
                 if (exception.contains(wholeDay) || exception.equals(wholeDay)) {
                     exceptions.clear();
                     exceptions.add(wholeDay);
-                    break;
-                }
-                if (exception.overlaps(wholeDay)) {
-                    exceptions.add(new Interval(exception.getStart(), exception.getEnd()));
+                } else if (exception.overlaps(wholeDay)) {
+                    // exception starts this day but ends on a later day
+                    if (start.toLocalDate().equals(date) && end.toLocalDate().isAfter(date)) {
+                        exceptions.add(new Interval(exception.getStart(), wholeDay.getEnd()));
+                    }
+                    // exception ends this day but starts on an earlier day
+                    else if (start.toLocalDate().isBefore(date) && end.toLocalDate().equals(date)) {
+                        exceptions.add(new Interval(wholeDay.getStart(), exception.getEnd()));
+                    }
+                    // exception starts and ends this day
+                    else {
+                        exceptions.add(
+                            new Interval(exception.getStart().withDate(date), exception.getEnd().withDate(date))
+                        );
+                    }
                 }
             }
         }
@@ -275,17 +286,9 @@ public class DateTimeHandlerImpl implements DateTimeHandler {
             List<Interval> unifiedIntervals = mergeSlots(
                 Stream.concat(workingHours.stream().map(OpeningHours::getHours), extensionEvents.stream()).toList()
             );
-            int tzOffset;
-            if (workingHours.isEmpty()) {
-                LocalTime lt = LocalTime.now().withHourOfDay(java.time.LocalTime.NOON.getHour());
-                tzOffset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(date.toDateTime(lt));
-            } else {
-                tzOffset = workingHours.getFirst().getTimezoneOffset();
-            }
+            int offset = DateTimeZone.forID(room.getLocalTimezone()).getOffset(DateTime.now().withDayOfYear(1));
             workingHours.clear();
-            workingHours.addAll(
-                unifiedIntervals.stream().map(interval -> new OpeningHours(interval, tzOffset)).toList()
-            );
+            workingHours.addAll(unifiedIntervals.stream().map(interval -> new OpeningHours(interval, offset)).toList());
         }
         if (!restrictionEvents.isEmpty()) {
             for (OpeningHours hours : workingHours) {
