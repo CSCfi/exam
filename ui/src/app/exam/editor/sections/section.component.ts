@@ -66,7 +66,7 @@ import { SectionQuestionComponent } from './section-question.component';
         TranslateModule,
         OrderByPipe,
     ],
-    styleUrls: ['./section.component.scss', './sections.shared.scss'],
+    styleUrls: ['./sections.shared.scss'],
 })
 export class SectionComponent {
     @Input() section!: ExamSection;

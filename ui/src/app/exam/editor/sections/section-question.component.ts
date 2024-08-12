@@ -13,6 +13,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
@@ -44,6 +45,7 @@ import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
     templateUrl: './section-question.component.html',
     standalone: true,
     imports: [
+        CdkDragHandle,
         NgbPopover,
         NgbDropdown,
         NgbDropdownToggle,

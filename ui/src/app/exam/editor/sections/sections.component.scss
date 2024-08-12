@@ -1,7 +1,9 @@
-.section-handle {
-    border: dashed 1px transparent;
-    cursor: move;
-}
-.section-handle:hover {
-    border-color: #006674;
-}
+.section-box {
+    padding: 10px;
+    box-sizing: border-box;
+    border: solid 1px #ccc;
+    color: rgba(0, 0, 0, 0.87);
+    position: relative;
+    
+  }
+  
