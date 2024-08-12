@@ -218,9 +218,7 @@ export class ExaminationService {
     };
 
     private stripHtml = (text: string) => {
-        if (text && text.indexOf('math-tex') === -1) {
-            return String(text).replace(/<[^>]+>/gm, '');
-        }
-        return text;
+        if (text.includes('math-tex')) return text;
+        return new DOMParser().parseFromString(text, 'text/html').body.textContent || '';
     };
 }
