@@ -1112,7 +1112,7 @@
     "i18n_date_too_far_in_future": "Valittu ajankohta on myöhemmin kuin kaukaisin tällä hetkellä sallittu:",
     "i18n_enrolment_assessment_not_received": "Uudelleen ilmoittautuminen ei sallittu, edellinen tenttivierailusuoritus ei ole vielä saapunut",
     "i18n_not_allowed_to_modify_reservation": "Varaus on käynnissä ja sitä ei voi muuttaa",
-    "i18n_mobile_menu": "Mobiili-menu",
+    "i18n_open_main_menu": "Avaa päävalikko",
     "i18n_exam_logo": "Exam-logo",
     "i18n_show_hide_clock": "Näytä/piilota aika",
     "i18n_select_time_in_future": "Valitse aika tulevaisuudesta",
@@ -1178,5 +1178,6 @@
     "i18n_unanswered_questions_remain": "Aihealueessa on vastaamattomia kysymyksiä",
     "i18n_unsaved_changes": "Tallentamattomia muutoksia",
     "i18n_type_to_start_search": "Kirjoita aloittaaksesi haku",
-    "i18n_datepicker": "Päivämäärävalitsin"
+    "i18n_datepicker": "Päivämäärävalitsin",
+    "i18n_move_question": "Vaihda kysymyssten järjestystä raahaamalla tästä"
 }
