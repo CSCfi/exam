@@ -39,15 +39,14 @@ class ReservationPollerActor @Inject (
     with DbApiHelper:
 
   private def isPast(ee: ExamEnrolment): Boolean =
-    if (ee.getExaminationEventConfiguration == null && ee.getReservation != null)
+    if ee.getExaminationEventConfiguration == null && ee.getReservation != null then
       val now = dateTimeHandler.adjustDST(DateTime.now)
       ee.getReservation.getEndAt.isBefore(now)
-    else if (ee.getExaminationEventConfiguration != null) {
+    else if ee.getExaminationEventConfiguration != null then
       val duration = ee.getExam.getDuration
       val start    = ee.getExaminationEventConfiguration.getExaminationEvent.getStart
       start.plusMinutes(duration).isBeforeNow
-    }
-    false
+    else false
 
   override def createReceive(): AbstractActor.Receive = receiveBuilder()
     .`match`(
