@@ -1112,7 +1112,7 @@
     "i18n_date_too_far_in_future": "Det valda datumet är senare än sista möjliga tidpunkt:",
     "i18n_enrolment_assessment_not_received": "Det är inte tillåtet att anmäla sig på nytt, eftersom den föregående tentamensprestationen inte ännu har kommit från den högskola där du skrev tentamen. ",
     "i18n_not_allowed_to_modify_reservation": "Din bokning pågår och kan därför inte ändras",
-    "i18n_mobile_menu": "Mobilmeny",
+    "i18n_open_main_menu": "Öppna huvudmenyn",
     "i18n_exam_logo": "Examlogo",
     "i18n_show_hide_clock": "Visa/dölj tiden",
     "i18n_select_time_in_future": "Välj tidpunkt i framtiden",
