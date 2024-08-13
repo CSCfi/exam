@@ -54,6 +54,7 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
     @Input() minuteStep = 0;
     @Input() disabled = false;
     @Input() readonly = false;
+    @Input() minDate = new Date().toISOString();
     @Input() maxDate?: string;
     @Input() disableDate?: boolean = false;
     @Input() disableTime?: boolean = false;
@@ -61,7 +62,6 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
 
     date: Date = new Date();
     time!: { hour: number; minute: number; second: number; millisecond?: number };
-    minDate?: string;
 
     ngOnInit() {
         const now = new Date();
@@ -70,7 +70,6 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
         if (this.initialTime) {
             this.setDateTime(this.initialTime);
         }
-        this.minDate = now.toISOString();
     }
 
     ngOnChanges() {

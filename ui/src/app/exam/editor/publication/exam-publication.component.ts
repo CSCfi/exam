@@ -261,6 +261,7 @@ export class ExamPublicationComponent implements OnInit {
             size: 'lg',
         });
         modalRef.componentInstance.requiresPassword = this.exam.implementation === 'CLIENT_AUTH';
+        modalRef.componentInstance.examMinDate = this.exam.periodStart;
         modalRef.componentInstance.examMaxDate = this.exam.periodEnd;
         modalRef.componentInstance.maintenancePeriods = this.maintenancePeriods;
         modalRef.componentInstance.examId = this.exam.id;
