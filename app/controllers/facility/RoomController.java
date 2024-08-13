@@ -105,8 +105,7 @@ public class RoomController extends BaseController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN"), @Group("STUDENT") })
     public Result getExamRooms(Http.Request request) {
-        ExpressionList<ExamRoom> query = DB
-            .find(ExamRoom.class)
+        ExpressionList<ExamRoom> query = DB.find(ExamRoom.class)
             .fetch("accessibilities")
             .fetch("examMachines")
             .fetch("defaultWorkingHours")
@@ -244,8 +243,7 @@ public class RoomController extends BaseController {
         DefaultWorkingHours hours = parseWorkingHours(root);
         for (ExamRoom examRoom : rooms) {
             // Find out if there's overlap. Remove those
-            List<DefaultWorkingHours> existing = DB
-                .find(DefaultWorkingHours.class)
+            List<DefaultWorkingHours> existing = DB.find(DefaultWorkingHours.class)
                 .where()
                 .eq("room", examRoom)
                 .eq("weekday", hours.getWeekday())
@@ -294,8 +292,7 @@ public class RoomController extends BaseController {
             if (examRoom == null) {
                 return notFound();
             }
-            List<ExamStartingHour> previous = DB
-                .find(ExamStartingHour.class)
+            List<ExamStartingHour> previous = DB.find(ExamStartingHour.class)
                 .where()
                 .eq("room.id", examRoom.getId())
                 .findList();

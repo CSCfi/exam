@@ -76,8 +76,7 @@ public class EnrolmentRepository {
     public CompletionStage<ExamRoom> getRoomInfoForEnrolment(String hash, User user) {
         return CompletableFuture.supplyAsync(
             () -> {
-                ExpressionList<ExamEnrolment> query = DB
-                    .find(ExamEnrolment.class)
+                ExpressionList<ExamEnrolment> query = DB.find(ExamEnrolment.class)
                     .fetch("user", "id")
                     .fetch("user.language")
                     .fetch("reservation.machine.room", "roomInstruction, roomInstructionEN, roomInstructionSV")
@@ -99,8 +98,7 @@ public class EnrolmentRepository {
 
     private List<ExamEnrolment> doGetStudentEnrolments(User user) {
         DateTime now = dateTimeHandler.adjustDST(new DateTime());
-        List<ExamEnrolment> enrolments = DB
-            .find(ExamEnrolment.class)
+        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
             .fetch("examinationEventConfiguration")
             .fetch("examinationEventConfiguration.examinationEvent")
             .fetch("collaborativeExam")
@@ -222,20 +220,18 @@ public class EnrolmentRepository {
                     // IP not known
                     header = "x-exam-unknown-machine";
                     DateTimeZone zone = DateTimeZone.forID(room.getLocalTimezone());
-                    String start = ISODateTimeFormat
-                        .dateTime()
+                    String start = ISODateTimeFormat.dateTime()
                         .withZone(zone)
                         .print(new DateTime(enrolment.getReservation().getStartAt()));
-                    message =
-                        String.format(
-                            "%s:::%s:::%s:::%s:::%s:::%s",
-                            room.getCampus(),
-                            room.getBuildingName(),
-                            room.getRoomCode(),
-                            examMachine.getName(),
-                            start,
-                            zone.getID()
-                        );
+                    message = String.format(
+                        "%s:::%s:::%s:::%s:::%s:::%s",
+                        room.getCampus(),
+                        room.getBuildingName(),
+                        room.getRoomCode(),
+                        examMachine.getName(),
+                        start,
+                        zone.getID()
+                    );
                 } else if (lookedUp.getRoom().getId().equals(room.getId())) {
                     // Right room, wrong machine
                     header = "x-exam-wrong-machine";

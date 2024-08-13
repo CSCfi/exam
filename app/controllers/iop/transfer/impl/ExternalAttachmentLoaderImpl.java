@@ -118,8 +118,9 @@ public class ExternalAttachmentLoaderImpl implements ExternalAttachmentLoader {
                 }
                 final WSRequest updateRequest;
                 try {
-                    updateRequest =
-                        wsClient.url(parseUrl("/api/attachments/%s", attachment.getExternalId()).toString());
+                    updateRequest = wsClient.url(
+                        parseUrl("/api/attachments/%s", attachment.getExternalId()).toString()
+                    );
                 } catch (MalformedURLException e) {
                     logger.error("Invalid URL!", e);
                     return;

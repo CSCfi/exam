@@ -126,6 +126,5 @@ export class ExaminationComponent implements OnInit, OnDestroy {
 
     private onUnload = (event: BeforeUnloadEvent) => {
         event.preventDefault();
-        return (event.returnValue = '');
     };
 }

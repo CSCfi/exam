@@ -23,8 +23,9 @@ public class AttachmentServlet extends BaseServlet {
 
     public AttachmentServlet() {
         final ClassLoader classLoader = AttachmentServlet.class.getClassLoader();
-        this.testFile =
-            new File(Objects.requireNonNull(classLoader.getResource("test_files/test_image.png")).getFile());
+        this.testFile = new File(
+            Objects.requireNonNull(classLoader.getResource("test_files/test_image.png")).getFile()
+        );
         this.waiter = new Waiter();
     }
 

@@ -39,8 +39,7 @@ public class AccessibilityController extends BaseController {
         if (accessibility == null) {
             return notFound();
         }
-        DB
-            .find(ExamRoom.class)
+        DB.find(ExamRoom.class)
             .where()
             .in("accessibilities", accessibility)
             .findList()

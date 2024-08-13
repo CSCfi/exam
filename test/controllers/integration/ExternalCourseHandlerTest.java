@@ -106,8 +106,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
         assertThat(course.getGradeScale().getExternalRef()).isEqualTo("9");
         assertThat(course.getCreditsLanguage()).isEqualTo("fi");
-        List<Grade> grades = DB
-            .find(Grade.class)
+        List<Grade> grades = DB.find(Grade.class)
             .where()
             .eq("gradeScale.id", course.getGradeScale().getId())
             .findList();
@@ -133,8 +132,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
         assertThat(course.getGradeScale().getExternalRef()).isEqualTo("sis-0-5");
         assertThat(course.getCreditsLanguage()).isEqualTo("en");
-        List<Grade> grades = DB
-            .find(Grade.class)
+        List<Grade> grades = DB.find(Grade.class)
             .where()
             .eq("gradeScale.id", course.getGradeScale().getId())
             .findList();
@@ -207,8 +205,7 @@ public class ExternalCourseHandlerTest extends IntegrationTestCase {
         assertThat(course.getGradeScale().getType()).isEqualTo(GradeScale.Type.OTHER);
         assertThat(course.getGradeScale().getDisplayName()).isEqualTo("0-5");
         assertThat(course.getGradeScale().getExternalRef()).isEqualTo("9");
-        List<Grade> grades = DB
-            .find(Grade.class)
+        List<Grade> grades = DB.find(Grade.class)
             .where()
             .eq("gradeScale.id", course.getGradeScale().getId())
             .findList();

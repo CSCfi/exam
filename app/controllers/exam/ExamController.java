@@ -76,8 +76,7 @@ public class ExamController extends BaseController {
     }
 
     private static ExpressionList<Exam> createPrototypeQuery() {
-        return DB
-            .find(Exam.class)
+        return DB.find(Exam.class)
             .fetch("course")
             .fetch("creator")
             .fetch("examOwners")
@@ -125,8 +124,7 @@ public class ExamController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result listPrintouts() {
-        List<Exam> printouts = DB
-            .find(Exam.class)
+        List<Exam> printouts = DB.find(Exam.class)
             .where()
             .eq("executionType.type", ExamExecutionType.Type.PRINTOUT.toString())
             .eq("state", Exam.State.PUBLISHED)
@@ -293,8 +291,7 @@ public class ExamController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getExamPreview(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        Exam exam = DB
-            .find(Exam.class)
+        Exam exam = DB.find(Exam.class)
             .fetch("course")
             .fetch("executionType")
             .fetch("examinationDates")
@@ -438,8 +435,7 @@ public class ExamController extends BaseController {
         ) {
             return forbidden("i18n_access_forbidden");
         }
-        Exam prototype = DB
-            .find(Exam.class) // TODO: check if all this fetching is necessary
+        Exam prototype = DB.find(Exam.class) // TODO: check if all this fetching is necessary
             .fetch("creator", "id")
             .fetch("examType", "id, type")
             .fetch("examSections", "id, name, sequenceNumber")
@@ -496,8 +492,7 @@ public class ExamController extends BaseController {
     public Result createExamDraft(Http.Request request) {
         String executionType = request.body().asJson().get("executionType").asText();
         String implementation = request.body().asJson().get("implementation").asText();
-        ExamExecutionType examExecutionType = DB
-            .find(ExamExecutionType.class)
+        ExamExecutionType examExecutionType = DB.find(ExamExecutionType.class)
             .where()
             .eq("type", executionType)
             .findOne();
@@ -590,8 +585,7 @@ public class ExamController extends BaseController {
     }
 
     private static Query<Exam> prototypeQuery() {
-        return DB
-            .find(Exam.class)
+        return DB.find(Exam.class)
             .fetch("course")
             .fetch("course.organisation")
             .fetch("course.gradeScale")

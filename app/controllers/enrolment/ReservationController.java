@@ -73,15 +73,14 @@ public class ReservationController extends BaseController {
             el = el.ilike("name", String.format("%%%s%%", filter.get()));
         }
         if (user.hasRole(Role.Name.TEACHER)) {
-            el =
-                el
-                    .gt("periodEnd", new Date())
-                    .disjunction()
-                    .eq("creator", user)
-                    .eq("examOwners", user)
-                    .eq("examInspections.user", user)
-                    .eq("shared", true)
-                    .endJunction();
+            el = el
+                .gt("periodEnd", new Date())
+                .disjunction()
+                .eq("creator", user)
+                .eq("examOwners", user)
+                .eq("examInspections.user", user)
+                .eq("shared", true)
+                .endJunction();
         }
         return ok(el.findList(), props);
     }
@@ -255,8 +254,7 @@ public class ReservationController extends BaseController {
         Optional<String> end,
         Http.Request request
     ) {
-        var query = DB
-            .find(ExamEnrolment.class)
+        var query = DB.find(ExamEnrolment.class)
             .fetch("user", "id, firstName, lastName, email, userIdentifier")
             .fetch("exam", "id, name, state, trialCount, implementation")
             .fetch("exam.course", "code")
@@ -269,13 +267,12 @@ public class ReservationController extends BaseController {
             .isNotNull("exam");
         var user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (user.hasRole(Role.Name.TEACHER)) {
-            query =
-                query
-                    .disjunction()
-                    .eq("exam.parent.examOwners", user)
-                    .eq("exam.examOwners", user)
-                    .endJunction()
-                    .ne("exam.state", Exam.State.DELETED);
+            query = query
+                .disjunction()
+                .eq("exam.parent.examOwners", user)
+                .eq("exam.examOwners", user)
+                .endJunction()
+                .ne("exam.state", Exam.State.DELETED);
         }
 
         if (start.isPresent()) {
@@ -284,12 +281,11 @@ public class ReservationController extends BaseController {
         }
 
         if (state.isPresent()) {
-            query =
-                switch (state.get()) {
-                    case "NO_SHOW" -> query.eq("noShow", true);
-                    case "EXTERNAL_UNFINISHED", "EXTERNAL_FINISHED" -> query.isNull("id"); // Deliberately force an empty result set
-                    default -> query.eq("exam.state", Exam.State.valueOf(state.get())).eq("noShow", false);
-                };
+            query = switch (state.get()) {
+                case "NO_SHOW" -> query.eq("noShow", true);
+                case "EXTERNAL_UNFINISHED", "EXTERNAL_FINISHED" -> query.isNull("id"); // Deliberately force an empty result set
+                default -> query.eq("exam.state", Exam.State.valueOf(state.get())).eq("noShow", false);
+            };
         }
 
         if (studentId.isPresent()) {
@@ -300,23 +296,21 @@ public class ReservationController extends BaseController {
             }
         }
         if (examId.isPresent()) {
-            query =
-                query
-                    .ne("exam.state", Exam.State.DELETED) // Local student reservation
-                    .disjunction()
-                    .eq("exam.parent.id", examId.get())
-                    .eq("exam.id", examId.get())
-                    .endJunction();
+            query = query
+                .ne("exam.state", Exam.State.DELETED) // Local student reservation
+                .disjunction()
+                .eq("exam.parent.id", examId.get())
+                .eq("exam.id", examId.get())
+                .endJunction();
         }
 
         if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN)) {
             var userId = ownerId.get();
-            query =
-                query
-                    .disjunction()
-                    .eq("exam.examOwners.id", userId)
-                    .eq("exam.parent.examOwners.id", userId)
-                    .endJunction();
+            query = query
+                .disjunction()
+                .eq("exam.examOwners.id", userId)
+                .eq("exam.parent.examOwners.id", userId)
+                .endJunction();
         }
         var enrolments = query
             .orderBy("examinationEventConfiguration.examinationEvent.start")
@@ -360,8 +354,7 @@ public class ReservationController extends BaseController {
         Optional<String> externalRef,
         Http.Request request
     ) {
-        var query = DB
-            .find(Reservation.class)
+        var query = DB.find(Reservation.class)
             .fetch("enrolment", "noShow, retrialPermitted")
             .fetch("user", "id, firstName, lastName, email, userIdentifier")
             .fetch("enrolment.exam", "id, name, state, trialCount, implementation")
@@ -379,15 +372,14 @@ public class ReservationController extends BaseController {
 
         var user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         if (user.hasRole(Role.Name.TEACHER)) {
-            query =
-                query
-                    .isNull("enrolment.externalExam") // Hide reservations of external students (just to be sure)
-                    .isNull("enrolment.collaborativeExam") // Hide collaborative exams from teachers.
-                    .ne("enrolment.exam.state", Exam.State.DELETED) // Hide deleted exams from teachers
-                    .disjunction()
-                    .eq("enrolment.exam.parent.examOwners", user)
-                    .eq("enrolment.exam.examOwners", user)
-                    .endJunction();
+            query = query
+                .isNull("enrolment.externalExam") // Hide reservations of external students (just to be sure)
+                .isNull("enrolment.collaborativeExam") // Hide collaborative exams from teachers.
+                .ne("enrolment.exam.state", Exam.State.DELETED) // Hide deleted exams from teachers
+                .disjunction()
+                .eq("enrolment.exam.parent.examOwners", user)
+                .eq("enrolment.exam.examOwners", user)
+                .endJunction();
         }
 
         if (start.isPresent()) {
@@ -403,19 +395,18 @@ public class ReservationController extends BaseController {
         }
 
         if (state.isPresent()) {
-            query =
-                switch (state.get()) {
-                    case "NO_SHOW" -> query.eq("enrolment.noShow", true);
-                    case "EXTERNAL_UNFINISHED" -> query
-                        .isNotNull("externalUserRef")
-                        .isNull("enrolment.externalExam.finished");
-                    case "EXTERNAL_FINISHED" -> query
-                        .isNotNull("externalUserRef")
-                        .isNotNull("enrolment.externalExam.finished");
-                    default -> query
-                        .eq("enrolment.exam.state", Exam.State.valueOf(state.get()))
-                        .eq("enrolment.noShow", false);
-                };
+            query = switch (state.get()) {
+                case "NO_SHOW" -> query.eq("enrolment.noShow", true);
+                case "EXTERNAL_UNFINISHED" -> query
+                    .isNotNull("externalUserRef")
+                    .isNull("enrolment.externalExam.finished");
+                case "EXTERNAL_FINISHED" -> query
+                    .isNotNull("externalUserRef")
+                    .isNotNull("enrolment.externalExam.finished");
+                default -> query
+                    .eq("enrolment.exam.state", Exam.State.valueOf(state.get()))
+                    .eq("enrolment.noShow", false);
+            };
         }
 
         if (studentId.isPresent()) {
@@ -436,33 +427,32 @@ public class ReservationController extends BaseController {
             query = query.eq("machine.id", machineId.get());
         }
         if (examId.isPresent()) {
-            query =
-                query
-                    .disjunction()
-                    .eq("enrolment.exam.parent.id", examId.get())
-                    .eq("enrolment.exam.id", examId.get())
-                    .endJunction();
+            query = query
+                .disjunction()
+                .eq("enrolment.exam.parent.id", examId.get())
+                .eq("enrolment.exam.id", examId.get())
+                .endJunction();
         } else if (externalRef.isPresent()) {
             query = query.eq("enrolment.collaborativeExam.externalRef", externalRef.get());
         }
 
         if (ownerId.isPresent() && user.hasRole(Role.Name.ADMIN)) {
             var userId = ownerId.get();
-            query =
-                query
-                    .disjunction()
-                    .eq("enrolment.exam.examOwners.id", userId)
-                    .eq("enrolment.exam.parent.examOwners.id", userId)
-                    .endJunction();
+            query = query
+                .disjunction()
+                .eq("enrolment.exam.examOwners.id", userId)
+                .eq("enrolment.exam.parent.examOwners.id", userId)
+                .endJunction();
         }
         var reservations = query.orderBy("startAt").findSet();
         var result = ok(reservations);
         var anonIds = reservations
             .stream()
-            .filter(r ->
-                r.getEnrolment() != null &&
-                r.getEnrolment().getExam() != null &&
-                r.getEnrolment().getExam().isAnonymous()
+            .filter(
+                r ->
+                    r.getEnrolment() != null &&
+                    r.getEnrolment().getExam() != null &&
+                    r.getEnrolment().getExam().isAnonymous()
             )
             .map(GeneratedIdentityModel::getId)
             .collect(Collectors.toSet());

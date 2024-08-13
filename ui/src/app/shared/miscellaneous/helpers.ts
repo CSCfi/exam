@@ -16,6 +16,14 @@ export const debounce = <F extends (...args: unknown[]) => ReturnType<F>>(func: 
             timeout = window.setTimeout(() => resolve(func(...args)), waitFor);
         });
 };
+export const groupBy = <T>(xs: T[], fn: (x: T) => string) =>
+    xs.map(fn).reduce(
+        (acc, x, i) => {
+            acc[x] = (acc[x] || []).concat(xs[i]);
+            return acc;
+        },
+        {} as { [k: string]: T[] },
+    );
 
 export const updateList = <T>(items: T[], key: keyof T, value: T): T[] => {
     const index = items.findIndex((item) => item[key] === value[key]);

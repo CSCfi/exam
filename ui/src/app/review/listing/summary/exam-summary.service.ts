@@ -29,6 +29,7 @@ import { ExamService } from 'src/app/exam/exam.service';
 import { QuestionService } from 'src/app/question/question.service';
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
+import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 
 @Injectable({ providedIn: 'root' })
 export class ExamSummaryService {
@@ -348,21 +349,12 @@ export class ExamSummaryService {
         return sz % 2 == 1 ? sorted[Math.floor(sz / 2)] : (sorted[Math.floor(sz / 2 - 1)] + sorted[sz / 2]) / 2;
     };
 
-    private groupBy = <T>(xs: T[], fn: (x: T) => string) =>
-        xs.map(fn).reduce(
-            (acc, x, i) => {
-                acc[x] = (acc[x] || []).concat(xs[i]);
-                return acc;
-            },
-            {} as { [k: string]: T[] },
-        );
-
     private calculateQuestionData = (reviews: ExamParticipation[]) => {
         const sectionQuestions = reviews
             .map((r) => r.exam)
             .flatMap((e) => e.examSections)
             .flatMap((es) => es.sectionQuestions);
-        const mapped = this.groupBy(sectionQuestions, (sq) => (sq.question.parent as Question).id.toString());
+        const mapped = groupBy(sectionQuestions, (sq) => (sq.question.parent as Question).id.toString());
         return Object.entries(mapped)
             .map((e) => ({
                 question: e[0],

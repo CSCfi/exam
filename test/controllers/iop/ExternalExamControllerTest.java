@@ -79,8 +79,9 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     private final Reservation reservation = new Reservation();
 
     @Rule
-    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(ServerSetupTest.SMTP)
-        .withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
+    public final com.icegreen.greenmail.junit4.GreenMailRule greenMail = new GreenMailRule(
+        ServerSetupTest.SMTP
+    ).withConfiguration(new GreenMailConfiguration().withDisabledAuthentication());
 
     public static class EnrolmentServlet extends HttpServlet {
 
@@ -160,8 +161,12 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     public void setUp() throws Exception {
         super.setUp();
         DB.deleteAll(DB.find(ExamEnrolment.class).findList());
-        exam =
-            DB.find(Exam.class).fetch("examSections").fetch("examSections.sectionQuestions").where().idEq(1L).findOne();
+        exam = DB.find(Exam.class)
+            .fetch("examSections")
+            .fetch("examSections.sectionQuestions")
+            .where()
+            .idEq(1L)
+            .findOne();
         initExamSectionQuestions(exam);
         exam.setPeriodStart(DateTime.now().minusDays(1));
         exam.setPeriodEnd(DateTime.now().plusDays(1));
@@ -200,8 +205,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
     @Test
     public void testRequestEnrolment() throws Exception {
         login("student@funet.fi");
-        Reservation external = DB
-            .find(Reservation.class)
+        Reservation external = DB.find(Reservation.class)
             .fetch("enrolment")
             .fetch("enrolment.externalExam")
             .where()
@@ -325,8 +329,7 @@ public class ExternalExamControllerTest extends IntegrationTestCase {
         assertThat(jsonNode).isNotNull();
         assertAttachment(examAttachment, jsonNode.path("attachment"));
 
-        final JsonNode questionJson = StreamSupport
-            .stream(jsonNode.path("examSections").spliterator(), false)
+        final JsonNode questionJson = StreamSupport.stream(jsonNode.path("examSections").spliterator(), false)
             .flatMap(node -> StreamSupport.stream(node.path("sectionQuestions").spliterator(), false))
             .filter(node -> node.get("id").asLong() == sectionQuestion.getId())
             .map(node -> node.path("question"))

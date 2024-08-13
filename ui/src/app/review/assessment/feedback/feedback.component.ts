@@ -131,9 +131,9 @@ export class FeedbackComponent implements OnInit {
         if (!attachment) {
             return;
         }
-        this.collaborative && attachment.externalId
-            ? this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName)
-            : this.Attachment.downloadFeedbackAttachment(this.exam);
+        if (this.collaborative && attachment.externalId)
+            this.Attachment.downloadCollaborativeAttachment(attachment.externalId, attachment.fileName);
+        else this.Attachment.downloadFeedbackAttachment(this.exam);
     };
 
     removeFeedbackAttachment = () => {

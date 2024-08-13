@@ -75,8 +75,7 @@ public class AvailabilityController extends BaseController {
         }
         DateTime searchStart = parseSearchStartDate(day);
         DateTime searchEnd = getSearchEndDate(searchStart);
-        List<Reservation> reservations = DB
-            .find(Reservation.class)
+        List<Reservation> reservations = DB.find(Reservation.class)
             .where()
             .eq("machine.room.id", roomId)
             .between("startAt", searchStart.toDate(), searchEnd.toDate())

@@ -10,7 +10,6 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
-import { groupBy } from 'ramda';
 import { MachineListComponent } from 'src/app/facility/machines/machines.component';
 import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
 import { OpenHoursComponent } from 'src/app/facility/schedule/opening-hours.component';
@@ -20,6 +19,7 @@ import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import type { User } from 'src/app/session/session.service';
 import { SessionService } from 'src/app/session/session.service';
 import { DateTimeService } from 'src/app/shared/date/date.service';
+import { groupBy } from 'src/app/shared/miscellaneous/helpers';
 import { RoomService } from './room.service';
 
 interface ExtendedRoom extends ExamRoom {
@@ -156,9 +156,9 @@ export class RoomListComponent implements OnInit {
         const sorter = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
         const capitalize = (s: string) => `${s.charAt(0).toUpperCase()}${s.slice(1)}`;
         const timePart = (s: string) => format(new Date(s), 'HH:mm');
-        const mapping: Record<string, DefaultWorkingHours[]> = groupBy(
-            (wh) => `${timePart(wh.startTime)} - ${timePart(wh.endTime)}`,
+        const mapping = groupBy(
             workingHours,
+            (x: DefaultWorkingHours) => `${timePart(x.startTime)} - ${timePart(x.endTime)}`,
         );
         return Object.keys(mapping).map((k) => {
             const days = mapping[k]

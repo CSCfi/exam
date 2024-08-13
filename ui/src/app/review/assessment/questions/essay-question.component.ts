@@ -108,7 +108,7 @@ export class EssayQuestionComponent implements OnInit {
 
     insertEssayScore = () => {
         if (this.collaborative) {
-            return this.Assessment.saveCollaborativeEssayScore$(
+            this.Assessment.saveCollaborativeEssayScore$(
                 this.sectionQuestion as ExaminationQuestion,
                 this.id,
                 this.ref,
@@ -118,8 +118,9 @@ export class EssayQuestionComponent implements OnInit {
                 this.scored.emit(resp.rev);
             });
         } else {
-            return this.Assessment.saveEssayScore$(this.sectionQuestion as ExaminationQuestion).subscribe(() => {
-                this.toast.info(this.translate.instant('i18n_graded')), this.scored.emit();
+            this.Assessment.saveEssayScore$(this.sectionQuestion as ExaminationQuestion).subscribe(() => {
+                this.toast.info(this.translate.instant('i18n_graded'));
+                this.scored.emit();
             });
         }
     };

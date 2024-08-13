@@ -69,8 +69,7 @@ public class CalendarController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("STUDENT") })
     public Result removeReservation(long id, Http.Request request) throws NotFoundException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        final ExamEnrolment enrolment = DB
-            .find(ExamEnrolment.class)
+        final ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
             .fetch("reservation")
             .fetch("reservation.machine")
             .fetch("reservation.machine.room")
@@ -158,8 +157,7 @@ public class CalendarController extends BaseController {
     public Result getCurrentEnrolment(Long id, Http.Request request) {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        Optional<ExamEnrolment> enrolment = DB
-            .find(ExamEnrolment.class)
+        Optional<ExamEnrolment> enrolment = DB.find(ExamEnrolment.class)
             .fetch("optionalSections")
             .where()
             .eq("user.id", user.getId())
@@ -189,8 +187,7 @@ public class CalendarController extends BaseController {
         try (Transaction tx = DB.beginTransaction()) {
             // Take pessimistic lock for user to prevent multiple reservations creating.
             DB.find(User.class).forUpdate().where().eq("id", user.getId()).findOne();
-            Optional<ExamEnrolment> optionalEnrolment = DB
-                .find(ExamEnrolment.class)
+            Optional<ExamEnrolment> optionalEnrolment = DB.find(ExamEnrolment.class)
                 .fetch("reservation")
                 .fetch("exam.examSections")
                 .fetch("exam.examSections.examMaterials")
@@ -246,8 +243,7 @@ public class CalendarController extends BaseController {
                         .removeReservation(oldReservation, user, "")
                         .thenCompose(result -> {
                             // Re-fetch enrolment
-                            ExamEnrolment updatedEnrolment = DB
-                                .find(ExamEnrolment.class)
+                            ExamEnrolment updatedEnrolment = DB.find(ExamEnrolment.class)
                                 .fetch("exam.executionType")
                                 .where()
                                 .idEq(enrolment.getId())
@@ -319,8 +315,7 @@ public class CalendarController extends BaseController {
 
     protected ExamEnrolment getEnrolment(Long examId, User user) {
         DateTime now = dateTimeHandler.adjustDST(DateTime.now());
-        return DB
-            .find(ExamEnrolment.class)
+        return DB.find(ExamEnrolment.class)
             .fetch("exam")
             .where()
             .eq("user", user)

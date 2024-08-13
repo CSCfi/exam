@@ -203,8 +203,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getPublishedExams(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Exam> query = DB
-            .find(Exam.class)
+        ExpressionList<Exam> query = DB.find(Exam.class)
             .fetch("course", "code")
             .where()
             .isNull("parent")

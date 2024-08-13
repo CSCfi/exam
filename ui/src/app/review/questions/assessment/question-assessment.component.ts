@@ -15,7 +15,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { forkJoin } from 'rxjs';
+import { Observable, catchError, forkJoin, of, tap } from 'rxjs';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { QuestionFlowComponent } from 'src/app/review/questions/flow/question-flow.component';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
@@ -105,7 +105,7 @@ export class QuestionAssessmentComponent implements OnInit {
     isFinalized = (review: QuestionReview) => this.QuestionReview.isFinalized(review);
 
     saveAssessments = (answers: ReviewQuestion[]) =>
-        forkJoin(answers.map(this.saveEvaluation)).subscribe(() => (this.reviews = [...this.reviews]));
+        forkJoin(answers.map(this.saveEvaluation$)).subscribe(() => (this.reviews = [...this.reviews]));
 
     downloadQuestionAttachment = () => this.Attachment.downloadQuestionAttachment(this.selectedReview.question);
 
@@ -120,10 +120,12 @@ export class QuestionAssessmentComponent implements OnInit {
         this.lockedAnswers = this.selectedReview.answers.filter(this.isLocked);
     };
 
-    private saveEvaluation = (answer: ReviewQuestion) => {
-        return new Promise<void>((resolve) => {
-            answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
-            this.Assessment.saveEssayScore$(answer).subscribe(() => {
+    private saveEvaluation$ = (answer: ReviewQuestion): Observable<void> => {
+        // TODO: this looks shady with rollback and all, whatabout smth like
+        // const tempAnswer: ReviewQuestion = {...answer, essayAnswer: {... answer.essayAnswer, evaluatedScore: answer.essayAnswer.temporaryScore}};
+        answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
+        return this.Assessment.saveEssayScore$(answer).pipe(
+            tap(() => {
                 this.toast.info(this.translate.instant('i18n_graded'));
                 if (this.assessedAnswers.indexOf(answer) === -1) {
                     this.unassessedAnswers.splice(this.unassessedAnswers.indexOf(answer), 1);
@@ -142,15 +144,14 @@ export class QuestionAssessmentComponent implements OnInit {
                         }
                     }
                 }
-                resolve();
             }),
-                (err: string) => {
-                    // Roll back
-                    answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
-                    this.toast.error(err);
-                    resolve();
-                };
-        });
+            catchError((err) => {
+                // Roll back
+                answer.essayAnswer.evaluatedScore = answer.essayAnswer.temporaryScore;
+                this.toast.error(err);
+                return of();
+            }),
+        );
     };
 
     private isLocked = (answer: ReviewQuestion) => {

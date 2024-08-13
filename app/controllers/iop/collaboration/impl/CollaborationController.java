@@ -111,8 +111,7 @@ public class CollaborationController extends BaseController {
 
     void updateLocalReferences(JsonNode root, Map<String, CollaborativeExam> locals) {
         // Save references to documents that we don't have locally yet
-        StreamSupport
-            .stream(root.spliterator(), false)
+        StreamSupport.stream(root.spliterator(), false)
             .filter(node -> !locals.containsKey(node.get("_id").asText()))
             .forEach(node -> {
                 String ref = node.get("_id").asText();
@@ -148,8 +147,10 @@ public class CollaborationController extends BaseController {
             (exam
                     .getExamOwners()
                     .stream()
-                    .anyMatch(u ->
-                        u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn())
+                    .anyMatch(
+                        u ->
+                            u.getEmail().equalsIgnoreCase(user.getEmail()) ||
+                            u.getEmail().equalsIgnoreCase(user.getEppn())
                     ) &&
                 exam.hasState(Exam.State.PRE_PUBLISHED, Exam.State.PUBLISHED))
         );
@@ -161,8 +162,10 @@ public class CollaborationController extends BaseController {
             (exam
                     .getExamOwners()
                     .stream()
-                    .noneMatch(u ->
-                        u.getEmail().equalsIgnoreCase(user.getEmail()) || u.getEmail().equalsIgnoreCase(user.getEppn())
+                    .noneMatch(
+                        u ->
+                            u.getEmail().equalsIgnoreCase(user.getEmail()) ||
+                            u.getEmail().equalsIgnoreCase(user.getEppn())
                     ) ||
                 !exam.hasState(Exam.State.REVIEW, Exam.State.REVIEW_STARTED, Exam.State.GRADED))
         );
@@ -179,15 +182,14 @@ public class CollaborationController extends BaseController {
     }
 
     void calculateScores(JsonNode root) {
-        stream(root)
-            .forEach(ep -> {
-                Exam exam = JsonDeserializer.deserialize(Exam.class, ep.get("exam"));
-                exam.setMaxScore();
-                exam.setApprovedAnswerCount();
-                exam.setRejectedAnswerCount();
-                exam.setTotalScore();
-                ((ObjectNode) ep).set("exam", serialize(exam));
-            });
+        stream(root).forEach(ep -> {
+            Exam exam = JsonDeserializer.deserialize(Exam.class, ep.get("exam"));
+            exam.setMaxScore();
+            exam.setApprovedAnswerCount();
+            exam.setRejectedAnswerCount();
+            exam.setTotalScore();
+            ((ObjectNode) ep).set("exam", serialize(exam));
+        });
     }
 
     Stream<JsonNode> stream(JsonNode node) {
@@ -200,24 +202,22 @@ public class CollaborationController extends BaseController {
             return Either.left(internalServerError(root.get("message").asText("Connection refused")));
         }
 
-        Map<String, CollaborativeExam> locals = DB
-            .find(CollaborativeExam.class)
+        Map<String, CollaborativeExam> locals = DB.find(CollaborativeExam.class)
             .findSet()
             .stream()
             .collect(Collectors.toMap(CollaborativeExam::getExternalRef, Function.identity()));
 
         updateLocalReferences(root, locals);
 
-        Map<CollaborativeExam, JsonNode> localToExternal = StreamSupport
-            .stream(root.spliterator(), false)
-            .collect(Collectors.toMap(node -> locals.get(node.get("_id").asText()), Function.identity()));
+        Map<CollaborativeExam, JsonNode> localToExternal = StreamSupport.stream(root.spliterator(), false).collect(
+            Collectors.toMap(node -> locals.get(node.get("_id").asText()), Function.identity())
+        );
 
         return Either.right(localToExternal);
     }
 
     Either<CompletionStage<Result>, CollaborativeExam> findCollaborativeExam(Long id) {
-        return DB
-            .find(CollaborativeExam.class)
+        return DB.find(CollaborativeExam.class)
             .where()
             .idEq(id)
             .findOneOrEmpty()
@@ -226,8 +226,7 @@ public class CollaborationController extends BaseController {
     }
 
     Either<CompletionStage<Result>, CollaborativeExam> findCollaborativeExam(String ref) {
-        return DB
-            .find(CollaborativeExam.class)
+        return DB.find(CollaborativeExam.class)
             .where()
             .eq("externalRef", ref)
             .findOneOrEmpty()

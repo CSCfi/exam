@@ -223,7 +223,6 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         });
 
     private onUnload = (event: BeforeUnloadEvent) => {
-        event.preventDefault();
-        return this.questionForm?.dirty ? (event.returnValue = '') : null;
+        if (this.questionForm?.dirty) event.preventDefault();
     };
 }

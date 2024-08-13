@@ -269,8 +269,10 @@ public class CollaborativeReviewController extends CollaborationController {
                                     return internalServerError("i18n_error_creating_csv_file");
                                 }
                                 String contentDisposition = fileHandler.getContentDisposition(file);
-                                return ok(fileHandler.encodeAndDelete(file))
-                                    .withHeader("Content-Disposition", contentDisposition);
+                                return ok(fileHandler.encodeAndDelete(file)).withHeader(
+                                    "Content-Disposition",
+                                    contentDisposition
+                                );
                             })
                     )
                     .getOrElseGet(Function.identity())
@@ -651,26 +653,25 @@ public class CollaborativeReviewController extends CollaborationController {
                                             JsonNode root = r.asJson();
                                             JsonNode examNode = root.get("exam");
                                             Exam exam = JsonDeserializer.deserialize(Exam.class, examNode);
-                                            return validateExamState(exam, !gradeless, user)
-                                                .orElseGet(() -> {
-                                                    ((ObjectNode) examNode).put(
-                                                            "state",
-                                                            Exam.State.GRADED_LOGGED.toString()
-                                                        );
-                                                    if (
-                                                        exam.getGradedByUser() == null &&
-                                                        exam.getAutoEvaluationConfig() != null
-                                                    ) {
-                                                        // Automatically graded by system, set graded by user at this point.
-                                                        ((ObjectNode) examNode).set("gradedByUser", serialize(user));
-                                                    }
-                                                    if (gradeless) {
-                                                        ((ObjectNode) examNode).put("gradeless", true);
-                                                        ((ObjectNode) examNode).set("grade", NullNode.getInstance());
-                                                    }
-                                                    ((ObjectNode) root).put("rev", revision);
-                                                    return upload(url, root);
-                                                });
+                                            return validateExamState(exam, !gradeless, user).orElseGet(() -> {
+                                                ((ObjectNode) examNode).put(
+                                                        "state",
+                                                        Exam.State.GRADED_LOGGED.toString()
+                                                    );
+                                                if (
+                                                    exam.getGradedByUser() == null &&
+                                                    exam.getAutoEvaluationConfig() != null
+                                                ) {
+                                                    // Automatically graded by system, set graded by user at this point.
+                                                    ((ObjectNode) examNode).set("gradedByUser", serialize(user));
+                                                }
+                                                if (gradeless) {
+                                                    ((ObjectNode) examNode).put("gradeless", true);
+                                                    ((ObjectNode) examNode).set("grade", NullNode.getInstance());
+                                                }
+                                                ((ObjectNode) root).put("rev", revision);
+                                                return upload(url, root);
+                                            });
                                         })
                                         .getOrElseGet(Function.identity());
                                 return wsr.get().thenComposeAsync(onSuccess);
