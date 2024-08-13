@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.MultipartConfigElement;
 import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -19,8 +20,10 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.server.ServerConnector;
 import play.libs.Json;
 
 public class RemoteServerHelper {
@@ -72,21 +75,26 @@ public class RemoteServerHelper {
         boolean setMultipart
     ) throws Exception {
         Server server = new Server(port);
+        Connector connector = new ServerConnector(server);
+        server.addConnector(connector);
         server.setStopAtShutdown(true);
-        ServletHandler sh = new ServletHandler();
-        handlers.forEach((k, v) -> v.forEach(s -> sh.addServletWithMapping(k, s)));
+        ServletContextHandler sch = new ServletContextHandler();
+        sch.setContextPath("/");
+        server.setHandler(sch);
+        handlers.forEach((k, v) -> v.forEach(s -> sch.getServletHandler().addServletWithMapping(k, s)));
         if (setMultipart) {
             String path = Files.createTempDirectory("test_upload").toString();
             handlers.forEach((k, v) ->
                 v.forEach(s ->
-                    sh
-                        .getServlet(sh.getServletMapping(s).getServletName())
+                    sch
+                        .getServletHandler()
+                        .getServlet(sch.getServletHandler().getServletMapping(s).getServletName())
                         .getRegistration()
                         .setMultipartConfig(new MultipartConfigElement(path))
                 )
             );
         }
-        server.setHandler(sh);
+        server.setHandler(sch);
         server.start();
         return server;
     }

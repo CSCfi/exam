@@ -3,7 +3,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-package controllers
+package controllers.assessment
 
 import io.ebean.DB
 import miscellaneous.csv.CsvBuilder
@@ -12,9 +12,8 @@ import miscellaneous.scala.{DbApiHelper, JavaApiHelper}
 import models.exam.Exam
 import models.questions.Question
 import models.user.Role
-import org.apache.commons.compress.archivers.ArchiveOutputStream
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveOutputStream}
-import org.apache.commons.compress.utils.IOUtils
+import org.apache.commons.io.IOUtils
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
@@ -97,7 +96,7 @@ class ReviewDocumentsController @Inject() (
 
   private def createArchive(
       prototype: Exam,
-      aos: ArchiveOutputStream,
+      aos: TarArchiveOutputStream,
       start: Option[DateTime],
       end: Option[DateTime]
   ): Unit =
@@ -135,7 +134,7 @@ class ReviewDocumentsController @Inject() (
               aos.closeArchiveEntry()
     createSummaryFile(aos, start, end, prototype, questions.toMap)
 
-  private def addFileEntry(name: String, file: File, os: ArchiveOutputStream): Unit =
+  private def addFileEntry(name: String, file: File, os: TarArchiveOutputStream): Unit =
     val entry = new TarArchiveEntry(name)
     entry.setSize(file.length)
     os.putArchiveEntry(entry)
@@ -143,7 +142,7 @@ class ReviewDocumentsController @Inject() (
     os.closeArchiveEntry()
 
   private def createSummaryFile(
-      aos: ArchiveOutputStream,
+      aos: TarArchiveOutputStream,
       start: Option[DateTime],
       end: Option[DateTime],
       exam: Exam,

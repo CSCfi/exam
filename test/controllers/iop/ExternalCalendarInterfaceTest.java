@@ -52,10 +52,7 @@ import org.eclipse.jetty.server.Server;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.format.ISODateTimeFormat;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import play.Application;
 import play.inject.guice.GuiceApplicationBuilder;
 import play.libs.Json;
@@ -573,7 +570,7 @@ public class ExternalCalendarInterfaceTest extends IntegrationTestCase {
         assertThat(user).isNull();
 
         ExamMachine machine = room.getExamMachines().get(0);
-        machine.setIpAddress("128.0.0.2");
+        machine.setIpAddress("128.2.2.2");
         machine.update();
         Reservation reservation = new Reservation();
         reservation.setExternalUserRef(eppn);

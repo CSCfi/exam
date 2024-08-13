@@ -157,8 +157,8 @@ GET           /app/examparticipations/:eid                                    co
 GET           /app/usernoshows/:eid                                           controllers.assessment.ReviewController.listNoShowsForExamAndUser(eid: Long, request: Request)
 POST          /app/email/inspection/:eid                                      controllers.assessment.ReviewController.sendInspectionMessage(eid: Long, request: Request)
 POST          /app/review/:id/inspection                                      controllers.assessment.ReviewController.addInspectionComment(id: Long, request: Request)
-POST          /app/gradeimport                                                controllers.ReviewDocumentsController.importGrades
-GET           /app/exam/:eid/attachments                                      controllers.ReviewDocumentsController.getArchivedAttachments(eid: Long, start: Option[String], end: Option[String])
+POST          /app/gradeimport                                                controllers.assessment.ReviewDocumentsController.importGrades
+GET           /app/exam/:eid/attachments                                      controllers.assessment.ReviewDocumentsController.getArchivedAttachments(eid: Long, start: Option[String], end: Option[String])
 
 ############### Language inspection interface ###############
 GET           /app/inspections                                                controllers.assessment.LanguageInspectionController.listInspections(month: java.util.Optional[String], start: java.util.Optional[java.lang.Long], end: java.util.Optional[java.lang.Long])
