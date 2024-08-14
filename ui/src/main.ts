@@ -45,6 +45,7 @@ bootstrapApplication(AppComponent, {
             deps: [SessionService],
             useFactory: (srv: SessionService) => srv.getLocale(),
         },
+        //provideExperimentalZonelessChangeDetection(),
         provideRouter(APP_ROUTES),
         provideHttpClient(withInterceptorsFromDi()),
         provideAnimations(),

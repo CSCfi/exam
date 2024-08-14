@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import { DatePipe, LowerCasePipe, SlicePipe, UpperCasePipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -38,12 +38,12 @@ import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.co
     styleUrls: ['../enrolment.shared.scss', './active-enrolment.component.scss'],
 })
 export class ActiveEnrolmentComponent {
-    @Input() enrolment!: ExamEnrolment & { occasion?: { startAt: string; endAt: string; tz: string } };
-    @Output() removed = new EventEmitter<number>();
+    enrolment = input.required<ExamEnrolment & { occasion?: { startAt: string; endAt: string; tz: string } }>();
+    removed = output<number>();
 
-    showGuide = false;
-    showInstructions = false;
-    showMaterials = false;
+    showGuide = signal(false);
+    showInstructions = signal(false);
+    showMaterials = signal(false);
 
     constructor(
         private translate: TranslateService,
@@ -51,16 +51,16 @@ export class ActiveEnrolmentComponent {
         private Files: FileService,
     ) {}
 
-    hasUpcomingAlternativeEvents = () => this.Enrolment.hasUpcomingAlternativeEvents(this.enrolment);
+    hasUpcomingAlternativeEvents = () => this.Enrolment.hasUpcomingAlternativeEvents(this.enrolment());
 
-    makeReservation = () => this.Enrolment.makeReservation(this.enrolment);
+    makeReservation = () => this.Enrolment.makeReservation(this.enrolment());
 
-    addEnrolmentInformation = () => this.Enrolment.addEnrolmentInformation(this.enrolment);
+    addEnrolmentInformation = () => this.Enrolment.addEnrolmentInformation(this.enrolment());
 
     enrolmentRemoved = ($event: number) => this.removed.emit($event);
 
     getRoomInstruction = () => {
-        const reservation = this.enrolment.reservation;
+        const reservation = this.enrolment().reservation;
         if (!reservation) {
             return;
         }
@@ -77,8 +77,8 @@ export class ActiveEnrolmentComponent {
 
     downloadSebFile = () =>
         this.Files.download(
-            `/app/student/enrolments/${this.enrolment.id}/configFile`,
-            (this.enrolment.exam.name || this.translate.instant('i18n_no_name')).replace(' ', '-') + '.seb',
+            `/app/student/enrolments/${this.enrolment().id}/configFile`,
+            (this.enrolment().exam.name || this.translate.instant('i18n_no_name')).replace(' ', '-') + '.seb',
         );
 
     private getRoomInstructions = (lang: string, room: Partial<ExamRoom>) => {

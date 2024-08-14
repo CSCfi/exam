@@ -18,25 +18,27 @@
       "prefix": "xm",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser-esbuild",
+          "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/exam",
+            "outputPath": {
+              "base": "dist/exam"
+            },
             "index": "ui/src/index.html",
-            "main": "ui/src/main.ts",
             "polyfills": ["@angular/localize/init", "ui/src/polyfills.ts"],
             "tsConfig": "ui/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": ["ui/src/favicon.ico", "ui/src/assets"],
             "styles": ["ui/src/styles.scss"],
-            "scripts": []
+            "scripts": [],
+            "browser": "ui/src/main.ts"
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "2.2mb",
-                  "maximumError": "2.3mb"
+                  "maximumWarning": "1.6mb",
+                  "maximumError": "2mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -58,7 +60,6 @@
               "sourceMap": true
             },
             "development": {
-              "buildOptimizer": false,
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true,

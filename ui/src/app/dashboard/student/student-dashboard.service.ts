@@ -29,7 +29,7 @@ export class StudentDashboardService {
         private DateTime: DateTimeService,
     ) {}
 
-    listEnrolments = (): Observable<DashboardEnrolment[]> =>
+    listEnrolments$ = (): Observable<DashboardEnrolment[]> =>
         this.http.get<ExamEnrolment[]>('/app/student/enrolments').pipe(
             map((enrolments) =>
                 enrolments.map((e) => {

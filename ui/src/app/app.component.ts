@@ -6,7 +6,7 @@ import { NgClass, registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import localeFi from '@angular/common/locales/fi';
 import localeSv from '@angular/common/locales/sv';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -19,18 +19,14 @@ import { SessionService } from './session/session.service';
 @Component({
     selector: 'xm-app',
     template: `
-        @if (!user && devLoginRequired) {
-            <div>
-                <xm-dev-login (loggedIn)="setUser($event)"></xm-dev-login>
-            </div>
+        @if (!user && devLoginRequired()) {
+            <xm-dev-login (loggedIn)="setUser($event)"></xm-dev-login>
         }
         @if (user) {
-            <div>
-                <xm-navigation [hidden]="hideNavBar"></xm-navigation>
-                <main id="mainView" class="container-fluid" [ngClass]="{ 'vmenu-on': !hideNavBar }">
-                    <router-outlet></router-outlet>
-                </main>
-            </div>
+            <xm-navigation [hidden]="hideNavBar"></xm-navigation>
+            <main id="mainView" class="container-fluid" [ngClass]="{ 'vmenu-on': !hideNavBar }">
+                <router-outlet></router-outlet>
+            </main>
         }
     `,
     styles: [
@@ -64,7 +60,7 @@ import { SessionService } from './session/session.service';
 export class AppComponent implements OnInit, OnDestroy {
     user?: User;
     hideNavBar = false;
-    devLoginRequired = false;
+    devLoginRequired = signal(false);
     private ngUnsubscribe = new Subject();
 
     constructor(
@@ -106,7 +102,7 @@ export class AppComponent implements OnInit, OnDestroy {
                     if (value === 'PROD') {
                         this.Session.login$('', '').subscribe((user) => (this.user = user));
                     }
-                    this.devLoginRequired = value === 'DEV';
+                    this.devLoginRequired.set(value === 'DEV');
                 },
                 error: () => console.log('no env found'),
             });

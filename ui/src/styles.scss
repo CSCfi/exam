@@ -100,11 +100,11 @@ form .exclude {
     border-radius: 4px;
     border: 2px solid #ededed;
     border-left: #238635 4px solid;
+    padding: 30px;
     @media (max-width: 920px) {
         padding: 5px;
         margin-bottom: 5px;
     }
-    padding: 30px;
 }
 .xm-study-item-container--warning {
     @extend .xm-study-item-container;
@@ -191,21 +191,21 @@ form .exclude {
 }
 /* Accessibility */
 .skip {
-  left: -9999px;
-  display: flex;
-  position: absolute;
-  top: auto;
-  z-index: -999;
-  margin: 5px;
-  white-space: nowrap;
-  background-color: black;
-  border: #e7e7e7;
-  color: white;
+    left: -9999px;
+    display: flex;
+    position: absolute;
+    top: auto;
+    z-index: -999;
+    margin: 5px;
+    white-space: nowrap;
+    background-color: black;
+    border: #e7e7e7;
+    color: white;
 }
 .skip:focus,
 .skip:active {
-        left: auto;
-        z-index: 999;
+    left: auto;
+    z-index: 999;
 }
 .important-clear-focus:focus, .btn:focus{
     box-shadow:

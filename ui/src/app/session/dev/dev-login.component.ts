@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import type { User } from 'src/app/session/session.service';
@@ -54,7 +54,7 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
     imports: [FormsModule, TranslateModule, PageHeaderComponent, PageContentComponent],
 })
 export class DevLoginComponent {
-    @Output() loggedIn = new EventEmitter<User>();
+    loggedIn = output<User>();
 
     username = '';
     password = '';
