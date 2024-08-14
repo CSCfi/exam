@@ -18,12 +18,12 @@
       "prefix": "xm",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:browser-esbuild",
           "options": {
             "outputPath": "dist/exam",
             "index": "ui/src/index.html",
             "main": "ui/src/main.ts",
-            "polyfills": "ui/src/polyfills.ts",
+            "polyfills": ["@angular/localize/init", "ui/src/polyfills.ts"],
             "tsConfig": "ui/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": ["ui/src/favicon.ico", "ui/src/assets"],
@@ -60,7 +60,6 @@
             "development": {
               "buildOptimizer": false,
               "optimization": false,
-              "vendorChunk": true,
               "extractLicenses": false,
               "sourceMap": true,
               "namedChunks": true
@@ -71,8 +70,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "proxyConfig": "ui/src/proxy.conf.js",
-            "buildTarget": "exam:build"
+            "buildTarget": "exam:build",
+            "proxyConfig": "ui/src/proxy.conf.js"
           },
           "configurations": {
             "production": {

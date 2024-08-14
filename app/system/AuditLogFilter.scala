@@ -17,7 +17,7 @@ class AuditLogFilter @Inject() (implicit val mat: Materializer, ec: ExecutionCon
   override def apply(next: RequestHeader => Future[Result])(rh: RequestHeader): Future[Result] =
     val (method, session, uri) = (rh.method, rh.session, rh.uri)
     // No point in logging asset requests. Also requests with bodies are handled down the line
-    if !uri.startsWith("/assets") && !rh.hasBody then
+    if Seq("app/", "integration/").exists(uri.tail.startsWith) && !rh.hasBody then
       val userString =
         if session.isEmpty || session.get("id").isEmpty then "user <NULL>"
         else
