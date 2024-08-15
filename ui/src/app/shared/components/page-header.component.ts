@@ -10,13 +10,17 @@ import { HistoryBackComponent } from 'src/app/shared/history/history-back.compon
     template: `
         <div class="row mx-3 mt-4 mb-2 align-items-center">
             <div [ngClass]="appendWide ? 'col-md-6' : 'col-md-9'" class="col-s-3">
-                @if (history) {
-                    <span class="pe-4"><xm-history-back></xm-history-back></span>
-                }
-                @if (prependTemplate) {
-                    <ng-container [ngTemplateOutlet]="prependTemplate"></ng-container>
-                }
-                <span class="xm-page-header-title">{{ text | translate }}</span>
+                <div class="d-flex">
+                    @if (history) {
+                        <span class="pe-4"><xm-history-back></xm-history-back></span>
+                    }
+                    @if (prependTemplate) {
+                        <ng-container [ngTemplateOutlet]="prependTemplate"></ng-container>
+                    }
+                    <h1 class="xm-page-header-title">
+                        {{ text | translate }}
+                    </h1>
+                </div>
             </div>
             @if (appendTemplate) {
                 <div [ngClass]="appendWide ? 'col-md-6' : 'col-md-3'">
@@ -32,6 +36,7 @@ import { HistoryBackComponent } from 'src/app/shared/history/history-back.compon
                 color: #2c2c2c;
                 border-bottom: 2px solid #2c7639;
                 padding-bottom: 7px;
+                width: fit-content;
             }
         `,
     ],
