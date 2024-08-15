@@ -38,6 +38,7 @@ export class ExaminationEventDialogComponent implements OnInit {
     @Input() config?: ExaminationEventConfiguration;
     @Input() maintenancePeriods: MaintenancePeriod[] = [];
     @Input() requiresPassword = false;
+    @Input() examMinDate = '';
     @Input() examMaxDate = '';
     start = signal(new Date(new Date().getTime() + 60 * 1000));
     description = signal('');
