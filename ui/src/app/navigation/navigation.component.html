@@ -28,7 +28,7 @@
             </div>
             <div class="nav-body">
                 <ul class="links">
-                    @for (link of links; track link.name) {
+                    @for (link of links; track link.route) {
                         <li [hidden]="!link.visible">
                             <button
                                 class="btn important-clear-focus"
@@ -83,7 +83,7 @@
             </div>
             <div class="nav-body-mobile pt-2 pb-2" [ngbCollapse]="!mobileMenuOpen">
                 <ul class="links">
-                    @for (link of links; track link.name) {
+                    @for (link of links; track link.route) {
                         <li [hidden]="!link.visible">
                             <button
                                 class="btn important-clear-focus w-100"

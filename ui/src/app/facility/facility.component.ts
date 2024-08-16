@@ -126,7 +126,6 @@ export class FacilityComponent implements OnInit {
                     error: (err) => this.toast.error(err),
                 });
             },
-            error: (err) => this.toast.error(err),
         });
     };
 

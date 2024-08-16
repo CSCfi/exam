@@ -306,7 +306,6 @@ export class EnrolmentService {
                     error: (err) => this.toast.error(err),
                 });
             },
-            error: (err) => this.toast.error(err),
         });
     };
 
