@@ -38,10 +38,10 @@ import { LibraryTagsDialogComponent } from './tags/library-tags-dialog.component
         <xm-page-content [content]="content" />
         <ng-template #buttons>
             <div class="float-end pe-3">
-                <button (click)="import()" class="xm-ok-button me-3">
+                <button (click)="import()" class="btn btn-success me-3">
                     {{ 'i18n_toolbar_import_questions' | translate }}
                 </button>
-                <button [routerLink]="['new']" [queryParams]="{ nextState: 'questions' }" class="xm-ok-button">
+                <button [routerLink]="['new']" [queryParams]="{ nextState: 'questions' }" class="btn btn-success">
                     {{ 'i18n_toolbar_new_question' | translate }}
                 </button>
             </div>

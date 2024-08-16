@@ -87,12 +87,12 @@ import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component
         <div class="row mt-3">
             <div class="col flex justify-content-end">
                 @if (!exam.alreadyEnrolled) {
-                    <button class="xm-ok-button important-clear-focus" (click)="enrollForExam()" [disabled]="enrolling">
+                    <button class="btn btn-success" (click)="enrollForExam()" [disabled]="enrolling">
                         {{ 'i18n_enroll_to_exam' | translate }}
                     </button>
                 }
                 @if (exam.alreadyEnrolled && !exam.reservationMade) {
-                    <button class="xm-ok-button important-clear-focus" (click)="makeReservation()">
+                    <button class="btn btn-success" (click)="makeReservation()">
                         {{ 'i18n_student_new_reservation' | translate }}
                     </button>
                 }

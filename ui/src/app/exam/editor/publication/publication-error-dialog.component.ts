@@ -32,7 +32,7 @@ import { TranslateModule } from '@ngx-translate/core';
             }
         </div>
         <div class="modal-footer">
-            <button class="xm-cancel-button" (click)="activeModal.close()" autofocus>
+            <button class="btn btn-secondary" (click)="activeModal.close()" autofocus>
                 {{ 'i18n_button_ok' | translate }}
             </button>
         </div>

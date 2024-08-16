@@ -54,7 +54,7 @@ import { PageHeaderComponent } from 'src/app/shared/components/page-header.compo
                     />
                 </div>
 
-                <button type="submit" class="xm-ok-button" id="submit">
+                <button type="submit" class="btn btn-success" id="submit">
                     {{ 'i18n_login' | translate }}
                 </button>
             </form>

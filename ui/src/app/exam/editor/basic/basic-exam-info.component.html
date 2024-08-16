@@ -302,20 +302,22 @@
 <!-- Buttons -->
 <div class="row d-flex flex-row-reverse flex-align-r m-4">
     <div class="col-auto p1">
-        <button class="xm-ok-button" (click)="updateExam(false)">
+        <button class="btn btn-success" (click)="updateExam(false)">
             {{ 'i18n_save' | translate }}
         </button>
     </div>
     <div class="col-auto p1">
         @if (showDelete()) {
-            <button class="xm-warning-button" (click)="removeExam()">{{ 'i18n_exam_remove' | translate }}</button>
+            <button class="btn btn-outline-danger" (click)="removeExam()">{{ 'i18n_exam_remove' | translate }}</button>
         }
     </div>
 </div>
 <div class="row mt-3">
     <div class="col-md-12 mb-3 pt-3 grey-top">
         <span class="float-end">
-            <button class="xm-neutral-button" (click)="nextTab()">{{ 'i18n_questions' | translate }} &raquo;</button>
+            <button class="btn btn-outline-secondary" (click)="nextTab()">
+                {{ 'i18n_questions' | translate }} &raquo;
+            </button>
         </span>
     </div>
 </div>

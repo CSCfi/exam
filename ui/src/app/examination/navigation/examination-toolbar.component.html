@@ -20,7 +20,7 @@
         <!-- ATTACHMENT -->
         <div class="row mt-4 ms-2 align-items-center" [hidden]="!exam.attachment">
             <div class="col-6">
-                <button class="xm-ok-button" [title]="exam.attachment?.fileName" (click)="downloadExamAttachment()">
+                <button class="btn btn-success" [title]="exam.attachment?.fileName" (click)="downloadExamAttachment()">
                     {{ 'i18n_open_it' | translate }} {{ 'i18n_exam_attachment' | translate }}
                     <img src="/assets/images/icon_attachment.svg" alt="attachment" />
                 </button>
@@ -33,7 +33,7 @@
         <div class="row mt-3 ms-2">
             <div class="col-12">
                 <button
-                    class="xm-ok-button"
+                    class="btn btn-success"
                     [ngClass]="!activeSection ? '' : 'notactive'"
                     (click)="selectGuidePage()"
                     (keydown.enter)="selectGuidePage()"
@@ -79,7 +79,7 @@
                 </div>
                 <div class="col">
                     <button
-                        class="xm-ok-button"
+                        class="btn btn-success"
                         (click)="selectSection(section)"
                         (keydown.enter)="selectSection(section)"
                         [attr.aria-current]="activeSection?.sequenceNumber === i"
@@ -103,7 +103,7 @@
                 @if (exam.examType.type !== 'MATURITY') {
                     <!-- ROOM INSTRUCTIONS -->
                     <button
-                        class="xm-ok-button"
+                        class="btn btn-success"
                         ngbPopover="{{ displayRoomInstructions() }}"
                         popoverTitle="{{ 'i18n_instructions' | translate }}"
                     >
@@ -112,7 +112,7 @@
                     </button>
                 } @else {
                     <!-- MATURITY INSTRUCTIONS -->
-                    <button class="xm-ok-button" (click)="showMaturityInstructions()">
+                    <button class="btn btn-success" (click)="showMaturityInstructions()">
                         {{ 'i18n_maturity_instructions' | translate }}
                         <i class="bi bi-info-square ps-2"></i>
                     </button>
@@ -123,7 +123,12 @@
         <!-- EXIT PREVIEW -->
         <div class="row mt-3 ms-2" [hidden]="!isPreview">
             <div class="col-md-12">
-                <button tabindex="0" class="xm-neutral-button" (click)="exitPreview()" (keydown.enter)="exitPreview()">
+                <button
+                    tabindex="0"
+                    class="btn btn-outline-secondary"
+                    (click)="exitPreview()"
+                    (keydown.enter)="exitPreview()"
+                >
                     {{ 'i18n_exit_preview' | translate }}
                     <i class="bi bi-x ps-2"></i>
                 </button>
@@ -135,7 +140,7 @@
         <!-- RETURN -->
         <div class="row" [hidden]="isPreview">
             <div class="col-md-12 ms-3">
-                <button class="xm-ok-button" (click)="turnExam()">
+                <button class="btn btn-success" (click)="turnExam()">
                     {{ 'i18n_save_and_return_exam' | translate }}
                 </button>
             </div>
@@ -144,7 +149,7 @@
         <!-- ABORT -->
         <div class="row mt-3" [hidden]="isPreview">
             <div class="col-md-12 ms-3">
-                <button class="xm-neutral-button" (click)="abortExam()">
+                <button class="btn btn-outline-secondary" (click)="abortExam()">
                     {{ 'i18n_abort_exam' | translate }}
                     <i class="bi bi-x ps-2"></i>
                 </button>

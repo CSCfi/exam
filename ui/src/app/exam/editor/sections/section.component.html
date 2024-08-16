@@ -244,11 +244,11 @@
     <div class="row my-3">
         <div class="col-12">
             @if (!collaborative) {
-                <button class="xm-ok-button" (click)="openLibrary()">
+                <button class="btn btn-success" (click)="openLibrary()">
                     <i class="bi-plus"></i>&nbsp;{{ 'i18n_add_from_library' | translate }}
                 </button>
             }
-            <button class="xm-ok-button ms-2" (click)="addNewQuestion()">
+            <button class="btn btn-success ms-2" (click)="addNewQuestion()">
                 <i class="bi-plus"></i>&nbsp;{{ 'i18n_exam_new_question' | translate }}
             </button>
         </div>

@@ -3,7 +3,7 @@
 <ng-template #print>
     <span class="print-only compact-header-text">{{ month | date: 'MM/yyyy' }}</span>
     <div class="float-end me-2 no-print">
-        <button (click)="printReport()" class="xm-ok-button">
+        <button (click)="printReport()" class="btn btn-success">
             {{ 'i18n_print' | translate }}<i class="bi bi-printer ps-2"></i>
         </button>
     </div>

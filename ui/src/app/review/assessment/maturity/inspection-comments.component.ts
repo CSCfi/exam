@@ -29,7 +29,7 @@ import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-d
             <div class="col-md-2 ">{{ 'i18n_inspector_comments' | translate }}:</div>
             <div class="col-md-10">
                 @if (addingVisible) {
-                    <button class="xm-ok-button me-2" (click)="addInspectionComment()">
+                    <button class="btn btn-success me-2" (click)="addInspectionComment()">
                         {{ 'i18n_inspection_comment_title' | translate }}
                     </button>
                 }

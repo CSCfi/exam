@@ -37,7 +37,7 @@
         <div class="col-md-12 my-3">
             @if (!examFeedbackConfig.enabled) {
                 <button
-                    class="xm-ok-button"
+                    class="btn btn-success"
                     [ngClass]="{ 'feature-not-in-use': modifiable !== 'everything' }"
                     name="enableExamFeedbackConfig"
                     (click)="enable()"
@@ -47,7 +47,7 @@
             }
             @if (examFeedbackConfig.enabled) {
                 <button
-                    class="xm-warning-button"
+                    class="btn btn-outline-danger"
                     [ngClass]="{ 'feature-not-in-use': modifiable !== 'everything' }"
                     name="disableExamFeedbackConfig"
                     (click)="disable()"

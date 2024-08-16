@@ -49,7 +49,7 @@ import { LibraryService } from 'src/app/question/library/library.service';
             </div>
         </div>
         <div class="modal-footer">
-            <button class="xm-cancel-button" (click)="close()" autofocus>
+            <button class="btn btn-secondary" (click)="close()" autofocus>
                 {{ 'i18n_close' | translate }}
             </button>
         </div>

@@ -39,13 +39,17 @@
     </div>
     <div class="col-md-12 mb-3">
         @if (!autoevaluation.enabled) {
-            <button class="xm-ok-button" name="enableAutoEvaluation" (click)="autoevaluation.enabled = true; enable()">
+            <button
+                class="btn btn-success"
+                name="enableAutoEvaluation"
+                (click)="autoevaluation.enabled = true; enable()"
+            >
                 {{ 'i18n_use' | translate }}
             </button>
         }
         @if (autoevaluation.enabled) {
             <button
-                class="xm-warning-button"
+                class="btn btn-outline-danger"
                 name="disableAutoEvaluation"
                 (click)="autoevaluation.enabled = false; disable()"
             >

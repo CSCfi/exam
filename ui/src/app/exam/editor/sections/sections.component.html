@@ -55,25 +55,25 @@
 <!-- Buttons -->
 <div class="row me-1 mt-4">
     <div class="col-md-3 mb-3">
-        <button class="xm-ok-button" (click)="addNewSection()">
+        <button class="btn btn-success" (click)="addNewSection()">
             <i class="bi-plus"></i>&nbsp;{{ 'i18n_section_add' | translate }}
         </button>
     </div>
     <div class="col">
         <div class="row justify-content-end">
             <div class="col-auto p-1">
-                <button class="xm-neutral-button" (click)="previewExam(2)">
+                <button class="btn btn-outline-secondary" (click)="previewExam(2)">
                     {{ 'i18n_preview' | translate }}
                 </button>
             </div>
             <div class="col-auto p-1">
-                <button class="xm-ok-button" (click)="updateExam(false)">
+                <button class="btn btn-success" (click)="updateExam(false)">
                     {{ 'i18n_save' | translate }}
                 </button>
             </div>
             <div class="col-auto p-1">
                 @if (showDelete()) {
-                    <button class="xm-warning-button" (click)="removeExam()">
+                    <button class="btn btn-outline-danger" (click)="removeExam()">
                         {{ 'i18n_exam_remove' | translate }}
                     </button>
                 }
@@ -83,13 +83,13 @@
 </div>
 <div class="row mt-2">
     <div class="col-md-2 grey-top mb-3 pt-3">
-        <button class="xm-neutral-button" (click)="previousTab()">
+        <button class="btn btn-outline-secondary" (click)="previousTab()">
             &#171; {{ 'i18n_exam_basic_information_tab' | translate }}
         </button>
     </div>
     <div class="col grey-top mb-3 pt-3">
         <div class="float-end">
-            <button class="xm-neutral-button" (click)="nextTab()">
+            <button class="btn btn-outline-secondary" (click)="nextTab()">
                 {{ 'i18n_exam_assessment_settings' | translate }} &#187;
             </button>
         </div>
