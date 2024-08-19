@@ -37,13 +37,13 @@
         </div>
         <div class="my-2 d-flex justify-content-end">
             <div [hidden]="exam.executionType.type === 'MATURITY' || collaborative" class="me-2">
-                <button class="xm-ok-button" [routerLink]="['/staff/assessments', exam.id, 'speedreview']">
+                <button class="btn btn-success" [routerLink]="['/staff/assessments', exam.id, 'speedreview']">
                     {{ 'i18n_speed_review' | translate }} ({{ view.filtered.length }})
                 </button>
             </div>
             @if (!collaborative) {
                 <button
-                    class="xm-ok-button"
+                    class="btn btn-success"
                     ngbPopover="{{ 'i18n_exam_review_attachment_description' | translate }}"
                     popoverTitle="{{ 'i18n_instructions' | translate }}"
                     triggers="mouseenter:mouseleave"

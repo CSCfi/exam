@@ -35,9 +35,9 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
                     }
                 </div>
                 <div class="language-selector">
-                    <button class="xm-ok-button ms-1" (click)="switchLanguage('fi')">FI</button>
-                    <button class="xm-ok-button ms-1" (click)="switchLanguage('sv')">SV</button>
-                    <button class="xm-ok-button ms-1" (click)="switchLanguage('en')">EN</button>
+                    <button class="btn btn-success ms-1" (click)="switchLanguage('fi')">FI</button>
+                    <button class="btn btn-success ms-1" (click)="switchLanguage('sv')">SV</button>
+                    <button class="btn btn-success ms-1" (click)="switchLanguage('en')">EN</button>
                     <div class="divider-free"></div>
                 </div>
                 @if (!isPreview) {

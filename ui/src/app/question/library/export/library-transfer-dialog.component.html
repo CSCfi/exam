@@ -22,7 +22,7 @@
     </div>
     <div class="row mt-4">
         <div class="col-12">
-            <button class="xm-ok-button" [disabled]="!organisation" (click)="transfer()">
+            <button class="btn btn-success" [disabled]="!organisation" (click)="transfer()">
                 {{ 'i18n_copy' | translate }}
             </button>
             @if (organisation) {
@@ -32,7 +32,7 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="xm-cancel-button" (click)="activeModal.close()" autofocus>
+    <button class="btn btn-secondary" (click)="activeModal.close()" autofocus>
         {{ 'i18n_close' | translate }}
     </button>
 </div>

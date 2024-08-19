@@ -76,7 +76,7 @@
     <div class="row mt-3">
         @if (homeExaminationSupported || sebExaminationSupported) {
             <div class="col-md-12">
-                <button class="xm-ok-button" (click)="createExam()" [disabled]="!type">
+                <button class="btn btn-success" (click)="createExam()" [disabled]="!type">
                     {{ 'i18n_create_new' | translate }}
                 </button>
             </div>

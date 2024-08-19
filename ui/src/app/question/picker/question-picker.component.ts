@@ -36,7 +36,7 @@ import { LibrarySearchComponent } from 'src/app/question/library/search/library-
 
             <div class="row ms-3 mb-3">
                 <div class="col-md-12">
-                    <button class="xm-ok-button" (click)="addQuestions()">
+                    <button class="btn btn-success" (click)="addQuestions()">
                         {{ 'i18n_add_chosen' | translate }} ( {{ selections.length }} )
                     </button>
                 </div>

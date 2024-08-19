@@ -30,7 +30,7 @@ import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
         </div>
         <div class="modal-body" [xmMathJax]="instructions"></div>
         <div class="modal-footer">
-            <button class="xm-cancel-button" (click)="ok()" autofocus>
+            <button class="btn btn-secondary" (click)="ok()" autofocus>
                 {{ 'i18n_button_ok' | translate }}
             </button>
         </div>

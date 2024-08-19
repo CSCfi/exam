@@ -132,18 +132,7 @@ form .exclude {
         color: $color2;
     }
 }
-.xm-ok-button {
-    @include xm-button(#2c7639, #25622f, white, #25622f);
-}
-.xm-cancel-button {
-    @include xm-button(#808080, #6b6b6b, white, #6b6b6b);
-}
-.xm-neutral-button {
-    @include xm-button(white, #979797, #555555, #7f7f7f);
-}
-.xm-warning-button {
-    @include xm-button(white, red, red, red);
-}
+
 /* Standard bordered box */
 .xm-bordered-area {
     border: 1px solid #c3c3c3;
@@ -212,7 +201,7 @@ form .exclude {
         left: auto;
         z-index: 999;
 }
-.important-clear-focus:focus {
+.important-clear-focus:focus, .btn:focus{
     box-shadow:
         0px 0px 0px 1.5px rgb(255, 255, 255),
         0px 0px 0px 4px rgb(68, 120, 247) !important;

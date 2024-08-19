@@ -83,18 +83,20 @@
 <div class="row mt-3">
     <div class="col-md-12 mb-3">
         <div class="float-end">
-            <button class="xm-ok-button" (click)="updateExam(false)">{{ 'i18n_save' | translate }}</button>
+            <button class="btn btn-success" (click)="updateExam(false)">{{ 'i18n_save' | translate }}</button>
         </div>
     </div>
 </div>
 
 <div class="row mt-4">
     <div class="col-md-2 grey-top mb-3 pt-3">
-        <button class="xm-neutral-button" (click)="previousTab()">&#171; {{ 'i18n_questions' | translate }}</button>
+        <button class="btn btn-outline-secondary" (click)="previousTab()">
+            &#171; {{ 'i18n_questions' | translate }}
+        </button>
     </div>
     <div class="col grey-top mb-3 pt-3">
         <div class="float-end">
-            <button class="xm-neutral-button" (click)="nextTab()">
+            <button class="btn btn-outline-secondary" (click)="nextTab()">
                 {{ 'i18n_exam_publish_tab' | translate }} &#187;
             </button>
         </div>

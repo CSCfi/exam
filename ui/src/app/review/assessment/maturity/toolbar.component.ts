@@ -31,11 +31,11 @@ import { MaturityService } from './maturity.service';
                 <span [hidden]="isUnderLanguageInspection()">
                     <div class="ms-1">
                         @if (!isReadOnly()) {
-                            <button (click)="saveAssessment()" [disabled]="!valid" class="xm-ok-button">
+                            <button (click)="saveAssessment()" [disabled]="!valid" class="btn btn-success">
                                 {{ 'i18n_save' | translate }}
                             </button>
                         } @else {
-                            <button class="xm-cancel-button" [routerLink]="['/staff/exams', exam.parent?.id, '5']">
+                            <button class="btn btn-secondary" [routerLink]="['/staff/exams', exam.parent?.id, '5']">
                                 {{ 'i18n_close' | translate }}
                             </button>
                         }
@@ -44,7 +44,7 @@ import { MaturityService } from './maturity.service';
                 @if (!isReadOnly() && !isDisabled()) {
                     <div class="ms-1">
                         <button
-                            [ngClass]="getNextState().warn ? 'xm-warning-button' : 'xm-ok-button'"
+                            [ngClass]="getNextState().warn ? 'btn btn-outline-danger' : 'btn btn-success'"
                             (click)="proceed(false)"
                         >
                             {{ getNextState().text | translate }}
@@ -60,8 +60,8 @@ import { MaturityService } from './maturity.service';
                         <button
                             [ngClass]="
                                 getAlternateState(getNextState().alternateState).warn
-                                    ? 'xm-warning-button'
-                                    : 'xm-ok-button'
+                                    ? 'btn btn-outline-danger'
+                                    : 'btn btn-success'
                             "
                             (click)="proceed(true)"
                         >

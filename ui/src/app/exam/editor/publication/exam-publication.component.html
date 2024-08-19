@@ -321,12 +321,12 @@
                     <div
                         [hidden]="exam.state !== 'PUBLISHED' || exam.executionType.type !== 'PUBLIC' || collaborative()"
                     >
-                        <button class="xm-warning-button" (click)="unpublishExam()">
+                        <button class="btn btn-outline-danger" (click)="unpublishExam()">
                             {{ 'i18n_unpublish_exam' | translate }}
                         </button>
                     </div>
                     <div [hidden]="exam.state === 'PUBLISHED'">
-                        <button class="xm-ok-button me-3" (click)="saveAndPublishExam()">
+                        <button class="btn btn-success me-3" (click)="saveAndPublishExam()">
                             @if (!isDraftCollaborativeExam()) {
                                 <span>{{ 'i18n_save_and_publish' | translate }}</span>
                             } @else {
@@ -334,8 +334,8 @@
                             }
                         </button>
                     </div>
-                    <button class="xm-ok-button me-3" (click)="updateExam()">{{ 'i18n_save' | translate }}</button>
-                    <button class="xm-neutral-button me-3" (click)="previewExam(4)">
+                    <button class="btn btn-success me-3" (click)="updateExam()">{{ 'i18n_save' | translate }}</button>
+                    <button class="btn btn-outline-secondary me-3" (click)="previewExam(4)">
                         {{ 'i18n_preview' | translate }}
                     </button>
                 </div>
@@ -343,7 +343,7 @@
         </div>
         <div class="row me-3">
             <div class="col-md-12 mb-3 pt-3 grey-top">
-                <button class="xm-neutral-button" (click)="previousTab()">
+                <button class="btn btn-outline-secondary" (click)="previousTab()">
                     &#171; {{ 'i18n_exam_assessment_settings' | translate }}
                 </button>
             </div>

@@ -38,7 +38,7 @@ import { CollaborativeAssesmentService } from 'src/app/review/assessment/collabo
                     >
                         @if (!isMaturityRejection()) {
                             <button
-                                class="xm-ok-button"
+                                class="btn btn-success"
                                 [disabled]="!isOwnerOrAdmin() || !valid"
                                 (click)="createExamRecord()"
                             >
@@ -49,7 +49,7 @@ import { CollaborativeAssesmentService } from 'src/app/review/assessment/collabo
                 </div>
                 <div [hidden]="isReadOnly()" class="ms-2">
                     <button
-                        class="xm-ok-button"
+                        class="btn btn-success"
                         [disabled]="isReadOnly()"
                         (click)="saveAssessment()"
                         ngbPopover="{{ 'i18n_save_changes_popover_info' | translate }}"
@@ -62,7 +62,7 @@ import { CollaborativeAssesmentService } from 'src/app/review/assessment/collabo
                 <div [hidden]="isReadOnly()">
                     @if (isMaturityRejection()) {
                         <button
-                            class="xm-warning-button ms-2"
+                            class="btn btn-outline-danger ms-2"
                             [disabled]="!isOwnerOrAdmin() || !valid"
                             (click)="rejectMaturity()"
                         >
@@ -71,7 +71,7 @@ import { CollaborativeAssesmentService } from 'src/app/review/assessment/collabo
                     }
                 </div>
                 <button
-                    class="xm-cancel-button ms-2"
+                    class="btn btn-secondary ms-2"
                     [routerLink]="getExitState().fragments"
                     [queryParams]="getExitState().params"
                     [hidden]="(!isReadOnly() && isOwnerOrAdmin()) || (!isReadOnly() && !isGraded())"

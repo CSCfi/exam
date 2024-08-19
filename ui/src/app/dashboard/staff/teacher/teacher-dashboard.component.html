@@ -2,10 +2,14 @@
 <xm-page-content [content]="content" />
 <ng-template #buttons>
     <div class="float-end pe-3">
-        <button [routerLink]="['/staff/exams']" class="xm-ok-button me-3">
+        <button [routerLink]="['/staff/exams']" class="btn btn-success me-3">
             {{ 'i18n_toolbar_new_exam' | translate }}
         </button>
-        <button [routerLink]="['/staff/questions/new']" [queryParams]="{ nextState: 'teacher' }" class="xm-ok-button">
+        <button
+            [routerLink]="['/staff/questions/new']"
+            [queryParams]="{ nextState: 'teacher' }"
+            class="btn btn-success"
+        >
             {{ 'i18n_toolbar_new_question' | translate }}
         </button>
     </div>
