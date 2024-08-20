@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
 import io.ebean.DB;
 import io.ebean.ExpressionList;
+import io.ebean.text.PathProperties;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -96,10 +97,13 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getExamParticipations(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        List<ExamEnrolment> enrolments = DB.find(ExamEnrolment.class)
-            .fetch("exam", "id, created")
-            .fetch("externalExam", "id, started")
-            .where()
+        PathProperties pp = PathProperties.parse(
+            "noShow, exam(created, course(department)), " +
+            "externalExam(started), reservation(machine(room(id, name, outOfService)))"
+        );
+        ExpressionList<ExamEnrolment> el = DB.find(ExamEnrolment.class).where();
+        el.apply(pp);
+        List<ExamEnrolment> enrolments = el
             .or()
             .ne("exam.state", Exam.State.PUBLISHED)
             .isNotNull("externalExam.started")
@@ -110,14 +114,17 @@ public class ReportController extends BaseController {
             .stream()
             .filter(ee -> applyEnrolmentFilter(ee, dept, start, end))
             .toList();
-        Map<String, List<ExamEnrolment>> roomMap = new HashMap<>();
+        Map<String, List<Participation>> roomMap = new HashMap<>();
         for (ExamEnrolment enrolment : enrolments) {
             ExamRoom room = enrolment.getReservation().getMachine().getRoom();
             String key = String.format("%d___%s", room.getId(), room.getName());
             if (!roomMap.containsKey(key)) {
                 roomMap.put(key, new ArrayList<>());
             }
-            roomMap.get(key).add(enrolment);
+            DateTime examStart = enrolment.getExternalExam() != null
+                ? enrolment.getExternalExam().getStarted()
+                : enrolment.getExam().getCreated();
+            roomMap.get(key).add(new Participation(examStart));
         }
         // Fill in the rooms that have no associated participations
         List<ExamRoom> rooms = DB.find(ExamRoom.class).where().eq("outOfService", false).findList();
@@ -128,10 +135,23 @@ public class ReportController extends BaseController {
                 roomMap.put(key, new ArrayList<>());
             }
         }
-        return ok(roomMap);
+        return ok(Json.toJson(roomMap));
     }
 
     // DTO for minimizing output from this API
+    private static class Participation {
+
+        String date;
+
+        Participation(DateTime date) {
+            this.date = ISODateTimeFormat.dateTime().print(date);
+        }
+
+        public String getDate() {
+            return date;
+        }
+    }
+
     private static class ExamInfo {
 
         String name;
