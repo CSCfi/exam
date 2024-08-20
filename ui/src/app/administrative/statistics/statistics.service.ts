@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Exam, ExamParticipation } from 'src/app/exam/exam.model';
+import { Exam } from 'src/app/exam/exam.model';
 
 export type QueryParams = { start?: string; end?: string; dept?: string };
 export type ExamInfo = {
@@ -10,7 +10,7 @@ export type ExamInfo = {
     rank: number;
 };
 export type Participations = {
-    [room: string]: ExamParticipation[];
+    [room: string]: { date: string }[];
 };
 
 @Injectable({ providedIn: 'root' })
