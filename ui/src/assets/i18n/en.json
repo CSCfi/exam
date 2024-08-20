@@ -340,7 +340,7 @@
     "i18n_positive_integer_required": "A positive integer is required",
     "i18n_endtime_before_starttime": "End time cannot be before start time",
     "i18n_section_name": "Section name (visible to students)",
-    "i18n_write_question_below": "Write the question in the box below",
+    "i18n_write_question_above": "Write the question in the box above",
     "i18n_option_updated": "The alternative answer has been updated",
     "i18n_new_question_draft": "New question draft",
     "i18n_unpublish_exam": "Unpublish the exam",

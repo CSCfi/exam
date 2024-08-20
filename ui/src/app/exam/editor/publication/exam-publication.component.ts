@@ -34,6 +34,7 @@ import { CollaborativeExamOwnerSelectorComponent } from './collaborative-exam-ow
 import { CustomDurationPickerDialogComponent } from './custom-duration-picker-dialog.component';
 import { ExamParticipantSelectorComponent } from './exam-participant-picker.component';
 import { ExamPreParticipantSelectorComponent } from './exam-pre-participant-picker.component';
+import { ExamPublicationParticipantsComponent } from './exam-publication-participants.component';
 import { OrganisationSelectorComponent } from './organisation-picker.component';
 import { PublicationDialogComponent } from './publication-dialog.component';
 import { PublicationErrorDialogComponent } from './publication-error-dialog.component';
@@ -48,6 +49,7 @@ import { PublicationRevocationDialogComponent } from './publication-revocation-d
         FormsModule,
         NgbPopover,
         NgClass,
+        ExamPublicationParticipantsComponent,
         ExamParticipantSelectorComponent,
         ExamPreParticipantSelectorComponent,
         CollaborativeExamOwnerSelectorComponent,

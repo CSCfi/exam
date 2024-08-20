@@ -2,7 +2,7 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { DatePipe, LowerCasePipe, SlicePipe, UpperCasePipe } from '@angular/common';
+import { DatePipe, SlicePipe, UpperCasePipe } from '@angular/common';
 import { Component, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
@@ -16,6 +16,7 @@ import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
 import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.component';
+import { OptionalSectionsComponent } from './helpers/optional-sections.component';
 
 @Component({
     selector: 'xm-active-enrolment',
@@ -26,10 +27,10 @@ import { ActiveEnrolmentMenuComponent } from './helpers/active-enrolment-menu.co
         ActiveEnrolmentMenuComponent,
         CourseCodeComponent,
         TeacherListComponent,
+        OptionalSectionsComponent,
         NgbCollapse,
         MathJaxDirective,
         UpperCasePipe,
-        LowerCasePipe,
         SlicePipe,
         DatePipe,
         TranslateModule,
@@ -43,7 +44,6 @@ export class ActiveEnrolmentComponent {
 
     showGuide = signal(false);
     showInstructions = signal(false);
-    showMaterials = signal(false);
 
     constructor(
         private translate: TranslateService,

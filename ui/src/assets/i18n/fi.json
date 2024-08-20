@@ -340,7 +340,7 @@
     "i18n_positive_integer_required": "Arvon pitää olla positiivinen kokonaisluku (0-999999)",
     "i18n_endtime_before_starttime": "Lopetusaika ei voi olla ennen aloitusaikaa",
     "i18n_section_name": "Aihealueen nimi (näkyy opiskelijoille)",
-    "i18n_write_question_below": "Kirjoita tenttikysymys alla olevaan kenttään",
+    "i18n_write_question_above": "Kirjoita tenttikysymys yllä olevaan kenttään",
     "i18n_option_updated": "Vastausvaihtoehto päivitetty",
     "i18n_new_question_draft": "Uusi kysymysluonnos",
     "i18n_unpublish_exam": "Peruuta tentin julkaisu",

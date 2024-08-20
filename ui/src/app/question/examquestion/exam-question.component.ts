@@ -17,12 +17,18 @@ import type {
     ReverseQuestion,
 } from 'src/app/exam/exam.model';
 import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
+import { QuestionBasicInfoComponent } from 'src/app/question/question-basic-info.component';
+import { QuestionUsageComponent } from 'src/app/question/question-usage.component';
 import { QuestionService } from 'src/app/question/question.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixed-precision.directive';
+import { ClaimChoiceComponent } from './claim-choice.component';
+import { EssayComponent } from './essay.component';
+import { MultiChoiceComponent } from './multichoice.component';
+import { WeightedMultiChoiceComponent } from './weighted-multichoice.component';
 
 // This component depicts a distributed exam question. Only used thru a modal.
 @Component({
@@ -38,6 +44,12 @@ import { FixedPrecisionValidatorDirective } from 'src/app/shared/validation/fixe
         FixedPrecisionValidatorDirective,
         UpperCasePipe,
         TranslateModule,
+        QuestionBasicInfoComponent,
+        QuestionUsageComponent,
+        EssayComponent,
+        WeightedMultiChoiceComponent,
+        MultiChoiceComponent,
+        ClaimChoiceComponent,
         PageHeaderComponent,
         PageContentComponent,
     ],
@@ -78,6 +90,10 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
             question: this.question as ReverseQuestion,
             examQuestion: this.examQuestion as ExamSectionQuestion,
         });
+
+    setText = ($event: string) => {
+        if (this.question) this.question.question = $event;
+    };
 
     cancel = () => this.cancelled.emit({ dirty: this.questionForm?.dirty || false });
 
@@ -140,12 +156,16 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
         );
 
     optionDisabled = (option: ExamSectionQuestionOption) => option.option.correctOption;
+    optionsChanged = ($event: ExamSectionQuestionOption[]) => (this.examQuestion.options = [...$event]);
 
-    updateEvaluationType = () => {
-        if (this.examQuestion.evaluationType && this.examQuestion.evaluationType === 'Selection') {
+    updateEvaluationType = ($event: string) => {
+        this.examQuestion.evaluationType = $event;
+        if ($event === 'Selection') {
             this.examQuestion.maxScore = 0;
         }
     };
+    updateWordCount = ($event: number) => (this.examQuestion.expectedWordCount = $event);
+    updateEvaluationCriteria = ($event: string) => (this.examQuestion.evaluationCriteria = $event);
 
     selectFile = () =>
         this.Attachment.selectFile(true).then((data) => {
@@ -168,9 +188,6 @@ export class ExamQuestionComponent implements OnInit, OnDestroy {
 
     getFileSize = () =>
         !this.question?.attachment?.file ? 0 : this.Attachment.getFileSize(this.question.attachment.file.size);
-
-    calculateWeightedMaxPoints = () =>
-        this.Question.calculateWeightedMaxPoints(this.examQuestion as ExamSectionQuestion);
 
     returnOptionClass = (option: ExamSectionQuestionOption) => {
         const optionType = this.determineOptionType(option);

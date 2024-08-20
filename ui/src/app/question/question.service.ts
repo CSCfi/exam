@@ -4,11 +4,9 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
-import { from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import type {
     Exam,
@@ -23,7 +21,6 @@ import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
-import { BaseQuestionEditorComponent } from './examquestion/base-question-editor.component';
 
 export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
 export type QuestionAmounts = {
@@ -37,7 +34,6 @@ export class QuestionService {
     constructor(
         private http: HttpClient,
         private translate: TranslateService,
-        private modal: NgbModal,
         private toast: ToastrService,
         private Session: SessionService,
         private Files: FileService,
@@ -209,8 +205,8 @@ export class QuestionService {
         }
     };
 
-    calculateWeightedMaxPoints = (sectionQuestion: ExamSectionQuestion): number => {
-        const points = sectionQuestion.options.filter((o) => o.score > 0).reduce((a, b) => a + b.score, 0);
+    calculateWeightedMaxPoints = (options: ExamSectionQuestionOption[]): number => {
+        const points = options.filter((o) => o.score > 0).reduce((a, b) => a + b.score, 0);
         return parseFloat(points.toFixed(2));
     };
 
@@ -229,7 +225,7 @@ export class QuestionService {
             return question.maxScore;
         }
         if (type === 'WeightedMultipleChoiceQuestion') {
-            return this.calculateWeightedMaxPoints(question);
+            return this.calculateWeightedMaxPoints(question.options);
         }
         if (type === 'ClaimChoiceQuestion') {
             return this.getCorrectClaimChoiceOptionScore(question);
@@ -392,7 +388,7 @@ export class QuestionService {
         }
     };
 
-    determineOptionDescriptionTranslation = (optionType: string) => {
+    determineOptionDescriptionTranslation = (optionType: string): string => {
         switch (optionType) {
             case 'CorrectOption':
                 return this.translate.instant('i18n_claim_choice_correct_option_description');
@@ -417,7 +413,7 @@ export class QuestionService {
             return 'CorrectOption';
         }
 
-        return null;
+        return '';
     };
 
     getInvalidDistributedClaimOptionTypes = (options: ExamSectionQuestionOption[]) => {
@@ -460,18 +456,6 @@ export class QuestionService {
             questionIds: qids.join(),
         };
         return this.http.post<void>(this.questionOwnerApi(uid), data);
-    };
-
-    openBaseQuestionEditor = (newQuestion: boolean, collaborative: boolean): Observable<Question> => {
-        const modal = this.modal.open(BaseQuestionEditorComponent, {
-            backdrop: 'static',
-            keyboard: false,
-            windowClass: 'question-editor-modal',
-            size: 'xl',
-        });
-        modal.componentInstance.newQuestion = newQuestion;
-        modal.componentInstance.collaborative = collaborative;
-        return from(modal.result);
     };
 
     private questionsApi = (id?: number) => (!id ? '/app/questions' : `/app/questions/${id}`);

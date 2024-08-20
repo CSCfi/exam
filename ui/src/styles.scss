@@ -67,13 +67,18 @@
 .xm-xxl-modal .modal-dialog {
     min-width: 80vw;
 }
+
 /* form validation overrides */
-form .ng-invalid {
+input.ng-invalid {
     border: 1px solid red;
 }
-form .exclude {
-    border: 0 !important;
+select.ng-invalid {
+    border: 1px solid red;
 }
+.ng-invalid > .cke {
+    border: 1px solid red;
+}
+
 /* dropdown menu that scrolls */
 .xm-scrollable-menu {
     height: auto;
@@ -117,26 +122,6 @@ form .exclude {
 .xm-study-item-container--unseen {
     @extend .xm-study-item-container;
     border-color: #238635;
-}
-/* standard buttons that change colors on focus */
-@mixin xm-button($bgc1, $border, $color1, $bgc2, $color2: white) {
-    border: 1px solid $border;
-    background-color: $bgc1;
-    color: $color1;
-    padding: 10px 20px;
-    line-height: 1.5;
-    border-radius: 3px;
-    text-decoration: none;
-    &:disabled {
-        opacity: 0.3;
-        pointer-events: none;
-        cursor: not-allowed;
-    }
-    &:active,
-    &:hover {
-        background-color: $bgc2;
-        color: $color2;
-    }
 }
 
 /* Standard bordered box */
@@ -207,7 +192,8 @@ form .exclude {
     left: auto;
     z-index: 999;
 }
-.important-clear-focus:focus, .btn:focus{
+.important-clear-focus:focus,
+.btn:focus {
     box-shadow:
         0px 0px 0px 1.5px rgb(255, 255, 255),
         0px 0px 0px 4px rgb(68, 120, 247) !important;

@@ -232,65 +232,12 @@ SPDX-License-Identifier: EUPL-1.2
             </div>
         </div>
 
-        @if (!collaborative()) {
-            <div class="row mt-2" [hidden]="exam.executionType.type === 'PUBLIC'">
-                <div class="col-md-3">
-                    {{ 'i18n_exam_add_participants_title' | translate }}
-                </div>
-                <div class="col-md-9 participant-selector-toggle">
-                    <label>
-                        <input
-                            type="radio"
-                            [ngModel]="visibleParticipantSelector()"
-                            (ngModelChange)="visibleParticipantSelector.set($event)"
-                            value="participant"
-                        />
-                        {{ 'i18n_exam_participant_selector_label' | translate }}
-                        <sup
-                            ngbPopover="{{ 'i18n_exam_participants_description' | translate }}"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            ><img src="/assets/images/icon_tooltip.svg" alt=""
-                        /></sup>
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            [ngModel]="visibleParticipantSelector()"
-                            (ngModelChange)="visibleParticipantSelector.set($event)"
-                            value="pre-participant"
-                        />
-                        {{ 'i18n_exam_pre_participant_selector_label' | translate }}
-                        <sup
-                            ngbPopover="{{ 'i18n_exam_pre_participants_description' | translate }}"
-                            popoverTitle="{{ 'i18n_instructions' | translate }}"
-                            triggers="mouseenter:mouseleave"
-                            ><img src="/assets/images/icon_tooltip.svg" alt=""
-                        /></sup>
-                    </label>
-                </div>
-            </div>
-        }
-
-        <!-- Exam participants -->
-        @if (
-            exam.executionType.type !== 'PUBLIC' && !collaborative() && visibleParticipantSelector() === 'participant'
-        ) {
-            <xm-exam-participant-selector [exam]="exam"></xm-exam-participant-selector>
-        }
-
-        <!-- Exam pre-participants -->
-        @if (
-            exam.executionType.type !== 'PUBLIC' &&
-            !collaborative() &&
-            visibleParticipantSelector() === 'pre-participant'
-        ) {
-            <xm-exam-pre-participant-selector [exam]="exam"></xm-exam-pre-participant-selector>
-        }
-
-        @if (collaborative()) {
-            <xm-collaborative-exam-owner-selector [exam]="exam"> </xm-collaborative-exam-owner-selector>
-            <xm-exam-organisation-selector [exam]="exam"></xm-exam-organisation-selector>
+        <!-- Participant selections -->
+        @if (exam.executionType.type !== 'PUBLIC') {
+            <xm-exam-publication-participants
+                [collaborative]="collaborative()"
+                [exam]="exam"
+            ></xm-exam-publication-participants>
         }
 
         <!-- Link to enrolment -->

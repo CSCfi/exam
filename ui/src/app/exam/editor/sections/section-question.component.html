@@ -109,7 +109,7 @@ SPDX-License-Identifier: EUPL-1.2
                 }
                 @switch (sectionQuestion.question.type) {
                     @case ('MultipleChoiceQuestion') {
-                        @for (option of sectionQuestion.options; track option) {
+                        @for (option of sectionQuestion.options; track option.id) {
                             <div class="row ms-2 mt-2">
                                 <div class="col-md-12">
                                     @if (option.option.correctOption) {
@@ -123,7 +123,7 @@ SPDX-License-Identifier: EUPL-1.2
                         }
                     }
                     @case ('WeightedMultipleChoiceQuestion') {
-                        @for (option of sectionQuestion.options; track option) {
+                        @for (option of sectionQuestion.options; track option.id) {
                             <div class="row ms-2 mt-2">
                                 <div class="col-md-12">
                                     @if (option.score >= 0) {

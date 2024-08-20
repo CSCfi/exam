@@ -11,7 +11,6 @@ import type { QuestionDraft } from 'src/app/question/question.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 @Component({
-    selector: 'xm-base-question-editor',
     standalone: true,
     imports: [QuestionComponent],
     template: `

@@ -67,7 +67,7 @@ export class SectionQuestionComponent {
         private Files: FileService,
     ) {}
 
-    calculateWeightedMaxPoints = () => this.Question.calculateWeightedMaxPoints(this.sectionQuestion);
+    calculateWeightedMaxPoints = () => this.Question.calculateWeightedMaxPoints(this.sectionQuestion.options);
 
     getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
 
@@ -124,6 +124,7 @@ export class SectionQuestionComponent {
         const modal = this.modal.open(BaseQuestionEditorComponent, {
             backdrop: 'static',
             keyboard: true,
+            windowClass: 'xm-xxl-modal',
             size: 'xl',
         });
         modal.componentInstance.lotteryOn = this.lotteryOn;

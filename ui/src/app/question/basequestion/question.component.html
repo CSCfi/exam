@@ -15,9 +15,9 @@ SPDX-License-Identifier: EUPL-1.2
 </ng-template>
 <ng-template #content>
     <div class="row">
-        <!-- Question body //-->
+        <!-- Question body -->
         <div class="col-md-12">
-            <form role="form" #questionForm="ngForm" name="questionForm" novalidate>
+            <form role="form" #questionForm="ngForm" name="questionForm">
                 @if (question) {
                     <xm-question-body
                         [question]="question"
@@ -38,6 +38,7 @@ SPDX-License-Identifier: EUPL-1.2
                         !question.type ||
                         hasNoCorrectOption() ||
                         hasInvalidClaimChoiceOptions() ||
+                        !question.question ||
                         questionForm.invalid
                     "
                     (click)="saveQuestion()"

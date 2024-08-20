@@ -12,6 +12,8 @@ import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
 import type { ExamSectionQuestion, ReverseQuestion, Tag } from 'src/app/exam/exam.model';
+import { QuestionBasicInfoComponent } from 'src/app/question/question-basic-info.component';
+import { QuestionUsageComponent } from 'src/app/question/question-usage.component';
 import type { QuestionDraft } from 'src/app/question/question.service';
 import { QuestionService } from 'src/app/question/question.service';
 import { TagPickerComponent } from 'src/app/question/tags/tag-picker.component';
@@ -36,12 +38,13 @@ import { MultipleChoiceEditorComponent } from './multiple-choice.component';
         EssayEditorComponent,
         MultipleChoiceEditorComponent,
         ClaimChoiceEditorComponent,
+        QuestionBasicInfoComponent,
+        QuestionUsageComponent,
         NgbTypeahead,
         TagPickerComponent,
         TranslateModule,
     ],
     styleUrls: ['../question.shared.scss'],
-    styles: '.initial-width { width: initial !important; }',
 })
 export class QuestionBodyComponent implements OnInit {
     @Input() question!: ReverseQuestion | QuestionDraft;
@@ -80,11 +83,12 @@ export class QuestionBodyComponent implements OnInit {
         this.init();
     }
 
-    setQuestionType = () => {
-        this.question.type = this.Question.getQuestionType(this.newType);
+    setQuestionType = ($event: string) => {
+        this.question.type = this.Question.getQuestionType($event);
         this.init();
         this.cdr.detectChanges();
     };
+    setText = ($event: string) => (this.question.question = $event);
 
     showWarning = () => this.examNames.length > 1;
 
@@ -168,8 +172,9 @@ export class QuestionBodyComponent implements OnInit {
         return a && (a.id || a.externalId);
     };
 
-    updateEvaluationType = () => {
-        if (this.question.defaultEvaluationType === 'Selection') {
+    updateEvaluationType = ($event: string) => {
+        this.question.defaultEvaluationType = $event;
+        if ($event === 'Selection') {
             delete this.question.defaultMaxScore;
         }
     };

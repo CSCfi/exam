@@ -340,7 +340,7 @@
     "i18n_positive_integer_required": "Värdet ska vara ett positivt heltal (0-999999)",
     "i18n_endtime_before_starttime": "Sluttiden kan inte vara före starttiden",
     "i18n_section_name": "Sektionens namn (visas för studerandena)",
-    "i18n_write_question_below": "Skriv tentamensfrågan i fältet nedan",
+    "i18n_write_question_above": "Skriv tentamensfrågan i fältet ovan",
     "i18n_option_updated": "Svarsalternativet är uppdaterat",
     "i18n_new_question_draft": "Ett nytt utkast av frågan",
     "i18n_unpublish_exam": "Ångra publicering av tentamen",
