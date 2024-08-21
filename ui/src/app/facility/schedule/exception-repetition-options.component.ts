@@ -15,11 +15,9 @@ export type RepetitionConfig = {
     start: Date;
     end: Date;
     weekdays: { ord: number; name: string }[];
-    // month
-    dayOfMonth?: number; // determine day of month
+    dayOfMonth?: number;
     monthlyOrdinal?: { name: string; ord: number };
     monthlyWeekday?: { name: string; ord: number };
-    // year,
     yearlyMonth?: { name: string; ord: number };
 };
 enum ORDINAL {
@@ -45,8 +43,8 @@ export class ExceptionDialogRepetitionOptionsComponent {
     wholeDay = input(false);
     optionChanged = output<RepetitionConfig>();
 
-    startDate = signal(DateTime.now().set({ minute: 0 }).toJSDate());
-    endDate = signal(DateTime.now().set({ minute: 0 }).toJSDate());
+    startDate = signal(new Date());
+    endDate = signal(new Date());
     wholeWeek = signal(false);
     weekdays = signal(
         this.DateTimeService.getWeekdayNames(true).map((d, i) => {
@@ -80,8 +78,8 @@ export class ExceptionDialogRepetitionOptionsComponent {
                 });
             } else {
                 untracked(() => {
-                    this.startDate.set(new Date());
-                    this.endDate.set(new Date());
+                    this.startDate.set(DateTime.now().set({ minute: 0 }).toJSDate());
+                    this.endDate.set(DateTime.now().set({ minute: 0 }).toJSDate());
                     this.optionChanged.emit(this.getConfig());
                 });
             }

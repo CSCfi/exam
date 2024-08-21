@@ -56,7 +56,6 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
     ngOnInit() {
         const now = new Date();
         this.time = { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() };
-        this.date = new Date();
         if (this.initialTime) {
             this.setDateTime(this.initialTime);
         }
@@ -65,7 +64,6 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
     ngOnChanges() {
         const now = new Date();
         this.time = { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() };
-        this.date = new Date();
         if (this.initialTime) {
             this.setDateTime(this.initialTime);
         }
@@ -94,9 +92,6 @@ export class DateTimePickerComponent implements OnInit, OnChanges {
     private setDateTime = (dt: Date) => {
         this.date.setFullYear(dt.getFullYear());
         this.date.setMonth(dt.getMonth(), dt.getDate());
-        this.time.hour = dt.getHours();
-        this.time.minute = dt.getMinutes();
-        this.time.second = 0;
-        this.time.millisecond = 0;
+        this.time = { ...this.time, hour: dt.getHours(), minute: dt.getMinutes(), second: 0, millisecond: 0 };
     };
 }
