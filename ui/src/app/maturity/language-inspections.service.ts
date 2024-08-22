@@ -12,13 +12,7 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { InspectionStatementDialogComponent } from './dialogs/inspection-statement-dialog.component';
-import type { LanguageInspection } from './maturity.model';
-
-export interface QueryParams {
-    text?: string;
-    start?: number;
-    end?: number;
-}
+import type { LanguageInspection, QueryParams } from './maturity.model';
 
 @Injectable({ providedIn: 'root' })
 export class LanguageInspectionService {

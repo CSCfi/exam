@@ -13,10 +13,10 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, take, tap } from 'rxjs/operators';
-import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
-import type { Exam, ExamParticipation } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import type { User } from 'src/app/session/session.model';
 
 @Component({
     selector: 'xm-exam-participant-selector',

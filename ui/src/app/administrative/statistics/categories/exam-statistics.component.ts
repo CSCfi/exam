@@ -5,7 +5,7 @@
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamInfo, QueryParams } from 'src/app/administrative/statistics/statistics.service';
+import { ExamInfo, QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
 
 @Component({

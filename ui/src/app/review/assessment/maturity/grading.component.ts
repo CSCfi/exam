@@ -13,7 +13,7 @@ import type { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { GradingBaseComponent } from 'src/app/review/assessment/common/grading-base.component';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { LanguageService } from 'src/app/shared/language/language.service';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';

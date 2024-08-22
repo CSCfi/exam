@@ -17,6 +17,7 @@ import {
     NgbNavLink,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { QueryParams } from 'src/app/administrative/administrative.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
@@ -24,7 +25,7 @@ import { ExamStatisticsComponent } from './categories/exam-statistics.component'
 import { ReservationStatisticsComponent } from './categories/reservation-statistics.component';
 import { ResponseStatisticsComponent } from './categories/response-statistics.component';
 import { RoomStatisticsComponent } from './categories/room-statistics.component';
-import { QueryParams, StatisticsService } from './statistics.service';
+import { StatisticsService } from './statistics.service';
 
 interface Departments {
     name: string;

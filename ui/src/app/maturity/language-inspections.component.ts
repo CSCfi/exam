@@ -9,20 +9,10 @@ import { addDays } from 'date-fns';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { LanguageService } from 'src/app/shared/language/language.service';
-import type { QueryParams } from './language-inspections.service';
 import { LanguageInspectionService } from './language-inspections.service';
 import { ReviewedInspectionsComponent } from './listing/reviewed-inspections.component';
 import { UnfinishedInspectionsComponent } from './listing/unfinished-inspections.component';
-import type { LanguageInspection } from './maturity.model';
-
-export interface LanguageInspectionData extends LanguageInspection {
-    ownerAggregate: string;
-    studentName: string;
-    studentNameAggregate: string;
-    inspectorName: string;
-    inspectorNameAggregate: string;
-    answerLanguage?: string;
-}
+import type { LanguageInspection, LanguageInspectionData, QueryParams } from './maturity.model';
 
 @Component({
     selector: 'xm-language-inspections',

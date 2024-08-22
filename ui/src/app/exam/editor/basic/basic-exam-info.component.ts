@@ -16,7 +16,7 @@ import { LanguageSelectorComponent } from 'src/app/exam/editor/common/language-p
 import { ExamTabService } from 'src/app/exam/editor/exam-tabs.service';
 import type { Exam, ExamType, GradeScale } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';

@@ -10,7 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import type { Exam } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { InspectionCommentDialogComponent } from './dialogs/inspection-comment-dialog.component';
 
 @Component({

@@ -11,7 +11,7 @@ import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
 import { QuestionService } from 'src/app/question/question.service';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { UserService } from 'src/app/shared/user/user.service';
 
 @Component({

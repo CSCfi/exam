@@ -7,8 +7,8 @@ import { Component, Input } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { MultipleChoiceOption, Question } from 'src/app/exam/exam.model';
-import { QuestionDraft, QuestionService } from 'src/app/question/question.service';
+import { MultipleChoiceOption, Question, QuestionDraft } from 'src/app/question/question.model';
+import { QuestionService } from 'src/app/question/question.service';
 
 @Component({
     selector: 'xm-mc-option-editor',

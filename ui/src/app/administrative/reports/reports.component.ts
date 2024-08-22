@@ -7,10 +7,10 @@ import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 import { ExamRoom } from 'src/app/reservation/reservation.model';
-import { User } from 'src/app/session/session.service';
+import { User } from 'src/app/session/session.model';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { Option } from 'src/app/shared/select/dropdown-select.component';
+import { Option } from 'src/app/shared/select/select.model';
 import { UserService } from 'src/app/shared/user/user.service';
 import { AnswersReportComponent } from './categories/answers-report.component';
 import { EnrolmentsReportComponent } from './categories/enrolments-report.component';
@@ -20,8 +20,13 @@ import { ReviewsReportComponent } from './categories/reviews-report.component';
 import { RoomsReportComponent } from './categories/rooms-report.component';
 import { StudentsReportComponent } from './categories/students-report.component';
 import { TeachersReportComponent } from './categories/teachers-report.component';
-import { ReportsService, UserRole } from './reports.service';
+import { ReportsService } from './reports.service';
 
+enum UserRole {
+    TEACHER = 'TEACHER',
+    STUDENT = 'STUDENT',
+    ADMIN = 'ADMIN',
+}
 @Component({
     selector: 'xm-reports',
     template: `

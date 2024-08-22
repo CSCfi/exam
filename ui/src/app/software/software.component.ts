@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Software } from 'src/app/exam/exam.model';
+import { Software } from 'src/app/facility/facility.model';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 
 @Component({

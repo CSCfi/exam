@@ -8,7 +8,7 @@ import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import { ExamSectionQuestionOption } from 'src/app/exam/exam.model';
+import { ExamSectionQuestionOption } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 
 @Component({

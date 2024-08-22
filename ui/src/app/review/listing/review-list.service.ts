@@ -9,21 +9,10 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { of } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { ExamParticipation } from 'src/app/exam/exam.model';
-import type { Review } from 'src/app/review/review.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import type { Review, ReviewListView } from 'src/app/review/review.model';
 
 type Selection = { [k: string]: boolean };
-
-export type ReviewListView = {
-    items: Review[];
-    filtered: Review[];
-    toggle: boolean;
-    pageSize: number;
-    predicate: string;
-    reverse: boolean;
-    page: number;
-    filter: string;
-};
 
 @Injectable({ providedIn: 'root' })
 export class ReviewListService {

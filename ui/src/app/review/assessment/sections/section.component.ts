@@ -4,8 +4,10 @@
 
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Exam, ExamParticipation, ExamSection, ExamSectionQuestion } from 'src/app/exam/exam.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import type { Exam, ExamSection } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
+import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { ClozeTestComponent } from 'src/app/review/assessment/questions/cloze-test.component';
 import { EssayQuestionComponent } from 'src/app/review/assessment/questions/essay-question.component';

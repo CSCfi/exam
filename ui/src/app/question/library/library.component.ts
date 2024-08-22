@@ -8,8 +8,8 @@ import { NgbDropdownModule, NgbModal, NgbPopoverModule } from '@ng-bootstrap/ng-
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { from, noop, tap } from 'rxjs';
-import type { Question, Tag } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import { Question, Tag } from 'src/app/question/question.model';
+import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';

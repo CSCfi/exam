@@ -8,10 +8,6 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { FileService } from 'src/app/shared/file/file.service';
 
-export interface FileResult {
-    $value: { attachmentFile: File };
-}
-
 /*
     file-select has been made accessible so that there is button (<label>)
     that is hidden from non-visual_user and keyboard accessible input field

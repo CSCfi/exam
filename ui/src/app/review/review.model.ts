@@ -2,14 +2,10 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import type {
-    Attachment,
-    EssayAnswer,
-    ExamParticipation,
-    Question,
-    ReverseExamSectionQuestion,
-    SelectableGrade,
-} from 'src/app/exam/exam.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import { SelectableGrade } from 'src/app/exam/exam.model';
+import { EssayAnswer, Question, ReverseExamSectionQuestion } from 'src/app/question/question.model';
+import { Attachment } from 'src/app/shared/attachment/attachment.model';
 
 export interface ScorableEssayAnswer extends EssayAnswer {
     id: number;
@@ -44,4 +40,22 @@ export type Review = {
     displayedGradingTime?: Date;
     displayedGrade?: string;
     displayedCredit?: number;
+};
+
+export interface Feedback {
+    comment: string;
+    id?: number;
+    attachment?: Attachment;
+    feedbackStatus?: boolean;
+}
+
+export type ReviewListView = {
+    items: Review[];
+    filtered: Review[];
+    toggle: boolean;
+    pageSize: number;
+    predicate: string;
+    reverse: boolean;
+    page: number;
+    filter: string;
 };

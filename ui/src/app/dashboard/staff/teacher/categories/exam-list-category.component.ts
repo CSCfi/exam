@@ -12,7 +12,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
-import { DashboardExam, TeacherDashboardService } from 'src/app/dashboard/staff/teacher/teacher-dashboard.service';
+import { DashboardExam, ExtraData } from 'src/app/dashboard/dashboard.model';
+import { TeacherDashboardService } from 'src/app/dashboard/staff/teacher/teacher-dashboard.service';
 import { ExaminationTypeSelectorComponent } from 'src/app/exam/editor/common/examination-type-picker.component';
 import type { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
@@ -24,12 +25,7 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
-export interface ExtraData {
-    text: string;
-    property: keyof DashboardExam;
-    link: string[];
-    checkOwnership: boolean;
-}
+
 @Component({
     selector: 'xm-exam-list-category',
     templateUrl: './exam-list-category.component.html',
@@ -49,7 +45,6 @@ export interface ExtraData {
 })
 export class ExamListCategoryComponent implements OnInit, OnDestroy {
     @Input() items: DashboardExam[] = [];
-
     @Input() extraData: ExtraData[] = [];
     @Input() defaultPredicate = '';
     @Input() defaultReverse = false;

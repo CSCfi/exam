@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
-import type { WorkingHour } from 'src/app/facility/rooms/room.service';
+import { WorkingHour } from 'src/app/facility/facility.model';
 import { RoomService } from 'src/app/facility/rooms/room.service';
 
 @Component({

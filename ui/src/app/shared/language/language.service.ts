@@ -7,12 +7,12 @@ import { Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
 
-export interface IsoLang {
+interface IsoLang {
     name: string;
     nativeName: string;
 }
 
-export interface IsoLangMap {
+interface IsoLangMap {
     [code: string]: IsoLang;
 }
 

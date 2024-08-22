@@ -5,7 +5,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { forkJoin, map } from 'rxjs';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { deduplicate } from 'src/app/shared/miscellaneous/helpers';
 
 @Injectable({ providedIn: 'root' })

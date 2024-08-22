@@ -6,7 +6,7 @@ import { DatePipe, LowerCasePipe, NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamParticipation } from 'src/app/exam/exam.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { SessionService } from 'src/app/session/session.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 

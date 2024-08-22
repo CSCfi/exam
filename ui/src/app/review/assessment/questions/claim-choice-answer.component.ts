@@ -5,7 +5,7 @@
 import { NgClass } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/exam/exam.model';
+import { ExamSectionQuestion, ExamSectionQuestionOption } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 

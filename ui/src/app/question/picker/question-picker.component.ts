@@ -7,9 +7,10 @@ import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamSection, Question } from 'src/app/exam/exam.model';
+import type { ExamSection } from 'src/app/exam/exam.model';
 import { LibraryResultsComponent } from 'src/app/question/library/results/library-results.component';
 import { LibrarySearchComponent } from 'src/app/question/library/search/library-search.component';
+import { Question } from 'src/app/question/question.model';
 
 @Component({
     selector: 'xm-question-selector',

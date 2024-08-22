@@ -17,33 +17,7 @@ import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { EulaDialogComponent } from './eula/eula-dialog.component';
 import { SelectRoleDialogComponent } from './role/role-picker-dialog.component';
 import { SessionExpireWarningComponent } from './session-timeout-toastr';
-
-export interface Role {
-    name: string;
-    displayName?: string;
-    icon?: string;
-}
-
-export interface User {
-    id: number;
-    eppn: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    lang: string;
-    loginRole: string | null;
-    roles: Role[];
-    userAgreementAccepted: boolean;
-    userIdentifier: string;
-    permissions: { type: string }[];
-    isAdmin: boolean;
-    isStudent: boolean;
-    isTeacher: boolean;
-    isLanguageInspector: boolean;
-    employeeNumber: string | null;
-    lastLogin: string | null;
-    canCreateByodExam: boolean;
-}
+import { Role, User } from './session.model';
 
 interface Env {
     isProd: boolean;

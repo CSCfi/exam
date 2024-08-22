@@ -10,13 +10,14 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { format, parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
+import { DefaultWorkingHoursWithEditing } from 'src/app/facility/facility.model';
 import { MachineListComponent } from 'src/app/facility/machines/machines.component';
 import { ExceptionListComponent } from 'src/app/facility/schedule/exceptions.component';
 import { OpenHoursComponent } from 'src/app/facility/schedule/opening-hours.component';
 import { StartingTimeComponent } from 'src/app/facility/schedule/starting-time.component';
 import type { DefaultWorkingHours, ExamRoom } from 'src/app/reservation/reservation.model';
 import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { DateTimeService } from 'src/app/shared/date/date.service';
 import { groupBy } from 'src/app/shared/miscellaneous/helpers';
@@ -27,13 +28,6 @@ interface ExtendedRoom extends ExamRoom {
     availabilityVisible: boolean;
     extendedDwh: DefaultWorkingHoursWithEditing[];
     activate: boolean;
-}
-export interface DefaultWorkingHoursWithEditing extends DefaultWorkingHours {
-    editing: boolean;
-    pickStartingTime: { hour: number; minute: number; second: number; millisecond?: number };
-    pickEndingTime: { hour: number; minute: number; second: number; millisecond?: number };
-    displayStartingTime: { hour: number; minute: number; second: number; millisecond?: number };
-    displayEndingTime: { hour: number; minute: number; second: number; millisecond?: number };
 }
 
 @Component({

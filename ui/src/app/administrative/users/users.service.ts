@@ -4,17 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import type { Role, User } from 'src/app/session/session.service';
-
-export enum PermissionType {
-    CAN_INSPECT_LANGUAGE = 'CAN_INSPECT_LANGUAGE',
-    CAN_CREATE_BYOD_EXAM = 'CAN_CREATE_BYOD_EXAM',
-}
-
-export interface Permission {
-    id: number;
-    type: PermissionType;
-}
+import type { Permission, PermissionType, Role, User } from 'src/app/session/session.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserManagementService {

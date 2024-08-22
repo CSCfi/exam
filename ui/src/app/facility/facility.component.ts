@@ -17,14 +17,14 @@ import {
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { from } from 'rxjs';
-import type { MaintenancePeriod } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { SoftwareComponent } from 'src/app/software/software.component';
 import { AccessibilityComponent } from './accessibility/accessibility.component';
+import { MaintenancePeriod } from './facility.model';
 import { RoomService } from './rooms/room.service';
 import { RoomListComponent } from './rooms/rooms.component';
 import { MaintenancePeriodDialogComponent } from './schedule/maintenance-period-dialog.component';

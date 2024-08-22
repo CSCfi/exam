@@ -8,10 +8,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { parseISO, roundToNearestMinutes } from 'date-fns';
-import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
-import type { Exam, ExamParticipation } from 'src/app/exam/exam.model';
+import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import type { Exam } from 'src/app/exam/exam.model';
 import type { Reservation } from 'src/app/reservation/reservation.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { ApplyDstPipe } from 'src/app/shared/date/apply-dst.pipe';
 import { DateTimeService } from 'src/app/shared/date/date.service';
@@ -19,7 +19,7 @@ import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { NoShowComponent } from './no-show.component';
 import { ParticipationComponent } from './participation.component';
 
-export type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
+type Participation = Omit<ExamParticipation, 'exam'> & { exam: Partial<Exam> };
 
 @Component({
     selector: 'xm-r-general-info',

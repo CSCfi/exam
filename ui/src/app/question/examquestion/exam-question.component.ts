@@ -9,15 +9,15 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { NgbModal, NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
+import { QuestionBasicInfoComponent } from 'src/app/question/question-basic-info.component';
+import { QuestionUsageComponent } from 'src/app/question/question-usage.component';
 import type {
     ExamSectionQuestion,
     ExamSectionQuestionOption,
     Question,
     ReverseQuestion,
-} from 'src/app/exam/exam.model';
-import { QuestionPreviewDialogComponent } from 'src/app/question/preview/question-preview-dialog.component';
-import { QuestionBasicInfoComponent } from 'src/app/question/question-basic-info.component';
-import { QuestionUsageComponent } from 'src/app/question/question-usage.component';
+} from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';

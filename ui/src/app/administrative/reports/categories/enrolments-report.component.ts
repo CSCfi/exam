@@ -7,7 +7,8 @@ import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { FileService } from 'src/app/shared/file/file.service';
-import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-select.component';
+import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
+import { Option } from 'src/app/shared/select/select.model';
 
 @Component({
     template: `

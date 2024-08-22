@@ -5,8 +5,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Question } from 'src/app/exam/exam.model';
-import { QuestionDraft } from 'src/app/question/question.service';
+import { Question, QuestionDraft } from 'src/app/question/question.model';
 
 @Component({
     selector: 'xm-essay-editor',

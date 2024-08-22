@@ -10,9 +10,9 @@ import { TranslateModule } from '@ngx-translate/core';
 import type { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, exhaustMap, map } from 'rxjs/operators';
-import type { Question, Tag } from 'src/app/exam/exam.model';
-import { QuestionDraft } from 'src/app/question/question.service';
-import { SessionService, User } from 'src/app/session/session.service';
+import { Question, QuestionDraft, Tag } from 'src/app/question/question.model';
+import { User } from 'src/app/session/session.model';
+import { SessionService } from 'src/app/session/session.service';
 
 @Component({
     selector: 'xm-tag-picker',

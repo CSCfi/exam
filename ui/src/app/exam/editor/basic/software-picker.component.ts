@@ -15,7 +15,8 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Exam, Software } from 'src/app/exam/exam.model';
+import type { Exam } from 'src/app/exam/exam.model';
+import { Software } from 'src/app/facility/facility.model';
 
 @Component({
     selector: 'xm-software-picker',

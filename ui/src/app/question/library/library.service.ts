@@ -7,18 +7,11 @@ import { Inject, Injectable } from '@angular/core';
 import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type { Course, Exam, ExamSection, ReverseQuestion, Tag } from 'src/app/exam/exam.model';
+import type { Course, Exam, ExamSection } from 'src/app/exam/exam.model';
+import { LibraryQuestion, Tag } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
-import { User } from 'src/app/session/session.service';
+import { User } from 'src/app/session/session.model';
 import { UserService } from 'src/app/shared/user/user.service';
-
-export interface LibraryQuestion extends ReverseQuestion {
-    icon: string;
-    displayedMaxScore: number | string;
-    typeOrd: number;
-    ownerAggregate: string;
-    allowedToRemove: boolean;
-}
 
 @Injectable({ providedIn: 'root' })
 export class LibraryService {

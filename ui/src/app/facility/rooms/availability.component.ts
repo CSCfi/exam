@@ -11,10 +11,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { BookingCalendarComponent } from 'src/app/calendar/booking-calendar.component';
-import type { OpeningHours } from 'src/app/calendar/calendar.service';
+import type { OpeningHours } from 'src/app/calendar/calendar.model';
 import { CalendarService } from 'src/app/calendar/calendar.service';
+import { Availability } from 'src/app/facility/facility.model';
 import type { ExamRoom, ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
-import type { Availability } from './room.service';
 import { RoomService } from './room.service';
 
 @Component({

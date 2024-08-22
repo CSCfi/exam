@@ -6,9 +6,9 @@ import { HttpClient } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { Question } from 'src/app/exam/exam.model';
 import { ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationQuestionComponent } from 'src/app/examination/question/examination-question.component';
+import { Question } from 'src/app/question/question.model';
 
 @Component({
     template: `

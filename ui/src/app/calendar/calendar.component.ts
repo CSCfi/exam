@@ -19,7 +19,8 @@ import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-d
 import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.component';
 import { AutoFocusDirective } from 'src/app/shared/select/auto-focus.directive';
-import { CalendarService, ExamInfo, Organisation } from './calendar.service';
+import { ExamInfo, Organisation } from './calendar.model';
+import { CalendarService } from './calendar.service';
 import { CalendarExamInfoComponent } from './helpers/exam-info.component';
 import { OptionalSectionsComponent } from './helpers/optional-sections.component';
 import { OrganisationPickerComponent } from './helpers/organisation-picker.component';

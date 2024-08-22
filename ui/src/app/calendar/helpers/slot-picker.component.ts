@@ -20,15 +20,14 @@ import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { BookingCalendarComponent } from 'src/app/calendar/booking-calendar.component';
-import type { Organisation, Slot } from 'src/app/calendar/calendar.service';
+import type { FilterableAccessibility, Organisation, Slot } from 'src/app/calendar/calendar.model';
 import { CalendarService } from 'src/app/calendar/calendar.service';
-import { MaintenancePeriod } from 'src/app/exam/exam.model';
+import { MaintenancePeriod } from 'src/app/facility/facility.model';
 import type { Accessibility, ExamRoom } from 'src/app/reservation/reservation.model';
 import { updateList } from 'src/app/shared/miscellaneous/helpers';
 import { AccessibilityPickerComponent } from './accessibility-picker.component';
 import { SelectedRoomComponent } from './selected-room.component';
 
-export type FilterableAccessibility = Accessibility & { filtered: boolean };
 type FilterableRoom = ExamRoom & { filtered: boolean };
 type AvailableSlot = Slot & { availableMachines: number };
 

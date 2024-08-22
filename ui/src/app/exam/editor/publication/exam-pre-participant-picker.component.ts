@@ -8,10 +8,10 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
+import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { EnrolmentService } from 'src/app/enrolment/enrolment.service';
-import type { Exam, ExamParticipation } from 'src/app/exam/exam.model';
-import { User } from 'src/app/session/session.service';
+import type { Exam } from 'src/app/exam/exam.model';
+import { User } from 'src/app/session/session.model';
 
 @Component({
     selector: 'xm-exam-pre-participant-selector',

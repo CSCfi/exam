@@ -8,26 +8,20 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import type {
-    Exam,
-    ExamSection,
-    ExamSectionQuestion,
-    ExamSectionQuestionOption,
-    MultipleChoiceOption,
-    Question,
-    ReverseQuestion,
-} from 'src/app/exam/exam.model';
+import type { Exam, ExamSection } from 'src/app/exam/exam.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
-
-export type QuestionDraft = Omit<ReverseQuestion, 'id'> & { id: undefined };
-export type QuestionAmounts = {
-    accepted: number;
-    rejected: number;
-    hasEssays: boolean;
-};
+import {
+    ExamSectionQuestion,
+    ExamSectionQuestionOption,
+    MultipleChoiceOption,
+    Question,
+    QuestionAmounts,
+    QuestionDraft,
+    ReverseQuestion,
+} from './question.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuestionService {

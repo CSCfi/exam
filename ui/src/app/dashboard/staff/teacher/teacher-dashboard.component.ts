@@ -15,13 +15,13 @@ import {
     NgbNavOutlet,
 } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
+import { DashboardExam, ExtraData } from 'src/app/dashboard/dashboard.model';
 import { Exam } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { ExamListCategoryComponent, ExtraData } from './categories/exam-list-category.component';
-import type { DashboardExam } from './teacher-dashboard.service';
+import { ExamListCategoryComponent } from './categories/exam-list-category.component';
 import { TeacherDashboardService } from './teacher-dashboard.service';
 
 @Component({

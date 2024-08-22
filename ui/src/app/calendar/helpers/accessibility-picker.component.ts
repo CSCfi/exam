@@ -5,7 +5,7 @@
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-import { FilterableAccessibility } from './slot-picker.component';
+import { FilterableAccessibility } from 'src/app/calendar/calendar.model';
 
 @Component({
     selector: 'xm-calendar-accessibility-picker',

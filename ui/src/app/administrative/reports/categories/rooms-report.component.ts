@@ -10,7 +10,8 @@ import { ToastrService } from 'ngx-toastr';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
 import { DatePickerComponent } from 'src/app/shared/date/date-picker.component';
 import { FileService } from 'src/app/shared/file/file.service';
-import { DropdownSelectComponent, Option } from 'src/app/shared/select/dropdown-select.component';
+import { DropdownSelectComponent } from 'src/app/shared/select/dropdown-select.component';
+import { Option } from 'src/app/shared/select/select.model';
 
 @Component({
     template: `

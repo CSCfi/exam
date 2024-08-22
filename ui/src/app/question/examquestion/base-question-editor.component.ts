@@ -5,9 +5,9 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
-import type { ExamSectionQuestion, Question } from 'src/app/exam/exam.model';
 import { QuestionComponent } from 'src/app/question/basequestion/question.component';
-import type { QuestionDraft } from 'src/app/question/question.service';
+import type { QuestionDraft } from 'src/app/question/question.model';
+import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 
 @Component({

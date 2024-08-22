@@ -24,7 +24,7 @@ import type {
     Implementation,
 } from './exam.model';
 
-export type ExaminationEventConfigurationInput = {
+type ExaminationEventConfigurationInput = {
     id?: number;
     config: {
         examinationEvent: {

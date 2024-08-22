@@ -12,8 +12,10 @@ import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
 import { catchError, switchMap, tap } from 'rxjs/operators';
 import type { ReviewedExam } from 'src/app/enrolment/enrolment.model';
-import type { Exam, ExamLanguage, ExamSectionQuestion, Feedback } from 'src/app/exam/exam.model';
+import type { Exam, ExamLanguage } from 'src/app/exam/exam.model';
 import { isRealGrade } from 'src/app/exam/exam.model';
+import { ExamSectionQuestion } from 'src/app/question/question.model';
+import { Feedback } from 'src/app/review/review.model';
 import { SessionService } from 'src/app/session/session.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
@@ -29,7 +31,7 @@ type Payload = {
     additionalInfo: string;
 };
 
-export type Link = {
+type Link = {
     fragments: string[];
     params?: { [key: string]: unknown };
 };

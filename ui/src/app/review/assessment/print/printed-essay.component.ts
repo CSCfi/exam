@@ -4,7 +4,7 @@
 
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { ExamSectionQuestion } from 'src/app/exam/exam.model';
+import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
 

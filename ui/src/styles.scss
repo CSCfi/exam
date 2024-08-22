@@ -75,6 +75,9 @@ input.ng-invalid {
 select.ng-invalid {
     border: 1px solid red;
 }
+textarea.ng-invalid {
+    border: 1px solid red; 
+}
 .ng-invalid > .cke {
     border: 1px solid red;
 }

@@ -8,18 +8,10 @@ import { FormsModule } from '@angular/forms';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
+import { RepetitionConfig } from 'src/app/facility/facility.model';
 import { DateTimePickerComponent } from 'src/app/shared/date/date-time-picker.component';
 import { DateTimeService, REPEAT_OPTION } from 'src/app/shared/date/date.service';
 
-export type RepetitionConfig = {
-    start: Date;
-    end: Date;
-    weekdays: { ord: number; name: string }[];
-    dayOfMonth?: number;
-    monthlyOrdinal?: { name: string; ord: number };
-    monthlyWeekday?: { name: string; ord: number };
-    yearlyMonth?: { name: string; ord: number };
-};
 enum ORDINAL {
     First = 'FIRST',
     Second = 'SECOND',

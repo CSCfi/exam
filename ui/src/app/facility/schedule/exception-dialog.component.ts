@@ -9,10 +9,11 @@ import { addDays, areIntervalsOverlapping, eachDayOfInterval, getDate, getDay, g
 import { DateTime } from 'luxon';
 import { ToastrService } from 'ngx-toastr';
 import { groupBy } from 'ramda';
+import { RepetitionConfig } from 'src/app/facility/facility.model';
 import { ExceptionWorkingHours } from 'src/app/reservation/reservation.model';
 import { DateTimeService, REPEAT_OPTION } from 'src/app/shared/date/date.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
-import { ExceptionDialogRepetitionOptionsComponent, RepetitionConfig } from './exception-repetition-options.component';
+import { ExceptionDialogRepetitionOptionsComponent } from './exception-repetition-options.component';
 
 @Component({
     standalone: true,

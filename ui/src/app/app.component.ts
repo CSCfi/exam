@@ -13,7 +13,7 @@ import { takeUntil } from 'rxjs/operators';
 import { ExaminationStatusService } from './examination/examination-status.service';
 import { NavigationComponent } from './navigation/navigation.component';
 import { DevLoginComponent } from './session/dev/dev-login.component';
-import type { User } from './session/session.service';
+import type { User } from './session/session.model';
 import { SessionService } from './session/session.service';
 
 @Component({

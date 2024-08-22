@@ -3,8 +3,8 @@
 // SPDX-License-Identifier: EUPL-1.2
 
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
-import type { Address, WorkingHour } from 'src/app/facility/rooms/room.service';
-import type { User } from 'src/app/session/session.service';
+import { Address, WorkingHour } from 'src/app/facility/facility.model';
+import type { User } from 'src/app/session/session.model';
 
 export type DefaultWorkingHours = {
     id?: number;

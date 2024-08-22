@@ -8,13 +8,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbDropdown, NgbDropdownItem, NgbDropdownMenu, NgbDropdownToggle } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
-
-export interface Option<V, I> {
-    value?: V;
-    id?: I;
-    label: string | null;
-    isHeader?: boolean;
-}
+import { Option } from './select.model';
 
 @Component({
     selector: 'xm-dropdown-select',

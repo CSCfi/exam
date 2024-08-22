@@ -4,7 +4,7 @@
 
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import type { Software } from 'src/app/exam/exam.model';
+import { Software } from 'src/app/facility/facility.model';
 import type { ExamMachine } from 'src/app/reservation/reservation.model';
 
 @Injectable({ providedIn: 'root' })

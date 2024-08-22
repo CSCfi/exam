@@ -10,8 +10,8 @@ import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { throwError } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, map, take } from 'rxjs/operators';
-import { Tag } from 'src/app/exam/exam.model';
 import { LibraryService } from 'src/app/question/library/library.service';
+import { Tag } from 'src/app/question/question.model';
 
 @Component({
     template: `

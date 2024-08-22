@@ -20,7 +20,7 @@ import { AssessmentService } from 'src/app/review/assessment/assessment.service'
 import { QuestionFlowComponent } from 'src/app/review/questions/flow/question-flow.component';
 import { QuestionReviewService } from 'src/app/review/questions/question-review.service';
 import type { QuestionReview, ReviewQuestion } from 'src/app/review/review.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';

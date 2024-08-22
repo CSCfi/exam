@@ -10,26 +10,21 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { forkJoin, from, Observable, of, throwError } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { CollaborativeParticipation } from 'src/app/exam/collaborative/collaborative-exam.service';
-import type {
-    CollaborativeExam,
-    Exam,
-    ExaminationEventConfiguration,
-    ExamParticipation,
-} from 'src/app/exam/exam.model';
+import type { CollaborativeExam, Exam, ExaminationEventConfiguration } from 'src/app/exam/exam.model';
 import type { ExamRoom } from 'src/app/reservation/reservation.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { isObject } from 'src/app/shared/miscellaneous/helpers';
 import { AddEnrolmentInformationDialogComponent } from './active/dialogs/add-enrolment-information-dialog.component';
 import { SelectExaminationEventDialogComponent } from './active/dialogs/select-examination-event-dialog.component';
 import { ShowInstructionsDialogComponent } from './active/dialogs/show-instructions-dialog.component';
-import type { EnrolmentInfo, ExamEnrolment, ReviewedExam } from './enrolment.model';
-
-export type ParticipationLike =
-    | (ExamParticipation & { noShow: boolean })
-    | (CollaborativeParticipation & { noShow: boolean })
-    | (ExamEnrolment & { started?: string; ended?: string; duration?: number });
+import type {
+    CollaborativeParticipation,
+    EnrolmentInfo,
+    ExamEnrolment,
+    ParticipationLike,
+    ReviewedExam,
+} from './enrolment.model';
 
 @Injectable({ providedIn: 'root' })
 export class EnrolmentService {

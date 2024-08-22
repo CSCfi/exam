@@ -9,8 +9,9 @@ import { ActivatedRoute } from '@angular/router';
 import { NgbCollapse } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
-import type { Exam, ExamParticipation, ExamSectionQuestion } from 'src/app/exam/exam.model';
-import type { ExaminationQuestion } from 'src/app/examination/examination.model';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import type { Exam } from 'src/app/exam/exam.model';
+import { ExamSectionQuestion } from 'src/app/question/question.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import type { ReviewQuestion } from 'src/app/review/review.model';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
@@ -109,7 +110,7 @@ export class EssayQuestionComponent implements OnInit {
     insertEssayScore = () => {
         if (this.collaborative) {
             this.Assessment.saveCollaborativeEssayScore$(
-                this.sectionQuestion as ExaminationQuestion,
+                this.sectionQuestion,
                 this.id,
                 this.ref,
                 this.participation._rev as string,
@@ -118,7 +119,7 @@ export class EssayQuestionComponent implements OnInit {
                 this.scored.emit(resp.rev);
             });
         } else {
-            this.Assessment.saveEssayScore$(this.sectionQuestion as ExaminationQuestion).subscribe(() => {
+            this.Assessment.saveEssayScore$(this.sectionQuestion).subscribe(() => {
                 this.toast.info(this.translate.instant('i18n_graded'));
                 this.scored.emit();
             });

@@ -11,9 +11,9 @@ import { ToastrService } from 'ngx-toastr';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ExaminationStatusService } from 'src/app/examination/examination-status.service';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
-import type { Link } from './navigation.service';
+import type { Link } from './navigation.model';
 import { NavigationService } from './navigation.service';
 
 @Component({

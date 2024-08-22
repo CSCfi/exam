@@ -5,8 +5,9 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import type { Participations, QueryParams } from 'src/app/administrative/statistics/statistics.service';
+import { Participations, QueryParams } from 'src/app/administrative/administrative.model';
 import { StatisticsService } from 'src/app/administrative/statistics/statistics.service';
+import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 
 @Component({
     template: `
@@ -95,8 +96,8 @@ export class RoomStatisticsComponent {
 
     totalParticipations = (month?: Date, room?: string) => {
         if (!this.participations) return 0;
-        const isWithinBounds = (data: { date: string }) => {
-            const date = new Date(data.date);
+        const isWithinBounds = (p: ExamParticipation) => {
+            const date = new Date(p.externalExam ? p.externalExam.started : p.exam.created);
             const current = month ? new Date(month) : new Date();
             const min = new Date(current.getFullYear(), current.getMonth(), 1);
             const max = new Date(current.getFullYear(), current.getMonth() + 1, 0, 23, 59, 59);
@@ -132,7 +133,12 @@ export class RoomStatisticsComponent {
 
     private getMinAndMaxDates = (): { min: Date; max: Date } => {
         const dates: Date[] = Object.values(this.participations)
-            .flatMap((ps) => ps.map((d) => new Date(d.date)))
+            .flatMap((ps) =>
+                ps
+                    .filter((p) => p.exam || p.externalExam)
+                    .map((p) => (p.externalExam ? p.externalExam.started : p.exam.created))
+                    .map((d) => new Date(d)),
+            )
             .sort((a, b) => a.getTime() - b.getTime());
         let minDate = dates[0];
         // Set min date to which one is earlier: participation or search date

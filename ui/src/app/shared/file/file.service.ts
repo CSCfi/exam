@@ -8,7 +8,8 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { saveAs } from 'file-saver-es';
 import { ToastrService } from 'ngx-toastr';
-import type { Attachment, EssayAnswer } from 'src/app/exam/exam.model';
+import { EssayAnswer } from 'src/app/question/question.model';
+import { Attachment } from 'src/app/shared/attachment/attachment.model';
 
 type Container = { attachment?: Attachment; objectVersion?: number };
 

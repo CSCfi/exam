@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type { QuestionReview, ReviewQuestion } from 'src/app/review/review.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 import { isNumber } from 'src/app/shared/miscellaneous/helpers';
 
 @Injectable({ providedIn: 'root' })

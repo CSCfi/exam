@@ -9,8 +9,8 @@ import { ActiveEnrolmentComponent } from 'src/app/enrolment/active/active-enrolm
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
-import type { DashboardEnrolment } from './student-dashboard.service';
 import { StudentDashboardService } from './student-dashboard.service';
+import { DashboardEnrolment } from 'src/app/dashboard/dashboard.model';
 
 @Component({
     selector: 'xm-student-dashboard',

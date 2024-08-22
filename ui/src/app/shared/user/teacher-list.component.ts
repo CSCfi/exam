@@ -5,7 +5,7 @@
 import type { OnInit } from '@angular/core';
 import { Component, Input } from '@angular/core';
 import type { ExamInspection } from 'src/app/exam/exam.model';
-import type { User } from 'src/app/session/session.service';
+import type { User } from 'src/app/session/session.model';
 
 type Personnel = { examInspections: ExamInspection[]; examOwners: User[] };
 @Component({

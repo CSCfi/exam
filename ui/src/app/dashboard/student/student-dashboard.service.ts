@@ -7,20 +7,10 @@ import { Injectable } from '@angular/core';
 import { DateTime } from 'luxon';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { DashboardEnrolment, Occasion } from 'src/app/dashboard/dashboard.model';
 import type { ExamEnrolment } from 'src/app/enrolment/enrolment.model';
 import type { Reservation } from 'src/app/reservation/reservation.model';
 import { DateTimeService } from 'src/app/shared/date/date.service';
-
-interface Occasion {
-    startAt: string;
-    endAt: string;
-    tz: string;
-}
-
-export interface DashboardEnrolment extends ExamEnrolment {
-    occasion?: Occasion;
-    startAtAggregate: string;
-}
 
 @Injectable({ providedIn: 'root' })
 export class StudentDashboardService {

@@ -9,10 +9,11 @@ import { FormsModule } from '@angular/forms';
 import { NgbPopover } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { AppConfig } from 'src/app/administrative/administrative.model';
 import { CKEditorComponent } from 'src/app/shared/ckeditor/ckeditor.component';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
-import { AppConfig, SettingsService } from './settings.service';
+import { SettingsService } from './settings.service';
 
 @Component({
     templateUrl: './settings.component.html',
