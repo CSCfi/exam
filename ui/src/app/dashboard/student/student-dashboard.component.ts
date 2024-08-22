@@ -5,12 +5,12 @@
 import type { OnInit } from '@angular/core';
 import { Component, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { DashboardEnrolment } from 'src/app/dashboard/dashboard.model';
 import { ActiveEnrolmentComponent } from 'src/app/enrolment/active/active-enrolment.component';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { StudentDashboardService } from './student-dashboard.service';
-import { DashboardEnrolment } from 'src/app/dashboard/dashboard.model';
 
 @Component({
     selector: 'xm-student-dashboard',

@@ -8,8 +8,8 @@ import { ControlContainer, FormsModule, NgForm } from '@angular/forms';
 import { NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestionOption } from 'src/app/question/question.model';
-import { QuestionService } from 'src/app/question/question.service';
 
 @Component({
     selector: 'xm-eq-weighted-mc',
@@ -111,12 +111,12 @@ export class WeightedMultiChoiceComponent {
     lotteryOn = input(false);
     isInPublishedExam = input(false);
     optionsChanged = output<ExamSectionQuestionOption[]>();
-    maxScore = computed<number>(() => this.QuestionService.calculateWeightedMaxPoints(this.options()));
+    maxScore = computed<number>(() => this.QuestionScore.calculateWeightedMaxPoints(this.options()));
 
     constructor(
         private TranslateService: TranslateService,
         private ToastrService: ToastrService,
-        private QuestionService: QuestionService,
+        private QuestionScore: QuestionScoringService,
     ) {}
 
     updateScore = (score: number, index: number) => {

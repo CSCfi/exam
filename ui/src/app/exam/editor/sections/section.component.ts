@@ -30,8 +30,8 @@ import type { ExamMaterial, ExamSection } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
 import { QuestionSelectorComponent } from 'src/app/question/picker/question-picker.component';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion, Question } from 'src/app/question/question.model';
-import { QuestionService } from 'src/app/question/question.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { FileService } from 'src/app/shared/file/file.service';
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
@@ -77,7 +77,7 @@ export class SectionComponent {
         private modal: NgbModal,
         private toast: ToastrService,
         private dialogs: ConfirmationDialogService,
-        private Question: QuestionService,
+        private QuestionScore: QuestionScoringService,
         private Files: FileService,
         private Exam: ExamService,
     ) {}
@@ -278,7 +278,7 @@ export class SectionComponent {
         optional: this.section.optional,
     });
 
-    private getQuestionScore = (question: ExamSectionQuestion) => this.Question.calculateMaxScore(question);
+    private getQuestionScore = (question: ExamSectionQuestion) => this.QuestionScore.calculateMaxScore(question);
 
     private insertExamQuestion = (question: Question, seq: number) => {
         const resource = this.collaborative

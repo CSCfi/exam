@@ -11,9 +11,9 @@ import { ToastrService } from 'ngx-toastr';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { ExamService } from 'src/app/exam/exam.service';
 import type { Examination } from 'src/app/examination/examination.model';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import type { QuestionAmounts } from 'src/app/question/question.model';
 import { ClozeTestAnswer } from 'src/app/question/question.model';
-import { QuestionService } from 'src/app/question/question.service';
 import type { User } from 'src/app/session/session.model';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
@@ -66,7 +66,7 @@ export class AssessmentComponent implements OnInit {
         private toast: ToastrService,
         private Assessment: AssessmentService,
         private CollaborativeAssessment: CollaborativeAssesmentService,
-        private Question: QuestionService,
+        private QuestionScore: QuestionScoringService,
         private Exam: ExamService,
         private Session: SessionService,
     ) {
@@ -98,7 +98,7 @@ export class AssessmentComponent implements OnInit {
                 if (exam.languageInspection && !exam.languageInspection.statement) {
                     exam.languageInspection.statement = { comment: '' };
                 }
-                this.questionSummary = this.Question.getQuestionAmounts(exam);
+                this.questionSummary = this.QuestionScore.getQuestionAmounts(exam);
                 this.exam = exam;
                 this.participation = participation;
             },
@@ -122,7 +122,7 @@ export class AssessmentComponent implements OnInit {
 
     scoreSet = (revision: string) => {
         this.participation._rev = revision;
-        this.questionSummary = this.Question.getQuestionAmounts(this.exam);
+        this.questionSummary = this.QuestionScore.getQuestionAmounts(this.exam);
         this.startReview();
     };
 

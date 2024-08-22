@@ -22,6 +22,7 @@ import { map } from 'rxjs/operators';
 import type { ExamSection } from 'src/app/exam/exam.model';
 import { BaseQuestionEditorComponent } from 'src/app/question/examquestion/base-question-editor.component';
 import { ExamQuestionEditorComponent } from 'src/app/question/examquestion/exam-question-editor.component';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion, ExamSectionQuestionOption, Question } from 'src/app/question/question.model';
 import { QuestionService } from 'src/app/question/question.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
@@ -64,15 +65,16 @@ export class SectionQuestionComponent {
         private toast: ToastrService,
         private Confirmation: ConfirmationDialogService,
         private Question: QuestionService,
+        private QuestionScore: QuestionScoringService,
         private Attachment: AttachmentService,
         private Files: FileService,
     ) {}
 
-    calculateWeightedMaxPoints = () => this.Question.calculateWeightedMaxPoints(this.sectionQuestion.options);
+    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion.options);
 
-    getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
+    getCorrectClaimChoiceOptionScore = () => this.QuestionScore.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
 
-    getMinimumOptionScore = () => this.Question.getMinimumOptionScore(this.sectionQuestion);
+    getMinimumOptionScore = () => this.QuestionScore.getMinimumOptionScore(this.sectionQuestion);
 
     editQuestion = () => this.openExamQuestionEditor();
 

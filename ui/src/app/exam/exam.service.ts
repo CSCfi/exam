@@ -10,7 +10,7 @@ import { parseISO } from 'date-fns';
 import { ToastrService } from 'ngx-toastr';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { QuestionService } from 'src/app/question/question.service';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { SessionService } from 'src/app/session/session.service';
 import { ConfirmationDialogService } from 'src/app/shared/dialogs/confirmation-dialog.service';
 import { CommonExamService } from 'src/app/shared/miscellaneous/common-exam.service';
@@ -47,7 +47,7 @@ export class ExamService {
         private translate: TranslateService,
         private toast: ToastrService,
         private CommonExam: CommonExamService,
-        private Question: QuestionService,
+        private QuestionScore: QuestionScoringService,
         private Session: SessionService,
         private ConfirmationDialog: ConfirmationDialogService,
     ) {}
@@ -253,7 +253,7 @@ export class ExamService {
 
     getSectionTotalNumericScore = (section: ExamSection): number => {
         const score = section.sectionQuestions.reduce((n, sq) => {
-            const points = this.Question.calculateAnswerScore(sq);
+            const points = this.QuestionScore.calculateAnswerScore(sq);
             // handle only numeric scores (leave out approved/rejected type of scores)
             return n + (points.rejected === false && points.approved === false ? points.score : 0);
         }, 0);
@@ -262,7 +262,7 @@ export class ExamService {
 
     getSectionTotalScore = (section: ExamSection): number => {
         const score = section.sectionQuestions.reduce((n, sq) => {
-            const points = this.Question.calculateAnswerScore(sq);
+            const points = this.QuestionScore.calculateAnswerScore(sq);
             return n + points.score;
         }, 0);
         return Number.isInteger(score) ? score : parseFloat(score.toFixed(2));
@@ -273,7 +273,7 @@ export class ExamService {
             if (!sq || !sq.question) {
                 return n;
             }
-            return n + this.Question.calculateMaxScore(sq);
+            return n + this.QuestionScore.calculateMaxScore(sq);
         }, 0);
         if (section.lotteryOn) {
             maxScore = (maxScore * section.lotteryItemCount) / Math.max(1, section.sectionQuestions.length);

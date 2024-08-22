@@ -11,9 +11,9 @@ import { parseISO, roundToNearestMinutes } from 'date-fns';
 import type { ExamEnrolment, ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import { Exam } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import type { QuestionAmounts } from 'src/app/question/question.model';
 import { ClozeTestAnswer } from 'src/app/question/question.model';
-import { QuestionService } from 'src/app/question/question.service';
 import type { Reservation } from 'src/app/reservation/reservation.model';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import type { User } from 'src/app/session/session.model';
@@ -60,7 +60,7 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
     constructor(
         private route: ActivatedRoute,
         private http: HttpClient,
-        private Question: QuestionService,
+        private QuestionScore: QuestionScoringService,
         private Exam: ExamService,
         private CommonExam: CommonExamService,
         private Assessment: AssessmentService,
@@ -94,7 +94,7 @@ export class PrintedAssessmentComponent implements OnInit, AfterViewInit {
                     ),
             );
 
-            this.questionSummary = this.Question.getQuestionAmounts(exam);
+            this.questionSummary = this.QuestionScore.getQuestionAmounts(exam);
             this.exam = exam;
             this.user = this.Session.getUser();
             this.participation = participation;

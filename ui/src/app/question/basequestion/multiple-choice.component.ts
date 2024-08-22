@@ -6,8 +6,8 @@ import { UpperCasePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { MultipleChoiceOption, Question, QuestionDraft } from 'src/app/question/question.model';
-import { QuestionService } from 'src/app/question/question.service';
 import { MultipleChoiceOptionEditorComponent } from './multiple-choice-option.component';
 import { WeightedMultipleChoiceOptionEditorComponent } from './weighted-multiple-choice-option.component';
 
@@ -114,7 +114,7 @@ export class MultipleChoiceEditorComponent implements OnInit {
     constructor(
         private translate: TranslateService,
         private toast: ToastrService,
-        private Question: QuestionService,
+        private QuestionScore: QuestionScoringService,
     ) {}
 
     ngOnInit() {
@@ -135,5 +135,5 @@ export class MultipleChoiceEditorComponent implements OnInit {
         this.question.options.push(option);
     };
 
-    calculateDefaultMaxPoints = () => this.Question.calculateDefaultMaxPoints(this.question as Question);
+    calculateDefaultMaxPoints = () => this.QuestionScore.calculateDefaultMaxPoints(this.question as Question);
 }

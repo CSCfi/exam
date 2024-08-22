@@ -15,9 +15,8 @@ import { CourseCodeComponent } from 'src/app/shared/miscellaneous/course-code.co
 import { OrderByPipe } from 'src/app/shared/sorting/order-by.pipe';
 import { TableSortComponent } from 'src/app/shared/sorting/table-sort.component';
 import { TeacherListComponent } from 'src/app/shared/user/teacher-list.component';
-import type { Reservation } from './reservation.model';
+import type { AnyReservation, Reservation } from './reservation.model';
 import { ReservationService } from './reservation.service';
-import { AnyReservation } from './reservations.component';
 
 type ReservationDetail = Reservation & { org: { name: string; code: string }; userAggregate: string };
 

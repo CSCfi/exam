@@ -17,6 +17,7 @@ import { NoShowsComponent } from 'src/app/review/listing/dialogs/no-shows.compon
 import { ReviewListService } from 'src/app/review/listing/review-list.service';
 import type { Review } from 'src/app/review/review.model';
 import { FileService } from 'src/app/shared/file/file.service';
+import { ChartService } from './chart-service';
 import { ExamSummaryService } from './exam-summary.service';
 
 @Component({
@@ -44,6 +45,7 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
         private route: ActivatedRoute,
         private translate: TranslateService,
         private modal: NgbModal,
+        private ChartService: ChartService,
         private ExamSummary: ExamSummaryService,
         private ReviewList: ReviewListService,
         private Files: FileService,
@@ -133,18 +135,18 @@ export class ExamSummaryComponent implements OnInit, OnChanges {
 
     private refresh = () => {
         this.ExamSummary.getNoShows$(this.collaborative, this.exam).subscribe((ns) => (this.noShows = ns));
-        this.gradeDistributionChart = this.ExamSummary.getGradeDistributionChart(
+        this.gradeDistributionChart = this.ChartService.getGradeDistributionChart(
             'gradeDistributionChart',
             this.reviews,
         );
-        this.examinationDateDistribution = this.ExamSummary.getExaminationTimeDistributionChart(
+        this.examinationDateDistribution = this.ChartService.getExaminationTimeDistributionChart(
             'examinationDateDistributionChart',
             this.reviews,
             this.exam,
         );
-        this.gradeTimeChart = this.ExamSummary.getGradeTimeChart('gradeTimeChart', this.reviews, this.exam);
-        this.questionScoreChart = this.ExamSummary.getQuestionScoreChart('questionScoreChart', this.reviews);
-        this.approvalRatingChart = this.ExamSummary.getApprovalRateChart('approvalRatingChart', this.reviews);
+        this.gradeTimeChart = this.ChartService.getGradeTimeChart('gradeTimeChart', this.reviews, this.exam);
+        this.questionScoreChart = this.ChartService.getQuestionScoreChart('questionScoreChart', this.reviews);
+        this.approvalRatingChart = this.ChartService.getApprovalRateChart('approvalRatingChart', this.reviews);
         this.gradedCount = this.reviews.filter((r) => r.exam.gradedTime).length;
         this.abortedExams = this.ReviewList.filterByStateAndEnhance(['ABORTED'], this.reviews, this.collaborative);
     };

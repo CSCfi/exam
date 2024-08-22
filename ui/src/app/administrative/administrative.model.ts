@@ -2,8 +2,6 @@
 //
 // SPDX-License-Identifier: EUPL-1.2
 
-import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
-
 export type QueryParams = { start?: string; end?: string; dept?: string };
 
 export type ExamInfo = {
@@ -12,8 +10,9 @@ export type ExamInfo = {
     state: string;
     rank: number;
 };
+
 export type Participations = {
-    [room: string]: ExamParticipation[];
+    [room: string]: { date: string }[];
 };
 
 export interface AppConfig {

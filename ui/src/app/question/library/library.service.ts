@@ -8,8 +8,8 @@ import { SESSION_STORAGE, WebStorageService } from 'ngx-webstorage-service';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import type { Course, Exam, ExamSection } from 'src/app/exam/exam.model';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { LibraryQuestion, Tag } from 'src/app/question/question.model';
-import { QuestionService } from 'src/app/question/question.service';
 import { User } from 'src/app/session/session.model';
 import { UserService } from 'src/app/shared/user/user.service';
 
@@ -18,7 +18,7 @@ export class LibraryService {
     constructor(
         private http: HttpClient,
         @Inject(SESSION_STORAGE) private webStorageService: WebStorageService,
-        private Question: QuestionService,
+        private QuestionScore: QuestionScoringService,
         private User: UserService,
     ) {}
 
@@ -208,9 +208,9 @@ export class LibraryService {
         } else if (q.defaultEvaluationType === 'Selection') {
             return 'i18n_evaluation_select';
         } else if (q.type === 'WeightedMultipleChoiceQuestion') {
-            return this.Question.calculateDefaultMaxPoints(q);
+            return this.QuestionScore.calculateDefaultMaxPoints(q);
         } else if (q.type === 'ClaimChoiceQuestion') {
-            return this.Question.getCorrectClaimChoiceOptionDefaultScore(q);
+            return this.QuestionScore.getCorrectClaimChoiceOptionDefaultScore(q);
         }
         return '';
     };

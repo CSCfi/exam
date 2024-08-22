@@ -9,8 +9,8 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
-import { QuestionService } from 'src/app/question/question.service';
 import { AssessmentService } from 'src/app/review/assessment/assessment.service';
 import { AttachmentService } from 'src/app/shared/attachment/attachment.service';
 import { MathJaxDirective } from 'src/app/shared/math/math-jax.directive';
@@ -56,7 +56,7 @@ export class MultiChoiceQuestionComponent implements OnInit {
         private toast: ToastrService,
         private Assessment: AssessmentService,
         private Attachment: AttachmentService,
-        private Question: QuestionService,
+        private QuestionScore: QuestionScoringService,
     ) {}
 
     get scoreValue(): number | null {
@@ -84,21 +84,21 @@ export class MultiChoiceQuestionComponent implements OnInit {
         if (this.sectionQuestion.question.type !== 'WeightedMultipleChoiceQuestion') {
             return 0;
         }
-        return this.Question.scoreWeightedMultipleChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
+        return this.QuestionScore.scoreWeightedMultipleChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
     };
 
     scoreMultipleChoiceAnswer = (ignoreForcedScore: boolean) => {
         if (this.sectionQuestion.question.type !== 'MultipleChoiceQuestion') {
             return 0;
         }
-        return this.Question.scoreMultipleChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
+        return this.QuestionScore.scoreMultipleChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
     };
 
     scoreClaimChoiceAnswer = (ignoreForcedScore: boolean) => {
         if (this.sectionQuestion.question.type !== 'ClaimChoiceQuestion') {
             return 0;
         }
-        return this.Question.scoreClaimChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
+        return this.QuestionScore.scoreClaimChoiceAnswer(this.sectionQuestion, ignoreForcedScore);
     };
 
     displayMaxScore = () =>
@@ -106,11 +106,11 @@ export class MultiChoiceQuestionComponent implements OnInit {
             ? this.sectionQuestion.maxScore
             : this.sectionQuestion.maxScore.toFixed(2);
 
-    calculateWeightedMaxPoints = () => this.Question.calculateWeightedMaxPoints(this.sectionQuestion.options);
+    calculateWeightedMaxPoints = () => this.QuestionScore.calculateWeightedMaxPoints(this.sectionQuestion.options);
 
-    getMinimumOptionScore = () => this.Question.getMinimumOptionScore(this.sectionQuestion);
+    getMinimumOptionScore = () => this.QuestionScore.getMinimumOptionScore(this.sectionQuestion);
 
-    getCorrectClaimChoiceOptionScore = () => this.Question.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
+    getCorrectClaimChoiceOptionScore = () => this.QuestionScore.getCorrectClaimChoiceOptionScore(this.sectionQuestion);
 
     insertForcedScore = () => {
         if (this.collaborative && this.participation._rev) {

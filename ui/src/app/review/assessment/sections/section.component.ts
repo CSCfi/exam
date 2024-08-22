@@ -7,8 +7,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ExamParticipation } from 'src/app/enrolment/enrolment.model';
 import type { Exam, ExamSection } from 'src/app/exam/exam.model';
 import { ExamService } from 'src/app/exam/exam.service';
+import { QuestionScoringService } from 'src/app/question/question-scoring.service';
 import { ExamSectionQuestion } from 'src/app/question/question.model';
-import { QuestionService } from 'src/app/question/question.service';
 import { ClozeTestComponent } from 'src/app/review/assessment/questions/cloze-test.component';
 import { EssayQuestionComponent } from 'src/app/review/assessment/questions/essay-question.component';
 import { MultiChoiceQuestionComponent } from 'src/app/review/assessment/questions/multi-choice-question.component';
@@ -35,12 +35,12 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
 
     constructor(
         private Exam: ExamService,
-        private Question: QuestionService,
+        private QuestionScore: QuestionScoringService,
         private cdr: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
-        this.essayQuestionAmounts = this.Question.getEssayQuestionAmountsBySection(this.section);
+        this.essayQuestionAmounts = this.QuestionScore.getEssayQuestionAmountsBySection(this.section);
     }
 
     ngAfterViewInit() {
@@ -49,7 +49,7 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
 
     scoreSet = (revision: string) => {
         this.scored.emit(revision);
-        this.essayQuestionAmounts = this.Question.getEssayQuestionAmountsBySection(this.section);
+        this.essayQuestionAmounts = this.QuestionScore.getEssayQuestionAmountsBySection(this.section);
     };
 
     // getReviewProgress gathers the questions that have been reviewed by calculating essay answers that have been evaluated plus the rest of the questions.
