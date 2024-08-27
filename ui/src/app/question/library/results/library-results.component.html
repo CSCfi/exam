@@ -188,17 +188,17 @@
                             @if (user.isAdmin) {
                                 <span>
                                     @for (owner of question.questionOwners; track owner; let isLast = $last) {
-                                        <a [href]="renderMailTo(owner)"
-                                            >{{ printOwner(owner, true) }}{{ isLast ? '' : ', ' }}</a
-                                        >
+                                        <a [href]="renderMailTo(owner)">{{ printOwner(owner, true) }}</a
+                                        >{{ isLast ? '' : ', ' }}
                                     }
                                 </span>
                             } @else {
                                 <span>
                                     @for (owner of question.questionOwners; track owner; let isLast = $last) {
                                         <a [href]="renderMailTo(owner)">{{
-                                            owner.id === user.id ? '' : printOwner(owner, true) + (isLast ? '' : ', ')
-                                        }}</a>
+                                            owner.id === user.id ? '' : printOwner(owner, true)
+                                        }}</a
+                                        >{{ isLast ? '' : ', ' }}
                                     }
                                 </span>
                             }
