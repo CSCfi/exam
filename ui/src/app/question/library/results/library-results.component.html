@@ -76,16 +76,14 @@
                     </th>
                     <th>{{ 'i18n_categories' | translate }}</th>
                     <th>
-                        @if (user.isAdmin) {
-                            <xm-table-sort
-                                by="ownerAggregate"
-                                text="i18n_owner"
-                                [predicate]="questionsPredicate"
-                                [reverse]="reverse"
-                                (click)="setPredicate('ownerAggregate')"
-                            >
-                            </xm-table-sort>
-                        }
+                        <xm-table-sort
+                            by="ownerAggregate"
+                            text="i18n_owner"
+                            [predicate]="questionsPredicate"
+                            [reverse]="reverse"
+                            (click)="setPredicate('ownerAggregate')"
+                        >
+                        </xm-table-sort>
                     </th>
                     <th>{{ 'i18n_remove' | translate }}</th>
                     <th>{{ 'i18n_copy' | translate }}</th>
@@ -190,9 +188,17 @@
                             @if (user.isAdmin) {
                                 <span>
                                     @for (owner of question.questionOwners; track owner; let isLast = $last) {
-                                        <a [href]="renderMailTo(owner)"
-                                            >{{ printOwner(owner, true) }}{{ isLast ? '' : ', ' }}</a
-                                        >
+                                        <a [href]="renderMailTo(owner)">{{ printOwner(owner, true) }}</a
+                                        >{{ isLast ? '' : ', ' }}
+                                    }
+                                </span>
+                            } @else {
+                                <span>
+                                    @for (owner of question.questionOwners; track owner; let isLast = $last) {
+                                        <a [href]="renderMailTo(owner)">{{
+                                            owner.id === user.id ? '' : printOwner(owner, true)
+                                        }}</a
+                                        >{{ isLast ? '' : ', ' }}
                                     }
                                 </span>
                             }
