@@ -64,7 +64,10 @@ export class ExamSectionComponent implements OnInit, AfterViewInit {
     // Since the essay questions are the only ones that need to be evaluated and the rest of the questions are evaluated automatically.
     getReviewProgress = () => {
         return this.section.sectionQuestions.filter((q: ExamSectionQuestion) => {
-            return q.question.type !== 'EssayQuestion' || q.essayAnswer?.evaluatedScore;
+            return (
+                q.question.type !== 'EssayQuestion' ||
+                (q.essayAnswer?.evaluatedScore !== undefined && q.essayAnswer?.evaluatedScore !== null)
+            );
         }).length;
     };
 
