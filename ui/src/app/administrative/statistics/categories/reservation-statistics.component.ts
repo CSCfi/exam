@@ -31,13 +31,13 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
             <div class="col-3">
                 <strong>{{ 'i18n_total_reservations' | translate }}:</strong>
             </div>
-            <div class="col-9">{{ reservations.length }}</div>
+            <div class="col-9">{{ data.appearances }}</div>
         </div>
         <div class="row">
             <div class="col-3">
                 <strong>{{ 'i18n_total_no_shows' | translate }}:</strong>
             </div>
-            <div class="col-9">{{ noShows.length }}</div>
+            <div class="col-9">{{ data.noShows }}</div>
         </div>
     `,
     selector: 'xm-reservation-statistics',
@@ -47,8 +47,7 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
 export class ReservationStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};
 
-    reservations: { noShow: boolean }[] = [];
-    noShows: { noShow: boolean }[] = [];
+    data = { noShows: 0, appearances: 0 };
 
     constructor(private Statistics: StatisticsService) {}
 
@@ -58,7 +57,6 @@ export class ReservationStatisticsComponent implements OnInit {
 
     listReservations = () =>
         this.Statistics.listReservations$(this.queryParams).subscribe((resp) => {
-            this.reservations = resp.filter((r) => !r.noShow);
-            this.noShows = resp.filter((r) => r.noShow);
+            this.data = resp;
         });
 }

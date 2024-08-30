@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Exam } from 'src/app/exam/exam.model';
 
 export type QueryParams = { start?: string; end?: string; dept?: string };
 export type ExamInfo = {
@@ -20,8 +19,11 @@ export class StatisticsService {
     listDepartments$ = () => this.http.get<{ departments: string[] }>('/app/reports/departments');
     listExams$ = (params: QueryParams) => this.http.get<ExamInfo[]>('/app/reports/exams', { params: params });
     listReservations$ = (params: QueryParams) =>
-        this.http.get<{ noShow: boolean }[]>('/app/reports/reservations', { params: params });
-    listResponses$ = (params: QueryParams) => this.http.get<Exam[]>('/app/reports/responses', { params: params });
+        this.http.get<{ noShows: number; appearances: number }>('/app/reports/reservations', { params: params });
+    listResponses$ = (params: QueryParams) =>
+        this.http.get<{ assessed: number; unAssessed: number; aborted: number }>('/app/reports/responses', {
+            params: params,
+        });
     listParticipations$ = (params: QueryParams) =>
         this.http.get<Participations>('/app/reports/participations', { params: params });
 }

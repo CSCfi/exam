@@ -30,7 +30,7 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
                         <tbody>
                             @for (exam of exams; track exam; let i = $index) {
                                 <tr>
-                                    <td>{{ getRank(i, exams) }}.</td>
+                                    <td>{{ exam.rank }}.</td>
                                     <td>{{ exam.name }}</td>
                                     <td>{{ exam.participations }}</td>
                                 </tr>
@@ -43,7 +43,7 @@ import { StatisticsService } from 'src/app/administrative/statistics/statistics.
                                 </td>
                                 <td>
                                     @if (exams) {
-                                        <strong>{{ totalExams() }}</strong>
+                                        <strong>{{ totalExams }}</strong>
                                     }
                                 </td>
                             </tr>
@@ -61,6 +61,7 @@ export class ExamStatisticsComponent implements OnInit {
     @Input() queryParams: QueryParams = {};
 
     exams: ExamInfo[] = [];
+    totalExams = 0;
 
     constructor(private Statistics: StatisticsService) {}
 
@@ -68,28 +69,18 @@ export class ExamStatisticsComponent implements OnInit {
         this.listExams();
     }
 
-    totalExams = () => this.exams.reduce((a, b) => a + b.participations, 0);
-
     listExams = () =>
         this.Statistics.listExams$(this.queryParams).subscribe((resp) => {
-            this.exams = resp.sort((a, b) => {
-                if (a.participations > b.participations) return -1;
-                else if (a.participations < b.participations) return 1;
-
-                if (a.name > b.name) return 1;
-                else if (a.name < b.name) return -1;
-
-                return 0;
-            });
+            this.exams = resp
+                .map((e) => ({
+                    ...e,
+                    rank: resp.filter((e2) => e2.participations > e.participations).length + 1,
+                }))
+                .sort((a, b) => {
+                    if (a.rank < b.rank) return -1;
+                    else if (a.rank > b.rank) return 1;
+                    else return a.name.localeCompare(b.name);
+                });
+            this.totalExams = this.exams.reduce((a, b) => a + b.participations, 0);
         });
-
-    getRank = (index: number, items: ExamInfo[]) => {
-        const prev = Math.max(0, index - 1);
-        if (items[prev].participations === items[index].participations) {
-            items[index].rank = items[prev].rank || 0;
-            return (items[prev].rank || 0) + 1;
-        }
-        items[index].rank = index;
-        return index + 1;
-    };
 }
