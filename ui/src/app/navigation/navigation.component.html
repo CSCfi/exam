@@ -35,6 +35,7 @@
                                 [routerLink]="link.route"
                                 routerLinkActive="selected"
                                 [attr.aria-current]="isActive(link)"
+                                [attr.aria-expanded]="link.submenu.items.length > 0 ? !link.submenu.hidden : null"
                                 (click)="link.submenu.hidden = !link.submenu.hidden"
                             >
                                 <img aria-hidden="true" width="18" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
@@ -90,6 +91,7 @@
                                 [routerLink]="link.route"
                                 routerLinkActive="selected"
                                 (click)="link.submenu.hidden = !link.submenu.hidden"
+                                [attr.aria-expanded]="link.submenu.items.length > 0 ? !link.submenu.hidden : null"
                             >
                                 <img aria-hidden="true" width="18" src="/assets/images/nav/{{ link.iconPng }}" alt="" />
                                 <span class="menu-item">{{ link.name | translate }}</span>
