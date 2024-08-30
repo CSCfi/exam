@@ -38,7 +38,7 @@ class MaintenancePeriodController @Inject() (
     with JavaApiHelper:
 
   def listMaintenancePeriods: Action[AnyContent] =
-    Action.andThen(authorized(Seq(Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { _ =>
+    Action.andThen(authorized(Seq(Role.Name.STUDENT, Role.Name.TEACHER, Role.Name.ADMIN))).andThen(audited) { _ =>
       DB.find(classOf[MaintenancePeriod])
         .where()
         .gt("endsAt", DateTime.now())
