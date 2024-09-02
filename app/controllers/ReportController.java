@@ -17,6 +17,7 @@ package controllers;
 
 import be.objectify.deadbolt.java.actions.Group;
 import be.objectify.deadbolt.java.actions.Restrict;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import controllers.base.BaseController;
@@ -238,7 +239,7 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getReservations(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Reservation> query = DB.find(Reservation.class).where();
+        ExpressionList<ExamEnrolment> query = DB.find(ExamEnrolment.class).where();
         query = applyFilters(
             query,
             "enrolment.exam.course",
@@ -247,7 +248,10 @@ public class ReportController extends BaseController {
             start.orElse(null),
             end.orElse(null)
         );
-        return ok(query.findList());
+        Set<ExamEnrolment> enrolments = query.findSet();
+        long noShows = enrolments.stream().filter(ExamEnrolment::isNoShow).count();
+        long appearances = enrolments.size() - noShows;
+        return ok(Json.newObject().put("noShows", noShows).put("appearances", appearances));
     }
 
     @Restrict({ @Group("ADMIN") })
@@ -255,13 +259,35 @@ public class ReportController extends BaseController {
         ExpressionList<Exam> query = DB.find(Exam.class).where().isNotNull("parent").isNotNull("course");
         query = applyFilters(query, "course", "created", dept.orElse(null), start.orElse(null), end.orElse(null));
         Set<Exam> exams = query.findSet();
-        List<ExamInfo> infos = new ArrayList<>();
-        for (Exam exam : exams.stream().filter(e -> e.getState().ordinal() > Exam.State.PUBLISHED.ordinal()).toList()) {
-            ExamInfo info = new ExamInfo();
-            info.state = exam.getState().toString();
-            infos.add(info);
-        }
-        return ok(Json.toJson(infos));
+        long aborted = exams.stream().filter(e -> e.getState() == Exam.State.ABORTED).count();
+        long assessed = exams
+            .stream()
+            .filter(e ->
+                e.hasState(
+                    Exam.State.GRADED,
+                    Exam.State.GRADED_LOGGED,
+                    Exam.State.ARCHIVED,
+                    Exam.State.REJECTED,
+                    Exam.State.DELETED
+                )
+            )
+            .count();
+        long unAssessed = exams
+            .stream()
+            .filter(e ->
+                e.hasState(
+                    Exam.State.INITIALIZED,
+                    Exam.State.STUDENT_STARTED,
+                    Exam.State.REVIEW,
+                    Exam.State.REVIEW_STARTED
+                )
+            )
+            .count();
+        JsonNode node = Json.newObject()
+            .put("aborted", aborted)
+            .put("assessed", assessed)
+            .put("unAssessed", unAssessed);
+        return ok(node);
     }
 
     @With(ExamRecordSanitizer.class)
