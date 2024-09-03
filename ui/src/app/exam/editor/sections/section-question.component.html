@@ -77,16 +77,8 @@
                     >
                         <span [hidden]="sectionQuestion.expanded">{{ 'i18n_show_more' | translate }}</span>
                         <span [hidden]="!sectionQuestion.expanded">{{ 'i18n_hide' | translate }}</span>
-                        <i
-                            [hidden]="sectionQuestion.expanded"
-                            class="bi bi-chevron-right ms-2"
-                            alt="hide evaluation"
-                        ></i>
-                        <i
-                            [hidden]="!sectionQuestion.expanded"
-                            class="bi bi-chevron-down ms-2"
-                            alt="show evaluation"
-                        ></i>
+                        <i [hidden]="sectionQuestion.expanded" class="bi bi-chevron-right ms-2" alt=""></i>
+                        <i [hidden]="!sectionQuestion.expanded" class="bi bi-chevron-down ms-2" alt=""></i>
                     </button>
                 }
             </div>

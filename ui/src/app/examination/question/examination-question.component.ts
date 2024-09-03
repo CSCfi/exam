@@ -71,6 +71,11 @@ export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
             const { answer } = this.sq.clozeTestAnswer;
             this.clozeAnswer = JSON.parse(answer);
         }
+        this.questionTitle = this.removeParagraphTags(this.sq.question.question);
+    }
+
+    removeParagraphTags(input: string): string {
+        return input.replace(/<\/?p>/g, '');
     }
 
     ngAfterViewInit() {
