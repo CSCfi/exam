@@ -115,7 +115,6 @@ public class NoShowHandlerImpl implements NoShowHandler {
             .filter(this::isNoShow)
             .filter(ns -> isLocal(ns) || isCollaborative(ns));
         locals.forEach(this::handleNoShowAndNotify);
-
         Stream<ExamEnrolment> externals = noShows
             .stream()
             .filter(ns ->
@@ -165,10 +164,9 @@ public class NoShowHandlerImpl implements NoShowHandler {
             enrolment.setNoShow(true);
         }
         enrolment.update();
-        logger.info("Marked enrolment {} as no-show", enrolment.getId());
 
         String examName = exam == null ? enrolment.getCollaborativeExam().getName() : enrolment.getExam().getName();
-        String courseCode = exam == null ? "" : enrolment.getExam().getCourse().getCode();
+        String courseCode = (exam == null || exam.getCourse() == null) ? "" : enrolment.getExam().getCourse().getCode();
 
         // Notify student
         composer.composeNoShowMessage(enrolment.getUser(), examName, courseCode);
