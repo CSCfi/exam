@@ -68,16 +68,17 @@ public class AuthenticatedAction extends Action<Authenticated> {
 
     @Override
     public CompletionStage<Result> call(Http.Request request) {
-        return getLoggedInUser(request).thenComposeAsync(
-            ou -> {
-                if (ou.isPresent()) {
-                    User user = ou.get();
-                    return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
-                }
-                logger.info("Blocked unauthorized access to {}", request.path());
-                return CompletableFuture.completedFuture(Results.unauthorized());
-            },
-            ec.current()
-        );
+        return getLoggedInUser(request)
+            .thenComposeAsync(
+                ou -> {
+                    if (ou.isPresent()) {
+                        User user = ou.get();
+                        return delegate.call(request.addAttr(Attrs.AUTHENTICATED_USER, user));
+                    }
+                    logger.info("Blocked unauthorized access to {}", request.path());
+                    return CompletableFuture.completedFuture(Results.unauthorized());
+                },
+                ec.current()
+            );
     }
 }

@@ -104,7 +104,8 @@ public class SettingsController extends BaseController {
             return wrapAsPromise(badRequest("Language not supported"));
         }
         if (hash.isPresent()) {
-            ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
+            ExamEnrolment enrolment = DB
+                .find(ExamEnrolment.class)
                 .where()
                 .eq("externalExam.hash", hash.get())
                 .findOne();
@@ -332,8 +333,8 @@ public class SettingsController extends BaseController {
     }
 
     private URL parseExternalUrl(String reservationRef) throws MalformedURLException {
-        return URI.create(
-            configReader.getIopHost() + String.format("/api/enrolments/%s/instructions", reservationRef)
-        ).toURL();
+        return URI
+            .create(configReader.getIopHost() + String.format("/api/enrolments/%s/instructions", reservationRef))
+            .toURL();
     }
 }

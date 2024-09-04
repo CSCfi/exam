@@ -83,7 +83,8 @@ public class UserController extends BaseController {
             return notFound();
         }
         if (user.getPermissions().stream().anyMatch(p -> p.getValue().equals(permissionString))) {
-            Permission permission = DB.find(Permission.class)
+            Permission permission = DB
+                .find(Permission.class)
                 .where()
                 .eq("type", Permission.Type.valueOf(permissionString))
                 .findOne();
@@ -103,13 +104,14 @@ public class UserController extends BaseController {
             ExpressionList<User> el = query.where().disjunction();
             el = applyUserFilter(null, el, filter.get());
             String condition = String.format("%%%s%%", filter.get());
-            results = el
-                .ilike("email", condition)
-                .ilike("userIdentifier", condition)
-                .ilike("employeeNumber", condition)
-                .endJunction()
-                .orderBy("lastName, firstName")
-                .findList();
+            results =
+                el
+                    .ilike("email", condition)
+                    .ilike("userIdentifier", condition)
+                    .ilike("employeeNumber", condition)
+                    .endJunction()
+                    .orderBy("lastName, firstName")
+                    .findList();
         } else {
             results = query.orderBy("lastName, firstName").findList();
         }
@@ -228,7 +230,8 @@ public class UserController extends BaseController {
     @Restrict({ @Group("STUDENT") })
     public Result updateUserAgreementAccepted(Http.Request request) {
         Result result;
-        User user = DB.find(User.class)
+        User user = DB
+            .find(User.class)
             .fetch("roles", "name")
             .fetch("language")
             .where()
