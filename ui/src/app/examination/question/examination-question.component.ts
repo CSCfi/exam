@@ -75,7 +75,19 @@ export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
     }
 
     removeParagraphTags(input: string): string {
-        return input.replace(/<\/?p>/g, '');
+        const openTag = '<p>';
+        const closeTag = '</p>';
+        let result = input;
+
+        while (result.includes(openTag)) {
+            result = result.replace(openTag, '');
+        }
+
+        while (result.includes(closeTag)) {
+            result = result.replace(closeTag, '');
+        }
+
+        return result;
     }
 
     ngAfterViewInit() {
