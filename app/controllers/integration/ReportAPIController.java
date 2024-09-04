@@ -61,7 +61,8 @@ public class ReportAPIController extends BaseController {
             .map(participation -> participation.getExam().getParent().getId())
             .collect(Collectors.toSet());
 
-        Map<Long, List<Software>> softwaresByExam = DB.find(Exam.class)
+        Map<Long, List<Software>> softwaresByExam = DB
+            .find(Exam.class)
             .fetch("softwares", "name")
             .where()
             .idIn(parentExamIds)
@@ -72,11 +73,10 @@ public class ReportAPIController extends BaseController {
         /* Set software lists to child exams */
         participations
             .stream()
-            .filter(
-                participation ->
-                    participation.getExam() != null &&
-                    participation.getExam().getParent() != null &&
-                    softwaresByExam.containsKey(participation.getExam().getParent().getId())
+            .filter(participation ->
+                participation.getExam() != null &&
+                participation.getExam().getParent() != null &&
+                softwaresByExam.containsKey(participation.getExam().getParent().getId())
             )
             .forEach(participation -> {
                 Long parentId = participation.getExam().getParent().getId();

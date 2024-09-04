@@ -73,15 +73,13 @@ public class RemoteServerHelper {
         handlers.forEach((k, v) -> v.forEach(s -> sh.addServletWithMapping(k, s)));
         if (setMultipart) {
             String path = Files.createTempDirectory("test_upload").toString();
-            handlers.forEach(
-                (k, v) ->
-                    v.forEach(
-                        s ->
-                            sh
-                                .getServlet(sh.getServletMapping(s).getServletName())
-                                .getRegistration()
-                                .setMultipartConfig(new MultipartConfigElement(path))
-                    )
+            handlers.forEach((k, v) ->
+                v.forEach(s ->
+                    sh
+                        .getServlet(sh.getServletMapping(s).getServletName())
+                        .getRegistration()
+                        .setMultipartConfig(new MultipartConfigElement(path))
+                )
             );
         }
         server.setHandler(sh);

@@ -35,7 +35,8 @@ public class QuestionControllerTest extends IntegrationTestCase {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        Question question = DB.find(Question.class)
+        Question question = DB
+            .find(Question.class)
             .findList()
             .stream()
             .filter(q -> q.getQuestion().contains("Kumpi vai kampi"))
@@ -59,7 +60,8 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assert section != null;
         int sectionQuestionCount = section.getSectionQuestions().size();
 
-        JsonNode draft = Json.newObject()
+        JsonNode draft = Json
+            .newObject()
             .put("type", "EssayQuestion")
             .put("question", "What is love?")
             .put("defaultMaxScore", 2)
@@ -74,7 +76,8 @@ public class QuestionControllerTest extends IntegrationTestCase {
         assertThat(question.getType()).isEqualTo(Question.Type.EssayQuestion);
 
         // Update it
-        JsonNode update = Json.newObject()
+        JsonNode update = Json
+            .newObject()
             .put("type", "EssayQuestion")
             .put("question", "What is love now?")
             .put("defaultMaxScore", 3)
@@ -86,20 +89,20 @@ public class QuestionControllerTest extends IntegrationTestCase {
         question = deserialize(Question.class, node);
 
         // Add to exam
-        result = request(
-            Helpers.POST,
-            String.format("/app/exams/%d/sections/%d/questions/%d", examId, sectionId, question.getId()),
-            Json.newObject().put("sequenceNumber", 0)
-        );
+        result =
+            request(
+                Helpers.POST,
+                String.format("/app/exams/%d/sections/%d/questions/%d", examId, sectionId, question.getId()),
+                Json.newObject().put("sequenceNumber", 0)
+            );
         assertThat(result.status()).isEqualTo(200);
         node = Json.parse(contentAsString(result));
         ExamSection deserialized = deserialize(ExamSection.class, node);
         assertThat(deserialized.getSectionQuestions().size()).isEqualTo(sectionQuestionCount + 1);
 
         // Check that section now has a reference to the original question
-        assertThat(
-            DB.find(ExamSectionQuestion.class).where().eq("question.id", question.getId()).findOne()
-        ).isNotNull();
+        assertThat(DB.find(ExamSectionQuestion.class).where().eq("question.id", question.getId()).findOne())
+            .isNotNull();
     }
 
     @Test
@@ -173,27 +176,32 @@ public class QuestionControllerTest extends IntegrationTestCase {
             .stream()
             .sorted(MultipleChoiceOption::compareTo)
             .collect(Collectors.toList());
-        JsonNode json = Json.newObject()
+        JsonNode json = Json
+            .newObject()
             .put("id", question.getId())
             .put("type", "WeightedMultipleChoiceQuestion")
             .put("question", question.getQuestion())
             .set(
                 "options",
-                Json.newArray()
+                Json
+                    .newArray()
                     .add(
-                        Json.newObject()
+                        Json
+                            .newObject()
                             .put("id", options.get(0).getId())
                             .put("defaultScore", 1.0)
                             .put("option", "Kumpi")
                     )
                     .add(
-                        Json.newObject()
+                        Json
+                            .newObject()
                             .put("id", options.get(1).getId())
                             .put("defaultScore", 1.0)
                             .put("option", "Kampi")
                     )
                     .add(
-                        Json.newObject()
+                        Json
+                            .newObject()
                             .put("id", options.get(2).getId())
                             .put("defaultScore", -1.0)
                             .put("option", "Molemmat")
@@ -217,27 +225,32 @@ public class QuestionControllerTest extends IntegrationTestCase {
             .stream()
             .sorted(MultipleChoiceOption::compareTo)
             .toList();
-        JsonNode json = Json.newObject()
+        JsonNode json = Json
+            .newObject()
             .put("id", question.getId())
             .put("type", "WeightedMultipleChoiceQuestion")
             .put("question", question.getQuestion())
             .set(
                 "options",
-                Json.newArray()
+                Json
+                    .newArray()
                     .add(
-                        Json.newObject()
+                        Json
+                            .newObject()
                             .put("id", options.get(0).getId())
                             .put("defaultScore", 1.0)
                             .put("option", "Kumpi")
                     )
                     .add(
-                        Json.newObject()
+                        Json
+                            .newObject()
                             .put("id", options.get(1).getId())
                             .put("defaultScore", 1.0)
                             .put("option", "Kampi")
                     )
                     .add(
-                        Json.newObject()
+                        Json
+                            .newObject()
                             .put("id", options.get(2).getId())
                             .put("defaultScore", -1.0)
                             .put("option", "Molemmat")
@@ -327,29 +340,26 @@ public class QuestionControllerTest extends IntegrationTestCase {
         boolean hasCorrectAnswer = saved
             .getOptions()
             .stream()
-            .anyMatch(
-                o ->
-                    o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption &&
-                    o.getOption().equals("Oikea") &&
-                    o.getDefaultScore() == 1
+            .anyMatch(o ->
+                o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption &&
+                o.getOption().equals("Oikea") &&
+                o.getDefaultScore() == 1
             );
         boolean hasIncorrectAnswer = saved
             .getOptions()
             .stream()
-            .anyMatch(
-                o ->
-                    o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.IncorrectOption &&
-                    o.getOption().equals("Väärä") &&
-                    o.getDefaultScore() == -1
+            .anyMatch(o ->
+                o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.IncorrectOption &&
+                o.getOption().equals("Väärä") &&
+                o.getDefaultScore() == -1
             );
         boolean hasSkipAnswer = saved
             .getOptions()
             .stream()
-            .anyMatch(
-                o ->
-                    o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.SkipOption &&
-                    o.getOption().equals("EOS") &&
-                    o.getDefaultScore() == 0
+            .anyMatch(o ->
+                o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.SkipOption &&
+                o.getOption().equals("EOS") &&
+                o.getDefaultScore() == 0
             );
         boolean hasRequiredOptions = (hasCorrectAnswer && hasIncorrectAnswer && hasSkipAnswer);
 
@@ -377,11 +387,10 @@ public class QuestionControllerTest extends IntegrationTestCase {
         boolean hasModifiedOption = updated
             .getOptions()
             .stream()
-            .anyMatch(
-                o ->
-                    o.getOption().equals("Oikea, muokattu") &&
-                    o.getDefaultScore() == 2 &&
-                    o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption
+            .anyMatch(o ->
+                o.getOption().equals("Oikea, muokattu") &&
+                o.getDefaultScore() == 2 &&
+                o.getClaimChoiceType() == MultipleChoiceOption.ClaimChoiceOptionType.CorrectOption
             );
 
         assertThat(hasModifiedOption).isTrue();
@@ -436,7 +445,8 @@ public class QuestionControllerTest extends IntegrationTestCase {
     }
 
     JsonNode createClaimChoiceOptionJson(String option, Double score, boolean correct, String type) {
-        return Json.newObject()
+        return Json
+            .newObject()
             .put("option", option)
             .put("defaultScore", score)
             .put("correctOption", correct)
@@ -444,7 +454,8 @@ public class QuestionControllerTest extends IntegrationTestCase {
     }
 
     JsonNode createClaimChoiceQuestionJson(String question, ArrayNode options) {
-        JsonNode draft = Json.newObject()
+        JsonNode draft = Json
+            .newObject()
             .put("type", "ClaimChoiceQuestion")
             .put("question", question)
             .set("options", options);
