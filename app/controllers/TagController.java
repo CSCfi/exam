@@ -75,7 +75,8 @@ public class TagController extends BaseController {
     @Restrict({ @Group("ADMIN"), @Group("TEACHER") })
     public Result addTagToQuestions(Http.Request request) {
         JsonNode body = request.body().asJson();
-        List<Long> questionIds = StreamSupport.stream(body.get("questionIds").spliterator(), false)
+        List<Long> questionIds = StreamSupport
+            .stream(body.get("questionIds").spliterator(), false)
             .map(JsonNode::asLong)
             .toList();
         Long tagId = body.get("tagId").asLong();

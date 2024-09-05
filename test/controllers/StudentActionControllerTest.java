@@ -51,7 +51,8 @@ public class StudentActionControllerTest extends IntegrationTestCase {
         assertThat(node instanceof ArrayNode).isTrue();
         ArrayNode nodes = (ArrayNode) node;
         assertThat(nodes.size()).isEqualTo(2);
-        JsonNode external = StreamSupport.stream(nodes.spliterator(), false)
+        JsonNode external = StreamSupport
+            .stream(nodes.spliterator(), false)
             .filter(n -> n.path("exam").path("id").asLong() == 2L)
             .findFirst()
             .orElseGet(null);

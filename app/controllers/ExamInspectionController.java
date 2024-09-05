@@ -92,10 +92,9 @@ public class ExamInspectionController extends BaseController {
         exam
             .getChildren()
             .stream()
-            .filter(
-                c ->
-                    c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED) &&
-                    !isInspectorOf(recipient, c)
+            .filter(c ->
+                c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED) &&
+                !isInspectorOf(recipient, c)
             )
             .forEach(c -> {
                 ExamInspection i = new ExamInspection();
@@ -114,7 +113,8 @@ public class ExamInspectionController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result getExamInspections(Long id) {
-        Set<ExamInspection> inspections = DB.find(ExamInspection.class)
+        Set<ExamInspection> inspections = DB
+            .find(ExamInspection.class)
             .fetch("user", "id, email, firstName, lastName")
             .where()
             .eq("exam.id", id)
@@ -148,8 +148,8 @@ public class ExamInspectionController extends BaseController {
             .getChildren()
             .stream()
             .filter(c -> c.hasState(Exam.State.REVIEW, Exam.State.STUDENT_STARTED, Exam.State.REVIEW_STARTED))
-            .forEach(
-                c -> c.getExamInspections().stream().filter(ei -> ei.getUser().equals(inspector)).forEach(Model::delete)
+            .forEach(c ->
+                c.getExamInspections().stream().filter(ei -> ei.getUser().equals(inspector)).forEach(Model::delete)
             );
         inspection.delete();
         return ok();

@@ -44,24 +44,28 @@ public class AutoEvaluationNotifierActor extends AbstractActor {
     @Override
     public Receive createReceive() {
         return receiveBuilder()
-            .match(String.class, s -> {
-                logger.debug("Auto evaluation notification check started ->");
-                DB.find(Exam.class)
-                    .fetch("autoEvaluationConfig")
-                    .where()
-                    .eq("state", Exam.State.GRADED)
-                    .isNotNull("gradedTime")
-                    .isNotNull("autoEvaluationConfig")
-                    .isNotNull("grade")
-                    .isNotNull("creditType")
-                    .isNotNull("answerLanguage")
-                    .isNull("autoEvaluationNotified")
-                    .findList()
-                    .stream()
-                    .filter(this::isPastReleaseDate)
-                    .forEach(this::notifyStudent);
-                logger.debug("<- done");
-            })
+            .match(
+                String.class,
+                s -> {
+                    logger.debug("Auto evaluation notification check started ->");
+                    DB
+                        .find(Exam.class)
+                        .fetch("autoEvaluationConfig")
+                        .where()
+                        .eq("state", Exam.State.GRADED)
+                        .isNotNull("gradedTime")
+                        .isNotNull("autoEvaluationConfig")
+                        .isNotNull("grade")
+                        .isNotNull("creditType")
+                        .isNotNull("answerLanguage")
+                        .isNull("autoEvaluationNotified")
+                        .findList()
+                        .stream()
+                        .filter(this::isPastReleaseDate)
+                        .forEach(this::notifyStudent);
+                    logger.debug("<- done");
+                }
+            )
             .build();
     }
 
