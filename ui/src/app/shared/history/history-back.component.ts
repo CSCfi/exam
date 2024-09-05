@@ -19,7 +19,11 @@ import { Component } from '@angular/core';
     selector: 'xm-history-back',
     template: `
         <button class="btn btn-link" (click)="goBack($event)" (keydown)="onKeyDown($event)">
-            <img class="pointer arrow_icon" src="/assets/images/icon_history.png" alt="go back" />
+            <img
+                class="pointer arrow_icon h-100 align-self-center"
+                src="/assets/images/icon_history.png"
+                alt="go back"
+            />
         </button>
     `,
     standalone: true,

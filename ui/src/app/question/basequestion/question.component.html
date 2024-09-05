@@ -5,7 +5,12 @@
 }
 <xm-page-content [content]="content" />
 <ng-template #linkBack>
-    <img (click)="cancel()" class="pointer arrow_icon pe-3" src="/assets/images/icon_history.png" alt="go back" />
+    <img
+        (click)="cancel()"
+        class="pointer arrow_icon pe-3 h-100 align-self-center"
+        src="/assets/images/icon_history.png"
+        alt="go back"
+    />
 </ng-template>
 <ng-template #content>
     <div class="row">
