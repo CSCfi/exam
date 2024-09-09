@@ -60,9 +60,9 @@ public class FacilityController extends BaseController implements ExternalFacili
     }
 
     private URL parseExternalUrl(String orgRef) throws MalformedURLException {
-        return URI.create(
-            configReader.getIopHost() + String.format("/api/organisations/%s/facilities", orgRef)
-        ).toURL();
+        return URI
+            .create(configReader.getIopHost() + String.format("/api/organisations/%s/facilities", orgRef))
+            .toURL();
     }
 
     private String toJson(ExamRoom room) {

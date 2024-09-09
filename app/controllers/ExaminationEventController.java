@@ -105,7 +105,8 @@ public class ExaminationEventController extends BaseController {
     }
 
     private boolean isWithinMaintenancePeriod(Interval interval) {
-        return DB.find(MaintenancePeriod.class)
+        return DB
+            .find(MaintenancePeriod.class)
             .findSet()
             .stream()
             .map(p -> new Interval(p.getStartsAt(), p.getEndsAt()))
@@ -166,7 +167,8 @@ public class ExaminationEventController extends BaseController {
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result updateExaminationEvent(Long eid, Long eecid, Http.Request request) {
         Exam exam = DB.find(Exam.class, eid);
-        Optional<ExaminationEventConfiguration> oeec = DB.find(ExaminationEventConfiguration.class)
+        Optional<ExaminationEventConfiguration> oeec = DB
+            .find(ExaminationEventConfiguration.class)
             .where()
             .idEq(eecid)
             .eq("exam.id", eid)
@@ -232,7 +234,8 @@ public class ExaminationEventController extends BaseController {
 
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     public Result removeExaminationEvent(Long eid, Long eeid) {
-        Optional<ExaminationEventConfiguration> oeec = DB.find(ExaminationEventConfiguration.class)
+        Optional<ExaminationEventConfiguration> oeec = DB
+            .find(ExaminationEventConfiguration.class)
             .where()
             .idEq(eeid)
             .eq("exam.id", eid)
@@ -247,7 +250,8 @@ public class ExaminationEventController extends BaseController {
         }
         eec.delete();
         // Check if we can delete the event altogether (in case no configs are using it)
-        Set<ExaminationEventConfiguration> configs = DB.find(ExaminationEventConfiguration.class)
+        Set<ExaminationEventConfiguration> configs = DB
+            .find(ExaminationEventConfiguration.class)
             .where()
             .eq("examinationEvent", eec.getExaminationEvent())
             .findSet();
@@ -303,7 +307,8 @@ public class ExaminationEventController extends BaseController {
         PathProperties pp = PathProperties.parse(
             "(*, exam(*, course(*), examOwners(*)), examinationEvent(*), examEnrolments(*))"
         );
-        ExpressionList<ExaminationEventConfiguration> query = DB.find(ExaminationEventConfiguration.class)
+        ExpressionList<ExaminationEventConfiguration> query = DB
+            .find(ExaminationEventConfiguration.class)
             .apply(pp)
             .where();
         if (start.isPresent()) {
@@ -323,7 +328,8 @@ public class ExaminationEventController extends BaseController {
         PathProperties pp = PathProperties.parse("(*, examinationEventConfiguration(exam(id, duration)))");
         DateTime startDate = DateTime.parse(start, ISODateTimeFormat.dateTimeParser());
         DateTime endDate = startDate.plusMinutes(duration);
-        Set<ExaminationEvent> events = DB.find(ExaminationEvent.class)
+        Set<ExaminationEvent> events = DB
+            .find(ExaminationEvent.class)
             .where()
             .le("start", endDate)
             .findSet()
