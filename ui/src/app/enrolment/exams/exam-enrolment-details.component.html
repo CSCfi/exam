@@ -4,7 +4,7 @@
 <ng-template #content>
     <div class="row m-2 xm-study-item-container">
         <div class="col-md-9 col-6">
-            <h3>{{ exam.name }}</h3>
+            <h2>{{ exam.name }}</h2>
             <div class="student-details-subtitle">
                 @if (!exam.reservationMade && exam.alreadyEnrolled && !exam.noTrialsLeft) {
                     <span class="text-danger">
