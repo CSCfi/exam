@@ -215,7 +215,8 @@ public class ReportController extends BaseController {
 
     @Restrict({ @Group("ADMIN") })
     public Result getPublishedExams(Optional<String> dept, Optional<String> start, Optional<String> end) {
-        ExpressionList<Exam> query = DB.find(Exam.class)
+        ExpressionList<Exam> query = DB
+            .find(Exam.class)
             .fetch("course", "code")
             .where()
             .isNull("parent")
@@ -240,14 +241,15 @@ public class ReportController extends BaseController {
     @Restrict({ @Group("ADMIN") })
     public Result getReservations(Optional<String> dept, Optional<String> start, Optional<String> end) {
         ExpressionList<ExamEnrolment> query = DB.find(ExamEnrolment.class).where();
-        query = applyFilters(
-            query,
-            "enrolment.exam.course",
-            "startAt",
-            dept.orElse(null),
-            start.orElse(null),
-            end.orElse(null)
-        );
+        query =
+            applyFilters(
+                query,
+                "enrolment.exam.course",
+                "startAt",
+                dept.orElse(null),
+                start.orElse(null),
+                end.orElse(null)
+            );
         Set<ExamEnrolment> enrolments = query.findSet();
         long noShows = enrolments.stream().filter(ExamEnrolment::isNoShow).count();
         long appearances = enrolments.size() - noShows;
@@ -283,7 +285,8 @@ public class ReportController extends BaseController {
                 )
             )
             .count();
-        JsonNode node = Json.newObject()
+        JsonNode node = Json
+            .newObject()
             .put("aborted", aborted)
             .put("assessed", assessed)
             .put("unAssessed", unAssessed);

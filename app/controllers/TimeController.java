@@ -45,7 +45,8 @@ public class TimeController extends BaseController {
     @Restrict({ @Group("STUDENT") })
     public Result getRemainingExamTime(String hash, Http.Request request) throws IOException {
         User user = request.attrs().get(Attrs.AUTHENTICATED_USER);
-        ExamEnrolment enrolment = DB.find(ExamEnrolment.class)
+        ExamEnrolment enrolment = DB
+            .find(ExamEnrolment.class)
             .fetch("externalExam")
             .where()
             .disjunction()
