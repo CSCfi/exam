@@ -437,8 +437,8 @@ public class ReviewController extends BaseController {
     @Authenticated
     @Restrict({ @Group("TEACHER"), @Group("ADMIN") })
     @Anonymous(filteredProperties = { "user" })
-    public Result listNoShows(Long eid, Http.Request request) {
-        List<ExamEnrolment> enrolments = DB
+    public Result listNoShows(Long eid, Optional<Boolean> collaborative, Http.Request request) {
+        ExpressionList<ExamEnrolment> el = DB
             .find(ExamEnrolment.class)
             .fetch("exam", "id, name, state, gradedTime, customCredit, trialCount, anonymous")
             .fetch("collaborativeExam")
@@ -449,14 +449,11 @@ public class ReviewController extends BaseController {
             .fetch("exam.course", "code, credits")
             .fetch("exam.grade", "id, name")
             .where()
-            .or()
-            .eq("exam.id", eid)
-            .eq("exam.parent.id", eid)
-            .eq("collaborativeExam.id", eid)
-            .endOr()
-            .eq("noShow", true)
-            .orderBy("reservation.endAt")
-            .findList();
+            .eq("noShow", true);
+        var query = collaborative.orElse(false)
+            ? el.eq("collaborativeExam.id", eid)
+            : el.or().eq("exam.id", eid).eq("exam.parent.id", eid).endOr();
+        var enrolments = query.findList();
         final Result result = ok(enrolments);
         Set<Long> anonIds = enrolments
             .stream()

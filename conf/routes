@@ -145,7 +145,7 @@ PUT           /app/review/examquestion/:id/score                       controlle
 PUT           /app/review/examquestion/:id/score/force                 controllers.ReviewController.forceScoreExamQuestion(id: Long, request: Request)
 PUT           /app/review/:eid/comment                                 controllers.ReviewController.updateComment(eid: Long, request: Request)
 PUT           /app/review/:eid/comment/:cid/feedbackstatus             controllers.ReviewController.setCommentStatusRead(eid: Long, cid: Long, request: Request)
-GET           /app/noshows/:eid                                        controllers.ReviewController.listNoShows(eid: Long, request: Request)
+GET           /app/noshows/:eid                                        controllers.ReviewController.listNoShows(eid: Long, collaborative: java.util.Optional[java.lang.Boolean], request: Request)
 PUT           /app/reviews/archive                                     controllers.ReviewController.archiveExams(request: Request)
 GET           /app/review/:eid                                         controllers.ReviewController.getExamReview(eid: Long, request: Request)
 GET           /app/review/:id/locked                                   controllers.ReviewController.hasLockedAssessments(id: Long)
