@@ -27,6 +27,7 @@ import { QuestionService } from 'src/app/question/question.service';
 import type { User } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { QuestionBodyComponent } from './question-body.component';
 
 @Component({
@@ -34,7 +35,14 @@ import { QuestionBodyComponent } from './question-body.component';
     templateUrl: './question.component.html',
     styleUrls: ['../question.shared.scss'],
     standalone: true,
-    imports: [FormsModule, QuestionBodyComponent, TranslateModule, PageHeaderComponent, PageContentComponent],
+    imports: [
+        FormsModule,
+        QuestionBodyComponent,
+        TranslateModule,
+        PageHeaderComponent,
+        PageContentComponent,
+        HistoryBackComponent,
+    ],
 })
 export class QuestionComponent implements OnInit, OnDestroy, CanComponentDeactivate {
     @Input() newQuestion = false;

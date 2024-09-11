@@ -1,13 +1,11 @@
 <xm-page-header [text]="examInfo.title || 'loading'" [prependTemplate]="linkBack" [appendTemplate]="status" />
 <xm-page-content [content]="content" />
 <ng-template #linkBack>
-    <a [routerLink]="[user.isAdmin ? '/staff/admin' : '/staff/teacher']">
-        <img class="pointer arrow_icon pe-4" src="/assets/images/icon_history.png" alt="go back" />
-    </a>
+    <xm-history-back></xm-history-back>
 </ng-template>
 <ng-template #status>
     @if (exam?.state) {
-        <span class="exam-status float-end me-3">{{ 'i18n_' + exam.state | lowercase | translate }} </span>
+        <span class="exam-status float-end pe-3">{{ 'i18n_' + exam.state | lowercase | translate }} </span>
     }
 </ng-template>
 <ng-template #content>
