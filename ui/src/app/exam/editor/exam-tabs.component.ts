@@ -25,6 +25,7 @@ import type { User } from 'src/app/session/session.service';
 import { SessionService } from 'src/app/session/session.service';
 import { PageContentComponent } from 'src/app/shared/components/page-content.component';
 import { PageHeaderComponent } from 'src/app/shared/components/page-header.component';
+import { HistoryBackComponent } from 'src/app/shared/history/history-back.component';
 import { CourseCodeService } from 'src/app/shared/miscellaneous/course-code.service';
 import type { UpdateProps } from './exam-tabs.service';
 import { ExamTabService } from './exam-tabs.service';
@@ -44,6 +45,7 @@ import { ExamTabService } from './exam-tabs.service';
         TranslateModule,
         PageHeaderComponent,
         PageContentComponent,
+        HistoryBackComponent,
     ],
     styleUrl: './exam-tabs.component.scss',
 })
