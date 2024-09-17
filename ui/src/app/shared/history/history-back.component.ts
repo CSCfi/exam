@@ -14,15 +14,22 @@
  *
  */
 import { Component } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'xm-history-back',
     template: `
-        <button class="btn btn-link" (click)="goBack($event)" (keydown)="onKeyDown($event)">
-            <img class="pointer arrow_icon" src="/assets/images/icon_history.png" alt="go back" />
+        <button
+            class="btn btn-link"
+            (click)="goBack($event)"
+            (keydown)="onKeyDown($event)"
+            [attr.aria-label]="'i18n_go_back' | translate"
+        >
+            <img class="pointer arrow_icon h-80 align-self-center" src="/assets/images/icon_history.png" alt="" />
         </button>
     `,
     standalone: true,
+    imports: [TranslateModule],
 })
 export class HistoryBackComponent {
     goBack = (event: Event) => {

@@ -92,13 +92,7 @@ export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
     }
 
     parseAriaLabel(expanded: string): string {
-        return (
-            this.translate?.instant(expanded) +
-            ' ' +
-            this.translate?.instant('i18n_question') +
-            ' ' +
-            this.questionTitle
-        );
+        return `${this.translate.instant(expanded)} ${this.translate.instant('i18n_question')} ${this.questionTitle}`;
     }
 
     ngAfterViewInit() {
