@@ -19,13 +19,7 @@
                     <button
                         tabindex="0"
                         class="pointer section-box-title arrow border-none background-none"
-                        [attr.aria-label]="
-                            (expanded ? ('i18n_collapse' | translate) : ('i18n_expand' | translate)) +
-                            ' ' +
-                            ('i18n_question' | translate) +
-                            ' ' +
-                            questionTitle
-                        "
+                        [attr.aria-label]="parseAriaLabel(expanded ? 'i18n_collapse' : 'i18n_expand')"
                         [attr.aria-expanded]="expanded"
                         (click)="expanded = !expanded"
                         (keydown.enter)="expanded = !expanded"

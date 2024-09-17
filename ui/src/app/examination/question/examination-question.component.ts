@@ -15,7 +15,7 @@
 import { NgClass, SlicePipe, UpperCasePipe } from '@angular/common';
 import type { AfterViewInit } from '@angular/core';
 import { ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { EssayAnswer } from 'src/app/exam/exam.model';
 import type { Examination, ExaminationQuestion } from 'src/app/examination/examination.model';
 import { ExaminationService } from 'src/app/examination/examination.service';
@@ -62,6 +62,7 @@ export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
         private cdr: ChangeDetectorRef,
         private Examination: ExaminationService,
         private Attachment: AttachmentService,
+        private translate: TranslateService,
     ) {}
 
     ngOnInit() {
@@ -88,6 +89,16 @@ export class ExaminationQuestionComponent implements OnInit, AfterViewInit {
         }
 
         return result;
+    }
+
+    parseAriaLabel(expanded: string): string {
+        return (
+            this.translate?.instant(expanded) +
+            ' ' +
+            this.translate?.instant('i18n_question') +
+            ' ' +
+            this.questionTitle
+        );
     }
 
     ngAfterViewInit() {
